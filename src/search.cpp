@@ -340,11 +340,9 @@ ael ( const int SIDE, int depth
 #endif
     //********* null move ***********
 #ifdef NULL_MODE
-    if ( !path_pvv && null_ok ( depth, SIDE )
-	 && !attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) ) ) {
+    if ( !path_pvv && null_ok ( depth, SIDE ) && !attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) ) ) {
       null_sem = 1;
-      int null_score = -ael ( SIDE ^ 1, depth - R_adpt ( SIDE, depth ) - 1, -beta,
-			      -beta + 1, &line );
+      int null_score = -ael ( SIDE ^ 1, depth - R_adpt ( SIDE, depth ) - 1, -beta, -beta + 1, &line );
       null_sem = 0;
       if ( !run ) {
 	gen_list[list_id--][0].score = 0;

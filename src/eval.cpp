@@ -312,7 +312,7 @@ evaluate_king ( const int side, const u64 enemy_queen, const u64 PAWNS_friends, 
       result -= XQUEEN_NEAR_KING;
   }
 
-  if ( !( KING_MASK[pos_king] & PAWNS_friends ) )
+  if ( !( NEAR_MASK[pos_king] & PAWNS_friends ) )
     result -= PAWN_NEAR_KING;
   result += evalNode.king_security[side];
   result += evalNode.king_attak[side] / 2;
@@ -327,39 +327,27 @@ evaluate_king ( const int side, const u64 enemy_queen, const u64 PAWNS_friends, 
 };
 
 int
-evaluate_rook ( const int type, const u64 ped_friends, const u64 ped_enemies, const int pos_enemy_king, const u64 all_pieces, const int pos_friend_king ) {
-  //mobile su piu di 11 case
-  //2 torri collegate
-  //colonna aperta
-  //colonna semi aperta
-  //distanza re nemico
-  // 2/7 traversa
-
-  //difesa un pawn passato
+evaluate_rook ( const int side, const u64 ped_friends, const u64 ped_enemies, const u64 all_pieces ) {
   int mob, o, result = 0;
-  u64 x = chessboard[ROOK_BLACK + type];
-  if ( !x )
-    return 0;
+  u64 x = chessboard[ROOK_BLACK + side];
   int from = -1;
   int to = -1;
+  if ( !END_OPEN ) {
+    if ( side )
+      result += ROOK_7TH_RANK * BitCount ( x & ORIZZONTAL_0_8 );
+    else
+      result += ROOK_7TH_RANK * BitCount ( x & ORIZZONTAL_48_56 );
+  };
   while ( x ) {
-    if ( END_OPEN ) {
-      if ( type && x & ORIZZONTAL_8 )
-	result += ROOK_7TH_RANK;
-      if ( !type && x & ORIZZONTAL_48 )
-	result += ROOK_7TH_RANK;
-    }
     o = BITScanForward ( x );
-    ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
-    evalNode.king_security[type] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_friend_king][o] ) );	/// ( VALUEROOK / ( BitCount ( calcola_attaccanti ( o, type ^ 1 ) ) + 1 ) ) );
-    /////////////////////////
+    //evalNode.king_security[side] += KING_PROXIMITY * ((8 - DISTANCE[pos_friend_king][o]));
     if ( from == -1 )
       from = o;
     else
       to = o;
     mob = BitCount ( evalNode.attacked[o] );
     if ( evalNode.king_attacked[o] )
-      result += ( ROOK_ATTACK );
+      result += KING_ATTACKED;
 
     if ( !mob )
       result -= ROOK_TRAPPED;
@@ -372,8 +360,8 @@ evaluate_rook ( const int type, const u64 ped_friends, const u64 ped_enemies, co
       result += OPEN_FILE;
     if ( !( ped_enemies & VERTICAL[o] ) )
       result += OPEN_FILE;
-    if ( END_OPEN )
-      result -= DIST_XKING * ( DISTANCE[o][pos_enemy_king] );
+    //if (END_OPEN)
+    //      result -= DIST_XKING * (DISTANCE[o][pos_enemy_king]);
 
     /* Penalise if Rook is Blocked Horizontally */
     if ( ( ORIZZ_BOUND[o] & all_pieces ) != ORIZZ_BOUND[o] ) {
@@ -497,8 +485,8 @@ eval ( const int SIDE
   if ( chessboard[KING_WHITE] == TABLOG_3 && ( ALLPIECES & 0x1C1C ) == 0x1C1C && attack_square ( WHITE, F2 ) )
     attack_f2 = ( ATTACK_F7_F2 );
 
-  u64 near_black_king = KING_MASK[pos_black_king];
-  u64 near_white_king = KING_MASK[pos_white_king];
+  u64 near_black_king = NEAR_MASK[pos_black_king];
+  u64 near_white_king = NEAR_MASK[pos_white_king];
   u64 all_pieces_black = square_bit_occupied ( BLACK );
   u64 all_pieces_white = square_bit_occupied ( WHITE );
   u64 ped_black = chessboard[BLACK];
@@ -531,8 +519,9 @@ eval ( const int SIDE
   r_black = evaluate_queen ( BLACK, black_queen, pos_white_king, ped_white, all_pieces_white, ALLPIECES, pos_black_king );
   r_white = evaluate_queen ( WHITE, white_queen, pos_black_king, ped_black, all_pieces_black, ALLPIECES, pos_white_king );
 
-  t_black = evaluate_rook ( BLACK, ped_black, ped_white, pos_white_king, ALLPIECES, pos_black_king );
-  t_white = evaluate_rook ( WHITE, ped_white, ped_black, pos_black_king, ALLPIECES, pos_white_king );
+  t_black = evaluate_rook ( BLACK, ped_black, ped_white, ALLPIECES );
+  t_white = evaluate_rook ( WHITE, ped_white, ped_black, ALLPIECES );
+
 
   c_black = evaluate_knight ( BLACK, pos_black_king, pos_white_king, all_pieces_white, ped_white );
   c_white = evaluate_knight ( WHITE, pos_white_king, pos_black_king, all_pieces_black, ped_black );

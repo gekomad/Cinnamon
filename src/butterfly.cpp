@@ -304,7 +304,6 @@ do_move ( int side ) {
 #endif
 
     line.cmove = 0;
-
     val = ael ( side, mply, alpha, beta, &line );
 
     run = still_time (  );

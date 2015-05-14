@@ -267,7 +267,7 @@ performKing_Shift_Capture ( const int tipomove, const int pezzo, const u64 piece
 #ifdef DEBUG_MODE
   assert ( pos != -1 );
 #endif
-  x1 = pieces & KING_MASK[pos];
+  x1 = pieces & NEAR_MASK[pos];
   while ( x1 ) {
     o = BITScanForward ( x1 );
     if ( pushmove ( tipomove, pos, o, SIDE ) )

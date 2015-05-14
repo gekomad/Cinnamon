@@ -112,6 +112,7 @@ typedef unsigned char uchar;
 #define DOUBLED_ISOLATED_PAWNS 10
 #define BACKWARD_PAWN 2
 #define BACKWARD_OPEN_PAWN 3
+#define KING_ATTACKED 40
 
 #define END_OPEN (n_pieces (0)<5 || n_pieces (1)<5 )
 
@@ -182,8 +183,8 @@ const int PIECES_VALUE[13] = {
 #define n_pieces(x) (BitCount(get_pieces(x)))
 
 #define in_check()(attack_square(BLACK,BITScanForward (chessboard[KING_BLACK ])) ? 1:(attack_square(WHITE,BITScanForward (chessboard[KING_WHITE])) ? 1:0))
-#define R_adpt(tipo,depth) (2+((depth) > (3+((n_pieces(tipo)<3)?2:0))))
-#define null_ok(depth,side)((null_sem) ? 0:(depth < 3 ?0:(n_pieces(side) < 4 ? 0:1)))
+#define R_adpt(tipo,depth) (2+(depth > (3+((n_pieces(tipo)<3)?2:0))))
+#define null_ok(depth,side)(null_sem ? 0:(depth < 3 ?0:(n_pieces(side) < 4 ? 0:1)))
 
 #define square_all_bit_occupied() (chessboard[PAWN_BLACK]|chessboard[ROOK_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]|chessboard[PAWN_WHITE]|chessboard[ROOK_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE])
 

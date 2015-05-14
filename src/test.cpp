@@ -66,7 +66,7 @@ test_epd ( char *testfile ) {
   }
   myassert ( stream, "test error file not found" );
   while ( fgets ( line, sizeof ( line ), stream ) != NULL ) {
-    //strcpy (line,"r3kr2/pppb1p2/2n3p1/3Bp2p/4P2N/2P5/PP3PPP/2KR3R b q - bm O-O-O; ");
+    //strcpy (line,"r2qkb1r/pp3ppp/2bppn2/8/2PQP3/2N2N2/PP3PPP/R1B1K2R w KQkq - bm O-O; id sbd.093");
     printf ( "\n%s", line );
     side = loadfen ( line );
     count++;
@@ -93,8 +93,8 @@ test_epd ( char *testfile ) {
 
 void
 test (  ) {
-  //MAX_TIME_MILLSEC = 12000;
-  //MAX_DEPTH_TO_SEARCH = 6;
+  MAX_TIME_MILLSEC = 120000;
+  MAX_DEPTH_TO_SEARCH = 67;
   test_epd ( "wac.epd" );
   test_epd ( "sbd.epd" );
   test_epd ( "kaufman.epd" );

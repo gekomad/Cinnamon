@@ -317,7 +317,7 @@ attack_square ( const int side, const int Position ) {
   xside = side ^ 1;
   if ( KNIGHT_MASK[Position] & chessboard[KNIGHT_BLACK + xside] )
     return 1;
-  if ( KING_MASK[Position] & chessboard[KING_BLACK + xside] )
+  if ( NEAR_MASK[Position] & chessboard[KING_BLACK + xside] )
     return 1;
   //enpassant
   if ( PAWN_CAPTURE_MASK[side][Position] & chessboard[PAWN_BLACK + xside] )
@@ -1035,9 +1035,13 @@ pop_fen (  ) {
 int
 extract_test_result ( char *ris1 ) {
   int i, result = 1;
+  char *x;
   char dummy[3];
   if ( ris1[strlen ( ris1 ) - 1] == ';' ) {
     result = 0;
+    ris1[strlen ( ris1 ) - 1] = 0;
+  }
+  if ( ris1[strlen ( ris1 ) - 1] == '+' ) {
     ris1[strlen ( ris1 ) - 1] = 0;
   }
   if ( ris1[strlen ( ris1 ) - 1] == '#' ) {
@@ -1080,8 +1084,10 @@ extract_test_result ( char *ris1 ) {
       else
 	strncpy ( dummy, ris1, 2 );
     }
+    else if ( x = strstr ( ris1, "x" ) )
+      strncpy ( dummy, x + 1, 2 );
     else
-      strncpy ( dummy, ris1 + 2, 2 );
+      strncpy ( dummy, ris1 + 3, 2 );
     break;
   case 6:
     strncpy ( dummy, ris1 + 3, 2 );
@@ -1094,6 +1100,7 @@ extract_test_result ( char *ris1 ) {
     printf ( "\nPARSE ERROR" );
   strcat ( test_ris, dummy );
   strcat ( test_ris, " " );
+
   return result;
 }
 
@@ -1115,6 +1122,20 @@ get_test_result ( char *ss ) {
     ris1 += ris2 - ris1 + 1;
   }
   while ( extract_test_result ( dummy ) );
+  ris1 = dummy;
+  strcpy ( dummy, test_ris );
+  do {
+    ris2 = strstr ( dummy, " " );
+    if ( ris2 ) {
+      strncpy ( dummy, ris1, ris2 - ris1 );
+      dummy[ris2 - ris1] = 0;
+      ris1 += ris2 - ris1 + 1;
+    }
+    if ( decodeBoard ( dummy ) == -1 )
+      myassert ( 0, "PARSE ERROR" );
+  }
+  while ( ris2 );
+
 }
 #endif
 
