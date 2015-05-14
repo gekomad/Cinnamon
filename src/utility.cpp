@@ -29,7 +29,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "zobrist.h"
 #include "search.h"
 
+int
+compare_int ( const void *a, const void *b ) {
+  int *arg1 = ( int * ) a;
+  int *arg2 = ( int * ) b;
+  if ( *arg1 < *arg2 )
+    return -1;
+  else if ( *arg1 == *arg2 )
+    return 0;
+  else
+    return 1;
+}
 
+int
+compare_move ( const void *a, const void *b ) {
+  Tmove *arg1 = ( Tmove * ) a;
+  Tmove *arg2 = ( Tmove * ) b;
+  if ( arg1->score < arg2->score )
+    return -1;
+  else if ( arg1->score == arg2->score )
+    return 0;
+  else
+    return 1;
+}
 
 int
 is_locked ( int pos, int pezzo, int side ) {
@@ -213,7 +235,8 @@ trim ( char *str ) {
     if ( !isspace ( *s ) )
       last = dst;
     *dst++ = *s++;
-  } while ( *s );
+  }
+  while ( *s );
 
   *( last + 1 ) = '\0';
 
@@ -381,8 +404,7 @@ attack_square ( const int side, const int Position ) {
   ALLPIECES = case_all_bit_occupate (  ) | TABLOG[Position];
   Position_mod_8 = ROT45[Position];
   Position_Position_mod_8 = pos_posMod8[Position];
-  if ( MOVIMENTO_MASK_CAT[( uchar ) ( ( shr ( ALLPIECES, Position_Position_mod_8 ) ) )]
-       [Position_mod_8] & ( shr ( chessboard[TOWER_BLACK + xside], Position_Position_mod_8 ) & 255 | shr ( chessboard[QUEEN_BLACK + xside], Position_Position_mod_8 ) & 255 ) ) {
+  if ( MOVIMENTO_MASK_CAT[( uchar ) ( ( shr ( ALLPIECES, Position_Position_mod_8 ) ) )][Position_mod_8] & ( shr ( chessboard[TOWER_BLACK + xside], Position_Position_mod_8 ) & 255 | shr ( chessboard[QUEEN_BLACK + xside], Position_Position_mod_8 ) & 255 ) ) {
     //   print();
     return 1;
   }
@@ -390,8 +412,7 @@ attack_square ( const int side, const int Position ) {
 
 #ifdef DEBUG_MODE
   assert ( rotate_board_left_45 ( ALLPIECES, Position ) != 0 );
-  if ( ( ( uchar )
-	 ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) ) != rotate_board_left_45 ( ALLPIECES, Position ) ) {
+  if ( ( ( uchar ) ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) ) != rotate_board_left_45 ( ALLPIECES, Position ) ) {
 
 
     assert ( 0 );
@@ -400,8 +421,7 @@ attack_square ( const int side, const int Position ) {
   assert ( rotate_board_left_45 ( ALLPIECES, Position ) == ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) );
 #endif
   if ( MOVIMENTO_MASK_CAT[rotate_board_left_45 ( ALLPIECES, Position )][Position_mod_8] & ( rotate_board_left_45 ( chessboard[BISHOP_BLACK + ( xside )],	//TODO ridurre
-														   Position )
-											    | rotate_board_left_45 ( chessboard[QUEEN_BLACK + xside], Position ) ) )
+														   Position ) | rotate_board_left_45 ( chessboard[QUEEN_BLACK + xside], Position ) ) )
     return 1;
 
   /*right \ */
@@ -411,12 +431,10 @@ attack_square ( const int side, const int Position ) {
   assert ( rotate_board_right_45 ( ALLPIECES, Position ) == ( uchar ) ( rotate_board_right_45 ( ALLPIECES, Position ) & MOVES_BISHOP_RIGHT_MASK[Position] ) );
 #endif
   if ( MOVIMENTO_MASK_CAT[rotate_board_right_45 ( ALLPIECES, Position ) | TABLOG[Position_mod_8]][Position_mod_8] & ( rotate_board_right_45 ( chessboard[BISHOP_BLACK + ( xside )],	//TODO ridurre
-																	      Position )
-														      | rotate_board_right_45 ( chessboard[QUEEN_BLACK + ( xside )], Position ) ) )
+																	      Position ) | rotate_board_right_45 ( chessboard[QUEEN_BLACK + ( xside )], Position ) ) )
     return 1;
 
-  if ( MOVIMENTO_MASK_CAT[rotate_board_90 ( ALLPIECES, Position )]
-       [ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[TOWER_BLACK + xside], Position ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside], Position ) ) ) )
+  if ( MOVIMENTO_MASK_CAT[rotate_board_90 ( ALLPIECES, Position )][ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[TOWER_BLACK + xside], Position ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside], Position ) ) ) )
     return 1;
   return 0;
 }
@@ -1005,8 +1023,8 @@ debug ( char *msg ) {
 
 void
 print (  ) {
-  if ( xboard )
-    return;
+  //if ( xboard )
+  //return;
   int t;
   char x;
   char FEN[1000];
@@ -1162,25 +1180,20 @@ loadfen ( char *ss ) {
       case 'N':
 	s[i++] = 7;
 	break;
-      case '/':
-	;
+      case '/':;
 	break;
-      case ' ':
-	;
+      case ' ':;
 	break;
-      case '-':
-	;
+      case '-':;
 	break;
-      case 'w':
-	;
+      case 'w':;
 	break;
-      case 10:
-	;
+      case 10:;
 	break;
-      case 13:
-	;
+      case 13:;
 	break;
-      default:{
+      default:
+      {
 	if ( ch > 47 && ch < 58 ) {
 	  a[0] = ch;
 	  a[1] = 0;
@@ -1196,7 +1209,8 @@ loadfen ( char *ss ) {
 
       }
       ii++;
-    } while ( i < 64 );
+    }
+    while ( i < 64 );
   for ( i = 0; i <= 63; i++ ) {
     p = s[63 - i];
     if ( p != SQUARE_FREE )
@@ -1499,8 +1513,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
     attaccanti2 = attaccanti;
     while ( attaccanti ) {
       o = BitScanForward ( attaccanti );
-      if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column )
-	   && TABLOG[o] & column ) {
+      if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column ) && TABLOG[o] & column ) {
 	if ( *from != -1 ) {
 	  try_locked = 1;
 	  *from = -1;
@@ -1514,8 +1527,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
     if ( try_locked )
       while ( attaccanti ) {
 	o = BitScanForward ( attaccanti );
-	if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column )
-	     && TABLOG[o] & column && !is_locked ( o, get_piece_at ( SIDE, TABLOG[o] ), SIDE ) ) {
+	if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column ) && TABLOG[o] & column && !is_locked ( o, get_piece_at ( SIDE, TABLOG[o] ), SIDE ) ) {
 	  if ( *from != -1 ) {
 	    printf ( "\nambiguous, skip " );
 	    break;

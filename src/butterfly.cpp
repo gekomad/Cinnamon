@@ -61,8 +61,8 @@ char test_trovato[20];
 
 u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 char mply, black_move;
-int winbtime, list_id, xboard, maxdep, incremental_move, force;
-int evaluateMobility_mode, null_sem;
+int winbtime, MAX_DEPTH_TO_SEARCH, MAX_TIME_MILLSEC, list_id, xboard, maxdep, incremental_move, force;
+int evaluateMobility_mode, null_sem, supplementary_mill_sec;
 u64 n_cut_hash;
 char *BITCOUNT = NULL;
 
@@ -129,7 +129,7 @@ do_perft (  ) {
   run = 1;
   //mply = 0;
   num_moves2 = 0;
-  init (  );
+
   //while ( run ) {
   ftime ( &start1 );
   init (  );
@@ -184,11 +184,11 @@ do_perft (  ) {
   char dummy[1000];
   memset ( dummy, 0, sizeof ( dummy ) );
   sprintf ( dummy, "\n%I64u nodes", tot );
-  myprint ( dummy );
+
   if ( TimeTaken ) {
     memset ( dummy, 0, sizeof ( dummy ) );
     sprintf ( dummy, "\n%I64u nodes per second", tot * 1000 / TimeTaken );
-    myprint ( dummy );
+
   }
   //printf ( "\n%I64u nodes per second", tot * 1000 / TimeTaken );
 #else
@@ -240,7 +240,7 @@ do_move ( int side ) {
 	  result_move.a = openbook[t].a_black;
 	}
 	result_move.tipo = STANDARD;	//TODO
-	result_move.side = side;
+	result_move.side = ( char ) side;
 	//result_move.tipo=openbook[t].eval;
 	//printf ("\nopen book found %d %d", result_move.da, result_move.a);
 	run = 0;
@@ -407,7 +407,7 @@ hand_do_move ( void *dummy )
 	result_move.da = mossa->da;
 	result_move.a = mossa->a;
 	result_move.tipo = STANDARD;
-	result_move.side = side;
+	result_move.side = ( char ) side;
 	takeback ( mossa );
 	break;
       }
@@ -448,18 +448,26 @@ void
 start (  ) {
   int t;
   num_tot_moves = 0;
+#ifndef PERFT_MODE
+  openbook = NULL;
+#endif
   BITCOUNT = ( char * ) malloc ( 65536 * sizeof ( char ) );
+  MAX_TIME_MILLSEC = 5000;
+  MAX_DEPTH_TO_SEARCH = 32;
   for ( t = 0; t < 65536; t++ )
     BITCOUNT[t] = ( char ) BitCountSlow ( t );
 #ifndef PERFT_MODE
   use_book = xboard = 0;
-  printf ( "Load book ..." );
+  if ( 0 )
+    printf ( "Load book ..." );
   fflush ( stdout );
   use_book = load_open_book (  );
-  if ( !use_book )
-    printf ( "not found. Open book not used.\n" );	//xboard catch error
-  else
-    printf ( "ok\n" );
+  if ( 0 ) {
+    if ( !use_book )
+      printf ( "not found. Open book not used.\n" );	//xboard catch error
+    else
+      printf ( "ok\n" );
+  }
 #endif
 #ifdef HASH_MODE
   hash_array[WHITE] = hash_array[BLACK] = NULL;
@@ -481,6 +489,7 @@ start (  ) {
   myassert ( hash_array[WHITE], "\nMemory Allocation Failure\n" );
 
 #endif
+
 #ifndef TEST_MODE
   loadfen ( INITIAL_FEN );
 #endif
@@ -500,7 +509,11 @@ start (  ) {
 }
 
 int
-main ( int argc, char *argv[] ) {
+main (
+#ifdef PERFT_MODE
+	int argc, char *argv[]
+#endif
+   ) {
   start (  );
   FEN_STACK.count = 0;
   printf ( "\nPERFT" );
@@ -552,8 +565,9 @@ main ( int argc, char *argv[] ) {
 #ifdef TEST_MODE
   test (  );
 #else
-
+#ifndef PERFT_MODE
   print (  );
+#endif
   push_fen (  );
 #ifdef PERFT_MODE
   if ( argc != 3 ) {
@@ -561,6 +575,8 @@ main ( int argc, char *argv[] ) {
     return 1;
   };
   loadfen ( argv[2] );
+  //loadfen ( "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" );
+  print (  );
   mply = atoi ( argv[1] ) - 1;
   printf ( "\nthink...\n" );
   do_perft (  );
@@ -573,7 +589,6 @@ main ( int argc, char *argv[] ) {
     Sleep ( _INFINITE );
 #else
     usleep ( _INFINITE );
-
 #endif
   }
 #endif

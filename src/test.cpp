@@ -340,16 +340,16 @@ test (  ) {
 #endif
 
 
-  //test_eval_diff_crafty();
+  //test_eval_diff_crafty();  
   //test_mate ();
   test_wac (  );
   ftime ( &end );
   printf ( "\ntime:  %d num_tot_moves %I64u", diff_time ( end, start ), num_tot_moves );
 
-  /*#ifdef _MSC_VER
-     Sleep (_INFINITE);
-     #endif
-   */
+/*#ifdef _MSC_VER
+  Sleep (_INFINITE);
+#endif
+*/
 }
 
 #endif

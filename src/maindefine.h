@@ -30,20 +30,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 07 06 05 04 03 02 01 00
 
 Depth 	Perft(Depth) 	Total Nodes
-1 		20 					20
-2 		400 				420
-3 		8902 				9322
-4 		197281 				206603
-5 		4865609 			5072212
-6 		119060324 			124132536
-7 		3195901860 			3320034396
-8 		84998978956 		88319013352
+1 		20 					20				verified
+2 		400 				420				verified
+3 		8902 				9322			verified
+4 		197281 				206603			verified
+5 		4865609 			5072212			verified
+6 		119060324 			124132536		verified
+7 		3195901860 			3320034396		verified
+8 		84998978956 		88319013352		verified
 9 		2439530234167 		2527849247519
 10 		69352859712417 		71880708959936
-
+                        
 */
 //http://chessprogramming.wikispaces.com/Perft+Results
-//indent -br -l1000 -ce -cdw -cli0 -cbi0 -prs -sai -saf -di1 -nbc -brs -brf -ppi 0 *.cpp *.h
+//indent -br -l1000 -nce -cdw -cli0 -cbi0 -prs -sai -saf -di1 -nbc -brs -brf -bli0  *.cpp *.h
 //xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
@@ -63,8 +63,6 @@ typedef unsigned char uchar;
 #ifndef PERFT_MODE
 #define OPENBOOK_FILE "book.dat"
 #endif
-
-#define MAX_TIME_MILLSEC 5000
 
 //thanks to Beowulf :-)
 #define ROOK_ATTACK 4
@@ -114,9 +112,6 @@ typedef unsigned char uchar;
 #define WIN_BLACK   "0-1 {Black mates}"
 #define WIN_WHITE   "1-0 {White mates}"
 
-
-
-#define MAX_DEPTH_TO_SEARCH 32
 
 #define MAX_MOVE   90
 #define MAX_PLY   32
@@ -249,9 +244,6 @@ BitCount(chessboard[5])*VALUEBISHOP+\
 BitCount(chessboard[7])*VALUEKNIGHT+\
 BitCount(chessboard[11])*VALUEQUEEN)
 
-
-//#define  MOV  0
-//#define  CAT 1
 
 #ifdef FP_MODE
 

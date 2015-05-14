@@ -180,15 +180,13 @@ evaluate_bishop ( const int tipo, const u64 adiacente_re_nemico, const u64 pezzi
     if ( tipo ) {
       if ( o & ORIZZONTAL_0 )
 	result -= UNDEVELOPED;
-      if ( ( o == D3 || o == E3 )
-	   && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
+      if ( ( o == D3 || o == E3 ) && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
 	result -= BLOCK_PAWNS;
     }
     else {
       if ( o & ORIZZONTAL_7 )
 	result -= UNDEVELOPED;
-      if ( ( o == D6 || o == E6 )
-	   && get_piece_at ( BLACK, TABLOG[o - 8] ) == BLACK )
+      if ( ( o == D6 || o == E6 ) && get_piece_at ( BLACK, TABLOG[o - 8] ) == BLACK )
 	result -= BLOCK_PAWNS;
     }
     if ( evalNode.re_attaccato[o] )
@@ -225,13 +223,11 @@ evaluate_queen ( const int tipo, u64 queen, const int pos_re_nemico, const u64 p
     evalNode.sicurezza_re[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) / ( VALUEQUEEN / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
     /////////////////////////
     if ( tipo ) {
-      if ( ( o == D3 || o == E3 )
-	   && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
+      if ( ( o == D3 || o == E3 ) && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
 	result -= BLOCK_PAWNS;
     }
     else {
-      if ( ( o == D6 || o == E6 )
-	   && get_piece_at ( BLACK, TABLOG[o - 8] ) == BLACK )
+      if ( ( o == D6 || o == E6 ) && get_piece_at ( BLACK, TABLOG[o - 8] ) == BLACK )
 	result -= BLOCK_PAWNS;
     }
     if ( ( ped_enemies & VERTICAL[o] ) )
@@ -271,15 +267,13 @@ evaluate_knight ( const int tipo, const int pos_re_amico, const int pos_re_nemic
     if ( tipo ) {
       if ( o & ORIZZONTAL_0 )
 	result -= UNDEVELOPED;
-      if ( ( o == D3 || o == E3 )
-	   && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
+      if ( ( o == D3 || o == E3 ) && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
 	result -= BLOCK_PAWNS;
     }
     else {
       if ( o & ORIZZONTAL_7 )
 	result -= UNDEVELOPED;
-      if ( ( o == D6 || o == E6 )
-	   && get_piece_at ( BLACK, TABLOG[o - 8] ) == BLACK )
+      if ( ( o == D6 || o == E6 ) && get_piece_at ( BLACK, TABLOG[o - 8] ) == BLACK )
 	result -= BLOCK_PAWNS;
     }
     if ( evalNode.re_attaccato[o] )
@@ -313,11 +307,7 @@ evaluate_king ( const int side, const u64 queen_nemica, const u64 PAWNS_friends,
   else
     result = SPACE * ( DISTANCE_RE_OPENING[pos_re] );
   col = ( int ) TABLOG[get_column[pos_re]];
-  if ( !FINE_APERTURA && ( ( evalNode.open_column[side] & col | evalNode.colonna_semi_aperta[side] & col )
-			   || ( ( col <= 15 && col > 1 )
-				&& ( evalNode.open_column[side] & ( col >> 1 ) | evalNode.colonna_semi_aperta[side] & ( col >> 1 ) ) )
-			   || ( ( col != 128 )
-				&& ( evalNode.open_column[side] & ( col << 1 ) | evalNode.colonna_semi_aperta[side] & ( col << 1 ) ) ) ) )
+  if ( !FINE_APERTURA && ( ( evalNode.open_column[side] & col | evalNode.colonna_semi_aperta[side] & col ) || ( ( col <= 15 && col > 1 ) && ( evalNode.open_column[side] & ( col >> 1 ) | evalNode.colonna_semi_aperta[side] & ( col >> 1 ) ) ) || ( ( col != 128 ) && ( evalNode.open_column[side] & ( col << 1 ) | evalNode.colonna_semi_aperta[side] & ( col << 1 ) ) ) ) )
     result -= END_OPENING;
 
   /*
@@ -479,8 +469,7 @@ eval ( const int SIDE
   lazyscore = lazyscore_black - lazyscore_white;
   if ( SIDE )
     lazyscore = -lazyscore;
-  if ( abs ( beta ) != _INFINITE && abs ( alpha ) != _INFINITE && ( lazyscore > ( beta + FUTIL_MARGIN )
-								    || lazyscore < ( alpha - FUTIL_MARGIN ) ) ) {
+  if ( abs ( beta ) != _INFINITE && abs ( alpha ) != _INFINITE && ( lazyscore > ( beta + FUTIL_MARGIN ) || lazyscore < ( alpha - FUTIL_MARGIN ) ) ) {
 #ifdef DEBUG_MODE
     EvalCuts++;
     //printf("\n%d %d",lazyscore,eval(SIDE,_INFINITE,_INFINITE,0));

@@ -1,18 +1,18 @@
-/*
-   Copyright (C) 2008
-   This program is free software: you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
+	/*
+	   Copyright (C) 2008
+	   This program is free software: you can redistribute it and/or modify
+	   it under the terms of the GNU General Public License as published by
+	   the Free Software Foundation, either version 3 of the License, or
+	   (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+	   This program is distributed in the hope that it will be useful,
+	   but WITHOUT ANY WARRANTY; without even the implied warranty of
+	   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	   GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+	   You should have received a copy of the GNU General Public License
+	   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	 */
 
 
 #include "stdafx.h"
@@ -268,6 +268,7 @@ listner_winboard ( void *uuua )
 	pop_fen (  );
 	hand_do_movec = 0;
       }
+
       else {
 	free_fen_stack (  );
 	loadfen ( d );
@@ -275,9 +276,24 @@ listner_winboard ( void *uuua )
       }
       print (  );
     }
-    else if ( ( strlen ( tt ) == 3 || strlen ( tt ) == 4 || strlen ( tt ) == 5 )
-	      && ( tt[1] >= 48 && tt[1] <= 56 && tt[3] >= 48 && tt[3] <= 56 ) ) {
-
+    else if ( strstr ( tt, "sd " ) ) {
+      know_command = 1;
+      MAX_DEPTH_TO_SEARCH = atoi ( tt + 3 );
+    }
+    else if ( strstr ( tt, "level " ) ) {
+      know_command = 1;
+      supplementary_mill_sec = 1000 * atoi ( strstr ( strstr ( strstr ( tt, " " ) + 1, " " ) + 1, " " ) + 1 );
+      supplementary_mill_sec -= ( int ) ( supplementary_mill_sec * 0.1 );
+    }
+    else if ( strstr ( tt, "time " ) ) {
+      know_command = 1;
+      MAX_TIME_MILLSEC = MAX_TIME_MILLSEC < supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30 ? MAX_TIME_MILLSEC : supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30;
+    }
+    else if ( strstr ( tt, "st " ) ) {
+      know_command = 1;
+      MAX_TIME_MILLSEC = atoi ( tt + 3 ) * 1000;
+    }
+    else if ( ( strlen ( tt ) == 3 || strlen ( tt ) == 4 || strlen ( tt ) == 5 ) && ( tt[1] >= 48 && tt[1] <= 56 && tt[3] >= 48 && tt[3] <= 56 ) ) {
       move[0] = tt[0];
       move[1] = tt[1];
       move[2] = 0;
@@ -293,8 +309,7 @@ listner_winboard ( void *uuua )
 	black_move = 0;
       }
       result_move.a = decodeBoard ( move );
-      if ( !force && get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a]
-	   && get_piece_at ( 0, TABLOG[result_move.a] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.a] ) == SQUARE_FREE )
+      if ( !force && get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a] && get_piece_at ( 0, TABLOG[result_move.a] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.a] ) == SQUARE_FREE )
 	result_move.tipo = ENPASSANT;
       else
 	result_move.tipo = STANDARD;
@@ -362,4 +377,4 @@ sendmove (char *res)
 }
 */
 #endif
-//#endif
+	//#endif

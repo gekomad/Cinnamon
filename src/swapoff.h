@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "maindefine.h"
 //#ifndef PERFT_MODE
 
-
+/*
 __inline void
 sort ( int *a, int l, int r ) {
   if ( l >= r )
@@ -33,8 +33,8 @@ sort ( int *a, int l, int r ) {
     j = r + 1;
     pivot = a[l];
     while ( true ) {
-      while ( a[++i] > pivot );
-      while ( a[--j] < pivot );
+      while ( ++i<l && a[i] > pivot );
+      while ( --j > l && a[j] < pivot );
       if ( i >= j )
 	break;
       temp = a[i];
@@ -55,7 +55,7 @@ sort ( int *a, int l, int r ) {
     }
   }
 }
-
+*/
 __inline u64
 calcola_attaccanti ( const int pos, const int colore_attaccato ) {
   int o, y, xcolore_attaccato, re_position_mod_8, bit_raw;
@@ -128,7 +128,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
       x &= NOTTABLOG[o];
     };
   };
-  //left
+  //left  
 
   bit_raw = rotate_board_left_45 ( case_all_bit_occupate (  ), pos );
 #ifdef DEBUG_MODE
@@ -200,7 +200,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
       x &= NOTTABLOG[o];
     };
   };
-  // } right*/
+  // } right*/ 
 
   bit_raw = rotate_board_90 ( case_all_bit_occupate (  ), pos );
   y = MOVIMENTO_MASK_CAT[bit_raw][ROT45ROT_90_MASK[pos]];
@@ -250,10 +250,11 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
   return case_attaccanti;
 }
 
+int compare_int ( const void *a, const void *b );
 
 __inline int
 see ( const int a, const int coloreAttaccato ) {
-  //restituisce +-= se � conveniente fare la mossa
+  //restituisce +-= se � conveniente fare la mossa 
   int c, rr;
   int d0, primo = 1;
   const int lung = 1000;
@@ -294,8 +295,14 @@ see ( const int a, const int coloreAttaccato ) {
       chessboard[rr] &= NOTTABLOG[t];
       attaccanti &= NOTTABLOG[t];
     }
-  } while ( c );
-  sort ( A, da_xside, count_Aside - 1 );
+  }
+  while ( c );
+  //count_Aside--;
+
+  if ( count_Aside - da_xside > 1 )
+    qsort ( A + da_xside, count_Aside - da_xside, sizeof ( int ), compare_int );
+
+  //sort ( A, da_xside, count_Aside - 1 );
   memcpy ( chessboard, chessboard2, sizeof ( Tchessboard ) );
   do {
     difensori = calcola_attaccanti ( a, xside );
@@ -310,12 +317,18 @@ see ( const int a, const int coloreAttaccato ) {
       assert ( rr != SQUARE_FREE );
       assert ( count_side < lung );
 #endif
+
       D[count_side++] = 0x3FF & PIECES_VALUE[rr];
       chessboard[rr] &= NOTTABLOG[t];
       difensori &= NOTTABLOG[t];
     }
-  } while ( c && count_side <= count_Aside );
-  sort ( D, da_side, count_side - 1 );
+  }
+  while ( c && count_side <= count_Aside );
+  count_side--;
+
+  if ( count_side - da_side > 1 )
+    qsort ( D + da_side, count_side - da_side, sizeof ( int ), compare_int );
+  //sort ( D, da_side, count_side - 1 );
   int AA = 0;
   int DD = 0;
   if ( count_Aside > count_side ) {

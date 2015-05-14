@@ -213,7 +213,6 @@ int
 load_open_book (  ) {
   long s;
   FILE *F;
-  openbook = 0;
   OPENBOOK_SIZE = fileLung ( OPENBOOK_FILE ) / sizeof ( Topenbook );
   if ( !OPENBOOK_SIZE )
     return 0;

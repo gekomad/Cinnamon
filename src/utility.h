@@ -53,6 +53,8 @@ int loadfen ( char *ss );
 int attack_square ( const int, const int );
 #ifdef PERFT_MODE
 int inCheck ( const int, const int, const int, const int, const int, const int, int );
+#else
+int compare_move ( const void *a, const void *b );
 #endif
 int pushmove ( const int tipomove, const int da, const int a, const int SIDE );
 int pushmove ( const int tipomove, const int da, const int a, const int SIDE, int promotion_piece );
@@ -83,7 +85,7 @@ const static unsigned rot90[64] = {
 void BoardToFEN ( char *FEN );
 #ifndef PERFT_MODE
 void update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int depth );
-FORCEINLINE void
+/*FORCEINLINE void
 Sort ( Tmove * a, int l, int r ) {
   if ( l >= r )
     return;
@@ -95,8 +97,8 @@ Sort ( Tmove * a, int l, int r ) {
     j = r + 1;
     memcpy ( &pivot, &a[l], sizeof ( Tmove ) );
     while ( true ) {
-      while ( a[++i].score > pivot.score );
-      while ( a[--j].score < pivot.score );
+      while ( ++i < r && a[i].score > pivot.score );
+      while ( --j>l && a[j].score < pivot.score );
       if ( i >= j )
 	break;
 
@@ -121,15 +123,13 @@ Sort ( Tmove * a, int l, int r ) {
       r = j - 1;
     }
   }
-}
-
+}*/
 FORCEINLINE int
 still_time (  ) {
   // return 1;
   struct timeb t_current;
   ftime ( &t_current );
-  if ( ( ( int )
-	 ( 1000.0 * ( t_current.time - start_time.time ) + ( t_current.millitm - start_time.millitm ) ) ) >= MAX_TIME_MILLSEC )
+  if ( ( ( int ) ( 1000.0 * ( t_current.time - start_time.time ) + ( t_current.millitm - start_time.millitm ) ) ) >= MAX_TIME_MILLSEC )
     return 0;
   return 1;
 }
@@ -200,8 +200,7 @@ shr ( const u64 bits, const int N ) {
 
 FORCEINLINE int
 BitScanForward ( u64 bits ) {
-  return magictable[( ( ( unsigned * )
-			&( bits = ( bits & -bits ) * 0x0218a392cd3d5dbfULL ) )[1] ) >> 26];
+  return magictable[( ( ( unsigned * ) &( bits = ( bits & -bits ) * 0x0218a392cd3d5dbfULL ) )[1] ) >> 26];
 }
 
 FORCEINLINE int
