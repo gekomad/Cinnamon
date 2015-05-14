@@ -31,11 +31,11 @@ extern int Friend_king[2], st_force, MAX_DEPTH_TO_SEARCH, HASH_SIZE, supplementa
 extern u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 extern char mply, black_move;
 extern int MAX_TIME_MILLSEC, list_id, xboard, force;
-extern int evaluateMobility_mode, null_sem;
+extern int otime, evaluateMobility_mode, null_sem;
 extern u64 n_cut_hash;
 extern char *BITCOUNT;
 extern int pvv_from, pvv_to, path_pvv;
-extern int enpas, run, ob_count, mate;
+extern int Ttime, enpas, run, ob_count, mate;
 extern int quies_mode, max_depth, hand_do_movec;
 extern int CASTLE_DONE[2];
 extern int ENP_POSSIBILE;

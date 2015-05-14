@@ -277,16 +277,27 @@ listner_winboard ( void *uuua )
 	supplementary_mill_sec -= ( int ) ( supplementary_mill_sec * 0.1 );
       }
     }
+    else if ( strstr ( tt, "otim " ) ) {
+      know_command = 1;
+      otime = atoi ( tt + 5 );
+    }
     else if ( strstr ( tt, "time " ) ) {
       know_command = 1;
+      Ttime = atoi ( tt + 5 );
       if ( supplementary_mill_sec == -1 ) {
 	MAX_TIME_MILLSEC = 10000;
       }
       else {
-	MAX_TIME_MILLSEC = supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 40;
+	MAX_TIME_MILLSEC = supplementary_mill_sec + Ttime * 10 / 40;
       }
       if ( st_force < ( int ) MAX_TIME_MILLSEC )
 	MAX_TIME_MILLSEC = st_force;
+
+      if ( otime > Ttime ) {
+	MAX_TIME_MILLSEC -= ( int ) ( MAX_TIME_MILLSEC * ( ( 135.0 - Ttime * 100.0 / otime ) / 100.0 ) );
+      }
+
+
     }
     else if ( strstr ( tt, "st " ) ) {
       know_command = 1;

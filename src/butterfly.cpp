@@ -68,7 +68,7 @@ unsigned long Index_BitScanForward;
 int Friend_king[2];
 int pvv_from, pvv_to, path_pvv;
 int enpas, run, ob_count, EvalCuts;
-int quies_mode, max_depth, hand_do_movec;
+int Ttime, quies_mode, max_depth, hand_do_movec, otime;
 int CASTLE_DONE[2];
 int ENP_POSSIBILE;
 int CASTLE_NOT_POSSIBLE[2];
