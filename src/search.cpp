@@ -76,7 +76,7 @@ quiescence ( int alpha, const int side, int beta ) {
     --list_id;
     return score;
   }
-  //qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );  
+  qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );
 #ifdef DEBUG_MODE
   controlloRipetizioni ( gen_list[list_id], listcount );
 #endif
@@ -166,16 +166,16 @@ ael ( const int SIDE, int depth
     ++n_perft;
     return 0;
 #else
-    /* if (0 ) {
-       score = eval ( SIDE
-       #ifdef FP_MODE
-       , alpha, beta
-       #endif
-       , key );
-       }
-       else { */
-    score = quiescence ( alpha, SIDE, beta );
-    //}
+    if ( 0 ) {
+      score = eval ( SIDE
+#ifdef FP_MODE
+		     , alpha, beta
+#endif
+		     , key );
+    }
+    else {
+      score = quiescence ( alpha, SIDE, beta );
+    }
 
 #ifdef HASH_MODE
     RecordHash ( mply, hashfEXACT, SIDE, key, score );
@@ -300,15 +300,12 @@ ael ( const int SIDE, int depth
 #ifndef PERFT_MODE
   int bestmove;
 #endif
-
   list_id++;
 #ifdef DEBUG_MODE
   assert ( list_id < MAX_PLY );
 #endif
-
   re_amico[SIDE] = BITScanForward ( chessboard[KING_BLACK + SIDE] );
   re_amico[SIDE ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( SIDE ^ 1 )] );
-
   if ( generateCap ( STANDARD, SIDE ) ) {
     gen_list[list_id--][0].score = 0;
     return _INFINITE;
@@ -333,7 +330,7 @@ ael ( const int SIDE, int depth
     return -_INFINITE;
   }
 #ifndef PERFT_MODE
-  //qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );
+  qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );
 #endif
 #ifdef DEBUG_MODE
   controlloRipetizioni ( gen_list[list_id], listcount );
@@ -345,6 +342,7 @@ ael ( const int SIDE, int depth
   for ( ii = 1; ii <= listcount; ii++ ) {
     mossa = &gen_list[list_id][ii];
     makemove ( mossa );
+
 #ifdef FP_MODE
     if ( fprune && ( fmax + PIECES_VALUE[mossa->capture] <= alpha ) ) {
 #ifdef DEBUG_MODE

@@ -98,8 +98,8 @@ Thash *hash_array[2];
 #endif
 int mate;
 #ifndef PERFT_MODE
-//int HistoryHeuristic[64][64];
-//int KillerHeuristic[MAX_PLY][64][64];
+int HistoryHeuristic[64][64];
+int KillerHeuristic[MAX_PLY][64][64];
 int main_depth;
 TopenbookLeaf *openbook_tree;
 Teval evalNode;
@@ -271,12 +271,17 @@ do_move ( int side ) {
   int TimeTaken;
 
   run = 1;
-  mply = 1;
+  mply = 0;
 //ftime (&start_time);
   int score;
   num_moves2 = 0;
   ftime ( &start_time );
-
+  memset ( HistoryHeuristic, 0, sizeof ( HistoryHeuristic ) );
+  memset ( KillerHeuristic, 0, sizeof ( KillerHeuristic ) );
+#ifdef HASH_MODE
+  memset ( hash_array[BLACK], 0, HASH_SIZE * sizeof ( Thash ) );
+  memset ( hash_array[WHITE], 0, HASH_SIZE * sizeof ( Thash ) );
+#endif
   while ( run ) {
     init (  );
     ftime ( &start1 );

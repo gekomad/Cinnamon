@@ -448,21 +448,6 @@ listner_winboard ( void *uuua )
 
 };
 
-/*
-void
-sendmove (char *res)
-{
-  move[0] = '\0';
-  know_command = 1;
-  strcat (strcpy (dummy, "move "), res);
-  writeWinboard (dummy);
-  if (FLG_DRAW)
-    writeWinboard (DRAW);
-  else if (FLG_WIN_WHITE)
-    writeWinboard (WIN_WHITE);
-  else if (FLG_WIN_BLACK)
-    writeWinboard (WIN_BLACK);
-}
-*/
+
 #endif
 	//#endif

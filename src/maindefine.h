@@ -46,7 +46,7 @@ Depth 	Perft(Depth) 	Total Nodes
 //xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "rnbqkb1r/ppppppp1/5n1p/8/2PP4/4P3/PP3PPP/RNBQKBNR b KQkq - 0 4  "
+//#define INITIAL_FEN "5k2/2PR4/8/8/3K3P/8/P7/8 b - - 0 40  "
 
 
 

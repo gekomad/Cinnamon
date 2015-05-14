@@ -61,8 +61,8 @@ extern Thash *hash_array[2];
 #endif
 #ifndef PERFT_MODE
 
-//extern int HistoryHeuristic[64][64];
-//extern int KillerHeuristic[MAX_PLY][64][64];
+extern int HistoryHeuristic[64][64];
+extern int KillerHeuristic[MAX_PLY][64][64];
 extern int main_depth;
 extern TopenbookLeaf *openbook_tree;
 extern Teval evalNode;

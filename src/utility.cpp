@@ -28,18 +28,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "extern.h"
 #include "zobrist.h"
 #include "search.h"
-/*
-int compare_move ( const void *a, const void *b ) {
+
+int
+compare_move ( const void *a, const void *b ) {
   Tmove *arg1 = ( Tmove * ) a;
   Tmove *arg2 = ( Tmove * ) b;
   if ( arg1->score < arg2->score )
-    return -1;
+    return 1;
   else if ( arg1->score == arg2->score )
     return 0;
   else
-    return 1;
-  
-}*/
+    return -1;
+}
 
 int
 is_locked ( int pos, int pezzo, int side ) {
@@ -169,16 +169,11 @@ init (  ) {
   n_cut = 0;
   null_move_cut = 0;
 #endif
-  //memset ( HistoryHeuristic, 0, sizeof ( HistoryHeuristic ) );
-  //memset ( KillerHeuristic, 0, sizeof ( KillerHeuristic ) );
+
 #endif
   null_sem = 0;
 
 #ifdef HASH_MODE
-
-  memset ( hash_array[BLACK], 0, HASH_SIZE * sizeof ( Thash ) );
-  memset ( hash_array[WHITE], 0, HASH_SIZE * sizeof ( Thash ) );
-
 #ifdef DEBUG_MODE
   n_cut_hash = n_record_hash = collisions = 0;
 #endif
@@ -186,25 +181,7 @@ init (  ) {
 
 }
 
-/*
-char slowLSB (int i){
-char k = -1;
-while (i){
-k++;
-if (i & 1)
-break;
-i >>= 1;
-}
-return k;
-}
 
-char *
-lowercase ( char *a ) {
-  for ( unsigned t = 0; t < strlen ( a ); t++ )
-    a[t] = ( char ) tolower ( a[t] );
-  return a;
-}
-*/
 char *
 trim ( char *str ) {
   char *s, *dst, *last = NULL;
@@ -300,6 +277,7 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
   assert ( gen_list[list_id][0].score < MAX_MOVE );
 #endif
   mos = &gen_list[list_id][gen_list[list_id][0].score + 1];
+
   if ( tipomove == STANDARD || tipomove == ENPASSANT || tipomove == PROMOTION ) {
     mos->type = ( char ) tipomove;
     mos->from = ( char ) da;
@@ -309,17 +287,15 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
     mos->promotion_piece = ( char ) promotion_piece;
 #ifndef PERFT_MODE
     mos->score = 0;
-    //mvv lva TODO
-    // if ( da == pvv_da && a == pvv_a )   mos->score += 30000;
+    //mvv/lva TODO
+    // if ( da == pvv_da && a == pvv_a )                 mos->score += 30000;
 
-    //mos->score += ( PIECES_VALUE[pezzoa] >= PIECES_VALUE[pezzoda] ) ? ( PIECES_VALUE[pezzoa] - PIECES_VALUE[pezzoda] ) * 2 : PIECES_VALUE[pezzoa];
+    mos->score += ( PIECES_VALUE[pezzoa] >= PIECES_VALUE[pezzoda] ) ? ( PIECES_VALUE[pezzoa] - PIECES_VALUE[pezzoda] ) * 2 : PIECES_VALUE[pezzoa];
 
+    mos->score += HistoryHeuristic[da][a];
+    mos->score += KillerHeuristic[main_depth][da][a];
+    mos->score += ( MOVE_ORDER[pezzoda][a] - MOVE_ORDER[pezzoda][da] );
 
-    /*mos->score += HistoryHeuristic[da][a];
-       mos->score += KillerHeuristic[main_depth][da][a];
-       mos->score += ( MOVE_ORDER[pezzoda][a] - MOVE_ORDER[pezzoda][da] );
-     */
-    //if(!SIDE)mos->score=-mos->score;
 #endif
 
   }
@@ -671,8 +647,8 @@ update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int dept
   // questa mossa ha causato un taglio, quindi si incrementa il valore
   //di history cosi viene ordinata in alto la prossima volta che la
   //cerchiamo
-  //HistoryHeuristic[mossa->from][mossa->to] += depth;
-  //KillerHeuristic[depth][mossa->from][mossa->to] = ( int ) TABLOG[depth];
+  HistoryHeuristic[mossa->from][mossa->to] += ( int ) TABLOG[depth];
+  KillerHeuristic[depth][mossa->from][mossa->to] = ( int ) TABLOG[depth];
 }
 
 int
