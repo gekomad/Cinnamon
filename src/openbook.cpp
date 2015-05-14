@@ -87,32 +87,16 @@ search_book_tree ( TopenbookLeaf * root, const u64 key ) {
 
 
 
-void
-swap ( Topenbook * a, Topenbook * b ) {
-  Topenbook t;
-  memcpy ( &t, a, sizeof ( Topenbook ) );
-  memcpy ( a, b, sizeof ( Topenbook ) );
-  memcpy ( b, &t, sizeof ( Topenbook ) );
-}
-
-void
-QuickSort_book ( int beg, int end ) {
-  int l, r;
-  //      printf("\n%d %d",beg,end);
-  if ( end > beg + 1 ) {
-    u64 piv = openbook[beg].key;
-    l = beg + 1;
-    r = end;
-    while ( l < r ) {
-      if ( openbook[l].key <= piv )
-	l++;
-      else
-	swap ( &openbook[l], &openbook[--r] );
-    }
-    swap ( &openbook[--l], &openbook[beg] );
-    QuickSort_book ( beg, l );
-    QuickSort_book ( r, end );
-  }
+int
+compare_openbook ( const void *a, const void *b ) {
+  Topenbook *arg1 = ( Topenbook * ) a;
+  Topenbook *arg2 = ( Topenbook * ) b;
+  if ( arg1->key > arg2->key )
+    return 1;
+  else if ( arg1->key == arg2->key )
+    return 0;
+  else
+    return -1;
 }
 
 void
@@ -387,7 +371,7 @@ create_open_book ( const char *BOOK_TXT_FILE ) {
   printf ( "\nserialize_book..." );
   serialize_book ( openbook_tree );
   printf ( "\nSort_book..." );
-  QuickSort_book ( 0, openbookLeaf_count );
+  qsort ( openbook, openbookLeaf_count, sizeof ( Topenbook ), compare_openbook );
   printf ( "\nwrite %d nodes...", openbookLeaf_count );
   stream = fopen ( OPENBOOK_FILE, "w+b" );
   fwrite ( openbook, 1, openbookLeaf_count * sizeof ( Topenbook ), stream );

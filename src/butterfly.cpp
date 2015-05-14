@@ -290,7 +290,7 @@ do_move ( int side ) {
 	}
 	result_move.type = STANDARD;	//TODO
 	result_move.side = ( char ) side;
-	//result_move.type=openbook[t].eval;
+	result_move.promotion_piece = -1;
 	//printf ("\nopen book found %d %d", result_move.from, result_move.to);
 	run = 0;
 	return;
@@ -536,16 +536,17 @@ start ( int argc, char *argv[] ) {
     BITCOUNT[t] = ( char ) BitCountSlow ( t );
 #ifndef PERFT_MODE
   use_book = xboard = 0;
-  if ( 0 )
-    printf ( "Load book ..." );
+
+  //printf ("Load book ...");
   fflush ( stdout );
   use_book = load_open_book (  );
-  if ( 0 ) {
-    if ( !use_book )
-      printf ( "not found. Open book not used.\n" );	//xboard catch error
-    else
-      printf ( "ok\n" );
-  }
+
+  /*
+     if (!use_book)
+     printf ("not found. Open book not used.\n"); //xboard catch error
+     else
+     printf ("ok\n");
+   */
 #endif
 #ifdef HASH_MODE
   hash_array[WHITE] = hash_array[BLACK] = NULL;
@@ -657,10 +658,10 @@ main ( int argc, char *argv[] ) {
 #else
   printf ( " OFF" );
 #endif
-
-#ifndef TEST_MODE
-  printf ( "\n" );
-#endif
+  if ( use_book )
+    printf ( "\nOPEN BOOK ON\n" );
+  else
+    printf ( "\nOPEN BOOK OFF\n" );
 #ifdef TEST_MODE
   test (  );
 #else

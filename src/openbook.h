@@ -28,7 +28,6 @@ TopenbookLeaf *search_book_tree ( TopenbookLeaf * root, const u64 key );
 void make_openbook_tree (  );
 void insert_openbook_leaf ( TopenbookLeaf ** root, Topenbook * l );
 void serializza_book ( TopenbookLeaf * root );
-void QuickSort_book ( int iLo, int iHi );
 int load_open_book (  );
 #endif
 #endif

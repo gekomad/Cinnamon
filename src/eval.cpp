@@ -488,7 +488,7 @@ eval ( const int SIDE
   }
 #endif
   int result;
-  if ( use_book && keyzobrist && ( ( mat = search_openbook ( keyzobrist, -1 ) ) != -1 ) ) {
+  if ( use_book && keyzobrist && ( ( mat = search_openbook ( keyzobrist, SIDE ) ) != -1 ) ) {
     return openbook[mat].eval;
   }
 

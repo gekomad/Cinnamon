@@ -46,7 +46,7 @@ Depth 			  Perft
 //xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "r2qkb1r/pp3ppp/2bppn2/8/2PQP3/2N2N2/PP3PPP/R1B1K2R w KQkq - bm O-O; id sbd.093 "
+//#define INITIAL_FEN "8/p2p2k1/7R/2p3P1/P3b1P1/4P3/3r1KP1/8 w - - 0 37  "
 
 #ifdef _MSC_VER
 #ifndef HAS_64BITS

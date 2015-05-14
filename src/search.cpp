@@ -170,18 +170,16 @@ ael ( const int SIDE, int depth
     ++n_perft;
     return 0;
 #else
-    /*if (0)
-       {
+
+    /*
        score = eval (SIDE
        #ifdef FP_MODE
        , alpha, beta
        #endif
        , key);
-       }
-       else
-       { */
+     */
+
     score = quiescence ( alpha, SIDE, beta );
-    //}
 
 #ifdef HASH_MODE
     //RecordHash (mply, hashfEXACT, SIDE, key, score);
