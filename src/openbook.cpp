@@ -213,7 +213,7 @@ int
 load_open_book (  ) {
   long s;
   FILE *F;
-
+  openbook = 0;
   OPENBOOK_SIZE = fileLung ( OPENBOOK_FILE ) / sizeof ( Topenbook );
   if ( !OPENBOOK_SIZE )
     return 0;
@@ -231,7 +231,7 @@ load_open_book (  ) {
 
   s = fread ( openbook, 1, OPENBOOK_SIZE * sizeof ( Topenbook ), F );
   if ( s != ( long ) ( OPENBOOK_SIZE * sizeof ( Topenbook ) ) ) {
-    printf ( "\nerror31" );
+    printf ( "\nerror" );
     free ( openbook );
     fclose ( F );
     return 0;

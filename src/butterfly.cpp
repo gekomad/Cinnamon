@@ -13,7 +13,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-//indent -gnu -l400
+//indent -br -l400
 #include "winboard.h"
 #ifdef _MSC_VER
 #include "windows.h"
@@ -78,6 +78,7 @@ int CASTLE_NOT_POSSIBLE[2];
 int CASTLE_NOT_POSSIBLE_QUEENSIDE[2];
 int CASTLE_NOT_POSSIBLE_KINGSIDE[2];
 struct timeb start_time;
+FILE *outf;
 int max_depth_quies;
 TmoveList gen_list;
 
@@ -124,7 +125,6 @@ do_perft (  ) {
   struct timeb start1, end1;
   max_depth_quies = 0;
   int TimeTaken = 0;
-  side = ( black_move == 1 ? 0 : 1 );
 
   run = 1;
   mply = 0;
@@ -193,8 +193,8 @@ do_perft (  ) {
 }
 #else
 void
-do_move (  ) {
-  int side;
+do_move ( int side ) {
+
   struct timeb start1, end1;
   int alpha = -_INFINITE;
   int beta = _INFINITE;
@@ -204,7 +204,7 @@ do_move (  ) {
   char pvv[200];
   Tmove move2;
   int TimeTaken;
-  side = ( black_move == 1 ? 0 : 1 );
+
   run = 1;
   mply = 1;
 //ftime (&start_time);
@@ -240,7 +240,6 @@ do_move (  ) {
 	return;
       }
     }
-
     //if (!retry)
     ++mply;
 #ifdef DEBUG_MODE
@@ -378,9 +377,38 @@ hand_do_move ( void *dummy )
   char t[255];
   memset ( t, 0, sizeof ( t ) );
   hand_do_movec = 1;
-  do_move (  );
+  int side = ( black_move == 1 ? 0 : 1 );
+  do_move ( side );
+  if ( result_move.da == 0 && result_move.a == 0 ) {
+    list_id++;
+    generateMoves ( STANDARD, side );
+    generateCap ( STANDARD, side );
+    int listcount = gen_list[list_id][0].score;
+    if ( !listcount ) {
+      printf ( "MATE!!" );
+#ifdef _MSC_VER
+      return;
+#else
+      return NULL;
+#endif
+    }
+    int ii;
+    for ( ii = 1; ii <= listcount; ii++ ) {
+      Tmove *mossa = &gen_list[list_id][ii];
+      makemove ( mossa );
+      if ( !in_check (  ) ) {
+	result_move.da = mossa->da;
+	result_move.a = mossa->a;
+	result_move.tipo = STANDARD;
+	result_move.side = side;
+	takeback ( mossa );
+	break;
+      }
+      takeback ( mossa );
+    }
+  }
+  list_id--;
   makemove ( &result_move );
-  //if(!xboard)
   print (  );
   push_fen (  );
   strcpy ( t, "\nmove " );
@@ -409,7 +437,7 @@ start (  ) {
   fflush ( stdout );
   use_book = load_open_book (  );
   if ( !use_book )
-    printf ( "not found. Open book not used.\n" );
+    printf ( "not found. Open book not used.\n" );	//xboard catch error
   else
     printf ( "ok\n" );
 #endif
@@ -513,12 +541,14 @@ main (  ) {
 #endif
 #ifndef PERFT_MODE
 #ifndef TEST_MODE
-  while ( 1 )
+  while ( 1 ) {
 #if defined  _MSC_VER	|| defined  __GNUWIN32__
     Sleep ( _INFINITE );
 #else
     usleep ( _INFINITE );
+
 #endif
+  }
 #endif
 #endif
   return 0;

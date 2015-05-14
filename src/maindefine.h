@@ -30,24 +30,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 07 06 05 04 03 02 01 00
 
 Depth 	Perft(Depth) 	Total Nodes
-1 	20 					20
-2 	400 				420
-3 	8902 				9322
-4 	197281 				206603
-5 	4865609 			5072212
-6 	119060324 			124132536
-7 	3195901860 			3320034396
-8 	84998978956 		88319013352
-9 	2439530234167 		2527849247519
-10 	69352859712417 		71880708959936
+1 		20 					20
+2 		400 				420
+3 		8902 				9322
+4 		197281 				206603
+5 		4865609 			5072212
+6 		119060324 			124132536
+7 		3195901860 			3320034396
+8 		84998978956 		88319013352
+9 		2439530234167 		2527849247519
+10 		69352859712417 		71880708959936
+
 */
 //http://chessprogramming.wikispaces.com/Perft+Results
-
+//indent -br -l1000 -ce -cdw -cli0 -cbi0 -prs -sai -saf -di1 -nbc -brs -brf -ppi 0 *.cpp *.h
+//xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "r1bqk3/pP1pppbp/8/2p5/1K6/1P2n3/8/r6n w q c6 0 23  "
+//#define INITIAL_FEN "r1bqk2r/1ppp1p2/2n3pp/P1b1P3/4P2P/2P1nP1N/PQ2B1P1/R1B1K2R w KQkq - 0 1 c1e3 "
 
-
+#define debugfile "out.log"
 #define _INFINITE 2147483646
 #ifdef _MSC_VER
 typedef unsigned __int64 u64;
@@ -63,7 +65,6 @@ typedef unsigned char uchar;
 #endif
 
 #define MAX_TIME_MILLSEC 5000
-//5000
 
 //thanks to Beowulf :-)
 #define ROOK_ATTACK 4

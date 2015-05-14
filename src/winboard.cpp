@@ -56,6 +56,7 @@
 
 
 
+
 int know_command, edit, side = 1;
 
 char move[255];
@@ -71,6 +72,7 @@ writeWinboard ( char *msg ) {
   };
   fprintf ( stdout, "%c", 10 );
   fflush ( stdout );
+  //debug (msg);
 };
 
 void
@@ -85,6 +87,7 @@ readWinboard ( char *tt ) {
       break;
     tt[b++] = s;
   }
+  //debug (tt);
 };
 
 #ifdef _MSC_VER
@@ -97,15 +100,17 @@ listner_winboard ( void *uuua )
 {
 
   char tt[255];
-  int go = 0;
+  int go;
 
 
   move[0] = '*';
   dummy = ( char * ) calloc ( 1, 255 );
   run = 0;
+
   while ( 1 ) {
     readWinboard ( tt );
-
+    go = 0;
+    hand_do_movec = 0;
     know_command = 0;
     if ( !strcmp ( tt, "quit" ) ) {
       run = 0;
@@ -120,7 +125,7 @@ listner_winboard ( void *uuua )
     }
     else if ( !strcmp ( tt, "result" ) ) {
       know_command = 1;
-      go = 0;
+
       black_move = 0;
       run = 0;
     }
@@ -163,7 +168,8 @@ listner_winboard ( void *uuua )
 #endif
       chessboard[pezzo] = chessboard[pezzo] | TABLOG[decodeBoard ( tt + 1 )];
     }
-    else if ( !strcmp ( tt, "easy" ) || !strcmp ( tt, "force" ) || !strcmp ( tt, "draw" ) )
+    else if ( !strcmp ( tt, "easy" ) || !strcmp ( tt, "force" )
+	      || !strcmp ( tt, "draw" ) )
       know_command = 1;
     else if ( !strcmp ( tt, "xboard" ) ) {
       writeWinboard ( "" );
@@ -217,7 +223,7 @@ listner_winboard ( void *uuua )
     else if ( !strcmp ( tt, "post" ) )
       know_command = 1;
     else if ( !strcmp ( tt, "new" ) ) {
-      go = 0;
+
       know_command = 1;
       black_move = 1;
       run = 0;
@@ -231,8 +237,8 @@ listner_winboard ( void *uuua )
       loadfen ( INITIAL_FEN );
 #endif
     }
-    else if ( strlen ( tt ) > 2 && ( strstr ( MATCH_QUEENSIDE, tt ) || strstr ( MATCH_KINGSIDE, tt ) ) ) {
-      printf ( "\ncastle" );
+    else if ( strlen ( tt ) > 2 && ( strstr ( MATCH_QUEENSIDE, tt )
+				     || strstr ( MATCH_KINGSIDE, tt ) ) ) {
       if ( strstr ( MATCH_QUEENSIDE, tt ) )
 	result_move.da = QUEENSIDE;
       else
@@ -248,7 +254,7 @@ listner_winboard ( void *uuua )
 
     }
     else if ( strstr ( tt, "set " ) ) {
-      go = 0;
+
       know_command = 1;
       black_move = 1;
       run = 0;
@@ -271,7 +277,8 @@ listner_winboard ( void *uuua )
       }
       print (  );
     }
-    else if ( ( strlen ( tt ) == 3 || strlen ( tt ) == 4 || strlen ( tt ) == 5 ) && ( tt[1] >= 48 && tt[1] <= 56 && tt[3] >= 48 && tt[3] <= 56 ) ) {
+    else if ( ( strlen ( tt ) == 3 || strlen ( tt ) == 4 || strlen ( tt ) == 5 )
+	      && ( tt[1] >= 48 && tt[1] <= 56 && tt[3] >= 48 && tt[3] <= 56 ) ) {
 
       move[0] = tt[0];
       move[1] = tt[1];
@@ -288,7 +295,8 @@ listner_winboard ( void *uuua )
 	black_move = 0;
       }
       result_move.a = decodeBoard ( move );
-      if ( get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a] && get_piece_at ( 0, TABLOG[result_move.a] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.a] ) == SQUARE_FREE )
+      if ( get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a]
+	   && get_piece_at ( 0, TABLOG[result_move.a] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.a] ) == SQUARE_FREE )
 	result_move.tipo = ENPASSANT;
       else
 	result_move.tipo = STANDARD;
@@ -306,13 +314,13 @@ listner_winboard ( void *uuua )
       move[1] = 0;
       know_command = 1;
     };
-    if ( !hand_do_movec && go == 1 && strlen ( move ) > 0 || move[0] != '*' ) {
-      if ( move[0] == '*' )
-	move[0] = 0;
+    //if (!hand_do_movec && go == 1 && strlen (move) > 0 || move[0] != '*')
+    if ( go && !hand_do_movec ) {
+
       know_command = 1;
       go = 0;
 
-      hand_do_movec = 0;
+
 #if defined  _MSC_VER	|| defined  __GNUWIN32__
       DWORD s;
       CreateThread ( NULL, 0, ( LPTHREAD_START_ROUTINE ) hand_do_move, ( LPVOID ) NULL, 0, &s );

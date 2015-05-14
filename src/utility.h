@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <assert.h>
 #endif
 void pop_fen (  );
-
+void debug ( char *msg );
 int fen2pos ( char *fen, int *from, int *to, int, u64 key );
 int wc ( const char * );
 void controlloRipetizioni ( Tmove * myarray, int right );
@@ -90,32 +90,25 @@ Sort ( Tmove * a, int l, int r ) {
   int i, j;
   int num_left, num_right;
   Tmove pivot, temp;
-
   while ( l < r ) {
     i = l;
     j = r + 1;
     memcpy ( &pivot, &a[l], sizeof ( Tmove ) );
-
     while ( true ) {
-      do {
-	i = i + 1;
-      } while ( a[i].score > pivot.score );
-
-      do {
-	j = j - 1;
-      } while ( a[j].score < pivot.score );
-
+      while ( a[++i].score > pivot.score );
+      while ( a[--j].score < pivot.score );
       if ( i >= j )
 	break;
 
       memcpy ( &temp, &a[i], sizeof ( Tmove ) );
       memcpy ( &a[i], &a[j], sizeof ( Tmove ) );
       memcpy ( &a[j], &temp, sizeof ( Tmove ) );
-    };
+    };				//TODO
 
-    memcpy ( &a[l], &a[j], sizeof ( Tmove ) );
-    memcpy ( &a[j], &pivot, sizeof ( Tmove ) );
-
+    if ( l != j ) {
+      memcpy ( &a[l], &a[j], sizeof ( Tmove ) );
+      memcpy ( &a[j], &pivot, sizeof ( Tmove ) );
+    }
     num_left = ( j - 1 ) - l;
     num_right = r - ( j + 1 );
 
@@ -135,7 +128,8 @@ still_time (  ) {
   // return 1;
   struct timeb t_current;
   ftime ( &t_current );
-  if ( ( ( int ) ( 1000.0 * ( t_current.time - start_time.time ) + ( t_current.millitm - start_time.millitm ) ) ) >= MAX_TIME_MILLSEC )
+  if ( ( ( int )
+	 ( 1000.0 * ( t_current.time - start_time.time ) + ( t_current.millitm - start_time.millitm ) ) ) >= MAX_TIME_MILLSEC )
     return 0;
   return 1;
 }
@@ -206,7 +200,8 @@ shr ( const u64 bits, const int N ) {
 
 FORCEINLINE int
 BitScanForward ( u64 bits ) {
-  return magictable[( ( ( unsigned * ) &( bits = ( bits & -bits ) * 0x0218a392cd3d5dbfULL ) )[1] ) >> 26];
+  return magictable[( ( ( unsigned * )
+			&( bits = ( bits & -bits ) * 0x0218a392cd3d5dbfULL ) )[1] ) >> 26];
 }
 
 FORCEINLINE int

@@ -52,8 +52,7 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
   x &= enemies;
   while ( x ) {
     o = BitScanForward ( x );
-    if ( o > 55 || o < 8 ) {
-      //PROMOTION
+    if ( o > 55 || o < 8 ) {	//PROMOTION
       //int pezzoda=get_piece_at(o + GG);
       if ( SIDE == WHITE && o > 55 || SIDE == BLACK && o < 8 ) {
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, TOWER_BLACK + SIDE ) )
@@ -85,8 +84,7 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
   x &= enemies;
   while ( x ) {
     o = BitScanForward ( x );
-    if ( o > 55 || o < 8 ) {
-      //PROMOTION
+    if ( o > 55 || o < 8 ) {	//PROMOTION
       if ( SIDE == WHITE && o > 55 || SIDE == BLACK && o < 8 ) {
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, TOWER_BLACK + SIDE ) )
 	  return 1;		//rock
@@ -103,7 +101,9 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
     x &= NOTTABLOG[o];
   };
   int to;			//ENPASSANT
-  if ( ( ( SIDE && ENP_POSSIBILE <= 39 && ENP_POSSIBILE >= 32 ) || ( !SIDE && ENP_POSSIBILE >= 24 && ENP_POSSIBILE <= 31 ) ) && ( ( x = EN_PASSANT_MASK[SIDE ^ 1][ENP_POSSIBILE] & chessboard[SIDE] ) ) ) {
+  if ( ( ( SIDE && ENP_POSSIBILE <= 39 && ENP_POSSIBILE >= 32 )
+	 || ( !SIDE && ENP_POSSIBILE >= 24 && ENP_POSSIBILE <= 31 ) )
+       && ( ( x = EN_PASSANT_MASK[SIDE ^ 1][ENP_POSSIBILE] & chessboard[SIDE] ) ) ) {
 
     if ( SIDE )
       to = ENP_POSSIBILE + 8;
@@ -138,7 +138,8 @@ performTowerQueenCapture ( const int tipomove, const int pezzo, const u64 enemie
 #endif
 
     if ( enemies & ORIZZONTAL[pos] ) {
-      xx = MOVIMENTO_MASK_CAT2[( uchar ) ( shr ( ALLPIECES, pos_posMod8[pos] ) )][pos] & enemies;
+      xx = MOVIMENTO_MASK_CAT2[( uchar ) ( shr ( ALLPIECES, pos_posMod8[pos] ) )]
+	[pos] & enemies;
     }
     if ( enemies & VERTICAL[pos] ) {
       xx |= enemies & inv_raw90CAT[rotate_board_90 ( ALLPIECES, pos )][pos];
@@ -168,7 +169,8 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
       /////left
 #ifdef DEBUG_MODE
       assert ( rotate_board_left_45 ( ALLPIECES, position ) != 0 );
-      if ( ( ( uchar ) ( rotate_board_left_45 ( ALLPIECES, position ) & MOVES_BISHOP_LEFT_MASK[position] ) ) != ( uchar ) rotate_board_left_45 ( ALLPIECES, position ) ) {
+      if ( ( ( uchar )
+	     ( rotate_board_left_45 ( ALLPIECES, position ) & MOVES_BISHOP_LEFT_MASK[position] ) ) != ( uchar ) rotate_board_left_45 ( ALLPIECES, position ) ) {
 
 	rotate_board_left_45 ( ALLPIECES, position );
 	printf ( "\n1performBishopCapture %d", position );
@@ -176,7 +178,8 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
       }
       assert ( rotate_board_left_45 ( ALLPIECES, position ) != 0 );
 #endif
-      x = inv_raw_leftCAT_45[rotate_board_left_45 ( ALLPIECES, position )][position] & enemies;
+      x = inv_raw_leftCAT_45[rotate_board_left_45 ( ALLPIECES, position )]
+	[position] & enemies;
 #ifdef DEBUG_MODE
       assert ( x != -1 );
 #endif
@@ -193,7 +196,8 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
 	assert ( 0 );
       }
 #endif
-      x |= inv_raw_rightCAT_45[rotate_board_right_45 ( ALLPIECES, position )][position] & enemies;
+      x |= inv_raw_rightCAT_45[rotate_board_right_45 ( ALLPIECES, position )]
+	[position] & enemies;
 #ifdef DEBUG_MODE
       assert ( ( inv_raw_rightCAT_45[rotate_board_right_45 ( ALLPIECES, position )][position] & enemies ) != -1 );
 #endif

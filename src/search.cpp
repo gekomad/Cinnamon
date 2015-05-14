@@ -138,6 +138,7 @@ ael ( const int SIDE, int depth
       , int alpha, int beta, LINE * pline
 #endif
    ) {
+  //assert(!use_book);
 #ifdef DEBUG_MODE
   check_side ( SIDE );
 #endif
@@ -297,9 +298,11 @@ ael ( const int SIDE, int depth
   int ii, listcount;
   //********* null move ***********
 #ifdef NULL_MODE
-  if ( !path_pvv && null_ok ( depth, SIDE ) && !attack_square ( SIDE, BitScanForward ( chessboard[KING_BLACK + SIDE] ) ) ) {
+  if ( !path_pvv && null_ok ( depth, SIDE )
+       && !attack_square ( SIDE, BitScanForward ( chessboard[KING_BLACK + SIDE] ) ) ) {
     null_sem = 1;
-    int null_score = -ael ( SIDE ^ 1, depth - R_adpt ( SIDE, depth ) - 1, -beta, -beta + 1, &line );
+    int null_score = -ael ( SIDE ^ 1, depth - R_adpt ( SIDE, depth ) - 1, -beta, -beta + 1,
+			    &line );
     null_sem = 0;
     if ( !run )
       return score;

@@ -23,42 +23,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 __inline void
 sort ( int *a, int l, int r ) {
-
   if ( l >= r )
     return;
   int i, j;
   int num_left, num_right;
   int pivot, temp;
-
   while ( l < r ) {
     i = l;
     j = r + 1;
     pivot = a[l];
-
     while ( true ) {
-      do {
-	i = i + 1;
-      } while ( a[i] > pivot );
-
-      do {
-	j = j - 1;
-      } while ( a[j] < pivot );
-
+      while ( a[++i] > pivot );
+      while ( a[--j] < pivot );
       if ( i >= j )
 	break;
-
       temp = a[i];
       a[i] = a[j];
       a[j] = temp;
-
     };
     a[l] = a[j];
     a[j] = pivot;
-
-
     num_left = ( j - 1 ) - l;
     num_right = r - ( j + 1 );
-
     if ( num_left <= num_right ) {
       sort ( a, l, j - 1 );
       l = j + 1;
@@ -267,7 +253,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
 
 __inline int
 see ( const int a, const int coloreAttaccato ) {
-  //restituisce +-= se è conveniente fare la mossa
+  //restituisce +-= se ï¿½ conveniente fare la mossa
   int c, rr;
   int d0, primo = 1;
   const int lung = 1000;

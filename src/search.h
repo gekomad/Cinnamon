@@ -93,9 +93,11 @@ makemove ( Tmove * mossa ) {
     else if ( pezzoda == TOWER_BLACK && mossada == 56 && !CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] )
       CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] = 1;
 
-    if ( pezzoda == PAWN_WHITE && RANK_1 & TABLOG[mossada] && RANK_3 & TABLOG[mossaa] )
+    if ( pezzoda == PAWN_WHITE && RANK_1 & TABLOG[mossada]
+	 && RANK_3 & TABLOG[mossaa] )
       ENP_POSSIBILE = mossaa;
-    else if ( pezzoda == PAWN_BLACK && RANK_6 & TABLOG[mossada] && RANK_4 & TABLOG[mossaa] )
+    else if ( pezzoda == PAWN_BLACK && RANK_6 & TABLOG[mossada]
+	      && RANK_4 & TABLOG[mossaa] )
       ENP_POSSIBILE = mossaa;
   }
   else if ( mossa->tipo == CASTLE ) {

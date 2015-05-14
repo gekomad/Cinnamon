@@ -11,8 +11,8 @@ LIBS =  -L"C:/Dev-Cpp/lib" -lkernel32 -luser32 -lgdi32 -lwinspool -lcomdlg32 -la
 INCS =  -I"C:/Dev-Cpp/include"  -I"C:/Dev-Cpp/pthreads-w32-2-8-0-release" 
 CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"C:/Dev-Cpp/pthreads-w32-2-8-0-release" 
 BIN  = butterfly.exe
-CXXFLAGS = $(CXXINCS) -DNULL_MOVEx -DFP_MODEx -DPERFT_MODEx -DHASH_MODEx -DHAS_64BITSx -DTEST_MODEx -DDEBUG_MODEx  -D__GNUWIN32__ -W  -DWIN32  -DNDEBUG  -D_CONSOLE  -D_MBCS -fno-strict-aliasing   -O3 -g3
-CFLAGS = $(INCS) -D__GNUWIN32__ -W -DWIN32 -DNDEBUG -D_CONSOLE -D_MBCS   -O3 -g3
+CXXFLAGS = $(CXXINCS) -DNULL_MOVEx -DFP_MODEx -DPERFT_MODEx -DHASH_MODEx -DHAS_64BITSx -DTEST_MODEx -DDEBUG_MODE  -D__GNUWIN32__ -W  -DWIN32  -DNDEBUG  -D_CONSOLE  -D_MBCS -fno-strict-aliasing   -g3
+CFLAGS = $(INCS) -D__GNUWIN32__ -W -DWIN32 -DNDEBUG -D_CONSOLE -D_MBCS   -g3
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
