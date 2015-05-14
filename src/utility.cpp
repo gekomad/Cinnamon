@@ -316,7 +316,7 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
 };
 
 void
-un_make_castle ( const int da, const int SIDE ) {
+un_perform_castle ( const int da, const int SIDE ) {
   if ( SIDE == WHITE ) {
     if ( da == KINGSIDE ) {
 #ifdef DEBUG_MODE
@@ -439,10 +439,10 @@ inCheck ( const int da, const int a, const int tipo, const int pezzoda, const in
       chessboard[pezzoa] = a1;
   }
   else if ( tipo == CASTLE ) {
-    make_castle ( da, a );	//a=SIDE
+    perform_castle ( da, a );	//a=SIDE
     result = attack_square ( a, BITScanForward ( chessboard[KING_BLACK + a] ) );
 
-    un_make_castle ( da, a );
+    un_perform_castle ( da, a );
   }
   else if ( tipo == PROMOTION ) {
     u64 a1 = chessboard[pezzoa];

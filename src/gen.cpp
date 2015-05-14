@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "openbook.h"
 
 void
-make_castle ( const int da, const int SIDE ) {
+perform_castle ( const int da, const int SIDE ) {
 #ifdef DEBUG_MODE
   check_side ( SIDE );
 #endif

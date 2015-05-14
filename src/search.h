@@ -112,7 +112,7 @@ makemove ( Tmove * mossa ) {
     if ( mossa->from == KINGSIDE )
       assert ( CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] == 0 );
 #endif
-    make_castle ( mossa->from, SIDE );
+    perform_castle ( mossa->from, SIDE );
     CASTLE_DONE[SIDE] = 1;
     CASTLE_NOT_POSSIBLE[SIDE] = 1;
     if ( mossa->from == QUEENSIDE )
@@ -197,7 +197,7 @@ takeback ( const Tmove * mossa ) {
   }
   else if ( mossa->type == CASTLE ) {
     //chessboard[12]=makeZobristKey();
-    un_make_castle ( mossa->from, side );
+    un_perform_castle ( mossa->from, side );
     CASTLE_DONE[side] = 0;
     CASTLE_NOT_POSSIBLE[side] = 0;
     if ( mossa->from == QUEENSIDE )

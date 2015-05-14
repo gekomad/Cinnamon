@@ -46,7 +46,7 @@ Depth 	Perft(Depth) 	Total Nodes
 //xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "5k2/2PR4/8/8/3K3P/8/P7/8 b - - 0 40  "
+//#define INITIAL_FEN "r3k2r/ppp2pp1/3b1n1p/1n2p3/Nq1P2b1/1P2P1PN/P2Q1PBP/R1B2RK1 w kq - 0 14 "
 
 
 
@@ -294,7 +294,6 @@ typedef struct EvalTag {
 typedef struct TmoveTag {
   char from, to, side, capture, type, promotion_piece;
   int score;
-
 } Tmove;
 
 #ifdef HASH_MODE

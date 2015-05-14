@@ -483,12 +483,12 @@ hand_do_move ( void *dummy )
   push_fen (  );
   strcpy ( t, "\nmove " );
   strcat ( t, decodeBoardinv ( result_move.from, result_move.side ) );
-  if ( result_move.promotion_piece != -1 )
-    t[strlen ( t )] = getFen ( result_move.promotion_piece );
-  else {
-    if ( result_move.from >= 0 )
-      strcat ( t, decodeBoardinv ( result_move.to, result_move.side ) );
+  if ( result_move.type != CASTLE ) {
+    strcat ( t, decodeBoardinv ( result_move.to, result_move.side ) );
+    if ( result_move.promotion_piece != -1 )
+      t[strlen ( t )] = tolower ( getFen ( result_move.promotion_piece ) );
   }
+
 
 #ifdef DEBUG_MODE
   printf ( "da %d a %d\n", result_move.from, result_move.to );
@@ -608,21 +608,26 @@ start (
 
 }
 
+
+
 int
-main ( int argc, char *argv[] ) {	//0x5d20d128d3ff0f40ULL
-  /*int a=BITScanForward2(0x5d20d128d3ff0f40ULL);
-     int b=BITScanForward(0x5d20d128d3ff0f40ULL);
-     for(int i=0;i<13;i++)
-     for(int i1=0;i1<64;i1++){
-     int a=BITScanForward2(zobrist_key[i][i1]);
-     int b=BITScanForward(zobrist_key[i][i1]);
-     printf("\n%I64u %d %d",zobrist_key[i][i1],a,b);
-     } */
+main ( int argc, char *argv[] ) {
   start (
 #ifdef PERFT_MODE
 	   argc, argv
 #endif
      );
+  //0x5d20d128d3ff0f40ULL
+  //int a=BITScanForward2(0x5d20d128d3ff0f40ULL);
+  //int b=BITScanForward(0x5d20d128d3ff0f40ULL);
+  /* for(int i=0;i<13;i++)
+     for(int i1=0;i1<64;i1++){
+     int a=non_iterative_popcount(zobrist_key[i][i1]);
+     int b=BitCount(zobrist_key[i][i1]);
+     assert(a==b);
+     printf("\n%I64u %d %d",zobrist_key[i][i1],a,b);
+     } 
+   */
   FEN_STACK.count = 0;
   printf ( "\nPERFT" );
 #ifdef PERFT_MODE
