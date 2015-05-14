@@ -467,10 +467,7 @@ hand_do_move ( void *dummy )
       Tmove *mossa = &gen_list[list_id][ii];
       makemove ( mossa );
       if ( !in_check (  ) ) {
-	result_move.from = mossa->from;
-	result_move.to = mossa->to;
-	result_move.type = STANDARD;
-	result_move.side = ( char ) side;
+	memcpy ( &result_move, mossa, sizeof ( Tmove ) );
 	takeback ( mossa );
 	break;
       }
