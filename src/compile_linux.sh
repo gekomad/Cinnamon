@@ -6,5 +6,5 @@ g++ -w -fno-strict-aliasing -O3 *.cpp -o butterfly -lpthread
 #		-DHASH_MODE (enable hash table)
 #		-DHAS_64BITS (64 bit architectures)
 #		-DTEST_MODE (test mode)
-#		-DDEBUG_MODE (debugmode)
+#		-DDEBUG_MODE (debug mode)
 

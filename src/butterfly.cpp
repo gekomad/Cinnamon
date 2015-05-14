@@ -304,6 +304,7 @@ do_move ( int side ) {
 #endif
 
     line.cmove = 0;
+
     val = ael ( side, mply, alpha, beta, &line );
 
     run = still_time (  );
@@ -448,6 +449,7 @@ hand_do_move ( void *dummy )
   memset ( t, 0, sizeof ( t ) );
   hand_do_movec = 1;
   int side = ( black_move == 1 ? 0 : 1 );
+  memset ( &result_move, 0, sizeof ( result_move ) );
   do_move ( side );
   if ( result_move.from == 0 && result_move.to == 0 ) {
     list_id++;
