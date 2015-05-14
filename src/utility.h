@@ -187,12 +187,13 @@ BITScanForward ( u64 bits ) {
 }
 #endif
 
-#if !defined _MSC_VER || defined _MSC_VER && !defined HAS_64BITS
+//#if !defined _MSC_VER || defined _MSC_VER && !defined HAS_64BITS
 FORCEINLINE int
 BitCount ( const u64 bits ) {
   return BITCOUNT[( unsigned short ) bits] + BITCOUNT[( ( unsigned ) bits ) >> 16] + BITCOUNT[( unsigned short ) shr32 ( bits )] + BITCOUNT[( shr32 ( bits ) ) >> 16];
 }
-#endif
+
+//#endif
 
 #ifndef PERFT_MODE
 /*

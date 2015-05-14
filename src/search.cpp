@@ -137,8 +137,8 @@ ael ( const int SIDE, int depth
 
 #ifndef PERFT_MODE
   u64 key = 0;
-  if ( use_book )
-    key = makeZobristKey (  );
+  //if (use_book)
+  key = makeZobristKey (  );
 #endif
 #ifdef HASH_MODE
   /*  if (repetition(key)) {
@@ -184,7 +184,7 @@ ael ( const int SIDE, int depth
     //}
 
 #ifdef HASH_MODE
-    RecordHash ( mply, hashfEXACT, SIDE, key, score );
+    //RecordHash (mply, hashfEXACT, SIDE, key, score);
 #endif
     pline->cmove = 0;
     return score;
@@ -310,7 +310,7 @@ ael ( const int SIDE, int depth
        return 0;//patta
        } */
 #ifdef HASH_MODE
-    RecordHash ( ( char ) ( mply - depth ), hashfEXACT, SIDE, key, -_INFINITE );
+    // RecordHash ((char) (mply - depth), hashfEXACT, SIDE, key, -_INFINITE);
 #endif
     return -_INFINITE;
   }
@@ -386,7 +386,6 @@ ael ( const int SIDE, int depth
       beta_efficency += 1 / ii;
 #endif
 #ifdef HASH_MODE
-      //RecordHash (mply-depth,  hashfBETA, side, key,score);
       RecordHash ( ( char ) ( mply - depth ), hashfBETA, SIDE, key, beta );
 #endif
       ///// mate
@@ -410,14 +409,11 @@ ael ( const int SIDE, int depth
   }
   gen_list[list_id--][0].score = 0;
 #ifdef HASH_MODE
-  //if (hashf != hashfEXACT)bestmove=score;
-  //RecordHash (mply-depth,  hashf, side, key,bestmove);
-  RecordHash ( ( char ) ( mply - depth ), hashf, SIDE, key, score );
+  //RecordHash ((char) (mply - depth), hashf, SIDE, key, score);
 #endif
 #ifdef PERFT_MODE
   return 0;
 #else
-
   return score;
 #endif
 

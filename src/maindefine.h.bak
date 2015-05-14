@@ -112,7 +112,7 @@ typedef unsigned char uchar;
 #define DOUBLED_ISOLATED_PAWNS 10
 #define BACKWARD_PAWN 2
 #define BACKWARD_OPEN_PAWN 3
-//#define KING_ATTACKED 40
+#define KING_ATTACKED 40
 
 #define END_OPEN (n_pieces (0)<6 || n_pieces (1)<6 )
 
@@ -168,13 +168,13 @@ typedef unsigned char uchar;
 #define F2 10
 
 const int PIECES_VALUE[13] = {
-  VALUEPAWN, VALUEPAWN,
-  VALUEROOK, VALUEROOK,
-  VALUEBISHOP, VALUEBISHOP,
-  VALUEKNIGHT, VALUEKNIGHT,
-  VALUEKING, VALUEKING,
-  VALUEQUEEN, VALUEQUEEN,
-  0
+	VALUEPAWN, VALUEPAWN,
+	VALUEROOK, VALUEROOK,
+	VALUEBISHOP, VALUEBISHOP,
+	VALUEKNIGHT, VALUEKNIGHT,
+	VALUEKING, VALUEKING,
+	VALUEQUEEN, VALUEQUEEN,
+	0
 };
 
 #define _max(a,b) (a>b?a:b)
@@ -239,58 +239,65 @@ const int PIECES_VALUE[13] = {
 #define TABCAPTUREPAWN_LEFT 0x7F7F7F7F7F7F7F7FULL
 
 #ifndef PERFT_MODE
-typedef struct TopenbookTag {
-  u64 key;
-  char from_white, to_white, from_black, to_black;
-  int eval;
+typedef struct TopenbookTag
+{
+	u64 key;
+	char from_white, to_white, from_black, to_black;
+	int eval;
 } Topenbook;
 
-struct TopenbookLeaf {
-  char from_white, to_white, from_black, to_black;
-  int eval;
-  u64 key;
-  TopenbookLeaf *l;
-  TopenbookLeaf *r;
+struct TopenbookLeaf
+{
+	char from_white, to_white, from_black, to_black;
+	int eval;
+	u64 key;
+	TopenbookLeaf *l;
+	TopenbookLeaf *r;
 };
 
 
-typedef struct EvalTag {
-  char open_column[2];
-  char semi_open_column[2];
-  char king_attacked[64];
-  int king_attak[2];
-  int king_security[2];
-  u64 isolated;
-  u64 attacked[64];
-  u64 attackers[64];
+typedef struct EvalTag
+{
+	char open_column[2];
+	char semi_open_column[2];
+	char king_attacked[64];
+	int king_attak[2];
+	int king_security[2];
+	u64 isolated;
+	u64 attacked[64];
+	u64 attackers[64];
 } Teval;
 
 #endif
 
-typedef struct TmoveTag {
-  char from, to, side, capture, type, promotion_piece;
-  int score;
+typedef struct TmoveTag
+{
+	char from, to, side, capture, type, promotion_piece;
+	int score;
 } Tmove;
 
 #ifdef HASH_MODE
-typedef struct ThashTag {
-  u64 key;
-  int score;
-  char depth;
-  char flags;
+typedef struct ThashTag
+{
+	u64 key;
+	int score;
+	char depth;
+	char flags;
 } Thash;
 #endif
 
-typedef struct {
-  char *fen[1000];
-  int count;
+typedef struct
+{
+	char *fen[1000];
+	int count;
 } fen_node;
 
 typedef u64 Tchessboard[12];
 typedef Tmove TmoveList[MAX_PLY][MAX_MOVE];
-typedef struct tagLINE {
-  int cmove;			// Number of moves in the line.
-  Tmove argmove[MAX_PLY];	// The line.
+typedef struct tagLINE
+{
+	int cmove;			// Number of moves in the line.
+	Tmove argmove[MAX_PLY];	// The line.
 } LINE;
 
 

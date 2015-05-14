@@ -84,15 +84,14 @@ RecordHash ( const char depth, const char flags, const int SIDE, const u64 key, 
     return;
 
 #ifdef DEBUG_MODE
-  assert ( key != 0 );
+  if ( !key )
+    myassert ( 0, "" );
 #endif
+#ifdef DEBUG_MODE
   if ( phashe->key != 0 && phashe->key != key ) {
-#ifdef DEBUG_MODE
     ++collisions;
-#endif
-    return;
+    //return;
   }
-#ifdef DEBUG_MODE
   ++n_record_hash;
 #endif
   phashe->key = key;
