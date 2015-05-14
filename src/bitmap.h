@@ -25,6 +25,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define  RANK_4 0xff00000000ULL
 #define  RANK_6 0xff000000000000ULL
 
+const uchar TABLOG_VERT45[64] = { 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64,
+  128, 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128
+};
+
+const uchar TABLOG_VERT90[64] = { 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16, 16, 16, 16, 32, 32, 32, 32, 32, 32, 32,
+  32, 64, 64, 64, 64, 64, 64, 64, 64, 128, 128, 128, 128, 128, 128, 128, 128
+};
+
 #ifndef PERFT_MODE
 
 #define  FILE_0 0x101010101010101ULL
@@ -46,6 +54,8 @@ BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, WHITE, BLACK, WHITE,
 BLACK, WHITE, BLACK, WHITE, BLACK, BLACK, WHITE, BLACK, WHITE,
 BLACK, WHITE, BLACK, WHITE
 };*/
+
+
 
 const u64 RANK[8] = {
   0xFFULL, RANK_1, 0xFF0000ULL, RANK_3, RANK_4, 0xFF0000000000ULL, RANK_6,

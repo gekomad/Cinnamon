@@ -225,12 +225,12 @@ evaluate_queen ( const int type, u64 queen, const int pos_enemy_king, const u64 
     /////////////////////////
     if ( type ) {
       if ( ( o == D3 || o == E3 )
-	   && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
+	   && get_piece_at ( WHITE, tablog ( o + 8 ) ) == WHITE )
 	result -= BLOCK_PAWNS;
     }
     else {
       if ( ( o == D6 || o == E6 )
-	   && get_piece_at ( BLACK, TABLOG[o - 8] ) == BLACK )
+	   && get_piece_at ( BLACK, tablog ( o - 8 ) ) == BLACK )
 	result -= BLOCK_PAWNS;
     }
     if ( ( ped_enemies & VERTICAL[o] ) )
@@ -245,7 +245,7 @@ evaluate_queen ( const int type, u64 queen, const int pos_enemy_king, const u64 
       result += MOB * mob;
       result += BitCount ( pieces_enemies & evalNode.attacked[o] );
     }
-    if ( LEFT_RIGHT[o] & chessboard[BISHOP_BLACK + type] )
+    if ( LEFT_RIGHT[o] & Chessboard ( BISHOP_BLACK + type ) )
       result += BISHOP_ON_QUEEN;
     if ( END_OPEN )
       result -= DIST_XKING * ( DISTANCE[o][pos_enemy_king] );
@@ -258,7 +258,7 @@ int
 evaluate_knight ( const int type, const int pos_friend_king, const int pos_enemy_king, const u64 pieces_enemies, const u64 ped_enemies ) {
   int mob, o, result = 0, ped_attaccanti = 0;
 
-  u64 x = chessboard[KNIGHT_BLACK + type];
+  u64 x = Chessboard ( KNIGHT_BLACK + type );
   while ( x ) {
 
     o = BITScanForward ( x );
@@ -271,14 +271,14 @@ evaluate_knight ( const int type, const int pos_friend_king, const int pos_enemy
       if ( o & ORIZZONTAL_0 )
 	result -= UNDEVELOPED;
       if ( ( o == D3 || o == E3 )
-	   && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
+	   && get_piece_at ( WHITE, tablog ( o + 8 ) ) == WHITE )
 	result -= BLOCK_PAWNS;
     }
     else {
       if ( o & ORIZZONTAL_7 )
 	result -= UNDEVELOPED;
       if ( ( o == D6 || o == E6 )
-	   && get_piece_at ( BLACK, TABLOG[o - 8] ) == BLACK )
+	   && get_piece_at ( BLACK, tablog ( o - 8 ) ) == BLACK )
 	result -= BLOCK_PAWNS;
     }
     if ( evalNode.king_attacked[o] )
@@ -324,9 +324,15 @@ evaluate_king ( const int side, const u64 enemy_queen, const u64 PAWNS_friends, 
      same quadrant, the side is penalised the difference multiplied by five.
      When considering enemy presence in the quadrant a queen is counted as
      three pieces. */
+#ifdef DEBUG_MODE
+  assert ( pos_king >= 0 && pos_king < 64 );
+#endif
   int diff = BitCount ( QUADRANTS[pos_king] & pieces_enemies ) - BitCount ( QUADRANTS[pos_king] & pieces_friends );
   if ( diff > 0 ) {
     result -= ENEMY_NEAR_KING * diff;
+#ifdef DEBUG_MODE
+    assert ( pos_king >= 0 && pos_king < 64 );
+#endif
     if ( QUADRANTS[pos_king] & enemy_queen )
       result -= XQUEEN_NEAR_KING;
   }
@@ -358,7 +364,7 @@ evaluate_rook ( const int type, const u64 ped_friends, const u64 ped_enemies, co
 
   int mob, o, result = 0;
 
-  u64 x = chessboard[ROOK_BLACK + type];
+  u64 x = Chessboard ( ROOK_BLACK + type );
   if ( !x )
     return 0;
   int from = -1;
@@ -407,7 +413,10 @@ evaluate_rook ( const int type, const u64 ped_friends, const u64 ped_enemies, co
     };
     x &= NOTTABLOG[o];
   };
-
+#ifdef DEBUG_MODE
+  if ( to != -1 )
+    assert ( from >= 0 && from < 64 && to >= 0 && to < 64 );
+#endif
   if ( to != -1 && ( !( LINK_ROOKS[from][to] & all_pieces ) ) )
     result += CONNECTED_ROOKS;
   return result;

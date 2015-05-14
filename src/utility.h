@@ -14,10 +14,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma warning( disable : 4146 )
-#pragma warning( disable : 4514 )
-#pragma warning( disable : 4127 )
-#pragma warning( disable : 4706 )
+//#pragma warning( disable : 4146 )
+//#pragma warning( disable : 4514 )
+//#pragma warning( disable : 4127 )
+//#pragma warning( disable : 4706 )
 #pragma warning( disable : 4996 )
 #pragma warning( disable : 4530 )
 
@@ -88,6 +88,10 @@ const static unsigned rot90[64] = {
 void BoardToFEN ( char *FEN );
 FORCEINLINE int
 pushmove ( const int tipomove, const int da, const int a, const int SIDE ) {
+#ifdef DEBUG_MODE
+  if ( tipomove == STANDARD )
+    assert ( da >= 0 && da < 64 && a >= 0 && a < 64 && ( SIDE == WHITE || SIDE == BLACK ) );
+#endif
   return pushmove ( tipomove, da, a, SIDE, -1 );
 }
 
@@ -95,12 +99,12 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE ) {
 void update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int depth );
 
 FORCEINLINE int
-still_time (  ) {
+still_time (  ) {		//return 1;
   struct timeb t_current;
   ftime ( &t_current );
   return ( ( int ) ( 1000 * ( t_current.time - start_time.time ) ) ) >= MAX_TIME_MILLSEC ? 0 : 1;
-  //int i = (int) (1000 * (t_current.time - start_time.time));    // + ( t_current.millitm - start_time.millitm )   );
-  //return i >= MAX_TIME_MILLSEC ? 0 : 1;
+//int i = (int) (1000 * (t_current.time - start_time.time));    // + ( t_current.millitm - start_time.millitm )   );
+//return i >= MAX_TIME_MILLSEC ? 0 : 1;
 }
 #endif
 
@@ -241,9 +245,49 @@ return 999;
 */
 
 #endif
-uchar rotate_board_left_45 ( const u64, const int );
-uchar rotate_board_right_45 ( const u64, const int );
-uchar rotate_board_90 ( const u64, const int );
-u64 rotate_board_right_45_inv_mov ( const u64 ss, const int pos );
+
+FORCEINLINE uchar
+rotate_board_90 ( u64 x ) {
+  register uchar result = 0;
+  int o;
+  while ( x ) {
+    o = BITScanForward ( x );
+    result |= TABLOG_VERT90[o];
+    x &= NOTTABLOG[o];
+  };
+  return result;
+}
+
+FORCEINLINE uchar
+rotate_board_left_45 ( const u64 ss, const int pos ) {
+#ifdef DEBUG_MODE
+  assert ( pos >= 0 && pos < 64 );
+#endif
+  register uchar result = TABLOG_VERT45[pos];
+  u64 x = ss & LEFT[pos];
+  int o;
+  while ( x ) {
+    o = BITScanForward ( x );
+    result |= TABLOG_VERT45[o];
+    x &= NOTTABLOG[o];
+  };
+  return result;
+}
+
+FORCEINLINE uchar
+rotate_board_right_45 ( const u64 ss, const int pos ) {
+#ifdef DEBUG_MODE
+  assert ( pos >= 0 && pos < 64 );
+#endif
+  register uchar result = TABLOG_VERT45[pos];
+  u64 x = ss & RIGHT[pos];
+  int o;
+  while ( x ) {
+    o = BITScanForward ( x );
+    result |= TABLOG_VERT45[o];
+    x &= NOTTABLOG[o];
+  };
+  return result;
+}
 
 #endif

@@ -14,7 +14,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "winboard.h"
 #ifdef _MSC_VER
 #include "windows.h"
@@ -153,7 +152,7 @@ do_perft (  ) {
     num_moves2 = 0;
     mossa = &gen_list[list_id][ii];
     makemove ( mossa );
-    ael ( side ^ 1, mply );
+    ael ( change_side ( side ), mply );
     if ( mply >= MAX_DEPTH_TO_SEARCH )
       run = 0;
     num_moves2 += n_perft;
@@ -184,10 +183,10 @@ do_perft (  ) {
 
   }
   //printf ( "\n%I64u nodes per second", tot * 1000 / TimeTaken );
-#else
-  printf ( "\n%I64u nodes", tot );
+  //#else
+  //      printf ("\n%I64u nodes", tot);
 #endif
-
+  printf ( "\n%I64u nodes", tot );
   while ( 1 );
 }
 
@@ -644,10 +643,13 @@ main ( int argc, char *argv[] ) {
 #else
   printf ( " OFF" );
 #endif
+#ifndef PERFT_MODE
   if ( use_book )
     printf ( "\nOPEN BOOK ON\n" );
   else
+#endif
     printf ( "\nOPEN BOOK OFF\n" );
+
 #ifdef TEST_MODE
   test (  );
 #else

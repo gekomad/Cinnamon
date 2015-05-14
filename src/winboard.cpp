@@ -14,22 +14,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "stdafx.h"
 #ifndef PERFT_MODE
-
-
 #define MATCH_QUEENSIDE "O-O-O e1c1 e8c8"
 #define MATCH_KINGSIDE "O-O e1g1 e8g8"
-
 #include "maindefine.h"
-
 #include "gen.h"
 #include "butterfly.h"
 #include "search.h"
 #include "test.h"
-
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -162,7 +155,7 @@ listner_winboard ( void *uuua )
       assert ( pezzo != -1 );
       assert ( pezzo != 12 );
 #endif
-      chessboard[pezzo] = chessboard[pezzo] | TABLOG[decodeBoard ( tt + 1 )];
+      chessboard[pezzo] = Chessboard ( pezzo ) | TABLOG[decodeBoard ( tt + 1 )];
     }
     else if ( !strcmp ( tt, "easy" ) || !strcmp ( tt, "draw" ) )
       know_command = 1;

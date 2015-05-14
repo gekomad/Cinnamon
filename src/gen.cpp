@@ -114,9 +114,9 @@ performTowerQueenShift ( const int tipomove, const int pezzo, const int SIDE, co
       xx = MASK_MOV[( uchar ) ( ALLPIECES >> ( pos_posMod8[pos] ) )][pos];
     if ( ( VERT_BOUND[pos] & ALLPIECES ) != VERT_BOUND[pos] ) {
 #ifdef DEBUG_MODE
-      assert ( rotate_board_90 ( ALLPIECES, pos ) > 0 );
+      assert ( rotate_board_90 ( ALLPIECES & VERTICAL[pos] ) > 0 );
 #endif
-      xx |= inv_raw90MOV[rotate_board_90 ( ALLPIECES, pos )][pos];
+      xx |= inv_raw90MOV[rotate_board_90 ( ALLPIECES & VERTICAL[pos] )][pos];
     }
     while ( xx ) {
       o = BITScanForward ( xx );

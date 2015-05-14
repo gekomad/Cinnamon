@@ -57,7 +57,7 @@ Depth 			  Perft
 #endif
 #endif
 
-#define debugfile "out.log"
+#define debugfile "butterfly.log"
 #define _INFINITE 2147483646
 #ifdef _MSC_VER
 typedef unsigned __int64 u64;
@@ -194,6 +194,10 @@ const int PIECES_VALUE[13] = {
 #ifdef DEBUG_MODE
 #define check_side(side) (assert(side==0 || side==1))
 #endif
+#ifndef DEBUG_MODE
+#define tablog(x) TABLOG[x]
+#define Chessboard(x) chessboard[x]
+#define change_side(side) (side^1)
 #define get_piece_at(side,tablogpos)((side==WHITE)?(\
 	(chessboard[PAWN_WHITE]&tablogpos)?PAWN_WHITE:(\
 	(chessboard[KING_WHITE]&tablogpos)?KING_WHITE:(\
@@ -208,7 +212,7 @@ const int PIECES_VALUE[13] = {
 	(chessboard[BISHOP_BLACK]&tablogpos)?BISHOP_BLACK:(\
 	(chessboard[KNIGHT_BLACK]&tablogpos)?KNIGHT_BLACK:(\
 	(chessboard[QUEEN_BLACK]&tablogpos)?QUEEN_BLACK:SQUARE_FREE)))))))
-
+#endif
 
 #define lazy_eval_black() (BitCount(chessboard[0])*VALUEPAWN+\
 	BitCount(chessboard[2])*VALUEROOK+\

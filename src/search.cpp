@@ -287,8 +287,8 @@ ael ( const int SIDE, int depth
 #ifdef DEBUG_MODE
   assert ( list_id < MAX_PLY );
 #endif
-  Friend_king[SIDE] = BITScanForward ( chessboard[KING_BLACK + SIDE] );
-  Friend_king[SIDE ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( SIDE ^ 1 )] );
+  Friend_king[SIDE] = BITScanForward ( Chessboard ( KING_BLACK + SIDE ) );
+  Friend_king[change_side ( SIDE )] = BITScanForward ( Chessboard ( KING_BLACK + ( SIDE ^ 1 ) ) );
   if ( generateCap ( STANDARD, SIDE ) ) {
     gen_list[list_id--][0].score = 0;
     return _INFINITE;
@@ -364,15 +364,15 @@ ael ( const int SIDE, int depth
 #endif
     ///******* null move end ********
 #ifdef PERFT_MODE
-    ael ( SIDE ^ 1, depth - 1 );
+    ael ( change_side ( SIDE ), depth - 1 );
     takeback ( mossa );
 #else
     int do_mws = ( score > -_INFINITE );
     int lwb = _max ( alpha, score );
     int upb = ( do_mws ? ( lwb + 1 ) : beta );
-    val = -ael ( SIDE ^ 1, depth - 1, -upb, -lwb, &line );
+    val = -ael ( change_side ( SIDE ), depth - 1, -upb, -lwb, &line );
     if ( do_mws && ( lwb < val ) && ( val < beta ) )
-      val = -ael ( SIDE ^ 1, depth - 1, -beta, -val + 1, &line );
+      val = -ael ( change_side ( SIDE ), depth - 1, -beta, -val + 1, &line );
     score = _max ( score, val );
     takeback ( mossa );
     mossa->score = score;

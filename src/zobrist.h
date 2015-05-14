@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if !defined(ZOBRIST_H)
 #define ZOBRIST_H
+#include "debug.h"
 
 #ifndef PERFT_MODE
 #include "extern.h"
@@ -36,7 +37,7 @@ makeZobristKey (  ) {
     x2 &= NOTTABLOG[position];
   }
   for ( i = 0; i < 12; i++ ) {
-    x2 = chessboard[i];
+    x2 = Chessboard ( i );
     while ( x2 ) {
       position = BITScanForward ( x2 );
       result ^= zobrist_key[i][position];

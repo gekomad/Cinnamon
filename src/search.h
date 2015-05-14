@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "gen.h"
 #include "zobrist.h"
 #include "extern.h"
+#include "debug.h"
 
 int ael ( const int alphabeta_side, int depth
 #ifndef PERFT_MODE
@@ -35,7 +36,7 @@ makemove ( Tmove * mossa ) {
 #endif
   int pezzoda, mossaa, mossada, mossacapture;
   int SIDE = mossa->side;
-  int XSIDE = SIDE ^ 1;
+  int XSIDE = change_side ( SIDE );
   if ( mossa->type == STANDARD || mossa->type == ENPASSANT || mossa->type == PROMOTION ) {
     mossaa = mossa->to;
     mossada = mossa->from;
@@ -45,7 +46,7 @@ makemove ( Tmove * mossa ) {
     assert ( mossaa >= 0 );
 #endif
     if ( mossa->type != ENPASSANT )
-      mossacapture = get_piece_at ( XSIDE, TABLOG[mossaa] );
+      mossacapture = get_piece_at ( XSIDE, tablog ( mossaa ) );
     else
       mossacapture = XSIDE;
     mossa->capture = ( char ) mossacapture;
@@ -57,14 +58,14 @@ makemove ( Tmove * mossa ) {
       mossada = mossada;
     assert ( mossada >= 0 );
 #endif
-    pezzoda = get_piece_at ( SIDE, TABLOG[mossada] );
+    pezzoda = get_piece_at ( SIDE, tablog ( mossada ) );
     if ( mossa->type == PROMOTION ) {
       chessboard[pezzoda] = chessboard[pezzoda] & NOTTABLOG[mossada];
 
-      chessboard[mossa->promotion_piece] = chessboard[mossa->promotion_piece] | TABLOG[mossaa];
+      chessboard[mossa->promotion_piece] = chessboard[mossa->promotion_piece] | tablog ( mossaa );
     }
     else
-      chessboard[pezzoda] = ( chessboard[pezzoda] | TABLOG[mossaa] ) & NOTTABLOG[mossada];
+      chessboard[pezzoda] = ( chessboard[pezzoda] | tablog ( mossaa ) ) & NOTTABLOG[mossada];
     if ( mossacapture != SQUARE_FREE ) {
 
       if ( mossa->type != ENPASSANT )
@@ -72,7 +73,7 @@ makemove ( Tmove * mossa ) {
       else {
 
 #ifdef DEBUG_MODE
-	assert ( mossacapture == ( SIDE ^ 1 ) );
+	assert ( mossacapture == ( change_side ( SIDE ) ) );
 #endif
 	if ( SIDE )
 	  chessboard[mossacapture] &= NOTTABLOG[mossaa - 8];
@@ -94,11 +95,11 @@ makemove ( Tmove * mossa ) {
     else if ( pezzoda == ROOK_BLACK && mossada == 56 && !CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] )
       CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] = 1;
 
-    if ( pezzoda == PAWN_WHITE && RANK_1 & TABLOG[mossada]
-	 && RANK_3 & TABLOG[mossaa] )
+    if ( pezzoda == PAWN_WHITE && RANK_1 & tablog ( mossada )
+	 && RANK_3 & tablog ( mossaa ) )
       ENP_POSSIBILE = mossaa;
-    else if ( pezzoda == PAWN_BLACK && RANK_6 & TABLOG[mossada]
-	      && RANK_4 & TABLOG[mossaa] )
+    else if ( pezzoda == PAWN_BLACK && RANK_6 & tablog ( mossada )
+	      && RANK_4 & tablog ( mossaa ) )
       ENP_POSSIBILE = mossaa;
   }
   else if ( mossa->type == CASTLE ) {
@@ -150,18 +151,18 @@ takeback ( const Tmove * mossa ) {
     assert ( mossaa >= 0 );
 #endif
     pezzoda = get_piece_at ( side, TABLOG[mossaa] );
-    chessboard[pezzoda] = ( chessboard[pezzoda] & NOTTABLOG[mossaa] ) | TABLOG[mossada];
+    chessboard[pezzoda] = ( chessboard[pezzoda] & NOTTABLOG[mossaa] ) | tablog ( mossada );
     if ( mossacapture != SQUARE_FREE ) {
       if ( mossa->type != ENPASSANT )
-	chessboard[mossacapture] |= TABLOG[mossaa];
+	chessboard[mossacapture] |= tablog ( mossaa );
       else {
 #ifdef DEBUG_MODE
-	assert ( mossacapture == ( side ^ 1 ) );
+	assert ( mossacapture == ( change_side ( side ) ) );
 #endif
 	if ( side )
-	  chessboard[mossacapture] |= TABLOG[mossaa - 8];
+	  chessboard[mossacapture] |= tablog ( mossaa - 8 );
 	else
-	  chessboard[mossacapture] |= TABLOG[mossaa + 8];
+	  chessboard[mossacapture] |= tablog ( mossaa + 8 );
       }
     }
     if ( pezzoda == KING_WHITE && mossada == 3 || pezzoda == KING_BLACK && mossada == 59 ) {
@@ -190,11 +191,11 @@ takeback ( const Tmove * mossa ) {
 #ifdef DEBUG_MODE
     assert ( mossaa >= 0 );
 #endif
-    pezzoda = get_piece_at ( side, TABLOG[mossaa] );
-    chessboard[side] = chessboard[side] | TABLOG[mossada];
+    pezzoda = get_piece_at ( side, tablog ( mossaa ) );
+    chessboard[side] = Chessboard ( side ) | tablog ( mossada );
     chessboard[mossa->promotion_piece] = chessboard[mossa->promotion_piece] & NOTTABLOG[mossaa];
     if ( mossacapture != SQUARE_FREE )
-      chessboard[mossacapture] |= TABLOG[mossaa];
+      chessboard[mossacapture] |= tablog ( mossaa );
 
   }
   else if ( mossa->type == CASTLE ) {

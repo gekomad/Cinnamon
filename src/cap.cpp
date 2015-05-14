@@ -41,13 +41,13 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
 #ifdef DEBUG_MODE
   check_side ( SIDE );
 #endif
-  if ( !chessboard[SIDE] ) {
+  if ( !Chessboard ( SIDE ) ) {
     ENP_POSSIBILE = -1;
     return 0;
   }
   u64 x;
   int o, GG;
-  x = chessboard[SIDE];
+  x = Chessboard ( SIDE );
   if ( SIDE ) {
     x = shl7 ( x ) & TABCAPTUREPAWN_LEFT;
     GG = -7;
@@ -77,7 +77,7 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
       return 1;
     x &= NOTTABLOG[o];
   };
-  x = chessboard[SIDE];
+  x = Chessboard ( SIDE );
   if ( SIDE ) {
     x = shl9 ( x );
     GG = -9;
@@ -112,7 +112,7 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
   int to;			//ENPASSANT
   if ( ( ( SIDE && ENP_POSSIBILE <= 39 && ENP_POSSIBILE >= 32 )
 	 || ( !SIDE && ENP_POSSIBILE >= 24 && ENP_POSSIBILE <= 31 ) )
-       && ( ( x = EN_PASSANT_MASK[SIDE ^ 1][ENP_POSSIBILE] & chessboard[SIDE] ) ) ) {
+       && ( ( x = EN_PASSANT_MASK[change_side ( SIDE )][ENP_POSSIBILE] & Chessboard ( SIDE ) ) ) ) {
 
     if ( SIDE )
       to = ENP_POSSIBILE + 8;
@@ -136,7 +136,7 @@ performTowerQueenCapture ( const int tipomove, const int pezzo, const u64 enemie
 #endif
   u64 xx = 0, x2;
   int o, pos;
-  x2 = chessboard[pezzo];
+  x2 = Chessboard ( pezzo );
 #ifdef DEBUG_MODE
   assert ( x2 != 0 );
 #endif
@@ -145,13 +145,15 @@ performTowerQueenCapture ( const int tipomove, const int pezzo, const u64 enemie
 #ifdef DEBUG_MODE
     assert ( pos != -1 );
 #endif
-
+#ifdef DEBUG_MODE
+    assert ( pos >= 0 && pos < 64 );
+#endif
     if ( enemies & ORIZZONTAL[pos] ) {
       xx = MASK_CAPT_MOV2[( uchar ) ( shr ( ALLPIECES, pos_posMod8[pos] ) )]
 	[pos] & enemies;
     }
     if ( enemies & VERTICAL[pos] ) {
-      xx |= enemies & inv_raw90CAPT[rotate_board_90 ( ALLPIECES, pos )][pos];
+      xx |= enemies & inv_raw90CAPT[rotate_board_90 ( ALLPIECES & VERTICAL[pos] )][pos];
     }
     while ( xx ) {
       o = BITScanForward ( xx );
@@ -171,7 +173,7 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
 #endif
   u64 x = 0, x2;
   int o, position;
-  x2 = chessboard[pezzo];
+  x2 = Chessboard ( pezzo );
   while ( x2 ) {
     position = BITScanForward ( x2 );
     if ( enemies & LEFT[position] ) {
@@ -205,8 +207,8 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
 	assert ( 0 );
       }
 #endif
-      x |= inv_raw_rightCAPT_45[rotate_board_right_45 ( ALLPIECES, position )]
-	[position] & enemies;
+
+      x |= inv_raw_rightCAPT_45[rotate_board_right_45 ( ALLPIECES, position )][position] & enemies;
 #ifdef DEBUG_MODE
       assert ( ( inv_raw_rightCAPT_45[rotate_board_right_45 ( ALLPIECES, position )][position] & enemies ) != -1 );
 #endif
@@ -217,8 +219,7 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
 #ifdef DEBUG_MODE
       assert ( position != -1 );
       assert ( o != -1 );	//print();
-      // assert (get_piece_at (SIDE, TABLOG[position]) != SQUARE_FREE);
-      //assert (get_piece_at (XSIDE, TABLOG[position]) == SQUARE_FREE);
+
       assert ( chessboard[KING_BLACK] );
       assert ( chessboard[KING_WHITE] );
 #endif
@@ -239,7 +240,7 @@ performKnight_Shift_Capture ( const int tipomove, const int pezzo, const u64 pie
 #endif
   u64 x1, x;
   int o, pos;
-  x = chessboard[pezzo];
+  x = Chessboard ( pezzo );
   while ( x ) {
     pos = BITScanForward ( x );
     x1 = pieces & KNIGHT_MASK[pos];
@@ -263,7 +264,7 @@ performKing_Shift_Capture ( const int tipomove, const int pezzo, const u64 piece
 #endif
   u64 x1;
   int o, pos;
-  pos = BITScanForward ( chessboard[pezzo] );
+  pos = BITScanForward ( Chessboard ( pezzo ) );
 #ifdef DEBUG_MODE
   assert ( pos != -1 );
 #endif
@@ -288,7 +289,7 @@ generateCap ( const int tipomove, const int SIDE ) {
   assert ( chessboard[KING_WHITE] );
 #endif
   u64 ALLPIECES = square_all_bit_occupied (  );
-  u64 enemies = square_bit_occupied ( ( SIDE ^ 1 ) );
+  u64 enemies = square_bit_occupied ( ( change_side ( SIDE ) ) );
   if ( SIDE == BLACK ) {
     if ( performPawnCapture ( tipomove, enemies, SIDE ) )
       return 1;
