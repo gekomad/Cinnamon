@@ -329,14 +329,15 @@ IterativeDeeping::run (  ) {
       cout << "info score cp " << sc << " depth " << ( int ) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
     }
 
-    if ( mply >= maxDepth - 1 ) {
-      break;
-    }
-
     if ( forceCheck ) {
       forceCheck = false;
       setRunning ( 1 );
     }
+    else if ( abs ( sc ) > _INFINITE ) {
+      forceCheck = true;
+      setRunning ( 2 );
+    }
+
 
     if ( mply >= maxDepth - 1 ) {
       break;
