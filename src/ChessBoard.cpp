@@ -1,14 +1,27 @@
 #include "ChessBoard.h"
 
 ChessBoard::ChessBoard (  ) {
-  INITIAL_FEN = START_FEN;
+  START_FEN = string ( STARTPOS );
   memset ( &structure, 0, sizeof ( _Tboard ) );
-  sideToMove = loadFen ( INITIAL_FEN );
+  sideToMove = loadFen ( START_FEN );
   uci = false;
 }
 
 ChessBoard::~ChessBoard (  ) {
 }
+
+#ifdef DEBUG_MODE
+u64
+ChessBoard::getBitBoard ( int side ) {
+  return side ? getBitBoard < WHITE > (  ) : getBitBoard < BLACK > (  );
+
+}
+
+int
+ChessBoard::getPieceAt ( int side, u64 bitmapPos ) {
+  return side ? getPieceAt < WHITE > ( bitmapPos ) : getPieceAt < BLACK > ( bitmapPos );
+}
+#endif
 
 void
 ChessBoard::setUci ( bool b ) {
@@ -39,7 +52,7 @@ ChessBoard::makeZobristKey (  ) {
     while ( x2 ) {
       position = BITScanForward ( x2 );
       updateZobristKey ( &key, i, position );
-      x2 &= NOTTABLOG[position];
+      x2 &= NOTPOW2[position];
     }
   }
   if ( enpassantPosition != -1 )
@@ -48,82 +61,39 @@ ChessBoard::makeZobristKey (  ) {
   while ( x2 ) {
     position = BITScanForward ( x2 );
     updateZobristKey ( &key, 14, position );
-    x2 &= NOTTABLOG[position];
+    x2 &= NOTPOW2[position];
   }
   return key;
+}
+
+int
+ChessBoard::getPieceByChar ( char c ) {
+  for ( int i = 0; i < 12; i++ )
+    if ( c == FEN_PIECE[i] )
+      return i;
+  return -1;
 }
 
 void
 ChessBoard::display (  ) {
   if ( uci )
-    return;
-
-  int t;
-  char x;
-
-  cout << "\n.....a   b   c   d   e   f   g   h";
-  for ( t = 0; t <= 63; t++ ) {
-    if ( !( t % 8 ) ) {
-      cout << "\n...---------------------------------\n";
-    };
-    x = FEN_PIECE[getPieceAtWhite ( TABLOG[63 - t] )];
-    if ( x == '-' )
-      x = FEN_PIECE[getPieceAtBlack ( TABLOG[63 - t] )];
-    if ( x == '-' )
-      x = ' ';
-    switch ( t ) {
-    case 0:
-      cout << " 8 | ";
-      break;
-    case 8:
-      cout << " 7 | ";
-      break;
-    case 16:
-      cout << " 6 | ";
-      break;
-    case 24:
-      cout << " 5 | ";
-      break;
-    case 32:
-      cout << " 4 | ";
-      break;
-    case 40:
-      cout << " 3 | ";
-      break;
-    case 48:
-      cout << " 2 | ";
-      break;
-    case 56:
-      cout << " 1 | ";
-      break;
-    default:
-      ;
-      break;
+    return;			//TODO
+  cout << endl << "     a   b   c   d   e   f   g   h";
+  for ( int t = 0; t <= 63; t++ ) {
+    char x = ' ';
+    if ( t % 8 == 0 ) {
+      cout << endl << "   ---------------------------------" << endl;
+      cout << " " << 8 - RANK_AT[t] << " | ";
     }
-    if ( x != ' ' )
-      cout << x;
-    else if ( t == 0 || t == 2 || t == 4 || t == 6 || t == 9 || t == 11 || t == 13 || t == 15 || t == 16 || t == 18 || t == 20 || t == 22 || t == 25 || t == 27 || t == 29 || t == 31 || t == 32 || t == 34 || t == 36 || t == 38 || t == 41 || t == 43 || t == 45 || t == 47 || t == 48 || t == 50 || t == 52 || t == 54 || t == 57 || t == 59 || t == 61 || t == 63 )
-      cout << " ";
-    else
-      cout << ".";
-    cout << " | " << flush;
+    x = ( x = ( x = FEN_PIECE[getPieceAt < WHITE > ( POW2[63 - t] )] ) != '-' ? x : FEN_PIECE[getPieceAt < BLACK > ( POW2[63 - t] )] ) == '-' ? ' ' : x;
+    x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
+    cout << " | ";
   };
-  cout << "\n";
-  cout << "...---------------------------------\n";
-  cout << ".....a   b   c   d   e   f   g   h\n\n";
+  cout << endl << "   ---------------------------------" << endl;
+  cout << "     a   b   c   d   e   f   g   h" << endl << endl;
   string fen;
   boardToFen ( fen );
   cout << endl << fen << endl << endl << flush;
-}
-
-int
-ChessBoard::getPieceAtWhite ( u64 tablogpos ) {
-  return ( chessboard[PAWN_WHITE] & tablogpos ) ? PAWN_WHITE : ( ( chessboard[KING_WHITE] & tablogpos ) ? KING_WHITE : ( ( chessboard[ROOK_WHITE] & tablogpos ) ? ROOK_WHITE : ( ( chessboard[BISHOP_WHITE] & tablogpos ) ? BISHOP_WHITE : ( ( chessboard[KNIGHT_WHITE] & tablogpos ) ? KNIGHT_WHITE : ( ( chessboard[QUEEN_WHITE] & tablogpos ) ? QUEEN_WHITE : SQUARE_FREE ) ) ) ) );
-}
-
-int
-ChessBoard::getPieceAtBlack ( u64 tablogpos ) {
-  return ( chessboard[PAWN_BLACK] & tablogpos ) ? PAWN_BLACK : ( ( chessboard[KING_BLACK] & tablogpos ) ? KING_BLACK : ( ( chessboard[ROOK_BLACK] & tablogpos ) ? ROOK_BLACK : ( ( chessboard[BISHOP_BLACK] & tablogpos ) ? BISHOP_BLACK : ( ( chessboard[KNIGHT_BLACK] & tablogpos ) ? KNIGHT_BLACK : ( ( chessboard[QUEEN_BLACK] & tablogpos ) ? QUEEN_BLACK : SQUARE_FREE ) ) ) ) );
 }
 
 void
@@ -131,15 +101,14 @@ ChessBoard::boardToFen ( string & fen ) {
   int x, y, l = 0, i = 0, sq;
   char row[8];
   int q;
-
   for ( y = 0; y < 8; y++ ) {
     i = l = 0;
     strcpy ( row, "" );
     for ( x = 0; x < 8; x++ ) {
       sq = ( y * 8 ) + x;
-      q = getPieceAtBlack ( TABLOG[63 - sq] );
+      q = getPieceAt < BLACK > ( POW2[63 - sq] );
       if ( q == SQUARE_FREE )
-	q = getPieceAtWhite ( TABLOG[63 - sq] );
+	q = getPieceAt < WHITE > ( POW2[63 - sq] );
       if ( q == SQUARE_FREE )
 	l++;
       else {
@@ -189,7 +158,6 @@ ChessBoard::boardToFen ( string & fen ) {
     fen.append ( " " );
     sideToMove ? fen.append ( BOARD[enpassantPosition + 8] ) : fen.append ( BOARD[enpassantPosition - 8] );
   }
-
 }
 
 string
@@ -209,22 +177,30 @@ ChessBoard::decodeBoardinv ( const uchar type, const int a, const int side ) {
   ASSERT ( !( type & 0xC ) );
   if ( a >= 0 && a < 64 )
     return BOARD[a];
-#ifdef DEBUG_MODE
-  display (  );
-  cout << endl << "CODE|" << a << "|type:" << ( int ) type << endl;
-  ASSERT ( 0 );
-#endif
+  assert ( 0 );
   return "";
+}
 
+char
+ChessBoard::decodeBoard ( string a ) {
+  for ( int i = 0; i < 64; i++ ) {
+    if ( !a.compare ( BOARD[i] ) )
+      return i;
+  }
+  cout << endl << a << endl;
+  ASSERT ( 0 );
+  return -1;
 }
 
 int
 ChessBoard::loadFen (  ) {
-  return loadFen ( INITIAL_FEN );
+  return loadFen ( START_FEN );
 }
 
 int
 ChessBoard::loadFen ( string fen ) {
+  if ( fen.length (  ) == 0 )
+    return loadFen (  );
   istringstream iss ( fen );
   string pos, castle, enpassant, side;
   iss >> pos;
@@ -234,19 +210,18 @@ ChessBoard::loadFen ( string fen ) {
   int ix = 0;
   int s[64];
   memset ( chessboard, 0, sizeof ( chessboard ) );
-  for ( int ii = 0; ii < pos.length (  ); ii++ ) {
-    char ch = pos.at ( ii );
+  for ( unsigned ii = 0; ii < pos.length (  ); ii++ ) {
+    uchar ch = pos.at ( ii );
     if ( ch != '/' ) {
-      if ( getInvFen[ch] != 0xFF )
-	s[ix++] = getInvFen[ch];
+      if ( INV_FEN[ch] != 0xFF )
+	s[ix++] = INV_FEN[ch];
       else if ( ch > 47 && ch < 58 ) {
 	for ( int t = 0; t < ch - 48; t++ )
 	  s[ix++] = SQUARE_FREE;
       }
       else {
-	cout << "Bad FEN position format (" << ( char ) ch << ")" << endl << fen;
+	cout << "Bad FEN position format (" << ( char ) ch << ") " << fen << endl;
 	exit ( 1 );
-	return 0;
       };
     }
   }
@@ -257,7 +232,7 @@ ChessBoard::loadFen ( string fen ) {
   for ( int i = 0; i < 64; i++ ) {
     int p = s[63 - i];
     if ( p != SQUARE_FREE ) {
-      chessboard[p] |= TABLOG[i];
+      chessboard[p] |= POW2[i];
     }
   };
   if ( side == "b" )
@@ -300,19 +275,6 @@ ChessBoard::loadFen ( string fen ) {
       break;
     }
   }
+  zobristKey = makeZobristKey (  );
   return sideToMove;
-}
-
-uchar
-ChessBoard::rotateBoardLeft45 ( const u64 ss, const int pos ) {
-  u64 xx = ss & LEFT[pos];
-  return TABLOG_VERT45[pos] | bits::ROTATE_LEFT[( xx >> SHIFT_LEFT[pos] ) & 0xFFFFULL] | bits::ROTATE_LEFT[( ( xx ) >> 16 ) & 0xFFFFULL]
-    | bits::ROTATE_LEFT[( ( xx ) >> 32 ) & 0xFFFFULL] | bits::ROTATE_LEFT[( ( xx ) >> 48 ) & 0xFFFFULL];
-}
-
-uchar
-ChessBoard::rotateBoardRight45 ( const u64 ss, const int pos ) {
-  u64 xx = ( ss & RIGHT[pos] );
-  return TABLOG_VERT45[pos] | bits::ROTATE_RIGHT[( xx >> SHIFT_RIGHT[pos] ) & 0xFFFFULL] | bits::ROTATE_RIGHT[( ( xx ) >> 16 ) & 0xFFFFULL]
-    | bits::ROTATE_RIGHT[( ( xx ) >> 32 ) & 0xFFFFULL] | bits::ROTATE_RIGHT[( ( xx ) >> 48 ) & 0xFFFFULL];
 }

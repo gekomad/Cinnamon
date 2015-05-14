@@ -1,26 +1,20 @@
 #include "Search.h"
-#include "utils.h"
 
 Search::Search (  ) {
 #ifdef DEBUG_MODE
-  LazyEvalCuts = totmosse = totGen = 0;
+  LazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
-//    resetRepetitionCount();
-  nullSem = false;
-//    pushStackMove(makeZobristKey(),false);
-
+  ponder = nullSearch = false;
 }
-
-
 
 void
 Search::setNullMove ( bool b ) {
-  nullSem = !b;
+  nullSearch = !b;
 }
 
 void
 Search::startClock (  ) {
-  ftime ( &start_time );
+  ftime ( &startTime );
 }
 
 void
@@ -32,34 +26,27 @@ int
 Search::checkTime (  ) {
   if ( running == 2 )
     return 2;
+  if ( ponder )
+    return 1;
   struct timeb t_current;
   ftime ( &t_current );
-  return ( ( int ) ( 1000 * ( t_current.time - start_time.time ) ) ) >= maxTimeMillsec ? 0 : 1;
+  return _time::diffTime ( t_current, startTime ) >= maxTimeMillsec ? 0 : 1;
 }
 
 Search::~Search (  ) {
-
 }
 
-int
-Search::quiescence ( u64 key, int alpha, const int side, int beta, const char promotionPiece, int dep ) {
-#ifdef TUNE_CRAFTY_MODE
-  return 0;
-#else
+template < int side > int
+Search::quiescence ( u64 key, int alpha, int beta, const char promotionPiece, int dep ) {
   if ( !running )
     return 0;
-
-#ifdef DEBUG_MODE
   ASSERT ( dep + mainDepth < MAX_PLY );
-  if ( ( !side && !chessboard[KING_BLACK] ) || ( side && !chessboard[KING_WHITE] ) ) {
-    ASSERT ( 0 );
-  }
-#endif
+  ASSERT ( chessboard[KING_BLACK + side] );
+
   int score = -_INFINITE;
-  if ( !( numMovesq++ & 1023 ) )
+  if ( !( numMovesq++ & 1023 ) )	//TODO eliminare?
     running = checkTime (  );
-  int xside, listcount;
-  _Tmove *move;
+
   score = getScore ( side, alpha, beta );
   if ( score >= beta ) {
     return beta;
@@ -73,56 +60,60 @@ Search::quiescence ( u64 key, int alpha, const int side, int beta, const char pr
   }
     /************ end Delta Pruning *************/
 #endif
-  xside = side ^ 1;
   if ( score > alpha )
     alpha = score;
-  list_id++;
-  ASSERT ( list_id < MAX_PLY );
-  u64 friends = getBitBoard ( side );
-  u64 enemies = getBitBoard ( side ^ 1 );
-  if ( generateCap ( side, enemies, friends, &key ) ) {
-    gen_list[list_id--][0].score = 0;
+  incListId (  );
+
+  u64 friends = getBitBoard < side > (  );
+  u64 enemies = getBitBoard < side ^ 1 > (  );
+  if ( generateCaptures < side > ( enemies, friends, &key ) ) {
+    gen_list[listId--].size = 0;
     return _INFINITE - ( mainDepth - dep );
   }
-  listcount = gen_list[list_id][0].score;
+  int listcount = gen_list[listId].size;
   if ( !listcount ) {
-    --list_id;
+    --listId;
     return score;
   }
-  int i;
+  _Tmove *move;
   u64 oldKey = key;
-  while ( ( i = getNextMove ( gen_list[list_id] ) ) != -1 ) {
-    move = &gen_list[list_id][i];
-    makemove ( move, &key );
+  while ( ( move = getNextMove ( &gen_list[listId] ) ) ) {
+    makemove ( move, &key, false );
 #ifndef NO_FP_MODE
 	/**************Delta Pruning ****************/
     if ( fprune && ( ( move->type & 0x3 ) != PROMOTION_MOVE_MASK )	/*&& move->capturedPiece == 12 */
 	 &&fscore + PIECES_VALUE[move->capturedPiece] <= alpha /*&& !in_check (side) */  ) {
-      INC ( n_cut_fp );
-      takeback ( move, &key, oldKey );
+      INC ( nCutFp );
+      takeback ( move, &key, oldKey, false );
       continue;
     }
 	/************ end Delta Pruning *************/
 #endif
-    int val = -quiescence ( key, -beta, xside, -alpha, move->promotionPiece, dep + 1 );
+    int val = -quiescence < side ^ 1 > ( key, -beta, -alpha, move->promotionPiece, dep + 1 );
     score = max ( score, val );
-    takeback ( move, &key, oldKey );
+    takeback ( move, &key, oldKey, false );
     if ( score >= beta ) {
-      gen_list[list_id--][0].score = 0;
+      gen_list[listId--].size = 0;
       return beta;
     }
     if ( score > alpha ) {
       alpha = score;
     }
   }
-  gen_list[list_id--][0].score = 0;
+  gen_list[listId--].size = 0;
   return alpha;
-#endif
+}
+
+void
+Search::setPonder ( bool r ) {
+  ponder = r;
 }
 
 void
 Search::setRunning ( int r ) {
   running = r;
+  if ( !r )
+    maxTimeMillsec = 0;
 }
 
 int
@@ -141,83 +132,97 @@ Search::getMaxTimeMillsec (  ) {
 }
 
 void
-Search::sortHashMoves ( int list_id1, _Thash * phashe ) {
-  for ( int r = 1; r <= gen_list[list_id1][0].score; r++ ) {
-    _Tmove *mos = &gen_list[list_id1][r];
+Search::sortHashMoves ( int listId1, _Thash * phashe ) {
+  for ( int r = 0; r < gen_list[listId1].size; r++ ) {
+    _Tmove *mos = &gen_list[listId1].moveList[r];
     if ( phashe && phashe->from == mos->from && phashe->to == mos->to ) {
       mos->score = _INFINITE / 2;
       return;
     }
   }
-}				/*
-				   bool Search::checkInsufficientMaterial() {
-				   int s = 0;
-				   //insufficient material to mate
-				   if (!chessboard[PAWN_BLACK] && !chessboard[PAWN_WHITE] && !chessboard[ROOK_BLACK] && !chessboard[ROOK_WHITE] && !chessboard[QUEEN_WHITE]
-				   && !chessboard[QUEEN_BLACK]) {
-				   u64 allBishop = (chessboard[BISHOP_BLACK] | chessboard[BISHOP_WHITE]);
-				   u64 allKnight = (chessboard[KNIGHT_WHITE] | chessboard[KNIGHT_BLACK]);
-				   // king + knight versus king or king versus king
-				   if (!allBishop && bitCount(allKnight) < 2)//no bishop and 0 or 1 knight
-				   return true;
-				   s = bitCount(allBishop);
-				   if (!allKnight) {//no knight
-				   if( s < 2)// 0 or 1 bishop
-				   return true;
-				   //kings with one or more bishops, and all bishops on the same color
-				   if ((allBishop & BLACK_SQUARES)==allBishop||(allBishop & WHITE_SQUARES)==allBishop)
-				   return true;
-				   }
-				   }
-				   return false;
-				   }
-				 */
-/*
-bool Search::checkDraw(u64 key) {
+}
+
+/*TODO
+bool Search::checkInsufficientMaterial(int N_PIECE) {
+
+    if(N_PIECE > 4 )return false;
     int s = 0;
-    ASSERT(key);
-
-//if (repetitionMapCount>4 ){cout << repetitionMap[repetitionMapCount-1]<< " " <<repetitionMap[repetitionMapCount-3] <<" "<< repetitionMap[repetitionMapCount-5]<<" "<<key<<endl;}
-
-    for(int i=repetitionMapCount-3; i>=0; i-=2) {
-        //for(int i=repetitionMapCount-2; i>=0; i-=1) {
-        ASSERT(i>=0);
-        // cout <<repetitionMap[i].key<<" "<<key<<endl;
-        if(repetitionMap[i].key==key && (++s)==2) {
-            //cout <<"xxrepetition\n";
+    //insufficient material to mate
+    if (!chessboard[PAWN_BLACK] && !chessboard[PAWN_WHITE] && !chessboard[ROOK_BLACK] && !chessboard[ROOK_WHITE] && !chessboard[QUEEN_WHITE]
+            && !chessboard[QUEEN_BLACK]) {
+        u64 allBishop = chessboard[BISHOP_BLACK] | chessboard[BISHOP_WHITE];
+        u64 allKnight = chessboard[KNIGHT_WHITE] | chessboard[KNIGHT_BLACK];
+        // king + knight versus king or king versus king
+        if (!allBishop && _bits::bitCount(allKnight) < 2)//no bishop and 0 or 1 knight
             return true;
+        s = _bits::bitCount(allBishop);
+        if (!allKnight) {//no knight
+            if(s < 2)// 0 or 1 bishop
+                return true;
+            //kings with one or more bishops, and all bishops on the same color
+            if ((allBishop & BLACK_SQUARES)==allBishop||(allBishop & WHITE_SQUARES)==allBishop)
+                return true;
         }
-
-        if(repetitionMap[i].reset)return false;
-        if(i&&repetitionMap[i-1].reset)return false;
     }
-
     return false;
-}*/
+}
+*/
+bool
+Search::checkDraw ( u64 key ) {
+  int o = 0;
+  int count = 0;
+  for ( int i = repetitionMapCount - 1; i >= 0; i-- ) {
+    if ( repetitionMap[i] == 0 )
+      return false;
+    if ( ++count >= 99 ) {
+      return true;
+    }
+    if ( repetitionMap[i] == key && ++o > 2 ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 int
-Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLine * pline ) {
+Search::search ( int depth, int alpha, int beta, _TpvLine * pline ) {
+#ifndef NO_HASH_MODE
+  ASSERT ( zobristKey );
+#endif
+  return getSide (  )? search < WHITE > ( zobristKey, depth, alpha, beta, pline /*,_bits::bitCount(getBitBoard(WHITE)|getBitBoard(BLACK)) */  )
+    : search < BLACK > ( zobristKey, depth, alpha, beta, pline /*,_bits::bitCount(getBitBoard(WHITE)|getBitBoard(BLACK)) */  );
+}
+
+template < int side > int
+Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,int N_PIECE */  ) {
   if ( !running )
     return 0;
-//    if(checkInsufficientMaterial())return 0;
+
+  if ( mainDepth != depth && checkDraw ( key ) ) {
+    return -lazyEval < side > (  ) * 2;
+  }
+  /* if( mainDepth!=depth &&checkInsufficientMaterial(N_PIECE)) {
+     return 0;
+     } */
   u64 oldKey = key;
-  INC ( totmosse );
+  INC ( cumulativeMovesCount );
 
 #ifdef DEBUG_MODE
+  double betaEfficencyCount = 0.0;
+#endif
   ASSERT ( chessboard[KING_BLACK] );
   ASSERT ( chessboard[KING_WHITE] );
-  if ( ( !side && !chessboard[KING_BLACK] ) || ( side && !chessboard[KING_WHITE] ) )
-    ASSERT ( 0 );
-#endif
+  ASSERT ( chessboard[KING_BLACK + side] );
+
   _TpvLine line;
   line.cmove = 0;
-  int is_incheck_side = in_check ( side );
+  int is_incheck_side = inCheck < side > (  );
   int extension = 0;
   if ( is_incheck_side /*|| needExtension() */  )
     extension++;
   depth += extension;
   if ( depth == 0 ) {
-    // return score(side,alpha,beta);
-    return quiescence ( key, alpha, side, beta, -1, 0 );
+    return quiescence < side > ( key, alpha, beta, -1, 0 );
   }
   _Thash *phashe_greater = NULL;
   _Thash *phashe_always = NULL;
@@ -245,12 +250,11 @@ Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLi
 
 	  if ( phashe_greater->from != phashe_greater->to ) {
 	    updatePvFromHash = true;
-	    updatePv ( pline, &line, phashe_greater->from, phashe_greater->to, side );
+	    updatePv < side > ( pline, &line, phashe_greater->from, phashe_greater->to );
 	  }
 	  if ( phashe_greater->score >= beta ) {
 	    return beta;
 	  }
-
 	  break;
 
 	case hashfBETA:
@@ -258,18 +262,16 @@ Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLi
 	  if ( phashe_greater->score >= beta ) {
 	    INC ( n_cut_hashB );
 	    return beta;
-
-	    alpha = max ( alpha, ( int ) phashe_greater->score );
 	  }
+	  //alpha = max(alpha, (int) phashe_greater->score);//TODO ??
 	  break;
 	case hashfALPHA:
 
 	  if ( phashe_greater->score <= alpha ) {
 	    INC ( n_cut_hashA );
 	    return alpha;
-
-	    beta = min ( beta, ( int ) phashe_greater->score );
 	  }
+	  //beta = min(beta, (int) phashe_greater->score);//TODO ??
 	  break;
 	default:
 	  break;
@@ -292,14 +294,12 @@ Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLi
 	switch ( phashe_always->flags ) {
 	case hashfEXACT:
 	  INC ( n_cut_hashE );
-
 	  if ( !updatePvFromHash && phashe_always->from != phashe_always->to ) {
-	    updatePv ( pline, &line, phashe_always->from, phashe_always->to, side );
+	    updatePv < side > ( pline, &line, phashe_always->from, phashe_always->to );
 	  }
 	  if ( phashe_always->score >= beta ) {
 	    return beta;
 	  }
-
 	  break;
 
 	case hashfBETA:
@@ -307,16 +307,17 @@ Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLi
 	  if ( phashe_always->score >= beta ) {
 	    INC ( n_cut_hashB );
 	    return beta;
-	    alpha = max ( alpha, ( int ) phashe_always->score );
+
 	  }
+	  //alpha = max(alpha, (int) phashe_always->score);//TODO ??
 	  break;
 	case hashfALPHA:
 	  if ( phashe_always->score <= alpha ) {
 	    INC ( n_cut_hashA );
 	    return alpha;
 
-	    beta = min ( beta, ( int ) phashe_always->score );
 	  }
+	  //beta = min(beta, (int) phashe_always->score);//TODO ??
 	  break;
 	default:
 	  break;
@@ -330,20 +331,15 @@ Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLi
   if ( !( numMoves & 1023 ) )
     running = checkTime (  );
   int score = -_INFINITE;
-  int n_pieces_side = getNpieces ( side );
-  int n_pieces_x_side = getNpieces ( side ^ 1 );
   ++numMoves;
-  int fprune, mat_balance;
-  int fscore, Fmax = 0;
-
-  int val;
 //********* null move ***********
-  if ( !is_incheck_side && null_ok ( depth, side, n_pieces_side ) ) {
-    nullSem = true;
-    int nullScore = -search ( key, side ^ 1, depth - R_adpt ( side, depth ) - 1, -beta, -beta + 1, &line );
-    nullSem = false;
+  int n_pieces_side;
+  if ( !is_incheck_side && !nullSearch && depth >= 3 && ( n_pieces_side = getNpiecesNoPawnNoKing < side > (  ) ) >= 3 ) {
+    nullSearch = true;
+    int nullScore = -search < side ^ 1 > ( key, depth - ( 2 + ( depth > ( 3 + ( n_pieces_side < 2 ? 2 : 0 ) ) ) ) - 1, -beta, -beta + 1, &line /*,N_PIECE */  );
+    nullSearch = false;
     if ( nullScore >= beta ) {
-      INC ( null_move_cut );
+      INC ( nNullMoveCut );
       return nullScore;
     }
   }
@@ -351,60 +347,61 @@ Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLi
 #ifndef NO_FP_MODE
     /**************Futility Pruning****************/
     /**************Futility Pruning razor at pre-pre-frontier*****/
-  fprune = 0;
 
   ASSERT ( score == -_INFINITE );
+  bool futilPrune = false;
+  int futilScore = 0;
   if ( depth <= 3 && !is_incheck_side ) {
-    mat_balance = lazyEval ( side );
-    if ( depth == 3 && n_pieces_x_side > 4 && ( mat_balance + RAZOR_MARGIN ) <= alpha ) {
-      INC ( n_cut_razor );
-      depth--;
-    }
-    else
-      //**************Futility Pruning at pre-frontier*****
-    if ( depth == 2 && ( fscore = mat_balance + EXT_FUTILY_MARGIN ) <= alpha ) {
-      fprune = 1;
-      score = Fmax = fscore;
-    }
-    else
-      //**************Futility Pruning at frontier*****
-    if ( depth == 1 && ( fscore = mat_balance + FUTIL_MARGIN ) <= alpha ) {
-      fprune = 1;
-      score = Fmax = fscore;
+    int matBalance = lazyEval < side > (  );
+    if ( ( futilScore = matBalance + FUTIL_MARGIN ) <= alpha ) {
+      if ( depth == 3 && ( matBalance + RAZOR_MARGIN ) <= alpha && getNpiecesNoPawnNoKing < side ^ 1 > (  ) > 3 ) {
+	INC ( nCutRazor );
+	depth--;
+      }
+      else
+	//**************Futility Pruning at pre-frontier*****
+      if ( depth == 2 && ( futilScore = matBalance + EXT_FUTILY_MARGIN ) <= alpha ) {
+	futilPrune = true;
+	score = futilScore;
+      }
+      else
+	//**************Futility Pruning at frontier*****
+      if ( depth == 1 /*&& (futilScore = matBalance + FUTIL_MARGIN) <= alpha */  ) {
+	futilPrune = true;
+	score = futilScore;
+      }
     }
   }
     /************ end Futility Pruning*************/
 #endif
 
-  int listcount;
-  _Tmove *move;
-  list_id++;
-  ASSERT ( list_id < MAX_PLY && list_id >= 0 );
+  incListId (  );
+
   ASSERT ( KING_BLACK + side >= 0 && KING_BLACK + side < 12 );
   ASSERT ( KING_BLACK + ( side ^ 1 ) >= 0 && KING_BLACK + ( side ^ 1 ) < 12 );
   friendKing[side] = BITScanForward ( chessboard[KING_BLACK + side] );
   friendKing[side ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( side ^ 1 )] );
-  u64 friends = getBitBoard ( side );
-  u64 enemies = getBitBoard ( side ^ 1 );
-  if ( generateCap ( side, enemies, friends, &key ) ) {
-    gen_list[list_id--][0].score = 0;
+  u64 friends = getBitBoard < side > (  );
+  u64 enemies = getBitBoard < side ^ 1 > (  );
+  if ( generateCaptures < side > ( enemies, friends, &key ) ) {
+    gen_list[listId--].size = 0;
     score = _INFINITE - ( mainDepth - depth + 1 );
     return score;
   }
-  generateMoves ( side, friends | enemies );
-  listcount = gen_list[list_id][0].score;
+  generateMoves < side > ( friends | enemies );
+  int listcount = gen_list[listId].size;
   if ( !listcount ) {
-    --list_id;
+    --listId;
     if ( is_incheck_side )
       return -_INFINITE + ( mainDepth - depth + 1 );
     else
-      return 0;
+      return -lazyEval < side > (  ) * 2;
   }
 
 #ifndef NO_HASH_MODE
 //Enhanced Transposition Cutoff
-  /*  for (int i = 1; i <= listcount; i++) {
-     move = &gen_list[list_id][i];
+  /*  for (int i = 0; i < listcount; i++) {
+     move = &gen_list[listId][i];
      if (move->score == _INFINITE)
      break;
      makemove(move, &key);
@@ -415,48 +412,32 @@ Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLi
      takeback(move, &key, oldKey);
      } */
 
-  /*for (int i = 1; i <= listcount; i++) {
-     int from = gen_list[list_id][i].from;
-     int to = gen_list[list_id][i].to;
+  /*for (int i = 0; i < listcount; i++) {
+     int from = gen_list[listId][i].from;
+     int to = gen_list[listId][i].to;
      if (killerHeuristic[currentPly][from][to]) {
-     gen_list[list_id][i].score = killerHeuristic[currentPly][from][to];
+     gen_list[listId][i].score = killerHeuristic[currentPly][from][to];
      continue;
      }
      } */
 
 #endif
   _Tmove *best = NULL;
-  int ii;
   bool check_alpha = false;
   if ( hash_greater )
-    sortHashMoves ( list_id, phashe_greater );
+    sortHashMoves ( listId, phashe_greater );
   else if ( hash_always )
-    sortHashMoves ( list_id, phashe_always );
-#ifdef DEBUG_MODE
-  double N = 0.0;
-#endif
+    sortHashMoves ( listId, phashe_always );
   INC ( totGen );
-  while ( ( ii = getNextMove ( gen_list[list_id] ) ) != -1 ) {
-    INC ( N );
-    move = &gen_list[list_id][ii];
-    makemove ( move, &key );
-
-    /* if(move->pieceFrom==WHITE||move->pieceFrom==BLACK||move->capturedPiece!=SQUARE_FREE)
-       pushStackMove(key,true);
-       else {
-       pushStackMove(key,false);
-       if (checkDraw( key)) {
-       popStackMove();
-       takeback(move, &key, oldKey);
-       continue;
-       }
-       } */
+  _Tmove *move;
+  while ( ( move = getNextMove ( &gen_list[listId] ) ) ) {
+    INC ( betaEfficencyCount );
+    makemove ( move, &key, true );
 #ifndef NO_FP_MODE
-    if ( fprune && check_alpha && ( ( move->type & 0x3 ) != PROMOTION_MOVE_MASK )	/*&& move->capturedPiece == 12 */
-	 &&Fmax + PIECES_VALUE[move->capturedPiece] <= alpha && !in_check ( side ) ) {
-      INC ( n_cut_fp );
-//            popStackMove();
-      takeback ( move, &key, oldKey );
+    if ( futilPrune && check_alpha && ( ( move->type & 0x3 ) != PROMOTION_MOVE_MASK )	/*&& move->capturedPiece == 12 */
+	 &&futilScore + PIECES_VALUE[move->capturedPiece] <= alpha && !inCheck < side > (  ) ) {
+      INC ( nCutFp );
+      takeback ( move, &key, oldKey, true );
       continue;
     }
 #endif
@@ -465,28 +446,23 @@ Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLi
     int lwb = max ( alpha, score );
     int upb = ( doMws ? ( lwb + 1 ) : beta );
     currentPly++;
-    val = -search ( key, side ^ 1, depth - 1, -upb, -lwb, &line );
+    int val = -search < side ^ 1 > ( key, depth - 1, -upb, -lwb, &line /*,move->capturedPiece==SQUARE_FREE?N_PIECE:N_PIECE-1 */  );
     currentPly--;
     if ( doMws && ( lwb < val ) && ( val < beta ) ) {
       currentPly++;
-      val = -search ( key, side ^ 1, depth - 1, -beta, -val + 1, &line );
+      val = -search < side ^ 1 > ( key, depth - 1, -beta, -val + 1, &line /*,move->capturedPiece==SQUARE_FREE?N_PIECE:N_PIECE-1 */  );
       currentPly--;
     }
     score = max ( score, val );
-    //popStackMove();
-    takeback ( move, &key, oldKey );
-    if ( !running ) {
-      gen_list[list_id--][0].score = 0;
-      return 0;
-    }
+    takeback ( move, &key, oldKey, true );
     move->score = score;
     if ( score > alpha ) {
       if ( score >= beta ) {
-	gen_list[list_id--][0].score = 0;
-#ifdef DEBUG_MODE
+	gen_list[listId--].size = 0;
 	ASSERT ( move->score == score );
-	INC ( n_cut );
-	beta_efficency += N / ( double ) listcount *100.0;
+	INC ( nCutAB );
+#ifdef DEBUG_MODE
+	betaEfficency += betaEfficencyCount / ( double ) listcount *100.0;
 #endif
 	recordHash ( running, phashe_greater, phashe_always, depth - extension, hashfBETA, key, score, move );
 	setKillerHeuristic ( move->from, move->to, 0x400 );
@@ -496,12 +472,12 @@ Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLi
       check_alpha = true;
       hashf = hashfEXACT;
       best = move;
-      move->score = score;	//si usa in it
+      move->score = score;	//used in it
       updatePv ( pline, &line, move );
     }
   }
   recordHash ( running, phashe_greater, phashe_always, depth - extension, hashf, key, score, best );
-  gen_list[list_id--][0].score = 0;
+  gen_list[listId--].size = 0;
   return score;
 }
 
@@ -515,13 +491,28 @@ Search::updatePv ( _TpvLine * pline, const _TpvLine * line, const _Tmove * move 
 }
 
 void
-Search::updatePv ( _TpvLine * pline, const _TpvLine * line, const int from, const int to, const int side ) {
+Search::pushMovesPath ( char move ) {
+  movesPath += move;
+}
+
+void
+Search::clearMovesPath (  ) {
+  movesPath.clear (  );
+}
+
+string
+Search::getMovesPath (  ) {
+  return movesPath;
+}
+
+template < int side > void
+Search::updatePv ( _TpvLine * pline, const _TpvLine * line, const int from, const int to ) {
   ASSERT ( line->cmove < MAX_PLY - 1 );
   _Tmove mos;
   int type = STANDARD_MOVE_MASK;
   mos.side = ( char ) side;
-  mos.capturedPiece = getPieceAt ( ( side ^ 1 ), TABLOG[to] );
-  int pieceFrom = getPieceAt ( ( side ), TABLOG[from] );
+  mos.capturedPiece = getPieceAt < side ^ 1 > ( POW2[to] );
+  int pieceFrom = getPieceAt < side > ( POW2[from] );
   mos.from = from;
   mos.to = to;
   mos.promotionPiece = -1;

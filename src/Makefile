@@ -1,59 +1,51 @@
 #Makefile for cross-compile Linux/Windows/Mac
 
-LIBS=-lpthread
-CFLAGS_PROFILE="-std=c++0x -w -O3 -fprofile-generate -fno-exceptions -fno-rtti -fomit-frame-pointer"
-CFLAGS_RELEASE="-std=c++0x -w -O3 -fprofile-use -fno-exceptions -fno-rtti -fomit-frame-pointer"
-CFLAGS_NO_PROFILE="-std=c++0x -w -O3 -fno-exceptions -fno-rtti -fomit-frame-pointer"
+CFLAGS_PROFILE="-std=c++0x -w -O3 -fprofile-generate -fno-exceptions -fno-rtti -fomit-frame-pointer -ffast-math -march=native -funroll-loops"
+CFLAGS_RELEASE="-std=c++0x -w -O3 -fprofile-use -fno-exceptions -fno-rtti -fomit-frame-pointer -ffast-math -march=native -funroll-loops"
 CC="g++"
 ifndef SystemRoot
 RM=rm -f
 PA="./"
-EXE="butterfly"
+LIBS=-lpthread
+EXE="cinnamon"
 STRIP=strip
 else
 PA=""
-EXE="butterfly.exe"
+LIBS=
+EXE="cinnamon.exe"
 STRIP=strip.exe
 RM=del
 endif
 
 _init_:
 ifndef CFLAGS
-	@echo "To compile butterfly type:"
+	@echo "To compile cinnamon type:"
 	@echo ""
-	@echo "make butterfly32"
-	@echo "make butterfly64"
+	@echo "make cinnamon32"
+	@echo "make cinnamon64"
 	@echo ""
 endif
 
-all: butterfly
-
-cbutterfly:
-	$(MAKE) EXE=$(EXE) CFLAGS=$(CFLAGS_PROFILE) all
+make_cinnamon:
+	$(MAKE) -j EXE=$(EXE) CFLAGS=$(CFLAGS_PROFILE) all
 	@echo "optimize..."
-	$(PA)$(EXE) -b >bench.log
-	$(RM) *.o bench.log
+	$(PA)$(EXE) -b >bench.tmp
+	$(RM) *.o bench.tmp
 	@echo "build..."
-	$(MAKE) EXE=$(EXE) CFLAGS=$(CFLAGS_RELEASE) all
+	$(MAKE) -j EXE=$(EXE) CFLAGS=$(CFLAGS_RELEASE) all
 
-butterfly32:
-	$(MAKE) ARC="-m32" cbutterfly
+cinnamon32:
+	$(MAKE) ARC="-m32 -mfpmath=sse" make_cinnamon
 
-butterfly64:
-	$(MAKE) ARC="-m64" cbutterfly
+cinnamon64:
+	$(MAKE) ARC="-m64" make_cinnamon
 
-tuningcrafty32:
-	$(MAKE) EXE=$(EXE) CFLAGS=$(CFLAGS_NO_PROFILE) DEF="-DTUNE_CRAFTY_MODE" ARC="-m32" 	all
-
-tuningcrafty64:
-	$(MAKE) EXE=$(EXE) CFLAGS=$(CFLAGS_NO_PROFILE) DEF="-DTUNE_CRAFTY_MODE" ARC="-m64" all
-
-butterfly: _init_ utils.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o TuningCrafty.o Hash.o Uci.o
-	$(CC) ${CFLAGS} -o ${EXE} utils.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o TuningCrafty.o Hash.o Uci.o  ${LIBS} ${ARC}
+all: _init_ namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o Hash.o Uci.o OpenBook.o
+	$(CC) ${CFLAGS} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o Hash.o Uci.o OpenBook.o ${LIBS} ${ARC}
 	$(STRIP) $(EXE)
 
-utils.o: utils.cpp
-	$(CC) -c utils.cpp ${CFLAGS} ${DEF} ${ARC}
+namespaces.o: namespaces.cpp
+	$(CC) -c namespaces.cpp ${CFLAGS} ${DEF} ${ARC}
 
 ChessBoard.o: ChessBoard.cpp
 	$(CC) -c ChessBoard.cpp ${CFLAGS} ${DEF} ${ARC}
@@ -76,14 +68,14 @@ Perft.o: Perft.cpp
 Search.o: Search.cpp
 	$(CC) -c Search.cpp ${CFLAGS} ${DEF} ${ARC}
 
-TuningCrafty.o: TuningCrafty.cpp
-	$(CC) -c TuningCrafty.cpp ${CFLAGS} ${DEF} ${ARC}
-
 Uci.o: Uci.cpp
 	$(CC) -c Uci.cpp ${CFLAGS} ${DEF} ${ARC}
 
 Hash.o: Hash.cpp
 	$(CC) -c Hash.cpp ${CFLAGS} ${DEF} ${ARC}
+
+OpenBook.o: OpenBook.cpp
+	$(CC) -c OpenBook.cpp ${CFLAGS} ${DEF} ${ARC}
 
 clean:
 	$(RM) *.o $(EXE) *.gcda

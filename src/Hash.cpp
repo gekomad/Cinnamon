@@ -1,14 +1,12 @@
 #include "Hash.h"
 
-
 Hash::Hash (  ) {
   hash_array_greater[BLACK] = hash_array_greater[WHITE] = NULL;
   hash_array_always[BLACK] = hash_array_always[WHITE] = NULL;
   HASH_SIZE = 0;
-
 #ifdef DEBUG_MODE
   n_cut_hashA = n_cut_hashE = n_cut_hashB = cutFailed = probeHash = 0;
-  n_cut_hash = n_record_hash = collisions = 0;
+  n_cut_hash = nRecordHashA = nRecordHashB = nRecordHashE = collisions = 0;
 #endif
 #ifndef NO_HASH_MODE
   setHashSize ( 64 );
@@ -31,6 +29,11 @@ Hash::clearHash (  ) {
   memset ( hash_array_greater[WHITE], 0, sizeof ( _Thash ) * HASH_SIZE );
 }
 
+int
+Hash::getHashSize (  ) {
+  return HASH_SIZE / ( 1024 * 1000 / ( sizeof ( _Thash ) * 4 ) );
+}
+
 void
 Hash::setHashSize ( int mb ) {
   dispose (  );
@@ -38,23 +41,21 @@ Hash::setHashSize ( int mb ) {
     HASH_SIZE = mb * 1024 * 1000 / ( sizeof ( _Thash ) * 4 );
     hash_array_greater[BLACK] = ( _Thash * ) calloc ( HASH_SIZE, sizeof ( _Thash ) );
     hash_array_greater[WHITE] = ( _Thash * ) calloc ( HASH_SIZE, sizeof ( _Thash ) );
-    myassert ( hash_array_greater[BLACK] );
-    myassert ( hash_array_greater[WHITE] );
+    assert ( hash_array_greater[BLACK] );
+    assert ( hash_array_greater[WHITE] );
     hash_array_always[BLACK] = ( _Thash * ) calloc ( HASH_SIZE, sizeof ( _Thash ) );
     hash_array_always[WHITE] = ( _Thash * ) calloc ( HASH_SIZE, sizeof ( _Thash ) );
-    myassert ( hash_array_always[BLACK] );
-    myassert ( hash_array_always[WHITE] );
+    assert ( hash_array_always[BLACK] );
+    assert ( hash_array_always[WHITE] );
   }
 }
 
 void
 Hash::recordHash ( bool running, _Thash * phashe_greater, _Thash * phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove * bestMove ) {
 #ifndef NO_HASH_MODE
-
   ASSERT ( key );
   if ( !running )
     return;
-
   ASSERT ( abs ( score ) <= 32200 );
   _Thash *phashe = phashe_greater;
   phashe->key = key;
@@ -75,7 +76,14 @@ Hash::recordHash ( bool running, _Thash * phashe_greater, _Thash * phashe_always
     INC ( collisions );
     return;
   }
-  INC ( n_record_hash );
+#ifdef DEBUG_MODE
+  if ( flags == hashfALPHA )
+    nRecordHashA++;
+  else if ( flags == hashfBETA )
+    nRecordHashB++;
+  else
+    nRecordHashE++;
+#endif
   phashe->key = key;
   phashe->score = score;
   phashe->flags = flags;

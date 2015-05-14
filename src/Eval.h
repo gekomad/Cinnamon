@@ -1,87 +1,77 @@
 #ifndef EVAL_H_
 #define EVAL_H_
 
-#include "maindefine.h"
-#include "utils.h"
 #include "GenMoves.h"
-
-enum {
-  OPEN, MIDDLE, FINAL
-};
-
+using namespace _board;
+using namespace _eval;
 
 class Eval:public GenMoves {
 public:
   Eval (  );
   virtual ~ Eval (  );
-  void setRandomParam (  );
-  void writeParam ( string param_file, int cd_param, bool append );
-#ifdef TUNE_CRAFTY_MODE
-  int getScore ( const int side, int *material_score, int *pawns_score, int *passed_pawns_score, int *knights_score, int *bishop_score, int *rooks_score, int *queens_score, int *kings_score, int *development_score, int *pawn_race_score, int *total_score );
-#else
   int getScore ( const int side, const int alpha, const int beta );
-#endif
-  int lazyEval ( int side ) {
-    return side ? lazyEvalWhite (  ) - lazyEvalBlack (  ) : lazyEvalBlack (  ) - lazyEvalWhite (  );
-  }
+
+   template < int side > int lazyEval (  ) {
+    return lazyEvalSide < side > (  ) - lazyEvalSide < side ^ 1 > (  );
+} protected:
 #ifdef DEBUG_MODE
   int LazyEvalCuts;
-  unsigned totmosse, totGen;
 #endif
+
 private:
 
+  static const int ATTACK_CENTER = 5;
+  //static const int ATTACK_F7_F2 = 11;
+  static const int ATTACK_KING = 30;
+  //static const int BACKWARD_OPEN_PAWN = 4;
+  static const int BACKWARD_PAWN = 2;
+  static const int BISHOP_ON_QUEEN = 2;
+  //static const int BISHOP_TRAPPED = 9;
+  static const int BISHOP_TRAPPED_DIAG = 35;
+//    static const int BONUS_11 = 1;
+  static const int BONUS2BISHOP = 18;
+  static const int CONNECTED_ROOKS = 7;
+  static const int DOUBLED_ISOLATED_PAWNS = 14;
+  static const int DOUBLED_PAWNS = 5;
+  static const int END_OPENING = 6;
+  static const int ENEMIES_PAWNS_ALL = 8;
+  static const int ENEMY_NEAR_KING = 2;
+//    static const int FORK_SCORE = 9;
+  static const int FRIEND_NEAR_KING = 1;
+  static const int HALF_OPEN_FILE_Q = 3;
+  //static const int KING_TRAPPED = 24;
+  //static const int KNIGHT_TRAPPED = 14;
+//    static const int MOB = 2;
+//    static const int NEAR_xKING = 2;
+  static const int OPEN_FILE = 10;
+  static const int OPEN_FILE_Q = 3;
+  static const int PAWN_7H = 32;
+  static const int PAWN_CENTER = 15;
+  static const int PAWN_IN_RACE = 114;
+  static const int PAWN_ISOLATED = 3;
+  static const int PAWN_NEAR_KING = 2;
+  //static const int PINNED_PIECE = 20;//TODO
+  //static const int QUEEN_TRAPPED = 25;
+  static const int ROOK_7TH_RANK = 10;
+  static const int ROOK_BLOCKED = 13;
+  //static const int ROOK_TRAPPED = 10;
+  static const int SPACE = 1;
+  static const int UNDEVELOPED = 9;
+  static const int UNPROTECTED_PAWNS = 5;
 #ifdef DEBUG_MODE
   int N_EVALUATION[2];
 #endif
+  void openColumn ( int side );
+  template < int side, _Tstatus status > int evaluatePawn (  );
+  template < int side, _Tstatus status > int evaluateBishop (  );
+  template < _Tstatus status > int evaluateQueen ( int side );
+  template < int side, _Tstatus status > int evaluateKnight (  );
+  template < int side, _Tstatus status > int evaluateRook (  );
+  template < _Tstatus status > int evaluateKing ( int side );
 
-  void openColumn ( const int side );
-  int evaluatePawn ( const int side );
-  int evaluateBishop ( const int side );
-  int evaluateQueen ( const int side );
-  int evaluateKnight ( const int side );
-  int evaluateRook ( const int side );
-  int evaluateKing ( const int side );
-  int getValue ( string s );
-  int isPinned ( const int side, const uchar Position, const uchar piece );
-  int lazyEvalBlack (  );
-  int lazyEvalWhite (  );
-  int PINNED_PIECE;
-  int ATTACK_CENTRE;
-  int ATTACK_KING;
-  int OPEN_FILE_Q;
-  int FORK_SCORE;
-  int BONUS2BISHOP;
-  int MOB;
-  int KING_TRAPPED;
-  int KNIGHT_TRAPPED;
-  int BISHOP_TRAPPED;
-  int ROOK_TRAPPED;
-  int QUEEN_TRAPPED;
-  int CONNECTED_ROOKS;
-  int ROOK_BLOCKED;
-  int ROOK_7TH_RANK;
-  int OPEN_FILE;
-  int UNDEVELOPED;
-  int HALF_OPEN_FILE_Q;
-  int DOUBLED_PAWNS;
-  int PAWN_IN_RACE;
-  int PAWN_7H;
-  int PAWN_CENTRE;
-  int FRIEND_NEAR_KING;
-  int ENEMY_NEAR_KING;
-  int PAWN_ISOLATED;
-  int SPACE;
-  int END_OPENING;
-  int PAWN_NEAR_KING;
-  int NEAR_xKING;
-  int BONUS_11;
-  int BISHOP_ON_QUEEN;
-  int ENEMIES_PAWNS_ALL;
-  int DOUBLED_ISOLATED_PAWNS;
-  int BACKWARD_PAWN;
-  int BACKWARD_OPEN_PAWN;
-  int UNPROTECTED_PAWNS;
-  int BISHOP_TRAPPED_DIAG;
-  int ATTACK_F7_F2;
+  template < int side > int lazyEvalSide (  ) {
+    return _bits::bitCount ( chessboard[PAWN_BLACK + side] ) * VALUEPAWN + _bits::bitCount ( chessboard[ROOK_BLACK + side] ) * VALUEROOK + _bits::bitCount ( chessboard[BISHOP_BLACK + side] ) * VALUEBISHOP + _bits::bitCount ( chessboard[KNIGHT_BLACK + side] ) * VALUEKNIGHT + _bits::bitCount ( chessboard[QUEEN_BLACK + side] ) * VALUEQUEEN;
+  }
+
 };
 #endif
