@@ -1,23 +1,11 @@
-/*
-Copyright (C) 2008-2010
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include "stdafx.h"
 #ifndef PERFT_MODE
 #define MATCH_QUEENSIDE "O-O-O e1c1 e8c8"
 #define MATCH_KINGSIDE "O-O e1g1 e8g8"
+#define MATCH_QUEENSIDE_WHITE "O-O-O e1c1"
+#define MATCH_KINGSIDE_WHITE "O-O e1g1"
+#define MATCH_QUEENSIDE_BLACK "O-O-O e8c8"
+#define MATCH_KINGSIDE_BLACK "O-O e8g8"
 #include "maindefine.h"
 #include "gen.h"
 #include "butterfly.h"
@@ -32,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "eval.h"
 #include "winboard.h"
 #include "search.h"
-
+#include <signal.h>
 #ifdef _MSC_VER
 #include <windows.h>
 #include <conio.h>
@@ -45,10 +33,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "utility.h"
 #include "zobrist.h"
 
-int know_command, edit, side = 1;
-char move[255];
-char *dummy;
-
 void
 writeWinboard ( char *msg ) {
   for ( unsigned t = 0; t < strlen ( msg ); t++ ) {
@@ -56,162 +40,169 @@ writeWinboard ( char *msg ) {
   };
   fprintf ( stdout, "%c", 10 );
   fflush ( stdout );
-  //debug (msg);
-};
+}
 
 void
-readWinboard ( char *tt ) {
-  memset ( tt, 0, 255 );
-  int b = 0;
-  char s;
-  while ( 1 ) {
-    s = ( char ) getchar (  );
-    if ( s == 10 )
-      break;
-    tt[b++] = s;
-  }
-  //debug (tt);
-};
+readWinboard ( char *msg ) {
+  do {
+    memset ( msg, 0, 255 );
+    int b = 0;
+    char s;
+    while ( 1 ) {
+      s = ( char ) getchar (  );
+      if ( s == 10 ) {
+	if ( force == 1 && !strcmp ( msg, "a2a3" ) )
+	  memset ( msg, 0, 255 );
+	break;
+      }
+      msg[b++] = s;
+    }
+  } while ( msg[0] == 0 );
+}
+
+void
+use_quit ( int ) {
+  if ( xboard )
+    return;
+  printf ( "\nuse quit to exit\n" );
+  fflush ( stdout );
+}
 
 #ifdef _MSC_VER
 void
 listner_winboard (  )
 #else
 void *
-listner_winboard ( void *uuua )
+listner_winboard ( void * )
 #endif
 {
-
-  char tt[255];
+  signal ( SIGINT, use_quit );
+  int know_command, edit, side = 1;
+  char move[255];
+  int FEN_SIDE = 1;
+  char inputstr[255];
   int go;
+  u64 key;
   move[0] = '*';
-  dummy = ( char * ) calloc ( 1, 255 );
-  run = 0;
+  char dummy[255];
+  running = 0;
   while ( 1 ) {
-    readWinboard ( tt );
+    readWinboard ( inputstr );
     go = 0;
     hand_do_movec = 0;
     know_command = 0;
-    if ( !strcmp ( tt, "quit" ) ) {
-      run = 0;
-      dispose (  );
-      free ( dummy );
-      exit ( 0 );
+    if ( !strcmp ( inputstr, "quit" ) ) {
+      running = 0;
+#ifdef _MSC_VER
+      return;
+#else
+      return NULL;
+#endif
     }
-    else if ( !strcmp ( tt, "result" ) ) {
+    else if ( strstr ( inputstr, "result " ) ) {
       know_command = 1;
-
       black_move = 0;
-      run = 0;
+      running = 0;
     }
-    else if ( !strcmp ( tt, "hard" ) )
+    else if ( !strcmp ( inputstr, "hard" ) )
       know_command = 1;
-    else if ( !strcmp ( tt, "otim" ) )
+    else if ( !strcmp ( inputstr, "random" ) )
       know_command = 1;
-    else if ( !strcmp ( tt, "print" ) ) {
+    else if ( !strcmp ( inputstr, "otim" ) )
+      know_command = 1;
+    else if ( !strcmp ( inputstr, "print" ) ) {
       move[0] = '*';
       know_command = 1;
       print (  );
     }
-    else if ( !strcmp ( tt, "edit" ) ) {
+    else if ( !strcmp ( inputstr, "edit" ) ) {
       move[0] = '*';
       know_command = 1;
     }
-    else if ( !strcmp ( tt, "c" ) ) {
+    else if ( !strcmp ( inputstr, "c" ) ) {
       know_command = 1;
       side = 0;
     }
-    else if ( !strcmp ( tt, "#" ) ) {
+    else if ( !strcmp ( inputstr, "#" ) ) {
       know_command = 1;
       edit = 1;
       loadfen ( VOID_FEN );
       side = 1;
     }
-    else if ( !strcmp ( tt, "." ) ) {
+    else if ( !strcmp ( inputstr, "." ) ) {
       move[0] = '*';
       know_command = 1;
       edit = 0;
     }
-    else if ( !strcmp ( tt, "gettime" ) ) {
-
+    else if ( !strcmp ( inputstr, "gettime" ) ) {
       know_command = 1;
-      struct timeb t_current;
-      ftime ( &t_current );
-      printf ( "\nt_current.time %I64u", t_current.time );
-      //printf("\nt_current.millitm %I64u",t_current.millitm);
-      printf ( "\nstart_time.time %I64u", start_time.time );
-
-      int i = ( int ) ( 1000 * ( t_current.time - start_time.time ) );
-      printf ( "\ndiff %d", i );
-      printf ( "\nMAX_TIME_MILLSEC %d", MAX_TIME_MILLSEC );
-      fflush ( stdout );
     }
-    else if ( strlen ( tt ) == 3 && edit == 1 ) {
+    else if ( strlen ( inputstr ) == 3 && edit == 1 ) {
       know_command = 1;
       if ( !side )
-	tt[0] = ( char ) tolower ( tt[0] );
-      char pezzo = getFenInv ( tt[0] );
+	inputstr[0] = ( char ) tolower ( inputstr[0] );
+      char pezzo = getFenInv[inputstr[0]];
 #ifdef DEBUG_MODE
-      assert ( pezzo != -1 );
-      assert ( pezzo != 12 );
+      ASSERT ( pezzo != -1 );
+      ASSERT ( pezzo != 12 );
 #endif
-      chessboard[pezzo] = Chessboard ( pezzo ) | TABLOG[decodeBoard ( tt + 1 )];
+      chessboard[pezzo] = Chessboard ( pezzo ) | TABLOG[decodeBoard ( inputstr + 1 )];
     }
-    else if ( !strcmp ( tt, "easy" ) || !strcmp ( tt, "draw" ) )
+    else if ( !strcmp ( inputstr, "easy" ) || !strcmp ( inputstr, "draw" ) )
       know_command = 1;
-    else if ( !strcmp ( tt, "xboard" ) ) {
+    else if ( !strcmp ( inputstr, "xboard" ) ) {
       writeWinboard ( "" );
       xboard = 1;
       know_command = 1;
     }
-    else if ( !strcmp ( tt, "force" ) ) {
+    else if ( !strcmp ( inputstr, "force" ) ) {
       force = 1;
       know_command = 1;
     }
-    else if ( !strcmp ( tt, "?" ) ) {
-      run = 0;
+    else if ( !strcmp ( inputstr, "?" ) ) {
+      running = 0;
       know_command = 1;
       move[0] = '*';
     }
-
-    else if ( !strcmp ( tt, "eval" ) ) {
-
-
+    else if ( !strcmp ( inputstr, "eval" ) ) {
       int t;
       t = eval ( !black_move
 #ifdef FP_MODE
-		 , _INFINITE, 0
+		 , -_INFINITE, _INFINITE
 #endif
 		 , 0 );
-      sprintf ( tt, "Eval: %d", t );
-      writeWinboard ( tt );
+      if ( !FEN_SIDE )
+	t = -t;
+      sprintf ( inputstr, "Eval: %d", t );
+      writeWinboard ( inputstr );
       move[0] = '*';
       know_command = 1;
-      writeWinboard ( tt );
-      know_command = 1;
     }
-    else if ( !strcmp ( tt, "createbook" ) ) {
+    else if ( !strcmp ( inputstr, "createbook" ) ) {
       create_open_book ( BOOK_EPD );
       know_command = 1;
+#ifdef _MSC_VER
+      return;
+#else
+      return NULL;
+#endif
     }
-    else if ( !strcmp ( tt, "white" ) ) {
+    else if ( !strcmp ( inputstr, "white" ) ) {
       black_move = 0;
       know_command = 1;
     }
-    else if ( !strcmp ( tt, "black" ) ) {
+    else if ( !strcmp ( inputstr, "black" ) ) {
       black_move = 1;
       know_command = 1;
     }
-    else if ( !strcmp ( tt, "computer" ) )
+    else if ( !strcmp ( inputstr, "computer" ) )
       know_command = 1;
-
-    else if ( !strcmp ( tt, "post" ) )
+    else if ( !strcmp ( inputstr, "post" ) )
       know_command = 1;
-    else if ( !strcmp ( tt, "new" ) ) {
-
+    else if ( !strcmp ( inputstr, "new" ) ) {
       know_command = 1;
       black_move = 1;
-      run = 0;
+      running = 0;
       init (  );
       move[0] = '*';
       move[1] = '\0';
@@ -219,61 +210,63 @@ listner_winboard ( void *uuua )
       loadfen ( INITIAL_FEN );
 #endif
     }
-    else if ( strlen ( tt ) > 2 && ( strstr ( MATCH_QUEENSIDE, tt )
-				     || strstr ( MATCH_KINGSIDE, tt ) ) ) {
-      if ( strstr ( MATCH_QUEENSIDE, tt ) )
+    else if ( ( ( strstr ( MATCH_QUEENSIDE_WHITE, inputstr ) || strstr ( MATCH_KINGSIDE_WHITE, inputstr ) ) && get_piece_at ( WHITE, TABLOG[E1] ) == KING_WHITE ) || ( ( strstr ( MATCH_QUEENSIDE_BLACK, inputstr ) || strstr ( MATCH_KINGSIDE_BLACK, inputstr ) ) && get_piece_at ( BLACK, TABLOG[E8] ) == KING_BLACK ) ) {
+      if ( strstr ( MATCH_QUEENSIDE, inputstr ) )
 	result_move.from = QUEENSIDE;
       else
 	result_move.from = KINGSIDE;
-      if ( strstr ( tt, "1" ) )
+      if ( strstr ( inputstr, "1" ) )
 	result_move.side = WHITE;
       else
 	result_move.side = BLACK;
-
       result_move.type = CASTLE;
-      makemove ( &result_move );
-      print (  );
+
+      makemove ( &result_move, &key );
       know_command = 1;
       if ( !force )
 	go = 1;
     }
-    else if ( strstr ( tt, "set " ) ) {
+    else if ( strstr ( inputstr, "set " ) ) {
       know_command = 1;
       black_move = 1;
-      run = 0;
+      running = 0;
       init (  );
       move[0] = '*';
       move[1] = '\0';
       char d[256];
-      strcpy ( d, tt + 4 );
+      strcpy ( d, inputstr + 4 );
       if ( !strcmp ( d, "undo" ) ) {
 	hand_do_movec = 0;
       }
       else {
 	loadfen ( d );
+	if ( strstr ( d, " w " ) )
+	  FEN_SIDE = 1;
+	else
+	  FEN_SIDE = 0;
       }
       print (  );
     }
-    else if ( strstr ( tt, "sd " ) ) {
+    else if ( strstr ( inputstr, "sd " ) ) {
       know_command = 1;
-      MAX_DEPTH_TO_SEARCH = atoi ( tt + 3 );
+      MAX_DEPTH_TO_SEARCH = atoi ( inputstr + 3 );
     }
-    else if ( strstr ( tt, "level " ) ) {
+    else if ( strstr ( inputstr, "level " ) ) {
       know_command = 1;
-      if ( strstr ( tt, "level 0 9999 9999" ) )
+      if ( strstr ( inputstr, "level 0 9999 9999" ) )
 	supplementary_mill_sec = -1;
       else {
-	supplementary_mill_sec = 1000 * atoi ( strstr ( strstr ( strstr ( tt, " " ) + 1, " " ) + 1, " " ) + 1 );
+	supplementary_mill_sec = 1000 * atoi ( strstr ( strstr ( strstr ( inputstr, " " ) + 1, " " ) + 1, " " ) + 1 );
 	supplementary_mill_sec -= ( int ) ( supplementary_mill_sec * 0.1 );
       }
     }
-    else if ( strstr ( tt, "otim " ) ) {
+    else if ( strstr ( inputstr, "otim " ) ) {
       know_command = 1;
-      otime = atoi ( tt + 5 );
+      otime = atoi ( inputstr + 5 );
     }
-    else if ( strstr ( tt, "time " ) ) {
+    else if ( strstr ( inputstr, "time " ) ) {
       know_command = 1;
-      Ttime = atoi ( tt + 5 );
+      Ttime = atoi ( inputstr + 5 );
       if ( supplementary_mill_sec == -1 ) {
 	MAX_TIME_MILLSEC = 10000;
       }
@@ -282,24 +275,21 @@ listner_winboard ( void *uuua )
       }
       if ( st_force < ( int ) MAX_TIME_MILLSEC )
 	MAX_TIME_MILLSEC = st_force;
-
       if ( otime > Ttime ) {
 	MAX_TIME_MILLSEC -= ( int ) ( MAX_TIME_MILLSEC * ( ( 135.0 - Ttime * 100.0 / otime ) / 100.0 ) );
       }
-
-
     }
-    else if ( strstr ( tt, "st " ) ) {
+    else if ( strstr ( inputstr, "st " ) ) {
       know_command = 1;
-      st_force = MAX_TIME_MILLSEC = atoi ( tt + 3 ) * 1000;
+      st_force = MAX_TIME_MILLSEC = atoi ( inputstr + 3 ) * 1000;
     }
-    else if ( strlen ( tt ) == 4 && ( tt[1] >= 48 && tt[1] <= 56 && tt[3] >= 48 && tt[3] <= 56 ) ) {
-      move[0] = tt[0];
-      move[1] = tt[1];
+    else if ( strlen ( inputstr ) == 4 && ( inputstr[1] >= 48 && inputstr[1] <= 56 && inputstr[3] >= 48 && inputstr[3] <= 56 ) ) {
+      move[0] = inputstr[0];
+      move[1] = inputstr[1];
       move[2] = 0;
       result_move.from = decodeBoard ( move );
-      move[0] = tt[2];
-      move[1] = tt[3];
+      move[0] = inputstr[2];
+      move[1] = inputstr[3];
       if ( get_piece_at ( WHITE, TABLOG[result_move.from] ) != SQUARE_FREE ) {
 	result_move.side = WHITE;
 	black_move = 1;
@@ -309,28 +299,28 @@ listner_winboard ( void *uuua )
 	black_move = 0;
       }
       result_move.to = decodeBoard ( move );
-      if ( !force && get_piece_at ( result_move.side, TABLOG[result_move.from] ) < 2 && get_column[result_move.from] != get_column[result_move.to]
-	   && get_piece_at ( 0, TABLOG[result_move.to] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.to] ) == SQUARE_FREE )
+      if ( get_piece_at ( result_move.side, TABLOG[result_move.from] ) < 2 && get_column[result_move.from] != get_column[result_move.to] && get_piece_at ( 0, TABLOG[result_move.to] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.to] ) == SQUARE_FREE ) {
 	result_move.type = ENPASSANT;
-
+      }
       else
 	result_move.type = STANDARD;
-      makemove ( &result_move );
+
       print (  );
+      makemove ( &result_move, &key );
+
       know_command = 1;
       if ( !force )
 	go = 1;
-
     }
-    else if ( strlen ( tt ) == 5 ) {
+    else if ( strlen ( inputstr ) == 5 ) {
       result_move.type = PROMOTION;
-      result_move.promotion_piece = getFenInv ( tt[4] );
-      move[0] = tt[0];
-      move[1] = tt[1];
+      result_move.promotion_piece = getFenInv[inputstr[4]];
+      move[0] = inputstr[0];
+      move[1] = inputstr[1];
       move[2] = 0;
       result_move.from = decodeBoard ( move );
-      move[0] = tt[2];
-      move[1] = tt[3];
+      move[0] = inputstr[2];
+      move[1] = inputstr[3];
       move[2] = 0;
       result_move.to = decodeBoard ( move );
       if ( get_piece_at ( WHITE, TABLOG[result_move.from] ) != SQUARE_FREE ) {
@@ -342,22 +332,23 @@ listner_winboard ( void *uuua )
 	result_move.side = BLACK;
 	black_move = 0;
       }
-      makemove ( &result_move );
+
+      makemove ( &result_move, &key );
       print (  );
       know_command = 1;
       if ( !force )
 	go = 1;
     }
-    else if ( strlen ( tt ) == 3 && ( tt[1] == '7' || tt[1] == '2' ) ) {
+    else if ( strlen ( inputstr ) == 3 && ( inputstr[1] == '7' || inputstr[1] == '2' ) ) {
       result_move.type = PROMOTION;
-      result_move.promotion_piece = getFenInv ( tt[2] );
-      move[0] = tt[0];
-      move[1] = tt[1];
+      result_move.promotion_piece = getFenInv[inputstr[2]];
+      move[0] = inputstr[0];
+      move[1] = inputstr[1];
       move[2] = 0;
       result_move.from = decodeBoard ( move );
-      move[0] = tt[2];
-      move[1] = tt[3];
-      if ( tt[1] == '7' ) {
+      move[0] = inputstr[2];
+      move[1] = inputstr[3];
+      if ( inputstr[1] == '7' ) {
 	result_move.side = WHITE;
 	result_move.promotion_piece++;
 	black_move = 1;
@@ -369,13 +360,12 @@ listner_winboard ( void *uuua )
 	result_move.to = result_move.from - 8;
       }
 
-      makemove ( &result_move );
-      print (  );
+      makemove ( &result_move, &key );
       know_command = 1;
       if ( !force )
 	go = 1;
     }
-    else if ( !strcmp ( tt, "go" ) ) {
+    else if ( !strcmp ( inputstr, "go" ) ) {
       go = 1;
       force = 0;
       move[1] = 0;
@@ -387,26 +377,17 @@ listner_winboard ( void *uuua )
 #if defined  _MSC_VER	|| defined  __GNUWIN32__
       DWORD s;
       CreateThread ( NULL, 0, ( LPTHREAD_START_ROUTINE ) hand_do_move, ( LPVOID ) NULL, 0, &s );
-      while ( !hand_do_movec )
-	Sleep ( 400 );
 #else
       pthread_t thread1;
-      int iret1;
-      char *message1 = "Thread 1";
-      iret1 = pthread_create ( &thread1, NULL, hand_do_move, ( void * ) &message1 );
-      while ( !hand_do_movec )
-	usleep ( 400 );
+      pthread_create ( &thread1, NULL, hand_do_move, NULL );
+
 #endif
       know_command = 1;
     }
     else if ( know_command == 0 ) {
-      strcat ( strcpy ( dummy, "Error (unknown command): " ), tt );
+      strcat ( strcpy ( dummy, "Error (unknown command): " ), inputstr );
       writeWinboard ( dummy );
     };
   };
-
-};
-
-
+}
 #endif
-//#endif

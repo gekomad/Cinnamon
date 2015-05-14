@@ -1,20 +1,3 @@
-/*
-Copyright (C) 2008-2010
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
 #include "stdafx.h"
 #include <time.h>
 #include "maindefine.h"
@@ -23,6 +6,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include "extern.h"
@@ -31,27 +15,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
-
-int
-compare_move ( const void *a, const void *b ) {
-  Tmove *arg1 = ( Tmove * ) a;
-  Tmove *arg2 = ( Tmove * ) b;
-  if ( arg1->score < arg2->score )
-    return 1;
-  else if ( arg1->score == arg2->score )
-    return 0;
-  else
-    return -1;
-}
-
-int
-is_locked ( int pos, int pezzo, int side ) {
-  int r = 0;
-  chessboard[pezzo] &= NOTTABLOG[pos];
-  r = attack_square ( side, Friend_king[side] );
-  chessboard[pezzo] |= TABLOG[pos];
-  return r;
-}
 
 int
 BitCountSlow ( const u64 b ) {
@@ -70,92 +33,84 @@ BitCountSlow ( const u64 b ) {
   acc = ( acc & 0x0F0F0F0FUL ) + ( ( acc >> 4 ) & 0x0F0F0F0FUL );
   acc = ( acc & 0xFFFF ) + ( acc >> 16 );
   return ( ( acc & 0xFF ) + ( acc >> 8 ) );
-};
+}
 
+#ifndef PERFT_MODE
 /*
-int piece_attack_defence (const int a,const int coloreAttaccato){
-//restituisce +-= se e  conveniente fare la mossa
-int c, rr ;
-int d0, primo = 1;
-Tchessboard chessboard2;
-d0 = PIECES_VALUE[ get_piece_at (coloreAttaccato, TABLOG[a])];
-memcpy (chessboard2, chessboard, sizeof (Tchessboard));
-int result,xside;
-u64 attaccanti;
-u64 difensori;
-xside = coloreAttaccato ^ 1;
-attaccanti = 0;
-difensori = 0;
-double A=0,D=0;
-int t;
-int da_xside = 0;
-int da_side = 0;
-do{
-attaccanti=calcola_attaccanti (a, coloreAttaccato);
-if (!attaccanti && primo == 1)
-return 0;
-primo++;
-c = 0;
-while (attaccanti){
-c = 1;
-t = BITScanForward (attaccanti);
-rr = get_piece_at (xside, TABLOG[t]);
-#ifdef DEBUG_MODE
-assert (rr != SQUARE_FREE);
+ int check_repetition() {
+ int inc;
+ for (int i = 0; i < stack_move1.next-2; i++) {
+ inc = 1;
+ for (int j = i + 1; j < stack_move1.next; j++) {
+ if (stack_move1.board[i] == stack_move1.board[j])
+ if ((++inc) > 2) {
+ return inc;
+ }
+ }
+ }
+ return 0;
+ }
+ */
+int
+interior_node_recognition ( int n_pieces_side, int n_pieces_x_side, int side ) {
+  if ( 1 == n_pieces_side == n_pieces_x_side )
+    return 1;			//KK
+  if ( ( n_pieces_side == 1 && n_pieces_x_side == 2 && ( chessboard[BISHOP_BLACK + ( side ^ 1 )] || chessboard[KNIGHT_BLACK + ( side ^ 1 )] ) ) || ( n_pieces_side == 2 && n_pieces_x_side == 1 && ( chessboard[BISHOP_BLACK + ( side )] || chessboard[KNIGHT_BLACK + ( side )] ) ) )
+    return 1;			//KNK or KBK
+  if ( n_pieces_side == 2 && n_pieces_x_side == 2 && chessboard[BISHOP_BLACK + ( side ^ 1 )] && chessboard[BISHOP_BLACK + ( side )] && COLORS[BITScanForward ( chessboard[BISHOP_BLACK + ( side )] )] == COLORS[BITScanForward ( chessboard[BISHOP_BLACK + ( side ^ 1 )] )] )
+    return 1;			//KBKB
+  return 0;
+}
+
+int
+check_draw ( int n_pieces_side, int n_pieces_x_side, int side ) {
+  if ( interior_node_recognition ( n_pieces_side, n_pieces_x_side, side ) )
+    return 1;
+  return 0;			//check_repetition();
+}
 
 #endif
-A += (double)VALUEPAWN/(0x7FF & PIECES_VALUE[rr]);
-chessboard[rr] &= NOTTABLOG[t];
-attaccanti &= NOTTABLOG[t];
-}
-}while (c);
-memcpy (chessboard, chessboard2, sizeof (Tchessboard));
-do{
-difensori=calcola_attaccanti (a, xside);
-c = 0;
-while (difensori){
-c = 1;
-t = BITScanForward (difensori);
-rr = get_piece_at (coloreAttaccato, TABLOG[t]);
-#ifdef DEBUG_MODE
-assert (rr != SQUARE_FREE);
-#endif
-D+= (double)VALUEPAWN/(0x7FF & PIECES_VALUE[rr]);
-chessboard[rr] &= NOTTABLOG[t];
-difensori &= NOTTABLOG[t];
-}
-}while (c );
-if (!D)
-result=d0;
-else
-result=(int)(d0*A/D);
-memcpy (chessboard, chessboard2, sizeof (Tchessboard));
-if (result>5000)
-result=980;
-
-return result/100;
-
+int
+compare_move ( const void *a, const void *b ) {
+  Tmove *arg1 = ( Tmove * ) a;
+  Tmove *arg2 = ( Tmove * ) b;
+  if ( arg1->score < arg2->score )
+    return 1;
+  else if ( arg1->score == arg2->score )
+    return 0;
+  else
+    return -1;
 }
 
-*/
+int
+is_locked ( int pos, int pezzo, int side ) {
+  ASSERT ( pezzo >= 0 && pezzo < 12 );
+  ASSERT ( pos >= 0 && pos < 64 );
+  int r = 0;
+  chessboard[pezzo] &= NOTTABLOG[pos];
+  r = attack_square ( side, Friend_king[side] );
+  chessboard[pezzo] |= TABLOG[pos];
+  return r;
+}
+
 void
 init (  ) {
   ENP_POSSIBILE = -1;
-  num_moves2 = num_moves = num_movesq = mate = 0;
-  pvv_from = 65;
+  num_moves = num_movesq = mate = 0;
+
 #ifdef FP_MODE
 #ifdef DEBUG_MODE
   n_cut_fp = n_cut_razor = 0;
 #endif
 #endif
   list_id = -1;
-  evaluateMobility_mode = EvalCuts = 0;
+  evaluateMobility_mode = LazyEvalCuts = 0;
 #ifdef PERFT_MODE
   n_perft = 0;
   listcount_n = 0;
 #else
 #ifdef DEBUG_MODE
-  beta_efficency = 0.0;
+  beta_efficency1 = 0.0;
   n_cut = 0;
   null_move_cut = 0;
 #endif
@@ -168,42 +123,30 @@ init (  ) {
 #endif
 }
 
-
 int
 pushmove ( const int tipomove, const int da, const int a, const int SIDE, int promotion_piece ) {
-#ifdef PERFT_MODE
-  int t;
-#endif
-
-#ifdef DEBUG_MODE
-  assert ( chessboard[KING_BLACK] );
-  assert ( chessboard[KING_WHITE] );
-
-#endif
+  int return_code = 0;
+  ASSERT ( chessboard[KING_BLACK] );
+  ASSERT ( chessboard[KING_WHITE] );
 
 #ifndef PERFT_MODE
   if ( evaluateMobility_mode ) {
     if ( da >= 0 ) {		//TODO gestire arrocco
-#ifdef DEBUG_MODE
-      assert ( da >= 0 && a >= 0 );
-#endif
-      //        int pezzoda = get_piece_at (SIDE, TABLOG[da]);
-
-      evalNode.attacked[da] |= tablog ( a );
-      evalNode.king_attak[SIDE] += DISTANCE[Friend_king[change_side ( SIDE )]][a];
-      if ( ( TABLOG[a] & chessboard[KING_BLACK + SIDE] ) )
-	evalNode.king_attacked[da] = 1;
-      evalNode.attackers[a] |= tablog ( da );
-#ifdef DEBUG_MODE
-      assert ( gen_list[list_id][0].score < MAX_MOVE );
-#endif
+      ASSERT ( da >= 0 && a >= 0 );
+      EVAL.attacked[da] |= tablog ( a );
+      if ( ( TABLOG[a] & chessboard[KING_BLACK + ( SIDE ^ 1 )] ) )
+	EVAL.king_attacked[da] = 1;
+      EVAL.attackers[a] |= tablog ( da );
+      ASSERT ( list_id < MAX_PLY && list_id >= 0 );
+      ASSERT ( gen_list[list_id][0].score < MAX_MOVE );
       gen_list[list_id][0].score++;
       return 0;
     }
     return 0;
   }
+
 #endif
-  int pezzoa = -77;
+  int pezzoa;
   if ( tipomove != ENPASSANT && tipomove != CASTLE ) {
     pezzoa = get_piece_at ( ( change_side ( SIDE ) ), TABLOG[a] );
     if ( ( pezzoa == KING_BLACK ) || ( pezzoa == KING_WHITE ) )
@@ -211,49 +154,39 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
   }
   else if ( tipomove != CASTLE )
     pezzoa = change_side ( SIDE );
-  //int pezzoda = get_piece_at (SIDE, TABLOG[da]);
 #ifdef PERFT_MODE
-  int pezzoda = get_piece_at ( SIDE, tablog ( da ) );
-  if ( ( t = inCheck ( da, a, tipomove, pezzoda, pezzoa, SIDE, promotion_piece ) ) == 1 )
+  int pezzoda = -5;
+  if ( tipomove != CASTLE )
+    pezzoda = get_piece_at ( SIDE, tablog ( da ) );
+  if ( inCheck ( da, a, tipomove, pezzoda, pezzoa, SIDE, promotion_piece ) )
     return 0;
 
 #endif
   Tmove *mos;
-#ifndef PERFT_MODE
-#endif
+  ASSERT ( list_id != -1 );
+  ASSERT ( gen_list[list_id][0].score < MAX_MOVE );
+  mos = &gen_list[list_id][++gen_list[list_id][0].score];
 #ifdef DEBUG_MODE
-  assert ( list_id != -1 );
-  assert ( gen_list[list_id][0].score < MAX_MOVE );
+  memcpy ( mos->board, chessboard, sizeof ( Tchessboard ) );
 #endif
-  mos = &gen_list[list_id][++gen_list[list_id][0].score];	//TODO use mutex
-
   if ( tipomove == STANDARD || tipomove == ENPASSANT || tipomove == PROMOTION ) {
-
+#ifndef PERFT_MODE
     int pezzoda = get_piece_at ( SIDE, tablog ( da ) );
+#endif
     mos->type = ( char ) tipomove;
     mos->from = ( char ) da;
+    ASSERT ( mos->from >= 0 && mos->from < 64 );
     mos->to = ( char ) a;
     mos->side = ( char ) SIDE;
-
     mos->promotion_piece = ( char ) promotion_piece;
 #ifndef PERFT_MODE
     mos->score = 0;
-    //mvv/lva TODO
-    // if ( da == pvv_from && a == pvv_to )                 mos->score += 30000;
-#ifdef DEBUG_MODE
-    assert ( pezzoa != 77 );
-#endif
     mos->score += ( PIECES_VALUE[pezzoa] >= PIECES_VALUE[pezzoda] ) ? ( PIECES_VALUE[pezzoa] - PIECES_VALUE[pezzoda] ) * 2 : PIECES_VALUE[pezzoa];
-
     mos->score += HistoryHeuristic[da][a];
     mos->score += KillerHeuristic[main_depth][da][a];
-#ifdef DEBUG_MODE
-    assert ( pezzoda >= 0 && pezzoda < 12 && a >= 0 && a < 64 && da >= 0 && da < 64 );
-#endif
+    ASSERT ( pezzoda >= 0 && pezzoda < 12 && a >= 0 && a < 64 && da >= 0 && da < 64 );
     mos->score += ( MOVE_ORDER[pezzoda][a] - MOVE_ORDER[pezzoda][da] );
-
 #endif
-
   }
   else if ( tipomove == CASTLE ) {
     mos->type = ( char ) tipomove;
@@ -264,23 +197,18 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
     mos->score = 100;
 #endif
   };
-#ifdef DEBUG_MODE
-  assert ( gen_list[list_id][0].score < MAX_MOVE );
-#endif
-  // gen_list[list_id][0].score++;
+  ASSERT ( gen_list[list_id][0].score < MAX_MOVE );
   return 0;
-};
+}
 
 void
 un_perform_castle ( const int da, const int SIDE ) {
   if ( SIDE == WHITE ) {
     if ( da == KINGSIDE ) {
-#ifdef DEBUG_MODE
-      assert ( get_piece_at ( SIDE, TABLOG_1 ) == KING_WHITE );
-      assert ( get_piece_at ( SIDE, TABLOG_0 ) == 12 );
-      assert ( get_piece_at ( SIDE, TABLOG_3 ) == 12 );
-      assert ( get_piece_at ( SIDE, TABLOG_2 ) == ROOK_WHITE );
-#endif
+      ASSERT ( get_piece_at ( SIDE, TABLOG_1 ) == KING_WHITE );
+      ASSERT ( get_piece_at ( SIDE, TABLOG_0 ) == 12 );
+      ASSERT ( get_piece_at ( SIDE, TABLOG_3 ) == 12 );
+      ASSERT ( get_piece_at ( SIDE, TABLOG_2 ) == ROOK_WHITE );
       chessboard[KING_WHITE] = ( chessboard[KING_WHITE] | TABLOG_3 ) & NOTTABLOG_1;
       chessboard[ROOK_WHITE] = ( chessboard[ROOK_WHITE] | TABLOG_0 ) & NOTTABLOG_2;
     }
@@ -301,20 +229,16 @@ un_perform_castle ( const int da, const int SIDE ) {
   }
 }
 
-
-
 int
 attack_square ( const int side, const int Position ) {
-#ifdef DEBUG_MODE
   check_side ( side );
-  assert ( Position != -1 );
-#endif
+  ASSERT ( Position != -1 );
   int Position_Position_mod_8, xside;
   char Position_mod_8;
   u64 ALLPIECES;
-#ifdef DEBUG_MODE
-  assert ( BitCount ( chessboard[KING_BLACK + side] ) < 2 );
-#endif
+
+  //ASSERT (BitCount (chessboard[KING_BLACK + side]) < 2);
+
   xside = change_side ( side );
   if ( KNIGHT_MASK[Position] & Chessboard ( KNIGHT_BLACK + xside ) )
     return 1;
@@ -323,54 +247,31 @@ attack_square ( const int side, const int Position ) {
   //enpassant
   if ( PAWN_CAPTURE_MASK[side][Position] & chessboard[PAWN_BLACK + xside] )
     return 1;
-#ifdef DEBUG_MODE
-  assert ( Position >= 0 && Position < 64 );
-#endif
+
+  ASSERT ( Position >= 0 && Position < 64 );
+
   if ( !( VERT_ORIZZ[Position] & ( chessboard[ROOK_BLACK + xside] | Chessboard ( QUEEN_BLACK + xside ) ) | LEFT_RIGHT[Position] & ( Chessboard ( QUEEN_BLACK + xside ) | chessboard[BISHOP_BLACK + xside] ) ) ) {
     return 0;
   }
-
   ALLPIECES = square_all_bit_occupied (  ) | TABLOG[Position];
   Position_mod_8 = ROT45[Position];
-#ifdef DEBUG_MODE
-  assert ( Position >= 0 && Position < 64 );
-#endif
+
+  ASSERT ( Position >= 0 && Position < 64 );
+
   Position_Position_mod_8 = pos_posMod8[Position];
-  if ( MASK_CAPT_MOV[( uchar ) ( ( shr ( ALLPIECES, Position_Position_mod_8 ) ) )]
-       [Position_mod_8] & ( shr ( chessboard[ROOK_BLACK + xside], Position_Position_mod_8 ) & 255 | shr ( chessboard[QUEEN_BLACK + xside], Position_Position_mod_8 ) & 255 ) ) {
-    //   print();
+  if ( MASK_CAPT_MOV[( uchar ) ( ( ( ALLPIECES >> Position_Position_mod_8 ) ) )][Position_mod_8] & ( ( chessboard[ROOK_BLACK + xside] >> Position_Position_mod_8 ) & 255 | ( chessboard[QUEEN_BLACK + xside] >> Position_Position_mod_8 ) & 255 ) ) {
     return 1;
   }
   //left
-
-#ifdef DEBUG_MODE
-  assert ( rotate_board_left_45 ( ALLPIECES, Position ) != 0 );
-  if ( ( ( uchar )
-	 ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) ) != rotate_board_left_45 ( ALLPIECES, Position ) ) {
-
-
-    assert ( 0 );
-  }
-  assert ( rotate_board_left_45 ( ALLPIECES, Position ) != 0 );
-  assert ( rotate_board_left_45 ( ALLPIECES, Position ) == ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) );
-#endif
-  if ( MASK_CAPT_MOV[rotate_board_left_45 ( ALLPIECES, Position )]
-       [Position_mod_8] & ( rotate_board_left_45 ( chessboard[BISHOP_BLACK + ( xside )], Position ) | rotate_board_left_45 ( chessboard[QUEEN_BLACK + xside], Position ) ) )
+  if ( MASK_CAPT_MOV[rotate_board_left_45 ( ALLPIECES, Position )][Position_mod_8] & ( rotate_board_left_45 ( chessboard[BISHOP_BLACK + ( xside )], Position ) | rotate_board_left_45 ( chessboard[QUEEN_BLACK + xside], Position ) ) )
     return 1;
-
   /*right \ */
-
-#ifdef DEBUG_MODE
-  assert ( rotate_board_right_45 ( ALLPIECES, Position ) != -1 );
-  assert ( rotate_board_right_45 ( ALLPIECES, Position ) == ( uchar ) ( rotate_board_right_45 ( ALLPIECES, Position ) & MOVES_BISHOP_RIGHT_MASK[Position] ) );
-#endif
   if ( MASK_CAPT_MOV[rotate_board_right_45 ( ALLPIECES, Position ) | TABLOG[Position_mod_8]][Position_mod_8] & ( rotate_board_right_45 ( chessboard[BISHOP_BLACK + ( xside )], Position ) | rotate_board_right_45 ( chessboard[QUEEN_BLACK + ( xside )], Position ) ) )
     return 1;
-#ifdef DEBUG_MODE
-  assert ( Position >= 0 && Position < 64 );
-#endif
-  if ( MASK_CAPT_MOV[rotate_board_90 ( ALLPIECES & VERTICAL[Position] )]
-       [ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[ROOK_BLACK + xside] & VERTICAL[Position] ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside] & VERTICAL[Position] ) ) ) )
+
+  ASSERT ( Position >= 0 && Position < 64 );
+
+  if ( MASK_CAPT_MOV[rotate_board_90 ( ALLPIECES & VERTICAL[Position] )][ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[ROOK_BLACK + xside] & VERTICAL[Position] ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside] & VERTICAL[Position] ) ) ) )
     return 1;
   return 0;
 }
@@ -381,14 +282,11 @@ inCheck ( const int da, const int a, const int tipo, const int pezzoda, const in
   u64 da1, a1 = 0;
   int result = 0;
   if ( tipo == STANDARD ) {
-#ifdef DEBUG_MODE
-    assert ( pezzoda != SQUARE_FREE );
-    if ( pezzoa == KING_BLACK || pezzoa == KING_WHITE ) {
-      print (  );
-    }
-    assert ( pezzoa != KING_BLACK );
-    assert ( pezzoa != KING_WHITE );
-#endif
+
+    ASSERT ( pezzoda != SQUARE_FREE );
+    ASSERT ( pezzoa != KING_BLACK );
+    ASSERT ( pezzoa != KING_WHITE );
+
     da1 = chessboard[pezzoda];
     if ( pezzoa != SQUARE_FREE ) {
       a1 = Chessboard ( pezzoa );
@@ -396,197 +294,71 @@ inCheck ( const int da, const int a, const int tipo, const int pezzoda, const in
     };
     chessboard[pezzoda] &= NOTTABLOG[da];
     chessboard[pezzoda] |= tablog ( a );
-#ifdef DEBUG_MODE
-    assert ( chessboard[KING_BLACK] );
-    assert ( chessboard[KING_WHITE] );
-#endif
-    result = attack_square ( SIDE, BITScanForward ( Chessboard ( KING_BLACK + SIDE ) ) );
 
+    ASSERT ( chessboard[KING_BLACK] );
+    ASSERT ( chessboard[KING_WHITE] );
+
+    result = attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) );
     chessboard[pezzoda] = da1;
     if ( pezzoa != SQUARE_FREE )
       chessboard[pezzoa] = a1;
   }
   else if ( tipo == CASTLE ) {
     perform_castle ( da, a );	//a=SIDE
-    result = attack_square ( a, BITScanForward ( Chessboard ( KING_BLACK + a ) ) );
-
+    result = attack_square ( a, BITScanForward ( chessboard[KING_BLACK + a] ) );
     un_perform_castle ( da, a );
   }
   else if ( tipo == PROMOTION ) {
-    u64 a1 = Chessboard ( pezzoa );
+    u64 a1;
+    if ( pezzoa != SQUARE_FREE )
+      a1 = Chessboard ( pezzoa );
     u64 da1 = Chessboard ( pezzoda );
     u64 p1 = Chessboard ( promotion_piece );
     chessboard[pezzoda] &= NOTTABLOG[da];
-    chessboard[pezzoa] &= NOTTABLOG[a];
+    if ( pezzoa != SQUARE_FREE )
+      chessboard[pezzoa] &= NOTTABLOG[a];
     chessboard[promotion_piece] = Chessboard ( promotion_piece ) | TABLOG[a];
-    result = attack_square ( SIDE, BITScanForward ( Chessboard ( KING_BLACK + SIDE ) ) );
-    chessboard[pezzoa] = a1;
+    result = attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) );
+    if ( pezzoa != SQUARE_FREE )
+      chessboard[pezzoa] = a1;
     chessboard[pezzoda] = da1;
     chessboard[promotion_piece] = p1;
-
   }
   else if ( tipo == ENPASSANT ) {
     u64 a1 = Chessboard ( change_side ( SIDE ) );
     u64 da1 = Chessboard ( SIDE );
     chessboard[SIDE] &= NOTTABLOG[da];
-    chessboard[SIDE] |= tablog ( da );
+    chessboard[SIDE] |= tablog ( a );
     if ( SIDE )
       chessboard[change_side ( SIDE )] &= NOTTABLOG[a - 8];
     else
       chessboard[change_side ( SIDE )] &= NOTTABLOG[a + 8];
-    result = attack_square ( SIDE, BITScanForward ( Chessboard ( KING_BLACK + SIDE ) ) );
-
-    chessboard[pezzoa] = a1;
-    chessboard[pezzoda] = da1;
+    result = attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) );
+    chessboard[change_side ( SIDE )] = a1;
+    chessboard[SIDE] = da1;
   }
 #ifdef DEBUG_MODE
   else
-    assert ( 0 );
+    ASSERT ( 0 );
 #endif
   return result;
-};
-
+}
 #endif
 
 void
-myassert ( const void *a, const char *b ) {
+myassert ( int a, const char *b ) {
   if ( !a ) {
-    printf ( b );
+    printf ( "%s", b );
+    printf ( "\n" );
     fflush ( stdout );
     exit ( 1 );
   }
 }
 
-char *
+const char *
 decodeBoardinv ( const int a, const int side ) {
-  if ( a == 7 )
-    return "a1";
-  if ( a == 15 )
-    return "a2";
-  if ( a == 23 )
-    return "a3";
-  if ( a == 31 )
-    return "a4";
-  if ( a == 39 )
-    return "a5";
-  if ( a == 47 )
-    return "a6";
-  if ( a == 55 )
-    return "a7";
-  if ( a == 63 )
-    return "a8";
-  if ( a == 6 )
-    return "b1";
-  if ( a == 14 )
-    return "b2";
-  if ( a == 22 )
-    return "b3";
-  if ( a == 30 )
-    return "b4";
-  if ( a == 38 )
-    return "b5";
-  if ( a == 46 )
-    return "b6";
-  if ( a == 54 )
-    return "b7";
-  if ( a == 62 )
-    return "b8";
-  if ( a == 5 )
-    return "c1";
-  if ( a == 13 )
-    return "c2";
-  if ( a == 21 )
-    return "c3";
-  if ( a == 29 )
-    return "c4";
-  if ( a == 37 )
-    return "c5";
-  if ( a == 45 )
-    return "c6";
-  if ( a == 53 )
-    return "c7";
-  if ( a == 61 )
-    return "c8";
-  if ( a == 4 )
-    return "d1";
-  if ( a == 12 )
-    return "d2";
-  if ( a == 20 )
-    return "d3";
-  if ( a == 28 )
-    return "d4";
-  if ( a == 36 )
-    return "d5";
-  if ( a == 44 )
-    return "d6";
-  if ( a == 52 )
-    return "d7";
-  if ( a == 60 )
-    return "d8";
-  if ( a == 3 )
-    return "e1";
-  if ( a == 11 )
-    return "e2";
-  if ( a == 19 )
-    return "e3";
-  if ( a == 27 )
-    return "e4";
-  if ( a == 35 )
-    return "e5";
-  if ( a == 43 )
-    return "e6";
-  if ( a == 51 )
-    return "e7";
-  if ( a == 59 )
-    return "e8";
-  if ( a == 2 )
-    return "f1";
-  if ( a == 10 )
-    return "f2";
-  if ( a == 18 )
-    return "f3";
-  if ( a == 26 )
-    return "f4";
-  if ( a == 34 )
-    return "f5";
-  if ( a == 42 )
-    return "f6";
-  if ( a == 50 )
-    return "f7";
-  if ( a == 58 )
-    return "f8";
-  if ( a == 1 )
-    return "g1";
-  if ( a == 9 )
-    return "g2";
-  if ( a == 17 )
-    return "g3";
-  if ( a == 25 )
-    return "g4";
-  if ( a == 33 )
-    return "g5";
-  if ( a == 41 )
-    return "g6";
-  if ( a == 49 )
-    return "g7";
-  if ( a == 57 )
-    return "g8";
-  if ( a == 0 )
-    return "h1";
-  if ( a == 8 )
-    return "h2";
-  if ( a == 16 )
-    return "h3";
-  if ( a == 24 )
-    return "h4";
-  if ( a == 32 )
-    return "h5";
-  if ( a == 40 )
-    return "h6";
-  if ( a == 48 )
-    return "h7";
-  if ( a == 56 )
-    return "h8";
+  if ( a >= 0 && a < 64 )
+    return BOARD[a];
   if ( a == KINGSIDE && side )
     return "e1g1";
   if ( a == KINGSIDE && !side )
@@ -595,31 +367,31 @@ decodeBoardinv ( const int a, const int side ) {
     return "e1c1";
   if ( a == QUEENSIDE && !side )
     return "e8c8";
-
 #ifdef DEBUG_MODE
   printf ( "\n|%d|", a );
-  assert ( 0 );
+  ASSERT ( 0 );
 #endif
   return "";
+
 }
 
 #ifndef PERFT_MODE
 void
 update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int depth ) {
 #ifdef DEBUG_MODE
-  assert ( depth );
-  //assert(mossa->from>=0 && mossa->from<64);
+  ASSERT ( line->cmove < MAX_PLY - 1 );
 #endif
   memcpy ( &( pline->argmove[0] ), mossa, sizeof ( Tmove ) );
   memcpy ( pline->argmove + 1, line->argmove, line->cmove * sizeof ( Tmove ) );
+  assert ( line->cmove >= 0 );
   pline->cmove = line->cmove + 1;
   // questa mossa ha causato un taglio, quindi si incrementa il valore
   //di history cosi viene ordinata in alto la prossima volta che la
   //cerchiamo
-  if ( mossa->from >= 0 ) {
-    HistoryHeuristic[mossa->from][mossa->to] += ( int ) TABLOG[depth];
-    KillerHeuristic[depth][mossa->from][mossa->to] = ( int ) TABLOG[depth];
-  }
+  /*if (mossa->from >= 0) {
+     HistoryHeuristic[mossa->from][mossa->to] += (int) TABLOG[depth];
+     KillerHeuristic[depth][mossa->from][mossa->to] = (int) TABLOG[depth];
+     } */
 }
 
 int
@@ -633,175 +405,17 @@ fileLung ( char *FileName ) {
 
 char
 decodeBoard ( char *a ) {
-  if ( !strcmp ( a, "a1" ) )
-    return 7;
-  if ( !strcmp ( a, "a2" ) )
-    return 15;
-  if ( !strcmp ( a, "a3" ) )
-    return 23;
-  if ( !strcmp ( a, "a4" ) )
-    return 31;
-  if ( !strcmp ( a, "a5" ) )
-    return 39;
-  if ( !strcmp ( a, "a6" ) )
-    return 47;
-  if ( !strcmp ( a, "a7" ) )
-    return 55;
-  if ( !strcmp ( a, "a8" ) )
-    return 63;
-  if ( !strcmp ( a, "b1" ) )
-    return 6;;
-  if ( !strcmp ( a, "b2" ) )
-    return 14;
-  if ( !strcmp ( a, "b3" ) )
-    return 22;
-  if ( !strcmp ( a, "b4" ) )
-    return 30;
-  if ( !strcmp ( a, "b5" ) )
-    return 38;
-  if ( !strcmp ( a, "b6" ) )
-    return 46;
-  if ( !strcmp ( a, "b7" ) )
-    return 54;
-  if ( !strcmp ( a, "b8" ) )
-    return 62;
-  if ( !strcmp ( a, "c1" ) )
-    return 5;;
-  if ( !strcmp ( a, "c2" ) )
-    return 13;
-  if ( !strcmp ( a, "c3" ) )
-    return 21;
-  if ( !strcmp ( a, "c4" ) )
-    return 29;
-  if ( !strcmp ( a, "c5" ) )
-    return 37;
-  if ( !strcmp ( a, "c6" ) )
-    return 45;
-  if ( !strcmp ( a, "c7" ) )
-    return 53;
-  if ( !strcmp ( a, "c8" ) )
-    return 61;
-  if ( !strcmp ( a, "d1" ) )
-    return 4;;
-  if ( !strcmp ( a, "d2" ) )
-    return 12;
-  if ( !strcmp ( a, "d3" ) )
-    return 20;
-  if ( !strcmp ( a, "d4" ) )
-    return 28;
-  if ( !strcmp ( a, "d5" ) )
-    return 36;
-  if ( !strcmp ( a, "d6" ) )
-    return 44;
-  if ( !strcmp ( a, "d7" ) )
-    return 52;
-  if ( !strcmp ( a, "d8" ) )
-    return 60;
-  if ( !strcmp ( a, "e1" ) )
-    return 3;;
-  if ( !strcmp ( a, "e2" ) )
-    return 11;
-  if ( !strcmp ( a, "e3" ) )
-    return 19;
-  if ( !strcmp ( a, "e4" ) )
-    return 27;
-  if ( !strcmp ( a, "e5" ) )
-    return 35;
-  if ( !strcmp ( a, "e6" ) )
-    return 43;
-  if ( !strcmp ( a, "e7" ) )
-    return 51;
-  if ( !strcmp ( a, "e8" ) )
-    return 59;
-  if ( !strcmp ( a, "f1" ) )
-    return 2;;
-  if ( !strcmp ( a, "f2" ) )
-    return 10;
-  if ( !strcmp ( a, "f3" ) )
-    return 18;
-  if ( !strcmp ( a, "f4" ) )
-    return 26;
-  if ( !strcmp ( a, "f5" ) )
-    return 34;
-  if ( !strcmp ( a, "f6" ) )
-    return 42;
-  if ( !strcmp ( a, "f7" ) )
-    return 50;
-  if ( !strcmp ( a, "f8" ) )
-    return 58;
-  if ( !strcmp ( a, "g1" ) )
-    return 1;;
-  if ( !strcmp ( a, "g2" ) )
-    return 9;
-  if ( !strcmp ( a, "g3" ) )
-    return 17;
-  if ( !strcmp ( a, "g4" ) )
-    return 25;
-  if ( !strcmp ( a, "g5" ) )
-    return 33;
-  if ( !strcmp ( a, "g6" ) )
-    return 41;
-  if ( !strcmp ( a, "g7" ) )
-    return 49;
-  if ( !strcmp ( a, "g8" ) )
-    return 57;
-  if ( !strcmp ( a, "h1" ) )
-    return 0;;
-  if ( !strcmp ( a, "h2" ) )
-    return 8;
-  if ( !strcmp ( a, "h3" ) )
-    return 16;;
-  if ( !strcmp ( a, "h4" ) )
-    return 24;
-  if ( !strcmp ( a, "h5" ) )
-    return 32;
-  if ( !strcmp ( a, "h6" ) )
-    return 40;
-  if ( !strcmp ( a, "h7" ) )
-    return 48;
-  if ( !strcmp ( a, "h8" ) )
-    return 56;
+  for ( int i = 0; i < 64; i++ ) {
+    if ( !strcmp ( a, BOARD[i] ) )
+      return i;
+  }
   printf ( "\n||%s||", a );
   fflush ( stdout );
-#ifdef DEBUG_MODE
-  assert ( 0 );
-#endif
+  ASSERT ( 0 );
   return -1;
 }
 
 #endif
-char
-getFenInv ( const char a ) {
-
-  if ( a == 'r' )
-    return 2;
-  if ( a == 'n' )
-    return 6;
-  if ( a == 'b' )
-    return 4;
-  if ( a == 'q' )
-    return 10;
-  if ( a == 'k' )
-    return 8;
-  if ( a == 'p' )
-    return 0;
-  if ( a == 'P' )
-    return 1;
-  if ( a == 'R' )
-    return 3;
-  if ( a == 'B' )
-    return 5;
-  if ( a == 'Q' )
-    return 11;
-  if ( a == 'K' )
-    return 9;
-  if ( a == 'N' )
-    return 7;
-  if ( a == '-' )
-    return 12;
-  return -1;
-
-}
 
 char
 getFen ( const int a ) {
@@ -852,8 +466,6 @@ getFen ( const int a ) {
   return result;
 }
 
-
-
 void
 BoardToFEN ( char *FEN ) {
   int x, y, l = 0, i = 0, sq;
@@ -876,9 +488,7 @@ BoardToFEN ( char *FEN ) {
 	  i++;
 	}
 	l = 0;
-
 	row[i] = getFen ( q );
-
 	i++;
       }
     }
@@ -890,7 +500,6 @@ BoardToFEN ( char *FEN ) {
     if ( y < 7 )
       strcat ( FEN, "/" );
   }
-
   if ( black_move )
     strcat ( FEN, " b " );
   else
@@ -918,49 +527,36 @@ BoardToFEN ( char *FEN ) {
      ch[2]=0;
      strcat(FEN,ch);
      } */
-
-
 }
 
 #ifdef DEBUG_MODE
 void
-controlloRipetizioni ( Tmove * myarray, int right ) {
-  return;
-  for ( int t = 0; t < right; t++ )
-    for ( int j = t + 1; j < right; j++ ) {
-      if ( myarray[t].from == myarray[j].from && myarray[t].to == myarray[j].to && myarray[t].promotion_piece == myarray[j].promotion_piece ) {
-	print (  );
-	printf ( "\n %d %d", myarray[j].from, myarray[t].to );
-	assert ( 0 );
-      }
-    }
-
-
+print ( Tchessboard s ) {
+  Tchessboard bk;
+  memcpy ( bk, chessboard, sizeof ( Tchessboard ) );
+  memcpy ( chessboard, s, sizeof ( Tchessboard ) );
+  print ( "\n================== STACK BOARD ==================" );
+  memcpy ( chessboard, bk, sizeof ( Tchessboard ) );
 }
 #endif
 void
-debug ( char *msg ) {
-  outf = fopen ( debugfile, "a+" );
-  fwrite ( msg, 1, strlen ( msg ), outf );
-  fwrite ( "\n", 1, 1, outf );
-  fclose ( outf );
-};
+print ( char *s ) {
+  printf ( "%s", s );
+  print (  );
+}
 
 void
 print (  ) {
-  //if ( xboard )
-  //return;
+  if ( xboard )
+    return;
   int t;
   char x;
   char FEN[1000];
   printf ( "\n.....a   b   c   d   e   f   g   h" );
-
   for ( t = 0; t <= 63; t++ ) {
-
     if ( !( t % 8 ) ) {
       printf ( "\n...---------------------------------\n" );
     };
-
     x = getFen ( get_piece_at ( 1, TABLOG[63 - t] ) );
     if ( x == '-' )
       x = getFen ( get_piece_at ( 0, TABLOG[63 - t] ) );
@@ -1007,21 +603,16 @@ print (  ) {
   printf ( "\n%s", FEN );
 #ifdef TEST_MODE
   printf ( "(%s)", test_ris );
+
 #endif
   printf ( "\n" );
   fflush ( stdout );
 }
 
-int
-diff_time ( struct timeb a, struct timeb b ) {
-  return ( int ) ( 1000 * ( a.time - b.time ) + ( a.millitm - b.millitm ) );
-}
-
-
-
 #ifdef TEST_MODE
 int
 extract_test_result ( char *ris1 ) {
+
   int i, result = 1;
   char *x;
   char dummy[3];
@@ -1054,10 +645,7 @@ extract_test_result ( char *ris1 ) {
       strncpy ( dummy, ris1, 2 );
     break;
   case 4:
-    //if(ris1[1]=='x')
     strncpy ( dummy, ris1 + 2, 2 );
-    //else
-    //      strncpy (dummy, ris1 +2, 2);            
     break;
   case 5:
     if ( !strcmp ( ris1, "O-O-O" ) ) {
@@ -1088,23 +676,22 @@ extract_test_result ( char *ris1 ) {
     printf ( "\nPARSE ERROR" );
   strcat ( test_ris, dummy );
   strcat ( test_ris, " " );
-
   return result;
 }
 
 void
 get_test_result ( char *ss ) {
-  //strcpy(ss,"r2qkb1r/pp3ppp/2bppn2/8/2PQP3/2N2N2/PP3PPP/R1B1K2R w KQkq - bm O-O; id sbd.093");
   memset ( test_ris, 0, sizeof ( test_ris ) );
   char *ris1 = strstr ( ss, " bm " );
   if ( !ris1 )
     ris1 = strstr ( ss, " am " );
-  //assert(ris1);
+  ASSERT ( ris1 );
   char dummy[100];
   ris1 += 4;
   char *ris2;
   do {
     ris2 = strstr ( ris1, " " );
+    ASSERT ( ris2 );
     strncpy ( dummy, ris1, ris2 - ris1 );
     dummy[ris2 - ris1] = 0;
     ris1 += ris2 - ris1 + 1;
@@ -1123,27 +710,27 @@ get_test_result ( char *ss ) {
       myassert ( 0, "PARSE ERROR" );
   }
   while ( ris2 );
-
 }
 #endif
-
 int
 loadfen ( char *ss ) {
+  return loadfen ( ss, 1 );
+}
 
+int
+loadfen ( char *ss, int check ) {
   int i, ii, t, p;
   char ch;
   char *x;
   int s[64];
   char a[2];
-  for ( i = 0; i <= 11; i++ )
-    chessboard[i] = 0;
+  memset ( chessboard, 0, sizeof ( chessboard ) );
 
   i = 0;
   ii = 0;
   if ( strlen ( ss ) )
     do {
       ch = ss[ii];
-      //if(!ch)break;
       switch ( ch ) {
       case 'r':
 	s[i++] = 2;
@@ -1181,20 +768,25 @@ loadfen ( char *ss ) {
       case 'N':
 	s[i++] = 7;
 	break;
-      case '/':;
+      case '/':
+	;
 	break;
-      case ' ':;
+      case ' ':
+	;
 	break;
-      case '-':;
+      case '-':
+	;
 	break;
-      case 'w':;
+      case 'w':
+	;
 	break;
-      case 10:;
+      case 10:
+	;
 	break;
-      case 13:;
+      case 13:
+	;
 	break;
-      default:
-      {
+      default:{
 	if ( ch > 47 && ch < 58 ) {
 	  a[0] = ch;
 	  a[1] = 0;
@@ -1206,12 +798,10 @@ loadfen ( char *ss ) {
 	  printf ( "\nerror" );
 	  return 0;
 	};
-      };
-
+      }
       }
       ii++;
-    }
-    while ( i < 64 );
+    } while ( i < 64 );
   for ( i = 0; i <= 63; i++ ) {
     p = s[63 - i];
     if ( p != SQUARE_FREE )
@@ -1225,7 +815,9 @@ loadfen ( char *ss ) {
     printf ( "Bad FEN position format.\n%s", ss );
   x += 3;
 #ifdef TEST_MODE
-  get_test_result ( ss );
+  if ( check )
+    get_test_result ( ss );
+
 #endif
   CASTLE_DONE[0] = 1;
   CASTLE_DONE[1] = 1;
@@ -1240,43 +832,44 @@ loadfen ( char *ss ) {
   while ( ( unsigned ) i < strlen ( x ) && x[i] != ' ' ) {
     switch ( x[i++] ) {
     case 'K':
-
-      CASTLE_DONE[1] = 0;
-      CASTLE_NOT_POSSIBLE[1] = 0;
-      CASTLE_NOT_POSSIBLE_KINGSIDE[1] = 0;
+      CASTLE_DONE[WHITE] = 0;
+      CASTLE_NOT_POSSIBLE[WHITE] = 0;
+      CASTLE_NOT_POSSIBLE_KINGSIDE[WHITE] = 0;
       break;
-
     case 'k':
-
-      CASTLE_DONE[0] = 0;
-      CASTLE_NOT_POSSIBLE[0] = 0;
-      CASTLE_NOT_POSSIBLE_KINGSIDE[0] = 0;
+      CASTLE_DONE[BLACK] = 0;
+      CASTLE_NOT_POSSIBLE[BLACK] = 0;
+      CASTLE_NOT_POSSIBLE_KINGSIDE[BLACK] = 0;
       break;
-
     case 'Q':
-
-      CASTLE_DONE[1] = 0;
-      CASTLE_NOT_POSSIBLE[1] = 0;
-      CASTLE_NOT_POSSIBLE_QUEENSIDE[1] = 0;
+      CASTLE_DONE[WHITE] = 0;
+      CASTLE_NOT_POSSIBLE[WHITE] = 0;
+      CASTLE_NOT_POSSIBLE_QUEENSIDE[WHITE] = 0;
       break;
-
     case 'q':
-
-      CASTLE_DONE[0] = 0;
-      CASTLE_NOT_POSSIBLE[0] = 0;
-      CASTLE_NOT_POSSIBLE_QUEENSIDE[0] = 0;
+      CASTLE_DONE[BLACK] = 0;
+      CASTLE_NOT_POSSIBLE[BLACK] = 0;
+      CASTLE_NOT_POSSIBLE_QUEENSIDE[BLACK] = 0;
       break;
-
     };
   };
-
+  START_CASTLE_NOT_POSSIBLE[0] = CASTLE_NOT_POSSIBLE[0];
+  START_CASTLE_NOT_POSSIBLE_QUEENSIDE[0] = CASTLE_NOT_POSSIBLE_QUEENSIDE[0];
+  START_CASTLE_NOT_POSSIBLE_KINGSIDE[0] = CASTLE_NOT_POSSIBLE_KINGSIDE[0];
+  START_CASTLE_DONE[0] = CASTLE_DONE[0];
+  START_CASTLE_NOT_POSSIBLE[1] = CASTLE_NOT_POSSIBLE[1];
+  START_CASTLE_NOT_POSSIBLE_QUEENSIDE[1] = CASTLE_NOT_POSSIBLE_QUEENSIDE[1];
+  START_CASTLE_NOT_POSSIBLE_KINGSIDE[1] = CASTLE_NOT_POSSIBLE_KINGSIDE[1];
+  START_CASTLE_DONE[1] = CASTLE_DONE[1];
   Friend_king[black_move] = BITScanForward ( chessboard[KING_BLACK + black_move] );
   Friend_king[black_move ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( black_move ^ 1 )] );
-
   init (  );
+#ifndef PERFT_MODE
+  //memset(&stack_move1, 0, sizeof(stack_move1));
+  //stack_move1.board[stack_move1.next++] = makeZobristKey();
+#endif
   return !black_move;
 }
-
 
 #ifndef PERFT_MODE
 u64
@@ -1312,8 +905,6 @@ get_u64_column ( char a ) {
   }
 }
 
-
-
 int
 is_number ( char c ) {
   if ( c >= 48 && c <= 57 )
@@ -1323,7 +914,6 @@ is_number ( char c ) {
 
 int
 fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
-
 #ifdef HASH_MODE
   use_book = 0;
 #endif
@@ -1333,8 +923,8 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
 	 , -_INFINITE, _INFINITE
 #endif
 	 , key );
-
   int o, try_locked;
+  u64 key2;
   char dummy[3];
   u64 column = 0xFFFFFFFFFFFFFFFFULL;
   char pezzo_da = -1;
@@ -1355,12 +945,12 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
       else
 	*to = 6;
     }
-    if ( !strcmp ( fen, "O-O" ) )
-      pushmove ( CASTLE, KINGSIDE, SIDE, -1 );
-    else
-      pushmove ( CASTLE, QUEENSIDE, SIDE, -1 );
+    /*if (!strcmp(fen, "O-O"))
+       pushmove(CASTLE, KINGSIDE, SIDE, -1);
+       else
+       pushmove(CASTLE, QUEENSIDE, SIDE, -1); */
     Tmove *mossa = &gen_list[0][1];
-    makemove ( mossa );
+    makemove ( mossa, &key2 );
     score = eval ( SIDE
 #ifdef FP_MODE
 		   , -_INFINITE, _INFINITE
@@ -1378,10 +968,10 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
       *from = *to - 8;
     else
       *from = *to + 8;
-    char p = getFenInv ( strstr ( fen, "=" )[1] );
+    char p = getFenInv[strstr ( fen, "=" )[1]];
     pushmove ( PROMOTION, *from, *to, SIDE, p );
     Tmove *mossa = &gen_list[0][1];
-    makemove ( mossa );
+    makemove ( mossa, &key2 );
     score = eval ( SIDE
 #ifdef FP_MODE
 		   , -_INFINITE, _INFINITE
@@ -1389,33 +979,30 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
 		   , key );
     return score;
   }
-
   if ( strlen ( fen ) >= 2 && tolower ( fen[0] ) == fen[0] && !is_number ( fen[0] ) )
     column = get_u64_column ( fen[0] );
   else if ( strlen ( fen ) > 3 && fen[1] != 'x' && fen[0] != 'x' && tolower ( fen[1] ) == fen[1] && !is_number ( fen[1] ) )
     column = get_u64_column ( fen[1] );
-
   if ( strlen ( fen ) >= 2 && is_number ( fen[0] ) )
     column = RANK[fen[0] - 48 - 1];
   else if ( strlen ( fen ) > 3 && fen[1] != 'x' && fen[0] != 'x' && is_number ( fen[1] ) )
     column = RANK[fen[1] - 48 - 1];
   if ( toupper ( fen[0] ) == fen[0] ) {
     if ( !SIDE )
-      pezzo_da = getFenInv ( ( char ) tolower ( fen[0] ) );
+      pezzo_da = getFenInv[( char ) tolower ( fen[0] )];
     else
-      pezzo_da = getFenInv ( fen[0] );
+      pezzo_da = getFenInv[fen[0]];
   }
   *to = decodeBoard ( fen + strlen ( fen ) - 2 );
   if ( ( *to ) == -1 )
     myassert ( 0, "e" );
-  u64 attaccanti2, attaccanti = evalNode.attackers[*to];
+  u64 attaccanti2, attaccanti = EVAL.attackers[*to];
   attaccanti &= get_pieces ( SIDE ) | chessboard[SIDE];
   int c = BitCount ( attaccanti );
   if ( !c ) {
     printf ( "\nerror en passant?" );
     *from = -1;
     return 0;
-    //myassert (0, "errord");
   }
   if ( c == 1 )
     *from = BITScanForward ( attaccanti );
@@ -1436,15 +1023,14 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
        o = fen[0];
        pezzo_da = getFenInv ((char) o);
        #ifdef DEBUG_MODE
-       assert(pezzo_da!=-1);
+       ASSERT(pezzo_da!=-1);
        #endif
        } */
     try_locked = 0;
     attaccanti2 = attaccanti;
     while ( attaccanti ) {
       o = BITScanForward ( attaccanti );
-      if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column )
-	   && TABLOG[o] & column ) {
+      if ( ( ( ( pezzo_da == -1 ) || ( pezzo_da != -1 ) ) && ( ( chessboard[pezzo_da] & TABLOG[o] & column ) ) ) && ( TABLOG[o] & column ) ) {
 	if ( *from != -1 ) {
 	  try_locked = 1;
 	  *from = -1;
@@ -1458,8 +1044,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
     if ( try_locked )
       while ( attaccanti ) {
 	o = BITScanForward ( attaccanti );
-	if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column )
-	     && TABLOG[o] & column && !is_locked ( o, get_piece_at ( SIDE, TABLOG[o] ), SIDE ) ) {
+	if ( ( ( pezzo_da == -1 || pezzo_da != -1 ) && ( ( chessboard[pezzo_da] & TABLOG[o] & column ) ) ) && TABLOG[o] & column && !is_locked ( o, get_piece_at ( SIDE, TABLOG[o] ), SIDE ) ) {
 	  if ( *from != -1 ) {
 	    printf ( "\nambiguous, skip " );
 	    break;
@@ -1469,11 +1054,9 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
 	attaccanti &= NOTTABLOG[o];
       };
   }
-
   pushmove ( STANDARD, *from, *to, SIDE );
   Tmove *mossa = &gen_list[0][1];
-  makemove ( mossa );
-
+  makemove ( mossa, &key2 );
   score = eval ( SIDE
 #ifdef FP_MODE
 		 , -_INFINITE, _INFINITE

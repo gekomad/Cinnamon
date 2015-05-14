@@ -1,19 +1,3 @@
-/*
-Copyright (C) 2008-2010
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include "winboard.h"
 #ifdef _MSC_VER
 #include "windows.h"
@@ -54,47 +38,46 @@ char test_ris[20];
 char test_found[20];
 u64 num_moves_test;
 #endif
-
-u64 num_moves, num_moves2, num_movesq, num_tot_moves;
+u64 num_moves, num_movesq, num_tot_moves;
 char mply, black_move;
-
 int MAX_TIME_MILLSEC, MAX_DEPTH_TO_SEARCH, HASH_SIZE, st_force, list_id, xboard, force;
 int evaluateMobility_mode, null_sem, supplementary_mill_sec;
 u64 n_cut_hash;
-char *BITCOUNT = NULL;
 
 unsigned long Index_BitScanForward;
+char BITCOUNT[65536];
 int Friend_king[2];
-int pvv_from, pvv_to, path_pvv;
-int enpas, run, ob_count, EvalCuts;
+int enpas, running, ob_count, LazyEvalCuts;
 int Ttime, quies_mode, max_depth, hand_do_movec, otime;
 int CASTLE_DONE[2];
 int ENP_POSSIBILE;
+int main_ply;
 int CASTLE_NOT_POSSIBLE[2];
-
 int CASTLE_NOT_POSSIBLE_QUEENSIDE[2];
 int CASTLE_NOT_POSSIBLE_KINGSIDE[2];
+int START_CASTLE_NOT_POSSIBLE[2];
+int START_CASTLE_NOT_POSSIBLE_QUEENSIDE[2];
+int START_CASTLE_NOT_POSSIBLE_KINGSIDE[2];
+int START_CASTLE_DONE[2];
 struct timeb start_time;
-FILE *outf;
 TmoveList gen_list;
-
 Tchessboard chessboard;
-
 #ifndef PERFT_MODE
 Topenbook *openbook;
 int use_book, OPENBOOK_SIZE;
 #endif
 #ifdef HASH_MODE
 Thash *hash_array[2];
-
 #endif
 int mate;
+
 #ifndef PERFT_MODE
 int HistoryHeuristic[64][64];
 int KillerHeuristic[MAX_PLY][64][64];
 int main_depth;
 TopenbookLeaf *openbook_tree;
-Teval evalNode;
+EVAL_TAG EVAL;
+//stack_move_tag stack_move1;
 int initialply;
 Tmove result_move;
 #else
@@ -103,13 +86,14 @@ u64 listcount_n;
 #endif
 #ifndef PERFT_MODE
 #ifdef DEBUG_MODE
-double beta_efficency;
+char N_EVALUATION[2];
+double beta_efficency1, beta_efficency_tot;
+int beta_efficency_tot_count;
 u64 eval_count;
 u64 null_move_cut, collisions, n_record_hash;
 u64 n_cut, n_cut_fp, n_cut_razor;
 #endif
 #endif
-
 
 #ifdef PERFT_MODE
 void
@@ -118,44 +102,28 @@ do_perft (  ) {
   side = ( black_move == 1 ? 0 : 1 );
   struct timeb start1, end1;
   int TimeTaken = 0;
-
-  run = 1;
-  //mply = 0;
-  num_moves2 = 0;
-
-  //while ( run ) {
+  running = 1;
   ftime ( &start1 );
   init (  );
-
   Tmove *mossa;
   list_id++;
-#ifdef DEBUG_MODE
-  assert ( list_id < MAX_PLY );
-#endif
+  ASSERT ( list_id < MAX_PLY );
   list_id = 0;
-
   generateCap ( STANDARD, side );
   generateMoves ( STANDARD, side );
-
-  listcount = gen_list[list_id][0].score;
+  listcount = get_gen_list_count ( list_id );
   u64 tot = 0;
-
-#ifdef DEBUG_MODE
-  controlloRipetizioni ( gen_list[list_id], listcount );
-#endif
   printf ( "\n\n\t\t\t\t----- ply %d -----", mply + 1 );
   listcount_n++;
-
+  u64 r;
   for ( ii = 1; ii <= listcount; ii++ ) {
     list_id = 0;
     n_perft = 0;
-    num_moves2 = 0;
     mossa = &gen_list[list_id][ii];
-    makemove ( mossa );
+    makemove ( mossa, &r );
     ael ( change_side ( side ), mply );
     if ( mply >= MAX_DEPTH_TO_SEARCH )
-      run = 0;
-    num_moves2 += n_perft;
+      running = 0;
     takeback ( mossa );
     char y;
     char x = getFen ( get_piece_at ( ( side ), TABLOG[mossa->from] ) );
@@ -165,101 +133,42 @@ do_perft (  ) {
       y = '*';
     else
       y = '-';
-    printf ( "\n %d\t%c%s%c%s \t%I64u ", ii, x, decodeBoardinv ( mossa->from, side ), y, decodeBoardinv ( mossa->to, side ), n_perft );
+    printf ( "\n %d\t%c%s%c%s \t%llu ", ii, x, decodeBoardinv ( mossa->from, side ), y, decodeBoardinv ( mossa->to, side ), n_perft );
+    fflush ( stdout );
     tot += n_perft;
   }
   ftime ( &end1 );
   TimeTaken = diff_time ( end1, start1 );
   printf ( "\n       \t\t\t\t\t\t\t%.2lf seconds", ( double ) TimeTaken / 1000 );
+
 #ifdef DEBUG_MODE
-  //printf ( "\n%I64u nodes", tot );
   char dummy[1000];
   memset ( dummy, 0, sizeof ( dummy ) );
-  sprintf ( dummy, "\n%I64u nodes", tot );
-
+  sprintf ( dummy, "\n%llu nodes", tot );
   if ( TimeTaken ) {
     memset ( dummy, 0, sizeof ( dummy ) );
-    sprintf ( dummy, "\n%I64u nodes per second", tot * 1000 / TimeTaken );
-
+    sprintf ( dummy, "\n%llu nodes per second", tot * 1000 / TimeTaken );
   }
-  //printf ( "\n%I64u nodes per second", tot * 1000 / TimeTaken );
-  //#else
-  //      printf ("\n%I64u nodes", tot);
 #endif
-  printf ( "\n%I64u nodes", tot );
-  while ( 1 );
+  printf ( "\n%llu nodes", tot );
+  fflush ( stdout );
 }
 
 #else
-/*
+
 void
-do_move ( int side ) {	
-struct timeb start1,end1;
-int alpha = -_INFINITE;
-int beta = _INFINITE;
-LINE line;  
-int val;  
-int TimeTaken;
-run = 1;
-mply = 1;
-int score;  
-ftime ( &start_time ); 
-init (  ); 
-while ( run ) {
-ftime ( &start1 );
-initialply = mply;
-
-
-++mply;
-
-printf ( "\nply: %d ................................................", mply );
-
-list_id=0;
-gen_list[list_id][0].score=0;
-num_moves2 = 0;
-generateCap ( STANDARD, side );
-generateMoves ( STANDARD, side );
-int listcount = gen_list[list_id][0].score;
-Tmove *mossa;
-if ( listcount ) {
-int ii;		
-for ( ii = 1; ii <= listcount; ii++ ) {
-mossa = &gen_list[list_id][ii];				
-makemove ( mossa );
-alpha = -_INFINITE;
-beta = _INFINITE;
-//print();			
-val = -ael ( side^1, mply, -beta,-alpha, &line );
-printf("\n%s %s %d",decodeBoardinv ( mossa->from,  mossa->side ),decodeBoardinv (  mossa->to,  mossa->side ),val);
-takeback ( mossa );
-
-run = still_time (  );
-if(!run){printf("\nnnnnnnnnnn");break;}
-score = -_INFINITE;
-memcpy ( &result_move, &mossa, sizeof ( Tmove ) );
-}  
-}
-ftime (&end1);
-TimeTaken = diff_time (end1, start1);
-printf("\ntime %d",TimeTaken);
-}
-
-}
-*/
-void
-do_move ( int side ) {
+iterative_deeping ( int side ) {
   struct timeb start1, end1;
   int alpha = -_INFINITE;
   int beta = _INFINITE;
-  LINE line;
+  LINE line2, line;
   int val;
   char pvv[200];
   Tmove move2;
   int TimeTaken;
-  run = 1;
+  running = 1;
   mply = 0;
   int score;
-  num_moves2 = 0;
   ftime ( &start_time );
   memset ( HistoryHeuristic, 0, sizeof ( HistoryHeuristic ) );
   memset ( KillerHeuristic, 0, sizeof ( KillerHeuristic ) );
@@ -268,14 +177,14 @@ do_move ( int side ) {
   memset ( hash_array[WHITE], 0, HASH_SIZE * sizeof ( Thash ) );
 #endif
   ftime ( &start1 );
-  while ( run ) {
+  while ( running ) {
     init (  );
     initialply = mply;
-    memset ( &line, 0, sizeof ( line ) );
+    memset ( &line2, 0, sizeof ( LINE ) );
     memset ( &pvv, 0, sizeof ( pvv ) );
 		/******** open book ***************/
     if ( use_book ) {
-      u64 key = makeZobristKey (  );
+      u64 key = makeZobristKey ( side );
       int t;
       if ( ( t = search_openbook ( key, side ) ) != -1 ) {
 	ob_count++;
@@ -291,147 +200,117 @@ do_move ( int side ) {
 	result_move.side = ( char ) side;
 	result_move.promotion_piece = -1;
 	//printf ("\nopen book found %d %d", result_move.from, result_move.to);
-	run = 0;
+	running = 0;
 	return;
       }
     }
     ++mply;
 
 #ifdef DEBUG_MODE
-    printf ( "\nply: %d ...", mply );
-
+    printf ( "\n\nply: %d ...", mply );
 #endif
+    main_ply = mply;
+    val = ael ( side, mply, alpha, beta, &line2, makeZobristKey (  ), 1 );
 
-    line.cmove = 0;
+    if ( !running )
+      return;
+    memcpy ( &line, &line2, sizeof ( LINE ) );
+    /*if (!line.cmove ||((val < alpha) || (val > beta))) {//Aspiration Windows
+       alpha = -_INFINITE;
+       beta = _INFINITE;
+       mply--;
+       //printf("\nAspiration Windows");
+       continue;
+       } else {
+       alpha = val - valWINDOW;
+       beta = val + valWINDOW;
+       //printf("\nAspiration Windows. alpha: %d beta: %d", alpha, beta);
+       } */
 
-    val = ael ( side, mply, alpha, beta, &line );
+    memcpy ( &move2, line.argmove, sizeof ( Tmove ) );
 
-    run = still_time (  );
-    if ( !line.cmove ) {
-      run = 0;
-    }
-    if ( run ) {
-      /*if ((val < alpha) || (val > beta) ) {//Aspiration Windows
-         alpha = -_INFINITE;
-         beta = _INFINITE;
-         continue;
-         }else {
-         alpha = val - valWINDOW;
-         beta = val + valWINDOW;
-         printf("\nAspiration Windows. alpha: %d beta: %d",alpha,beta );
-         } */
-      memcpy ( &move2, line.argmove, sizeof ( Tmove ) );
-      if ( !line.cmove )
-	continue;
-#ifdef DEBUG_MODE
-      int errore = 0;
-#endif
-      pvv_from = line.argmove[0].from;
-      pvv_to = line.argmove[0].to;
-      for ( int t = 0; t < line.cmove; t++ ) {
-	char pvv_tmp[10];
-	memset ( pvv_tmp, 0, sizeof ( pvv_tmp ) );
-	strcat ( pvv_tmp, decodeBoardinv ( line.argmove[t].from, side ) );
-	if ( line.argmove[t].from >= 0 )
-	  strcat ( pvv_tmp, decodeBoardinv ( line.argmove[t].to, side ) );
-#ifdef DEBUG_MODE
-	if ( strstr ( pvv, pvv_tmp ) )
-	  errore = 1;
-#endif
-	strcat ( pvv, pvv_tmp );
-	strcat ( pvv, " " );
-#ifdef DEBUG_MODE
-	//if(errore){printf("\nErrore ripetizione %d\n",run);fflush(stdout);};
-#endif
-      };
-
+    for ( int t = 0; t < line.cmove; t++ ) {
+      char pvv_tmp[10];
+      memset ( pvv_tmp, 0, sizeof ( pvv_tmp ) );
+      ASSERT ( t < MAX_PLY );
+      ASSERT ( t >= 0 );
+      strcat ( pvv_tmp, decodeBoardinv ( line.argmove[t].from, side ) );
+      if ( line.argmove[t].from >= 0 )
+	strcat ( pvv_tmp, decodeBoardinv ( line.argmove[t].to, side ) );
+      strcat ( pvv, pvv_tmp );
+      strcat ( pvv, " " );
+    };
 #ifdef TEST_MODE
-      if ( line.argmove[0].from == KINGSIDE ) {
-	if ( side )
-	  strcpy ( test_found, "g1" );
-	strcpy ( test_found, "g8" );
-      }
-      else if ( line.argmove[0].from == QUEENSIDE ) {
-	if ( side )
-	  strcpy ( test_found, "c1" );
-	strcpy ( test_found, "c8" );
-      }
+    if ( line.argmove[0].from == KINGSIDE ) {
+      if ( side )
+	strcpy ( test_found, "g1" );
       else
-	strcpy ( test_found, decodeBoardinv ( line.argmove[0].to, side ) );
-#endif
-      if ( mply == MAX_DEPTH_TO_SEARCH )
-	run = 0;
-      score = -_INFINITE;
-      memcpy ( &result_move, &move2, sizeof ( Tmove ) );
-      /* for ( int a = 0; a < 64; a++ )
-         for ( int b = 0; b < 64; b++ )
-         if ( HistoryHeuristic[result_move.from][result_move.to] >= 100000 )//TODO ??
-         HistoryHeuristic[result_move.from][result_move.to] -= 100000;
-         HistoryHeuristic[result_move.from][result_move.to] += 100000; */
-      ftime ( &end1 );
-      TimeTaken = diff_time ( end1, start1 );
-#ifdef DEBUG_MODE
-      if ( n_cut )
-	printf ( "\nbeta_efficency: %2f ", beta_efficency / ( ( int ) n_cut ) * 100 );
-#endif
-      num_tot_moves += ( num_movesq + num_moves );
-      printf ( "\n%d %d %d %d", mply, result_move.score / 100, TimeTaken, num_movesq + num_moves );
-      printf ( " %s", pvv );
+	strcpy ( test_found, "g8" );
+    }
+    else if ( line.argmove[0].from == QUEENSIDE ) {
 
-#ifdef DEBUG_MODE
-      if ( n_cut )
-	printf ( "\nbeta_efficency: %f ", beta_efficency / ( ( int ) n_cut ) * 100 );
+      if ( side )
+	strcpy ( test_found, "c1" );
+      else
+	strcpy ( test_found, "c8" );
+    }
+    else
+      strcpy ( test_found, decodeBoardinv ( line.argmove[0].to, side ) );
 #endif
-      int nps = 0;
-      if ( ( TimeTaken ) )
-	nps = ( int ) ( ( num_movesq + num_moves2 ) * 1000 / TimeTaken );
-#ifdef DEBUG_MODE
+    score = -_INFINITE;
+    memcpy ( &result_move, &move2, sizeof ( Tmove ) );
+    if ( result_move.from >= 0 && result_move.to >= 0 )
+      HistoryHeuristic[result_move.from][result_move.to] += 100000;
+    ftime ( &end1 );
+    TimeTaken = diff_time ( end1, start1 );
+    num_tot_moves += ( num_movesq + num_moves );
+    printf ( "\n%d %d %d %llu", mply, result_move.score / 100, TimeTaken, num_movesq + num_moves );
+    printf ( " %s", pvv );
+    int nps = 0;
+    if ( ( TimeTaken ) )
+      nps = ( int ) ( ( num_movesq + num_moves ) * 1000 / TimeTaken );
 
-      printf ( "\nmillsec: %d  (%d nodes per seconds) tot moves: %I64u tot moves quis: %I64u", TimeTaken, nps, num_moves2, num_movesq );
-      /*
-         printf(" tot enpassant: %d\n",enpassant_count);
-         printf(" tot check: %d\n",check_count);
-         printf(" tot capture: %d\n",capture_count);
-         printf(" tot castle: %d\n",castle_count);
-         printf(" tot checkmate: %d\n",checkmate_count); */
-#endif
-      fflush ( stdout );
+    fflush ( stdout );
 #ifdef DEBUG_MODE
-      printf ( " null_move_cut: %I64d\n", null_move_cut );
-      printf ( "n_cut: %I64d EvalCuts: %d\n", n_cut, EvalCuts );
+    if ( n_cut ) {
+      double b = beta_efficency1 / ( ( int ) n_cut ) * 100;
+      printf ( "\nbeta_efficency: %.2f%% ", b );
+      beta_efficency_tot += b;
+      beta_efficency_tot_count++;
+    }
+    printf ( "\nmillsec: %d  (%d nodes per seconds) \ntot moves: %llu \ntot moves quis: %llu", TimeTaken, nps, num_tot_moves, num_movesq );
+    printf ( "\nnull_move_cut: %llu", null_move_cut );
+    printf ( "\nn_cut: %llu\nLazyEvalCuts: %d", n_cut, LazyEvalCuts );
+    printf ( "\neval_count: %llu", eval_count );
 #ifdef FP_MODE
-      printf ( "n_cut_FutilityPruning: %I64d\n", n_cut_fp );
-      printf ( "n_cut_razor: %I64d\n", n_cut_razor );
+    printf ( "\nn_cut_FutilityPruning: %llu", n_cut_fp );
+    printf ( "\nn_cut_razor: %llu", n_cut_razor );
 #endif
 #ifdef HASH_MODE
-      printf ( "record: %I64d n_cut_hash: %I64u collisions: %I64d\n", n_record_hash, n_cut_hash, collisions );
-#endif
-#ifdef DEBUG_MODE
-      printf ( "eval_count %I64u\n", eval_count );
+    printf ( "\nhash_record: %llu\nn_cut_hash: %llu\nhash_collisions: %llu", n_record_hash, n_cut_hash, collisions );
 #endif
 #endif
-      mate = 0;
-      if ( abs ( val ) == _INFINITE ) {
-	mate = 1;
-	if ( !xboard )
-	  printf ( "\nMATE, stop search" );
-	run = 0;
-      }
-      int tipo = result_move.type;
-      if ( result_move.from < 0 )
-	tipo = CASTLE;
-
-      // SIDE = side;
-      /*if(inCheck(result_move.from,result_move.to,tipo)){
-         run=1;
-         MATE_MODE=1;
-         }  */
-      if ( black_move && result_move.score == _INFINITE )
-	break;
-      if ( !black_move && result_move.score == -_INFINITE )
-	break;
-    }
+    mate = 0;
+    /*if (abs(val) == _INFINITE) {
+       mate = 1;
+       if (!xboard)
+       printf("\nMATE, stop search");
+       running = 0;
+       } */
+    int tipo = result_move.type;
+    if ( result_move.from < 0 )
+      tipo = CASTLE;
+    // SIDE = side;
+    /*if(inCheck(result_move.from,result_move.to,tipo)){
+       run=1;
+       MATE_MODE=1;
+       }  */
+    if ( black_move && result_move.score == _INFINITE )
+      break;
+    if ( !black_move && result_move.score == -_INFINITE )
+      break;
   }
+
 }
 
 #endif
@@ -444,40 +323,61 @@ void *
 hand_do_move ( void *dummy )
 #endif
 {
+#ifndef PERFT_MODE
+  ASSERT ( stack_move1.next < MAX_PLY );
+  ASSERT ( stack_move1.next >= 0 );
+#endif
+  int side = ( black_move == 1 ? 0 : 1 );
+  if ( check_draw ( n_pieces ( side ) + BitCount ( chessboard[PAWN_BLACK + side] ), n_pieces ( side ^ 1 ) + BitCount ( chessboard[PAWN_BLACK + ( side ^ 1 )] ), side ) ) {
+    writeWinboard ( "\nRESULT 1/2-1/2 {insufficient mating material}" );
+    exit ( 0 );
+#ifdef _MSC_VER
+    return;
+#else
+    return NULL;
+#endif
+  }
+  u64 key = makeZobristKey (  );
   char t[255];
   memset ( t, 0, sizeof ( t ) );
   hand_do_movec = 1;
-  int side = ( black_move == 1 ? 0 : 1 );
   memset ( &result_move, 0, sizeof ( result_move ) );
-  do_move ( side );
+  iterative_deeping ( side );
   if ( result_move.from == 0 && result_move.to == 0 ) {
     list_id++;
     generateMoves ( STANDARD, side );
     generateCap ( STANDARD, side );
-    int listcount = gen_list[list_id][0].score;
+    int listcount = get_gen_list_count ( list_id );
     if ( !listcount ) {
-      printf ( "MATE!!" );
+      if ( side )
+	writeWinboard ( "\nRESULT 0-1 {Black mates}" );
+      else
+	writeWinboard ( "\nRESULT 1-0 {White mates}" );
+      list_id--;
 #ifdef _MSC_VER
       return;
 #else
       return NULL;
 #endif
     }
-    int ii;
-    for ( ii = 1; ii <= listcount; ii++ ) {
+    for ( int ii = 1; ii <= listcount; ii++ ) {
       Tmove *mossa = &gen_list[list_id][ii];
-      makemove ( mossa );
-      if ( !in_check (  ) ) {
+      u64 key;
+      makemove ( mossa, &key );
+      printf ( "\n%d %d %d", mossa->from, mossa->to, mossa->capture );
+      if ( !in_check ( side ) ) {
 	memcpy ( &result_move, mossa, sizeof ( Tmove ) );
-	takeback ( mossa );
-	break;
+
+	if ( !chessboard[KING_BLACK + side] ) {	//search for mate
+
+	  break;
+	}
       }
       takeback ( mossa );
     }
+    list_id--;
   }
-  list_id--;
-  makemove ( &result_move );
-  print (  );
+  makemove ( &result_move, &key );
   strcpy ( t, "\nmove " );
   strcat ( t, decodeBoardinv ( result_move.from, result_move.side ) );
   if ( result_move.type != CASTLE ) {
@@ -485,26 +385,12 @@ hand_do_move ( void *dummy )
     if ( result_move.promotion_piece != -1 )
       t[strlen ( t )] = ( char ) tolower ( getFen ( result_move.promotion_piece ) );
   }
-
-
 #ifdef DEBUG_MODE
   printf ( "da %d a %d\n", result_move.from, result_move.to );
 #endif
-  //#ifdef _MSC_VER
   writeWinboard ( t );
-  //#endif
 }
 #endif
-void
-dispose (  ) {
-#ifdef HASH_MODE
-  free ( hash_array[BLACK] );
-  free ( hash_array[WHITE] );
-  free ( openbook );
-#endif
-  free ( BITCOUNT );
-
-}
 
 void
 start ( int argc, char *argv[] ) {
@@ -512,20 +398,12 @@ start ( int argc, char *argv[] ) {
   num_tot_moves = 0;
 #ifndef PERFT_MODE
   openbook = NULL;
+  //memset(&stack_move1, 0, sizeof(stack_move1));
 #endif
 #ifdef TEST_MODE
   num_moves_test = 0;
 #endif
-  CASTLE_DONE[0] = 0;
-  CASTLE_DONE[1] = 0;
-  CASTLE_NOT_POSSIBLE[0] = 0;
-  CASTLE_NOT_POSSIBLE[1] = 0;
-  CASTLE_NOT_POSSIBLE_QUEENSIDE[0] = 0;
-  CASTLE_NOT_POSSIBLE_QUEENSIDE[1] = 0;
-  CASTLE_NOT_POSSIBLE_KINGSIDE[0] = 0;
-  CASTLE_NOT_POSSIBLE_KINGSIDE[1] = 0;
 
-  BITCOUNT = ( char * ) malloc ( 65536 * sizeof ( char ) );
   MAX_TIME_MILLSEC = 5000;
   st_force = _INFINITE;
   MAX_DEPTH_TO_SEARCH = 32;
@@ -533,11 +411,9 @@ start ( int argc, char *argv[] ) {
     BITCOUNT[t] = ( char ) BitCountSlow ( t );
 #ifndef PERFT_MODE
   use_book = xboard = 0;
-
   //printf ("Load book ...");
   fflush ( stdout );
   use_book = load_open_book (  );
-
   /*
      if (!use_book)
      printf ("not found. Open book not used.\n"); //xboard catch error
@@ -547,22 +423,19 @@ start ( int argc, char *argv[] ) {
 #endif
 #ifdef HASH_MODE
   hash_array[WHITE] = hash_array[BLACK] = NULL;
-
 #ifdef DEBUG_MODE
-  for ( t = 0; t < OPENBOOK_SIZE; t++ ) {
-    if ( openbook[t].from_black != -1 )
-      if ( openbook[t].to_black < 0 )
-	printf ( "\nerror" );;
-    if ( openbook[t].from_white != -1 )
-      if ( openbook[t].to_white < 0 )
-	printf ( "\nerror" );;
-  }
+  beta_efficency_tot_count = 0;
+  beta_efficency_tot = 0.0;
+  for ( t = 0; t < OPENBOOK_SIZE; t++ )
+    if ( ( openbook[t].from_black != -1 && openbook[t].to_black < 0 ) || ( openbook[t].from_white != -1 && openbook[t].to_white < 0 ) )
+      printf ( "\nerror" );
+
 #endif
   HASH_SIZE = 2097091;		//default 64 Mb
   if ( argc > 1 )
     for ( t = 1; t < argc; t++ ) {
       if ( strstr ( argv[t], "-hash32" ) )
-	HASH_SIZE = 1048549;	//must be a prime numbers
+	HASH_SIZE = 1048549;	//must be a prime number
       else if ( strstr ( argv[t], "-hash64" ) )
 	HASH_SIZE = 2097091;
       else if ( strstr ( argv[t], "-hash128" ) )
@@ -571,36 +444,38 @@ start ( int argc, char *argv[] ) {
 	HASH_SIZE = 8388593;
       else if ( strstr ( argv[t], "-hash512" ) )
 	HASH_SIZE = 16777213;
-
+      else if ( strstr ( argv[t], "-hash1024" ) )
+	HASH_SIZE = 33554467;
     }
   hash_array[BLACK] = ( Thash * ) malloc ( HASH_SIZE * sizeof ( Thash ) );
-  myassert ( hash_array[BLACK], "\nMemory Allocation Failure\n" );
+  if ( !hash_array[BLACK] )
+    myassert ( 0, "\nMemory Allocation Failure\n" );
   hash_array[WHITE] = ( Thash * ) malloc ( HASH_SIZE * sizeof ( Thash ) );
-  myassert ( hash_array[WHITE], "\nMemory Allocation Failure\n" );
-
+  if ( !hash_array[WHITE] )
+    myassert ( 0, "\nMemory Allocation Failure\n" );
 #endif
-
 #ifndef TEST_MODE
   loadfen ( INITIAL_FEN );
 #endif
-
-#ifndef PERFT_MODE
-#ifdef _MSC_VER
-  DWORD winboardthread;
-  CreateThread ( NULL, 0, ( LPTHREAD_START_ROUTINE ) listner_winboard, ( LPVOID ) NULL, 0, &winboardthread );
-#else
-  pthread_t thread1;
-  int iret1;
-  char *message1 = "Thread 1";
-  iret1 = pthread_create ( &thread1, NULL, listner_winboard, ( void * ) &message1 );
-#endif
-#endif
 }
 
+/*
+ void bench() {
+ unsigned r = 0;
+ for (int t = 0; t < 9999999; t++) {
+ for (int i = 0; i < 14; i++) {
+ for (int j = 0; j < 64; j++) {
+ ;
+ }
+ }
+ }
+ printf("\n%d", r);
+ }
+ */
 int
 main ( int argc, char *argv[] ) {
+  //bench();      return 0;
   start ( argc, argv );
-
   printf ( "\nPERFT" );
 #ifdef PERFT_MODE
   printf ( " ON" );
@@ -609,7 +484,7 @@ main ( int argc, char *argv[] ) {
 #endif
   printf ( "\nHASH" );
 #ifdef HASH_MODE
-  printf ( " ON" );
+  printf ( " ON (use -hash32, -hash64, -hash128, -hash512, -hash1024) default -hash32" );
 #else
   printf ( " OFF" );
 #endif
@@ -645,20 +520,20 @@ main ( int argc, char *argv[] ) {
 #endif
 #ifndef PERFT_MODE
   if ( use_book )
-    printf ( "\nOPEN BOOK ON\n" );
+    printf ( "\nOPEN BOOK YES\n" );
   else
 #endif
-    printf ( "\nOPEN BOOK OFF\n" );
-
+    printf ( "\n" );		//OPEN BOOK NO (book.dat n o t  f o u n d, to create it type 'createbook')\n");
 #ifdef TEST_MODE
   test (  );
 #else
 #ifndef PERFT_MODE
   print (  );
 #endif
+
 #ifdef PERFT_MODE
   if ( argc < 2 ) {
-    printf ( "\nmissing depth and FEN, example 3 \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"" );
+    printf ( "\nmissing depth and/or FEN position, example:\nbutterfly 3 \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"\nbutterfly 3\n" );
     return 1;
   };
   loadfen ( INITIAL_FEN );
@@ -666,20 +541,26 @@ main ( int argc, char *argv[] ) {
     loadfen ( argv[2] );
   print (  );
   mply = ( char ) atoi ( argv[1] ) - 1;
+  if ( mply < 0 || mply > 32 ) {
+    printf ( "\nerror:  0 < depth <32" );
+    return 1;
+  }
   printf ( "\nthink...\n" );
   do_perft (  );
 #endif
 #endif
+
 #ifndef PERFT_MODE
-#ifndef TEST_MODE
-  while ( 1 ) {
-#if defined  _MSC_VER	|| defined  __GNUWIN32__
-    Sleep ( _INFINITE );
+#ifdef _MSC_VER
+  DWORD winboardthread;
+  HANDLE thread1 = CreateThread ( NULL, 0, ( LPTHREAD_START_ROUTINE ) listner_winboard, ( LPVOID ) NULL, 0, &winboardthread );
+  WaitForSingleObject ( thread1, INFINITE );
 #else
-    usleep ( _INFINITE );
-#endif
-  }
+  pthread_t thread1;
+  pthread_create ( &thread1, NULL, listner_winboard, NULL );
+  pthread_join ( thread1, NULL );
 #endif
 #endif
   return 0;
+
 }

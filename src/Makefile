@@ -1,9 +1,9 @@
 CPP  = g++
-OBJ  = cap.o eval.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o
-LINKOBJ  = cap.o eval.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o
+OBJ  = cap.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o
+LINKOBJ  = cap.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o
 LIBS =  -lpthread 
 BIN  = butterfly
-CXXFLAGS = -DNULL_MODEx -DFP_MODEx -DPERFT_MODEx -DHASH_MODEx -DHAS_64BITSx -DTEST_MODEx -DDEBUG_MODEx  -w  -fno-strict-aliasing -O3
+CXXFLAGS = -DNULL_MODE -DFP_MODE -DPERFT_MODEx -DHASH_MODEx -DHAS_64BITS -DTEST_MODEx -DDEBUG_MODEx  -w  -fno-strict-aliasing -O3
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
@@ -19,9 +19,6 @@ $(BIN): $(OBJ)
 
 cap.o: cap.cpp
 	$(CPP) -c cap.cpp -o cap.o $(CXXFLAGS)
-
-eval.o: eval.cpp
-	$(CPP) -c eval.cpp -o eval.o $(CXXFLAGS)
 
 butterfly.o: butterfly.cpp
 	$(CPP) -c butterfly.cpp -o butterfly.o $(CXXFLAGS)

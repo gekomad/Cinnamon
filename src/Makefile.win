@@ -1,57 +1,55 @@
 # Project: butterfly
-# Makefile created by Dev-C++ 4.9.9.2
+# Compiler: Default GCC compiler
+# Compiler Type: MingW 3
+# Makefile created by wxDev-C++ 7.3 on 11/11/11 21:45
 
-CPP  = g++.exe -D__DEBUG__
-CC   = gcc.exe -D__DEBUG__
-WINDRES = windres.exe
-RES  = 
-OBJ  = cap.o checkmove.o eval.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o $(RES)
-LINKOBJ  = cap.o checkmove.o eval.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o $(RES)
-LIBS =  -L"C:/Dev-Cpp/lib" -lkernel32 -luser32 -lgdi32 -lwinspool -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32  ../../../../../Dev-Cpp/pthreads-w32-2-8-0-release/libpthread.a  -g3 
-INCS =  -I"C:/Dev-Cpp/include"  -I"C:/Dev-Cpp/pthreads-w32-2-8-0-release" 
-CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"C:/Dev-Cpp/pthreads-w32-2-8-0-release" 
-BIN  = butterfly.exe
-CXXFLAGS = $(CXXINCS) -DNULL_MODEx -DFP_MODEx -DPERFT_MODEx -DHASH_MODEx -DHAS_64BITSx -DTEST_MODEx -DDEBUG_MODE  -D__GNUWIN32__ -W  -DWIN32  -DNDEBUG  -D_CONSOLE  -D_MBCS -fno-strict-aliasing   -g3
-CFLAGS = $(INCS) -D__GNUWIN32__ -W -DWIN32 -DNDEBUG -D_CONSOLE -D_MBCS   -g3
-RM = rm -f
+WXLIBNAME = wxmsw28
+CPP       = g++.exe
+CC        = gcc.exe
+WINDRES   = "windres.exe"
+OBJ       = Release/cap.o Release/butterfly.o Release/gen.o Release/openbook.o Release/search.o Release/test.o Release/utility.o Release/winboard.o
+LINKOBJ   = "Release/cap.o" "Release/butterfly.o" "Release/gen.o" "Release/openbook.o" "Release/search.o" "Release/test.o" "Release/utility.o" "Release/winboard.o"
+LIBS      = -L"C:/Program Files (x86)/Dev-Cpp/Lib" -lpthread  
+INCS      = -I"C:/Program Files (x86)/Dev-Cpp/Include"
+CXXINCS   = -I"C:/Program Files (x86)/Dev-Cpp/lib/gcc/mingw32/3.4.5/include" -I"C:/Program Files (x86)/Dev-Cpp/include/c++/3.4.5/backward" -I"C:/Program Files (x86)/Dev-Cpp/include/c++/3.4.5/mingw32" -I"C:/Program Files (x86)/Dev-Cpp/include/c++/3.4.5" -I"C:/Program Files (x86)/Dev-Cpp/include" -I"C:/Program Files (x86)/Dev-Cpp/" -I"C:/Program Files (x86)/Dev-Cpp/include/common/wx/msw" -I"C:/Program Files (x86)/Dev-Cpp/include/common/wx/generic" -I"C:/Program Files (x86)/Dev-Cpp/include/common/wx/html" -I"C:/Program Files (x86)/Dev-Cpp/include/common/wx/protocol" -I"C:/Program Files (x86)/Dev-Cpp/include/common/wx/xml" -I"C:/Program Files (x86)/Dev-Cpp/include/common/wx/xrc" -I"C:/Program Files (x86)/Dev-Cpp/include/common/wx" -I"C:/Program Files (x86)/Dev-Cpp/include/common"
+RCINCS    = --include-dir "C:/PROGRA~2/Dev-Cpp/include/common"
+BIN       = Release/butterfly.exe
+DEFINES   = 
+CXXFLAGS  = $(CXXINCS) $(DEFINES) -DNULL_MODEx -DFP_MODEx -DPERFT_MODE -DHASH_MODEx -DHAS_64BITSx -DTEST_MODEx -DDEBUG_MODEx  -D__GNUWIN32__ -W  -DWIN32  -DNDEBUG  -D_CONSOLE  -D_MBCS -fno-strict-aliasing   -fno-access-control -fexpensive-optimizations -O3
+CFLAGS    = $(INCS) $(DEFINES) -D__GNUWIN32__ -W -DWIN32 -DNDEBUG -D_CONSOLE -D_MBCS   -fno-access-control -fexpensive-optimizations -O3
+GPROF     = gprof.exe
+RM        = rm -f
+LINK      = g++.exe
 
 .PHONY: all all-before all-after clean clean-custom
-
-all: all-before butterfly.exe all-after
-
+all: all-before $(BIN) all-after
 
 clean: clean-custom
-	${RM} $(OBJ) $(BIN)
+	$(RM) $(LINKOBJ) "$(BIN)"
 
 $(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o "butterfly.exe" $(LIBS)
+	$(LINK) $(LINKOBJ) -o "$(BIN)" $(LIBS) 
 
-cap.o: cap.cpp
-	$(CPP) -c cap.cpp -o cap.o $(CXXFLAGS)
+Release/cap.o: $(GLOBALDEPS) cap.cpp
+	$(CPP) -c cap.cpp -o Release/cap.o $(CXXFLAGS)
 
-checkmove.o: checkmove.cpp
-	$(CPP) -c checkmove.cpp -o checkmove.o $(CXXFLAGS)
+Release/butterfly.o: $(GLOBALDEPS) butterfly.cpp
+	$(CPP) -c butterfly.cpp -o Release/butterfly.o $(CXXFLAGS)
 
-eval.o: eval.cpp
-	$(CPP) -c eval.cpp -o eval.o $(CXXFLAGS)
+Release/gen.o: $(GLOBALDEPS) gen.cpp
+	$(CPP) -c gen.cpp -o Release/gen.o $(CXXFLAGS)
 
-butterfly.o: butterfly.cpp
-	$(CPP) -c butterfly.cpp -o butterfly.o $(CXXFLAGS)
+Release/openbook.o: $(GLOBALDEPS) openbook.cpp
+	$(CPP) -c openbook.cpp -o Release/openbook.o $(CXXFLAGS)
 
-gen.o: gen.cpp
-	$(CPP) -c gen.cpp -o gen.o $(CXXFLAGS)
+Release/search.o: $(GLOBALDEPS) search.cpp
+	$(CPP) -c search.cpp -o Release/search.o $(CXXFLAGS)
 
-openbook.o: openbook.cpp
-	$(CPP) -c openbook.cpp -o openbook.o $(CXXFLAGS)
+Release/test.o: $(GLOBALDEPS) test.cpp
+	$(CPP) -c test.cpp -o Release/test.o $(CXXFLAGS)
 
-search.o: search.cpp
-	$(CPP) -c search.cpp -o search.o $(CXXFLAGS)
+Release/utility.o: $(GLOBALDEPS) utility.cpp
+	$(CPP) -c utility.cpp -o Release/utility.o $(CXXFLAGS)
 
-test.o: test.cpp
-	$(CPP) -c test.cpp -o test.o $(CXXFLAGS)
-
-utility.o: utility.cpp
-	$(CPP) -c utility.cpp -o utility.o $(CXXFLAGS)
-
-winboard.o: winboard.cpp
-	$(CPP) -c winboard.cpp -o winboard.o $(CXXFLAGS)
+Release/winboard.o: $(GLOBALDEPS) winboard.cpp
+	$(CPP) -c winboard.cpp -o Release/winboard.o $(CXXFLAGS)
