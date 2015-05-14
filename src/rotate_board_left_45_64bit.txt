@@ -1,0 +1,778 @@
+switch ( pos ) {
+case 0:
+  result = 1;
+  break;
+case 1:
+  result = 2;
+  if ( ss & 256 )
+    result |= 1;
+  break;
+case 2:
+  result = 4;
+  if ( ss & 512 )
+    result |= 2;
+  if ( ss & 65536 )
+    result |= 1;
+  break;
+case 3:
+  result = 8;
+  if ( ss & 1024 )
+    result |= 4;
+  if ( ss & 131072 )
+    result |= 2;
+  if ( ss & 16777216 )
+    result |= 1;
+  break;
+case 4:
+  result = 16;
+  if ( ss & 2048 )
+    result |= 8;
+  if ( ss & 262144 )
+    result |= 4;
+  if ( ss & 33554432 )
+    result |= 2;
+  if ( ss & 0x100000000 )
+    result |= 1;
+  break;
+case 5:
+  result = 32;
+  if ( ss & 4096 )
+    result |= 16;
+  if ( ss & 524288 )
+    result |= 8;
+  if ( ss & 67108864 )
+    result |= 4;
+  if ( ss & 0x200000000 )
+    result |= 2;
+  if ( ss & 0x10000000000 )
+    result |= 1;
+  break;
+case 6:
+  result = 64;
+  if ( ss & 8192 )
+    result |= 32;
+  if ( ss & 1048576 )
+    result |= 16;
+  if ( ss & 134217728 )
+    result |= 8;
+  if ( ss & 0x400000000 )
+    result |= 4;
+  if ( ss & 0x20000000000 )
+    result |= 2;
+  if ( ss & 0x1000000000000 )
+    result |= 1;
+  break;
+case 7:
+  result = 128;
+
+  if ( ss & 0x100000000000000 )
+    result |= 1;
+  if ( ss & 16384 )
+    result |= 64;
+  if ( ss & 2097152 )
+    result |= 32;
+  if ( ss & 268435456 )
+    result |= 16;
+  if ( ss & 0x800000000 )
+    result |= 8;
+  if ( ss & 0x40000000000 )
+    result |= 4;
+  if ( ss & 0x2000000000000 )
+    result |= 2;
+
+  break;
+case 8:
+  result = 1;
+  if ( ss & 2 )
+    result |= 2;
+  break;
+case 9:
+  result = 2;
+  if ( ss & 4 )
+    result |= 4;
+  if ( ss & 65536 )
+    result |= 1;
+  break;
+case 10:
+  result = 4;
+  if ( ss & 8 )
+    result |= 8;
+  if ( ss & 131072 )
+    result |= 2;
+  if ( ss & 16777216 )
+    result |= 1;
+  break;
+case 11:
+  result = 8;
+  if ( ss & 16 )
+    result |= 16;
+  if ( ss & 262144 )
+    result |= 4;
+  if ( ss & 33554432 )
+    result |= 2;
+  if ( ss & 0x100000000 )
+    result |= 1;
+  break;
+case 12:
+  result = 16;
+  if ( ss & 32 )
+    result |= 32;
+  if ( ss & 524288 )
+    result |= 8;
+  if ( ss & 67108864 )
+    result |= 4;
+  if ( ss & 0x200000000 )
+    result |= 2;
+  if ( ss & 0x10000000000 )
+    result |= 1;
+  break;
+case 13:
+  result = 32;
+  if ( ss & 64 )
+    result |= 64;
+  if ( ss & 1048576 )
+    result |= 16;
+  if ( ss & 134217728 )
+    result |= 8;
+  if ( ss & 0x400000000 )
+    result |= 4;
+  if ( ss & 0x20000000000 )
+    result |= 2;
+  if ( ss & 0x1000000000000 )
+    result |= 1;
+  break;
+case 14:
+  result = 64;
+  if ( ss & 128 )
+    result |= 128;
+
+  if ( ss & 0x100000000000000 )
+    result |= 1;
+  if ( ss & 2097152 )
+    result |= 32;
+  if ( ss & 268435456 )
+    result |= 16;
+  if ( ss & 0x800000000 )
+    result |= 8;
+  if ( ss & 0x40000000000 )
+    result |= 4;
+  if ( ss & 0x2000000000000 )
+    result |= 2;
+
+  break;
+case 15:
+  result = 128;
+
+  if ( ss & 4194304 )
+    result |= 64;
+  if ( ss & 536870912 )
+    result |= 32;
+  if ( ss & 0x1000000000 )
+    result |= 16;
+  if ( ss & 0x80000000000 )
+    result |= 8;
+  if ( ss & 0x4000000000000 )
+    result |= 4;
+  if ( ss & 0x200000000000000 )
+    result |= 2;
+  break;
+case 16:
+  result = 1;
+  if ( ss & 512 )
+    result |= 2;
+  if ( ss & 4 )
+    result |= 4;
+  break;
+case 17:
+  result = 2;
+  if ( ss & 1024 )
+    result |= 4;
+  if ( ss & 8 )
+    result |= 8;
+  if ( ss & 16777216 )
+    result |= 1;
+  break;
+case 18:
+  result = 4;
+  if ( ss & 2048 )
+    result |= 8;
+  if ( ss & 16 )
+    result |= 16;
+  if ( ss & 33554432 )
+    result |= 2;
+  if ( ss & 0x100000000 )
+    result |= 1;
+  break;
+case 19:
+  result = 8;
+  if ( ss & 4096 )
+    result |= 16;
+  if ( ss & 32 )
+    result |= 32;
+  if ( ss & 67108864 )
+    result |= 4;
+  if ( ss & 0x200000000 )
+    result |= 2;
+  if ( ss & 0x10000000000 )
+    result |= 1;
+  break;
+case 20:
+  result = 16;
+  if ( ss & 8192 )
+    result |= 32;
+  if ( ss & 64 )
+    result |= 64;
+  if ( ss & 134217728 )
+    result |= 8;
+  if ( ss & 0x400000000 )
+    result |= 4;
+  if ( ss & 0x20000000000 )
+    result |= 2;
+  if ( ss & 0x1000000000000 )
+    result |= 1;
+
+  break;
+case 21:
+  result = 32;
+  if ( ss & 16384 )
+    result |= 64;
+  if ( ss & 128 )
+    result |= 128;
+
+  if ( ss & 0x100000000000000 )
+    result |= 1;
+  if ( ss & 268435456 )
+    result |= 16;
+  if ( ss & 0x800000000 )
+    result |= 8;
+  if ( ss & 0x40000000000 )
+    result |= 4;
+  if ( ss & 0x2000000000000 )
+    result |= 2;
+
+  break;
+case 22:
+  result = 64;
+  if ( ss & 32768 )
+    result |= 128;
+
+  if ( ss & 536870912 )
+    result |= 32;
+  if ( ss & 0x1000000000 )
+    result |= 16;
+  if ( ss & 0x80000000000 )
+    result |= 8;
+  if ( ss & 0x4000000000000 )
+    result |= 4;
+  if ( ss & 0x200000000000000 )
+    result |= 2;
+  break;
+case 23:
+  result = 128;
+
+  if ( ss & 1073741824 )
+    result |= 64;
+  if ( ss & 0x2000000000 )
+    result |= 32;
+  if ( ss & 0x100000000000 )
+    result |= 16;
+  if ( ss & 0x8000000000000 )
+    result |= 8;
+  if ( ss & 0x400000000000000 )
+    result |= 4;
+  break;
+case 24:
+  result = 1;
+  if ( ss & 131072 )
+    result |= 2;
+  if ( ss & 1024 )
+    result |= 4;
+  if ( ss & 8 )
+    result |= 8;
+  break;
+case 25:
+  result = 2;
+  if ( ss & 262144 )
+    result |= 4;
+  if ( ss & 2048 )
+    result |= 8;
+  if ( ss & 16 )
+    result |= 16;
+  if ( ss & 0x100000000 )
+    result |= 1;
+  break;
+case 26:
+  result = 4;
+  if ( ss & 524288 )
+    result |= 8;
+  if ( ss & 4096 )
+    result |= 16;
+  if ( ss & 32 )
+    result |= 32;
+  if ( ss & 0x200000000 )
+    result |= 2;
+  if ( ss & 0x10000000000 )
+    result |= 1;
+  break;
+case 27:
+  result = 8;
+  if ( ss & 1048576 )
+    result |= 16;
+  if ( ss & 8192 )
+    result |= 32;
+  if ( ss & 64 )
+    result |= 64;
+  if ( ss & 0x400000000 )
+    result |= 4;
+  if ( ss & 0x20000000000 )
+    result |= 2;
+  if ( ss & 0x1000000000000 )
+    result |= 1;
+  break;
+case 28:
+  result = 16;
+  if ( ss & 2097152 )
+    result |= 32;
+  if ( ss & 16384 )
+    result |= 64;
+  if ( ss & 128 )
+    result |= 128;
+  if ( ss & 0x100000000000000 )
+    result |= 1;
+  if ( ss & 0x800000000 )
+    result |= 8;
+  if ( ss & 0x40000000000 )
+    result |= 4;
+  if ( ss & 0x2000000000000 )
+    result |= 2;
+
+  break;
+case 29:
+  result = 32;
+  if ( ss & 4194304 )
+    result |= 64;
+  if ( ss & 32768 )
+    result |= 128;
+  if ( ss & 0x1000000000 )
+    result |= 16;
+  if ( ss & 0x80000000000 )
+    result |= 8;
+  if ( ss & 0x4000000000000 )
+    result |= 4;
+  if ( ss & 0x200000000000000 )
+    result |= 2;
+  break;
+case 30:
+  result = 64;
+  if ( ss & 8388608 )
+    result |= 128;
+  if ( ss & 0x2000000000 )
+    result |= 32;
+  if ( ss & 0x100000000000 )
+    result |= 16;
+  if ( ss & 0x8000000000000 )
+    result |= 8;
+  if ( ss & 0x400000000000000 )
+    result |= 4;
+  break;
+
+case 31:
+  result = 128;
+  if ( ss & 0x4000000000 )
+    result |= 64;
+  if ( ss & 0x200000000000 )
+    result |= 32;
+  if ( ss & 0x10000000000000 )
+    result |= 16;
+  if ( ss & 0x800000000000000 )
+    result |= 8;
+  break;
+case 32:
+  result = 1;
+  if ( ss & 33554432 )
+    result |= 2;
+  if ( ss & 262144 )
+    result |= 4;
+  if ( ss & 2048 )
+    result |= 8;
+  if ( ss & 16 )
+    result |= 16;
+  break;
+case 33:
+  result = 2;
+  if ( ss & 67108864 )
+    result |= 4;
+  if ( ss & 524288 )
+    result |= 8;
+  if ( ss & 4096 )
+    result |= 16;
+  if ( ss & 32 )
+    result |= 32;
+  if ( ss & 0x10000000000 )
+    result |= 1;
+  break;
+case 34:
+  result = 4;
+  if ( ss & 134217728 )
+    result |= 8;
+  if ( ss & 1048576 )
+    result |= 16;
+  if ( ss & 8192 )
+    result |= 32;
+  if ( ss & 64 )
+    result |= 64;
+  if ( ss & 0x20000000000 )
+    result |= 2;
+  if ( ss & 0x1000000000000 )
+    result |= 1;
+  break;
+case 35:
+  result = 8;
+  if ( ss & 268435456 )
+    result |= 16;
+  if ( ss & 2097152 )
+    result |= 32;
+  if ( ss & 16384 )
+    result |= 64;
+  if ( ss & 128 )
+    result |= 128;
+
+  if ( ss & 0x100000000000000 )
+    result |= 1;
+  if ( ss & 0x40000000000 )
+    result |= 4;
+  if ( ss & 0x2000000000000 )
+    result |= 2;
+
+  break;
+case 36:
+  result = 16;
+  if ( ss & 536870912 )
+    result |= 32;
+  if ( ss & 4194304 )
+    result |= 64;
+  if ( ss & 32768 )
+    result |= 128;
+
+  if ( ss & 0x80000000000 )
+    result |= 8;
+  if ( ss & 0x4000000000000 )
+    result |= 4;
+  if ( ss & 0x200000000000000 )
+    result |= 2;
+  break;
+case 37:
+  result = 32;
+  if ( ss & 1073741824 )
+    result |= 64;
+  if ( ss & 8388608 )
+    result |= 128;
+  if ( ss & 0x100000000000 )
+    result |= 16;
+  if ( ss & 0x8000000000000 )
+    result |= 8;
+  if ( ss & 0x400000000000000 )
+    result |= 4;
+  break;
+case 38:
+  result = 64;
+  if ( ss & 2147483648 )
+    result |= 128;
+  if ( ss & 0x200000000000 )
+    result |= 32;
+  if ( ss & 0x10000000000000 )
+    result |= 16;
+  if ( ss & 0x800000000000000 )
+    result |= 8;
+  break;
+case 39:
+  result = 128;
+  if ( ss & 0x400000000000 )
+    result |= 64;
+  if ( ss & 0x20000000000000 )
+    result |= 32;
+  if ( ss & 0x1000000000000000 )
+    result |= 16;
+  break;
+case 40:
+  result = 1;
+  if ( ss & 0x200000000 )
+    result |= 2;
+  if ( ss & 67108864 )
+    result |= 4;
+  if ( ss & 524288 )
+    result |= 8;
+  if ( ss & 4096 )
+    result |= 16;
+  if ( ss & 32 )
+    result |= 32;
+  break;
+case 41:
+  result = 2;
+  if ( ss & 0x400000000 )
+    result |= 4;
+  if ( ss & 134217728 )
+    result |= 8;
+  if ( ss & 1048576 )
+    result |= 16;
+  if ( ss & 8192 )
+    result |= 32;
+  if ( ss & 64 )
+    result |= 64;
+  if ( ss & 0x1000000000000 )
+    result |= 1;
+  break;
+case 42:
+  result = 4;
+  if ( ss & 0x800000000 )
+    result |= 8;
+  if ( ss & 268435456 )
+    result |= 16;
+  if ( ss & 2097152 )
+    result |= 32;
+  if ( ss & 16384 )
+    result |= 64;
+  if ( ss & 128 )
+    result |= 128;
+
+  if ( ss & 0x100000000000000 )
+    result |= 1;
+  if ( ss & 0x2000000000000 )
+    result |= 2;
+  break;
+case 43:
+  result = 8;
+  if ( ss & 0x1000000000 )
+    result |= 16;
+  if ( ss & 536870912 )
+    result |= 32;
+  if ( ss & 4194304 )
+    result |= 64;
+  if ( ss & 32768 )
+    result |= 128;
+  if ( ss & 0x4000000000000 )
+    result |= 4;
+  if ( ss & 0x200000000000000 )
+    result |= 2;
+  break;
+case 44:
+  result = 16;
+  if ( ss & 0x2000000000 )
+    result |= 32;
+  if ( ss & 1073741824 )
+    result |= 64;
+  if ( ss & 8388608 )
+    result |= 128;
+  if ( ss & 0x8000000000000 )
+    result |= 8;
+  if ( ss & 0x400000000000000 )
+    result |= 4;
+  break;
+case 45:
+  result = 32;
+  if ( ss & 0x4000000000 )
+    result |= 64;
+  if ( ss & 2147483648 )
+    result |= 128;
+  if ( ss & 0x10000000000000 )
+    result |= 16;
+  if ( ss & 0x800000000000000 )
+    result |= 8;
+  break;
+case 46:
+  result = 64;
+  if ( ss & 0x8000000000 )
+    result |= 128;
+  if ( ss & 0x20000000000000 )
+    result |= 32;
+  if ( ss & 0x1000000000000000 )
+    result |= 16;
+  break;
+case 47:
+  result = 128;
+
+  if ( ss & 0x40000000000000 )
+    result |= 64;
+  if ( ss & 0x2000000000000000 )
+    result |= 32;
+  break;
+case 48:
+  result = 1;
+  if ( ss & 0x20000000000 )
+    result |= 2;
+  if ( ss & 0x400000000 )
+    result |= 4;
+  if ( ss & 134217728 )
+    result |= 8;
+  if ( ss & 1048576 )
+    result |= 16;
+  if ( ss & 8192 )
+    result |= 32;
+  if ( ss & 64 )
+    result |= 64;
+  break;
+case 49:
+  result = 2;
+  if ( ss & 0x40000000000 )
+    result |= 4;
+  if ( ss & 0x800000000 )
+    result |= 8;
+  if ( ss & 268435456 )
+    result |= 16;
+  if ( ss & 2097152 )
+    result |= 32;
+  if ( ss & 16384 )
+    result |= 64;
+  if ( ss & 128 )
+    result |= 128;
+
+  if ( ss & 0x100000000000000 )
+    result |= 1;
+  break;
+case 50:
+  result = 4;
+  if ( ss & 0x80000000000 )
+    result |= 8;
+  if ( ss & 0x1000000000 )
+    result |= 16;
+  if ( ss & 536870912 )
+    result |= 32;
+  if ( ss & 4194304 )
+    result |= 64;
+  if ( ss & 32768 )
+    result |= 128;
+
+  if ( ss & 0x200000000000000 )
+    result |= 2;
+  break;
+case 51:
+  result = 8;
+  if ( ss & 0x100000000000 )
+    result |= 16;
+  if ( ss & 0x2000000000 )
+    result |= 32;
+  if ( ss & 1073741824 )
+    result |= 64;
+  if ( ss & 8388608 )
+    result |= 128;
+
+  if ( ss & 0x400000000000000 )
+    result |= 4;
+  break;
+case 52:
+  result = 16;
+  if ( ss & 0x200000000000 )
+    result |= 32;
+  if ( ss & 0x4000000000 )
+    result |= 64;
+  if ( ss & 2147483648 )
+    result |= 128;
+
+  if ( ss & 0x800000000000000 )
+    result |= 8;
+  break;
+case 53:
+  result = 32;
+  if ( ss & 0x400000000000 )
+    result |= 64;
+  if ( ss & 0x8000000000 )
+    result |= 128;
+
+  if ( ss & 0x1000000000000000 )
+    result |= 16;
+  break;
+case 54:
+  result = 64;
+  if ( ss & 0x800000000000 )
+    result |= 128;
+
+  if ( ss & 0x2000000000000000 )
+    result |= 32;
+  break;
+case 55:
+  result = 128;
+
+  if ( ss & 0x4000000000000000 )
+    result |= 64;
+  break;
+case 56:
+  result = 1;
+  if ( ss & 0x2000000000000 )
+    result |= 2;
+  if ( ss & 0x40000000000 )
+    result |= 4;
+  if ( ss & 0x800000000 )
+    result |= 8;
+  if ( ss & 268435456 )
+    result |= 16;
+  if ( ss & 2097152 )
+    result |= 32;
+  if ( ss & 16384 )
+    result |= 64;
+  if ( ss & 128 )
+    result |= 128;
+  break;
+case 57:
+  result = 2;
+  if ( ss & 0x4000000000000 )
+    result |= 4;
+  if ( ss & 0x80000000000 )
+    result |= 8;
+  if ( ss & 0x1000000000 )
+    result |= 16;
+  if ( ss & 536870912 )
+    result |= 32;
+  if ( ss & 4194304 )
+    result |= 64;
+  if ( ss & 32768 )
+    result |= 128;
+  break;
+case 58:
+  result = 4;
+  if ( ss & 0x8000000000000 )
+    result |= 8;
+  if ( ss & 0x100000000000 )
+    result |= 16;
+  if ( ss & 0x2000000000 )
+    result |= 32;
+  if ( ss & 1073741824 )
+    result |= 64;
+  if ( ss & 8388608 )
+    result |= 128;
+  break;
+case 59:
+  result = 8;
+  if ( ss & 0x10000000000000 )
+    result |= 16;
+  if ( ss & 0x200000000000 )
+    result |= 32;
+  if ( ss & 0x4000000000 )
+    result |= 64;
+  if ( ss & 2147483648 )
+    result |= 128;
+  break;
+case 60:
+  result = 16;
+  if ( ss & 0x20000000000000 )
+    result |= 32;
+  if ( ss & 0x400000000000 )
+    result |= 64;
+  if ( ss & 0x8000000000 )
+    result |= 128;
+  break;
+case 61:
+  result = 32;
+  if ( ss & 0x40000000000000 )
+    result |= 64;
+  if ( ss & 0x800000000000 )
+    result |= 128;
+  break;
+case 62:
+  result = 64;
+  if ( ss & 0x80000000000000 )
+    result |= 128;
+  break;
+case 63:
+  result = 128;
+  break;
+}

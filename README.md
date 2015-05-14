@@ -1,0 +1,2 @@
+# cinnamon
+UCI Chess Engine
