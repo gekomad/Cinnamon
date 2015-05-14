@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef DEBUG_MODE
 #include <assert.h>
 #endif
-void pop_fen (  );
+
 void debug ( char *msg );
 int fen2pos ( char *fen, int *from, int *to, int, u64 key );
 void controlloRipetizioni ( Tmove * myarray, int right );
@@ -64,8 +64,7 @@ int compare_move ( const void *a, const void *b );
 int pushmove ( const int tipomove, const int da, const int a, const int SIDE, int promotion_piece );
 void print (  );
 void init (  );
-void push_fen (  );
-void free_fen_stack (  );
+
 long getms (  );
 const static unsigned magictable[64] = {
   0, 1, 2, 7, 3, 13, 8, 19,

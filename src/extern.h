@@ -45,7 +45,7 @@ extern int CASTLE_NOT_POSSIBLE_KINGSIDE[2];
 extern struct timeb start_time;
 extern TmoveList gen_list;
 extern Tchessboard chessboard;
-extern fen_node FEN_STACK;
+
 extern FILE *outf;
 #ifndef PERFT_MODE
 extern int use_book, OPENBOOK_SIZE;

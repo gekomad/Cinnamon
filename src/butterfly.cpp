@@ -80,7 +80,7 @@ FILE *outf;
 TmoveList gen_list;
 
 Tchessboard chessboard;
-fen_node FEN_STACK;
+
 #ifndef PERFT_MODE
 Topenbook *openbook;
 int use_book, OPENBOOK_SIZE;
@@ -477,7 +477,6 @@ hand_do_move ( void *dummy )
   list_id--;
   makemove ( &result_move );
   print (  );
-  push_fen (  );
   strcpy ( t, "\nmove " );
   strcat ( t, decodeBoardinv ( result_move.from, result_move.side ) );
   if ( result_move.type != CASTLE ) {
@@ -503,9 +502,6 @@ dispose (  ) {
   free ( openbook );
 #endif
   free ( BITCOUNT );
-  int i;
-  for ( i = 0; i < FEN_STACK.count; i++ )
-    free ( FEN_STACK.fen[i] );
 
 }
 
@@ -604,18 +600,6 @@ int
 main ( int argc, char *argv[] ) {
   start ( argc, argv );
 
-  //0x5d20d128d3ff0f40ULL
-  //int a=BITScanForward2(0x5d20d128d3ff0f40ULL);
-  //int b=BITScanForward(0x5d20d128d3ff0f40ULL);
-  /* for(int i=0;i<13;i++)
-     for(int i1=0;i1<64;i1++){
-     int a=non_iterative_popcount(zobrist_key[i][i1]);
-     int b=BitCount(zobrist_key[i][i1]);
-     assert(a==b);
-     printf("\n%I64u %d %d",zobrist_key[i][i1],a,b);
-     } 
-   */
-  FEN_STACK.count = 0;
   printf ( "\nPERFT" );
 #ifdef PERFT_MODE
   printf ( " ON" );
@@ -668,7 +652,6 @@ main ( int argc, char *argv[] ) {
 #ifndef PERFT_MODE
   print (  );
 #endif
-  push_fen (  );
 #ifdef PERFT_MODE
   if ( argc < 2 ) {
     printf ( "\nmissing depth and FEN, example 3 \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"" );

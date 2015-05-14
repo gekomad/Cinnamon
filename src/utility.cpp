@@ -1008,31 +1008,7 @@ diff_time ( struct timeb a, struct timeb b ) {
   return ( int ) ( 1000 * ( a.time - b.time ) + ( a.millitm - b.millitm ) );
 }
 
-void
-free_fen_stack (  ) {
-  for ( int i = 0; i < FEN_STACK.count; i++ )
-    free ( FEN_STACK.fen[i] );
-  FEN_STACK.count = 0;
-}
 
-void
-push_fen (  ) {
-  char FEN[1000];
-  BoardToFEN ( FEN );
-  FEN_STACK.fen[FEN_STACK.count] = ( char * ) malloc ( sizeof ( FEN ) + 1 );
-  strcpy ( FEN_STACK.fen[FEN_STACK.count], FEN );
-  FEN_STACK.count++;
-}
-
-void
-pop_fen (  ) {
-  if ( FEN_STACK.count == 1 )
-    return;
-  FEN_STACK.count--;
-  loadfen ( FEN_STACK.fen[FEN_STACK.count - 1] );
-  free ( FEN_STACK.fen[FEN_STACK.count] );
-  FEN_STACK.fen[FEN_STACK.count] = NULL;
-}
 
 #ifdef TEST_MODE
 int

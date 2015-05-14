@@ -254,13 +254,10 @@ listner_winboard ( void *uuua )
       char d[256];
       strcpy ( d, tt + 4 );
       if ( !strcmp ( d, "undo" ) ) {
-	pop_fen (  );
 	hand_do_movec = 0;
       }
       else {
-	free_fen_stack (  );
 	loadfen ( d );
-	push_fen (  );
       }
       print (  );
     }
@@ -327,7 +324,6 @@ listner_winboard ( void *uuua )
 	result_move.type = STANDARD;
       makemove ( &result_move );
       print (  );
-      push_fen (  );
       know_command = 1;
       if ( !force )
 	go = 1;
@@ -355,7 +351,6 @@ listner_winboard ( void *uuua )
       }
       makemove ( &result_move );
       print (  );
-      push_fen (  );
       know_command = 1;
       if ( !force )
 	go = 1;
@@ -383,7 +378,6 @@ listner_winboard ( void *uuua )
 
       makemove ( &result_move );
       print (  );
-      push_fen (  );
       know_command = 1;
       if ( !force )
 	go = 1;
