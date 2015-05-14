@@ -457,5 +457,28 @@ Eval::getScore ( const int side, const int alpha, const int beta ) {
   if ( side )
     result = -result;
 
+#ifdef DEBUG_MODE
+  cout << "mobBlack: " << mobBlack << endl;
+  cout << "attack_king_black: " << attack_king_black << endl;
+  cout << "bonus_attack_black_king: " << bonus_attack_black_king << endl;
+  cout << "lazyscore_black: " << lazyscore_black << endl;
+  cout << "pawns_score_black: " << pawns_score_black << endl;
+  cout << "knights_score_black: " << knights_score_black << endl;
+  cout << "knights_score_black: " << knights_score_black << endl;
+  cout << "bishop_score_black: " << bishop_score_black << endl;
+  cout << "rooks_score_black: " << rooks_score_black << endl;
+  cout << "queens_score_black: " << queens_score_black << endl;
+  cout << "kings_score_black: " << kings_score_black << endl << endl;
+  cout << "mobWhite: " << mobWhite << endl;
+  cout << "attack_king_white: " << attack_king_white << endl;
+  cout << "bonus_attack_white_king: " << bonus_attack_white_king << endl;
+  cout << "lazyscore_white: " << lazyscore_white << endl;
+  cout << "pawns_score_white: " << pawns_score_white << endl;
+  cout << "knights_score_white: " << knights_score_white << endl;
+  cout << "bishop_score_white: " << bishop_score_white << endl;
+  cout << "rooks_score_white: " << rooks_score_white << endl;
+  cout << "queens_score_white: " << queens_score_white << endl;
+  cout << "kings_score_white: " << kings_score_white << endl;
+#endif
   return result;
 }

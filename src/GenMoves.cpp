@@ -34,7 +34,7 @@ template < uchar type > bool GenMoves::pushmove ( const int from, const int to, 
   else if ( !( type & 0 b00001100 ) )	//no castle
     piece_captured = side ^ 1;
 
-  if ( !( type & 0 b00001100 ) && perftMode ) {	//no castle
+  if ( !( type & 0 b00001100 ) && ( forceCheck || perftMode ) ) {	//no castle
     if ( side == WHITE && inCheckPerft < WHITE > ( from, to, type, pieceFrom, piece_captured, promotionPiece ) )
       return false;
     if ( side == BLACK && inCheckPerft < BLACK > ( from, to, type, pieceFrom, piece_captured, promotionPiece ) )
@@ -1458,7 +1458,7 @@ GenMoves::makemove ( _Tmove * move, bool rep, bool checkInCheck ) {
       pushStackMove ( 0 );
     pushStackMove ( zobristKey );
   }
-  if ( checkInCheck && !perftMode && ( ( move->side == WHITE && inCheck < WHITE > (  ) ) || ( move->side == BLACK && inCheck < BLACK > (  ) ) ) ) {
+  if ( ( forceCheck || ( checkInCheck && !perftMode ) ) && ( ( move->side == WHITE && inCheck < WHITE > (  ) ) || ( move->side == BLACK && inCheck < BLACK > (  ) ) ) ) {
     return false;
   }
   return true;

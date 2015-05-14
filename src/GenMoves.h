@@ -70,7 +70,7 @@ protected:
   int repetitionMapCount;
   u64 *repetitionMap;
   int currentPly;
-  bool perftMode;
+  bool perftMode, forceCheck;
   u64 numMoves, numMovesq;
   int listId;
   _TmoveP *gen_list;
