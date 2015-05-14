@@ -1,18 +1,18 @@
-		/*
-		   Copyright (C) 2008-2010
-		   This program is free software: you can redistribute it and/or modify
-		   it under the terms of the GNU General Public License as published by
-		   the Free Software Foundation, either version 3 of the License, or
-		   (at your option) any later version.
+/*
+Copyright (C) 2008-2010
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-		   This program is distributed in the hope that it will be useful,
-		   but WITHOUT ANY WARRANTY; without even the implied warranty of
-		   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		   GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-		   You should have received a copy of the GNU General Public License
-		   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-		 */
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 
 #include "stdafx.h"
@@ -48,25 +48,16 @@
 #include <unistd.h>
 #endif
 #include <stdlib.h>
-
 #include "gen.h"
 #include "utility.h"
 #include "zobrist.h"
 
-
-
-
-
 int know_command, edit, side = 1;
-
 char move[255];
 char *dummy;
 
-
 void
 writeWinboard ( char *msg ) {
-  //if ( strlen ( msg ) != 0 && msg[1] != 'O' )
-  // msg = lowercase ( msg );
   for ( unsigned t = 0; t < strlen ( msg ); t++ ) {
     fprintf ( stdout, "%c", msg[t] );
   };
@@ -77,7 +68,6 @@ writeWinboard ( char *msg ) {
 
 void
 readWinboard ( char *tt ) {
-
   memset ( tt, 0, 255 );
   int b = 0;
   char s;
@@ -101,12 +91,9 @@ listner_winboard ( void *uuua )
 
   char tt[255];
   int go;
-
-
   move[0] = '*';
   dummy = ( char * ) calloc ( 1, 255 );
   run = 0;
-
   while ( 1 ) {
     readWinboard ( tt );
     go = 0;
@@ -164,7 +151,6 @@ listner_winboard ( void *uuua )
       int i = ( int ) ( 1000 * ( t_current.time - start_time.time ) );
       printf ( "\ndiff %d", i );
       printf ( "\nMAX_TIME_MILLSEC %d", MAX_TIME_MILLSEC );
-
       fflush ( stdout );
     }
     else if ( strlen ( tt ) == 3 && edit == 1 ) {
@@ -208,24 +194,17 @@ listner_winboard ( void *uuua )
       writeWinboard ( tt );
       move[0] = '*';
       know_command = 1;
-
-
       writeWinboard ( tt );
-
       know_command = 1;
-
     }
-
     else if ( !strcmp ( tt, "createbook" ) ) {
       create_open_book ( BOOK_EPD );
       know_command = 1;
     }
-
     else if ( !strcmp ( tt, "white" ) ) {
       black_move = 0;
       know_command = 1;
     }
-
     else if ( !strcmp ( tt, "black" ) ) {
       black_move = 1;
       know_command = 1;
@@ -240,9 +219,6 @@ listner_winboard ( void *uuua )
       know_command = 1;
       black_move = 1;
       run = 0;
-      FLG_WIN_WHITE = 0;
-      FLG_WIN_BLACK = 0;
-      FLG_DRAW = 0;
       init (  );
       move[0] = '*';
       move[1] = '\0';
@@ -250,7 +226,8 @@ listner_winboard ( void *uuua )
       loadfen ( INITIAL_FEN );
 #endif
     }
-    else if ( strlen ( tt ) > 2 && ( strstr ( MATCH_QUEENSIDE, tt ) || strstr ( MATCH_KINGSIDE, tt ) ) ) {
+    else if ( strlen ( tt ) > 2 && ( strstr ( MATCH_QUEENSIDE, tt )
+				     || strstr ( MATCH_KINGSIDE, tt ) ) ) {
       if ( strstr ( MATCH_QUEENSIDE, tt ) )
 	result_move.from = QUEENSIDE;
       else
@@ -266,16 +243,11 @@ listner_winboard ( void *uuua )
       know_command = 1;
       if ( !force )
 	go = 1;
-
     }
     else if ( strstr ( tt, "set " ) ) {
-
       know_command = 1;
       black_move = 1;
       run = 0;
-      FLG_WIN_WHITE = 0;
-      FLG_WIN_BLACK = 0;
-      FLG_DRAW = 0;
       init (  );
       move[0] = '*';
       move[1] = '\0';
@@ -285,7 +257,6 @@ listner_winboard ( void *uuua )
 	pop_fen (  );
 	hand_do_movec = 0;
       }
-
       else {
 	free_fen_stack (  );
 	loadfen ( d );
@@ -312,20 +283,16 @@ listner_winboard ( void *uuua )
 	MAX_TIME_MILLSEC = 10000;
       }
       else {
-	//MAX_TIME_MILLSEC = MAX_TIME_MILLSEC < supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30 ? MAX_TIME_MILLSEC : supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30;   
-	MAX_TIME_MILLSEC = supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30;
+	MAX_TIME_MILLSEC = supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 40;
       }
       if ( st_force < ( int ) MAX_TIME_MILLSEC )
 	MAX_TIME_MILLSEC = st_force;
-
-
     }
     else if ( strstr ( tt, "st " ) ) {
       know_command = 1;
       st_force = MAX_TIME_MILLSEC = atoi ( tt + 3 ) * 1000;
     }
-    else if ( strlen ( tt ) == 4 && ( tt[1] >= 48 && tt[1] <= 56 && tt[3] >= 48 && tt[3] <= 56 )
-       ) {
+    else if ( strlen ( tt ) == 4 && ( tt[1] >= 48 && tt[1] <= 56 && tt[3] >= 48 && tt[3] <= 56 ) ) {
       move[0] = tt[0];
       move[1] = tt[1];
       move[2] = 0;
@@ -341,7 +308,8 @@ listner_winboard ( void *uuua )
 	black_move = 0;
       }
       result_move.to = decodeBoard ( move );
-      if ( !force && get_piece_at ( result_move.side, TABLOG[result_move.from] ) < 2 && get_column[result_move.from] != get_column[result_move.to] && get_piece_at ( 0, TABLOG[result_move.to] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.to] ) == SQUARE_FREE )
+      if ( !force && get_piece_at ( result_move.side, TABLOG[result_move.from] ) < 2 && get_column[result_move.from] != get_column[result_move.to]
+	   && get_piece_at ( 0, TABLOG[result_move.to] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.to] ) == SQUARE_FREE )
 	result_move.type = ENPASSANT;
 
       else
@@ -365,7 +333,8 @@ listner_winboard ( void *uuua )
       move[1] = tt[3];
       move[2] = 0;
       result_move.to = decodeBoard ( move );
-      if ( tt[3] == '8' ) {
+      if ( get_piece_at ( WHITE, TABLOG[result_move.from] ) != SQUARE_FREE ) {
+	result_move.promotion_piece++;
 	result_move.side = WHITE;
 	black_move = 1;
       }
@@ -373,14 +342,12 @@ listner_winboard ( void *uuua )
 	result_move.side = BLACK;
 	black_move = 0;
       }
-
       makemove ( &result_move );
       print (  );
       push_fen (  );
       know_command = 1;
       if ( !force )
 	go = 1;
-
     }
     else if ( strlen ( tt ) == 3 && ( tt[1] == '7' || tt[1] == '2' ) ) {
       result_move.type = PROMOTION;
@@ -393,6 +360,7 @@ listner_winboard ( void *uuua )
       move[1] = tt[3];
       if ( tt[1] == '7' ) {
 	result_move.side = WHITE;
+	result_move.promotion_piece++;
 	black_move = 1;
 	result_move.to = result_move.from + 8;
       }
@@ -408,7 +376,6 @@ listner_winboard ( void *uuua )
       know_command = 1;
       if ( !force )
 	go = 1;
-
     }
     else if ( !strcmp ( tt, "go" ) ) {
       go = 1;
@@ -416,13 +383,9 @@ listner_winboard ( void *uuua )
       move[1] = 0;
       know_command = 1;
     };
-    //if (!hand_do_movec && go == 1 && strlen (move) > 0 || move[0] != '*')
     if ( go && !hand_do_movec ) {
-
       know_command = 1;
       go = 0;
-
-
 #if defined  _MSC_VER	|| defined  __GNUWIN32__
       DWORD s;
       CreateThread ( NULL, 0, ( LPTHREAD_START_ROUTINE ) hand_do_move, ( LPVOID ) NULL, 0, &s );
@@ -434,11 +397,9 @@ listner_winboard ( void *uuua )
       char *message1 = "Thread 1";
       iret1 = pthread_create ( &thread1, NULL, hand_do_move, ( void * ) &message1 );
       while ( !hand_do_movec )
-	usleep ( 30000 );
+	usleep ( 400 );
 #endif
-
       know_command = 1;
-
     }
     else if ( know_command == 0 ) {
       strcat ( strcpy ( dummy, "Error (unknown command): " ), tt );
@@ -450,4 +411,4 @@ listner_winboard ( void *uuua )
 
 
 #endif
-	//#endif
+//#endif

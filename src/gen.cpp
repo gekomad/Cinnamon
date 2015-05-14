@@ -66,7 +66,6 @@ perform_castle ( const int da, const int SIDE ) {
 
 }
 
-
 void
 checkJumpPawn ( const int tipomove, const u64 sc, const int SIDE, const u64 XALLPIECES ) {
 #ifdef DEBUG_MODE
@@ -75,7 +74,7 @@ checkJumpPawn ( const int tipomove, const u64 sc, const int SIDE, const u64 XALL
   int TT;
   register int o;
   u64 x;
-  x = sc & TABSALTOPAWN;
+  x = sc & TABJUMPPAWN;
   if ( SIDE ) {
     x = shl8 ( x );
     x &= XALLPIECES;
@@ -84,17 +83,14 @@ checkJumpPawn ( const int tipomove, const u64 sc, const int SIDE, const u64 XALL
     TT = -16;
   }
   else {
-
     x = shr8 ( x );
     x &= XALLPIECES;
     x = shr8 ( x );
-
     x &= XALLPIECES;
     TT = 16;
   };
   while ( x ) {
     o = BITScanForward ( x );
-
     pushmove ( tipomove, o + TT, o, SIDE );
     x &= NOTTABLOG[o];
   };
@@ -108,7 +104,6 @@ performTowerQueenShift ( const int tipomove, const int pezzo, const int SIDE, co
 #endif
   u64 xx = 0, x2;
   int o, pos;
-
   x2 = chessboard[pezzo];
 #ifdef DEBUG_MODE
   assert ( x2 != 0 );
@@ -116,7 +111,7 @@ performTowerQueenShift ( const int tipomove, const int pezzo, const int SIDE, co
   while ( x2 ) {
     pos = BITScanForward ( x2 );
     if ( ( ORIZZ_BOUND[pos] & ALLPIECES ) != ORIZZ_BOUND[pos] )
-      xx = MOVIMENTO_MASK_MOV[( uchar ) ( ALLPIECES >> ( pos_posMod8[pos] ) )][pos];
+      xx = MASK_MOV[( uchar ) ( ALLPIECES >> ( pos_posMod8[pos] ) )][pos];
     if ( ( VERT_BOUND[pos] & ALLPIECES ) != VERT_BOUND[pos] ) {
 #ifdef DEBUG_MODE
       assert ( rotate_board_90 ( ALLPIECES, pos ) > 0 );
@@ -145,30 +140,33 @@ performBishopShift ( const int tipomove, const int pezzo, const int SIDE, const 
     if ( ( LEFT_BOUND[position] & ALLPIECES ) != LEFT_BOUND[position] ) {
 #ifdef DEBUG_MODE
       assert ( rotate_board_left_45 ( ALLPIECES, position ) != 0 );
-      if ( ( ( uchar ) ( rotate_board_left_45 ( ALLPIECES, position ) & MOVES_BISHOP_LEFT_MASK[position] ) ) != rotate_board_left_45 ( ALLPIECES, position ) ) {
+      if ( ( ( uchar )
+	     ( rotate_board_left_45 ( ALLPIECES, position ) & MOVES_BISHOP_LEFT_MASK[position] ) ) != rotate_board_left_45 ( ALLPIECES, position ) ) {
 	rotate_board_left_45 ( ALLPIECES, position );
 	printf ( "\n 22 %d", position );
 	assert ( 0 );
       }
 #endif
-      x = inv_raw_leftMOV_45[rotate_board_left_45 ( ALLPIECES, position )][position];
+      x = inv_raw_leftMOV_45[rotate_board_left_45 ( ALLPIECES, position )]
+	[position];
 
 #ifdef DEBUG_MODE
       assert ( x );
 #endif
-
     }
     if ( ( RIGHT_BOUND[position] & ALLPIECES ) != RIGHT_BOUND[position] ) {
       /////right
 #ifdef DEBUG_MODE
       assert ( ALLPIECES != 0 );
-      if ( ( ( uchar ) ( rotate_board_right_45 ( ALLPIECES, position ) & MOVES_BISHOP_RIGHT_MASK[position] ) ) != rotate_board_right_45 ( ALLPIECES, position ) ) {
+      if ( ( ( uchar )
+	     ( rotate_board_right_45 ( ALLPIECES, position ) & MOVES_BISHOP_RIGHT_MASK[position] ) ) != rotate_board_right_45 ( ALLPIECES, position ) ) {
 	rotate_board_right_45 ( ALLPIECES, position );
 	printf ( "\n 33 %d", position );
 	assert ( 0 );
       }
 #endif
-      x |= inv_raw_rightMOV_45[rotate_board_right_45 ( ALLPIECES, position )][position];
+      x |= inv_raw_rightMOV_45[rotate_board_right_45 ( ALLPIECES, position )]
+	[position];
 #ifdef DEBUG_MODE
       assert ( inv_raw_rightMOV_45[rotate_board_right_45 ( ALLPIECES, position )][position] != -1 );
 #endif
@@ -184,7 +182,6 @@ performBishopShift ( const int tipomove, const int pezzo, const int SIDE, const 
       pushmove ( tipomove, position, o, SIDE );
       x &= NOTTABLOG[o];
     };
-
     x2 &= NOTTABLOG[position];
   };
 };
@@ -198,17 +195,29 @@ try_all_castle ( const int SIDE ) {
   //return;
   //#ifndef PERFT_MODE
   if ( SIDE == WHITE ) {
-    if ( !CASTLE_DONE[WHITE] && !CASTLE_NOT_POSSIBLE[WHITE] && !CASTLE_NOT_POSSIBLE_KINGSIDE[WHITE] && get_piece_at ( 1, TABLOG_1 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_2 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_1 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_2 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_0 ) == ROOK_WHITE && get_piece_at ( 1, TABLOG_3 ) == KING_WHITE && !attack_square ( SIDE, 1 ) && !attack_square ( SIDE, 2 ) && !attack_square ( SIDE, 3 ) )
+    if ( !CASTLE_DONE[WHITE] && !CASTLE_NOT_POSSIBLE[WHITE]
+	 && !CASTLE_NOT_POSSIBLE_KINGSIDE[WHITE]
+	 && get_piece_at ( 1, TABLOG_1 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_2 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_1 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_2 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_0 ) == ROOK_WHITE && get_piece_at ( 1, TABLOG_3 ) == KING_WHITE && !attack_square ( SIDE, 1 ) && !attack_square ( SIDE, 2 )
+	 && !attack_square ( SIDE, 3 ) )
       pushmove ( CASTLE, KINGSIDE, WHITE, -1 );
 
-    if ( !CASTLE_DONE[WHITE] && !CASTLE_NOT_POSSIBLE[WHITE] && !CASTLE_NOT_POSSIBLE_QUEENSIDE[WHITE] && get_piece_at ( 1, TABLOG_5 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_6 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_5 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_6 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_4 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_4 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_7 ) == ROOK_WHITE && get_piece_at ( 1, TABLOG_3 ) == KING_WHITE && !attack_square ( SIDE, 3 ) && !attack_square ( SIDE, 4 ) && !attack_square ( SIDE, 5 ) )
+    if ( !CASTLE_DONE[WHITE] && !CASTLE_NOT_POSSIBLE[WHITE]
+	 && !CASTLE_NOT_POSSIBLE_QUEENSIDE[WHITE]
+	 && get_piece_at ( 1, TABLOG_5 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_6 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_5 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_6 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_4 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_4 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_7 ) == ROOK_WHITE && get_piece_at ( 1, TABLOG_3 ) == KING_WHITE && !attack_square ( SIDE, 3 ) && !attack_square ( SIDE, 4 )
+	 && !attack_square ( SIDE, 5 ) )
       pushmove ( CASTLE, QUEENSIDE, WHITE, -1 );
   }
   else {
-    if ( !CASTLE_DONE[BLACK] && !CASTLE_NOT_POSSIBLE[BLACK] && !CASTLE_NOT_POSSIBLE_KINGSIDE[BLACK] && get_piece_at ( 0, TABLOG_57 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_58 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_57 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_58 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_56 ) == ROOK_BLACK && get_piece_at ( 0, TABLOG_59 ) == KING_BLACK && !attack_square ( SIDE, 57 ) && !attack_square ( SIDE, 58 ) && !attack_square ( SIDE, 59 ) )
+    if ( !CASTLE_DONE[BLACK] && !CASTLE_NOT_POSSIBLE[BLACK]
+	 && !CASTLE_NOT_POSSIBLE_KINGSIDE[BLACK]
+	 && get_piece_at ( 0, TABLOG_57 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_58 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_57 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_58 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_56 ) == ROOK_BLACK && get_piece_at ( 0, TABLOG_59 ) == KING_BLACK && !attack_square ( SIDE, 57 ) && !attack_square ( SIDE, 58 )
+	 && !attack_square ( SIDE, 59 ) )
       pushmove ( CASTLE, KINGSIDE, BLACK, SIDE );
 
-    if ( !CASTLE_DONE[BLACK] && !CASTLE_NOT_POSSIBLE[BLACK] && !CASTLE_NOT_POSSIBLE_QUEENSIDE[BLACK] && get_piece_at ( 0, TABLOG_60 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_61 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_60 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_61 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_62 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_62 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_63 ) == ROOK_BLACK && get_piece_at ( 0, TABLOG_59 ) == KING_BLACK && !attack_square ( SIDE, 59 ) && !attack_square ( SIDE, 60 ) && !attack_square ( SIDE, 61 ) )
+    if ( !CASTLE_DONE[BLACK] && !CASTLE_NOT_POSSIBLE[BLACK]
+	 && !CASTLE_NOT_POSSIBLE_QUEENSIDE[BLACK]
+	 && get_piece_at ( 0, TABLOG_60 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_61 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_60 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_61 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_62 ) == SQUARE_FREE && get_piece_at ( 1, TABLOG_62 ) == SQUARE_FREE && get_piece_at ( 0, TABLOG_63 ) == ROOK_BLACK && get_piece_at ( 0, TABLOG_59 ) == KING_BLACK && !attack_square ( SIDE, 59 ) && !attack_square ( SIDE, 60 )
+	 && !attack_square ( SIDE, 61 ) )
       pushmove ( CASTLE, QUEENSIDE, BLACK, SIDE );
   }
   //#endif
@@ -223,7 +232,6 @@ performPawnShift ( const int tipomove, const int SIDE, const u64 XALLPIECES ) {
   int o, tt;
   u64 x;
   x = chessboard[SIDE];
-
   if ( x & PAWNS_7_2[SIDE] )
     checkJumpPawn ( tipomove, chessboard[SIDE], SIDE, XALLPIECES );
   if ( SIDE ) {
@@ -292,7 +300,6 @@ generateMoves ( const int tipomove, const int SIDE ) {
 #ifdef DEBUG_MODE
     assert ( SIDE == WHITE );
 #endif
-
 
     try_all_castle ( SIDE );
     if ( chessboard[BISHOP_WHITE] ) {

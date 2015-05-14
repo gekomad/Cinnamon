@@ -28,6 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "extern.h"
 #include "zobrist.h"
 #include "search.h"
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
 
 int
 compare_move ( const void *a, const void *b ) {
@@ -44,15 +47,9 @@ compare_move ( const void *a, const void *b ) {
 int
 is_locked ( int pos, int pezzo, int side ) {
   int r = 0;
-
-  /*  if ((tipo=IN_LINEA[pos][re_amico[side]]))
-     {    */
   chessboard[pezzo] &= NOTTABLOG[pos];
-  r = attack_square ( side, re_amico[side] );
+  r = attack_square ( side, Friend_king[side] );
   chessboard[pezzo] |= TABLOG[pos];
-  //}
-  //r+=in_check();
-  //r= attack_square (side, re_amico[side]);
   return r;
 }
 
@@ -73,7 +70,6 @@ BitCountSlow ( const u64 b ) {
   acc = ( acc & 0x0F0F0F0FUL ) + ( ( acc >> 4 ) & 0x0F0F0F0FUL );
   acc = ( acc & 0xFFFF ) + ( acc >> 16 );
   return ( ( acc & 0xFF ) + ( acc >> 8 ) );
-
 };
 
 /*
@@ -146,76 +142,35 @@ void
 init (  ) {
   ENP_POSSIBILE = -1;
   num_moves2 = num_moves = num_movesq = mate = 0;
-  pvv_da = 65;
+  pvv_from = 65;
 #ifdef FP_MODE
 #ifdef DEBUG_MODE
   n_cut_fp = n_cut_razor = 0;
 #endif
 #endif
-  FLG_WIN_WHITE = false;
-  FLG_WIN_BLACK = false;
-  //memset ( gen_list, 0, sizeof ( gen_list ) );
   list_id = -1;
-  maxdep = evaluateMobility_mode = EvalCuts = 0;
-
+  evaluateMobility_mode = EvalCuts = 0;
 #ifdef PERFT_MODE
   n_perft = 0;
   listcount_n = 0;
 #else
-
-
 #ifdef DEBUG_MODE
   beta_efficency = 0.0;
   n_cut = 0;
   null_move_cut = 0;
 #endif
-
 #endif
   null_sem = 0;
-
 #ifdef HASH_MODE
 #ifdef DEBUG_MODE
   n_cut_hash = n_record_hash = collisions = 0;
 #endif
 #endif
-
 }
 
-
-char *
-trim ( char *str ) {
-  char *s, *dst, *last = NULL;
-
-  s = dst = str;
-
-  while ( *s && isspace ( *s ) )
-    s++;
-  if ( !*s ) {
-    *str = '\0';
-    return str;
-  }
-
-  do {
-    if ( !isspace ( *s ) )
-      last = dst;
-    *dst++ = *s++;
-  }
-  while ( *s );
-
-  *( last + 1 ) = '\0';
-
-  return str;
-
-}
-
-int
-pushmove ( const int tipomove, const int da, const int a, const int SIDE ) {
-  return pushmove ( tipomove, da, a, SIDE, -1 );
-}
 
 int
 pushmove ( const int tipomove, const int da, const int a, const int SIDE, int promotion_piece ) {
-
 #ifdef PERFT_MODE
   int t;
 #endif
@@ -227,7 +182,7 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
 #endif
   //if (is_locked (da, pezzo))
   //return;
-  //if(attack_square (SIDE, re_amico))
+  //if(attack_square (SIDE, Friend_king))
   //  print();
   ///int re=BITScanForward(chessboard[KING_BLACK+XSIDE]);re_nemico
 #ifndef PERFT_MODE
@@ -238,13 +193,13 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
 #endif
       //        int pezzoda = get_piece_at (SIDE, TABLOG[da]);
 
-      evalNode.attaccate[da] |= TABLOG[a];
+      evalNode.attacked[da] |= TABLOG[a];
 
-      evalNode.king_attak[SIDE] += DISTANCE[re_amico[SIDE ^ 1]][a];
+      evalNode.king_attak[SIDE] += DISTANCE[Friend_king[SIDE ^ 1]][a];
 
       if ( ( TABLOG[a] & chessboard[KING_BLACK + SIDE] ) )
 	evalNode.king_attacked[da] = 1;
-      evalNode.attaccanti[a] |= TABLOG[da];
+      evalNode.attackers[a] |= TABLOG[da];
 #ifdef DEBUG_MODE
       assert ( gen_list[list_id][0].score < MAX_MOVE );
 #endif
@@ -276,7 +231,7 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
   assert ( list_id != -1 );
   assert ( gen_list[list_id][0].score < MAX_MOVE );
 #endif
-  mos = &gen_list[list_id][gen_list[list_id][0].score + 1];
+  mos = &gen_list[list_id][++gen_list[list_id][0].score];	//TODO use mutex
 
   if ( tipomove == STANDARD || tipomove == ENPASSANT || tipomove == PROMOTION ) {
     mos->type = ( char ) tipomove;
@@ -288,7 +243,7 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
 #ifndef PERFT_MODE
     mos->score = 0;
     //mvv/lva TODO
-    // if ( da == pvv_da && a == pvv_a )                 mos->score += 30000;
+    // if ( da == pvv_from && a == pvv_to )                 mos->score += 30000;
 
     mos->score += ( PIECES_VALUE[pezzoa] >= PIECES_VALUE[pezzoda] ) ? ( PIECES_VALUE[pezzoa] - PIECES_VALUE[pezzoda] ) * 2 : PIECES_VALUE[pezzoa];
 
@@ -311,7 +266,7 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
 #ifdef DEBUG_MODE
   assert ( gen_list[list_id][0].score < MAX_MOVE );
 #endif
-  gen_list[list_id][0].score++;
+  // gen_list[list_id][0].score++;
   return 0;
 };
 
@@ -374,7 +329,8 @@ attack_square ( const int side, const int Position ) {
   ALLPIECES = square_all_bit_occupied (  ) | TABLOG[Position];
   Position_mod_8 = ROT45[Position];
   Position_Position_mod_8 = pos_posMod8[Position];
-  if ( MOVIMENTO_MASK_CAT[( uchar ) ( ( shr ( ALLPIECES, Position_Position_mod_8 ) ) )][Position_mod_8] & ( shr ( chessboard[ROOK_BLACK + xside], Position_Position_mod_8 ) & 255 | shr ( chessboard[QUEEN_BLACK + xside], Position_Position_mod_8 ) & 255 ) ) {
+  if ( MASK_CAPT_MOV[( uchar ) ( ( shr ( ALLPIECES, Position_Position_mod_8 ) ) )]
+       [Position_mod_8] & ( shr ( chessboard[ROOK_BLACK + xside], Position_Position_mod_8 ) & 255 | shr ( chessboard[QUEEN_BLACK + xside], Position_Position_mod_8 ) & 255 ) ) {
     //   print();
     return 1;
   }
@@ -382,7 +338,8 @@ attack_square ( const int side, const int Position ) {
 
 #ifdef DEBUG_MODE
   assert ( rotate_board_left_45 ( ALLPIECES, Position ) != 0 );
-  if ( ( ( uchar ) ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) ) != rotate_board_left_45 ( ALLPIECES, Position ) ) {
+  if ( ( ( uchar )
+	 ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) ) != rotate_board_left_45 ( ALLPIECES, Position ) ) {
 
 
     assert ( 0 );
@@ -390,7 +347,8 @@ attack_square ( const int side, const int Position ) {
   assert ( rotate_board_left_45 ( ALLPIECES, Position ) != 0 );
   assert ( rotate_board_left_45 ( ALLPIECES, Position ) == ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) );
 #endif
-  if ( MOVIMENTO_MASK_CAT[rotate_board_left_45 ( ALLPIECES, Position )][Position_mod_8] & ( rotate_board_left_45 ( chessboard[BISHOP_BLACK + ( xside )], Position ) | rotate_board_left_45 ( chessboard[QUEEN_BLACK + xside], Position ) ) )
+  if ( MASK_CAPT_MOV[rotate_board_left_45 ( ALLPIECES, Position )]
+       [Position_mod_8] & ( rotate_board_left_45 ( chessboard[BISHOP_BLACK + ( xside )], Position ) | rotate_board_left_45 ( chessboard[QUEEN_BLACK + xside], Position ) ) )
     return 1;
 
   /*right \ */
@@ -399,10 +357,11 @@ attack_square ( const int side, const int Position ) {
   assert ( rotate_board_right_45 ( ALLPIECES, Position ) != -1 );
   assert ( rotate_board_right_45 ( ALLPIECES, Position ) == ( uchar ) ( rotate_board_right_45 ( ALLPIECES, Position ) & MOVES_BISHOP_RIGHT_MASK[Position] ) );
 #endif
-  if ( MOVIMENTO_MASK_CAT[rotate_board_right_45 ( ALLPIECES, Position ) | TABLOG[Position_mod_8]][Position_mod_8] & ( rotate_board_right_45 ( chessboard[BISHOP_BLACK + ( xside )], Position ) | rotate_board_right_45 ( chessboard[QUEEN_BLACK + ( xside )], Position ) ) )
+  if ( MASK_CAPT_MOV[rotate_board_right_45 ( ALLPIECES, Position ) | TABLOG[Position_mod_8]][Position_mod_8] & ( rotate_board_right_45 ( chessboard[BISHOP_BLACK + ( xside )], Position ) | rotate_board_right_45 ( chessboard[QUEEN_BLACK + ( xside )], Position ) ) )
     return 1;
 
-  if ( MOVIMENTO_MASK_CAT[rotate_board_90 ( ALLPIECES, Position )][ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[ROOK_BLACK + xside], Position ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside], Position ) ) ) )
+  if ( MASK_CAPT_MOV[rotate_board_90 ( ALLPIECES, Position )]
+       [ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[ROOK_BLACK + xside], Position ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside], Position ) ) ) )
     return 1;
   return 0;
 }
@@ -658,21 +617,6 @@ fileLung ( char *FileName ) {
     return file.st_size;
   //printf ("\nerrore get_filesize %s", FileName);fflush (stdout);
   return 0;
-}
-
-int
-wc ( const char *a ) {
-  FILE *stream;
-  int i = 0;
-  char line[1000];
-  stream = fopen ( a, "r+b" );
-#ifdef DEBUG_MODE
-  assert ( stream );
-#endif
-  while ( fgets ( line, 1000, stream ) != NULL )
-    i++;
-  fclose ( stream );
-  return i;
 }
 
 char
@@ -984,12 +928,10 @@ controlloRipetizioni ( Tmove * myarray, int right ) {
 #endif
 void
 debug ( char *msg ) {
-
   outf = fopen ( debugfile, "a+" );
   fwrite ( msg, 1, strlen ( msg ), outf );
   fwrite ( "\n", 1, 1, outf );
   fclose ( outf );
-
 };
 
 void
@@ -999,12 +941,12 @@ print (  ) {
   int t;
   char x;
   char FEN[1000];
-  printf ( "\n     a   b   c   d   e   f   g   h" );
+  printf ( "\n.....a   b   c   d   e   f   g   h" );
 
   for ( t = 0; t <= 63; t++ ) {
 
     if ( !( t % 8 ) ) {
-      printf ( "\n   ---------------------------------\n" );
+      printf ( "\n...---------------------------------\n" );
     };
 
     x = getFen ( get_piece_at ( 1, TABLOG[63 - t] ) );
@@ -1045,16 +987,10 @@ print (  ) {
     else
       printf ( "." );
     printf ( " | " );
-
-
-
   };
   printf ( "\n" );
-
-  printf ( "   ---------------------------------\n" );
-  printf ( "     a   b   c   d   e   f   g   h\n\n" );
-
-
+  printf ( "...---------------------------------\n" );
+  printf ( ".....a   b   c   d   e   f   g   h\n\n" );
   BoardToFEN ( FEN );
   printf ( "\n%s", FEN );
 #ifdef TEST_MODE
@@ -1062,10 +998,7 @@ print (  ) {
 #endif
   printf ( "\n" );
   fflush ( stdout );
-
 }
-
-
 
 int
 diff_time ( struct timeb a, struct timeb b ) {
@@ -1096,8 +1029,94 @@ pop_fen (  ) {
   loadfen ( FEN_STACK.fen[FEN_STACK.count - 1] );
   free ( FEN_STACK.fen[FEN_STACK.count] );
   FEN_STACK.fen[FEN_STACK.count] = NULL;
-
 }
+
+#ifdef TEST_MODE
+int
+extract_test_result ( char *ris1 ) {
+  int i, result = 1;
+  char dummy[3];
+  if ( ris1[strlen ( ris1 ) - 1] == ';' ) {
+    result = 0;
+    ris1[strlen ( ris1 ) - 1] = 0;
+  }
+  if ( ris1[strlen ( ris1 ) - 1] == '#' ) {
+    ris1[strlen ( ris1 ) - 1] = 0;
+  }
+  i = ( int ) strlen ( ris1 );
+  memset ( dummy, 0, sizeof ( dummy ) );
+  switch ( i ) {
+  case 2:
+    strncpy ( dummy, ris1, 2 );
+    break;
+  case 3:
+    if ( !strcmp ( ris1, "O-O" ) ) {
+      if ( black_move )
+	strcpy ( dummy, "g8" );
+      else
+	strcpy ( dummy, "g1" );
+    }
+    else if ( ris1[0] < 91 )
+      strncpy ( dummy, ris1 + 1, 2 );
+    else
+      strncpy ( dummy, ris1, 2 );
+    break;
+  case 4:
+    //if(ris1[1]=='x')
+    strncpy ( dummy, ris1 + 2, 2 );
+    //else
+    //      strncpy (dummy, ris1 +2, 2);            
+    break;
+  case 5:
+    if ( !strcmp ( ris1, "O-O-O" ) ) {
+      if ( black_move )
+	strcpy ( dummy, "c8" );
+      else
+	strcpy ( dummy, "c1" );
+    }
+    else if ( ris1[3] == '+' ) {
+      if ( ris1[0] < 91 )
+	strncpy ( dummy, ris1 + 1, 2 );
+      else
+	strncpy ( dummy, ris1, 2 );
+    }
+    else
+      strncpy ( dummy, ris1 + 2, 2 );
+    break;
+  case 6:
+    strncpy ( dummy, ris1 + 3, 2 );
+    break;
+  default:
+    printf ( "\nPARSE ERROR" );
+    break;
+  }
+  if ( !( dummy[0] >= 'a' && dummy[0] <= 'h' && dummy[1] >= '1' && dummy[1] <= '8' ) )
+    printf ( "\nPARSE ERROR" );
+  strcat ( test_ris, dummy );
+  strcat ( test_ris, " " );
+  return result;
+}
+
+void
+get_test_result ( char *ss ) {
+  //strcpy(ss,"r2qkb1r/pp3ppp/2bppn2/8/2PQP3/2N2N2/PP3PPP/R1B1K2R w KQkq - bm O-O; id sbd.093");
+  memset ( test_ris, 0, sizeof ( test_ris ) );
+  char *ris1 = strstr ( ss, " bm " );
+  if ( !ris1 )
+    ris1 = strstr ( ss, " am " );
+  //assert(ris1);
+  char dummy[100];
+  ris1 += 4;
+  char *ris2;
+  do {
+    ris2 = strstr ( ris1, " " );
+    strncpy ( dummy, ris1, ris2 - ris1 );
+    dummy[ris2 - ris1] = 0;
+    ris1 += ris2 - ris1 + 1;
+  }
+  while ( extract_test_result ( dummy ) );
+}
+#endif
 
 int
 loadfen ( char *ss ) {
@@ -1197,21 +1216,7 @@ loadfen ( char *ss ) {
     printf ( "Bad FEN position format.\n%s", ss );
   x += 3;
 #ifdef TEST_MODE
-  /*const char *ris1 = strstr (ss, ";");
-     const char *ris2 = strstr (ss, " bm ");
-     memset (test_ris, 0, sizeof (test_ris));
-     memcpy (test_ris, ris2 + 4, ris1 - ris2 - 4);
-   */
-  char *ris1 = strstr ( ss, " id WAC" );
-  if ( !( ris1 ) )
-    ris1 = strstr ( ss, " id \"WAC" );
-  if ( ris1 ) {
-    ris1--;
-    if ( *( ris1 - 1 ) == '+' )
-      ris1--;
-    memset ( test_ris, 0, sizeof ( test_ris ) );
-    memcpy ( test_ris, ris1 - 2, 2 );
-  }
+  get_test_result ( ss );
 #endif
   CASTLE_DONE[0] = 1;
   CASTLE_DONE[1] = 1;
@@ -1223,43 +1228,41 @@ loadfen ( char *ss ) {
   CASTLE_NOT_POSSIBLE_KINGSIDE[1] = 1;
   ENP_POSSIBILE = -1;
   i = 0;
-  while ( ( unsigned ) i < strlen ( x ) /*[i] != ' ' */  ) {
-    if ( x[i] == 'K' ) {
+  while ( ( unsigned ) i < strlen ( x ) && x[i] != ' ' ) {
+    switch ( x[i++] ) {
+    case 'K':
+
       CASTLE_DONE[1] = 0;
       CASTLE_NOT_POSSIBLE[1] = 0;
       CASTLE_NOT_POSSIBLE_KINGSIDE[1] = 0;
-    }
-    else if ( x[i] == 'k' ) {
+      break;
+
+    case 'k':
+
       CASTLE_DONE[0] = 0;
       CASTLE_NOT_POSSIBLE[0] = 0;
       CASTLE_NOT_POSSIBLE_KINGSIDE[0] = 0;
-    }
-    else if ( x[i] == 'Q' ) {
+      break;
+
+    case 'Q':
+
       CASTLE_DONE[1] = 0;
       CASTLE_NOT_POSSIBLE[1] = 0;
       CASTLE_NOT_POSSIBLE_QUEENSIDE[1] = 0;
-    }
-    else if ( x[i] == 'q' ) {
+      break;
+
+    case 'q':
+
       CASTLE_DONE[0] = 0;
       CASTLE_NOT_POSSIBLE[0] = 0;
       CASTLE_NOT_POSSIBLE_QUEENSIDE[0] = 0;
-    }
-    i++;
+      break;
+
+    };
   };
-  /*    if (black_move )
-     {
-     SIDE = BLACK;
-     XSIDE = WHITE;
-     }
-     else
-     {
-     XSIDE = BLACK;
-     SIDE = WHITE;
-     } */
 
-  re_amico[black_move] = BITScanForward ( chessboard[KING_BLACK + black_move] );
-
-  re_amico[black_move ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( black_move ^ 1 )] );
+  Friend_king[black_move] = BITScanForward ( chessboard[KING_BLACK + black_move] );
+  Friend_king[black_move ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( black_move ^ 1 )] );
 
   init (  );
   return !black_move;
@@ -1283,7 +1286,6 @@ rotate_board_left_45 ( const u64 ss, const int pos ) {
 
 uchar
 rotate_board_right_45 ( const u64 ss, const int pos ) {
-
   if ( !ss )
     return 0;
   register uchar result = 0;
@@ -1298,11 +1300,8 @@ rotate_board_right_45 ( const u64 ss, const int pos ) {
   return result;
 }
 
-
-
 uchar
 rotate_board_90 ( u64 ss, const int pos ) {
-
   if ( !ss )
     return 0;
   register uchar result = 0;
@@ -1314,9 +1313,7 @@ rotate_board_90 ( u64 ss, const int pos ) {
 
 #include "rotate_board_90_32bit.txt"
 #endif
-
   return result;
-
 }
 
 #ifndef PERFT_MODE
@@ -1419,7 +1416,6 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
       *from = *to - 8;
     else
       *from = *to + 8;
-
     char p = getFenInv ( strstr ( fen, "=" )[1] );
     pushmove ( PROMOTION, *from, *to, SIDE, p );
     Tmove *mossa = &gen_list[0][1];
@@ -1450,7 +1446,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
   *to = decodeBoard ( fen + strlen ( fen ) - 2 );
   if ( ( *to ) == -1 )
     myassert ( 0, "e" );
-  u64 attaccanti2, attaccanti = evalNode.attaccanti[*to];
+  u64 attaccanti2, attaccanti = evalNode.attackers[*to];
   attaccanti &= get_pieces ( SIDE ) | chessboard[SIDE];
   int c = BitCount ( attaccanti );
   if ( !c ) {
@@ -1485,7 +1481,8 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
     attaccanti2 = attaccanti;
     while ( attaccanti ) {
       o = BITScanForward ( attaccanti );
-      if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column ) && TABLOG[o] & column ) {
+      if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column )
+	   && TABLOG[o] & column ) {
 	if ( *from != -1 ) {
 	  try_locked = 1;
 	  *from = -1;
@@ -1499,7 +1496,8 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
     if ( try_locked )
       while ( attaccanti ) {
 	o = BITScanForward ( attaccanti );
-	if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column ) && TABLOG[o] & column && !is_locked ( o, get_piece_at ( SIDE, TABLOG[o] ), SIDE ) ) {
+	if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column )
+	     && TABLOG[o] & column && !is_locked ( o, get_piece_at ( SIDE, TABLOG[o] ), SIDE ) ) {
 	  if ( *from != -1 ) {
 	    printf ( "\nambiguous, skip " );
 	    break;

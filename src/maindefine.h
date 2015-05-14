@@ -29,29 +29,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 15 14 13 12 11 10 09 08
 07 06 05 04 03 02 01 00
 
-Depth 	Perft(Depth) 	Total Nodes
-1 		20 					20				verified
-2 		400 				420				verified
-3 		8902 				9322			verified
-4 		197281 				206603			verified
-5 		4865609 			5072212			verified
-6 		119060324 			124132536		verified
-7 		3195901860 			3320034396		verified
-8 		84998978956 		88319013352		verified
-9 		2439530234167 		2527849247519
-10 		69352859712417 		71880708959936
-                        
+Depth 			  Perft
+1 					20 		verified
+2 				   400 		verified
+3 				  8902 		verified
+4 				197281 		verified
+5 			   4865609 		verified
+6 			 119060324 		verified
+7 			3195901860 		verified
+8 		   84998978956 		verified
+9 		 2439530234167
+10 		69352859712417
+
 */
-//indent -br -l1000 -nce -cdw -cli0 -cbi0 -prs -sai -saf -di1 -nbc -brs -brf -bli0  *.cpp *.h
+
 //xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "r3k2r/ppp2pp1/3b1n1p/1n2p3/Nq1P2b1/1P2P1PN/P2Q1PBP/R1B2RK1 w kq - 0 14 "
+//#define INITIAL_FEN "8/3Pk2p/2P1p1p1/8/b4K2/6P1/4P2P/8 b - - 4 38  "
 
-
-
+#ifdef _MSC_VER
+#ifndef HAS_64BITS
 #define BITScanForward( bits ) (_BitScanForward(&Index_BitScanForward,(unsigned long)bits)?Index_BitScanForward:(_BitScanForward(&Index_BitScanForward,shr32(bits))?Index_BitScanForward+32:0))
-
+#else
+#define BitCount(bits) ((unsigned)__popcnt64(bits))
+#define BITScanForward( bits ) (_BitScanForward64(&Index_BitScanForward,bits)?Index_BitScanForward:0)
+#endif
+#endif
 
 #define debugfile "out.log"
 #define _INFINITE 2147483646
@@ -67,13 +71,12 @@ typedef unsigned char uchar;
 #define OPENBOOK_FILE "book.dat"
 #endif
 
-
 #define ROOK_ATTACK 4
 #define BISHOP_ATTACK 4
 #define KNIGHT_ATTACK 4
 #define QUEEN_ATTACK 4
 #define OPEN_FILE_Q 3
-#define FORK_SCORE 8
+#define FORK_SCORE 10
 #define BONUS2BISHOP 15
 #define MOB 1
 #define KING_TRAPPED 2
@@ -92,8 +95,9 @@ typedef unsigned char uchar;
 #define PAWN_7H 5
 #define PED_CENTRE 1
 #define KING_PROXIMITY 2
+#define PAWN_STRUCT 10
 #define ISO 5
-#define PAWN_PUSH 4
+#define PAWN_PUSH 8
 #define SPACE 8
 #define DIST_XKING 1
 #define END_OPENING 1
@@ -109,16 +113,10 @@ typedef unsigned char uchar;
 #define BACKWARD_PAWN 2
 #define BACKWARD_OPEN_PAWN 3
 
-
-#define END_OPEN (max_pieces_per_side (0)<6 || max_pieces_per_side (0)<6 )
-#define DRAW   "1/2-1/2 {Draw by repetition}"
-#define WIN_BLACK   "0-1 {Black mates}"
-#define WIN_WHITE   "1-0 {White mates}"
-
+#define END_OPEN (n_pieces (0)<5 || n_pieces (1)<5 )
 
 #define MAX_MOVE   90
 #define MAX_PLY   64
-
 
 #define SQUARE_FREE   12
 #define PAWN_BLACK   0
@@ -136,15 +134,6 @@ typedef unsigned char uchar;
 #define PAWN_CAPTUKING_BLACK   12
 #define PAWN_CAPTUKING_WHITE   13
 
-#define PAWN_S   0
-#define ROOK_S   1
-#define BISHOP_S   2
-#define KNIGHT_S   3
-#define RE_S   4
-#define QUEEN_S   5
-#define PAWN_CAPTURE_S_BLACK   6
-#define PAWN_CAPTURE_S_WHITE   7
-
 #define KINGSIDE -1
 #define QUEENSIDE -2
 #define CASTLE -3
@@ -152,9 +141,7 @@ typedef unsigned char uchar;
 #define BLACK   0
 #define WHITE   1
 #define STANDARD  1
-#define EVALUATION   102
 #define ENPASSANT   101
-
 
 #define VALUEPAWN 100
 #define VALUEROOK 520
@@ -170,22 +157,14 @@ typedef unsigned char uchar;
 #define hashfALPHA 1
 #define hashfBETA 2
 
-
-//#define UPDATE_TXT "../open_book.txt"
 #endif
-#define D2 12
-#define E2 11
+
 #define D3 20
 #define E3 19
-
-#define E7 51
-#define D7 52
-
 #define E6 43
 #define D6 44
 #define F7 50
 #define F2 10
-
 
 const int PIECES_VALUE[13] = {
   VALUEPAWN, VALUEPAWN,
@@ -202,49 +181,45 @@ const int PIECES_VALUE[13] = {
 #define get_pieces(x) (x==BLACK ? chessboard[ROOK_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]:chessboard[ROOK_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE])
 #define n_pieces(x) (BitCount(get_pieces(x)))
 
-#define max_pieces_per_side(tipo) (BitCount(square_bit_occupied(tipo)))
-
 #define in_check()(attack_square(BLACK,BITScanForward (chessboard[KING_BLACK ])) ? 1:(attack_square(WHITE,BITScanForward (chessboard[KING_WHITE])) ? 1:0))
-#define R_adpt(tipo,depth) (2+((depth) > (3+((max_pieces_per_side(tipo)<3)?2:0))))
-#define null_ok(depth,side)((null_sem) ? 0:(depth < 3 ?0:(max_pieces_per_side(side) < 4 ? 0:1)))
+#define R_adpt(tipo,depth) (2+((depth) > (3+((n_pieces(tipo)<3)?2:0))))
+#define null_ok(depth,side)((null_sem) ? 0:(depth < 3 ?0:(n_pieces(side) < 4 ? 0:1)))
 
 #define square_all_bit_occupied() (chessboard[PAWN_BLACK]|chessboard[ROOK_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]|chessboard[PAWN_WHITE]|chessboard[ROOK_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE])
 
 #define shr32(b) (((unsigned*)&b)[1])
 
-#define make_extension()(((chessboard[WHITE] & ORIZZONTAL_48)||(chessboard[BLACK] & ORIZZONTAL_8))? 1: 0)
+//#define make_extension()(((chessboard[WHITE] & ORIZZONTAL_48)||(chessboard[BLACK] & ORIZZONTAL_8))? 1: 0)
 #ifdef DEBUG_MODE
 #define check_side(side) (assert(side==0 || side==1))
 #endif
 #define get_piece_at(side,tablogpos)((side==WHITE)?(\
-(chessboard[PAWN_WHITE]&tablogpos)?PAWN_WHITE:(\
-(chessboard[KING_WHITE]&tablogpos)?KING_WHITE:(\
-(chessboard[ROOK_WHITE]&tablogpos)?ROOK_WHITE:(\
-(chessboard[BISHOP_WHITE]&tablogpos)?BISHOP_WHITE:(\
-(chessboard[KNIGHT_WHITE]&tablogpos)?KNIGHT_WHITE:(\
-(chessboard[QUEEN_WHITE]&tablogpos)?QUEEN_WHITE:SQUARE_FREE)))))):\
-(\
-(chessboard[PAWN_BLACK]&tablogpos)?PAWN_BLACK:(\
-(chessboard[KING_BLACK]&tablogpos)?KING_BLACK:(\
-(chessboard[ROOK_BLACK]&tablogpos)?ROOK_BLACK:(\
-(chessboard[BISHOP_BLACK]&tablogpos)?BISHOP_BLACK:(\
-(chessboard[KNIGHT_BLACK]&tablogpos)?KNIGHT_BLACK:(\
-(chessboard[QUEEN_BLACK]&tablogpos)?QUEEN_BLACK:SQUARE_FREE)))))))
+	(chessboard[PAWN_WHITE]&tablogpos)?PAWN_WHITE:(\
+	(chessboard[KING_WHITE]&tablogpos)?KING_WHITE:(\
+	(chessboard[ROOK_WHITE]&tablogpos)?ROOK_WHITE:(\
+	(chessboard[BISHOP_WHITE]&tablogpos)?BISHOP_WHITE:(\
+	(chessboard[KNIGHT_WHITE]&tablogpos)?KNIGHT_WHITE:(\
+	(chessboard[QUEEN_WHITE]&tablogpos)?QUEEN_WHITE:SQUARE_FREE)))))):\
+	(\
+	(chessboard[PAWN_BLACK]&tablogpos)?PAWN_BLACK:(\
+	(chessboard[KING_BLACK]&tablogpos)?KING_BLACK:(\
+	(chessboard[ROOK_BLACK]&tablogpos)?ROOK_BLACK:(\
+	(chessboard[BISHOP_BLACK]&tablogpos)?BISHOP_BLACK:(\
+	(chessboard[KNIGHT_BLACK]&tablogpos)?KNIGHT_BLACK:(\
+	(chessboard[QUEEN_BLACK]&tablogpos)?QUEEN_BLACK:SQUARE_FREE)))))))
 
 
 #define lazy_eval_black() (BitCount(chessboard[0])*VALUEPAWN+\
-BitCount(chessboard[2])*VALUEROOK+\
-BitCount(chessboard[4])*VALUEBISHOP+\
-BitCount(chessboard[6])*VALUEKNIGHT+\
-BitCount(chessboard[10])*VALUEQUEEN)
-
-
+	BitCount(chessboard[2])*VALUEROOK+\
+	BitCount(chessboard[4])*VALUEBISHOP+\
+	BitCount(chessboard[6])*VALUEKNIGHT+\
+	BitCount(chessboard[10])*VALUEQUEEN)
 
 #define lazy_eval_white() (BitCount(chessboard[1])*VALUEPAWN+\
-BitCount(chessboard[3])*VALUEROOK+\
-BitCount(chessboard[5])*VALUEBISHOP+\
-BitCount(chessboard[7])*VALUEKNIGHT+\
-BitCount(chessboard[11])*VALUEQUEEN)
+	BitCount(chessboard[3])*VALUEROOK+\
+	BitCount(chessboard[5])*VALUEBISHOP+\
+	BitCount(chessboard[7])*VALUEKNIGHT+\
+	BitCount(chessboard[11])*VALUEQUEEN)
 
 
 #ifdef FP_MODE
@@ -254,11 +229,11 @@ BitCount(chessboard[11])*VALUEQUEEN)
 #define RAZOR_MARGIN  VALUEQUEEN + VALUEPAWN
 
 #endif
-#define ACTUAL_COUNT 39
+
 #define valWINDOW 200
 
 #define VOID_FEN "8/8/8/8/8/8/8/8/R w KQkq - 0 1"
-#define TABSALTOPAWN 0xFF00000000FF00ULL
+#define TABJUMPPAWN 0xFF00000000FF00ULL
 #define TABCAPTUREPAWN_RIGHT 0xFEFEFEFEFEFEFEFEULL
 #define TABCAPTUREPAWN_LEFT 0x7F7F7F7F7F7F7F7FULL
 
@@ -285,8 +260,8 @@ typedef struct EvalTag {
   int king_attak[2];
   int king_security[2];
   u64 isolated;
-  u64 attaccate[64];
-  u64 attaccanti[64];
+  u64 attacked[64];
+  u64 attackers[64];
 } Teval;
 
 #endif
@@ -311,12 +286,11 @@ typedef struct {
 } fen_node;
 
 typedef u64 Tchessboard[12];
-
 typedef Tmove TmoveList[MAX_PLY][MAX_MOVE];
-
 typedef struct tagLINE {
   int cmove;			// Number of moves in the line.
   Tmove argmove[MAX_PLY];	// The line.
 } LINE;
+
 
 #endif

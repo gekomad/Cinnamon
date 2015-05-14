@@ -39,7 +39,7 @@ makemove ( Tmove * mossa ) {
   if ( mossa->type == STANDARD || mossa->type == ENPASSANT || mossa->type == PROMOTION ) {
     mossaa = mossa->to;
     mossada = mossa->from;
-    if ( mossada == pvv_da && mossaa == pvv_a )
+    if ( mossada == pvv_from && mossaa == pvv_to )
       path_pvv = 1;
 #ifdef DEBUG_MODE
     assert ( mossaa >= 0 );
@@ -94,9 +94,11 @@ makemove ( Tmove * mossa ) {
     else if ( pezzoda == ROOK_BLACK && mossada == 56 && !CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] )
       CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] = 1;
 
-    if ( pezzoda == PAWN_WHITE && RANK_1 & TABLOG[mossada] && RANK_3 & TABLOG[mossaa] )
+    if ( pezzoda == PAWN_WHITE && RANK_1 & TABLOG[mossada]
+	 && RANK_3 & TABLOG[mossaa] )
       ENP_POSSIBILE = mossaa;
-    else if ( pezzoda == PAWN_BLACK && RANK_6 & TABLOG[mossada] && RANK_4 & TABLOG[mossaa] )
+    else if ( pezzoda == PAWN_BLACK && RANK_6 & TABLOG[mossada]
+	      && RANK_4 & TABLOG[mossaa] )
       ENP_POSSIBILE = mossaa;
   }
   else if ( mossa->type == CASTLE ) {
@@ -141,7 +143,7 @@ takeback ( const Tmove * mossa ) {
   if ( mossa->type == STANDARD || mossa->type == ENPASSANT ) {
     mossaa = mossa->to;
     mossada = mossa->from;
-    if ( mossada == pvv_da && mossaa == pvv_a )
+    if ( mossada == pvv_from && mossaa == pvv_to )
       path_pvv = 0;
     mossacapture = mossa->capture;
 #ifdef DEBUG_MODE

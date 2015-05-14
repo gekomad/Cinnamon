@@ -20,25 +20,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "assert.h"
 #endif
 #include <sys/timeb.h>
-extern int euristic_pruning, EvalCuts;
-
+extern int EvalCuts;
 #ifdef TEST_MODE
 extern char test_ris[20];
-extern char test_trovato[20];
+extern char test_found[20];
 extern u64 num_moves_test;
 #endif
 extern unsigned long Index_BitScanForward;
-extern int re_amico[2], st_force, MAX_DEPTH_TO_SEARCH, HASH_SIZE, supplementary_mill_sec;
+extern int Friend_king[2], st_force, MAX_DEPTH_TO_SEARCH, HASH_SIZE, supplementary_mill_sec;
 extern u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 extern char mply, black_move;
-extern int MAX_TIME_MILLSEC, winbtime, list_id, xboard, maxdep, incremental_move, force;
-extern int attacco, evaluateMobility_mode, null_sem;
+extern int MAX_TIME_MILLSEC, list_id, xboard, force;
+extern int evaluateMobility_mode, null_sem;
 extern u64 n_cut_hash;
 extern char *BITCOUNT;
-extern int pos_king[1];
-extern int pvv_da, pvv_a, path_pvv;
-extern int DO_QUIES, FLG_WIN_WHITE, FLG_WIN_BLACK, FLG_DRAW;
-extern int enpas, run, ob_count, fine_apertura1, mate;
+extern int pvv_from, pvv_to, path_pvv;
+extern int enpas, run, ob_count, mate;
 extern int quies_mode, max_depth, hand_do_movec;
 extern int CASTLE_DONE[2];
 extern int ENP_POSSIBILE;
@@ -46,7 +43,6 @@ extern int CASTLE_NOT_POSSIBLE[2];
 extern int CASTLE_NOT_POSSIBLE_QUEENSIDE[2];
 extern int CASTLE_NOT_POSSIBLE_KINGSIDE[2];
 extern struct timeb start_time;
-extern int max_depth_quies;
 extern TmoveList gen_list;
 extern Tchessboard chessboard;
 extern fen_node FEN_STACK;

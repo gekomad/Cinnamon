@@ -14,6 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #include "winboard.h"
 #ifdef _MSC_VER
 #include "windows.h"
@@ -32,7 +33,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 #include <stdio.h>
 #include <math.h>
-
 #include "maindefine.h"
 #include "utility.h"
 #include "eval.h"
@@ -42,7 +42,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef TEST_MODE
 #include "test.h"
 #endif
-
 #include "search.h"
 #include <stddef.h>
 #include <stdlib.h>
@@ -50,46 +49,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "zobrist.h"
 #include "openbook.h"
 #include "bitmap.h"
-int euristic_pruning;
-
 
 #ifdef TEST_MODE
 char test_ris[20];
-char test_trovato[20];
+char test_found[20];
 u64 num_moves_test;
 #endif
 
 u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 char mply, black_move;
 
-int winbtime, MAX_TIME_MILLSEC, MAX_DEPTH_TO_SEARCH, HASH_SIZE, st_force, list_id, xboard, maxdep, incremental_move, force;
+int MAX_TIME_MILLSEC, MAX_DEPTH_TO_SEARCH, HASH_SIZE, st_force, list_id, xboard, force;
 int evaluateMobility_mode, null_sem, supplementary_mill_sec;
 u64 n_cut_hash;
 char *BITCOUNT = NULL;
 
-int pos_king[1];
 unsigned long Index_BitScanForward;
-int attacco, re_amico[2];
-int pvv_da, pvv_a, path_pvv;
-int DO_QUIES, FLG_WIN_WHITE, FLG_WIN_BLACK, FLG_DRAW;
-int enpas, run, ob_count, fine_apertura1, EvalCuts;
+int Friend_king[2];
+int pvv_from, pvv_to, path_pvv;
+int enpas, run, ob_count, EvalCuts;
 int quies_mode, max_depth, hand_do_movec;
 int CASTLE_DONE[2];
 int ENP_POSSIBILE;
 int CASTLE_NOT_POSSIBLE[2];
+
 int CASTLE_NOT_POSSIBLE_QUEENSIDE[2];
 int CASTLE_NOT_POSSIBLE_KINGSIDE[2];
 struct timeb start_time;
 FILE *outf;
-int max_depth_quies;
 TmoveList gen_list;
 
 Tchessboard chessboard;
 fen_node FEN_STACK;
 #ifndef PERFT_MODE
-
 Topenbook *openbook;
-
 int use_book, OPENBOOK_SIZE;
 #endif
 #ifdef HASH_MODE
@@ -125,7 +118,6 @@ do_perft (  ) {
   int ii, listcount, side;
   side = ( black_move == 1 ? 0 : 1 );
   struct timeb start1, end1;
-  max_depth_quies = 0;
   int TimeTaken = 0;
 
   run = 1;
@@ -142,8 +134,7 @@ do_perft (  ) {
   assert ( list_id < MAX_PLY );
 #endif
   list_id = 0;
-  re_amico[side] = BITScanForward ( chessboard[KING_BLACK + side] );
-  re_amico[side ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( side ^ 1 )] );
+
   generateCap ( STANDARD, side );
   generateMoves ( STANDARD, side );
 
@@ -197,82 +188,77 @@ do_perft (  ) {
   printf ( "\n%I64u nodes", tot );
 #endif
 
-  //++mply;
-  //}
+  while ( 1 );
 }
+
 #else
 /*
 void
-do_movexxx ( int side ) {	
-  struct timeb start1;
-  int alpha = -_INFINITE;
-  int beta = _INFINITE;
-  LINE line;  
-  int val;  
-  
-  
-  run = 1;
-  mply = 1;
-  int score;  
-  ftime ( &start_time ); 
-  init (  ); 
-  while ( run ) {
-    ftime ( &start1 );
-    initialply = mply;
-   
-	
-    ++mply;
+do_move ( int side ) {	
+struct timeb start1,end1;
+int alpha = -_INFINITE;
+int beta = _INFINITE;
+LINE line;  
+int val;  
+int TimeTaken;
+run = 1;
+mply = 1;
+int score;  
+ftime ( &start_time ); 
+init (  ); 
+while ( run ) {
+ftime ( &start1 );
+initialply = mply;
 
-    printf ( "\nply: %d ................................................", mply );
 
-	list_id=0;
-	gen_list[list_id][0].score=0;
-	num_moves2 = 0;
-	max_depth_quies = 0;
-	generateCap ( STANDARD, side );
-	generateMoves ( STANDARD, side );
-	int listcount = gen_list[list_id][0].score;
-	Tmove *mossa;
-	if ( listcount ) {
-		int ii;		
-		for ( ii = 1; ii <= listcount; ii++ ) {
-			mossa = &gen_list[list_id][ii];				
-			makemove ( mossa );
-			 alpha = -_INFINITE;
-			beta = _INFINITE;
-			//print();			
-			val = -ael ( side^1, mply, -beta,-alpha, &line );
-			printf("\n%s %s %d",decodeBoardinv ( mossa->from,  mossa->side ),decodeBoardinv (  mossa->to,  mossa->side ),val);
-			takeback ( mossa );
-   
-			run = still_time (  );
-			if(!run){printf("\nnnnnnnnnnn");break;}
-			score = -_INFINITE;
-			memcpy ( &result_move, &mossa, sizeof ( Tmove ) );
-      }  
-    }
-  }
-  
+++mply;
+
+printf ( "\nply: %d ................................................", mply );
+
+list_id=0;
+gen_list[list_id][0].score=0;
+num_moves2 = 0;
+generateCap ( STANDARD, side );
+generateMoves ( STANDARD, side );
+int listcount = gen_list[list_id][0].score;
+Tmove *mossa;
+if ( listcount ) {
+int ii;		
+for ( ii = 1; ii <= listcount; ii++ ) {
+mossa = &gen_list[list_id][ii];				
+makemove ( mossa );
+alpha = -_INFINITE;
+beta = _INFINITE;
+//print();			
+val = -ael ( side^1, mply, -beta,-alpha, &line );
+printf("\n%s %s %d",decodeBoardinv ( mossa->from,  mossa->side ),decodeBoardinv (  mossa->to,  mossa->side ),val);
+takeback ( mossa );
+
+run = still_time (  );
+if(!run){printf("\nnnnnnnnnnn");break;}
+score = -_INFINITE;
+memcpy ( &result_move, &mossa, sizeof ( Tmove ) );
+}  
+}
+ftime (&end1);
+TimeTaken = diff_time (end1, start1);
+printf("\ntime %d",TimeTaken);
+}
+
 }
 */
-
 void
 do_move ( int side ) {
-
-
   struct timeb start1, end1;
   int alpha = -_INFINITE;
   int beta = _INFINITE;
   LINE line;
-  max_depth_quies = 0;
   int val;
   char pvv[200];
   Tmove move2;
   int TimeTaken;
-
   run = 1;
   mply = 0;
-//ftime (&start_time);
   int score;
   num_moves2 = 0;
   ftime ( &start_time );
@@ -282,14 +268,13 @@ do_move ( int side ) {
   memset ( hash_array[BLACK], 0, HASH_SIZE * sizeof ( Thash ) );
   memset ( hash_array[WHITE], 0, HASH_SIZE * sizeof ( Thash ) );
 #endif
+  ftime ( &start1 );
   while ( run ) {
     init (  );
-    ftime ( &start1 );
     initialply = mply;
     memset ( &line, 0, sizeof ( line ) );
     memset ( &pvv, 0, sizeof ( pvv ) );
-	/******** open book ***************/
-
+		/******** open book ***************/
     if ( use_book ) {
       u64 key = makeZobristKey (  );
       int t;
@@ -312,11 +297,16 @@ do_move ( int side ) {
       }
     }
     ++mply;
+
 #ifdef DEBUG_MODE
     printf ( "\nply: %d ...", mply );
+
 #endif
+
     line.cmove = 0;
+
     val = ael ( side, mply, alpha, beta, &line );
+
     run = still_time (  );
     if ( !line.cmove ) {
       run = 0;
@@ -337,8 +327,8 @@ do_move ( int side ) {
 #ifdef DEBUG_MODE
       int errore = 0;
 #endif
-      pvv_da = line.argmove[0].from;
-      pvv_a = line.argmove[0].to;
+      pvv_from = line.argmove[0].from;
+      pvv_to = line.argmove[0].to;
       for ( int t = 0; t < line.cmove; t++ ) {
 	char pvv_tmp[10];
 	memset ( pvv_tmp, 0, sizeof ( pvv_tmp ) );
@@ -357,7 +347,18 @@ do_move ( int side ) {
       };
 
 #ifdef TEST_MODE
-      strcpy ( test_trovato, decodeBoardinv ( line.argmove[0].to, side ) );
+      if ( line.argmove[0].from == KINGSIDE ) {
+	if ( side )
+	  strcpy ( test_found, "g1" );
+	strcpy ( test_found, "g8" );
+      }
+      else if ( line.argmove[0].from == QUEENSIDE ) {
+	if ( side )
+	  strcpy ( test_found, "c1" );
+	strcpy ( test_found, "c8" );
+      }
+      else
+	strcpy ( test_found, decodeBoardinv ( line.argmove[0].to, side ) );
 #endif
       if ( mply == MAX_DEPTH_TO_SEARCH )
 	run = 0;
@@ -486,16 +487,16 @@ hand_do_move ( void *dummy )
   if ( result_move.type != CASTLE ) {
     strcat ( t, decodeBoardinv ( result_move.to, result_move.side ) );
     if ( result_move.promotion_piece != -1 )
-      t[strlen ( t )] = tolower ( getFen ( result_move.promotion_piece ) );
+      t[strlen ( t )] = ( char ) tolower ( getFen ( result_move.promotion_piece ) );
   }
 
 
 #ifdef DEBUG_MODE
   printf ( "da %d a %d\n", result_move.from, result_move.to );
 #endif
-//#ifdef _MSC_VER
+  //#ifdef _MSC_VER
   writeWinboard ( t );
-//#endif
+  //#endif
 }
 #endif
 void
@@ -513,11 +514,7 @@ dispose (  ) {
 }
 
 void
-start (
-#ifdef PERFT_MODE
-	 int argc, char *argv[]
-#endif
-   ) {
+start ( int argc, char *argv[] ) {
   int t;
   num_tot_moves = 0;
 #ifndef PERFT_MODE
@@ -556,7 +553,6 @@ start (
 #endif
 #ifdef HASH_MODE
   hash_array[WHITE] = hash_array[BLACK] = NULL;
-
 
 #ifdef DEBUG_MODE
   for ( t = 0; t < OPENBOOK_SIZE; t++ ) {
@@ -605,18 +601,12 @@ start (
   iret1 = pthread_create ( &thread1, NULL, listner_winboard, ( void * ) &message1 );
 #endif
 #endif
-
 }
-
-
 
 int
 main ( int argc, char *argv[] ) {
-  start (
-#ifdef PERFT_MODE
-	   argc, argv
-#endif
-     );
+  start ( argc, argv );
+
   //0x5d20d128d3ff0f40ULL
   //int a=BITScanForward2(0x5d20d128d3ff0f40ULL);
   //int b=BITScanForward(0x5d20d128d3ff0f40ULL);

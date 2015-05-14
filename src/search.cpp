@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PERFT_MODE
 int
 quiescence ( int alpha, const int side, int beta ) {
+  if ( !run )
+    return 0;
 #ifdef DEBUG_MODE
   check_side ( side );
   assert ( chessboard[KING_BLACK] );
@@ -108,6 +110,8 @@ ael ( const int SIDE, int depth
       , int alpha, int beta, LINE * pline
 #endif
    ) {
+  if ( !run )
+    return 0;
   //assert(!use_book);
 #ifdef DEBUG_MODE
   check_side ( SIDE );
@@ -166,16 +170,18 @@ ael ( const int SIDE, int depth
     ++n_perft;
     return 0;
 #else
-    if ( 0 ) {
-      score = eval ( SIDE
-#ifdef FP_MODE
-		     , alpha, beta
-#endif
-		     , key );
-    }
-    else {
-      score = quiescence ( alpha, SIDE, beta );
-    }
+    /*if (0)
+       {
+       score = eval (SIDE
+       #ifdef FP_MODE
+       , alpha, beta
+       #endif
+       , key);
+       }
+       else
+       { */
+    score = quiescence ( alpha, SIDE, beta );
+    //}
 
 #ifdef HASH_MODE
     RecordHash ( mply, hashfEXACT, SIDE, key, score );
@@ -206,8 +212,8 @@ ael ( const int SIDE, int depth
     return score;
 #endif
 #ifdef FP_MODE
-		/**************Futility Pruning****************/
-		/**************Futility Pruning razor at pre-pre-frontier*****/
+	/**************Futility Pruning****************/
+	/**************Futility Pruning razor at pre-pre-frontier*****/
   fprune = 0;
   if ( !path_pvv && !is_incheck ) {
     mat_balance = lazy_eval_black (  ) - lazy_eval_white (  );
@@ -219,19 +225,19 @@ ael ( const int SIDE, int depth
 #endif
       depth--;
     }
-			/**************Futility Pruning at pre-frontier*****/
+		/**************Futility Pruning at pre-frontier*****/
     if ( depth == 2 && ( fscore = mat_balance - EXT_FUTILY_MARGIN ) <= alpha ) {
 
       fprune = 1;
       score = fmax = fscore;
     }
-			/**************Futility Pruning at frontier*****/
+		/**************Futility Pruning at frontier*****/
     if ( depth == 1 && ( fscore = mat_balance - FUTIL_MARGIN ) <= alpha ) {
       fprune = 1;
       score = fmax = fscore;
     }
   }
-		/************ end Futility Pruning*************/
+	/************ end Futility Pruning*************/
 #endif
   //************* hash ****************
 #ifdef HASH_MODE
@@ -275,27 +281,6 @@ ael ( const int SIDE, int depth
 #endif
   //********** end hash ***************
   int ii, listcount;
-  //********* null move ***********
-#ifdef NULL_MODE
-  if ( !path_pvv && null_ok ( depth, SIDE ) && !attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) ) ) {
-    null_sem = 1;
-    int null_score = -ael ( SIDE ^ 1, depth - R_adpt ( SIDE, depth ) - 1, -beta, -beta + 1,
-			    &line );
-    null_sem = 0;
-    if ( !run )
-      return score;
-    if ( null_score >= beta ) {
-#ifdef DEBUG_MODE
-      ++null_move_cut;
-#endif
-#ifdef HASH_MODE
-      //              RecordHash (depth-nullreduction, ....);
-#endif
-      return null_score;
-    }
-  }
-#endif
-  ///******* null move end ********
   Tmove *mossa;
 #ifndef PERFT_MODE
   int bestmove;
@@ -304,8 +289,8 @@ ael ( const int SIDE, int depth
 #ifdef DEBUG_MODE
   assert ( list_id < MAX_PLY );
 #endif
-  re_amico[SIDE] = BITScanForward ( chessboard[KING_BLACK + SIDE] );
-  re_amico[SIDE ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( SIDE ^ 1 )] );
+  Friend_king[SIDE] = BITScanForward ( chessboard[KING_BLACK + SIDE] );
+  Friend_king[SIDE ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( SIDE ^ 1 )] );
   if ( generateCap ( STANDARD, SIDE ) ) {
     gen_list[list_id--][0].score = 0;
     return _INFINITE;
@@ -340,6 +325,7 @@ ael ( const int SIDE, int depth
 #endif
 
   for ( ii = 1; ii <= listcount; ii++ ) {
+
     mossa = &gen_list[list_id][ii];
     makemove ( mossa );
 
@@ -352,7 +338,35 @@ ael ( const int SIDE, int depth
       continue;
     }
 #endif
+    //********* null move ***********
+#ifdef NULL_MODE
+    if ( !path_pvv && null_ok ( depth, SIDE )
+	 && !attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) ) ) {
+      null_sem = 1;
+      int null_score = -ael ( SIDE ^ 1, depth - R_adpt ( SIDE, depth ) - 1, -beta,
+			      -beta + 1, &line );
+      null_sem = 0;
+      if ( !run ) {
+	gen_list[list_id--][0].score = 0;
+	takeback ( mossa );
+	return score;
+      }
+      if ( null_score >= beta ) {
+#ifdef DEBUG_MODE
+	++null_move_cut;
+#endif
+#ifdef HASH_MODE
+	//              RecordHash (depth-nullreduction, ....);
+#endif
+	gen_list[list_id--][0].score = 0;
+	takeback ( mossa );
 
+	//return beta;
+	return null_score;
+      }
+    }
+#endif
+    ///******* null move end ********
 #ifdef PERFT_MODE
     ael ( SIDE ^ 1, depth - 1 );
     takeback ( mossa );

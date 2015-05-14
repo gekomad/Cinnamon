@@ -98,7 +98,7 @@ swap ( Topenbook * a, Topenbook * b ) {
 void
 QuickSort_book ( int beg, int end ) {
   int l, r;
-//      printf("\n%d %d",beg,end);
+  //      printf("\n%d %d",beg,end);
   if ( end > beg + 1 ) {
     u64 piv = openbook[beg].key;
     l = beg + 1;
@@ -244,53 +244,53 @@ load_open_book (  ) {
 void
 update_open_book_eval (const char *TXT_FILE)
 {
-  u64 u;
+u64 u;
 
-  printf ("\nupdate_open_book_eval...");
-  FILE *stream;
-  char *line = (char *) calloc (1, 1000);
-  int c = 0;
+printf ("\nupdate_open_book_eval...");
+FILE *stream;
+char *line = (char *) calloc (1, 1000);
+int c = 0;
 
-  stream = fopen (TXT_FILE, "r+b");
+stream = fopen (TXT_FILE, "r+b");
 #ifdef DEBUG_MODE
-  assert (stream);
+assert (stream);
 #endif
 
-  while (fgets (line, 1000, stream) != NULL)
-    {
-      c++;
-      if (!(c % 10000))
-	printf ("\n%d", c);
-      loadfen (line);
-      u = makeZobristKey ();
+while (fgets (line, 1000, stream) != NULL)
+{
+c++;
+if (!(c % 10000))
+printf ("\n%d", c);
+loadfen (line);
+u = makeZobristKey ();
 #ifdef DEBUG_MODE
-      assert (u);
+assert (u);
 #endif
-      TopenbookLeaf *i = search_book_tree (openbook_tree, u);
-      if (i != NULL)
-	{
-	  i->eval = eval (WHITE, _INFINITE, 0
+TopenbookLeaf *i = search_book_tree (openbook_tree, u);
+if (i != NULL)
+{
+i->eval = eval (WHITE, _INFINITE, 0
 #ifdef HASH_MODE
-			  , 0
+, 0
 #endif
-	    );
-	}
-      else
-	{
-	  Topenbook e;
-	  e.key = u;
-	  e.from_white = -1;
-	  e.from_black = -1;
-	  e.eval = eval (WHITE, _INFINITE, 0
+);
+}
+else
+{
+Topenbook e;
+e.key = u;
+e.from_white = -1;
+e.from_black = -1;
+e.eval = eval (WHITE, _INFINITE, 0
 #ifdef HASH_MODE
-			 , 0
+, 0
 #endif
-	    );
-	  insert_openbook_leaf (&openbook_tree, &e);
-	}
-    }
-  fclose (stream);
-  free (line);
+);
+insert_openbook_leaf (&openbook_tree, &e);
+}
+}
+fclose (stream);
+free (line);
 
 }
 */

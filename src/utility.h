@@ -21,13 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma warning( disable : 4996 )
 #pragma warning( disable : 4530 )
 
-
 #ifndef UTILITY_H
 #define UTILITY_H
 #include <iostream>
 #include <bitset>
 #include <limits>
-
 #include <stdio.h>
 #if defined  _MSC_VER
 #include <intrin.h>
@@ -44,12 +42,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 void pop_fen (  );
 void debug ( char *msg );
 int fen2pos ( char *fen, int *from, int *to, int, u64 key );
-int wc ( const char * );
 void controlloRipetizioni ( Tmove * myarray, int right );
 void myassert ( const void *a, const char *b );
 char getFenInv ( const char a );
 char getFen ( const int a );
-int wc ( const char *a );
+int get_set_next_thread (  );
 int BitCountSlow ( const u64 aBoard );
 char decodeBoard ( char *a );
 char *decodeBoardinv ( const int, const int );
@@ -63,7 +60,7 @@ int inCheck ( const int, const int, const int, const int, const int, const int, 
 #else
 int compare_move ( const void *a, const void *b );
 #endif
-int pushmove ( const int tipomove, const int da, const int a, const int SIDE );
+
 int pushmove ( const int tipomove, const int da, const int a, const int SIDE, int promotion_piece );
 void print (  );
 void init (  );
@@ -90,17 +87,21 @@ const static unsigned rot90[64] = {
 
 // int piece_attack_defence (const int a,const int coloreAttaccato);
 void BoardToFEN ( char *FEN );
+FORCEINLINE int
+pushmove ( const int tipomove, const int da, const int a, const int SIDE ) {
+  return pushmove ( tipomove, da, a, SIDE, -1 );
+}
+
 #ifndef PERFT_MODE
 void update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int depth );
 
 FORCEINLINE int
 still_time (  ) {
-  // return 1;
   struct timeb t_current;
   ftime ( &t_current );
-  int i = ( int ) ( 1000 * ( t_current.time - start_time.time ) );	// + ( t_current.millitm - start_time.millitm )   );
-  return i >= MAX_TIME_MILLSEC ? 0 : 1;
-
+  return ( ( int ) ( 1000 * ( t_current.time - start_time.time ) ) ) >= MAX_TIME_MILLSEC ? 0 : 1;
+  //int i = (int) (1000 * (t_current.time - start_time.time));    // + ( t_current.millitm - start_time.millitm )   );
+  //return i >= MAX_TIME_MILLSEC ? 0 : 1;
 }
 #endif
 
@@ -167,33 +168,7 @@ shr ( const u64 bits, const int N ) {
   return x;
 }
 
-
-FORCEINLINE int
-BitCount ( const u64 bits ) {
-
-  unsigned lo = ( unsigned ) bits;
-  unsigned hi = shr32 ( bits );
-  int result = 0;
-  if ( lo ) {
-    result = BITCOUNT[( unsigned short ) lo] + BITCOUNT[lo >> 16];
-
-  }
-  if ( hi ) {
-    result += BITCOUNT[( unsigned short ) hi] + BITCOUNT[hi >> 16];
-
-  }
-
-  return result;
-}
-
 #else
-//hash64bits
-FORCEINLINE int
-BitCount ( const u64 bits ) {
-  u64 dummy, dummy2, dummy3;
-asm ( "xorq %0, %0" "\n\t" " testq   %1, %1" "\n\t" " jz 2f" "\n\t" "1: leaq -1(%1),%2" "\n\t" "          incq    %0" "\n\t" "          andq    %2, %1" "\n\t" "          jnz     1b" "\n\t" "2:                      " "\n\t": "=&r" ( dummy ), "=&r" ( dummy2 ), "=&r" ( dummy3 ): "1" ( ( u64 ) ( bits ) ):"cc" );
-  return ( dummy );
-}
 
 #define shl7(ss) (ss<<7)
 #define shl9(ss) (ss<<9)
@@ -205,78 +180,70 @@ asm ( "xorq %0, %0" "\n\t" " testq   %1, %1" "\n\t" " jz 2f" "\n\t" "1: leaq -1(
 
 #endif
 
-#ifndef  _MSC_VER
+#ifndef _MSC_VER
 FORCEINLINE int
 BITScanForward ( u64 bits ) {
   return magictable[( ( ( unsigned * ) &( bits = ( bits & -bits ) * 0x0218a392cd3d5dbfULL ) )[1] ) >> 26];
 }
-#else
-#ifdef HAS_64BITS
-FORCEINLINE int
-BITScanForward ( u64 bits ) {
-  unsigned long Index;
-  _BitScanForward64 ( &Index, ( __int64 ) bits );
-  return Index;
-}
-#else
+#endif
 
+#if !defined _MSC_VER || defined _MSC_VER && !defined HAS_64BITS
+FORCEINLINE int
+BitCount ( const u64 bits ) {
+  return BITCOUNT[( unsigned short ) bits] + BITCOUNT[( ( unsigned ) bits ) >> 16] + BITCOUNT[( unsigned short ) shr32 ( bits )] + BITCOUNT[( shr32 ( bits ) ) >> 16];
+}
 #endif
-#endif
+
 #ifndef PERFT_MODE
 /*
 FORCEINLINE int
 recognizer ()
 {
-  u64 pn = chessboard[PAWN_BLACK];
-  if (pn)
-    return 999;
-  u64 pb = chessboard[PAWN_WHITE];
-  if (pb)
-    return 999;
-  u64 tn = chessboard[ROOK_BLACK];
-  if (tn)
-    return 999;
-  u64 tb = chessboard[ROOK_WHITE];
-  if (tb)
-    return 999;
-  u64 rn = chessboard[QUEEN_BLACK];
-  if (rn)
-    return 999;
-  u64 rb = chessboard[QUEEN_WHITE];
-  if (rb)
-    return 999;
+u64 pn = chessboard[PAWN_BLACK];
+if (pn)
+return 999;
+u64 pb = chessboard[PAWN_WHITE];
+if (pb)
+return 999;
+u64 tn = chessboard[ROOK_BLACK];
+if (tn)
+return 999;
+u64 tb = chessboard[ROOK_WHITE];
+if (tb)
+return 999;
+u64 rn = chessboard[QUEEN_BLACK];
+if (rn)
+return 999;
+u64 rb = chessboard[QUEEN_WHITE];
+if (rb)
+return 999;
 
-  u64 an = BitCount (chessboard[BISHOP_BLACK]);
-  u64 ab = BitCount (chessboard[BISHOP_WHITE]);
-  u64 cn = BitCount (chessboard[KNIGHT_BLACK]);
-  u64 cb = BitCount (chessboard[KNIGHT_WHITE]);
+u64 an = BitCount (chessboard[BISHOP_BLACK]);
+u64 ab = BitCount (chessboard[BISHOP_WHITE]);
+u64 cn = BitCount (chessboard[KNIGHT_BLACK]);
+u64 cb = BitCount (chessboard[KNIGHT_WHITE]);
 
-  if (an == 0 && ab == 0 && cn == 0 && cb == 0)
-    return 0;
-  if (an == 0 && ab == 0 && (cb == 0 && cn == 1 || cb == 1 && cn == 0))
-    return 0;
-  if (cn == 0 && cb == 0 && (ab == 0 && an == 1 || ab == 1 && an == 0))
-    return 0;
-  if (cn == 0 && cb == 0 && (ab == 1 && an == 1))
-    {
-      int b = BITScanForward (chessboard[BISHOP_WHITE]);
-      int n = BITScanForward (chessboard[BISHOP_BLACK]);
-      if (COLORS[b] == COLORS[n])
-	return 0;
-    }
-  return 999;
+if (an == 0 && ab == 0 && cn == 0 && cb == 0)
+return 0;
+if (an == 0 && ab == 0 && (cb == 0 && cn == 1 || cb == 1 && cn == 0))
+return 0;
+if (cn == 0 && cb == 0 && (ab == 0 && an == 1 || ab == 1 && an == 0))
+return 0;
+if (cn == 0 && cb == 0 && (ab == 1 && an == 1))
+{
+int b = BITScanForward (chessboard[BISHOP_WHITE]);
+int n = BITScanForward (chessboard[BISHOP_BLACK]);
+if (COLORS[b] == COLORS[n])
+return 0;
+}
+return 999;
 }
 */
 
-
 #endif
-
-
 uchar rotate_board_left_45 ( const u64, const int );
 uchar rotate_board_right_45 ( const u64, const int );
 uchar rotate_board_90 ( const u64, const int );
 u64 rotate_board_right_45_inv_mov ( const u64 ss, const int pos );
-//char *lowercase ( char *a );
-char *trim ( char *str );
 
 #endif

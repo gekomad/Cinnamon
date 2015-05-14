@@ -28,6 +28,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LIMITS.H"
 #endif
 #include "extern.h"
+#ifdef _MSC_VER
+#include <windows.h>
+#include <conio.h>
+#else
+#include <pthread.h>
+#include <unistd.h>
+#endif
 
 int
 performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
@@ -103,7 +110,9 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
     x &= NOTTABLOG[o];
   };
   int to;			//ENPASSANT
-  if ( ( ( SIDE && ENP_POSSIBILE <= 39 && ENP_POSSIBILE >= 32 ) || ( !SIDE && ENP_POSSIBILE >= 24 && ENP_POSSIBILE <= 31 ) ) && ( ( x = EN_PASSANT_MASK[SIDE ^ 1][ENP_POSSIBILE] & chessboard[SIDE] ) ) ) {
+  if ( ( ( SIDE && ENP_POSSIBILE <= 39 && ENP_POSSIBILE >= 32 )
+	 || ( !SIDE && ENP_POSSIBILE >= 24 && ENP_POSSIBILE <= 31 ) )
+       && ( ( x = EN_PASSANT_MASK[SIDE ^ 1][ENP_POSSIBILE] & chessboard[SIDE] ) ) ) {
 
     if ( SIDE )
       to = ENP_POSSIBILE + 8;
@@ -138,10 +147,11 @@ performTowerQueenCapture ( const int tipomove, const int pezzo, const u64 enemie
 #endif
 
     if ( enemies & ORIZZONTAL[pos] ) {
-      xx = MOVIMENTO_MASK_CAT2[( uchar ) ( shr ( ALLPIECES, pos_posMod8[pos] ) )][pos] & enemies;
+      xx = MASK_CAPT_MOV2[( uchar ) ( shr ( ALLPIECES, pos_posMod8[pos] ) )]
+	[pos] & enemies;
     }
     if ( enemies & VERTICAL[pos] ) {
-      xx |= enemies & inv_raw90CAT[rotate_board_90 ( ALLPIECES, pos )][pos];
+      xx |= enemies & inv_raw90CAPT[rotate_board_90 ( ALLPIECES, pos )][pos];
     }
     while ( xx ) {
       o = BITScanForward ( xx );
@@ -168,7 +178,8 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
       /////left
 #ifdef DEBUG_MODE
       assert ( rotate_board_left_45 ( ALLPIECES, position ) != 0 );
-      if ( ( ( uchar ) ( rotate_board_left_45 ( ALLPIECES, position ) & MOVES_BISHOP_LEFT_MASK[position] ) ) != ( uchar ) rotate_board_left_45 ( ALLPIECES, position ) ) {
+      if ( ( ( uchar )
+	     ( rotate_board_left_45 ( ALLPIECES, position ) & MOVES_BISHOP_LEFT_MASK[position] ) ) != ( uchar ) rotate_board_left_45 ( ALLPIECES, position ) ) {
 
 	rotate_board_left_45 ( ALLPIECES, position );
 	printf ( "\n1performBishopCapture %d", position );
@@ -176,7 +187,8 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
       }
       assert ( rotate_board_left_45 ( ALLPIECES, position ) != 0 );
 #endif
-      x = inv_raw_leftCAT_45[rotate_board_left_45 ( ALLPIECES, position )][position] & enemies;
+      x = inv_raw_leftCAPT_45[rotate_board_left_45 ( ALLPIECES, position )]
+	[position] & enemies;
 #ifdef DEBUG_MODE
       assert ( x != -1 );
 #endif
@@ -193,9 +205,10 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
 	assert ( 0 );
       }
 #endif
-      x |= inv_raw_rightCAT_45[rotate_board_right_45 ( ALLPIECES, position )][position] & enemies;
+      x |= inv_raw_rightCAPT_45[rotate_board_right_45 ( ALLPIECES, position )]
+	[position] & enemies;
 #ifdef DEBUG_MODE
-      assert ( ( inv_raw_rightCAT_45[rotate_board_right_45 ( ALLPIECES, position )][position] & enemies ) != -1 );
+      assert ( ( inv_raw_rightCAPT_45[rotate_board_right_45 ( ALLPIECES, position )][position] & enemies ) != -1 );
 #endif
     };
 
@@ -241,6 +254,8 @@ performKnight_Shift_Capture ( const int tipomove, const int pezzo, const u64 pie
   return 0;
 };
 
+
+
 int
 performKing_Shift_Capture ( const int tipomove, const int pezzo, const u64 pieces, const int SIDE ) {
 #ifdef DEBUG_MODE
@@ -264,6 +279,7 @@ performKing_Shift_Capture ( const int tipomove, const int pezzo, const u64 piece
 
 int
 generateCap ( const int tipomove, const int SIDE ) {
+
 #ifdef DEBUG_MODE
   check_side ( SIDE );
 #endif
@@ -274,15 +290,19 @@ generateCap ( const int tipomove, const int SIDE ) {
   u64 ALLPIECES = square_all_bit_occupied (  );
   u64 enemies = square_bit_occupied ( ( SIDE ^ 1 ) );
   if ( SIDE == BLACK ) {
-
     if ( performPawnCapture ( tipomove, enemies, SIDE ) )
       return 1;
-    if ( chessboard[KNIGHT_BLACK] )
+    if ( chessboard[KNIGHT_BLACK] ) {
+
       if ( performKnight_Shift_Capture ( tipomove, KNIGHT_BLACK, enemies, SIDE ) )
 	return 1;
-    if ( chessboard[BISHOP_BLACK] )
+    };
+    if ( chessboard[BISHOP_BLACK] ) {
+
       if ( performBishopCapture ( tipomove, BISHOP_BLACK, enemies, SIDE, ALLPIECES ) )
 	return 1;
+    };
+
     if ( chessboard[ROOK_BLACK] )
       if ( performTowerQueenCapture ( tipomove, ROOK_BLACK, enemies, SIDE, ALLPIECES ) )
 	return 1;

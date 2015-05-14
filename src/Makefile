@@ -3,7 +3,7 @@ OBJ  = cap.o eval.o butterfly.o gen.o openbook.o search.o test.o utility.o winbo
 LINKOBJ  = cap.o eval.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o
 LIBS =  -lpthread 
 BIN  = butterfly
-CXXFLAGS = -DNULL_MOVEx -DFP_MODEx -DPERFT_MODEx -DHASH_MODEx -DHAS_64BITSx -DTEST_MODEx -DDEBUG_MODEx  -w  -fno-strict-aliasing -O3
+CXXFLAGS = -DNULL_MODEx -DFP_MODEx -DPERFT_MODEx -DHASH_MODEx -DHAS_64BITSx -DTEST_MODEx -DDEBUG_MODEx  -w  -fno-strict-aliasing -O3
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
