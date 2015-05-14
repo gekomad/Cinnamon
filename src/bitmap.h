@@ -38,8 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define  FILE_7 0x8080808080808080ULL
 
 
-const char COLORS[64] = {
-  WHITE, BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK, BLACK, WHITE,
+const char COLORS[64] = { WHITE, BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK, BLACK, WHITE,
   BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, WHITE, BLACK, WHITE, BLACK,
   WHITE, BLACK, WHITE, BLACK, BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK,
   WHITE, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK,
@@ -48,14 +47,12 @@ const char COLORS[64] = {
   BLACK, WHITE, BLACK, WHITE
 };
 
-const u64 RANK[8] = {
-  0xFFULL, RANK_1, 0xFF0000ULL, RANK_3, RANK_4, 0xFF0000000000ULL, RANK_6,
+const u64 RANK[8] = { 0xFFULL, RANK_1, 0xFF0000ULL, RANK_3, RANK_4, 0xFF0000000000ULL, RANK_6,
   0xFF00000000000000ULL
 };
 
 const u64 LINK_TOWERS[64][64] = {
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2ULL, 0x6ULL, 0xeULL, 0x1eULL, 0x3eULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2ULL, 0x6ULL, 0xeULL, 0x1eULL, 0x3eULL,
    0x7eULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -79,8 +76,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4ULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4ULL,
    0xcULL, 0x1cULL,
    0x3cULL, 0x7cULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
@@ -104,8 +100,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2020202020200ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0x2ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0x2ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x8ULL, 0x18ULL,
    0x38ULL, 0x78ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
@@ -129,8 +124,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x4040404040400ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0x6ULL, 0x4ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0x6ULL, 0x4ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x10ULL,
    0x30ULL, 0x70ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
@@ -154,8 +148,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x8080808080800ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xeULL, 0xcULL, 0x8ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xeULL, 0xcULL, 0x8ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0x20ULL, 0x60ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
@@ -180,8 +173,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x10101010101000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0x1eULL, 0x1cULL, 0x18ULL, 0x10ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0x1eULL, 0x1cULL, 0x18ULL, 0x10ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x40ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -205,8 +197,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x20202020202000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL},
-  {
-   0x3eULL, 0x3cULL, 0x38ULL, 0x30ULL, 0x20ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0x3eULL, 0x3cULL, 0x38ULL, 0x30ULL, 0x20ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -230,8 +221,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40404040404000ULL,
    0xffffffffffffffffULL},
-  {
-   0x7eULL, 0x7cULL, 0x78ULL, 0x70ULL, 0x60ULL, 0x40ULL, 0xffffffffffffffffULL,
+  {0x7eULL, 0x7cULL, 0x78ULL, 0x70ULL, 0x60ULL, 0x40ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -255,8 +245,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x80808080808000ULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x200ULL, 0x600ULL, 0xe00ULL, 0x1e00ULL, 0x3e00ULL, 0x7e00ULL,
@@ -279,8 +268,7 @@ const u64 LINK_TOWERS[64][64] = {
    0x1010101010000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x400ULL, 0xc00ULL, 0x1c00ULL, 0x3c00ULL,
@@ -304,8 +292,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0x2020202020000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x200ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x800ULL, 0x1800ULL, 0x3800ULL,
@@ -330,8 +317,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x600ULL, 0x400ULL,
    0xffffffffffffffffULL,
@@ -355,8 +341,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x8080808080000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xe00ULL, 0xc00ULL, 0x800ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -380,8 +365,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x10101010100000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x1e00ULL, 0x1c00ULL, 0x1800ULL,
    0x1000ULL,
@@ -406,8 +390,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x20202020200000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x3e00ULL, 0x3c00ULL, 0x3800ULL,
    0x3000ULL,
@@ -432,8 +415,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x40404040400000ULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x7e00ULL, 0x7c00ULL, 0x7800ULL,
    0x7000ULL,
@@ -458,8 +440,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x80808080800000ULL},
-  {
-   0x100ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0x100ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -481,8 +462,7 @@ const u64 LINK_TOWERS[64][64] = {
    0x1010101000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0x200ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0x200ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -505,8 +485,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2020202000000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x400ULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x400ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -530,8 +509,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4040404000000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x800ULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x800ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -555,8 +533,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x8080808000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x1000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -580,8 +557,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x10101010000000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2000ULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -606,8 +582,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x20202020000000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x4000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -631,8 +606,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x40404040000000ULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x8000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
@@ -656,8 +630,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x80808080000000ULL},
-  {
-   0x10100ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0x10100ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x10000ULL, 0xffffffffffffffffULL,
@@ -681,8 +654,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0x1010100000000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0x20200ULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0x20200ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x20000ULL,
@@ -706,8 +678,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2020200000000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40400ULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40400ULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -731,8 +702,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x4040400000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x80800ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -756,8 +726,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x8080800000000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x101000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -781,8 +750,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x10101000000000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x202000ULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -806,8 +774,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x20202000000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x404000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -831,8 +798,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x40404000000000ULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x808000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
@@ -855,8 +821,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x80808000000000ULL},
-  {
-   0x1010100ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0x1010100ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x1010000ULL, 0xffffffffffffffffULL,
@@ -879,8 +844,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0x1010000000000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0x2020200ULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0x2020200ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2020000ULL,
@@ -904,8 +868,7 @@ const u64 LINK_TOWERS[64][64] = {
    0x2020000000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4040400ULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4040400ULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -929,8 +892,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x4040000000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x8080800ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -954,8 +916,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x8080000000000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x10101000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -979,8 +940,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x10100000000000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x20202000ULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1004,8 +964,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x20200000000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x40404000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1029,8 +988,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40400000000000ULL,
    0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x80808000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
@@ -1054,8 +1012,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x80800000000000ULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x101010000ULL,
    0xffffffffffffffffULL,
@@ -1080,8 +1037,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL},
-  {
-   0x101010100ULL, 0x202020200ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0x101010100ULL, 0x202020200ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x202020000ULL,
    0xffffffffffffffffULL,
@@ -1105,8 +1061,7 @@ const u64 LINK_TOWERS[64][64] = {
    0x2000000000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x404040400ULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x404040400ULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1131,8 +1086,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x4000000000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x808080800ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1157,8 +1111,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x8000000000000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x1010101000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1183,8 +1136,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x10000000000000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2020202000ULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1209,8 +1161,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x20000000000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x4040404000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1235,8 +1186,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40000000000000ULL,
    0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x8080808000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
@@ -1261,8 +1211,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x80000000000000ULL},
-  {
-   0x10101010100ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0x10101010100ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x10101010000ULL, 0xffffffffffffffffULL,
@@ -1287,8 +1236,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0x20202020200ULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0x20202020200ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x20202020000ULL,
@@ -1313,8 +1261,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40404040400ULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40404040400ULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1340,8 +1287,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x80808080800ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1367,8 +1313,7 @@ const u64 LINK_TOWERS[64][64] = {
    0x70000000000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x101010101000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1393,8 +1338,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x202020202000ULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1420,8 +1364,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x404040404000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1447,8 +1390,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x808080808000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
@@ -1474,8 +1416,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-  {
-   0x10101010100ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0x10101010100ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x1010101010000ULL, 0xffffffffffffffffULL,
@@ -1497,8 +1438,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x200000000000000ULL, 0x600000000000000ULL, 0xe00000000000000ULL,
    0x1e00000000000000ULL, 0x3e00000000000000ULL, 0x7e00000000000000ULL},
-  {
-   0xffffffffffffffffULL, 0x2020202020200ULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0x2020202020200ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x2020202020000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1520,8 +1460,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x400000000000000ULL,
    0xc00000000000000ULL, 0x1c00000000000000ULL, 0x3c00000000000000ULL,
    0x7c00000000000000ULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4040404040400ULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4040404040400ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x40404040000ULL, 0xffffffffffffffffULL,
@@ -1543,8 +1482,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xffffffffffffffffULL, 0x200000000000000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x800000000000000ULL,
    0x1800000000000000ULL, 0x3800000000000000ULL, 0x7800000000000000ULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x8080808080800ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x8080808080000ULL,
@@ -1566,8 +1504,7 @@ const u64 LINK_TOWERS[64][64] = {
    0x400000000000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x1000000000000000ULL, 0x3000000000000000ULL,
    0x7000000000000000ULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x10101010101000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1589,8 +1526,7 @@ const u64 LINK_TOWERS[64][64] = {
    0xc00000000000000ULL, 0x800000000000000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2000000000000000ULL,
    0x6000000000000000ULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x20202020202000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1612,8 +1548,7 @@ const u64 LINK_TOWERS[64][64] = {
    0x1c00000000000000ULL, 0x1800000000000000ULL, 0x1000000000000000ULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x4000000000000000ULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0x40404040404000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1635,8 +1570,7 @@ const u64 LINK_TOWERS[64][64] = {
    0x3c00000000000000ULL, 0x3800000000000000ULL, 0x3000000000000000ULL,
    0x2000000000000000ULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL},
-  {
-   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+  {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0x80808080808000ULL, 0xffffffffffffffffULL,
    0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1662,8 +1596,7 @@ const u64 LINK_TOWERS[64][64] = {
 }
 
 ;
-const u64 QUADRANTS[64] = {
-  0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0F0ULL, 0xF0F0F0F0ULL,
+const u64 QUADRANTS[64] = { 0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0F0ULL, 0xF0F0F0F0ULL,
   0xF0F0F0F0ULL, 0xF0F0F0F0ULL, 0xF0F0F0FULL,
   0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0F0ULL, 0xF0F0F0F0ULL, 0xF0F0F0F0ULL,
   0xF0F0F0F0ULL, 0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0FULL, 0xF0F0F0F0ULL,
@@ -1683,8 +1616,7 @@ const u64 QUADRANTS[64] = {
   0xF0F0F0F000000000ULL
 };
 #endif
-const u64 VERT_ORIZZ[64] = {
-  0x1010101010101feULL, 0x2020202020202fdULL, 0x4040404040404fbULL,
+const u64 VERT_ORIZZ[64] = { 0x1010101010101feULL, 0x2020202020202fdULL, 0x4040404040404fbULL,
   0x8080808080808f7ULL, 0x10101010101010efULL, 0x20202020202020dfULL,
   0x40404040404040bfULL, 0x808080808080807fULL,
   0x10101010101fe01ULL, 0x20202020202fd02ULL, 0x40404040404fb04ULL,
@@ -1721,8 +1653,7 @@ const u64 VERT_ORIZZ[64] = {
 #define ORIZZONTAL_8 0xff00
 #define ORIZZONTAL_48 0xff000000000000ULL
 
-const uchar pos_posMod8[64] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16, 16,
+const uchar pos_posMod8[64] = { 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16, 16,
   16, 16, 24, 24, 24, 24, 24, 24, 24, 24,
   32, 32, 32, 32, 32, 32, 32, 32, 40, 40, 40, 40, 40, 40, 40, 40, 48, 48, 48,
   48, 48, 48, 48, 48, 56, 56, 56, 56, 56, 56, 56, 56
@@ -1924,8 +1855,7 @@ const char IN_LINEA[64][64] =
 0, 0, 4, 2, 1, 1, 1, 1, 1, 1, 1, 2}
 };
 */
-const u64 ORIZZONTAL[64] = {
-  ORIZZONTAL_0, 0xffULL, 0xffULL, 0xffULL, 0xffULL, 0xffULL, 0xffULL,
+const u64 ORIZZONTAL[64] = { ORIZZONTAL_0, 0xffULL, 0xffULL, 0xffULL, 0xffULL, 0xffULL, 0xffULL,
   ORIZZONTAL_7,
   ORIZZONTAL_8, 0xff00ULL, 0xff00ULL, 0xff00ULL, 0xff00ULL, 0xff00ULL,
   0xff00ULL, 0xff00ULL,
@@ -1949,8 +1879,7 @@ const u64 ORIZZONTAL[64] = {
   0xff00000000000000ULL, 0xff00000000000000ULL
 };
 
-const u64 RIGHT[64] = {
-  0x8040201008040200ULL, 0x80402010080400ULL, 0x804020100800ULL,
+const u64 RIGHT[64] = { 0x8040201008040200ULL, 0x80402010080400ULL, 0x804020100800ULL,
   0x8040201000ULL,
   0x80402000ULL, 0x804000ULL, 0x8000ULL, 0x0ULL, 0x4020100804020000ULL,
   0x8040201008040001ULL, 0x80402010080002ULL, 0x804020100004ULL,
@@ -1976,8 +1905,7 @@ const u64 RIGHT[64] = {
   0x10080402010000ULL, 0x20100804020100ULL, 0x40201008040201ULL
 };
 
-const u64 LEFT[64] = {
-  0x0ULL, 0x100ULL, 0x10200ULL, 0x1020400ULL, 0x102040800ULL,
+const u64 LEFT[64] = { 0x0ULL, 0x100ULL, 0x10200ULL, 0x1020400ULL, 0x102040800ULL,
   0x10204081000ULL,
   0x1020408102000ULL, 0x102040810204000ULL, 0x2ULL, 0x10004ULL, 0x1020008ULL,
   0x102040010ULL,
@@ -2011,8 +1939,7 @@ const u64 LEFT[64] = {
   0x0ULL
 };
 
-const uchar ROT45ROT_90_MASK[64] = {
-  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1,
+const uchar ROT45ROT_90_MASK[64] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1,
   0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x2, 0x2, 0x2, 0x2,
   0x2, 0x2, 0x2, 0x2, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3,
   0x3, 0x3, 0x4, 0x4, 0x4, 0x4, 0x4, 0x4, 0x4, 0x4,
@@ -2022,8 +1949,7 @@ const uchar ROT45ROT_90_MASK[64] = {
 };
 
 
-const u64 LEFT_RIGHT[64] = {
-  LEFT[0] | RIGHT[0], LEFT[1] | RIGHT[1], LEFT[2] | RIGHT[2],
+const u64 LEFT_RIGHT[64] = { LEFT[0] | RIGHT[0], LEFT[1] | RIGHT[1], LEFT[2] | RIGHT[2],
   LEFT[3] | RIGHT[3], LEFT[4] | RIGHT[4], LEFT[5] | RIGHT[5],
   LEFT[6] | RIGHT[6], LEFT[7] | RIGHT[7],
   LEFT[8] | RIGHT[8], LEFT[9] | RIGHT[9],
@@ -2049,8 +1975,7 @@ const u64 LEFT_RIGHT[64] = {
 };
 
 #ifndef PERFT_MODE
-const u64 BIG_DIAG_LEFT[64] = {
-  0x8040201008040200ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
+const u64 BIG_DIAG_LEFT[64] = { 0x8040201008040200ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
   0x0ULL, 0x0ULL,
   0x8040201008040001ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
   0x0ULL, 0x0ULL,
@@ -2066,8 +1991,7 @@ const u64 BIG_DIAG_LEFT[64] = {
   0x40201008040201ULL
 };
 
-const u64 BIG_DIAG_RIGHT[64] = {
-  0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
+const u64 BIG_DIAG_RIGHT[64] = { 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
   0x102040810204000ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
   0x0ULL, 0x0ULL, 0x102040810200080ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
   0x0ULL, 0x0ULL,
@@ -2082,63 +2006,51 @@ const u64 BIG_DIAG_RIGHT[64] = {
 };
 
 const uchar MOVE_ORDER[12][64] = {
-  {
-   90, 90, 100, 100, 100, 100, 90, 90, 50, 60, 60, 70, 70, 60, 60, 50, 30, 42,
+  {90, 90, 100, 100, 100, 100, 90, 90, 50, 60, 60, 70, 70, 60, 60, 50, 30, 42,
    42, 50, 50, 42, 42, 30, 20, 32, 32, 40, 40, 32, 32, 20, 10, 22, 22, 30, 30,
    22, 22, 10, 5, 11, 11, 15, 15, 11, 11, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0},
-  {
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 11, 11, 15, 15, 11, 11,
+  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 11, 11, 15, 15, 11, 11,
    5, 10, 22, 22, 30, 30, 22, 22, 10, 20, 32, 32, 40, 40, 32, 32, 20, 30, 42,
    42, 50, 50, 42, 42, 30, 50, 60, 60, 70, 70, 60, 60, 50, 90, 90, 100, 100,
    100, 100, 90, 90},
-  {
-   0, 10, 10, 20, 20, 20, 10, 0, 10, 24, 24, 26, 26, 26, 24, 10, 10, 28, 28,
+  {0, 10, 10, 20, 20, 20, 10, 0, 10, 24, 24, 26, 26, 26, 24, 10, 10, 28, 28,
    50, 50, 40, 28, 10, 10, 23, 23, 40, 40, 36, 23, 10, 10, 22, 22, 30, 30, 28,
    22, 10, 0, 26, 26, 30, 30, 26, 26, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 0,
    15, 15, 15, 15, 5, 0},
-  {
-   0, 0, 15, 15, 15, 15, 5, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 26, 26, 30,
+  {0, 0, 15, 15, 15, 15, 5, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 26, 26, 30,
    30, 26, 26, 0, 10, 22, 22, 30, 30, 28, 22, 10, 10, 23, 23, 40, 40, 36, 23,
    10, 10, 28, 28, 50, 50, 40, 28, 10, 10, 24, 24, 26, 26, 26, 24, 10, 0, 10,
    10, 20, 20, 20, 10, 0},
-  {
-   0, 10, 10, 20, 20, 20, 10, 0, 10, 24, 24, 26, 26, 26, 24, 10, 10, 28, 28,
+  {0, 10, 10, 20, 20, 20, 10, 0, 10, 24, 24, 26, 26, 26, 24, 10, 10, 28, 28,
    50, 50, 40, 28, 10, 10, 23, 23, 40, 40, 36, 23, 10, 10, 22, 22, 30, 30, 28,
    22, 10, 0, 26, 26, 30, 30, 26, 26, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 0,
    15, 15, 15, 15, 5, 0},
-  {
-   0, 0, 15, 15, 15, 15, 5, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 26, 26, 30,
+  {0, 0, 15, 15, 15, 15, 5, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 26, 26, 30,
    30, 26, 26, 0, 10, 22, 22, 30, 30, 28, 22, 10, 10, 23, 23, 40, 40, 36, 23,
    10, 10, 28, 28, 50, 50, 40, 28, 10, 10, 24, 24, 26, 26, 26, 24, 10, 0, 10,
    10, 20, 20, 20, 10, 0},
-  {
-   0, 10, 10, 20, 20, 20, 10, 0, 10, 24, 24, 26, 26, 26, 24, 10, 10, 28, 28,
+  {0, 10, 10, 20, 20, 20, 10, 0, 10, 24, 24, 26, 26, 26, 24, 10, 10, 28, 28,
    50, 50, 40, 28, 10, 10, 23, 23, 40, 40, 36, 23, 10, 10, 22, 22, 30, 30, 28,
    22, 10, 0, 26, 26, 30, 30, 26, 26, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 0,
    15, 15, 15, 15, 5, 0},
-  {
-   0, 0, 15, 15, 15, 15, 5, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 26, 26, 30,
+  {0, 0, 15, 15, 15, 15, 5, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 26, 26, 30,
    30, 26, 26, 0, 10, 22, 22, 30, 30, 28, 22, 10, 10, 23, 23, 40, 40, 36, 23,
    10, 10, 28, 28, 50, 50, 40, 28, 10, 10, 24, 24, 26, 26, 26, 24, 10, 0, 10,
    10, 20, 20, 20, 10, 0},
-  {
-   0, 10, 10, 20, 20, 20, 10, 0, 10, 24, 24, 26, 26, 26, 24, 10, 10, 28, 28,
+  {0, 10, 10, 20, 20, 20, 10, 0, 10, 24, 24, 26, 26, 26, 24, 10, 10, 28, 28,
    50, 50, 40, 28, 10, 10, 23, 23, 40, 40, 36, 23, 10, 10, 22, 22, 30, 30, 28,
    22, 10, 0, 26, 26, 30, 30, 26, 26, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 0,
    15, 15, 15, 15, 5, 0},
-  {
-   0, 0, 15, 15, 15, 15, 5, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 26, 26, 30,
+  {0, 0, 15, 15, 15, 15, 5, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 26, 26, 30,
    30, 26, 26, 0, 10, 22, 22, 30, 30, 28, 22, 10, 10, 23, 23, 40, 40, 36, 23,
    10, 10, 28, 28, 50, 50, 40, 28, 10, 10, 24, 24, 26, 26, 26, 24, 10, 0, 10,
    10, 20, 20, 20, 10, 0},
-  {
-   0, 10, 10, 20, 20, 20, 10, 0, 10, 24, 24, 26, 26, 26, 24, 10, 10, 28, 28,
+  {0, 10, 10, 20, 20, 20, 10, 0, 10, 24, 24, 26, 26, 26, 24, 10, 10, 28, 28,
    50, 50, 40, 28, 10, 10, 23, 23, 40, 40, 36, 23, 10, 10, 22, 22, 30, 30, 28,
    22, 10, 0, 26, 26, 30, 30, 26, 26, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 0,
    15, 15, 15, 15, 5, 0},
-  {
-   0, 0, 15, 15, 15, 15, 5, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 26, 26, 30,
+  {0, 0, 15, 15, 15, 15, 5, 0, 5, 20, 20, 20, 23, 20, 20, 5, 0, 26, 26, 30,
    30, 26, 26, 0, 10, 22, 22, 30, 30, 28, 22, 10, 10, 23, 23, 40, 40, 36, 23,
    10, 10, 28, 28, 50, 50, 40, 28, 10, 10, 24, 24, 26, 26, 26, 24, 10, 0, 10,
    10, 20, 20, 20, 10, 0}
@@ -2383,8 +2295,7 @@ const u64 PAWNS_7_2[2] = { 0xFF000000000000ULL, 0xFF00ULL };
 
 
 
-const u64 VERTICAL[64] = {
-  VERTICAL_0, VERTICAL_1, VERTICAL_2, VERTICAL_3, VERTICAL_4,
+const u64 VERTICAL[64] = { VERTICAL_0, VERTICAL_1, VERTICAL_2, VERTICAL_3, VERTICAL_4,
   VERTICAL_5, VERTICAL_6, VERTICAL_7, VERTICAL_8, VERTICAL_9, VERTICAL_10,
   VERTICAL_11,
   VERTICAL_12, VERTICAL_13, VERTICAL_14, VERTICAL_15, VERTICAL_16,
@@ -2405,16 +2316,14 @@ const u64 VERTICAL[64] = {
 };
 
 
-const char ROT45[64] = {
-  0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0,
+const char ROT45[64] = { 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0,
   1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1,
   2, 3, 4, 5, 6, 7,
   0, 1, 2, 3, 4, 5, 6, 7
 };
 
 
-const u64 RIGHT_BOUND[64] = {
-  0x200ULL, 0x400ULL, 0x800ULL, 0x1000ULL, 0x2000ULL, 0x4000ULL, 0x8000ULL,
+const u64 RIGHT_BOUND[64] = { 0x200ULL, 0x400ULL, 0x800ULL, 0x1000ULL, 0x2000ULL, 0x4000ULL, 0x8000ULL,
   0x0ULL, 0x20000ULL,
   0x40001ULL, 0x80002ULL, 0x100004ULL, 0x200008ULL, 0x400010ULL, 0x800020ULL,
   0x40ULL, 0x2000000ULL,
@@ -2441,8 +2350,7 @@ const u64 RIGHT_BOUND[64] = {
   0x10000000000000ULL, 0x20000000000000ULL, 0x40000000000000ULL
 };
 
-const u64 LEFT_BOUND[64] = {
-  0x0ULL, 0x100ULL, 0x200ULL, 0x400ULL, 0x800ULL, 0x1000ULL, 0x2000ULL,
+const u64 LEFT_BOUND[64] = { 0x0ULL, 0x100ULL, 0x200ULL, 0x400ULL, 0x800ULL, 0x1000ULL, 0x2000ULL,
   0x4000ULL, 0x2ULL, 0x10004ULL,
   0x20008ULL, 0x40010ULL, 0x80020ULL, 0x100040ULL, 0x200080ULL, 0x400000ULL,
   0x200ULL, 0x1000400ULL,
@@ -2470,8 +2378,7 @@ const u64 LEFT_BOUND[64] = {
 };
 
 
-const u64 VERT_BOUND[64] = {
-  0x100ULL, 0x200ULL, 0x400ULL, 0x800ULL, 0x1000ULL, 0x2000ULL, 0x4000ULL,
+const u64 VERT_BOUND[64] = { 0x100ULL, 0x200ULL, 0x400ULL, 0x800ULL, 0x1000ULL, 0x2000ULL, 0x4000ULL,
   0x8000ULL, 0x10001ULL,
   0x20002ULL, 0x40004ULL, 0x80008ULL, 0x100010ULL, 0x200020ULL, 0x400040ULL,
   0x800080ULL,
@@ -2499,8 +2406,7 @@ const u64 VERT_BOUND[64] = {
   0x80000000000000ULL
 };
 
-const u64 ORIZZ_BOUND[64] = {
-  0x2ULL, 0x5ULL, 0xaULL, 0x14ULL, 0x28ULL, 0x50ULL, 0xa0ULL, 0x40ULL,
+const u64 ORIZZ_BOUND[64] = { 0x2ULL, 0x5ULL, 0xaULL, 0x14ULL, 0x28ULL, 0x50ULL, 0xa0ULL, 0x40ULL,
   0x200ULL, 0x500ULL, 0xa00ULL, 0x1400ULL,
   0x2800ULL, 0x5000ULL, 0xa000ULL, 0x4000ULL, 0x20000ULL, 0x50000ULL,
   0xa0000ULL, 0x140000ULL,
@@ -2528,8 +2434,7 @@ const u64 ORIZZ_BOUND[64] = {
 
 #ifndef PERFT_MODE
 const u64 BACKWARD_MASK[2][64] = {
-  {
-   0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
+  {0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
    131584ULL, 328960ULL, 657920ULL, 1315840ULL, 2631680ULL, 5263360ULL,
    10526720ULL, 4210688ULL,
    33685504ULL, 84213760ULL, 168427520ULL, 336855040ULL, 673710080ULL,
@@ -2551,8 +2456,7 @@ const u64 BACKWARD_MASK[2][64] = {
    18014398509481984ULL,
    0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0},
 
-  {
-   0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
+  {0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
    512ULL, 1280ULL, 2560ULL, 5120ULL, 10240ULL, 20480ULL, 40960ULL, 16384ULL,
    131584ULL, 328960ULL, 657920ULL, 1315840ULL, 2631680ULL, 5263360ULL,
    10526720ULL, 4210688ULL,
@@ -2573,8 +2477,7 @@ const u64 BACKWARD_MASK[2][64] = {
 };
 
 const u64 PASSATO_MASK[2][64] = {
-  {
-   0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x3ULL,
+  {0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x3ULL,
    0x7ULL, 0xeULL, 0x1cULL, 0x38ULL, 0x70ULL,
    0xe0ULL, 0xc0ULL, 0x303ULL, 0x707ULL,
    0xe0eULL, 0x1c1cULL, 0x3838ULL, 0x7070ULL, 0xe0e0ULL, 0xc0c0ULL,
@@ -2593,8 +2496,7 @@ const u64 PASSATO_MASK[2][64] = {
    0xe0e0e0e0e0e0ULL,
    0xc0c0c0c0c0c0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
    0x0},
-  {
-   0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
+  {0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
    0x303030303030000ULL, 0x707070707070000ULL, 0xe0e0e0e0e0e0000ULL,
    0x1c1c1c1c1c1c0000ULL,
@@ -2624,8 +2526,7 @@ const u64 PASSATO_MASK[2][64] = {
    0x0ULL, 0x0ULL, 0x0ULL, 0x0}
 };
 
-const u64 ISOLATED_MASK[64] = {
-  0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL,
+const u64 ISOLATED_MASK[64] = { 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL,
   0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL,
   0xA0A0A0A0A0A0A0A0ULL,
   0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL,
@@ -2656,8 +2557,7 @@ const u64 ISOLATED_MASK[64] = {
 };
 #endif
 
-const u64 TABLOG[64] = {
-  TABLOG_0, TABLOG_1, TABLOG_2, TABLOG_3, TABLOG_4, TABLOG_5, TABLOG_6,
+const u64 TABLOG[64] = { TABLOG_0, TABLOG_1, TABLOG_2, TABLOG_3, TABLOG_4, TABLOG_5, TABLOG_6,
   TABLOG_7, TABLOG_8, TABLOG_9, TABLOG_10, TABLOG_11, TABLOG_12, TABLOG_13,
   TABLOG_14, TABLOG_15,
   TABLOG_16, TABLOG_17, TABLOG_18, TABLOG_19, TABLOG_20, TABLOG_21, TABLOG_22,
@@ -2674,8 +2574,7 @@ const u64 TABLOG[64] = {
   TABLOG_63
 };
 
-const u64 NOTTABLOG[64] = {
-  NOTTABLOG_0, NOTTABLOG_1, NOTTABLOG_2, NOTTABLOG_3, NOTTABLOG_4,
+const u64 NOTTABLOG[64] = { NOTTABLOG_0, NOTTABLOG_1, NOTTABLOG_2, NOTTABLOG_3, NOTTABLOG_4,
   NOTTABLOG_5, NOTTABLOG_6, NOTTABLOG_7, NOTTABLOG_8, NOTTABLOG_9,
   NOTTABLOG_10, NOTTABLOG_11,
   NOTTABLOG_12, NOTTABLOG_13, NOTTABLOG_14, NOTTABLOG_15, NOTTABLOG_16,
@@ -2827,8 +2726,7 @@ const char ROT_90_MASK[64] = {
 };
 
 
-const char ROT_90_INV_MASK[64] = {
-  7, 15, 23, 31, 39, 47, 55, 63, 6, 14, 22, 30, 38, 46, 54, 62, 5, 13, 21,
+const char ROT_90_INV_MASK[64] = { 7, 15, 23, 31, 39, 47, 55, 63, 6, 14, 22, 30, 38, 46, 54, 62, 5, 13, 21,
   29, 37, 45, 53, 61, 4, 12, 20, 28,
   36, 44, 52, 60, 3, 11, 19, 27, 35, 43, 51, 59, 2, 10, 18, 26, 34, 42, 50,
   58, 1, 9, 17, 25, 33, 41, 49, 57,
@@ -2847,8 +2745,7 @@ const uchar MOVES_BISHOP_LEFT_MASK[64] = { 1, 3, 7, 15, 31, 63, 127, 255,
 };
 
 
-const uchar MOVES_BISHOP_RIGHT_MASK[64] = {
-  255, 254, 252, 248, 240, 224, 192, 128,
+const uchar MOVES_BISHOP_RIGHT_MASK[64] = { 255, 254, 252, 248, 240, 224, 192, 128,
   127, 255, 254, 252, 248, 240, 224, 192,
   63, 127, 255, 254, 252, 248, 240, 224,
   31, 63, 127, 255, 254, 252, 248, 240,
@@ -3002,263 +2899,198 @@ const char PASSATO[2][64] = {
 
 const char ISOLATED[8] = { 12, 14, 16, 20, 20, 16, 14, 12 };
 
-const char DISTANCE[64][64] = {
-  {
-   8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1,
-   8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1,
-   8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
-  {
-   7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
-   7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
-   5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
-  {
-   6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
-   8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
-   6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
-  {
-   5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
-   7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
-   7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
-  {
-   4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
-   6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
-   8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
-  {
-   3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
-   5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
-   7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
-  {
-   2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
-   4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
-   6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
-  {
-   1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
-   3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
-   5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
-  {
-   8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
-   6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
-   4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
-  {
-   7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
-   7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
-   5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
-  {
-   6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
-   8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
-   6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
-  {
-   5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
-   7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
-   7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
-  {
-   4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
-   6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
-   8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
-  {
-   3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
-   5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
-   7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
-  {
-   2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
-   4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
-   6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
-  {
-   1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
-   3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
-   5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
-  {
-   8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
-   6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
-   4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
-  {
-   7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
-   7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
-   5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
-  {
-   6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
-   8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
-   6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
-  {
-   5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
-   7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
-   7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
-  {
-   4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
-   6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
-   8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
-  {
-   3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
-   5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
-   7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
-  {
-   2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
-   4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
-   6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
-  {
-   1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
-   3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
-   5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
-  {
-   8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
-   6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
-   4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
-  {
-   7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
-   7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
-   5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
-  {
-   6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
-   8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
-   6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
-  {
-   5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
-   7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
-   7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
-  {
-   4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
-   6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
-   8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
-  {
-   3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
-   5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
-   7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
-  {
-   2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
-   4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
-   6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
-  {
-   1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
-   3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
-   5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
-  {
-   8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
-   6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
-   4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
-  {
-   7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
-   7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
-   5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
-  {
-   6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
-   8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
-   6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
-  {
-   5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
-   7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
-   7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
-  {
-   4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
-   6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
-   8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
-  {
-   3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
-   5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
-   7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
-  {
-   2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
-   4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
-   6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
-  {
-   1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
-   3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
-   5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
-  {
-   8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
-   6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
-   4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
-  {
-   7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
-   7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
-   5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
-  {
-   6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
-   8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
-   6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
-  {
-   5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
-   7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
-   7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
-  {
-   4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
-   6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
-   8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
-  {
-   3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
-   5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
-   7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
-  {
-   2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
-   4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
-   6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
-  {
-   1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
-   3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
-   5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
-  {
-   8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
-   6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
-   4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
-  {
-   7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
-   7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
-   5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
-  {
-   6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
-   8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
-   6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
-  {
-   5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
-   7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
-   7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
-  {
-   4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
-   6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
-   8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
-  {
-   3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
-   5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
-   7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
-  {
-   2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
-   4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
-   6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
-  {
-   1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
-   3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
-   5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
-  {
-   8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
-   6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
-   4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
-  {
-   7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
-   7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
-   5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
-  {
-   6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
-   8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
-   6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
-  {
-   5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
-   7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
-   7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
-  {
-   4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
-   6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
-   8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
-  {
-   3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
-   5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
-   7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
-  {
-   2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
-   4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
-   6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
-  {
-   1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
-   3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
-   5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8}
+const char DISTANCE[64][64] = { {8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1,
+				 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1,
+				 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
+{7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
+ 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
+ 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
+{6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
+ 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
+ 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
+{5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
+ 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
+ 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
+{4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
+ 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
+ 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
+{3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
+ 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
+ 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
+{2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
+ 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
+ 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
+{1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
+ 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
+ 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
+{8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
+ 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
+ 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
+{7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
+ 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
+ 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
+{6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
+ 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
+ 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
+{5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
+ 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
+ 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
+{4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
+ 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
+ 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
+{3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
+ 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
+ 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
+{2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
+ 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
+ 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
+{1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
+ 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
+ 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
+{8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
+ 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
+ 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
+{7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
+ 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
+ 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
+{6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
+ 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
+ 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
+{5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
+ 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
+ 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
+{4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
+ 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
+ 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
+{3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
+ 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
+ 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
+{2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
+ 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
+ 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
+{1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
+ 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
+ 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
+{8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
+ 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
+ 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
+{7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
+ 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
+ 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
+{6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
+ 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
+ 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
+{5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
+ 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
+ 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
+{4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
+ 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
+ 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
+{3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
+ 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
+ 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
+{2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
+ 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
+ 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
+{1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
+ 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
+ 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
+{8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
+ 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
+ 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
+{7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
+ 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
+ 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
+{6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
+ 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
+ 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
+{5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
+ 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
+ 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
+{4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
+ 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
+ 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
+{3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
+ 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
+ 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
+{2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
+ 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
+ 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
+{1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
+ 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
+ 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
+{8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
+ 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
+ 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
+{7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
+ 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
+ 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
+{6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
+ 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
+ 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
+{5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
+ 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
+ 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
+{4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
+ 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
+ 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
+{3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
+ 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
+ 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
+{2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
+ 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
+ 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
+{1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
+ 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
+ 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
+{8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
+ 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
+ 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
+{7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
+ 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
+ 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
+{6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
+ 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
+ 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
+{5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
+ 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
+ 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
+{4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
+ 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
+ 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
+{3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
+ 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
+ 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
+{2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
+ 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
+ 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
+{1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
+ 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
+ 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8},
+{8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7,
+ 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5,
+ 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1},
+{7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8,
+ 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2, 7, 8, 7, 6,
+ 5, 4, 3, 2, 7, 8, 7, 6, 5, 4, 3, 2},
+{6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7,
+ 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3, 6, 7, 8, 7,
+ 6, 5, 4, 3, 6, 7, 8, 7, 6, 5, 4, 3},
+{5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6,
+ 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8,
+ 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4},
+{4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5,
+ 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5, 4, 5, 6, 7,
+ 8, 7, 6, 5, 4, 5, 6, 7, 8, 7, 6, 5},
+{3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4,
+ 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6, 3, 4, 5, 6,
+ 7, 8, 7, 6, 3, 4, 5, 6, 7, 8, 7, 6},
+{2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3,
+ 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7, 2, 3, 4, 5,
+ 6, 7, 8, 7, 2, 3, 4, 5, 6, 7, 8, 7},
+{1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2,
+ 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4,
+ 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8}
 };
 
 #endif

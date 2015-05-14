@@ -104,11 +104,13 @@ Sort ( Tmove * a, int l, int r ) {
     while ( true ) {
       do {
 	i = i + 1;
-      } while ( a[i].score > pivot.score );
+      }
+      while ( a[i].score > pivot.score );
 
       do {
 	j = j - 1;
-      } while ( a[j].score < pivot.score );
+      }
+      while ( a[j].score < pivot.score );
 
       if ( i >= j )
 	break;

@@ -22,12 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LIMITS.H"
 #include "math.h"
 #include <conio.h>
-
 #else
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/types.h>
+#ifndef __GNUWIN32__
 #include <sys/wait.h>
+#endif
 #endif
 #include <stdio.h>
 #include <math.h>
@@ -43,20 +44,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include "search.h"
-
-
-
 #include <stddef.h>
 #include <stdlib.h>
-
 #include "gen.h"
-
 #include "zobrist.h"
 #include "openbook.h"
 #include "bitmap.h"
 #include "checkmove.h"
-
-
 int euristic_pruning;
 
 
@@ -221,7 +215,7 @@ do_move (  ) {
     initialply = mply;
     memset ( &line, 0, sizeof ( line ) );
     memset ( &pvv, 0, sizeof ( pvv ) );
-	/******** open book ***************/
+		/******** open book ***************/
 #ifdef HASH_MODE
     /*if(use_book){
        u64 key =makeZobristKey();
@@ -508,14 +502,11 @@ main (  ) {
 #endif
 #ifndef PERFT_MODE
 #ifndef TEST_MODE
-#ifdef _MSC_VER
-
   while ( 1 )
+#if defined  _MSC_VER	|| defined  __GNUWIN32__
     Sleep ( _INFINITE );
 #else
-  while ( 1 ) {
-    usleep ( 99999999 );
-  }
+    usleep ( _INFINITE );
 #endif
 #endif
 #endif

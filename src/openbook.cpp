@@ -352,7 +352,7 @@ create_open_book ( const char *ENORMOUS_TXT_FILE ) {
     memset ( dummy, 0, sizeof ( dummy ) );
     strncpy ( dummy, r2, r1 - r2 );
     score = fen2pos ( dummy, &from, &to, side, u );
-    // printf("\n%d %d",from,to);
+    // printf("\n%d %d",from,to);  
 
 
     Topenbook e;

@@ -52,8 +52,7 @@ typedef struct MTag {
   int side[LUNG_FILE];
 } Mnode;
 Mnode M;
-const int results_crafty_wac[LUNG_FILE] = {
-  198, 45, 31, -70, -384, 148, -155, -314, -510, 72, -121, -472, 9, -23,
+const int results_crafty_wac[LUNG_FILE] = { 198, 45, 31, -70, -384, 148, -155, -314, -510, 72, -121, -472, 9, -23,
   -303, 34, 22, -200,
   223, 68, -147, 75, -49, 4, -41, -175, 348, -69, -33, -54, -47, 10, -145, 58,
   -190, -64, -45, 382, 87, 50, -651, -40, -84, -245,
@@ -341,16 +340,16 @@ test (  ) {
 #endif
 
 
-  //test_eval_diff_crafty();
+  //test_eval_diff_crafty();  
   //test_mate ();
   test_wac (  );
   ftime ( &end );
   printf ( "\ntime:  %d num_tot_moves %I64u", diff_time ( end, start ), num_tot_moves );
 
-  /*#ifdef _MSC_VER
-     Sleep (_INFINITE);
-     #endif
-   */
+/*#ifdef _MSC_VER
+  Sleep (_INFINITE);
+#endif
+*/
 }
 
 #endif

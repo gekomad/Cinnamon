@@ -35,7 +35,7 @@ is_locked ( int pos, int pezzo, int side ) {
   int r = 0;
 
   /*  if ((tipo=IN_LINEA[pos][re_amico[side]]))
-     {        */
+     {    */
   chessboard[pezzo] &= NOTTABLOG[pos];
   r = attack_square ( side, re_amico[side] );
   chessboard[pezzo] |= TABLOG[pos];
@@ -212,7 +212,8 @@ trim ( char *str ) {
     if ( !isspace ( *s ) )
       last = dst;
     *dst++ = *s++;
-  } while ( *s );
+  }
+  while ( *s );
 
   *( last + 1 ) = '\0';
 
@@ -244,8 +245,7 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
   ///int re=BitScanForward(chessboard[KING_BLACK+XSIDE]);re_nemico
 #ifndef PERFT_MODE
   if ( evaluateMobility_mode ) {
-    if ( da >= 0 ) {
-      //TODO gestire arrocco
+    if ( da >= 0 ) {		//TODO gestire arrocco
 #ifdef DEBUG_MODE
       assert ( da >= 0 && a >= 0 );
 #endif
@@ -1153,25 +1153,20 @@ loadfen ( char *ss ) {
       case 'N':
 	s[i++] = 7;
 	break;
-      case '/':
-	;
+      case '/':;
 	break;
-      case ' ':
-	;
+      case ' ':;
 	break;
-      case '-':
-	;
+      case '-':;
 	break;
-      case 'w':
-	;
+      case 'w':;
 	break;
-      case 10:
-	;
+      case 10:;
 	break;
-      case 13:
-	;
+      case 13:;
 	break;
-      default:{
+      default:
+      {
 	if ( ch > 47 && ch < 58 ) {
 	  a[0] = ch;
 	  a[1] = 0;
@@ -1187,7 +1182,8 @@ loadfen ( char *ss ) {
 
       }
       ii++;
-    } while ( i < 64 );
+    }
+    while ( i < 64 );
   for ( i = 0; i <= 63; i++ ) {
     p = s[63 - i];
     if ( p != SQUARE_FREE )

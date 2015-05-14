@@ -321,7 +321,7 @@ listner_winboard ( void *uuua )
       go = 0;
 
       hand_do_movec = 0;
-#ifdef _MSC_VER
+#if defined  _MSC_VER	|| defined  __GNUWIN32__
       DWORD s;
       CreateThread ( NULL, 0, ( LPTHREAD_START_ROUTINE ) hand_do_move, ( LPVOID ) NULL, 0, &s );
       while ( !hand_do_movec )

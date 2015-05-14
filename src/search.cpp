@@ -1,18 +1,18 @@
-/*
-Copyright (C) 2008
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+	/*
+	   Copyright (C) 2008
+	   This program is free software: you can redistribute it and/or modify
+	   it under the terms of the GNU General Public License as published by
+	   the Free Software Foundation, either version 3 of the License, or
+	   (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	   This program is distributed in the hope that it will be useful,
+	   but WITHOUT ANY WARRANTY; without even the implied warranty of
+	   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+	   You should have received a copy of the GNU General Public License
+	   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	 */
 
 #include "maindefine.h"
 
@@ -117,8 +117,8 @@ quiescence ( int alpha, const int side, int beta, const int depth, LINE * pline 
 #endif
   /*for (i = 1; i <= listcount; i++)
      {
-     mossa = &gen_list[list_id][i];
-     if (mossa->a == BitScanForward (chessboard[KING_BLACK + xside]))
+     mossa = &gen_list[list_id][i];               
+     if (mossa->a == BitScanForward (chessboard[KING_BLACK + xside]))                      
      {assert(0);
      gen_list[list_id][0].score = 0;
      --list_id;
@@ -216,7 +216,7 @@ ael ( const int SIDE, int depth
 		   , key
 #endif
        );
-    //score =quiescence( alpha,SIDE,  beta,4,&line);
+    //score =quiescence( alpha,SIDE,  beta,4,&line);                
 #ifdef HASH_MODE
     RecordHash ( mply, hashfEXACT, SIDE, key, score );
 #endif
@@ -243,8 +243,8 @@ ael ( const int SIDE, int depth
 
 #endif
 #ifdef FP_MODE
-    /**************Futility Pruning****************/
-    /**************Futility Pruning razor at pre-pre-frontier*****/
+		/**************Futility Pruning****************/
+		/**************Futility Pruning razor at pre-pre-frontier*****/
   fprune = 0;
   if ( !path_pvv && !is_incheck ) {
     mat_balance = lazy_eval_black (  ) - lazy_eval_white (  );
@@ -256,19 +256,19 @@ ael ( const int SIDE, int depth
 #endif
       depth--;
     }
-	/**************Futility Pruning at pre-frontier*****/
+			/**************Futility Pruning at pre-frontier*****/
     if ( depth == 2 && ( fscore = mat_balance - EXT_FUTILY_MARGIN ) <= alpha ) {
 
       fprune = 1;
       score = fmax = fscore;
     }
-	/**************Futility Pruning at frontier*****/
+			/**************Futility Pruning at frontier*****/
     if ( depth == 1 && ( fscore = mat_balance - FUTIL_MARGIN ) <= alpha ) {
       fprune = 1;
       score = fmax = fscore;
     }
   }
-    /************ end Futility Pruning*************/
+		/************ end Futility Pruning*************/
 #endif
   //************* hash ****************
 #ifdef HASH_MODE

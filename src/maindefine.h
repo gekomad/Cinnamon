@@ -45,6 +45,7 @@ Depth 	Perft(Depth) 	Total Nodes
 
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
+//#define INITIAL_FEN "8/5k1p/8/5p2/p4P2/P3PK2/2p4P/8 b - - 2 4 "
 
 
 #define _INFINITE 2147483646
