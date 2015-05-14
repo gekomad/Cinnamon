@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define _butterfly_h
 
 void do_move (  );
-
+void dispose (  );
 
 #ifdef PERFT_MODE
 void do_perft (  );

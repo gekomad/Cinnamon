@@ -114,13 +114,8 @@ listner_winboard ( void *uuua )
     know_command = 0;
     if ( !strcmp ( tt, "quit" ) ) {
       run = 0;
-#ifdef HASH_MODE
-      free ( hash_array[BLACK] );
-      free ( hash_array[WHITE] );
-
-
-      free ( openbook );
-#endif
+      dispose (  );
+      free ( dummy );
       exit ( 0 );
     }
     else if ( !strcmp ( tt, "result" ) ) {
@@ -168,12 +163,15 @@ listner_winboard ( void *uuua )
 #endif
       chessboard[pezzo] = chessboard[pezzo] | TABLOG[decodeBoard ( tt + 1 )];
     }
-    else if ( !strcmp ( tt, "easy" ) || !strcmp ( tt, "force" )
-	      || !strcmp ( tt, "draw" ) )
+    else if ( !strcmp ( tt, "easy" ) || !strcmp ( tt, "draw" ) )
       know_command = 1;
     else if ( !strcmp ( tt, "xboard" ) ) {
       writeWinboard ( "" );
       xboard = 1;
+      know_command = 1;
+    }
+    else if ( !strcmp ( tt, "force" ) ) {
+      force = 1;
       know_command = 1;
     }
     else if ( !strcmp ( tt, "?" ) ) {
@@ -198,7 +196,7 @@ listner_winboard ( void *uuua )
 
 
       writeWinboard ( tt );
-      move[0] = '*';
+
       know_command = 1;
 
     }
@@ -237,8 +235,7 @@ listner_winboard ( void *uuua )
       loadfen ( INITIAL_FEN );
 #endif
     }
-    else if ( strlen ( tt ) > 2 && ( strstr ( MATCH_QUEENSIDE, tt )
-				     || strstr ( MATCH_KINGSIDE, tt ) ) ) {
+    else if ( strlen ( tt ) > 2 && ( strstr ( MATCH_QUEENSIDE, tt ) || strstr ( MATCH_KINGSIDE, tt ) ) ) {
       if ( strstr ( MATCH_QUEENSIDE, tt ) )
 	result_move.da = QUEENSIDE;
       else
@@ -250,7 +247,8 @@ listner_winboard ( void *uuua )
       makemove ( &result_move );
       print (  );
       know_command = 1;
-      go = 1;
+      if ( !force )
+	go = 1;
 
     }
     else if ( strstr ( tt, "set " ) ) {
@@ -295,7 +293,7 @@ listner_winboard ( void *uuua )
 	black_move = 0;
       }
       result_move.a = decodeBoard ( move );
-      if ( get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a]
+      if ( !force && get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a]
 	   && get_piece_at ( 0, TABLOG[result_move.a] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.a] ) == SQUARE_FREE )
 	result_move.tipo = ENPASSANT;
       else
@@ -304,13 +302,14 @@ listner_winboard ( void *uuua )
       print (  );
       push_fen (  );
       know_command = 1;
-      go = 1;
+      if ( !force )
+	go = 1;
 
     }
 
     else if ( !strcmp ( tt, "go" ) ) {
       go = 1;
-      move[0] = '*';
+      force = 0;
       move[1] = 0;
       know_command = 1;
     };

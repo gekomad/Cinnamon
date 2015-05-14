@@ -29,7 +29,7 @@ extern char test_trovato[20];
 extern int re_amico[2];
 extern u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 extern char mply, black_move;
-extern int winbtime, list_id, xboard, maxdep, incremental_move;
+extern int winbtime, list_id, xboard, maxdep, incremental_move, force;
 extern int attacco, evaluateMobility_mode, null_sem;
 extern u64 n_cut_hash;
 extern char *BITCOUNT;

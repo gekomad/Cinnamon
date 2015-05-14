@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "search.h"
 
 
+
 int
 is_locked ( int pos, int pezzo, int side ) {
   int r = 0;

@@ -61,7 +61,7 @@ char test_trovato[20];
 
 u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 char mply, black_move;
-int winbtime, list_id, xboard, maxdep, incremental_move;
+int winbtime, list_id, xboard, maxdep, incremental_move, force;
 int evaluateMobility_mode, null_sem;
 u64 n_cut_hash;
 char *BITCOUNT = NULL;
@@ -127,69 +127,76 @@ do_perft (  ) {
   int TimeTaken = 0;
 
   run = 1;
-  mply = 0;
+  //mply = 0;
   num_moves2 = 0;
   init (  );
-  while ( run ) {
-    ftime ( &start1 );
-    init (  );
+  //while ( run ) {
+  ftime ( &start1 );
+  init (  );
 
-    Tmove *mossa;
-    list_id++;
+  Tmove *mossa;
+  list_id++;
 #ifdef DEBUG_MODE
-    assert ( list_id < MAX_PLY );
+  assert ( list_id < MAX_PLY );
 #endif
+  list_id = 0;
+  re_amico[side] = BitScanForward ( chessboard[KING_BLACK + side] );
+  re_amico[side ^ 1] = BitScanForward ( chessboard[KING_BLACK + ( side ^ 1 )] );
+  generateCap ( STANDARD, side );
+  generateMoves ( STANDARD, side );
+
+  listcount = gen_list[list_id][0].score;
+  u64 tot = 0;
+
+#ifdef DEBUG_MODE
+  controlloRipetizioni ( gen_list[list_id], listcount );
+#endif
+  printf ( "\n\n\t\t\t\t----- ply %d -----", mply + 1 );
+  listcount_n++;
+
+  for ( ii = 1; ii <= listcount; ii++ ) {
     list_id = 0;
-    re_amico[side] = BitScanForward ( chessboard[KING_BLACK + side] );
-    re_amico[side ^ 1] = BitScanForward ( chessboard[KING_BLACK + ( side ^ 1 )] );
-    generateCap ( STANDARD, side );
-    generateMoves ( STANDARD, side );
-
-    listcount = gen_list[list_id][0].score;
-    u64 tot = 0;
-
-#ifdef DEBUG_MODE
-    controlloRipetizioni ( gen_list[list_id], listcount );
-#endif
-    printf ( "\n\n\t\t\t\t----- ply %d -----", mply + 1 );
-    listcount_n++;
-
-
-    for ( ii = 1; ii <= listcount; ii++ ) {
-      list_id = 0;
-      n_perft = 0;
-      num_moves2 = 0;
-      mossa = &gen_list[list_id][ii];
-      makemove ( mossa );
-      ael ( side ^ 1, mply );
-      if ( mply >= MAX_DEPTH_TO_SEARCH )
-	run = 0;
-      num_moves2 += n_perft;
-      takeback ( mossa );
-      char y;
-      char x = getFen ( get_piece_at ( ( side ), TABLOG[mossa->da] ) );
-      if ( x == 'p' || x == 'P' )
-	x = ' ';
-      if ( mossa->capture != 12 )
-	y = '*';
-      else
-	y = '-';
-      printf ( "\n %d\t%c%s%c%s \t%I64u ", ii, x, decodeBoardinv ( mossa->da, side ), y, decodeBoardinv ( mossa->a, side ), n_perft );
-      tot += n_perft;
-    }
-    ftime ( &end1 );
-    TimeTaken = diff_time ( end1, start1 );
-    printf ( "\n       \t\t\t\t\t\t\t%.2lf seconds", ( double ) TimeTaken / 1000 );
-#ifdef DEBUG_MODE
-    printf ( "\n%I64u nodes", tot );
-    if ( TimeTaken )
-      printf ( "\n%I64u nodes per second", tot * 1000 / TimeTaken );
-#else
-    printf ( "\n%I64u nodes", tot );
-#endif
-
-    ++mply;
+    n_perft = 0;
+    num_moves2 = 0;
+    mossa = &gen_list[list_id][ii];
+    makemove ( mossa );
+    ael ( side ^ 1, mply );
+    if ( mply >= MAX_DEPTH_TO_SEARCH )
+      run = 0;
+    num_moves2 += n_perft;
+    takeback ( mossa );
+    char y;
+    char x = getFen ( get_piece_at ( ( side ), TABLOG[mossa->da] ) );
+    if ( x == 'p' || x == 'P' )
+      x = ' ';
+    if ( mossa->capture != 12 )
+      y = '*';
+    else
+      y = '-';
+    printf ( "\n %d\t%c%s%c%s \t%I64u ", ii, x, decodeBoardinv ( mossa->da, side ), y, decodeBoardinv ( mossa->a, side ), n_perft );
+    tot += n_perft;
   }
+  ftime ( &end1 );
+  TimeTaken = diff_time ( end1, start1 );
+  printf ( "\n       \t\t\t\t\t\t\t%.2lf seconds", ( double ) TimeTaken / 1000 );
+#ifdef DEBUG_MODE
+  //printf ( "\n%I64u nodes", tot );
+  char dummy[1000];
+  memset ( dummy, 0, sizeof ( dummy ) );
+  sprintf ( dummy, "\n%I64u nodes", tot );
+  myprint ( dummy );
+  if ( TimeTaken ) {
+    memset ( dummy, 0, sizeof ( dummy ) );
+    sprintf ( dummy, "\n%I64u nodes per second", tot * 1000 / TimeTaken );
+    myprint ( dummy );
+  }
+  //printf ( "\n%I64u nodes per second", tot * 1000 / TimeTaken );
+#else
+  printf ( "\n%I64u nodes", tot );
+#endif
+
+  //++mply;
+  //}
 }
 #else
 void
@@ -423,6 +430,19 @@ hand_do_move ( void *dummy )
 //#endif
 }
 #endif
+void
+dispose (  ) {
+#ifdef HASH_MODE
+  free ( hash_array[BLACK] );
+  free ( hash_array[WHITE] );
+  free ( openbook );
+#endif
+  free ( BITCOUNT );
+  int i;
+  for ( i = 0; i < FEN_STACK.count; i++ )
+    free ( FEN_STACK.fen[i] );
+
+}
 
 void
 start (  ) {
@@ -480,7 +500,7 @@ start (  ) {
 }
 
 int
-main (  ) {
+main ( int argc, char *argv[] ) {
   start (  );
   FEN_STACK.count = 0;
   printf ( "\nPERFT" );
@@ -536,6 +556,13 @@ main (  ) {
   print (  );
   push_fen (  );
 #ifdef PERFT_MODE
+  if ( argc != 3 ) {
+    printf ( "\nmissing depth and FEN, example 3 \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"" );
+    return 1;
+  };
+  loadfen ( argv[2] );
+  mply = atoi ( argv[1] ) - 1;
+  printf ( "\nthink...\n" );
   do_perft (  );
 #endif
 #endif
