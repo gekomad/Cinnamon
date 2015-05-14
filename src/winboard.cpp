@@ -1,18 +1,18 @@
 /*
-Copyright (C) 2008
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+   Copyright (C) 2008
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 
 #include "stdafx.h"
@@ -163,13 +163,11 @@ listner_winboard ( void *uuua )
 #endif
       chessboard[pezzo] = chessboard[pezzo] | TABLOG[decodeBoard ( tt + 1 )];
     }
-    else if ( !strcmp ( tt, "easy" ) || !strcmp ( tt, "force" )
-	      || !strcmp ( tt, "draw" ) )
+    else if ( !strcmp ( tt, "easy" ) || !strcmp ( tt, "force" ) || !strcmp ( tt, "draw" ) )
       know_command = 1;
     else if ( !strcmp ( tt, "xboard" ) ) {
       writeWinboard ( "" );
       xboard = 1;
-
       know_command = 1;
     }
     else if ( !strcmp ( tt, "?" ) ) {
@@ -186,10 +184,7 @@ listner_winboard ( void *uuua )
 #ifdef FP_MODE
 		 , _INFINITE, 0
 #endif
-#ifdef HASH_MODE
-		 , 0
-#endif
-	 );
+		 , 0 );
       sprintf ( tt, "Eval: %d", t );
       writeWinboard ( tt );
       move[0] = '*';
@@ -201,14 +196,12 @@ listner_winboard ( void *uuua )
       know_command = 1;
 
     }
-#ifdef HASH_MODE
-    else if ( !strcmp ( tt, "create openbook" ) )
-      //    else if (!strcmp (tt, "cre"))
-    {
-      create_open_book ( ENORMOUS_EPD );
+
+    else if ( !strcmp ( tt, "createbook" ) ) {
+      create_open_book ( BOOK_EPD );
       know_command = 1;
     }
-#endif
+
     else if ( !strcmp ( tt, "white" ) ) {
       black_move = 0;
       know_command = 1;
@@ -295,8 +288,7 @@ listner_winboard ( void *uuua )
 	black_move = 0;
       }
       result_move.a = decodeBoard ( move );
-      if ( get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a]
-	   && get_piece_at ( 0, TABLOG[result_move.a] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.a] ) == SQUARE_FREE )
+      if ( get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a] && get_piece_at ( 0, TABLOG[result_move.a] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.a] ) == SQUARE_FREE )
 	result_move.tipo = ENPASSANT;
       else
 	result_move.tipo = STANDARD;
@@ -346,19 +338,21 @@ listner_winboard ( void *uuua )
 
 };
 
+/*
 void
-sendmove ( char *res ) {
+sendmove (char *res)
+{
   move[0] = '\0';
   know_command = 1;
-  strcat ( strcpy ( dummy, "move " ), res );
-  writeWinboard ( dummy );
-  if ( FLG_DRAW )
-    writeWinboard ( DRAW );
-  else if ( FLG_WIN_WHITE )
-    writeWinboard ( WIN_WHITE );
-  else if ( FLG_WIN_BLACK )
-    writeWinboard ( WIN_BLACK );
+  strcat (strcpy (dummy, "move "), res);
+  writeWinboard (dummy);
+  if (FLG_DRAW)
+    writeWinboard (DRAW);
+  else if (FLG_WIN_WHITE)
+    writeWinboard (WIN_WHITE);
+  else if (FLG_WIN_BLACK)
+    writeWinboard (WIN_BLACK);
 }
-
+*/
 #endif
 //#endif

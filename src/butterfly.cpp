@@ -13,7 +13,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+//indent -gnu -l400
 #include "winboard.h"
 #ifdef _MSC_VER
 #include "windows.h"
@@ -83,11 +83,13 @@ TmoveList gen_list;
 
 Tchessboard chessboard;
 fen_node FEN_STACK;
+#ifndef PERFT_MODE
 
-#ifdef HASH_MODE
 Topenbook *openbook;
 
 int use_book, OPENBOOK_SIZE;
+#endif
+#ifdef HASH_MODE
 Thash *hash_array[2];
 
 #endif
@@ -205,7 +207,7 @@ do_move (  ) {
   side = ( black_move == 1 ? 0 : 1 );
   run = 1;
   mply = 1;
-  //ftime (&start_time);
+//ftime (&start_time);
   int score;
   num_moves2 = 0;
   ftime ( &start_time );
@@ -215,21 +217,30 @@ do_move (  ) {
     initialply = mply;
     memset ( &line, 0, sizeof ( line ) );
     memset ( &pvv, 0, sizeof ( pvv ) );
-		/******** open book ***************/
-#ifdef HASH_MODE
-    /*if(use_book){
-       u64 key =makeZobristKey();
-       int t;
-       if ((t=search_openbook(key,side))!=-1){
-       ob_count++;
-       if (side){result_move.da=openbook[t].da_white;result_move.a=openbook[t].a_white;}else
-       {result_move.da=openbook[t].da_black;result_move.a=openbook[t].a_black;}
-       printf("\nopen book found %d %d",result_move.da,result_move.a);
-       run=0;
-       return ;
-       }
-       } */
-#endif
+	/******** open book ***************/
+
+    if ( use_book ) {
+      u64 key = makeZobristKey (  );
+      int t;
+      if ( ( t = search_openbook ( key, side ) ) != -1 ) {
+	ob_count++;
+	if ( side ) {
+	  result_move.da = openbook[t].da_white;
+	  result_move.a = openbook[t].a_white;
+	}
+	else {
+	  result_move.da = openbook[t].da_black;
+	  result_move.a = openbook[t].a_black;
+	}
+	result_move.tipo = STANDARD;	//TODO
+	result_move.side = side;
+	//result_move.tipo=openbook[t].eval;
+	//printf ("\nopen book found %d %d", result_move.da, result_move.a);
+	run = 0;
+	return;
+      }
+    }
+
     //if (!retry)
     ++mply;
 #ifdef DEBUG_MODE
@@ -333,7 +344,8 @@ do_move (  ) {
       mate = 0;
       if ( abs ( val ) == _INFINITE ) {
 	mate = 1;
-	printf ( "\nMATE, stop search" );
+	if ( !xboard )
+	  printf ( "\nMATE, stop search" );
 	run = 0;
       }
       int tipo = result_move.tipo;
@@ -367,16 +379,8 @@ hand_do_move ( void *dummy )
   memset ( t, 0, sizeof ( t ) );
   hand_do_movec = 1;
   do_move (  );
-#ifdef HASH_MODE
-#ifdef DEBUG_MODE
-  if ( result_move.capture == 0 )
-    printf ( "\nresult: da: %d a: %d score: %d n_cut_hash %d", result_move.da, result_move.a, result_move.score, n_cut_hash );
-  else
-    printf ( "\nopen book result_move: da: %d a: %d ", result_move.da, result_move.a );
-#endif
-#endif
-  //memcpy (chessboard, chessboard2, sizeof (Tchessboard));
   makemove ( &result_move );
+  //if(!xboard)
   print (  );
   push_fen (  );
   strcpy ( t, "\nmove " );
@@ -384,11 +388,11 @@ hand_do_move ( void *dummy )
   if ( result_move.da >= 0 )
     strcat ( t, decodeBoardinv ( result_move.a, result_move.side ) );
 #ifdef DEBUG_MODE
-  printf ( "%d %d\n", result_move.da, result_move.a );
+  printf ( "da %d a %d\n", result_move.da, result_move.a );
 #endif
-#ifdef _MSC_VER
+//#ifdef _MSC_VER
   writeWinboard ( t );
-#endif
+//#endif
 }
 #endif
 
@@ -399,21 +403,28 @@ start (  ) {
   BITCOUNT = ( char * ) malloc ( 65536 * sizeof ( char ) );
   for ( t = 0; t < 65536; t++ )
     BITCOUNT[t] = ( char ) BitCountSlow ( t );
-
+#ifndef PERFT_MODE
+  use_book = xboard = 0;
+  printf ( "Load book ..." );
+  fflush ( stdout );
+  use_book = load_open_book (  );
+  if ( !use_book )
+    printf ( "not found. Open book not used.\n" );
+  else
+    printf ( "ok\n" );
+#endif
 #ifdef HASH_MODE
   hash_array[WHITE] = hash_array[BLACK] = NULL;
-  use_book = xboard = 0;
-  use_book = load_open_book (  );
-  //if (!use_book)
-  //printf ("not found. Open book not used.\n");
+
+
 #ifdef DEBUG_MODE
   for ( t = 0; t < OPENBOOK_SIZE; t++ ) {
     if ( openbook[t].da_black != -1 )
       if ( openbook[t].a_black < 0 )
-	printf ( "\nerrore" );;
+	printf ( "\nerror" );;
     if ( openbook[t].da_white != -1 )
       if ( openbook[t].a_white < 0 )
-	printf ( "\nerrore" );;
+	printf ( "\nerror" );;
   }
 #endif
   hash_array[BLACK] = ( Thash * ) malloc ( HASH_SIZE * sizeof ( Thash ) );

@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if !defined(ZOBRIST_H)
 #define ZOBRIST_H
-#ifdef HASH_MODE
+
 #ifndef PERFT_MODE
 #include "extern.h"
 #include "openbook.h"
@@ -46,26 +46,27 @@ makeZobristKey (  ) {
   return result;
 };
 
+#ifdef HASH_MODE
 /*
-__inline void RecordHash_always (const char depth,  const char flags, const int side,const u64 key,const int score){	
-	Thash *phashe = &hash_array_always[side][key % HASH_SIZE];		
+__inline void RecordHash_always (const char depth,  const char flags, const int side,const u64 key,const int score){
+	Thash *phashe = &hash_array_always[side][key % HASH_SIZE];
 	//if (depth <= phashe->depth )return;
-    
+
 	#ifdef DEBUG_MODE
-	assert (key != 0);	
+	assert (key != 0);
 	#endif
-	if (phashe->key !=0 && phashe->key != key){		
-			#ifdef DEBUG_MODE	
-			++collisions;			
+	if (phashe->key !=0 && phashe->key != key){
+			#ifdef DEBUG_MODE
+			++collisions;
 			#endif
 			return;
 	}
 	#ifdef DEBUG_MODE
 	++n_record_hash;
-	#endif	
-	phashe->key = key;		
-	phashe->score = score;//TODO ordinamento hash	
-	
+	#endif
+	phashe->key = key;
+	phashe->score = score;//TODO ordinamento hash
+
 	phashe->flags = flags;
 	phashe->depth =  depth;
 };
@@ -95,7 +96,7 @@ RecordHash ( const char depth, const char flags, const int SIDE, const u64 key, 
   ++n_record_hash;
 #endif
   phashe->key = key;
-  phashe->score = score;	//TODO ordinamento hash   
+  phashe->score = score;	//TODO ordinamento hash
 
   phashe->flags = flags;
   phashe->depth = depth;
@@ -110,33 +111,33 @@ FORCEINLINE u64 makeZobristKey_pawn(){
   for (int i = 0;i < 4;i++){  //PAWNS e torri
      x2=chessboard[i];
      while(x2){
-			position = BitScanForward(x2); 
+			position = BitScanForward(x2);
 			result ^= zobrist_key[position][i];
-			x2 &= NOTTABLOG[position];      
+			x2 &= NOTTABLOG[position];
      }
    }
   return result;
 }
 
-FORCEINLINE void RecordHash_pawn (const u64 key,const int score){	
-	Thash *phashe = &hash_array_pawn[key % HASH_SIZE_PAWN];		
+FORCEINLINE void RecordHash_pawn (const u64 key,const int score){
+	Thash *phashe = &hash_array_pawn[key % HASH_SIZE_PAWN];
 
 	#ifdef DEBUG_MODE
-	assert (key != 0);	
+	assert (key != 0);
 	#endif
-	if (phashe->key !=0 && phashe->key != key){		
-			#ifdef DEBUG_MODE	
-			++collisions_pawn;			
+	if (phashe->key !=0 && phashe->key != key){
+			#ifdef DEBUG_MODE
+			++collisions_pawn;
 			#endif
 			return;
 	}
 	#ifdef DEBUG_MODE
 	++n_record_hash_pawn;
-	#endif	
-	phashe->key = key;	
+	#endif
+	phashe->key = key;
 	phashe->score = score;
 
-	
+
 
 };*/
 #endif

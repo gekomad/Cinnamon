@@ -14,13 +14,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#ifdef HASH_MODE
 #if !defined(OPENBOOK_H)
 #define OPENBOOK_H
 
 #ifndef PERFT_MODE
-void create_open_book ( const char *ENORMOUS_TXT_FILE );
+void create_open_book ( const char *BOOK_TXT_FILE );
 void update_open_book_eval ( const char *TXT_FILE );
 int search_book ( const int i, const int j, const u64 key );
 
@@ -32,6 +30,5 @@ void insert_openbook_leaf ( TopenbookLeaf ** root, Topenbook * l );
 void serializza_book ( TopenbookLeaf * root );
 void QuickSort_book ( int iLo, int iHi );
 int load_open_book (  );
-#endif
 #endif
 #endif

@@ -36,11 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 void pop_fen (  );
 
-int fen2pos ( char *fen, int *from, int *to, int
-#ifdef HASH_MODE
-	      , u64 key
-#endif
-   );
+int fen2pos ( char *fen, int *from, int *to, int, u64 key );
 int wc ( const char * );
 void controlloRipetizioni ( Tmove * myarray, int right );
 void myassert ( const void *a, const char *b );
@@ -86,8 +82,7 @@ const static unsigned rot90[64] = {
 // int piece_attack_defence (const int a,const int coloreAttaccato);
 void BoardToFEN ( char *FEN );
 #ifndef PERFT_MODE
-void
- update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int depth );
+void update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int depth );
 FORCEINLINE void
 Sort ( Tmove * a, int l, int r ) {
   if ( l >= r )
@@ -104,13 +99,11 @@ Sort ( Tmove * a, int l, int r ) {
     while ( true ) {
       do {
 	i = i + 1;
-      }
-      while ( a[i].score > pivot.score );
+      } while ( a[i].score > pivot.score );
 
       do {
 	j = j - 1;
-      }
-      while ( a[j].score < pivot.score );
+      } while ( a[j].score < pivot.score );
 
       if ( i >= j )
 	break;
@@ -142,8 +135,7 @@ still_time (  ) {
   // return 1;
   struct timeb t_current;
   ftime ( &t_current );
-  if ( ( ( int ) ( 1000.0 * ( t_current.time - start_time.time )
-		   + ( t_current.millitm - start_time.millitm ) ) ) >= MAX_TIME_MILLSEC )
+  if ( ( ( int ) ( 1000.0 * ( t_current.time - start_time.time ) + ( t_current.millitm - start_time.millitm ) ) ) >= MAX_TIME_MILLSEC )
     return 0;
   return 1;
 }
@@ -214,8 +206,7 @@ shr ( const u64 bits, const int N ) {
 
 FORCEINLINE int
 BitScanForward ( u64 bits ) {
-  return magictable[( ( ( unsigned * )
-			&( bits = ( bits & -bits ) * 0x0218a392cd3d5dbfULL ) )[1] ) >> 26];
+  return magictable[( ( ( unsigned * ) &( bits = ( bits & -bits ) * 0x0218a392cd3d5dbfULL ) )[1] ) >> 26];
 }
 
 FORCEINLINE int

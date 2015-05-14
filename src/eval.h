@@ -35,10 +35,6 @@ int eval ( const int
 #ifdef FP_MODE
 	   , const int, const int
 #endif
-#ifdef HASH_MODE
-	   , const u64
-#endif
-   );
-
+	   , const u64 );
 #endif
 #endif

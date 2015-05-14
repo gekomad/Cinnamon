@@ -212,8 +212,7 @@ trim ( char *str ) {
     if ( !isspace ( *s ) )
       last = dst;
     *dst++ = *s++;
-  }
-  while ( *s );
+  } while ( *s );
 
   *( last + 1 ) = '\0';
 
@@ -245,7 +244,8 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
   ///int re=BitScanForward(chessboard[KING_BLACK+XSIDE]);re_nemico
 #ifndef PERFT_MODE
   if ( evaluateMobility_mode ) {
-    if ( da >= 0 ) {		//TODO gestire arrocco
+    if ( da >= 0 ) {
+      //TODO gestire arrocco
 #ifdef DEBUG_MODE
       assert ( da >= 0 && a >= 0 );
 #endif
@@ -381,8 +381,7 @@ attack_square ( const int side, const int Position ) {
   ALLPIECES = case_all_bit_occupate (  ) | TABLOG[Position];
   Position_mod_8 = ROT45[Position];
   Position_Position_mod_8 = pos_posMod8[Position];
-  if ( MOVIMENTO_MASK_CAT[( uchar ) ( ( shr ( ALLPIECES, Position_Position_mod_8 ) ) )]
-       [Position_mod_8] & ( shr ( chessboard[TOWER_BLACK + xside], Position_Position_mod_8 ) & 255 | shr ( chessboard[QUEEN_BLACK + xside], Position_Position_mod_8 ) & 255 ) ) {
+  if ( MOVIMENTO_MASK_CAT[( uchar ) ( ( shr ( ALLPIECES, Position_Position_mod_8 ) ) )][Position_mod_8] & ( shr ( chessboard[TOWER_BLACK + xside], Position_Position_mod_8 ) & 255 | shr ( chessboard[QUEEN_BLACK + xside], Position_Position_mod_8 ) & 255 ) ) {
     //   print();
     return 1;
   }
@@ -391,8 +390,7 @@ attack_square ( const int side, const int Position ) {
 
 #ifdef DEBUG_MODE
   assert ( rotate_board_left_45 ( ALLPIECES, Position ) != 0 );
-  if ( ( ( uchar )
-	 ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) ) != rotate_board_left_45 ( ALLPIECES, Position ) ) {
+  if ( ( ( uchar ) ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) ) != rotate_board_left_45 ( ALLPIECES, Position ) ) {
 
 
     assert ( 0 );
@@ -401,8 +399,7 @@ attack_square ( const int side, const int Position ) {
   assert ( rotate_board_left_45 ( ALLPIECES, Position ) == ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) );
 #endif
   if ( MOVIMENTO_MASK_CAT[rotate_board_left_45 ( ALLPIECES, Position )][Position_mod_8] & ( rotate_board_left_45 ( chessboard[BISHOP_BLACK + ( xside )],	//TODO ridurre
-														   Position )
-											    | rotate_board_left_45 ( chessboard[QUEEN_BLACK + xside], Position ) ) )
+														   Position ) | rotate_board_left_45 ( chessboard[QUEEN_BLACK + xside], Position ) ) )
     return 1;
 
   /*right \ */
@@ -412,12 +409,10 @@ attack_square ( const int side, const int Position ) {
   assert ( rotate_board_right_45 ( ALLPIECES, Position ) == ( uchar ) ( rotate_board_right_45 ( ALLPIECES, Position ) & MOVES_BISHOP_RIGHT_MASK[Position] ) );
 #endif
   if ( MOVIMENTO_MASK_CAT[rotate_board_right_45 ( ALLPIECES, Position ) | TABLOG[Position_mod_8]][Position_mod_8] & ( rotate_board_right_45 ( chessboard[BISHOP_BLACK + ( xside )],	//TODO ridurre
-																	      Position )
-														      | rotate_board_right_45 ( chessboard[QUEEN_BLACK + ( xside )], Position ) ) )
+																	      Position ) | rotate_board_right_45 ( chessboard[QUEEN_BLACK + ( xside )], Position ) ) )
     return 1;
 
-  if ( MOVIMENTO_MASK_CAT[rotate_board_90 ( ALLPIECES, Position )]
-       [ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[TOWER_BLACK + xside], Position ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside], Position ) ) ) )
+  if ( MOVIMENTO_MASK_CAT[rotate_board_90 ( ALLPIECES, Position )][ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[TOWER_BLACK + xside], Position ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside], Position ) ) ) )
     return 1;
   return 0;
 }
@@ -657,7 +652,7 @@ update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int dept
   memcpy ( pline->argmove + 1, line->argmove, line->cmove * sizeof ( Tmove ) );
   pline->cmove = line->cmove + 1;
   // questa mossa ha causato un taglio, quindi si incrementa il valore
-  //di history cos? viene ordinata in alto la prossima volta che la
+  //di history cosi viene ordinata in alto la prossima volta che la
   //cerchiamo
   HistoryHeuristic[mossa->da][mossa->a] += depth;
   KillerHeuristic[depth][mossa->da][mossa->a] = ( int ) TABLOG[depth];
@@ -913,7 +908,7 @@ getFen ( const int a ) {
 void
 BoardToFEN ( char *FEN ) {
   int x, y, l = 0, i = 0, sq;
-  char row[8];			//,ch[3];
+  char row[8];
   int q;
   strcpy ( FEN, "" );
   for ( y = 0; y < 8; y++ ) {
@@ -996,8 +991,7 @@ controlloRipetizioni ( Tmove * myarray, int right ) {
 #endif
 void
 print (  ) {
-  if ( xboard )
-    return;
+
   int t;
   char x;
   char FEN[1000];
@@ -1153,20 +1147,25 @@ loadfen ( char *ss ) {
       case 'N':
 	s[i++] = 7;
 	break;
-      case '/':;
+      case '/':
+	;
 	break;
-      case ' ':;
+      case ' ':
+	;
 	break;
-      case '-':;
+      case '-':
+	;
 	break;
-      case 'w':;
+      case 'w':
+	;
 	break;
-      case 10:;
+      case 10:
+	;
 	break;
-      case 13:;
+      case 13:
+	;
 	break;
-      default:
-      {
+      default:{
 	if ( ch > 47 && ch < 58 ) {
 	  a[0] = ch;
 	  a[1] = 0;
@@ -1182,8 +1181,7 @@ loadfen ( char *ss ) {
 
       }
       ii++;
-    }
-    while ( i < 64 );
+    } while ( i < 64 );
   for ( i = 0; i <= 63; i++ ) {
     p = s[63 - i];
     if ( p != SQUARE_FREE )
@@ -1364,11 +1362,7 @@ is_number ( char c ) {
 }
 
 int
-fen2pos ( char *fen, int *from, int *to, int SIDE
-#ifdef HASH_MODE
-	  , u64 key
-#endif
-   ) {
+fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
 
 #ifdef HASH_MODE
   use_book = 0;
@@ -1378,10 +1372,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE
 #ifdef FP_MODE
 	 , -_INFINITE, _INFINITE
 #endif
-#ifdef HASH_MODE
-	 , key
-#endif
-     );
+	 , key );
 
   int o, try_locked;
   char dummy[3];
@@ -1404,7 +1395,6 @@ fen2pos ( char *fen, int *from, int *to, int SIDE
       else
 	*to = 6;
     }
-    //pushmove (CASTLE, *from, *to, SIDE);
     if ( !strcmp ( fen, "O-O" ) )
       pushmove ( CASTLE, KINGSIDE, SIDE, -1 );
     else
@@ -1415,10 +1405,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE
 #ifdef FP_MODE
 		   , -_INFINITE, _INFINITE
 #endif
-#ifdef HASH_MODE
-		   , key
-#endif
-       );
+		   , key );
     return score;
   }
   //promotion
@@ -1431,18 +1418,16 @@ fen2pos ( char *fen, int *from, int *to, int SIDE
       *from = *to - 8;
     else
       *from = *to + 8;
-    pushmove ( PROMOTION, *from, *to, SIDE, 9999 );
-    myassert ( 0, "passare il pezzo promosso" );
+
+    char p = getFenInv ( strstr ( fen, "=" )[1] );
+    pushmove ( PROMOTION, *from, *to, SIDE, p );
     Tmove *mossa = &gen_list[0][1];
     makemove ( mossa );
     score = eval ( SIDE
 #ifdef FP_MODE
 		   , -_INFINITE, _INFINITE
 #endif
-#ifdef HASH_MODE
-		   , key
-#endif
-       );
+		   , key );
     return score;
   }
 
@@ -1468,7 +1453,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE
   attaccanti &= get_pieces ( SIDE ) | chessboard[SIDE];
   int c = BitCount ( attaccanti );
   if ( !c ) {
-    printf ( "\nerrore en passant?" );
+    printf ( "\nerror en passant?" );
     *from = -1;
     return 0;
     //myassert (0, "errord");
@@ -1499,8 +1484,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE
     attaccanti2 = attaccanti;
     while ( attaccanti ) {
       o = BitScanForward ( attaccanti );
-      if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column )
-	   && TABLOG[o] & column ) {
+      if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column ) && TABLOG[o] & column ) {
 	if ( *from != -1 ) {
 	  try_locked = 1;
 	  *from = -1;
@@ -1514,11 +1498,9 @@ fen2pos ( char *fen, int *from, int *to, int SIDE
     if ( try_locked )
       while ( attaccanti ) {
 	o = BitScanForward ( attaccanti );
-	if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column )
-	     && TABLOG[o] & column && !is_locked ( o, get_piece_at ( SIDE, TABLOG[o] ), SIDE ) ) {
+	if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column ) && TABLOG[o] & column && !is_locked ( o, get_piece_at ( SIDE, TABLOG[o] ), SIDE ) ) {
 	  if ( *from != -1 ) {
-	    //myassert (0, "ambiguo");
-	    printf ( "\nambiguo" );
+	    printf ( "\nambiguous, skip " );
 	    break;
 	  };
 	  *from = o;
@@ -1535,10 +1517,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE
 #ifdef FP_MODE
 		 , -_INFINITE, _INFINITE
 #endif
-#ifdef HASH_MODE
-		 , key
-#endif
-     );
+		 , key );
   return score;
 }
 

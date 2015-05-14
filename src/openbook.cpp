@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "stdafx.h"
-#ifdef HASH_MODE
+
 #ifndef PERFT_MODE
 #include "maindefine.h"
 
@@ -181,13 +181,13 @@ insert_openbook_leaf ( TopenbookLeaf ** root, Topenbook * x ) {
 }
 
 void
-serializza_book ( TopenbookLeaf * root ) {
+serialize_book ( TopenbookLeaf * root ) {
 
   if ( !root )
     return;
-
-  serializza_book ( root->r );
-  serializza_book ( root->l );
+  int er = 0;
+  serialize_book ( root->r );
+  serialize_book ( root->l );
 #ifdef DEBUG_MODE
   assert ( root );
 #endif
@@ -200,19 +200,19 @@ serializza_book ( TopenbookLeaf * root ) {
 
   if ( openbook[ob_count].da_black != -1 )
     if ( openbook[ob_count].a_black < 0 )
-      printf ( "\nerror" );;
+      er = 1;
   if ( openbook[ob_count].da_white != -1 )
-    if ( openbook[ob_count].a_white <= 0 )
-      printf ( "\nerror" );;
+    if ( openbook[ob_count].a_white < 0 )
+      er = 1;
 
-  ob_count++;
+  if ( !er )
+    ob_count++;
 };
 
 int
 load_open_book (  ) {
   long s;
   FILE *F;
-  //printf ("load book...");
 
   OPENBOOK_SIZE = fileLung ( OPENBOOK_FILE ) / sizeof ( Topenbook );
   if ( !OPENBOOK_SIZE )
@@ -226,8 +226,6 @@ load_open_book (  ) {
 
 
   if ( ( F = fopen ( OPENBOOK_FILE, "r+b" ) ) == NULL ) {
-    printf ( "\n%s not found\n", OPENBOOK_FILE );
-    free ( openbook );
     return 0;
   }
 
@@ -299,8 +297,12 @@ update_open_book_eval (const char *TXT_FILE)
 */
 
 void
-create_open_book ( const char *ENORMOUS_TXT_FILE ) {
-
+create_open_book ( const char *BOOK_TXT_FILE ) {
+  if ( openbook ) {
+    free ( openbook );
+    openbook = 0;
+    use_book = 0;
+  };
   u64 u = 0;
   char *r1;
   char *r2;
@@ -315,21 +317,18 @@ create_open_book ( const char *ENORMOUS_TXT_FILE ) {
 
   int from, to, k;
 
-  stream = fopen ( ENORMOUS_TXT_FILE, "r+b" );
+  stream = fopen ( BOOK_TXT_FILE, "r+b" );
 
   if ( !stream ) {
-    printf ( "\n%s not found. (get it in ftp://ftp.cis.uab.edu/pub/hyatt/pgn/enormous.zip and convert it with pgn2epd.exe < enormous.pgn >enormous.epd. http://remi.coulom.free.fr/)", ENORMOUS_TXT_FILE );
+    printf ( "\n%s not found. (use  pgn2epd.exe < strong_match.pgn >book.epd)", BOOK_TXT_FILE );
     return;
   }
   int aa = 0;
   while ( fgets ( line, 1000, stream ) != NULL ) {
-    // strcpy(line,"5bk1/3nq1np/2b1p1p1/3pPp2/2pP1QPP/4NN2/2P2PBK/4B3 w - f6 bm exf6;");
     printf ( "%d %s", ++aa, line );
-
     score = -_INFINITE;
     init (  );
     loadfen ( line );
-    //print();
     u = makeZobristKey (  );
 #ifdef DEBUG_MODE
     assert ( u );
@@ -352,8 +351,6 @@ create_open_book ( const char *ENORMOUS_TXT_FILE ) {
     memset ( dummy, 0, sizeof ( dummy ) );
     strncpy ( dummy, r2, r1 - r2 );
     score = fen2pos ( dummy, &from, &to, side, u );
-    // printf("\n%d %d",from,to);  
-
 
     Topenbook e;
     i = search_book_tree ( openbook_tree, u );
@@ -388,15 +385,14 @@ create_open_book ( const char *ENORMOUS_TXT_FILE ) {
 #ifdef DEBUG_MODE
   assert ( openbook );
 #endif
-  printf ( "\nserializza_book..." );
-  serializza_book ( openbook_tree );
-  printf ( "\nQuickSort_book..." );
+  printf ( "\nserialize_book..." );
+  serialize_book ( openbook_tree );
+  printf ( "\nSort_book..." );
   QuickSort_book ( 0, openbookLeaf_count );
-  printf ( "\nscrivo %d nodes...", openbookLeaf_count );
+  printf ( "\nwrite %d nodes...", openbookLeaf_count );
   stream = fopen ( OPENBOOK_FILE, "w+b" );
   fwrite ( openbook, 1, openbookLeaf_count * sizeof ( Topenbook ), stream );
   fclose ( stream );
-  printf ( "\nfine" );
+  printf ( "\nend" );
 }
-#endif
 #endif

@@ -38,13 +38,11 @@ sort ( int *a, int l, int r ) {
     while ( true ) {
       do {
 	i = i + 1;
-      }
-      while ( a[i] > pivot );
+      } while ( a[i] > pivot );
 
       do {
 	j = j - 1;
-      }
-      while ( a[j] < pivot );
+      } while ( a[j] < pivot );
 
       if ( i >= j )
 	break;
@@ -144,7 +142,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
       x &= NOTTABLOG[o];
     };
   };
-  //left  
+  //left
 
   bit_raw = rotate_board_left_45 ( case_all_bit_occupate (  ), pos );
 #ifdef DEBUG_MODE
@@ -216,7 +214,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
       x &= NOTTABLOG[o];
     };
   };
-  // } right*/ 
+  // } right*/
 
   bit_raw = rotate_board_90 ( case_all_bit_occupate (  ), pos );
   y = MOVIMENTO_MASK_CAT[bit_raw][ROT45ROT_90_MASK[pos]];
@@ -269,7 +267,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
 
 __inline int
 see ( const int a, const int coloreAttaccato ) {
-  //restituisce +-= se è conveniente fare la mossa 
+  //restituisce +-= se è conveniente fare la mossa
   int c, rr;
   int d0, primo = 1;
   const int lung = 1000;
@@ -310,8 +308,7 @@ see ( const int a, const int coloreAttaccato ) {
       chessboard[rr] &= NOTTABLOG[t];
       attaccanti &= NOTTABLOG[t];
     }
-  }
-  while ( c );
+  } while ( c );
   sort ( A, da_xside, count_Aside - 1 );
   memcpy ( chessboard, chessboard2, sizeof ( Tchessboard ) );
   do {
@@ -331,8 +328,7 @@ see ( const int a, const int coloreAttaccato ) {
       chessboard[rr] &= NOTTABLOG[t];
       difensori &= NOTTABLOG[t];
     }
-  }
-  while ( c && count_side <= count_Aside );
+  } while ( c && count_side <= count_Aside );
   sort ( D, da_side, count_side - 1 );
   int AA = 0;
   int DD = 0;

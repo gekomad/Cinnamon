@@ -25,8 +25,7 @@ void do_perft (  );
 
 #ifndef PERFT_MODE
 #ifdef _MSC_VER
-void
- hand_do_move (  );
+void hand_do_move (  );
 #else
 void *hand_do_move ( void *xxza );
 #endif

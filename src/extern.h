@@ -22,8 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/timeb.h>
 extern int euristic_pruning, EvalCuts;
 
-
-
 #ifdef TEST_MODE
 extern char test_ris[20];
 extern char test_trovato[20];
@@ -50,15 +48,14 @@ extern int max_depth_quies;
 extern TmoveList gen_list;
 extern Tchessboard chessboard;
 extern fen_node FEN_STACK;
-#ifdef HASH_MODE
-extern Topenbook *openbook;
-
+#ifndef PERFT_MODE
 extern int use_book, OPENBOOK_SIZE;
-extern Thash *hash_array[2];
-
-
+extern Topenbook *openbook;
 #endif
+#ifdef HASH_MODE
 
+extern Thash *hash_array[2];
+#endif
 #ifndef PERFT_MODE
 
 extern int HistoryHeuristic[64][64];

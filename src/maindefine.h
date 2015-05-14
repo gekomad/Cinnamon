@@ -45,7 +45,7 @@ Depth 	Perft(Depth) 	Total Nodes
 
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "8/5k1p/8/5p2/p4P2/P3PK2/2p4P/8 b - - 2 4 "
+//#define INITIAL_FEN "r1bqk3/pP1pppbp/8/2p5/1K6/1P2n3/8/r6n w q c6 0 23  "
 
 
 #define _INFINITE 2147483646
@@ -59,7 +59,7 @@ typedef longlong u64;
 #endif
 typedef unsigned char uchar;
 #ifndef PERFT_MODE
-#define OPENBOOK_FILE "butterfly_openbook.dat"
+#define OPENBOOK_FILE "book.dat"
 #endif
 
 #define MAX_TIME_MILLSEC 5000
@@ -165,14 +165,14 @@ typedef unsigned char uchar;
 #define VALUEKING _INFINITE
 #define VALUEQUEEN 980
 #define ATTACK_F7_F2 10
-
+#define BOOK_EPD "book.epd"
 #ifdef HASH_MODE
 #define HASH_SIZE 2000003
 #define hashfEXACT  0
 #define hashfALPHA 1
 #define hashfBETA 2
 
-#define ENORMOUS_EPD "../enormous.epd"
+
 //#define UPDATE_TXT "../open_book.txt"
 #endif
 #define D2 12
