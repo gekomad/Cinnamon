@@ -313,6 +313,10 @@ listner_winboard ( void *uuua )
       result_move.a = decodeBoard ( move );
       if ( !force && get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a] && get_piece_at ( 0, TABLOG[result_move.a] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.a] ) == SQUARE_FREE )
 	result_move.tipo = ENPASSANT;
+      else if ( strlen ( tt ) == 5 ) {
+	result_move.tipo = PROMOTION;
+	result_move.promotion_piece = getFenInv ( tt[4] );
+      }
       else
 	result_move.tipo = STANDARD;
       makemove ( &result_move );

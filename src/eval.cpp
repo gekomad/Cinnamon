@@ -104,6 +104,7 @@ evaluate_pawn ( const int side, u64 ped_friends, const u64 ped_enemies, const u6
   }
   while ( ped_friends ) {
     oo = BitScanForward ( ped_friends );
+    result += VALUEPAWN;
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/Ndifensori_pezzo+1)
 
     evalNode.sicurezza_re[side] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][oo] ) / ( VALUEPAWN / ( BitCount ( calcola_attaccanti ( oo, side ^ 1 ) ) + 1 ) ) );
@@ -170,7 +171,7 @@ evaluate_bishop ( const int tipo, const u64 adiacente_re_nemico, const u64 pezzi
   if ( FINE_APERTURA && BitCount ( x ) > 1 )
     result += BONUS2BISHOP;
   while ( x ) {
-
+    result += VALUEBISHOP;
     o = BitScanForward ( x );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
@@ -216,7 +217,7 @@ int
 evaluate_queen ( const int tipo, u64 queen, const int pos_re_nemico, const u64 ped_enemies, const u64 pezzi_enemies, const u64 ALLPIECES, const int pos_re_amico ) {
   int o, mob, result = 0;
   while ( queen ) {
-
+    result += VALUEQUEEN;
     o = BitScanForward ( queen );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
@@ -257,7 +258,7 @@ evaluate_knight ( const int tipo, const int pos_re_amico, const int pos_re_nemic
 
   u64 x = chessboard[KNIGHT_BLACK + tipo];
   while ( x ) {
-
+    result += VALUEKNIGHT;
     o = BitScanForward ( x );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
@@ -358,6 +359,7 @@ evaluate_rook ( const int tipo, const u64 ped_friends, const u64 ped_enemies, co
   int da = -1;
   int a = -1;
   while ( x ) {
+    result += VALUEROOK;
     if ( FINE_APERTURA ) {
       if ( tipo && x & ORIZZONTAL_8 )
 	result += ROOK_7TH_RANK;
@@ -367,7 +369,7 @@ evaluate_rook ( const int tipo, const u64 ped_friends, const u64 ped_enemies, co
     o = BitScanForward ( x );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
-    evalNode.sicurezza_re[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) / ( VALUETOWER / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
+    evalNode.sicurezza_re[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) / ( VALUEROOK / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
     /////////////////////////
     if ( da == -1 )
       da = o;

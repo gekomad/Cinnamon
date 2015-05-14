@@ -47,7 +47,7 @@ Depth 	Perft(Depth) 	Total Nodes
 //xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "r1bqk2r/1ppp1p2/2n3pp/P1b1P3/4P2P/2P1nP1N/PQ2B1P1/R1B1K2R w KQkq - 0 1 c1e3 "
+//#define INITIAL_FEN "r1b1k2r/pppp1ppp/8/4P3/1P3nP1/7P/2PKPP2/1q3B1R w - - 0 2 "
 
 #define debugfile "out.log"
 #define _INFINITE 2147483646
@@ -155,7 +155,7 @@ typedef unsigned char uchar;
 
 
 #define VALUEPAWN 100
-#define VALUETOWER 520
+#define VALUEROOK 520
 #define VALUEBISHOP 335
 #define VALUEKNIGHT 330
 #define VALUEKING _INFINITE
@@ -187,7 +187,7 @@ typedef unsigned char uchar;
 
 const int PIECES_VALUE[13] = {
   VALUEPAWN, VALUEPAWN,
-  VALUETOWER, VALUETOWER,
+  VALUEROOK, VALUEROOK,
   VALUEBISHOP, VALUEBISHOP,
   VALUEKNIGHT, VALUEKNIGHT,
   VALUEKING, VALUEKING,
@@ -231,7 +231,7 @@ const int PIECES_VALUE[13] = {
 
 
 #define lazy_eval_black() (BitCount(chessboard[0])*VALUEPAWN+\
-BitCount(chessboard[2])*VALUETOWER+\
+BitCount(chessboard[2])*VALUEROOK+\
 BitCount(chessboard[4])*VALUEBISHOP+\
 BitCount(chessboard[6])*VALUEKNIGHT+\
 BitCount(chessboard[10])*VALUEQUEEN)
@@ -239,7 +239,7 @@ BitCount(chessboard[10])*VALUEQUEEN)
 
 
 #define lazy_eval_white() (BitCount(chessboard[1])*VALUEPAWN+\
-BitCount(chessboard[3])*VALUETOWER+\
+BitCount(chessboard[3])*VALUEROOK+\
 BitCount(chessboard[5])*VALUEBISHOP+\
 BitCount(chessboard[7])*VALUEKNIGHT+\
 BitCount(chessboard[11])*VALUEQUEEN)
@@ -248,15 +248,14 @@ BitCount(chessboard[11])*VALUEQUEEN)
 #ifdef FP_MODE
 
 #define FUTIL_MARGIN 2*VALUEPAWN + VALUEPAWN
-#define EXT_FUTILY_MARGIN  VALUETOWER + VALUEBISHOP + VALUEPAWN
+#define EXT_FUTILY_MARGIN  VALUEROOK + VALUEBISHOP + VALUEPAWN
 #define RAZOR_MARGIN  VALUEQUEEN + VALUEPAWN
 
 #endif
 #define ACTUAL_COUNT 39
 #define valWINDOW 200
 
-
-#define VOID_FEN "8/8/8/8/8/8/8/8/ w KQkq - 0 1"
+#define VOID_FEN "8/8/8/8/8/8/8/8/ w - - 0 1"
 #define TABSALTOPAWN 0xFF00000000FF00ULL
 #define TABCAPTUREPAWN_RIGHT 0xFEFEFEFEFEFEFEFEULL
 #define TABCAPTUREPAWN_LEFT 0x7F7F7F7F7F7F7F7FULL
