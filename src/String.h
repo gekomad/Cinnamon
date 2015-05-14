@@ -16,23 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UCI_H_
-#define UCI_H_
+#ifndef _sSTRING_H_
+#define _sSTRING_H_
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <sstream>
 
-#include "IterativeDeeping.h"
-#include "Perft.h"
-#include <string.h>
-#include "String.h"
-class Uci {
+using namespace std;
+
+class String:public string {
 public:
-  Uci (  );
-  virtual ~ Uci (  );
-
-private:
-  IterativeDeeping * iterativeDeeping;
-  bool uciMode;
-  void listner ( IterativeDeeping * it );
-  void getToken ( istringstream & uip, String & token );
-
+  String (  );
+  String ( string s ):string ( s ) {
+  };
+  String ( int );
+  virtual ~ String (  );
+  String trimRight (  );
+  String replace ( string s1, string s2 );
+  String replace ( char c1, char c2 );
+  String toUpper (  );
+  String toLower (  );
 };
 #endif

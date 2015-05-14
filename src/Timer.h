@@ -16,23 +16,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UCI_H_
-#define UCI_H_
+#ifndef TIMER_H_
+#define TIMER_H_
+#include "Thread.h"
 
-#include "IterativeDeeping.h"
-#include "Perft.h"
-#include <string.h>
-#include "String.h"
-class Uci {
+class Timer:public Thread {
 public:
-  Uci (  );
-  virtual ~ Uci (  );
+
+  Timer ( int seconds1 ) {
+    seconds = seconds1;
+  } void run (  ) {
+    while ( 1 ) {
+      this_thread::sleep_for ( chrono::seconds ( seconds ) );
+      notifyObservers (  );
+    }
+  }
+
+  void registerObservers ( function < void ( void ) > f ) {
+    observers.push_back ( f );
+  }
+
+  void notifyObservers ( void ) {
+    for ( auto i = observers.begin (  ); i != observers.end (  ); ++i ) {
+      ( *i ) (  );
+    }
+  }
+
+  virtual ~ Timer (  ) {
+  }
+
 
 private:
-  IterativeDeeping * iterativeDeeping;
-  bool uciMode;
-  void listner ( IterativeDeeping * it );
-  void getToken ( istringstream & uip, String & token );
-
+  int seconds;
+  vector < function < void ( void ) >> observers;
 };
+
 #endif

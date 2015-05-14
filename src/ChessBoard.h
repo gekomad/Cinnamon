@@ -1,19 +1,41 @@
+/*
+    Cinnamon is a UCI chess engine
+    Copyright (C) 2011-2014 Giuseppe Cannella
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef CHESSBOARD_H_
 #define CHESSBOARD_H_
 #include <iostream>
-#include <sstream>
 #include <string.h>
-#include "Hash.h"
+#include <sstream>
+#include "String.h"
+#include "Bits.h"
 #include "namespaces.h"
 
-using namespace _bits;
 using namespace _board;
 
-class ChessBoard {
+class ChessBoard:protected Bits {
 public:
 
   ChessBoard (  );
   virtual ~ ChessBoard (  );
+  static const uchar RIGHT_KING_CASTLE_WHITE_MASK = 0x10;
+  static const uchar RIGHT_QUEEN_CASTLE_WHITE_MASK = 0x20;
+  static const uchar RIGHT_KING_CASTLE_BLACK_MASK = 0x40;
+  static const uchar RIGHT_QUEEN_CASTLE_BLACK_MASK = 0x80;
   static const u64 CENTER_MASK = 0x1818000000ULL;
   static const u64 BIG_DIAG_LEFT = 0x102040810204080ULL;
   static const u64 BIG_DIAG_RIGHT = 0x8040201008040201ULL;
@@ -34,6 +56,7 @@ public:
   void display (  );
   string getFen (  );
   char decodeBoard ( string );
+  virtual int loadFen ( string );
   int getPieceByChar ( char );
 #ifdef DEBUG_MODE
   u64 getBitBoard ( int side );
@@ -48,6 +71,11 @@ public:
 
   int getSide (  ) {
     return sideToMove;
+  }
+
+  template < int side > u64 getBitBoardNoPawns (  ) {
+    return chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side]
+      | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
   }
 
   template < int side > int getPieceAt ( u64 bitmapPos ) {
@@ -65,32 +93,25 @@ protected:
     u64 openColumn;
     u64 semiOpenColumn[2];
     u64 isolated[2];
+    u64 allPiecesNoPawns[2];
     int kingSecurityDistance[2];
-    unsigned short posKing[2];
+    uchar posKing[2];
   } _Tboard;
 
   static const u64 A7bit = 0x80000000000000ULL;
   static const u64 B7bit = 0x40000000000000ULL;
   static const u64 C6bit = 0x200000000000ULL;
-  static const u64 A6bit = 0x800000000000ULL;
   static const u64 H7bit = 0x1000000000000ULL;
   static const u64 G7bit = 0x2000000000000ULL;
   static const u64 F6bit = 0x40000000000ULL;
-  static const u64 H6bit = 0x10000000000ULL;
   static const u64 A8bit = 0x8000000000000000ULL;
   static const u64 H8bit = 0x100000000000000ULL;
   static const u64 A2bit = 0x8000ULL;
   static const u64 B2bit = 0x4000ULL;
-  static const u64 A3bit = 0x800000ULL;
   static const u64 H2bit = 0x100ULL;
   static const u64 G2bit = 0x200ULL;
-  static const u64 H3bit = 0x10000ULL;
   static const u64 A1bit = 0x80ULL;
   static const u64 H1bit = 0x1ULL;
-  static const u64 B5bit = 0x4000000000ULL;
-  static const u64 G5bit = 0x200000000ULL;
-  static const u64 B4bit = 0x40000000ULL;
-  static const u64 G4bit = 0x2000000ULL;
   static const u64 F1G1bit = 0x6ULL;
   static const u64 H1H2G1bit = 0x103ULL;
   static const u64 C1B1bit = 0x60ULL;
@@ -112,43 +133,49 @@ protected:
   static const int E8 = 59;
   static const int C1 = 5;
   static const int F1 = 2;
-  static const int C8 = 58;
-  static const int F8 = 61;
+  static const int C8 = 61;
+  static const int F8 = 58;
+  static const int D8 = 60;
+  static const int A8 = 63;
+  static const int H8 = 56;
+  static const int G8 = 57;
   static const u64 BLACK_SQUARES = 0x55AA55AA55AA55AAULL;
   static const u64 WHITE_SQUARES = 0xAA55AA55AA55AA55ULL;
-  static const uchar KING_SIDE_CASTLE_MOVE_MASK = 0 b00000100;
-  static const uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0 b00001000;
-  static const uchar RIGHT_KING_CASTLE_WHITE_MASK = 0 b00010000;
-  static const uchar RIGHT_QUEEN_CASTLE_WHITE_MASK = 0 b00100000;
-  static const uchar RIGHT_KING_CASTLE_BLACK_MASK = 0 b01000000;
-  static const uchar RIGHT_QUEEN_CASTLE_BLACK_MASK = 0 b10000000;
+  static const uchar KING_SIDE_CASTLE_MOVE_MASK = 0x4;
+  static const uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0x8;
+
   u64 zobristKey;
   int enpassantPosition;
   uchar rightCastle;
-  u64 chessboard[12];
+  _Tchessboard chessboard;
   _Tboard structure;
   bool sideToMove;
   int friendKing[2];
-  virtual int loadFen ( string );
+  string boardToFen (  );
   string decodeBoardinv ( const uchar type, const int a, const int side );
   void makeZobristKey (  );
 
   template < int side > int getNpiecesNoPawnNoKing (  ) {
-    return _bits::bitCount ( chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[QUEEN_BLACK + side] );
+    return bitCount ( chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[QUEEN_BLACK + side] );
   }
-#define updateZobristKey(piece,  position) (zobristKey ^= RANDOM_KEY[piece][position])
-  //  void updateZobristKey( uchar piece, uchar position) {
-  //// *(key) ^= _random::RANDOM_KEY[piece][position];
-  //    zobristKey ^= RANDOM_KEY[piece][position];
-  //}
 #ifdef DEBUG_MODE
+  void updateZobristKey ( int piece, int position ) {
+    ASSERT_RANGE ( position, 0, 63 );
+    ASSERT ( piece != 12 );
+    ASSERT_RANGE ( piece, 0, 14 );
+    zobristKey ^= _random::RANDOM_KEY[piece][position];
+  }
+
   int getPieceAt ( int side, u64 bitmapPos );
+#else
+#define updateZobristKey(piece,  position) (zobristKey ^= _random::RANDOM_KEY[piece][position])
+
 #endif
 private:
   string fenString;
   void setRightCastle ( uchar r );
   int loadFen (  );
   uchar getRightCastle (  );
-  void boardToFen ( string & fen );
+
 };
 #endif

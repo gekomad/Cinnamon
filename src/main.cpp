@@ -1,13 +1,24 @@
+/*
+    Cinnamon is a UCI chess engine
+    Copyright (C) 2011-2014 Giuseppe Cannella
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "Uci.h"
-#include <unistd.h>
-#include "namespaces.h"
 
 /*
-   # ENGINE                : RATING    POINTS  PLAYED    (%)
-   1 Cinnamon 1.1beta14    : 2349.1     890.0    1398   63.7%
-   2 Cinnamon 1.0          : 2250.9     508.0    1398   36.3%
-
-
 
  8| 63 62 61 60 59 58 57 56
  7| 55 54 53 52 51 50 49 48
@@ -19,86 +30,202 @@
  1| 07 06 05 04 03 02 01 00
  ...a  b  c  d  e  f  g  h
 
-
-rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
- Depth 	Perft
- 1 		20 				verified
- 2  	400 			verified
- 3 		8902 			verified
- 4 		197281 			verified
- 5 		4865609 		verified
- 6 		119060324 		verified
- 7 		3195901860      verified
- 8 		84998978956     verified
- 9		2439530234167   verified
-
-position fen r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -
- Depth 	Perft
- 1		48              verified
- 2		2039            verified
- 3		97862           verified
- 4		4085603         verified
- 5		193690690       verified
- 6		8031647685      verified
- 7      374190009323    verified
-
-rnbqkbnr/pp1ppppp/8/2pP4/8/8/PPP1PPPP/RNBQKBNR w KQkq c6 0 2
-Depth 	Perft
- 1      30              verified
- 2      631             verified
- 3      18825           verified
- 4      437149          verified
- 5      13787913        verified
-
  */
 
 using namespace _board;
 
 int
-main ( int argc, char **argv ) {	//TODO comprimere con upx
-  _bits::init (  );
-  _random::init (  );
+main ( int argc, char **argv ) {
   cout << NAME;
-  cout << " UCI (ex Butterfly) by Giuseppe Cannella" << endl;
+  cout << " UCI by Giuseppe Cannella\n";
 #if UINTPTR_MAX == 0xffffffffffffffff
-  cout << "64-bit";
-#ifdef HAS_POPCNT
-  cout << " popcnt";
-#endif
-
+  cout << "64-bit ";
 #else
-  cout << "32-bit";
+  cout << "32-bit ";
 #endif
-  cout << " version compiled " << __DATE__ << " with gcc " << __VERSION__ << endl;
-  cout << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>" << endl << endl;
+#ifdef HAS_POPCNT
+  cout << "popcnt ";
+#endif
+#ifdef HAS_BSF
+  cout << "bsf ";
+#endif
+  cout << "version compiled " << __DATE__ << " with gcc " << __VERSION__ << "\n";
+  cout << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\n";
+#ifdef CLOP
+  cout << "CLOP ENABLED\n";
+#endif
 #ifdef DEBUG_MODE
-  cout << "DEBUG_MODE" << endl;
+  cout << "DEBUG_MODE\n";
 #endif
+  cout << flush;
   char opt;
-  while ( ( opt = getopt ( argc, argv, "bp:" ) ) != -1 ) {
+  const string DTM_HELP = "-dtm -f \"fen position\" [-p path] [-s scheme] [-i installed pieces]";
+  const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb)] [-f \"fen position\"] [-F dump file]";
+  const string EPD2PGN_HELP = "-epd2pgn -f file_epd [-m max_pieces]";
+
+  while ( ( opt = getopt ( argc, argv, "e:hd:bp:f:" ) ) != -1 ) {
+    if ( opt == 'h' ) {
+      cout << "Distance to mate: " << argv[0] << " " << DTM_HELP << "\n";
+      cout << "Perft test: " << argv[0] << " " << PERFT_HELP << "\n";
+      cout << "Create .pgn from .epd: " << argv[0] << " " << EPD2PGN_HELP << endl;
+      return 0;
+    }
+
+    if ( opt == 'e' ) {
+      if ( string ( optarg ) != "pd2pgn" ) {
+	cout << "use: " << argv[0] << " " << EPD2PGN_HELP << endl;
+	return 1;
+      };
+
+      string epdfile;
+
+      int m = 64;
+
+      while ( ( opt = getopt ( argc, argv, "f:m:" ) ) != -1 ) {
+	if ( opt == 'f' ) {	//file
+	  epdfile = optarg;
+	}
+
+	if ( opt == 'm' ) {	//n' pieces
+	  string h = optarg;
+	  m = stoi ( h );
+	}
+      }
+
+      ///////////////////
+      ifstream inData;
+      string fen;
+
+      if ( !_file::fileExists ( epdfile ) ) {
+	cout << "error file not found  " << epdfile << endl;
+	return 1;
+      }
+
+      inData.open ( epdfile );
+      int count = 0;
+      int n = 0;
+      ostringstream os;
+      os << "[Date \"" << _time::getYear (  ) << "." << _time::getMonth (  ) << "." << _time::getDay (  ) << "\"]";
+      string date = os.str (  );
+
+      while ( !inData.eof (  ) ) {
+	getline ( inData, fen );
+	n = 0;
+
+	for ( unsigned i = 0; i < fen.size (  ); i++ ) {
+	  char c = tolower ( fen[i] );
+
+	  if ( c == ' ' ) {
+	    break;
+	  }
+
+	  if ( c == 'b' || c == 'k' || c == 'r' || c == 'q' || c == 'p' || c == 'n' ) {
+	    n++;
+	  }
+	}
+
+	if ( n > 0 && n <= m ) {
+	  count++;
+	  cout << "[Site \"" << count << " (" << n << " pieces)\"]\n";
+	  cout << date << "\n";
+	  cout << "[Result \"*\"]\n";
+	  string fenClean, token;
+	  istringstream uip ( fen, ios::in );
+	  uip >> token;
+	  fenClean += token + " ";
+	  uip >> token;
+	  fenClean += token + " ";
+	  uip >> token;
+	  fenClean += token + " ";
+	  uip >> token;
+	  fenClean += token;
+	  cout << "[FEN \"" << fenClean << "\"]\n";
+	  cout << "*" << "\n";
+	}
+      }
+
+      cout << endl;
+      return 0;
+    }
+
     if ( opt == 'b' ) {
-      IterativeDeeping *it = new IterativeDeeping (  );
+      unique_ptr < IterativeDeeping > it ( new IterativeDeeping (  ) );
       it->setUseBook ( false );
       it->setMaxTimeMillsec ( 40000 );
       it->run (  );
-      delete it;
-      _bits::_free (  );
+      return 0;
+    }
+    else if ( opt == 'd' ) {	// gtb dtm
+      if ( string ( optarg ) != "tm" ) {
+	cout << "use: " << argv[0] << " " << DTM_HELP << endl;
+	return 1;
+      };
+
+      string fen, token;
+
+      IterativeDeeping it;
+
+      while ( ( opt = getopt ( argc, argv, "f:p:s:i:" ) ) != -1 ) {
+	if ( opt == 'f' ) {	//fen
+	  fen = optarg;
+	}
+	else if ( opt == 'p' ) {	//path
+	  token = optarg;
+	  it.getGtb (  ).setPath ( token );
+	}
+	else if ( opt == 's' ) {	//scheme
+	  token = optarg;
+
+	  if ( !it.getGtb (  ).setScheme ( token ) ) {
+	    cout << "set scheme error" << endl;
+	    return 1;
+	  }
+	}
+	else if ( opt == 'i' ) {
+	  token = optarg;
+
+	  if ( !it.getGtb (  ).setInstalledPieces ( stoi ( token ) ) ) {
+	    cout << "set installed pieces error" << endl;
+	    return 1;
+	  }
+	}
+      }
+
+      if ( !it.getGtbAvailable (  ) ) {
+	cout << "error TB not found" << endl;
+	return 1;
+      }
+
+      it.loadFen ( fen );
+      it.printDtm (  );
       return 0;
     }
     else if ( opt == 'p' ) {	// perft test
-      const string error = "use: -perft [-d depth] [-c nCpu] [-h hash size (Mb)] [-f \"fen position\"]";
       if ( string ( optarg ) != "erft" ) {
-	cout << error << endl;
-	_bits::_free (  );
-	return 1;
+	continue;
       };
-      int nCpu = 1;
-      int perftDepth = 1;
+
+      int nCpu = 0;
+
+      int perftDepth = 0;
+
       string fen;
+
       int PERFT_HASH_SIZE = 0;
-      while ( ( opt = getopt ( argc, argv, "d:f:h:f:c:" ) ) != -1 ) {
+
+      string dumpFile;
+
+      while ( ( opt = getopt ( argc, argv, "d:f:h:f:c:F:" ) ) != -1 ) {
 	if ( opt == 'd' ) {	//depth
 	  perftDepth = atoi ( optarg );
+	}
+	else if ( opt == 'F' ) {	//use dump
+	  dumpFile = optarg;
+
+	  if ( dumpFile.empty (  ) ) {
+	    cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
+	    return 1;
+	  }
 	}
 	else if ( opt == 'c' ) {	//N cpu
 	  nCpu = atoi ( optarg );
@@ -110,22 +237,20 @@ main ( int argc, char **argv ) {	//TODO comprimere con upx
 	  fen = optarg;
 	}
       }
-      if ( perftDepth > GenMoves::MAX_PLY || perftDepth <= 0 || nCpu > 32 || nCpu <= 0 || PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0 ) {
-	cout << error << endl;
-	_bits::_free (  );
+
+      if ( perftDepth > GenMoves::MAX_PLY || perftDepth < 0 || nCpu > 32 || nCpu < 0 || PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0 ) {
+	cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
 	return 1;
       }
 
-      if ( fen.empty (  ) )
-	fen = STARTPOS;
-      cout << argv[0] << " -perft -d " << perftDepth << " -c " << nCpu << " -h " << PERFT_HASH_SIZE << " -f \"" << fen << "\"" << endl;
-      Perft *p = new Perft ( fen, perftDepth, nCpu, PERFT_HASH_SIZE );
-      delete p;
+      if ( PERFT_HASH_SIZE ) {
+	cout << "dump hash table in file every " << ( Perft::secondsToDump / 60 ) << " minutes" << endl;
+      }
+      unique_ptr < Perft > p ( new Perft ( fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile ) );
       return 0;
     }
   }
-  Uci *uci = new Uci (  );
-  delete uci;
-  _bits::_free (  );
+
+  unique_ptr < Uci > p ( new Uci (  ) );
   return 0;
 }

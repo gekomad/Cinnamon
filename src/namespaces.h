@@ -1,3 +1,21 @@
+/*
+    Cinnamon is a UCI chess engine
+    Copyright (C) 2011-2014 Giuseppe Cannella
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef NAMESPACES_H_
 #define NAMESPACES_H_
 #include <string.h>
@@ -6,28 +24,40 @@
 #include <sys/timeb.h>
 #include <sstream>
 #include <climits>
+#include <fstream>
+#include "stacktrace.h"
 
+using namespace std;
 namespace _board {
-  using namespace std;
 
-  static const string NAME = "Cinnamon 1.1c";
+  static const string NAME = "Cinnamon 1.2a";
   static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
   typedef unsigned char uchar;
-  typedef long long unsigned u64;
 
-#define assert(a) if(!(a)){cout<<dec<<endl<<_time::getLocalTime()<<" ********************************** assert error in "<<_file::extractFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl<<flush;exit(1);};
+  typedef long long unsigned u64;
+  typedef u64 _Tchessboard[12];
+
+#define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<_time::getLocalTime()<<" ********************************** assert error in "<<_file::extractFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;exit(1);};
 
 #ifdef DEBUG_MODE
-
 #define ASSERT(a) assert(a)
+#define ASSERT_RANGE(value,from,to) assert(value>=from && value<=to)
 #define INC(a) (a++)
+#define ADD(a,b) (a+=b)
 
 #else
 
 #define ASSERT(a)
+#define ASSERT_RANGE(value,from,to)
 #define INC(a)
+#define ADD(a,b)
+#endif
 
+#if defined(CLOP) || defined(DEBUG_MODE)
+#define STATIC_CONST
+#else
+#define STATIC_CONST static const
 #endif
 
   typedef struct {
@@ -45,22 +75,13 @@ namespace _board {
   typedef struct {
     _Tmove *moveList;
     int size;
-    // u128 used;
   } _TmoveP;
-
-/*
-typedef struct{
-    u64 h,l;
-}u128;
-*/
 
 
   static const int BLACK = 0;
   static const int WHITE = 1;
   static const int _INFINITE = 32000;
-  static const int FUTIL_MARGIN = 154;
-  static const int EXT_FUTILY_MARGIN = 392;
-  static const int RAZOR_MARGIN = 1071;
+
   static const u64 POW2_0 = 0x1ULL;
   static const u64 POW2_1 = 0x2ULL;
   static const u64 POW2_2 = 0x4ULL;
@@ -92,6 +113,8 @@ typedef struct{
   static const u64 NOTPOW2_61 = 0xdfffffffffffffffULL;
   static const u64 NOTPOW2_63 = 0x7fffffffffffffffULL;
 
+  static const u64 RANDSIDE[2] = { 0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL };
+  static const u64 BIG_CENTER = 0x3c3c3c3c0000ULL;
   static const string BOARD[64] = {
     "h1", "g1", "f1", "e1", "d1", "c1", "b1", "a1",
     "h2", "g2", "f2", "e2", "d2", "c2", "b2", "a2",
@@ -161,10 +184,6 @@ typedef struct{
     0, 1, 2, 3, 4, 5, 6, 7,
     0, 1, 2, 3, 4, 5, 6, 7,
     0, 1, 2, 3, 4, 5, 6, 7
-  };
-
-  static const u64 RANDOM_KEY[15][64] = {
-#include "random.inc"
   };
 
   static const uchar RIGHT_UPPER[] = {
@@ -449,6 +468,142 @@ typedef struct{
     6, 6, 6, 6, 6, 6, 6, 6,
     7, 7, 7, 7, 7, 7, 7, 7
   };
+  static const char MASK_BIT_SET_COUNT_VERT_UPPER[64] = { 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
+  static const char MASK_BIT_SET_COUNT_ORIZ_LEFT[64] = { 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0 };
+  static const u64 MASK_BIT_SET_VERT_LOWER[64] = {
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x1ULL,
+    0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL, 0x40ULL, 0x80ULL, 0x101ULL,
+    0x202ULL, 0x404ULL, 0x808ULL, 0x1010ULL, 0x2020ULL, 0x4040ULL, 0x8080ULL, 0x10101ULL,
+    0x20202ULL, 0x40404ULL, 0x80808ULL, 0x101010ULL, 0x202020ULL, 0x404040ULL, 0x808080ULL, 0x1010101ULL,
+    0x2020202ULL, 0x4040404ULL, 0x8080808ULL, 0x10101010ULL, 0x20202020ULL, 0x40404040ULL, 0x80808080ULL, 0x101010101ULL,
+    0x202020202ULL, 0x404040404ULL, 0x808080808ULL, 0x1010101010ULL, 0x2020202020ULL, 0x4040404040ULL, 0x8080808080ULL, 0x10101010101ULL,
+    0x20202020202ULL, 0x40404040404ULL, 0x80808080808ULL, 0x101010101010ULL, 0x202020202020ULL, 0x404040404040ULL, 0x808080808080ULL, 0x1010101010101ULL,
+    0x2020202020202ULL, 0x4040404040404ULL, 0x8080808080808ULL, 0x10101010101010ULL, 0x20202020202020ULL, 0x40404040404040ULL, 0x80808080808080ULL
+  };
+
+  static const u64 MASK_BIT_SET_VERT_UPPER[64] = {
+    0x101010101010100ull, 0x202020202020200ull, 0x404040404040400ull, 0x808080808080800ull, 0x1010101010101000ull, 0x2020202020202000ull, 0x4040404040404000ull,
+    0x8080808080808000ull, 0x101010101010000ull, 0x202020202020000ull, 0x404040404040000ull, 0x808080808080000ull, 0x1010101010100000ull, 0x2020202020200000ull,
+    0x4040404040400000ull, 0x8080808080800000ull, 0x101010101000000ull, 0x202020202000000ull, 0x404040404000000ull, 0x808080808000000ull, 0x1010101010000000ull,
+    0x2020202020000000ull, 0x4040404040000000ull, 0x8080808080000000ull, 0x101010100000000ull, 0x202020200000000ull, 0x404040400000000ull, 0x808080800000000ull,
+    0x1010101000000000ull, 0x2020202000000000ull, 0x4040404000000000ull, 0x8080808000000000ull, 0x101010000000000ull, 0x202020000000000ull, 0x404040000000000ull,
+    0x808080000000000ull, 0x1010100000000000ull, 0x2020200000000000ull, 0x4040400000000000ull, 0x8080800000000000ull, 0x101000000000000ull, 0x202000000000000ull,
+    0x404000000000000ull, 0x808000000000000ull, 0x1010000000000000ull, 0x2020000000000000ull, 0x4040000000000000ull, 0x8080000000000000ull, 0x100000000000000ull,
+    0x200000000000000ull, 0x400000000000000ull, 0x800000000000000ull, 0x1000000000000000ull, 0x2000000000000000ull, 0x4000000000000000ull, 0x8000000000000000ull,
+    0x0ull, 0x0ull, 0x0ull, 0x0ull, 0x0ull, 0x0ull, 0x0ull, 0x0ull
+  };
+
+  static const u64 MASK_BIT_SET_ORIZ_LEFT[64] = {
+    0xfeULL, 0xfcULL, 0xf8ULL, 0xf0ULL, 0xe0ULL, 0xc0ULL, 0x80ULL, 0x0ULL, 0xfe00ULL,
+    0xfc00ULL, 0xf800ULL, 0xf000ULL, 0xe000ULL, 0xc000ULL, 0x8000ULL, 0x0ULL, 0xfe0000ULL,
+    0xfc0000ULL, 0xf80000ULL, 0xf00000ULL, 0xe00000ULL, 0xc00000ULL, 0x800000ULL, 0x0ULL, 0xfe000000ULL,
+    0xfc000000ULL, 0xf8000000ULL, 0xf0000000ULL, 0xe0000000ULL, 0xc0000000ULL, 0x80000000ULL, 0x0ULL, 0xfe00000000ULL,
+    0xfc00000000ULL, 0xf800000000ULL, 0xf000000000ULL, 0xe000000000ULL, 0xc000000000ULL, 0x8000000000ULL, 0x0ULL, 0xfe0000000000ULL,
+    0xfc0000000000ULL, 0xf80000000000ULL, 0xf00000000000ULL, 0xe00000000000ULL, 0xc00000000000ULL, 0x800000000000ULL, 0x0ULL, 0xfe000000000000ULL,
+    0xfc000000000000ULL, 0xf8000000000000ULL, 0xf0000000000000ULL, 0xe0000000000000ULL, 0xc0000000000000ULL, 0x80000000000000ULL, 0x0ULL, 0xfe00000000000000ULL,
+    0xfc00000000000000ULL, 0xf800000000000000ULL, 0xf000000000000000ULL, 0xe000000000000000ULL, 0xc000000000000000ULL, 0x8000000000000000ULL, 0x0ULL
+  };
+
+  static const u64 MASK_BIT_SET_ORIZ_RIGHT[64] = {
+    0x0ULL, 0x1ULL, 0x3ULL, 0x7ULL, 0xfULL, 0x1fULL, 0x3fULL, 0x7fULL, 0x0ULL,
+    0x100ULL, 0x300ULL, 0x700ULL, 0xf00ULL, 0x1f00ULL, 0x3f00ULL, 0x7f00ULL, 0x0ULL,
+    0x10000ULL, 0x30000ULL, 0x70000ULL, 0xf0000ULL, 0x1f0000ULL, 0x3f0000ULL, 0x7f0000ULL, 0x0ULL,
+    0x1000000ULL, 0x3000000ULL, 0x7000000ULL, 0xf000000ULL, 0x1f000000ULL, 0x3f000000ULL, 0x7f000000ULL, 0x0ULL,
+    0x100000000ULL, 0x300000000ULL, 0x700000000ULL, 0xf00000000ULL, 0x1f00000000ULL, 0x3f00000000ULL, 0x7f00000000ULL, 0x0ULL,
+    0x10000000000ULL, 0x30000000000ULL, 0x70000000000ULL, 0xf0000000000ULL, 0x1f0000000000ULL, 0x3f0000000000ULL, 0x7f0000000000ULL, 0x0ULL,
+    0x1000000000000ULL, 0x3000000000000ULL, 0x7000000000000ULL, 0xf000000000000ULL, 0x1f000000000000ULL, 0x3f000000000000ULL, 0x7f000000000000ULL, 0x0ULL,
+    0x100000000000000ULL, 0x300000000000000ULL, 0x700000000000000ULL, 0xf00000000000000ULL, 0x1f00000000000000ULL, 0x3f00000000000000ULL, 0x7f00000000000000ULL
+  };
+
+  static const char MASK_BIT_SET_COUNT_LEFT_LOWER[64] = {
+    0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 1, 1, 0,
+    2, 2, 2, 2, 2, 2, 1, 0,
+    3, 3, 3, 3, 3, 2, 1, 0,
+    4, 4, 4, 4, 3, 2, 1, 0,
+    5, 5, 5, 4, 3, 2, 1, 0,
+    6, 6, 5, 4, 3, 2, 1, 0,
+    7, 6, 5, 4, 3, 2, 1, 0
+  };
+
+  static const char MASK_BIT_SET_COUNT_LEFT_UPPER[64] = {
+    0, 1, 2, 3, 4, 5, 6, 7,
+    0, 1, 2, 3, 4, 5, 6, 6,
+    0, 1, 2, 3, 4, 5, 5, 5,
+    0, 1, 2, 3, 4, 4, 4, 4,
+    0, 1, 2, 3, 3, 3, 3, 3,
+    0, 1, 2, 2, 2, 2, 2, 2,
+    0, 1, 1, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0
+  };
+
+  static const char MASK_BIT_SET_COUNT_RIGHT_LOWER[64] = {
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 1, 1, 1, 1, 1, 1, 1,
+    0, 1, 2, 2, 2, 2, 2, 2,
+    0, 1, 2, 3, 3, 3, 3, 3,
+    0, 1, 2, 3, 4, 4, 4, 4,
+    0, 1, 2, 3, 4, 5, 5, 5,
+    0, 1, 2, 3, 4, 5, 6, 6,
+    0, 1, 2, 3, 4, 5, 6, 7
+  };
+
+  static const char MASK_BIT_SET_COUNT_RIGHT_UPPER[64] = {
+    7, 6, 5, 4, 3, 2, 1, 0,
+    6, 6, 5, 4, 3, 2, 1, 0,
+    5, 5, 5, 4, 3, 2, 1, 0,
+    4, 4, 4, 4, 3, 2, 1, 0,
+    3, 3, 3, 3, 3, 2, 1, 0,
+    2, 2, 2, 2, 2, 2, 1, 0,
+    1, 1, 1, 1, 1, 1, 1, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+  };
+
+  static const u64 MASK_BIT_SET_LEFT_LOWER[64] = {
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
+    0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL, 0x40ULL, 0x80ULL, 0x0ULL,
+    0x204ULL, 0x408ULL, 0x810ULL, 0x1020ULL, 0x2040ULL, 0x4080ULL, 0x8000ULL, 0x0ULL,
+    0x20408ULL, 0x40810ULL, 0x81020ULL, 0x102040ULL, 0x204080ULL, 0x408000ULL, 0x800000ULL, 0x0ULL,
+    0x2040810ULL, 0x4081020ULL, 0x8102040ULL, 0x10204080ULL, 0x20408000ULL, 0x40800000ULL, 0x80000000ULL, 0x0ULL,
+    0x204081020ULL, 0x408102040ULL, 0x810204080ULL, 0x1020408000ULL, 0x2040800000ULL, 0x4080000000ULL, 0x8000000000ULL, 0x0ULL,
+    0x20408102040ULL, 0x40810204080ULL, 0x81020408000ULL, 0x102040800000ULL, 0x204080000000ULL, 0x408000000000ULL, 0x800000000000ULL, 0x0ULL,
+    0x2040810204080ULL, 0x4081020408000ULL, 0x8102040800000ULL, 0x10204080000000ULL, 0x20408000000000ULL, 0x40800000000000ULL, 0x80000000000000ULL, 0x0ULL
+  };
+
+  static const u64 MASK_BIT_SET_LEFT_UPPER[64] = {
+    0x0ULL, 0x100ULL, 0x10200ULL, 0x1020400ULL, 0x102040800ULL, 0x10204081000ULL, 0x1020408102000ULL, 0x102040810204000ULL,
+    0x0ULL, 0x10000ULL, 0x1020000ULL, 0x102040000ULL, 0x10204080000ULL, 0x1020408100000ULL, 0x102040810200000ULL, 0x204081020400000ULL,
+    0x0ULL, 0x1000000ULL, 0x102000000ULL, 0x10204000000ULL, 0x1020408000000ULL, 0x102040810000000ULL, 0x204081020000000ULL, 0x408102040000000ULL,
+    0x0ULL, 0x100000000ULL, 0x10200000000ULL, 0x1020400000000ULL, 0x102040800000000ULL, 0x204081000000000ULL, 0x408102000000000ULL, 0x810204000000000ULL,
+    0x0ULL, 0x10000000000ULL, 0x1020000000000ULL, 0x102040000000000ULL, 0x204080000000000ULL, 0x408100000000000ULL, 0x810200000000000ULL, 0x1020400000000000ULL,
+    0x0ULL, 0x1000000000000ULL, 0x102000000000000ULL, 0x204000000000000ULL, 0x408000000000000ULL, 0x810000000000000ULL, 0x1020000000000000ULL, 0x2040000000000000ULL,
+    0x0ULL, 0x100000000000000ULL, 0x200000000000000ULL, 0x400000000000000ULL, 0x800000000000000ULL, 0x1000000000000000ULL, 0x2000000000000000ULL, 0x4000000000000000ULL,
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL
+  };
+
+  static const u64 MASK_BIT_SET_RIGHT_LOWER[64] = {
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
+    0x0ULL, 0x1ULL, 0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL, 0x40ULL,
+    0x0ULL, 0x100ULL, 0x201ULL, 0x402ULL, 0x804ULL, 0x1008ULL, 0x2010ULL, 0x4020ULL,
+    0x0ULL, 0x10000ULL, 0x20100ULL, 0x40201ULL, 0x80402ULL, 0x100804ULL, 0x201008ULL, 0x402010ULL,
+    0x0ULL, 0x1000000ULL, 0x2010000ULL, 0x4020100ULL, 0x8040201ULL, 0x10080402ULL, 0x20100804ULL, 0x40201008ULL,
+    0x0ULL, 0x100000000ULL, 0x201000000ULL, 0x402010000ULL, 0x804020100ULL, 0x1008040201ULL, 0x2010080402ULL, 0x4020100804ULL,
+    0x0ULL, 0x10000000000ULL, 0x20100000000ULL, 0x40201000000ULL, 0x80402010000ULL, 0x100804020100ULL, 0x201008040201ULL, 0x402010080402ULL,
+    0x0ULL, 0x1000000000000ULL, 0x2010000000000ULL, 0x4020100000000ULL, 0x8040201000000ULL, 0x10080402010000ULL, 0x20100804020100ULL, 0x40201008040201ULL
+  };
+
+  static const u64 MASK_BIT_SET_RIGHT_UPPER[64] = {
+    0x8040201008040200ULL, 0x80402010080400ULL, 0x804020100800ULL, 0x8040201000ULL, 0x80402000ULL, 0x804000ULL, 0x8000ULL, 0x0ULL,
+    0x4020100804020000ULL, 0x8040201008040000ULL, 0x80402010080000ULL, 0x804020100000ULL, 0x8040200000ULL, 0x80400000ULL, 0x800000ULL, 0x0ULL,
+    0x2010080402000000ULL, 0x4020100804000000ULL, 0x8040201008000000ULL, 0x80402010000000ULL, 0x804020000000ULL, 0x8040000000ULL, 0x80000000ULL, 0x0ULL,
+    0x1008040200000000ULL, 0x2010080400000000ULL, 0x4020100800000000ULL, 0x8040201000000000ULL, 0x80402000000000ULL, 0x804000000000ULL, 0x8000000000ULL, 0x0ULL,
+    0x804020000000000ULL, 0x1008040000000000ULL, 0x2010080000000000ULL, 0x4020100000000000ULL, 0x8040200000000000ULL, 0x80400000000000ULL, 0x800000000000ULL, 0x0ULL,
+    0x402000000000000ULL, 0x804000000000000ULL, 0x1008000000000000ULL, 0x2010000000000000ULL, 0x4020000000000000ULL, 0x8040000000000000ULL, 0x80000000000000ULL, 0x0ULL,
+    0x200000000000000ULL, 0x400000000000000ULL, 0x800000000000000ULL, 0x1000000000000000ULL, 0x2000000000000000ULL, 0x4000000000000000ULL, 0x8000000000000000ULL, 0x0ULL,
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL
+  };
+
+
   static const u64 PAWNS_8_1[2] = { 0xFFULL, 0xFF00000000000000ULL };
 
   static const u64 PAWNS_JUMP[2] = { 0xFF000000000000ULL, 0xFF00ULL };
@@ -486,6 +641,7 @@ typedef struct{
     0xff7fffffffffffffULL, 0xfeffffffffffffffULL, 0xfdffffffffffffffULL, 0xfbffffffffffffffULL, 0xf7ffffffffffffffULL, 0xefffffffffffffffULL, 0xdfffffffffffffffULL, 0xbfffffffffffffffULL,
     0x7fffffffffffffffULL
   };
+
 
   static const u64 PAWN_FORK_MASK[2][64] = { {
 					      0, 0, 0, 0, 0, 0, 0, 0,
@@ -544,122 +700,69 @@ typedef struct{
 					      0xa00000000000ULL,
 					      0x400000000000ULL,
 
-					      0, 0, 0, 0, 0, 0, 0, 0}, {
-									0, 0, 0, 0, 0, 0, 0, 0,
+					      0x0002000000000000ULL, 0x0005000000000000ULL,
+					      0x000A000000000000ULL, 0x0014000000000000ULL, 0x0028000000000000ULL,
+					      0x0050000000000000ULL, 0x00A0000000000000ULL, 0x0040000000000000ULL}, {
+														     0x0000000000000200ULL, 0x0000000000000500ULL, 0x0000000000000A00ULL,
+														     0x0000000000001400ULL, 0x0000000000002800ULL,
+														     0x0000000000005000ULL, 0x000000000000A000ULL,
+														     0x0000000000004000ULL,
 
-									0x20000ULL,
-									0x50000ULL,
-									0xa0000ULL,
-									0x140000ULL,
-									0x280000ULL,
-									0x500000ULL,
-									0xa00000ULL,
-									0x400000ULL,
+														     0x20000ULL,
+														     0x50000ULL,
+														     0xa0000ULL,
+														     0x140000ULL,
+														     0x280000ULL,
+														     0x500000ULL,
+														     0xa00000ULL,
+														     0x400000ULL,
 
-									0x2000000ULL,
-									0x5000000ULL,
-									0xa000000ULL,
-									0x14000000ULL,
-									0x28000000ULL,
-									0x50000000ULL,
-									0xa0000000ULL,
-									0x40000000ULL,
+														     0x2000000ULL,
+														     0x5000000ULL,
+														     0xa000000ULL,
+														     0x14000000ULL,
+														     0x28000000ULL,
+														     0x50000000ULL,
+														     0xa0000000ULL,
+														     0x40000000ULL,
 
-									0x200000000ULL,
-									0x500000000ULL,
-									0xa00000000ULL,
-									0x1400000000ULL,
-									0x2800000000ULL,
-									0x5000000000ULL,
-									0xa000000000ULL,
-									0x4000000000ULL,
+														     0x200000000ULL,
+														     0x500000000ULL,
+														     0xa00000000ULL,
+														     0x1400000000ULL,
+														     0x2800000000ULL,
+														     0x5000000000ULL,
+														     0xa000000000ULL,
+														     0x4000000000ULL,
 
-									0x20000000000ULL,
-									0x50000000000ULL,
-									0xa0000000000ULL,
-									0x140000000000ULL,
-									0x280000000000ULL,
-									0x500000000000ULL,
-									0xa00000000000ULL,
-									0x400000000000ULL,
+														     0x20000000000ULL,
+														     0x50000000000ULL,
+														     0xa0000000000ULL,
+														     0x140000000000ULL,
+														     0x280000000000ULL,
+														     0x500000000000ULL,
+														     0xa00000000000ULL,
+														     0x400000000000ULL,
 
-									0x2000000000000ULL,
-									0x5000000000000ULL,
-									0xa000000000000ULL,
-									0x14000000000000ULL,
-									0x28000000000000ULL,
-									0x50000000000000ULL,
-									0xa0000000000000ULL,
-									0x40000000000000ULL,
+														     0x2000000000000ULL,
+														     0x5000000000000ULL,
+														     0xa000000000000ULL,
+														     0x14000000000000ULL,
+														     0x28000000000000ULL,
+														     0x50000000000000ULL,
+														     0xa0000000000000ULL,
+														     0x40000000000000ULL,
 
-									0x200000000000000ULL,
-									0x500000000000000ULL,
-									0xa00000000000000ULL,
-									0x1400000000000000ULL,
-									0x2800000000000000ULL,
-									0x5000000000000000ULL,
-									0xa000000000000000ULL,
-									0x4000000000000000ULL,
+														     0x200000000000000ULL,
+														     0x500000000000000ULL,
+														     0xa00000000000000ULL,
+														     0x1400000000000000ULL,
+														     0x2800000000000000ULL,
+														     0x5000000000000000ULL,
+														     0xa000000000000000ULL,
+														     0x4000000000000000ULL,
 
-									0, 0, 0, 0, 0, 0, 0, 0}
-  };
-
-  static const u64 PAWN_CAPTURE_MASK[2][64] = { {
-						 0x0000000000000000ULL,
-						 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
-						 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
-						 0x0000000000000000ULL, 0x0000000000000002ULL, 0x0000000000000005ULL,
-						 0x000000000000000AULL, 0x0000000000000014ULL, 0x0000000000000028ULL,
-						 0x0000000000000050ULL, 0x00000000000000A0ULL, 0x0000000000000040ULL,
-						 0x0000000000000200ULL, 0x0000000000000500ULL, 0x0000000000000A00ULL,
-						 0x0000000000001400ULL, 0x0000000000002800ULL, 0x0000000000005000ULL,
-						 0x000000000000A000ULL, 0x0000000000004000ULL, 0x0000000000020000ULL,
-						 0x0000000000050000ULL, 0x00000000000A0000ULL, 0x0000000000140000ULL,
-						 0x0000000000280000ULL, 0x0000000000500000ULL, 0x0000000000A00000ULL,
-						 0x0000000000400000ULL, 0x0000000002000000ULL, 0x0000000005000000ULL,
-						 0x000000000A000000ULL, 0x0000000014000000ULL, 0x0000000028000000ULL,
-						 0x0000000050000000ULL, 0x00000000A0000000ULL, 0x0000000040000000ULL,
-						 0x0000000200000000ULL, 0x0000000500000000ULL, 0x0000000A00000000ULL,
-						 0x0000001400000000ULL, 0x0000002800000000ULL, 0x0000005000000000ULL,
-						 0x000000A000000000ULL, 0x0000004000000000ULL, 0x0000020000000000ULL,
-						 0x0000050000000000ULL, 0x00000A0000000000ULL, 0x0000140000000000ULL,
-						 0x0000280000000000ULL, 0x0000500000000000ULL, 0x0000A00000000000ULL,
-						 0x0000400000000000ULL, 0x0002000000000000ULL, 0x0005000000000000ULL,
-						 0x000A000000000000ULL, 0x0014000000000000ULL, 0x0028000000000000ULL,
-						 0x0050000000000000ULL, 0x00A0000000000000ULL, 0x0040000000000000ULL},
-  {
-   0x0000000000000200ULL, 0x0000000000000500ULL, 0x0000000000000A00ULL,
-   0x0000000000001400ULL, 0x0000000000002800ULL,
-   0x0000000000005000ULL, 0x000000000000A000ULL,
-   0x0000000000004000ULL, 0x0000000000020000ULL,
-   0x0000000000050000ULL, 0x00000000000A0000ULL,
-   0x0000000000140000ULL, 0x0000000000280000ULL,
-   0x0000000000500000ULL, 0x0000000000A00000ULL,
-   0x0000000000400000ULL, 0x0000000002000000ULL,
-   0x0000000005000000ULL, 0x000000000A000000ULL,
-   0x0000000014000000ULL, 0x0000000028000000ULL,
-   0x0000000050000000ULL, 0x00000000A0000000ULL,
-   0x0000000040000000ULL, 0x0000000200000000ULL,
-   0x0000000500000000ULL, 0x0000000A00000000ULL,
-   0x0000001400000000ULL, 0x0000002800000000ULL,
-   0x0000005000000000ULL, 0x000000A000000000ULL,
-   0x0000004000000000ULL, 0x0000020000000000ULL,
-   0x0000050000000000ULL, 0x00000A0000000000ULL,
-   0x0000140000000000ULL, 0x0000280000000000ULL,
-   0x0000500000000000ULL, 0x0000A00000000000ULL,
-   0x0000400000000000ULL, 0x0002000000000000ULL,
-   0x0005000000000000ULL, 0x000A000000000000ULL,
-   0x0014000000000000ULL, 0x0028000000000000ULL,
-   0x0050000000000000ULL, 0x00A0000000000000ULL,
-   0x0040000000000000ULL, 0x0200000000000000ULL,
-   0x0500000000000000ULL, 0x0A00000000000000ULL,
-   0x1400000000000000ULL, 0x2800000000000000ULL,
-   0x5000000000000000ULL, 0xA000000000000000ULL,
-   0x4000000000000000ULL, 0x0000000000000000ULL,
-   0x0000000000000000ULL, 0x0000000000000000ULL,
-   0x0000000000000000ULL, 0x0000000000000000ULL,
-   0x0000000000000000ULL, 0x0000000000000000ULL,
-   0x0000000000000000ULL}
+														     0, 0, 0, 0, 0, 0, 0, 0}
   };
 
   static const u64 NEAR_MASK1[64] = {
@@ -739,99 +842,25 @@ typedef struct{
 							       0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
 							       0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0}
   };
-
 }
 
 using namespace _board;
-namespace _memory {
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <sys/mman.h>
-#endif
-  void *_mmap ( string fileName );
-  void _munmap ( void *blob, int fileSize );
-} namespace _time {
+
+namespace _time {
   string getLocalTime (  );
   int diffTime ( struct timeb a, struct timeb b );
-} namespace _string {
-  void trimRight ( string & str );
-  void replace ( string & f, string s1, string s2 );
-  void replace ( string & f, char c1, char c2 );
+  int getYear (  );
+  int getMonth (  );
+  int getDay (  );
 } namespace _file {
+  bool fileExists ( string filename );
   int fileSize ( const string & FileName );
   string extractFileName ( string path );
 } namespace _random {
-  void init (  );
-  u64 getRandom64 (  );
-} namespace _bits {
-  extern u64 MASK_BIT_SET[64][64];
-  extern u64 MASK_BIT_SET_NOBOUND[64][64];
-  extern char MASK_BIT_SET_COUNT[64][64];
-  extern char MASK_BIT_SET_NOBOUND_COUNT[64][64];
-  extern u64 **LINK_ROOKS;
-  void init (  );
-  void _free (  );
-
-   template < int side, int shift > __inline static u64 shiftForward ( const u64 bits ) {
-    return side == WHITE ? bits << shift : bits >> shift;
-  }
-#if UINTPTR_MAX == 0xffffffffffffffff
-  __inline static int BITScanForward ( u64 bits ) {
-    return __builtin_ffsll ( bits ) - 1;
-  }
-
-  __inline static int BITScanReverse ( u64 bits ) {
-    return 63 - __builtin_clzll ( bits );
-  }
-#else
-  __inline static int BITScanForward ( u64 bits ) {
-    return ( ( unsigned ) bits ) ? __builtin_ffs ( bits ) - 1 : __builtin_ffs ( bits >> 32 ) + 31;
-  }
-
-  __inline static int BITScanReverse ( u64 bits ) {
-    return ( ( unsigned ) ( bits >> 32 ) ) ? 63 - __builtin_clz ( bits >> 32 ) : 31 - __builtin_clz ( bits );
-  }
-#endif
-
-#ifdef HAS_POPCNT
-  __inline static int bitCount ( u64 bits ) {
-    return __builtin_popcountll ( bits );
-  }
-#else
-  __inline static int bitCount ( u64 bits ) {
-    int count = 0;
-    while ( bits ) {
-      count++;
-      bits &= bits - 1;
-    }
-    return count;
-  }
-#endif
-
-/*
-__inline static int BITScanForward(u128* bits) {
-    return bits->l ? BITScanForward(bits->l) : BITScanForward(bits->h) ;
+  static const u64 RANDOM_KEY[15][64] = {
+#include "random.inc"
+  };
 }
-
-__inline static void setBit(u128* bits,int pos) {
-    pos>63 ? bits->h |= POW2[pos-64] : bits->l |= POW2[pos];
-}
-
-__inline static bool isZero(u128* bits) {
-    return ( bits->h == 0 && bits->l==0);
-}
-
-__inline static void unsetBit(u128* bits,int pos) {
-    ASSERT(!isZero(bits));
-    pos>63 ? bits->h &= NOTPOW2[pos-64] : bits->l &= NOTPOW2[pos];
-}
-
-__inline static void setZero(u128* bits) {
-    bits->h=bits->l=0;
-}*/
-}
-
 
 namespace _eval {
 
@@ -865,7 +894,12 @@ namespace _eval {
   };
 
   static const int MOB_KNIGHT[] = { -8, -4, 7, 10, 15, 20, 30, 35, 40 };
-  static const int MOB_BISHOP[] = { -8, -7, 2, 8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 50, 50 };
+
+  static const int MOB_BISHOP[][14] = {
+    {-8, -7, 2, 8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 50},
+    {-20, -10, -4, 0, 5, 10, 15, 20, 28, 30, 40, 45, 50, 50},
+    {-20, -10, -4, 0, 3, 8, 13, 18, 25, 30, 40, 45, 50, 50}
+  };
 
   static const int MOB_KING[][9] = {
     {1, 2, 2, 1, 0, 0, 0, 0, 0},
