@@ -36,15 +36,15 @@ makemove ( Tmove * mossa ) {
   int pezzoda, mossaa, mossada, mossacapture;
   int SIDE = mossa->side;
   int XSIDE = SIDE ^ 1;
-  if ( mossa->tipo == STANDARD || mossa->tipo == ENPASSANT || mossa->tipo == PROMOTION ) {
-    mossaa = mossa->a;
-    mossada = mossa->da;
+  if ( mossa->type == STANDARD || mossa->type == ENPASSANT || mossa->type == PROMOTION ) {
+    mossaa = mossa->to;
+    mossada = mossa->from;
     if ( mossada == pvv_da && mossaa == pvv_a )
       path_pvv = 1;
 #ifdef DEBUG_MODE
     assert ( mossaa >= 0 );
 #endif
-    if ( mossa->tipo != ENPASSANT )
+    if ( mossa->type != ENPASSANT )
       mossacapture = get_piece_at ( XSIDE, TABLOG[mossaa] );
     else
       mossacapture = XSIDE;
@@ -58,7 +58,7 @@ makemove ( Tmove * mossa ) {
     assert ( mossada >= 0 );
 #endif
     pezzoda = get_piece_at ( SIDE, TABLOG[mossada] );
-    if ( mossa->tipo == PROMOTION ) {
+    if ( mossa->type == PROMOTION ) {
       chessboard[pezzoda] = chessboard[pezzoda] & NOTTABLOG[mossada];
 
       chessboard[mossa->promotion_piece] = chessboard[mossa->promotion_piece] | TABLOG[mossaa];
@@ -67,7 +67,7 @@ makemove ( Tmove * mossa ) {
       chessboard[pezzoda] = ( chessboard[pezzoda] | TABLOG[mossaa] ) & NOTTABLOG[mossada];
     if ( mossacapture != SQUARE_FREE ) {
 
-      if ( mossa->tipo != ENPASSANT )
+      if ( mossa->type != ENPASSANT )
 	chessboard[mossacapture] &= NOTTABLOG[mossaa];
       else {
 
@@ -99,7 +99,7 @@ makemove ( Tmove * mossa ) {
     else if ( pezzoda == PAWN_BLACK && RANK_6 & TABLOG[mossada] && RANK_4 & TABLOG[mossaa] )
       ENP_POSSIBILE = mossaa;
   }
-  else if ( mossa->tipo == CASTLE ) {
+  else if ( mossa->type == CASTLE ) {
     //chessboard[12]=makeZobristKey();
 #ifdef DEBUG_MODE
     assert ( SIDE == 0 || SIDE == 1 );
@@ -107,21 +107,21 @@ makemove ( Tmove * mossa ) {
     assert ( mossa->side == SIDE );
     assert ( CASTLE_DONE[SIDE] == 0 );
     assert ( CASTLE_NOT_POSSIBLE[SIDE] == 0 );
-    if ( mossa->da == QUEENSIDE )
+    if ( mossa->from == QUEENSIDE )
       assert ( CASTLE_NOT_POSSIBLE_QUEENSIDE[SIDE] == 0 );
-    if ( mossa->da == KINGSIDE )
+    if ( mossa->from == KINGSIDE )
       assert ( CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] == 0 );
 #endif
-    make_castle ( mossa->da, SIDE );
+    make_castle ( mossa->from, SIDE );
     CASTLE_DONE[SIDE] = 1;
     CASTLE_NOT_POSSIBLE[SIDE] = 1;
-    if ( mossa->da == QUEENSIDE )
+    if ( mossa->from == QUEENSIDE )
       CASTLE_NOT_POSSIBLE_QUEENSIDE[SIDE] = 1;
-    if ( mossa->da == KINGSIDE )
+    if ( mossa->from == KINGSIDE )
       CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] = 1;
   }
 #ifdef DEBUG_MODE
-  //else {printf("\n%d %d",ENPASSANT,mossa->tipo);assert(0);}
+  //else {printf("\n%d %d",ENPASSANT,mossa->type);assert(0);}
 #endif
 #ifdef DEBUG_MODE
   assert ( chessboard[KING_BLACK] );
@@ -138,9 +138,9 @@ takeback ( const Tmove * mossa ) {
   int side, pezzoda, mossaa, mossada, mossacapture;
   enpas = -1;
   side = mossa->side;
-  if ( mossa->tipo == STANDARD || mossa->tipo == ENPASSANT ) {
-    mossaa = mossa->a;
-    mossada = mossa->da;
+  if ( mossa->type == STANDARD || mossa->type == ENPASSANT ) {
+    mossaa = mossa->to;
+    mossada = mossa->from;
     if ( mossada == pvv_da && mossaa == pvv_a )
       path_pvv = 0;
     mossacapture = mossa->capture;
@@ -150,7 +150,7 @@ takeback ( const Tmove * mossa ) {
     pezzoda = get_piece_at ( side, TABLOG[mossaa] );
     chessboard[pezzoda] = ( chessboard[pezzoda] & NOTTABLOG[mossaa] ) | TABLOG[mossada];
     if ( mossacapture != SQUARE_FREE ) {
-      if ( mossa->tipo != ENPASSANT )
+      if ( mossa->type != ENPASSANT )
 	chessboard[mossacapture] |= TABLOG[mossaa];
       else {
 #ifdef DEBUG_MODE
@@ -180,10 +180,10 @@ takeback ( const Tmove * mossa ) {
       CASTLE_NOT_POSSIBLE_KINGSIDE[side] = 0;
 
   }
-  else if ( mossa->tipo == PROMOTION ) {
+  else if ( mossa->type == PROMOTION ) {
     //chessboard[12]=makeZobristKey();
-    mossaa = mossa->a;
-    mossada = mossa->da;
+    mossaa = mossa->to;
+    mossada = mossa->from;
     mossacapture = mossa->capture;
 #ifdef DEBUG_MODE
     assert ( mossaa >= 0 );
@@ -195,14 +195,14 @@ takeback ( const Tmove * mossa ) {
       chessboard[mossacapture] |= TABLOG[mossaa];
 
   }
-  else if ( mossa->tipo == CASTLE ) {
+  else if ( mossa->type == CASTLE ) {
     //chessboard[12]=makeZobristKey();
-    un_make_castle ( mossa->da, side );
+    un_make_castle ( mossa->from, side );
     CASTLE_DONE[side] = 0;
     CASTLE_NOT_POSSIBLE[side] = 0;
-    if ( mossa->da == QUEENSIDE )
+    if ( mossa->from == QUEENSIDE )
       CASTLE_NOT_POSSIBLE_QUEENSIDE[side] = 0;
-    if ( mossa->da == KINGSIDE )
+    if ( mossa->from == KINGSIDE )
       CASTLE_NOT_POSSIBLE_KINGSIDE[side] = 0;
   }
 

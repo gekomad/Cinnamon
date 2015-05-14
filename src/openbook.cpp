@@ -67,9 +67,9 @@ search_openbook ( const u64 key, const int side ) {
     return -1;
   if ( side == -1 )
     return t;
-  if ( side == WHITE && openbook[t].da_white != -1 )
+  if ( side == WHITE && openbook[t].from_white != -1 )
     return t;
-  if ( side == BLACK && openbook[t].da_black != -1 )
+  if ( side == BLACK && openbook[t].from_black != -1 )
     return t;
   return -1;
 }
@@ -121,10 +121,10 @@ insert_openbook_leaf ( TopenbookLeaf ** root, Topenbook * x ) {
   if ( !( *root ) ) {
     openbookLeaf_count++;
     ( *root ) = ( TopenbookLeaf * ) calloc ( 1, sizeof ( TopenbookLeaf ) );
-    ( *root )->a_black = x->a_black;
-    ( *root )->da_black = x->da_black;
-    ( *root )->a_white = x->a_white;
-    ( *root )->da_white = x->da_white;
+    ( *root )->to_black = x->to_black;
+    ( *root )->from_black = x->from_black;
+    ( *root )->to_white = x->to_white;
+    ( *root )->from_white = x->from_white;
     ( *root )->eval = x->eval;
     ( *root )->key = x->key;
     ( *root )->l = NULL;
@@ -140,10 +140,10 @@ insert_openbook_leaf ( TopenbookLeaf ** root, Topenbook * x ) {
     if ( ( *root )->r == NULL ) {
       openbookLeaf_count++;
       ( *root )->r = ( TopenbookLeaf * ) calloc ( 1, sizeof ( TopenbookLeaf ) );
-      ( *root )->r->a_black = x->a_black;
-      ( *root )->r->da_black = x->da_black;
-      ( *root )->r->a_white = x->a_white;
-      ( *root )->r->da_white = x->da_white;
+      ( *root )->r->to_black = x->to_black;
+      ( *root )->r->from_black = x->from_black;
+      ( *root )->r->to_white = x->to_white;
+      ( *root )->r->from_white = x->from_white;
       ( *root )->r->eval = x->eval;
       ( *root )->r->key = x->key;
       ( *root )->r->l = NULL;
@@ -161,10 +161,10 @@ insert_openbook_leaf ( TopenbookLeaf ** root, Topenbook * x ) {
     if ( ( *root )->l == NULL ) {
       openbookLeaf_count++;
       ( *root )->l = ( TopenbookLeaf * ) calloc ( 1, sizeof ( TopenbookLeaf ) );
-      ( *root )->l->a_black = x->a_black;
-      ( *root )->l->da_black = x->da_black;
-      ( *root )->l->a_white = x->a_white;
-      ( *root )->l->da_white = x->da_white;
+      ( *root )->l->to_black = x->to_black;
+      ( *root )->l->from_black = x->from_black;
+      ( *root )->l->to_white = x->to_white;
+      ( *root )->l->from_white = x->from_white;
       ( *root )->l->eval = x->eval;
       ( *root )->l->key = x->key;
       ( *root )->l->l = NULL;
@@ -191,18 +191,18 @@ serialize_book ( TopenbookLeaf * root ) {
 #ifdef DEBUG_MODE
   assert ( root );
 #endif
-  openbook[ob_count].a_black = root->a_black;
-  openbook[ob_count].da_black = root->da_black;
-  openbook[ob_count].a_white = root->a_white;
-  openbook[ob_count].da_white = root->da_white;
+  openbook[ob_count].to_black = root->to_black;
+  openbook[ob_count].from_black = root->from_black;
+  openbook[ob_count].to_white = root->to_white;
+  openbook[ob_count].from_white = root->from_white;
   openbook[ob_count].eval = root->eval;
   openbook[ob_count].key = root->key;
 
-  if ( openbook[ob_count].da_black != -1 )
-    if ( openbook[ob_count].a_black < 0 )
+  if ( openbook[ob_count].from_black != -1 )
+    if ( openbook[ob_count].to_black < 0 )
       er = 1;
-  if ( openbook[ob_count].da_white != -1 )
-    if ( openbook[ob_count].a_white < 0 )
+  if ( openbook[ob_count].from_white != -1 )
+    if ( openbook[ob_count].to_white < 0 )
       er = 1;
 
   if ( !er )
@@ -279,8 +279,8 @@ update_open_book_eval (const char *TXT_FILE)
 	{
 	  Topenbook e;
 	  e.key = u;
-	  e.da_white = -1;
-	  e.da_black = -1;
+	  e.from_white = -1;
+	  e.from_black = -1;
 	  e.eval = eval (WHITE, _INFINITE, 0
 #ifdef HASH_MODE
 			 , 0
@@ -358,18 +358,18 @@ create_open_book ( const char *BOOK_TXT_FILE ) {
       if ( side == WHITE ) {
 
 	e.key = u;
-	e.da_white = ( char ) from;
-	e.a_white = ( char ) to;
-	e.da_black = -1;
+	e.from_white = ( char ) from;
+	e.to_white = ( char ) to;
+	e.from_black = -1;
 	e.eval = score;
 	insert_openbook_leaf ( &openbook_tree, &e );
       }
       else {
 
 	e.key = u;
-	e.da_black = ( char ) from;
-	e.a_black = ( char ) to;
-	e.da_white = -1;
+	e.from_black = ( char ) from;
+	e.to_black = ( char ) to;
+	e.from_white = -1;
 	e.eval = score;
 	insert_openbook_leaf ( &openbook_tree, &e );
       };

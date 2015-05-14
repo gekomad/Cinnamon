@@ -96,7 +96,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
 #endif
     x &= NOTTABLOG[o];
   };
-  allpieces2 = case_all_bit_occupate (  );
+  allpieces2 = square_all_bit_occupied (  );
 
   re_position_mod_8 = ROT45[pos];
 
@@ -130,7 +130,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
   };
   //left  
 
-  bit_raw = rotate_board_left_45 ( case_all_bit_occupate (  ), pos );
+  bit_raw = rotate_board_left_45 ( square_all_bit_occupied (  ), pos );
 #ifdef DEBUG_MODE
   assert ( bit_raw != -1 );
   assert ( bit_raw == ( bit_raw & MOVES_BISHOP_LEFT_MASK[pos] ) );
@@ -165,7 +165,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
     };
   };
   /*right \ */
-  bit_raw = rotate_board_right_45 ( case_all_bit_occupate (  ), pos );
+  bit_raw = rotate_board_right_45 ( square_all_bit_occupied (  ), pos );
 
 #ifdef DEBUG_MODE
   assert ( bit_raw != -1 );
@@ -202,7 +202,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
   };
   // } right*/ 
 
-  bit_raw = rotate_board_90 ( case_all_bit_occupate (  ), pos );
+  bit_raw = rotate_board_90 ( square_all_bit_occupied (  ), pos );
   y = MOVIMENTO_MASK_CAT[bit_raw][ROT45ROT_90_MASK[pos]];
   if ( y ) {
 

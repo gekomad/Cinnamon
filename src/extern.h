@@ -26,7 +26,7 @@ extern int euristic_pruning, EvalCuts;
 extern char test_ris[20];
 extern char test_trovato[20];
 #endif
-extern int re_amico[2], MAX_TIME_MILLSEC, MAX_DEPTH_TO_SEARCH, supplementary_mill_sec;
+extern int re_amico[2], MAX_TIME_MILLSEC, st_force, MAX_DEPTH_TO_SEARCH, HASH_SIZE, supplementary_mill_sec;
 extern u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 extern char mply, black_move;
 extern int winbtime, list_id, xboard, maxdep, incremental_move, force;

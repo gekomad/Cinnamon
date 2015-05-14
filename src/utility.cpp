@@ -275,7 +275,9 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
       //        int pezzoda = get_piece_at (SIDE, TABLOG[da]);
 
       evalNode.attaccate[da] |= TABLOG[a];
+
       evalNode.king_attak[SIDE] += DISTANCE[re_amico[SIDE ^ 1]][a];
+
       if ( ( TABLOG[a] & chessboard[KING_BLACK + SIDE] ) )
 	evalNode.re_attaccato[da] = 1;
       evalNode.attaccanti[a] |= TABLOG[da];
@@ -311,9 +313,9 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
 #endif
   mos = &gen_list[list_id][gen_list[list_id][0].score + 1];
   if ( tipomove == STANDARD || tipomove == ENPASSANT || tipomove == PROMOTION ) {
-    mos->tipo = ( char ) tipomove;
-    mos->da = ( char ) da;
-    mos->a = ( char ) a;
+    mos->type = ( char ) tipomove;
+    mos->from = ( char ) da;
+    mos->to = ( char ) a;
     mos->side = ( char ) SIDE;
     mos->promotion_piece = ( char ) promotion_piece;
 #ifndef PERFT_MODE
@@ -330,8 +332,8 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
 
   }
   else if ( tipomove == CASTLE ) {
-    mos->tipo = ( char ) tipomove;
-    mos->da = ( char ) da;	//corto lungo
+    mos->type = ( char ) tipomove;
+    mos->from = ( char ) da;	//corto lungo
     mos->side = ( char ) a;
     mos->capture = SQUARE_FREE;
 #ifndef PERFT_MODE
@@ -401,7 +403,7 @@ attack_square ( const int side, const int Position ) {
     return 0;
   }
 
-  ALLPIECES = case_all_bit_occupate (  ) | TABLOG[Position];
+  ALLPIECES = square_all_bit_occupied (  ) | TABLOG[Position];
   Position_mod_8 = ROT45[Position];
   Position_Position_mod_8 = pos_posMod8[Position];
   if ( MOVIMENTO_MASK_CAT[( uchar ) ( ( shr ( ALLPIECES, Position_Position_mod_8 ) ) )][Position_mod_8] & ( shr ( chessboard[ROOK_BLACK + xside], Position_Position_mod_8 ) & 255 | shr ( chessboard[QUEEN_BLACK + xside], Position_Position_mod_8 ) & 255 ) ) {
@@ -676,8 +678,8 @@ update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int dept
   // questa mossa ha causato un taglio, quindi si incrementa il valore
   //di history cosi viene ordinata in alto la prossima volta che la
   //cerchiamo
-  HistoryHeuristic[mossa->da][mossa->a] += depth;
-  KillerHeuristic[depth][mossa->da][mossa->a] = ( int ) TABLOG[depth];
+  HistoryHeuristic[mossa->from][mossa->to] += depth;
+  KillerHeuristic[depth][mossa->from][mossa->to] = ( int ) TABLOG[depth];
 }
 
 int
@@ -1129,6 +1131,7 @@ pop_fen (  ) {
 
 int
 loadfen ( char *ss ) {
+
   int i, ii, t, p;
   char ch;
   char *x;
@@ -1240,7 +1243,6 @@ loadfen ( char *ss ) {
     memcpy ( test_ris, ris1 - 2, 2 );
   }
 #endif
-
   CASTLE_DONE[0] = 1;
   CASTLE_DONE[1] = 1;
   CASTLE_NOT_POSSIBLE[0] = 1;

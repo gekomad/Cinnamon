@@ -1,18 +1,18 @@
-	/*
-	   Copyright (C) 2008
-	   This program is free software: you can redistribute it and/or modify
-	   it under the terms of the GNU General Public License as published by
-	   the Free Software Foundation, either version 3 of the License, or
-	   (at your option) any later version.
+		/*
+		   Copyright (C) 2008
+		   This program is free software: you can redistribute it and/or modify
+		   it under the terms of the GNU General Public License as published by
+		   the Free Software Foundation, either version 3 of the License, or
+		   (at your option) any later version.
 
-	   This program is distributed in the hope that it will be useful,
-	   but WITHOUT ANY WARRANTY; without even the implied warranty of
-	   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	   GNU General Public License for more details.
+		   This program is distributed in the hope that it will be useful,
+		   but WITHOUT ANY WARRANTY; without even the implied warranty of
+		   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		   GNU General Public License for more details.
 
-	   You should have received a copy of the GNU General Public License
-	   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-	 */
+		   You should have received a copy of the GNU General Public License
+		   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+		 */
 
 
 #include "stdafx.h"
@@ -237,15 +237,15 @@ listner_winboard ( void *uuua )
     }
     else if ( strlen ( tt ) > 2 && ( strstr ( MATCH_QUEENSIDE, tt ) || strstr ( MATCH_KINGSIDE, tt ) ) ) {
       if ( strstr ( MATCH_QUEENSIDE, tt ) )
-	result_move.da = QUEENSIDE;
+	result_move.from = QUEENSIDE;
       else
-	result_move.da = KINGSIDE;
+	result_move.from = KINGSIDE;
       if ( strstr ( tt, "1" ) )
 	result_move.side = WHITE;
       else
 	result_move.side = BLACK;
 
-      result_move.tipo = CASTLE;
+      result_move.type = CASTLE;
       makemove ( &result_move );
       print (  );
       know_command = 1;
@@ -284,26 +284,40 @@ listner_winboard ( void *uuua )
     }
     else if ( strstr ( tt, "level " ) ) {
       know_command = 1;
-      supplementary_mill_sec = 1000 * atoi ( strstr ( strstr ( strstr ( tt, " " ) + 1, " " ) + 1, " " ) + 1 );
-      supplementary_mill_sec -= ( int ) ( supplementary_mill_sec * 0.1 );
+      if ( strstr ( tt, "level 0 9999 9999" ) )
+	supplementary_mill_sec = -1;
+      else {
+	supplementary_mill_sec = 1000 * atoi ( strstr ( strstr ( strstr ( tt, " " ) + 1, " " ) + 1, " " ) + 1 );
+	supplementary_mill_sec -= ( int ) ( supplementary_mill_sec * 0.1 );
+      }
     }
     else if ( strstr ( tt, "time " ) ) {
       know_command = 1;
-      MAX_TIME_MILLSEC = MAX_TIME_MILLSEC < supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30 ? MAX_TIME_MILLSEC : supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30;
+      if ( supplementary_mill_sec == -1 ) {
+	MAX_TIME_MILLSEC = 10000;
+      }
+      else {
+	//MAX_TIME_MILLSEC = MAX_TIME_MILLSEC < supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30 ? MAX_TIME_MILLSEC : supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30;   
+	MAX_TIME_MILLSEC = supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30;
+      }
+      if ( st_force < MAX_TIME_MILLSEC )
+	MAX_TIME_MILLSEC = st_force;
+
+
     }
     else if ( strstr ( tt, "st " ) ) {
       know_command = 1;
-      MAX_TIME_MILLSEC = atoi ( tt + 3 ) * 1000;
+      st_force = MAX_TIME_MILLSEC = atoi ( tt + 3 ) * 1000;
     }
     else if ( strlen ( tt ) == 4 && ( tt[1] >= 48 && tt[1] <= 56 && tt[3] >= 48 && tt[3] <= 56 )
        ) {
       move[0] = tt[0];
       move[1] = tt[1];
       move[2] = 0;
-      result_move.da = decodeBoard ( move );
+      result_move.from = decodeBoard ( move );
       move[0] = tt[2];
       move[1] = tt[3];
-      if ( get_piece_at ( WHITE, TABLOG[result_move.da] ) != SQUARE_FREE ) {
+      if ( get_piece_at ( WHITE, TABLOG[result_move.from] ) != SQUARE_FREE ) {
 	result_move.side = WHITE;
 	black_move = 1;
       }
@@ -311,12 +325,12 @@ listner_winboard ( void *uuua )
 	result_move.side = BLACK;
 	black_move = 0;
       }
-      result_move.a = decodeBoard ( move );
-      if ( !force && get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a] && get_piece_at ( 0, TABLOG[result_move.a] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.a] ) == SQUARE_FREE )
-	result_move.tipo = ENPASSANT;
+      result_move.to = decodeBoard ( move );
+      if ( !force && get_piece_at ( result_move.side, TABLOG[result_move.from] ) < 2 && get_column[result_move.from] != get_column[result_move.to] && get_piece_at ( 0, TABLOG[result_move.to] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.to] ) == SQUARE_FREE )
+	result_move.type = ENPASSANT;
 
       else
-	result_move.tipo = STANDARD;
+	result_move.type = STANDARD;
       makemove ( &result_move );
       print (  );
       push_fen (  );
@@ -326,16 +340,16 @@ listner_winboard ( void *uuua )
 
     }
     else if ( strlen ( tt ) == 5 ) {
-      result_move.tipo = PROMOTION;
+      result_move.type = PROMOTION;
       result_move.promotion_piece = getFenInv ( tt[4] );
       move[0] = tt[0];
       move[1] = tt[1];
       move[2] = 0;
-      result_move.da = decodeBoard ( move );
+      result_move.from = decodeBoard ( move );
       move[0] = tt[2];
       move[1] = tt[3];
       move[2] = 0;
-      result_move.a = decodeBoard ( move );
+      result_move.to = decodeBoard ( move );
       if ( tt[3] == '8' ) {
 	result_move.side = WHITE;
 	black_move = 1;
@@ -356,23 +370,23 @@ listner_winboard ( void *uuua )
 
     }
     else if ( strlen ( tt ) == 3 && ( tt[1] == '7' || tt[1] == '2' ) ) {
-      result_move.tipo = PROMOTION;
+      result_move.type = PROMOTION;
       result_move.promotion_piece = getFenInv ( tt[2] );
       move[0] = tt[0];
       move[1] = tt[1];
       move[2] = 0;
-      result_move.da = decodeBoard ( move );
+      result_move.from = decodeBoard ( move );
       move[0] = tt[2];
       move[1] = tt[3];
       if ( tt[1] == '7' ) {
 	result_move.side = WHITE;
 	black_move = 1;
-	result_move.a = result_move.da + 8;
+	result_move.to = result_move.from + 8;
       }
       else {
 	result_move.side = BLACK;
 	black_move = 0;
-	result_move.a = result_move.da - 8;
+	result_move.to = result_move.from - 8;
       }
 
       makemove ( &result_move );
@@ -400,7 +414,7 @@ listner_winboard ( void *uuua )
       DWORD s;
       CreateThread ( NULL, 0, ( LPTHREAD_START_ROUTINE ) hand_do_move, ( LPVOID ) NULL, 0, &s );
       while ( !hand_do_movec )
-	Sleep ( 300 );
+	Sleep ( 400 );
 #else
       pthread_t thread1;
       int iret1;

@@ -29,7 +29,7 @@ FORCEINLINE u64
 makeZobristKey (  ) {
   int i, position;
   u64 result = 0, x2;
-  x2 = ~case_all_bit_occupate (  );
+  x2 = ~square_all_bit_occupied (  );
   while ( x2 ) {
     position = BitScanForward ( x2 );
     result ^= zobrist_key[12][position];

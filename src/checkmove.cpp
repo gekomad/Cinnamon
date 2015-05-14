@@ -58,30 +58,30 @@ __controlla_mossa ( int side, int da, int a, u64 PAWN_BLACK1, u64 PAWN_WHITE1, u
   int listcount = moveListCount[list_id];
   for ( int i = 1; i <= listcount; i++ ) {
     mossa = &gen_list[list_id][i];
-    if ( mossa->da < 0 ) {
+    if ( mossa->from < 0 ) {
       if ( mossa->side == WHITE ) {
-	if ( mossa->da == KINGSIDE ) {
-	  mossa->da = 3;
-	  mossa->a = 1;
+	if ( mossa->from == KINGSIDE ) {
+	  mossa->from = 3;
+	  mossa->to = 1;
 	}
 	else {
-	  mossa->da = 3;
-	  mossa->a = 5;
+	  mossa->from = 3;
+	  mossa->to = 5;
 	}
       }
       else {
-	if ( mossa->da == KINGSIDE ) {
-	  mossa->da = 59;
-	  mossa->a = 57;
+	if ( mossa->from == KINGSIDE ) {
+	  mossa->from = 59;
+	  mossa->to = 57;
 	}
 	else {
-	  mossa->da = 59;
-	  mossa->a = 61;
+	  mossa->from = 59;
+	  mossa->to = 61;
 	}
       };
     }
-    //printf("\n%d %d",mossa->da,mossa->a);
-    if ( da == mossa->da && a == mossa->a ) {
+    //printf("\n%d %d",mossa->from,mossa->to);
+    if ( da == mossa->from && a == mossa->to ) {
       moveListCount[list_id] = 0;
       return 1;
     }

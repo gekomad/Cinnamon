@@ -47,7 +47,7 @@ Depth 	Perft(Depth) 	Total Nodes
 //xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "8/k4P2/8/8/8/8/K3p3/8 w - - 0 1   "
+//#define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1   "
 
 #define debugfile "out.log"
 #define _INFINITE 2147483646
@@ -70,7 +70,7 @@ typedef unsigned char uchar;
 #define KNIGHT_ATTACK 4
 #define QUEEN_ATTACK 4
 #define OPEN_FILE_Q 3
-#define FORCHETTA_SCORE 4
+#define FORK_SCORE 4
 #define BONUS2BISHOP 15
 #define MOB 1
 #define KING_TRAPPED 2
@@ -107,7 +107,7 @@ typedef unsigned char uchar;
 #define BACKWARD_OPEN_PAWN 3
 
 
-#define FINE_APERTURA (max_pieces_per_side (0)<6 || max_pieces_per_side (0)<6 )
+#define END_OPEN (max_pieces_per_side (0)<6 || max_pieces_per_side (0)<6 )
 #define DRAW   "1/2-1/2 {Draw by repetition}"
 #define WIN_BLACK   "0-1 {Black mates}"
 #define WIN_WHITE   "1-0 {White mates}"
@@ -163,7 +163,7 @@ typedef unsigned char uchar;
 #define ATTACK_F7_F2 10
 #define BOOK_EPD "book.epd"
 #ifdef HASH_MODE
-#define HASH_SIZE 2000003
+
 #define hashfEXACT  0
 #define hashfALPHA 1
 #define hashfBETA 2
@@ -206,7 +206,7 @@ const int PIECES_VALUE[13] = {
 #define R_adpt(tipo,depth) (2+((depth) > (3+((max_pieces_per_side(tipo)<3)?2:0))))
 #define null_ok(depth,side)((null_sem) ? 0:(depth < 3 ?0:(max_pieces_per_side(side) < 4 ? 0:1)))
 
-#define case_all_bit_occupate() (chessboard[PAWN_BLACK]|chessboard[ROOK_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]|chessboard[PAWN_WHITE]|chessboard[ROOK_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE])
+#define square_all_bit_occupied() (chessboard[PAWN_BLACK]|chessboard[ROOK_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]|chessboard[PAWN_WHITE]|chessboard[ROOK_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE])
 
 #define shift32(b) (((unsigned*)&b)[1])
 
@@ -255,7 +255,7 @@ BitCount(chessboard[11])*VALUEQUEEN)
 #define ACTUAL_COUNT 39
 #define valWINDOW 200
 
-#define VOID_FEN "8/8/8/8/8/8/8/8/ w - - 0 1"
+#define VOID_FEN "8/8/8/8/8/8/8/8/R w KQkq - 0 1"
 #define TABSALTOPAWN 0xFF00000000FF00ULL
 #define TABCAPTUREPAWN_RIGHT 0xFEFEFEFEFEFEFEFEULL
 #define TABCAPTUREPAWN_LEFT 0x7F7F7F7F7F7F7F7FULL
@@ -263,12 +263,12 @@ BitCount(chessboard[11])*VALUEQUEEN)
 #ifndef PERFT_MODE
 typedef struct TopenbookTag {
   u64 key;
-  char da_white, a_white, da_black, a_black;
+  char from_white, to_white, from_black, to_black;
   int eval;
 } Topenbook;
 
 struct TopenbookLeaf {
-  char da_white, a_white, da_black, a_black;
+  char from_white, to_white, from_black, to_black;
   int eval;
   u64 key;
   TopenbookLeaf *l;
@@ -278,11 +278,11 @@ struct TopenbookLeaf {
 
 typedef struct EvalTag {
   char open_column[2];
-  char colonna_semi_aperta[2];
+  char semi_open_column[2];
   char re_attaccato[64];
   int king_attak[2];
-  int sicurezza_re[2];
-  u64 isolati;
+  int king_security[2];
+  u64 isolated;
   u64 attaccate[64];
   u64 attaccanti[64];
 } Teval;
@@ -290,7 +290,7 @@ typedef struct EvalTag {
 #endif
 
 typedef struct TmoveTag {
-  char da, a, side, capture, tipo, promotion_piece;
+  char from, to, side, capture, type, promotion_piece;
   int score;
 
 } Tmove;

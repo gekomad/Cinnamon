@@ -61,7 +61,7 @@ char test_trovato[20];
 
 u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 char mply, black_move;
-int winbtime, MAX_DEPTH_TO_SEARCH, MAX_TIME_MILLSEC, list_id, xboard, maxdep, incremental_move, force;
+int winbtime, MAX_DEPTH_TO_SEARCH, MAX_TIME_MILLSEC, HASH_SIZE, st_force, list_id, xboard, maxdep, incremental_move, force;
 int evaluateMobility_mode, null_sem, supplementary_mill_sec;
 u64 n_cut_hash;
 char *BITCOUNT = NULL;
@@ -166,14 +166,14 @@ do_perft (  ) {
     num_moves2 += n_perft;
     takeback ( mossa );
     char y;
-    char x = getFen ( get_piece_at ( ( side ), TABLOG[mossa->da] ) );
+    char x = getFen ( get_piece_at ( ( side ), TABLOG[mossa->from] ) );
     if ( x == 'p' || x == 'P' )
       x = ' ';
     if ( mossa->capture != 12 )
       y = '*';
     else
       y = '-';
-    printf ( "\n %d\t%c%s%c%s \t%I64u ", ii, x, decodeBoardinv ( mossa->da, side ), y, decodeBoardinv ( mossa->a, side ), n_perft );
+    printf ( "\n %d\t%c%s%c%s \t%I64u ", ii, x, decodeBoardinv ( mossa->from, side ), y, decodeBoardinv ( mossa->to, side ), n_perft );
     tot += n_perft;
   }
   ftime ( &end1 );
@@ -202,6 +202,31 @@ do_perft (  ) {
 void
 do_move ( int side ) {
 
+/*	list_id=0;
+	generateCap ( STANDARD, side );
+	generateMoves ( STANDARD, side );
+	int listcount = gen_list[list_id][0].score;
+	Tmove *mossa;
+	if ( listcount ) {
+		int ii;
+		printf("\nbianco negativo");
+		for ( ii = 1; ii <= listcount; ii++ ) {
+			mossa = &gen_list[list_id][ii];				
+			makemove ( mossa );
+			//print();
+			printf("\nda: %s a: %s ",decodeBoardinv(mossa->from,side),decodeBoardinv(mossa->to,side));
+			printf("score: %d", eval ( side
+			#ifdef FP_MODE
+		   , alpha, beta
+			#endif
+		   , 0 ));
+			//val = ael ( side, mply, alpha, beta, &line );
+			//val = -ael ( side^1, mply,  -beta,-alpha, &line );				
+			//printf("\n%s %s %d",decodeBoardinv(mossa->from,side),decodeBoardinv(mossa->to,side),val);
+			takeback ( mossa );
+	}
+		}
+Sleep(1000000);*/
   struct timeb start1, end1;
   int alpha = -_INFINITE;
   int beta = _INFINITE;
@@ -232,17 +257,17 @@ do_move ( int side ) {
       if ( ( t = search_openbook ( key, side ) ) != -1 ) {
 	ob_count++;
 	if ( side ) {
-	  result_move.da = openbook[t].da_white;
-	  result_move.a = openbook[t].a_white;
+	  result_move.from = openbook[t].from_white;
+	  result_move.to = openbook[t].to_white;
 	}
 	else {
-	  result_move.da = openbook[t].da_black;
-	  result_move.a = openbook[t].a_black;
+	  result_move.from = openbook[t].from_black;
+	  result_move.to = openbook[t].to_black;
 	}
-	result_move.tipo = STANDARD;	//TODO
+	result_move.type = STANDARD;	//TODO
 	result_move.side = ( char ) side;
-	//result_move.tipo=openbook[t].eval;
-	//printf ("\nopen book found %d %d", result_move.da, result_move.a);
+	//result_move.type=openbook[t].eval;
+	//printf ("\nopen book found %d %d", result_move.from, result_move.to);
 	run = 0;
 	return;
       }
@@ -274,14 +299,14 @@ do_move ( int side ) {
 #ifdef DEBUG_MODE
       int errore = 0;
 #endif
-      pvv_da = line.argmove[0].da;
-      pvv_a = line.argmove[0].a;
+      pvv_da = line.argmove[0].from;
+      pvv_a = line.argmove[0].to;
       for ( int t = 0; t < line.cmove; t++ ) {
 	char pvv_tmp[10];
 	memset ( pvv_tmp, 0, sizeof ( pvv_tmp ) );
-	strcat ( pvv_tmp, decodeBoardinv ( line.argmove[t].da, side ) );
-	if ( line.argmove[t].da >= 0 )
-	  strcat ( pvv_tmp, decodeBoardinv ( line.argmove[t].a, side ) );
+	strcat ( pvv_tmp, decodeBoardinv ( line.argmove[t].from, side ) );
+	if ( line.argmove[t].from >= 0 )
+	  strcat ( pvv_tmp, decodeBoardinv ( line.argmove[t].to, side ) );
 #ifdef DEBUG_MODE
 	if ( strstr ( pvv, pvv_tmp ) )
 	  errore = 1;
@@ -294,7 +319,7 @@ do_move ( int side ) {
       };
 
 #ifdef TEST_MODE
-      strcpy ( test_trovato, decodeBoardinv ( line.argmove[0].a, side ) );
+      strcpy ( test_trovato, decodeBoardinv ( line.argmove[0].to, side ) );
 #endif
       if ( mply == MAX_DEPTH_TO_SEARCH )
 	run = 0;
@@ -302,9 +327,9 @@ do_move ( int side ) {
       memcpy ( &result_move, &move2, sizeof ( Tmove ) );
       for ( int a = 0; a < 64; a++ )
 	for ( int b = 0; b < 64; b++ )
-	  if ( HistoryHeuristic[result_move.da][result_move.a] >= 100000 )
-	    HistoryHeuristic[result_move.da][result_move.a] -= 100000;
-      HistoryHeuristic[result_move.da][result_move.a] += 100000;
+	  if ( HistoryHeuristic[result_move.from][result_move.to] >= 100000 )
+	    HistoryHeuristic[result_move.from][result_move.to] -= 100000;
+      HistoryHeuristic[result_move.from][result_move.to] += 100000;
       ftime ( &end1 );
       TimeTaken = diff_time ( end1, start1 );
 #ifdef DEBUG_MODE
@@ -334,7 +359,7 @@ do_move ( int side ) {
 #endif
       fflush ( stdout );
 #ifdef DEBUG_MODE
-      printf ( "null_move_cut: %I64d\n", null_move_cut );
+      printf ( " null_move_cut: %I64d\n", null_move_cut );
       printf ( "n_cut: %I64d EvalCuts: %d\n", n_cut, EvalCuts );
 #ifdef FP_MODE
       printf ( "n_cut_FutilityPruning: %I64d\n", n_cut_fp );
@@ -354,12 +379,12 @@ do_move ( int side ) {
 	  printf ( "\nMATE, stop search" );
 	run = 0;
       }
-      int tipo = result_move.tipo;
-      if ( result_move.da < 0 )
+      int tipo = result_move.type;
+      if ( result_move.from < 0 )
 	tipo = CASTLE;
 
       // SIDE = side;
-      /*if(inCheck(result_move.da,result_move.a,tipo)){
+      /*if(inCheck(result_move.from,result_move.to,tipo)){
          run=1;
          MATE_MODE=1;
          }  */
@@ -386,7 +411,7 @@ hand_do_move ( void *dummy )
   hand_do_movec = 1;
   int side = ( black_move == 1 ? 0 : 1 );
   do_move ( side );
-  if ( result_move.da == 0 && result_move.a == 0 ) {
+  if ( result_move.from == 0 && result_move.to == 0 ) {
     list_id++;
     generateMoves ( STANDARD, side );
     generateCap ( STANDARD, side );
@@ -404,9 +429,9 @@ hand_do_move ( void *dummy )
       Tmove *mossa = &gen_list[list_id][ii];
       makemove ( mossa );
       if ( !in_check (  ) ) {
-	result_move.da = mossa->da;
-	result_move.a = mossa->a;
-	result_move.tipo = STANDARD;
+	result_move.from = mossa->from;
+	result_move.to = mossa->to;
+	result_move.type = STANDARD;
 	result_move.side = ( char ) side;
 	takeback ( mossa );
 	break;
@@ -419,11 +444,11 @@ hand_do_move ( void *dummy )
   print (  );
   push_fen (  );
   strcpy ( t, "\nmove " );
-  strcat ( t, decodeBoardinv ( result_move.da, result_move.side ) );
-  if ( result_move.da >= 0 )
-    strcat ( t, decodeBoardinv ( result_move.a, result_move.side ) );
+  strcat ( t, decodeBoardinv ( result_move.from, result_move.side ) );
+  if ( result_move.from >= 0 )
+    strcat ( t, decodeBoardinv ( result_move.to, result_move.side ) );
 #ifdef DEBUG_MODE
-  printf ( "da %d a %d\n", result_move.da, result_move.a );
+  printf ( "da %d a %d\n", result_move.from, result_move.to );
 #endif
 //#ifdef _MSC_VER
   writeWinboard ( t );
@@ -445,14 +470,24 @@ dispose (  ) {
 }
 
 void
-start (  ) {
+start ( int argc, char *argv[] ) {
   int t;
   num_tot_moves = 0;
 #ifndef PERFT_MODE
   openbook = NULL;
 #endif
+  CASTLE_DONE[0] = 0;
+  CASTLE_DONE[1] = 0;
+  CASTLE_NOT_POSSIBLE[0] = 0;
+  CASTLE_NOT_POSSIBLE[1] = 0;
+  CASTLE_NOT_POSSIBLE_QUEENSIDE[0] = 0;
+  CASTLE_NOT_POSSIBLE_QUEENSIDE[1] = 0;
+  CASTLE_NOT_POSSIBLE_KINGSIDE[0] = 0;
+  CASTLE_NOT_POSSIBLE_KINGSIDE[1] = 0;
+
   BITCOUNT = ( char * ) malloc ( 65536 * sizeof ( char ) );
   MAX_TIME_MILLSEC = 5000;
+  st_force = _INFINITE;
   MAX_DEPTH_TO_SEARCH = 32;
   for ( t = 0; t < 65536; t++ )
     BITCOUNT[t] = ( char ) BitCountSlow ( t );
@@ -475,14 +510,29 @@ start (  ) {
 
 #ifdef DEBUG_MODE
   for ( t = 0; t < OPENBOOK_SIZE; t++ ) {
-    if ( openbook[t].da_black != -1 )
-      if ( openbook[t].a_black < 0 )
+    if ( openbook[t].from_black != -1 )
+      if ( openbook[t].to_black < 0 )
 	printf ( "\nerror" );;
-    if ( openbook[t].da_white != -1 )
-      if ( openbook[t].a_white < 0 )
+    if ( openbook[t].from_white != -1 )
+      if ( openbook[t].to_white < 0 )
 	printf ( "\nerror" );;
   }
 #endif
+  HASH_SIZE = 2097091;		//default 64 Mb
+  if ( argc > 1 )
+    for ( t = 1; t < argc; t++ ) {
+      if ( strstr ( argv[t], "-hash32" ) )
+	HASH_SIZE = 1048549;	//must be a prime numbers
+      else if ( strstr ( argv[t], "-hash64" ) )
+	HASH_SIZE = 2097091;
+      else if ( strstr ( argv[t], "-hash128" ) )
+	HASH_SIZE = 4194301;
+      else if ( strstr ( argv[t], "-hash256" ) )
+	HASH_SIZE = 8388593;
+      else if ( strstr ( argv[t], "-hash512" ) )
+	HASH_SIZE = 16777213;
+
+    }
   hash_array[BLACK] = ( Thash * ) malloc ( HASH_SIZE * sizeof ( Thash ) );
   myassert ( hash_array[BLACK], "\nMemory Allocation Failure\n" );
   hash_array[WHITE] = ( Thash * ) malloc ( HASH_SIZE * sizeof ( Thash ) );
@@ -509,12 +559,9 @@ start (  ) {
 }
 
 int
-main (
-#ifdef PERFT_MODE
-	int argc, char *argv[]
-#endif
-   ) {
-  start (  );
+main ( int argc, char *argv[] ) {
+
+  start ( argc, argv );
   FEN_STACK.count = 0;
   printf ( "\nPERFT" );
 #ifdef PERFT_MODE
@@ -570,12 +617,13 @@ main (
 #endif
   push_fen (  );
 #ifdef PERFT_MODE
-  if ( argc != 3 ) {
+  if ( argc < 2 ) {
     printf ( "\nmissing depth and FEN, example 3 \"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\"" );
     return 1;
   };
-  loadfen ( argv[2] );
-  //loadfen ( "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" );
+  loadfen ( INITIAL_FEN );
+  if ( argc == 3 )
+    loadfen ( argv[2] );
   print (  );
   mply = atoi ( argv[1] ) - 1;
   printf ( "\nthink...\n" );

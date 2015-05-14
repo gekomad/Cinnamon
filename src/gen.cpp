@@ -325,7 +325,7 @@ generateMoves ( const int tipomove, const int SIDE ) {
   assert ( chessboard[KING_BLACK] );
   assert ( chessboard[KING_WHITE] );
 #endif
-  u64 ALLPIECES = case_all_bit_occupate (  );
+  u64 ALLPIECES = square_all_bit_occupied (  );
 
   if ( SIDE == BLACK ) {
     try_all_castle ( SIDE );
