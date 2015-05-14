@@ -34,6 +34,9 @@ private:
   int join (  ) {
     return pthread_join ( threadID, NULL );
   }
+  int stop (  ) {
+    return pthread_detach ( threadID );
+  }
 };
 
 #endif

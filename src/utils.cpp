@@ -1,33 +1,14 @@
-#include "Bits.h"
+#include "utils.h"
+#include <algorithm>
 
-namespace Bits {
+namespace bits {
   uchar *ROTATE_LEFT;
   uchar *ROTATE_RIGHT;
-  char *BITCOUNT;
 
-  int BitCountSlow ( const u64 b ) {
-    unsigned buf;
-    register unsigned acc;
-     buf = ( unsigned ) b;
-     acc = buf;
-     acc -= ( ( buf &= 0xEEEEEEEEUL ) >> 1 );
-     acc -= ( ( buf &= 0xCCCCCCCCUL ) >> 2 );
-     acc -= ( ( buf &= 0x88888888UL ) >> 3 );
-     buf = ( unsigned ) ( b >> 32 );
-     acc += buf;
-     acc -= ( ( buf &= 0xEEEEEEEEUL ) >> 1 );
-     acc -= ( ( buf &= 0xCCCCCCCCUL ) >> 2 );
-     acc -= ( ( buf &= 0x88888888UL ) >> 3 );
-     acc = ( acc & 0x0F0F0F0FUL ) + ( ( acc >> 4 ) & 0x0F0F0F0FUL );
-     acc = ( acc & 0xFFFF ) + ( acc >> 16 );
-     return ( ( acc & 0xFF ) + ( acc >> 8 ) );
-  } void initBitCount (  ) {
+  void initBit (  ) {
     ROTATE_LEFT = ( uchar * ) malloc ( 32769 );
     ROTATE_RIGHT = ( uchar * ) malloc ( 32833 );
-    BITCOUNT = ( char * ) malloc ( 65536 );
 
-    for ( int t = 0; t < 65536; t++ )
-      BITCOUNT[t] = ( char ) BitCountSlow ( t );
     memset ( ROTATE_LEFT, 0, sizeof ( ROTATE_LEFT ) );
     memset ( ROTATE_RIGHT, 0, sizeof ( ROTATE_RIGHT ) );
     ROTATE_LEFT[1] = ROTATE_RIGHT[1] = ROTATE_LEFT[256] = ROTATE_RIGHT[256] = 1;
@@ -45,6 +26,48 @@ namespace Bits {
     ROTATE_LEFT[4128] = ROTATE_RIGHT[8208] = 48;
     ROTATE_LEFT[8256] = ROTATE_RIGHT[16416] = 96;
     ROTATE_LEFT[16512] = ROTATE_RIGHT[32832] = 192;
+}} namespace _time {
+  string getLocalTime (  ) {
+    struct tm *current;
+    time_t now;
+     time ( &now );
+     current = localtime ( &now );
+    string t;
+
+    char tt[30];
+     sprintf ( tt, "%i-%i-%i %i:%i:%i", current->tm_year + 1900, current->tm_mon, current->tm_mday, current->tm_hour, current->tm_min, current->tm_sec );
+     return string ( tt );
+}} namespace file {
+
+  int wc ( string fileName ) {
+    ifstream inData;
+     inData.open ( fileName.c_str (  ) );
+    if ( !inData ) {
+      cout << "file not found " << fileName << endl;
+      myassert ( 0 );
+    } int size = 0;
+    string line;
+    while ( !inData.eof (  ) ) {
+      getline ( inData, line );
+      size++;
+    }
+    inData.close (  );
+    return size - 1;
+  }
+  int fileSize ( const string FileName ) {
+    struct stat file;
+    if ( !stat ( FileName.c_str (  ), &file ) )
+      return file.st_size;
+    return 0;
+  }
+
+  string extractFileName ( string path ) {
+    string token;
+    replace ( path.begin (  ), path.end (  ), ':', '/' );
+    replace ( path.begin (  ), path.end (  ), '\\', '/' );
+    istringstream iss ( path );
+    while ( getline ( iss, token, '/' ) );
+    return token;
   }
 
 }

@@ -2,27 +2,28 @@
 #define GENMOVES_H_
 #include "maindefine.h"
 #include "bitmap.h"
-#include "Bits.h"
+#include "utils.h"
 #include "ChessBoard.h"
 
 class GenMoves:public ChessBoard {
 public:
-  GenMoves ( char * );
-   virtual ~ GenMoves (  );
-  int generateCap (  );
-  void init (  );
-  void generateMoves (  );
-  int generateCap ( const uchar tipomove, const int side );
-  void generateMoves ( const uchar tipomove, const int side );
-  uchar rotateBoardLeft45 ( const u64 ss, const int pos );
-  uchar rotateBoardRight45 ( const u64 ss, const int pos );
-  u64 getTonMoves (  );
-  int attackSquare ( const int side, const int Position );
-  void initKillerHeuristic (  );
+  GenMoves (  );
+  void setPerft ( bool b );
+  //void resetRepetitionCount();
   void setKillerHeuristic ( int from, int to, int value );
+  void incKillerHeuristic ( int from, int to, int value );
+  void clearKillerHeuristic (  );
+   virtual ~ GenMoves (  );
+  void init (  );
+  bool generateCap ( const int side, u64, u64, u64 * key );
+  void generateMoves ( const int side, u64 );
+
+  u64 getTotMoves (  );
+  bool attackSquare ( const int side, const uchar Position );
+  void initKillerHeuristic (  );
 #ifdef DEBUG_MODE
-  int beta_efficency_tot, beta_efficency_tot_count, n_cut, null_move_cut, n_cut_fp, n_cut_razor;
-  double beta_efficency;
+  int n_cut, null_move_cut, n_cut_fp, n_cut_razor;
+  double beta_efficency_tot, beta_efficency;
 #endif
   int getListCount (  ) {
     return gen_list[list_id][0].score;
@@ -34,266 +35,287 @@ public:
   }
   void incListId (  ) {
     list_id++;
-#ifdef DEBUG_MODE
-#ifndef PERFT_MODE
-    for ( int i = 0; i < MAX_MOVE; i++ )
-      gen_list[list_id][i].nextBoard = 0;
-#endif
-#endif
-  }
-  Tmove *getList ( int i ) {
-    return &gen_list[list_id][i];
   }
 
-  void makemove ( Tmove * mossa ) {
-    ASSERT ( mossa );
-    int piece_from, mossaa, mossada, mossacapture;
-    int SIDE = mossa->side;
-    int XSIDE = SIDE ^ 1;
-    if ( mossa->type & 0x3 ) {
-      ASSERT ( !( mossa->type & 0xC ) );
-      mossaa = mossa->to;
-      mossada = mossa->from;
-      ASSERT ( mossaa >= 0 );
-      if ( ( ( mossa->type & 0x3 ) != ENPASSANT_MOVE_MASK ) )
-	mossacapture = get_piece_at ( XSIDE, TABLOG[mossaa] );
-      else
-	mossacapture = XSIDE;
-      mossa->capture = ( char ) mossacapture;
-      ASSERT ( mossada >= 0 && mossada < 64 );
-      ASSERT ( mossaa >= 0 && mossaa < 64 );
-      piece_from = get_piece_at ( SIDE, TABLOG[mossada] );
-      if ( ( mossa->type & 0x3 ) == PROMOTION_MOVE_MASK ) {
-	chessboard[piece_from] = chessboard[piece_from] & NOTTABLOG[mossada];
-	chessboard[mossa->promotion_piece] |= TABLOG[mossaa];
-      }
-      else {
-	chessboard[piece_from] = ( chessboard[piece_from] | TABLOG[mossaa] ) & NOTTABLOG[mossada];
-      }
+  /*
+     void popStackMove1() {
+     ASSERT(repetitionMapCount);
+     repetitionMapCount--;
+     if(repetitionMapCount>1 && !repetitionMap[repetitionMapCount-1].key) {
+     ASSERT(repetitionMapCount);
+     repetitionMapCount--;
+     }
+     }
 
-      if ( mossacapture != SQUARE_FREE ) {
-	if ( ( mossa->type & 0x3 ) != ENPASSANT_MOVE_MASK ) {
-	  chessboard[mossacapture] &= NOTTABLOG[mossaa];
+     void pushStackMove(u64 key,bool reset) {
+     ASSERT(repetitionMapCount<sizeof(repetitionMap)/sizeof(u64)-1);
+     repetitionMap[repetitionMapCount].reset= reset;
+     repetitionMap[repetitionMapCount++].key= key;
+     }
+   */
+  void takeback ( _Tmove * move, u64 * key, const u64 oldkey ) {
+    *key = oldkey;
+    enpassantPosition = -1;
+    int side, pieceFrom, posTo, posFrom, movecapture;
+    side = move->side;
+    RIGHT_CASTLE = move->type & 0 b11110000;
+    if ( ( move->type & 0 b00000011 ) == STANDARD_MOVE_MASK || ( move->type & 0 b00000011 ) == ENPASSANT_MOVE_MASK ) {
+      posTo = move->to;
+      posFrom = move->from;
+      movecapture = move->capturedPiece;
+      ASSERT ( posFrom >= 0 && posFrom < 64 );
+      ASSERT ( posTo >= 0 && posTo < 64 );
+      pieceFrom = move->pieceFrom;
+      chessboard[pieceFrom] = ( chessboard[pieceFrom] & NOTTABLOG[posTo] ) | TABLOG[posFrom];
+      if ( movecapture != SQUARE_FREE ) {
+	if ( ( ( move->type & 0 b00000011 ) != ENPASSANT_MOVE_MASK ) ) {
+	  chessboard[movecapture] |= TABLOG[posTo];
 	}
 	else {
-	  ASSERT ( mossacapture == ( SIDE ^ 1 ) );
-	  if ( SIDE ) {
-	    chessboard[mossacapture] &= NOTTABLOG[mossaa - 8];
+	  ASSERT ( movecapture == ( side ^ 1 ) );
+	  if ( side ) {
+	    chessboard[movecapture] |= TABLOG[posTo - 8];
 	  }
 	  else {
-	    chessboard[mossacapture] &= NOTTABLOG[mossaa + 8];
+	    chessboard[movecapture] |= TABLOG[posTo + 8];
+	  }
+	}
+      }
+
+    }
+    else if ( ( move->type & 0 b00000011 ) == PROMOTION_MOVE_MASK ) {
+      posTo = move->to;
+      posFrom = move->from;
+      movecapture = move->capturedPiece;
+      ASSERT ( posTo >= 0 );
+      chessboard[side] = chessboard[side] | TABLOG[posFrom];
+      chessboard[move->promotionPiece] = chessboard[move->promotionPiece] & NOTTABLOG[posTo];
+      if ( movecapture != SQUARE_FREE ) {
+	chessboard[movecapture] |= TABLOG[posTo];
+      }
+    }
+    else if ( move->type & 0 b00001100 ) {	//castle
+      unPerformCastle ( move->side, move->type );
+    }
+  }
+
+  void makemove ( _Tmove * move, u64 * key ) {
+    ASSERT ( move );
+    ASSERT ( bitCount ( chessboard[KING_WHITE] ) == 1 && bitCount ( chessboard[KING_BLACK] ) == 1 );
+    int pieceFrom, posTo, posFrom, movecapture;
+    int side = move->side;
+    uchar RIGHT_CASTLE_old = RIGHT_CASTLE;
+    if ( !( move->type & 0 b00001100 ) ) {	//no castle
+      posTo = move->to;
+      posFrom = move->from;
+      ASSERT ( posTo >= 0 );
+      movecapture = move->capturedPiece;
+      ASSERT ( posFrom >= 0 && posFrom < 64 );
+      ASSERT ( posTo >= 0 && posTo < 64 );
+      pieceFrom = move->pieceFrom;
+      if ( ( move->type & 0 b00000011 ) == PROMOTION_MOVE_MASK ) {
+	chessboard[pieceFrom] = chessboard[pieceFrom] & NOTTABLOG[posFrom];
+	updateZobristKey ( key, pieceFrom, posFrom );
+	chessboard[move->promotionPiece] |= TABLOG[posTo];
+	updateZobristKey ( key, move->promotionPiece, posTo );
+
+      }
+      else {
+	chessboard[pieceFrom] = ( chessboard[pieceFrom] | TABLOG[posTo] ) & NOTTABLOG[posFrom];
+	updateZobristKey ( key, pieceFrom, posFrom );
+	updateZobristKey ( key, pieceFrom, posTo );
+      }
+
+      if ( movecapture != SQUARE_FREE ) {
+	if ( ( move->type & 0 b00000011 ) != ENPASSANT_MOVE_MASK ) {
+	  chessboard[movecapture] &= NOTTABLOG[posTo];
+	  updateZobristKey ( key, movecapture, posTo );
+	}
+	else {
+	  ASSERT ( movecapture == ( side ^ 1 ) );
+	  if ( side ) {
+	    chessboard[movecapture] &= NOTTABLOG[posTo - 8];
+	    updateZobristKey ( key, movecapture, posTo - 8 );
+	  }
+	  else {
+	    chessboard[movecapture] &= NOTTABLOG[posTo + 8];
+	    updateZobristKey ( key, movecapture, posTo + 8 );
+
 	  }
 	}
       }
 
       //lost castle right
-      switch ( piece_from ) {
-      case KING_WHITE:
-	RIGHT_CASTLE &= 0xCF;
+
+      switch ( pieceFrom ) {
+      case KING_WHITE:{
+	RIGHT_CASTLE &= 0 b11001111;
+      }
 	break;
-      case KING_BLACK:
-	RIGHT_CASTLE &= 0x3F;
+      case KING_BLACK:{
+	RIGHT_CASTLE &= 0 b00111111;
+      }
 	break;
+
       case ROOK_WHITE:
-	if ( mossada == 0 ) {
-	  RIGHT_CASTLE &= 0xEF;
+	if ( posFrom == 0 ) {
+	  RIGHT_CASTLE &= 0 b11101111;
 	}
-	else if ( mossada == 7 ) {
-	  RIGHT_CASTLE &= 0xDF;
+	else if ( posFrom == 7 ) {
+	  RIGHT_CASTLE &= 0 b11011111;
 	}
 	break;
       case ROOK_BLACK:
-	if ( mossada == 56 )
-	  RIGHT_CASTLE &= 0xBF;
-	else if ( mossada == 63 )
-	  RIGHT_CASTLE &= 0x7F;
+	if ( posFrom == 56 ) {
+	  RIGHT_CASTLE &= 0 b10111111;
+	}
+	else if ( posFrom == 63 ) {
+	  RIGHT_CASTLE &= 0 b01111111;
+	}
 	break;
 	//en passant
       case PAWN_WHITE:
-	if ( ( RANK_1 & TABLOG[mossada] ) && ( RANK_3 & TABLOG[mossaa] ) )
-	  enpassantPosition = mossaa;
+	if ( ( RANK_1 & TABLOG[posFrom] ) && ( RANK_3 & TABLOG[posTo] ) ) {
+	  enpassantPosition = posTo;
+	  updateZobristKey ( key, 13, enpassantPosition );
+	}
 	break;
 
       case PAWN_BLACK:
-	if ( ( RANK_6 & TABLOG[mossada] ) && ( RANK_4 & TABLOG[mossaa] ) )
-	  enpassantPosition = mossaa;
+	if ( ( RANK_6 & TABLOG[posFrom] ) && ( RANK_4 & TABLOG[posTo] ) ) {
+	  enpassantPosition = posTo;
+	  updateZobristKey ( key, 13, enpassantPosition );
+	}
 	break;
+      default:
+	;
       }
     }
-    else if ( mossa->type & 0xC ) {	//castle
+    else if ( move->type & 0 b00001100 ) {	//castle
 #ifdef DEBUG_MODE
-      ASSERT ( SIDE == 0 || SIDE == 1 );
-      ASSERT ( mossa->side == SIDE );
+      ASSERT ( side == 0 || side == 1 );
+      ASSERT ( move->side == side );
 #endif
-
-      performCastle ( SIDE, mossa->type );
-      if ( SIDE == WHITE ) {
-	RIGHT_CASTLE &= 0xCF;
+      performCastle ( side, move->type, key );
+      if ( side == WHITE ) {
+	RIGHT_CASTLE &= 0 b11001111;
       }
       else {
-	RIGHT_CASTLE &= 0x3F;
+	RIGHT_CASTLE &= 0 b00111111;
       }
+    }
+    uchar x2 = RIGHT_CASTLE_old ^ RIGHT_CASTLE;
+    int position;
+    while ( x2 ) {
+      position = BITScanForward ( x2 );
+      updateZobristKey ( key, 14, position );
+      x2 &= NOTTABLOG[position];
     }
   }
 
-  void takeback ( const Tmove * mossa ) {
-    enpassantPosition = -1;
-    int side, piece_from, mossaa, mossada, mossacapture;
-    side = mossa->side;
-    RIGHT_CASTLE = mossa->type & 0xF0;
-    if ( ( mossa->type & 0x3 ) == STANDARD_MOVE_MASK || ( mossa->type & 0x3 ) == ENPASSANT_MOVE_MASK ) {
-      mossaa = mossa->to;
-      mossada = mossa->from;
-      mossacapture = mossa->capture;
-      ASSERT ( mossada >= 0 && mossada < 64 );
-      ASSERT ( mossaa >= 0 && mossaa < 64 );
-      piece_from = get_piece_at ( side, TABLOG[mossaa] );
-      chessboard[piece_from] = ( chessboard[piece_from] & NOTTABLOG[mossaa] ) | TABLOG[mossada];
-      if ( mossacapture != SQUARE_FREE ) {
-	if ( ( ( mossa->type & 0x3 ) != ENPASSANT_MOVE_MASK ) ) {
-	  chessboard[mossacapture] |= TABLOG[mossaa];
-	}
-	else {
-	  ASSERT ( mossacapture == ( side ^ 1 ) );
-	  if ( side ) {
-	    chessboard[mossacapture] |= TABLOG[mossaa - 8];
-	  }
-	  else {
-	    chessboard[mossacapture] |= TABLOG[mossaa + 8];
-	  }
-	}
-      }
-
-    }
-    else if ( ( mossa->type & 0x3 ) == PROMOTION_MOVE_MASK ) {
-      mossaa = mossa->to;
-      mossada = mossa->from;
-      mossacapture = mossa->capture;
-      ASSERT ( mossaa >= 0 );
-      piece_from = get_piece_at ( side, TABLOG[mossaa] );
-      chessboard[side] = chessboard[side] | TABLOG[mossada];
-      chessboard[mossa->promotion_piece] = chessboard[mossa->promotion_piece] & NOTTABLOG[mossaa];
-      if ( mossacapture != SQUARE_FREE ) {
-	chessboard[mossacapture] |= TABLOG[mossaa];
-      }
-    }
-    else if ( mossa->type & 0xC ) {	//castle
-      unperformCastle ( mossa->side, mossa->type );
-    }
+protected:
+  bool perftMode;
+  int currentPly;
+  int evaluateMobility ( const int side );
+  u64 numMoves, numMovesq;
+  //_Trep repetitionMap[200];
+  int killerHeuristic[64][64];
+  bool evaluateMobilityMode;
+  int list_id;
+  _Tmove **gen_list;
+  int getNextMove ( _Tmove * );
+  bool inCheck ( const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, const int side, int promotionPiece );
+  void performCastle ( const int side, const uchar type, u64 * key );
+  void unPerformCastle ( const int side, const uchar type );
+  void tryAllCastle ( const int side, const u64 ALLPIECES );
+  bool performKingShiftCapture ( const int piece, const u64 enemies, const int side );
+  bool performKnightShiftCapture ( const int piece, const u64 enemies, const int side );
+  bool performBishopCapture ( const int piece, const u64 enemies, const int side, const u64 ALLPIECES );
+  bool performRookQueenCapture ( const int piece, const u64 enemies, const int side, const u64 ALLPIECES );
+  bool performPawnCapture ( const u64 enemies, const int side, u64 * key );
+  void performPawnShift ( const int side, const u64 XALLPIECES );
+  void performBishopShift ( const int piece, const int side, const u64 ALLPIECES );
+  void performRookQueenShift ( const int piece, const int side, const u64 ALLPIECES );
+  void checkJumpPawn ( const u64 sc, const int side, const u64 XALLPIECES );
+  _Tmove *getList ( int i ) {
+    return &gen_list[list_id][i];
   }
+
   void setEvaluateMobilityMode ( bool b ) {
     evaluateMobilityMode = b;
   }
-protected:
-  u64 num_moves, num_movesq;
-  int KillerHeuristic[64][64];
-  bool evaluateMobilityMode;
-  int list_id;
-  Tmove **gen_list;
-  int getNextMove ( Tmove * );
-  int inCheck ( const int da, const int a, const uchar tipo, const int piece_from, const int piece_to, const int SIDE, int promotion_piece );
-  void unperformCastle ( const int side, const uchar type );
-  int performKing_Shift_Capture ( const uchar tipomove, const int piece, const u64 enemies, const int side );
-  int performKnight_Shift_Capture ( const uchar tipomove, const int piece, const u64 enemies, const int side );
-  int performBishopCapture ( const uchar tipomove, const int piece, const u64 enemies, const int side, const u64 ALLPIECES );
-  int performRookQueenCapture ( const uchar tipomove, const int piece, const u64 enemies, const int side, const u64 ALLPIECES );
-  int performPawnCapture ( const uchar tipomove, const u64 enemies, const int side );
-  void performPawnShift ( const uchar tipomove, const int side, const u64 XALLPIECES );
-  void tryAllCastle ( const int side, const u64 ALLPIECES );
-  void performBishopShift ( const uchar tipomove, const int piece, const int side, const u64 ALLPIECES );
-  void performRookQueenShift ( const uchar tipomove, const int piece, const int side, const u64 ALLPIECES );
-  void checkJumpPawn ( const uchar tipomove, const u64 sc, const int side, const u64 XALLPIECES );
-  void performCastle ( const int side, const uchar type );
-
-  int pushmove ( const uchar tipomove1, const int da, const int a, const int SIDE, int promotion_piece ) {
+  bool pushmove ( const uchar type, const int from, const int to, const int side, int promotionPiece, int pieceFrom ) {
     ASSERT ( chessboard[KING_BLACK] );
     ASSERT ( chessboard[KING_WHITE] );
-#ifndef PERFT_MODE
-    if ( evaluateMobilityMode ) {
-      if ( !( tipomove1 & 0xC ) ) {	//no castle
-	ASSERT ( da >= 0 && a >= 0 );
-	structure.mobility[da] |= TABLOG[a];
-	if ( ( TABLOG[a] & chessboard[KING_BLACK + ( SIDE ^ 1 )] ) )
-	  structure.kingAttacked[da] = 1;
-	ASSERT ( list_id < MAX_PLY && list_id >= 0 );
-	ASSERT ( gen_list[list_id][0].score < MAX_MOVE );
-	gen_list[list_id][0].score++;
+    if ( !perftMode ) {
+      if ( evaluateMobilityMode ) {
+	if ( !( type & 0 b00001100 ) ) {	//no castle
+	  ASSERT ( from >= 0 && to >= 0 );
+	  structure.mobility[from] |= TABLOG[to];
+	  if ( ( TABLOG[to] & chessboard[KING_BLACK + ( side ^ 1 )] ) )
+	    structure.kingAttacked[from] = 1;
+	  ASSERT ( list_id < MAX_PLY && list_id >= 0 );
+	  ASSERT ( gen_list[list_id][0].score < MAX_MOVE );
+	  gen_list[list_id][0].score++;
+	}
+	return false;
       }
-      return 0;
+    }
+    int piece_captured = -1;
+    bool res = false;
+    if ( ( ( type & 0 b00000011 ) != ENPASSANT_MOVE_MASK ) && !( type & 0 b00001100 ) ) {
+      piece_captured = getPieceAt ( ( side ^ 1 ), TABLOG[to] );
+      if ( piece_captured == KING_BLACK + ( side ^ 1 ) )
+	res = true;
+    }
+    else if ( !( type & 0 b00001100 ) )	//no castle
+      piece_captured = side ^ 1;
+
+
+    if ( perftMode && !( type & 0 b00001100 ) ) {	//no castle
+      if ( inCheck ( from, to, type, pieceFrom, piece_captured, side, promotionPiece ) )
+	return false;
     }
 
-#endif
-    int piece_to = -1;
-    int res = 0;
-    if ( ( ( tipomove1 & 0x3 ) != ENPASSANT_MOVE_MASK ) && !( tipomove1 & 0xC ) ) {
-      piece_to = get_piece_at ( ( SIDE ^ 1 ), TABLOG[a] );
-      if ( piece_to == KING_BLACK + ( SIDE ^ 1 ) )
-	res = 1;
-    }
-    else if ( !( tipomove1 & 0xC ) )	//no castle
-      piece_to = SIDE ^ 1;
-#ifdef PERFT_MODE
-    int piece_from = -5;
-    if ( !( tipomove1 & 0xC ) ) {	//no castle
-      piece_from = get_piece_at ( SIDE, TABLOG[da] );
-      if ( inCheck ( da, a, tipomove1, piece_from, piece_to, SIDE, promotion_piece ) )
-	return 0;
-    }
-#endif
-    Tmove *mos;
+    _Tmove *mos;
 #ifdef DEBUG_MODE
     if ( !( list_id >= 0 && list_id < MAX_PLY ) ) {
       cout << "list_id: " << list_id << endl << flush;
-      myassert ( 0 );
+      ASSERT ( 0 );
     }
 #endif
+    ASSERT ( list_id < MAX_PLY );
     ASSERT ( gen_list[list_id][0].score < MAX_MOVE );
     mos = &gen_list[list_id][++gen_list[list_id][0].score];
-    mos->type = RIGHT_CASTLE | tipomove1;
-    mos->side = ( char ) SIDE;
-#ifndef PERFT_MODE
-#ifdef DEBUG_MODE
-    assert ( mos->nextBoard < MAX_PLY );
-    memcpy ( mos->stack_move[mos->nextBoard++], &chessboard, sizeof ( Tchessboard ) );
-#endif
-#endif
-    if ( tipomove1 & 0x3 ) {
-#ifndef PERFT_MODE
-      int piece_from = get_piece_at ( SIDE, TABLOG[da] );
-#ifdef DEBUG_MODE
-      assert ( piece_from != 12 );
-      if ( piece_to < 0 || piece_to > 12 ) {
-	cout << "piece_to: " << piece_to << endl;
-	assert ( 0 );
-      };
-      assert ( da >= 0 && da < 64 && a >= 0 && a < 64 );
-#endif
-#endif
-      mos->from = ( char ) da;
-      mos->to = ( char ) a;
-      mos->promotion_piece = ( char ) promotion_piece;
-#ifndef PERFT_MODE
-      if ( res == 1 ) {
-	mos->score = _INFINITE;
-      }
-      else {
-	mos->score = 0;
-	mos->score += KillerHeuristic[da][a];
-	mos->score += ( PIECES_VALUE[piece_to] >= PIECES_VALUE[piece_from] ) ? ( PIECES_VALUE[piece_to] - PIECES_VALUE[piece_from] ) * 2 : PIECES_VALUE[piece_to];
-	ASSERT ( piece_from >= 0 && piece_from < 12 && a >= 0 && a < 64 && da >= 0 && da < 64 );
-      }
-#endif
-    }
-    else if ( tipomove1 & 0xC ) {	//castle
-      ASSERT ( RIGHT_CASTLE );
-#ifndef PERFT_MODE
-      mos->score = 100;
-#endif
-    };
+    mos->type = RIGHT_CASTLE | type;
+    mos->side = ( char ) side;
     mos->used = false;
+    mos->capturedPiece = piece_captured;
+    if ( type & 0 b00000011 ) {
+      mos->from = ( uchar ) from;
+      mos->to = ( uchar ) to;
+      mos->pieceFrom = pieceFrom;
+      mos->promotionPiece = ( char ) promotionPiece;
+      if ( !perftMode ) {
+	if ( res == true ) {
+	  mos->score = _INFINITE;
+	}
+	else {
+	  mos->score = 0;
+	  mos->score += killerHeuristic[from][to];
+	  mos->score += ( PIECES_VALUE[piece_captured] >= PIECES_VALUE[pieceFrom] ) ? ( PIECES_VALUE[piece_captured] - PIECES_VALUE[pieceFrom] ) * 2 : PIECES_VALUE[piece_captured];
+	  ASSERT ( pieceFrom >= 0 && pieceFrom < 12 && to >= 0 && to < 64 && from >= 0 && from < 64 );
+	}
+      }
+    }
+
+    else if ( type & 0 b00001100 ) {	//castle
+      ASSERT ( RIGHT_CASTLE );
+      mos->score = 100;
+    }
+
     ASSERT ( gen_list[list_id][0].score < MAX_MOVE );
     return res;
   }
 };
-
 #endif

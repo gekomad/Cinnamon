@@ -1,13 +1,21 @@
 #include "Search.h"
-#include "Bits.h"
+#include "utils.h"
 
-Search::Search ( char *fen ):
-GenMoves ( fen ) {
-  eval = new Eval ( NULL, this );
-  null_sem = false;
+Search::Search (  ) {
 #ifdef DEBUG_MODE
-  LazyEvalCuts = 0;
+  LazyEvalCuts = totmosse = totGen = 0;
 #endif
+//    resetRepetitionCount();
+  nullSem = false;
+//    pushStackMove(makeZobristKey(),false);
+
+}
+
+
+
+void
+Search::setNullMove ( bool b ) {
+  nullSem = !b;
 }
 
 void
@@ -16,22 +24,12 @@ Search::startClock (  ) {
 }
 
 void
-Search::setRandomParam (  ) {
-  eval->setRandomParam (  );
-}
-
-void
 Search::setMainPly ( int m ) {
   mainDepth = m;
 }
 
-void
-Search::writeParam ( char *param_file, int cd_param, bool append ) {
-  eval->writeParam ( param_file, cd_param, append );
-}
-
 int
-Search::checkTime (  ) {	//return 1;
+Search::checkTime (  ) {
   if ( running == 2 )
     return 2;
   struct timeb t_current;
@@ -39,81 +37,50 @@ Search::checkTime (  ) {	//return 1;
   return ( ( int ) ( 1000 * ( t_current.time - start_time.time ) ) ) >= maxTimeMillsec ? 0 : 1;
 }
 
-#ifdef TEST_MODE
-int
-Search::getScore ( const int side
-#ifdef FP_MODE
-		   , const int alpha, const int beta
-#endif
-		   , int *a1, int *a2, int *a3, int *a4, int *a5, int *a6, int *a7, int *a8, int *a9, int *a10, int *a11 ) {
-  return eval->score ( side
-#ifdef FP_MODE
-		       , alpha, beta
-#endif
-		       , a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11 );
-}
-#endif
-int
-Search::getScore ( int side
-#ifdef FP_MODE
-		   , int alpha, int beta
-#endif
-   ) {
-  return eval->score ( side
-#ifdef FP_MODE
-		       , alpha, beta
-#endif
-     );
-}
 Search::~Search (  ) {
-  delete eval;
+
 }
 
 int
-Search::quiescence ( int alpha, const int side, int beta, const char promotion_piece, int dep ) {
+Search::quiescence ( u64 key, int alpha, const int side, int beta, const char promotionPiece, int dep ) {
+#ifdef TUNE_CRAFTY_MODE
+  return 0;
+#else
   if ( !running )
     return 0;
+
 #ifdef DEBUG_MODE
-  ASSERT ( chessboard[KING_BLACK] );
-  ASSERT ( chessboard[KING_WHITE] );
+  ASSERT ( dep + mainDepth < MAX_PLY );
   if ( ( !side && !chessboard[KING_BLACK] ) || ( side && !chessboard[KING_WHITE] ) ) {
     ASSERT ( 0 );
   }
 #endif
   int score = -_INFINITE;
-  if ( !( num_movesq++ & 1023 ) )
+  if ( !( numMovesq++ & 1023 ) )
     running = checkTime (  );
   int xside, listcount;
-  Tmove *mossa;
-  score = eval->score ( side
-#ifdef FP_MODE
-			, alpha, beta
-#endif
-     );
+  _Tmove *move;
+  score = getScore ( side, alpha, beta );
   if ( score >= beta ) {
     return beta;
   }
-#ifdef FP_MODE
-	/**************Delta Pruning ****************/
+#ifndef NO_FP_MODE
+    /**************Delta Pruning ****************/
   char fprune = 0;
   int fscore;
-  if ( ( fscore = score + ( promotion_piece == -1 ? VALUEQUEEN : 2 * VALUEQUEEN ) ) < alpha ) {
+  if ( ( fscore = score + ( promotionPiece == -1 ? VALUEQUEEN : 2 * VALUEQUEEN ) ) < alpha ) {
     fprune = 1;
   }
-	/************ end Delta Pruning *************/
+    /************ end Delta Pruning *************/
 #endif
   xside = side ^ 1;
   if ( score > alpha )
     alpha = score;
   list_id++;
   ASSERT ( list_id < MAX_PLY );
-#ifndef PERFT_MODE
-#ifdef DEBUG_MODE
-  for ( int i = 0; i < MAX_MOVE; i++ )
-    gen_list[list_id][i].nextBoard = 0;
-#endif
-#endif
-  if ( generateCap ( STANDARD_MOVE_MASK, side ) ) {
+  u64 friends = getBitBoard ( side );
+  u64 enemies = getBitBoard ( side ^ 1 );
+  if ( generateCap ( side, enemies, friends, &key ) ) {
     gen_list[list_id--][0].score = 0;
     return _INFINITE - ( mainDepth - dep );
   }
@@ -123,22 +90,23 @@ Search::quiescence ( int alpha, const int side, int beta, const char promotion_p
     return score;
   }
   int i;
+  u64 oldKey = key;
   while ( ( i = getNextMove ( gen_list[list_id] ) ) != -1 ) {
-    mossa = &gen_list[list_id][i];
-    makemove ( mossa );
-#ifdef FP_MODE
-		/**************Delta Pruning ****************/
-    if ( fprune && ( ( mossa->type & 0x3 ) != PROMOTION_MOVE_MASK )	/*&& mossa->capture == 12 */
-	 &&fscore + PIECES_VALUE[mossa->capture] <= alpha /*&& !in_check (side) */  ) {
+    move = &gen_list[list_id][i];
+    makemove ( move, &key );
+#ifndef NO_FP_MODE
+	/**************Delta Pruning ****************/
+    if ( fprune && ( ( move->type & 0x3 ) != PROMOTION_MOVE_MASK )	/*&& move->capturedPiece == 12 */
+	 &&fscore + PIECES_VALUE[move->capturedPiece] <= alpha /*&& !in_check (side) */  ) {
       INC ( n_cut_fp );
-      takeback ( mossa );
+      takeback ( move, &key, oldKey );
       continue;
     }
-		/************ end Delta Pruning *************/
+	/************ end Delta Pruning *************/
 #endif
-    int val = -quiescence ( -beta, xside, -alpha, mossa->promotion_piece, dep + 1 );
-    score = _max ( score, val );
-    takeback ( mossa );
+    int val = -quiescence ( key, -beta, xside, -alpha, move->promotionPiece, dep + 1 );
+    score = max ( score, val );
+    takeback ( move, &key, oldKey );
     if ( score >= beta ) {
       gen_list[list_id--][0].score = 0;
       return beta;
@@ -149,6 +117,7 @@ Search::quiescence ( int alpha, const int side, int beta, const char promotion_p
   }
   gen_list[list_id--][0].score = 0;
   return alpha;
+#endif
 }
 
 void
@@ -171,106 +140,222 @@ Search::getMaxTimeMillsec (  ) {
   return maxTimeMillsec;
 }
 
+void
+Search::sortHashMoves ( int list_id1, _Thash * phashe ) {
+  for ( int r = 1; r <= gen_list[list_id1][0].score; r++ ) {
+    _Tmove *mos = &gen_list[list_id1][r];
+    if ( phashe && phashe->from == mos->from && phashe->to == mos->to ) {
+      mos->score = _INFINITE / 2;
+      return;
+    }
+  }
+}				/*
+				   bool Search::checkInsufficientMaterial() {
+				   int s = 0;
+				   //insufficient material to mate
+				   if (!chessboard[PAWN_BLACK] && !chessboard[PAWN_WHITE] && !chessboard[ROOK_BLACK] && !chessboard[ROOK_WHITE] && !chessboard[QUEEN_WHITE]
+				   && !chessboard[QUEEN_BLACK]) {
+				   u64 allBishop = (chessboard[BISHOP_BLACK] | chessboard[BISHOP_WHITE]);
+				   u64 allKnight = (chessboard[KNIGHT_WHITE] | chessboard[KNIGHT_BLACK]);
+				   // king + knight versus king or king versus king
+				   if (!allBishop && bitCount(allKnight) < 2)//no bishop and 0 or 1 knight
+				   return true;
+				   s = bitCount(allBishop);
+				   if (!allKnight) {//no knight
+				   if( s < 2)// 0 or 1 bishop
+				   return true;
+				   //kings with one or more bishops, and all bishops on the same color
+				   if ((allBishop & BLACK_SQUARES)==allBishop||(allBishop & WHITE_SQUARES)==allBishop)
+				   return true;
+				   }
+				   }
+				   return false;
+				   }
+				 */
+/*
+bool Search::checkDraw(u64 key) {
+    int s = 0;
+    ASSERT(key);
+
+//if (repetitionMapCount>4 ){cout << repetitionMap[repetitionMapCount-1]<< " " <<repetitionMap[repetitionMapCount-3] <<" "<< repetitionMap[repetitionMapCount-5]<<" "<<key<<endl;}
+
+    for(int i=repetitionMapCount-3; i>=0; i-=2) {
+        //for(int i=repetitionMapCount-2; i>=0; i-=1) {
+        ASSERT(i>=0);
+        // cout <<repetitionMap[i].key<<" "<<key<<endl;
+        if(repetitionMap[i].key==key && (++s)==2) {
+            //cout <<"xxrepetition\n";
+            return true;
+        }
+
+        if(repetitionMap[i].reset)return false;
+        if(i&&repetitionMap[i-1].reset)return false;
+    }
+
+    return false;
+}*/
 int
-Search::search ( const int side, int depth, int alpha, int beta, LINE * pline
-#ifdef DEBUG_MODE
-		 , Tmove * Pmossa
-#endif
-   ) {
+Search::search ( u64 key, const int side, int depth, int alpha, int beta, _TpvLine * pline ) {
   if ( !running )
     return 0;
-#ifdef HASH_MODE
-  char hashf = hashfALPHA;
-#endif
+//    if(checkInsufficientMaterial())return 0;
+  u64 oldKey = key;
+  INC ( totmosse );
+
 #ifdef DEBUG_MODE
   ASSERT ( chessboard[KING_BLACK] );
   ASSERT ( chessboard[KING_WHITE] );
   if ( ( !side && !chessboard[KING_BLACK] ) || ( side && !chessboard[KING_WHITE] ) )
     ASSERT ( 0 );
 #endif
-  LINE line;
+  _TpvLine line;
   line.cmove = 0;
-  //************* hash ****************
-#ifdef HASH_MODE
-  Thash *phashe = &hash_array[key % HASH_SIZE];
-  if ( phashe->key == key && phashe->depth >= depth ) {
-    ASSERT ( phashe->depth > 0 && phashe->depth <= 32 );
-    ASSERT ( phashe->flags > 0 && phashe->flags < 4 );
-    ASSERT ( phashe->key != 0 );
-    if ( phashe->flags == hashfEXACT ) {
-      INC ( n_cut_hash );
-      if ( phashe->best.from != 0 && phashe->best.to != 0 )
-	updatePv ( pline, &line, &phashe->best, depth );
-      return phashe->score;
-    }
-    else if ( phashe->flags == hashfBETA ) {
-      if ( phashe->score >= beta ) {
-	INC ( n_cut_hash );
-	if ( phashe->best.from != 0 && phashe->best.to != 0 )
-	  updatePv ( pline, &line, &phashe->best, depth );
-	return beta;
+  int is_incheck_side = in_check ( side );
+  int extension = 0;
+  if ( is_incheck_side /*|| needExtension() */  )
+    extension++;
+  depth += extension;
+  if ( depth == 0 ) {
+    // return score(side,alpha,beta);
+    return quiescence ( key, alpha, side, beta, -1, 0 );
+  }
+  _Thash *phashe_greater = NULL;
+  _Thash *phashe_always = NULL;
+  bool hash_greater = false;
+  bool hash_always = false;
+//************* hash ****************
+  char hashf = hashfALPHA;
+#ifndef NO_HASH_MODE
+  ASSERT ( key );
+  bool updatePvFromHash = false;
+  phashe_greater = &( hash_array_greater[side][key % HASH_SIZE] );
+  if ( phashe_greater->key == key ) {
+    if ( phashe_greater->from != phashe_greater->to && ( phashe_greater->flags == hashfEXACT || phashe_greater->flags == hashfBETA ) )
+      hash_greater = true;
+    if ( phashe_greater->depth >= depth ) {
+      INC ( probeHash );
+      if ( !currentPly ) {
+	if ( phashe_greater->flags == hashfBETA )
+	  incKillerHeuristic ( phashe_greater->from, phashe_greater->to, 1 );
+      }
+      else {
+	switch ( phashe_greater->flags ) {
+	case hashfEXACT:
+	  INC ( n_cut_hashE );
+
+	  if ( phashe_greater->from != phashe_greater->to ) {
+	    updatePvFromHash = true;
+	    updatePv ( pline, &line, phashe_greater->from, phashe_greater->to, side );
+	  }
+	  if ( phashe_greater->score >= beta ) {
+	    return beta;
+	  }
+
+	  break;
+
+	case hashfBETA:
+	  incKillerHeuristic ( phashe_greater->from, phashe_greater->to, 1 );
+	  if ( phashe_greater->score >= beta ) {
+	    INC ( n_cut_hashB );
+	    return beta;
+
+	    alpha = max ( alpha, ( int ) phashe_greater->score );
+	  }
+	  break;
+	case hashfALPHA:
+
+	  if ( phashe_greater->score <= alpha ) {
+	    INC ( n_cut_hashA );
+	    return alpha;
+
+	    beta = min ( beta, ( int ) phashe_greater->score );
+	  }
+	  break;
+	default:
+	  break;
+	}
+	INC ( cutFailed );
       }
     }
-    else if ( phashe->flags == hashfALPHA ) {
-      if ( phashe->score <= alpha ) {
-	INC ( n_cut_hash );
-	if ( phashe->best.from != 0 && phashe->best.to != 0 )
-	  updatePv ( pline, &line, &phashe->best, depth );
-	return alpha;
+  }
+  phashe_always = &( hash_array_always[side][key % HASH_SIZE] );
+  if ( phashe_always->key == key ) {
+    if ( phashe_always->from != phashe_always->to && ( phashe_always->flags == hashfEXACT || phashe_always->flags == hashfBETA ) )
+      hash_always = true;
+    if ( phashe_always->depth >= depth ) {
+      INC ( probeHash );
+      if ( !currentPly ) {
+	if ( phashe_always->flags == hashfBETA )
+	  incKillerHeuristic ( phashe_always->from, phashe_always->to, 1 );
+      }
+      else {
+	switch ( phashe_always->flags ) {
+	case hashfEXACT:
+	  INC ( n_cut_hashE );
+
+	  if ( !updatePvFromHash && phashe_always->from != phashe_always->to ) {
+	    updatePv ( pline, &line, phashe_always->from, phashe_always->to, side );
+	  }
+	  if ( phashe_always->score >= beta ) {
+	    return beta;
+	  }
+
+	  break;
+
+	case hashfBETA:
+	  incKillerHeuristic ( phashe_always->from, phashe_always->to, 1 );
+	  if ( phashe_always->score >= beta ) {
+	    INC ( n_cut_hashB );
+	    return beta;
+	    alpha = max ( alpha, ( int ) phashe_always->score );
+	  }
+	  break;
+	case hashfALPHA:
+	  if ( phashe_always->score <= alpha ) {
+	    INC ( n_cut_hashA );
+	    return alpha;
+
+	    beta = min ( beta, ( int ) phashe_always->score );
+	  }
+	  break;
+	default:
+	  break;
+	}
+	INC ( cutFailed );
       }
     }
   }
 #endif
-  //********** end hash ***************
-  if ( !( num_moves & 1023 ) )
+//********** end hash ***************
+  if ( !( numMoves & 1023 ) )
     running = checkTime (  );
   int score = -_INFINITE;
-  int n_pieces_x_side = n_pieces ( side ^ 1 );
-  int n_pieces_side = n_pieces ( side );
-  int is_incheck_side = in_check ( side );
-  if ( ( is_incheck_side ) /*|| make_extension() */  )
-    depth++;
-  if ( depth == 0 ) {
-    score = quiescence ( alpha, side, beta, -1, 0 );
-    pline->cmove = 0;
-    return score;
-  };
-  ++num_moves;
-#ifdef TEST_MODE
-  num_moves_test++;
-#endif
-
-#ifdef FP_MODE
+  int n_pieces_side = getNpieces ( side );
+  int n_pieces_x_side = getNpieces ( side ^ 1 );
+  ++numMoves;
   int fprune, mat_balance;
   int fscore, Fmax = 0;
-#endif
+
   int val;
-  //********* null move ***********
-#ifdef NULL_MODE
+//********* null move ***********
   if ( !is_incheck_side && null_ok ( depth, side, n_pieces_side ) ) {
-    null_sem = true;
-    int null_score = -search ( side ^ 1, depth - R_adpt ( side, depth ) - 1, -beta, -beta + 1, &line
-#ifdef DEBUG_MODE
-			       , Pmossa
-#endif
-       );
-    null_sem = false;
-    if ( null_score >= beta ) {
+    nullSem = true;
+    int nullScore = -search ( key, side ^ 1, depth - R_adpt ( side, depth ) - 1, -beta, -beta + 1, &line );
+    nullSem = false;
+    if ( nullScore >= beta ) {
       INC ( null_move_cut );
-      return null_score;
+      return nullScore;
     }
   }
-
-#endif
-  ///******* null move end ********
-#ifdef FP_MODE
-	/**************Futility Pruning****************/
-	/**************Futility Pruning razor at pre-pre-frontier*****/
+///******* null move end ********
+#ifndef NO_FP_MODE
+    /**************Futility Pruning****************/
+    /**************Futility Pruning razor at pre-pre-frontier*****/
   fprune = 0;
 
   ASSERT ( score == -_INFINITE );
   if ( depth <= 3 && !is_incheck_side ) {
-    mat_balance = eval->lazyEval ( side );
+    mat_balance = lazyEval ( side );
     if ( depth == 3 && n_pieces_x_side > 4 && ( mat_balance + RAZOR_MARGIN ) <= alpha ) {
       INC ( n_cut_razor );
       depth--;
@@ -288,139 +373,166 @@ Search::search ( const int side, int depth, int alpha, int beta, LINE * pline
       score = Fmax = fscore;
     }
   }
-	/************ end Futility Pruning*************/
+    /************ end Futility Pruning*************/
 #endif
 
   int listcount;
-  Tmove *mossa;
+  _Tmove *move;
   list_id++;
   ASSERT ( list_id < MAX_PLY && list_id >= 0 );
-#ifndef PERFT_MODE
-#ifdef DEBUG_MODE
-  for ( int i = 0; i < MAX_MOVE; i++ )
-    gen_list[list_id][i].nextBoard = 0;
-#endif
-#endif
-  ASSERT ( list_id < MAX_PLY );
   ASSERT ( KING_BLACK + side >= 0 && KING_BLACK + side < 12 );
   ASSERT ( KING_BLACK + ( side ^ 1 ) >= 0 && KING_BLACK + ( side ^ 1 ) < 12 );
-  Friend_king[side] = BITScanForward ( chessboard[KING_BLACK + side] );
-  Friend_king[side ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( side ^ 1 )] );
-  if ( generateCap ( STANDARD_MOVE_MASK, side ) ) {
+  friendKing[side] = BITScanForward ( chessboard[KING_BLACK + side] );
+  friendKing[side ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( side ^ 1 )] );
+  u64 friends = getBitBoard ( side );
+  u64 enemies = getBitBoard ( side ^ 1 );
+  if ( generateCap ( side, enemies, friends, &key ) ) {
     gen_list[list_id--][0].score = 0;
-    return _INFINITE - ( mainDepth - depth + 1 );
+    score = _INFINITE - ( mainDepth - depth + 1 );
+    return score;
   }
-  generateMoves ( STANDARD_MOVE_MASK, side );
+  generateMoves ( side, friends | enemies );
   listcount = gen_list[list_id][0].score;
   if ( !listcount ) {
     --list_id;
     if ( is_incheck_side )
       return -_INFINITE + ( mainDepth - depth + 1 );
-    return 0;
+    else
+      return 0;
   }
-  int check_alpha = 0;
-#ifdef HASH_MODE
-  Tmove best;
-  memset ( &best, 0, sizeof ( Tmove ) );
+
+#ifndef NO_HASH_MODE
+//Enhanced Transposition Cutoff
+  /*  for (int i = 1; i <= listcount; i++) {
+     move = &gen_list[list_id][i];
+     if (move->score == _INFINITE)
+     break;
+     makemove(move, &key);
+     _Thash * phashe = getHash(side,key);
+     if (phashe->key == key) {
+     move->score = _INFINITE - 1;
+     }
+     takeback(move, &key, oldKey);
+     } */
+
+  /*for (int i = 1; i <= listcount; i++) {
+     int from = gen_list[list_id][i].from;
+     int to = gen_list[list_id][i].to;
+     if (killerHeuristic[currentPly][from][to]) {
+     gen_list[list_id][i].score = killerHeuristic[currentPly][from][to];
+     continue;
+     }
+     } */
+
 #endif
+  _Tmove *best = NULL;
   int ii;
-  while ( ( ii = getNextMove ( gen_list[list_id] ) ) != -1 ) {
-    mossa = &gen_list[list_id][ii];
+  bool check_alpha = false;
+  if ( hash_greater )
+    sortHashMoves ( list_id, phashe_greater );
+  else if ( hash_always )
+    sortHashMoves ( list_id, phashe_always );
 #ifdef DEBUG_MODE
-#ifndef PERFT_MODE
-    memcpy ( mossa->stack_move, Pmossa->stack_move, sizeof ( Tchessboard ) * Pmossa->nextBoard );
-    mossa->nextBoard = Pmossa->nextBoard + 1;
-    memcpy ( mossa->stack_move[mossa->nextBoard - 1], chessboard, sizeof ( Tchessboard ) );
+  double N = 0.0;
 #endif
-    if ( !( mossa->type & ( KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK ) ) ) {
-      assert ( mossa->from >= 0 && mossa->from < 64 );
-      if ( ( int ) get_piece_at ( side, TABLOG[mossa->from] ) == 12 ) {
-	print (  );
-#ifndef PERFT_MODE
-	cout << "\n========%d=========" << mossa->nextBoard;
-	for ( int i = 0; i < mossa->nextBoard; i++ )
-	  print ( &mossa->stack_move[i] );
-#endif
-	cout << "\n------------------";
-	cout << "\nget_piece_at(side, tablog(mossa->from)):" << get_piece_at ( side, TABLOG[mossa->from] );
-	cout << "\nget_piece_at(side^1, tablog(mossa->from)):" << get_piece_at ( side ^ 1, TABLOG[mossa->from] );
-	cout << "\ndecodeBoardinv(mossa->from, mossa->side):" << decodeBoardinv ( mossa->type, mossa->from, mossa->side );
-	cout << "\ndecodeBoardinv(mossa->to, mossa->side):" << decodeBoardinv ( mossa->type, mossa->to, mossa->side );
-	cout << "\nmossa->side:" << mossa->side;
-	cout << "\nMossa->type:" << mossa->type;
-	cout << flush;
-	assert ( 0 );
-      }
-    }
-#endif
-    makemove ( mossa );
-#ifdef FP_MODE
-    if ( fprune && check_alpha && ( ( mossa->type & 0x3 ) != PROMOTION_MOVE_MASK )	/*&& mossa->capture == 12 */
-	 &&Fmax + PIECES_VALUE[mossa->capture] <= alpha && !in_check ( side ) ) {
+  INC ( totGen );
+  while ( ( ii = getNextMove ( gen_list[list_id] ) ) != -1 ) {
+    INC ( N );
+    move = &gen_list[list_id][ii];
+    makemove ( move, &key );
+
+    /* if(move->pieceFrom==WHITE||move->pieceFrom==BLACK||move->capturedPiece!=SQUARE_FREE)
+       pushStackMove(key,true);
+       else {
+       pushStackMove(key,false);
+       if (checkDraw( key)) {
+       popStackMove();
+       takeback(move, &key, oldKey);
+       continue;
+       }
+       } */
+#ifndef NO_FP_MODE
+    if ( fprune && check_alpha && ( ( move->type & 0x3 ) != PROMOTION_MOVE_MASK )	/*&& move->capturedPiece == 12 */
+	 &&Fmax + PIECES_VALUE[move->capturedPiece] <= alpha && !in_check ( side ) ) {
       INC ( n_cut_fp );
-      takeback ( mossa );
+//            popStackMove();
+      takeback ( move, &key, oldKey );
       continue;
     }
 #endif
-#ifdef HASH_MODE
-    ASSERT ( key == makeZobristKey ( side ) );
-#endif
-    int do_mws = ( score > -_INFINITE + 100 );
-    int lwb = _max ( alpha, score );
-    int upb = ( do_mws ? ( lwb + 1 ) : beta );
-    val = -search ( side ^ 1, depth - 1, -upb, -lwb, &line
-#ifdef DEBUG_MODE
-		    , mossa
-#endif
-       );
-    if ( do_mws && ( lwb < val ) && ( val < beta ) ) {
-      val = -search ( side ^ 1, depth - 1, -beta, -val + 1, &line
-#ifdef DEBUG_MODE
-		      , mossa
-#endif
-	 );
+
+    int doMws = ( score > -_INFINITE + 100 );
+    int lwb = max ( alpha, score );
+    int upb = ( doMws ? ( lwb + 1 ) : beta );
+    currentPly++;
+    val = -search ( key, side ^ 1, depth - 1, -upb, -lwb, &line );
+    currentPly--;
+    if ( doMws && ( lwb < val ) && ( val < beta ) ) {
+      currentPly++;
+      val = -search ( key, side ^ 1, depth - 1, -beta, -val + 1, &line );
+      currentPly--;
     }
-    score = _max ( score, val );
-    takeback ( mossa );
-    mossa->score = score;
-    if ( score >= beta ) {
+    score = max ( score, val );
+    //popStackMove();
+    takeback ( move, &key, oldKey );
+    if ( !running ) {
       gen_list[list_id--][0].score = 0;
-#ifdef DEBUG_MODE
-      ASSERT ( mossa->score == score );
-      n_cut++;
-      beta_efficency += 1 / ii;
-#endif
-#ifdef HASH_MODE
-      RecordHash ( depth, hashfBETA, key, beta, &best );
-#endif
-      if ( mossa->from >= 0 && mossa->to >= 0 && mossa->from < 64 && mossa->to < 64 ) {
-	KillerHeuristic[mossa->from][mossa->to] = 0x400;
-      }
-      return score;
+      return 0;
     }
+    move->score = score;
     if ( score > alpha ) {
-      alpha = score;
-      check_alpha = 1;
-#ifdef HASH_MODE
-      hashf = hashfEXACT;
-      memcpy ( &best, mossa, sizeof ( Tmove ) );
+      if ( score >= beta ) {
+	gen_list[list_id--][0].score = 0;
+#ifdef DEBUG_MODE
+	ASSERT ( move->score == score );
+	INC ( n_cut );
+	beta_efficency += N / ( double ) listcount *100.0;
 #endif
-      updatePv ( pline, &line, mossa );
+	recordHash ( running, phashe_greater, phashe_always, depth - extension, hashfBETA, key, score, move );
+	setKillerHeuristic ( move->from, move->to, 0x400 );
+	return score;
+      }
+      alpha = score;
+      check_alpha = true;
+      hashf = hashfEXACT;
+      best = move;
+      move->score = score;	//si usa in it
+      updatePv ( pline, &line, move );
     }
   }
+  recordHash ( running, phashe_greater, phashe_always, depth - extension, hashf, key, score, best );
   gen_list[list_id--][0].score = 0;
   return score;
 }
 
 void
-Search::updatePv ( LINE * pline, const LINE * line, const Tmove * mossa ) {
-#ifdef DEBUG_MODE
+Search::updatePv ( _TpvLine * pline, const _TpvLine * line, const _Tmove * move ) {
   ASSERT ( line->cmove < MAX_PLY - 1 );
-#endif
-  memcpy ( &( pline->argmove[0] ), mossa, sizeof ( Tmove ) );
-  memcpy ( pline->argmove + 1, line->argmove, line->cmove * sizeof ( Tmove ) );
-#ifdef DEBUG_MODE
-  assert ( line->cmove >= 0 );
-#endif
+  memcpy ( &( pline->argmove[0] ), move, sizeof ( _Tmove ) );
+  memcpy ( pline->argmove + 1, line->argmove, line->cmove * sizeof ( _Tmove ) );
+  ASSERT ( line->cmove >= 0 );
+  pline->cmove = line->cmove + 1;
+}
+
+void
+Search::updatePv ( _TpvLine * pline, const _TpvLine * line, const int from, const int to, const int side ) {
+  ASSERT ( line->cmove < MAX_PLY - 1 );
+  _Tmove mos;
+  int type = STANDARD_MOVE_MASK;
+  mos.side = ( char ) side;
+  mos.capturedPiece = getPieceAt ( ( side ^ 1 ), TABLOG[to] );
+  int pieceFrom = getPieceAt ( ( side ), TABLOG[from] );
+  mos.from = from;
+  mos.to = to;
+  mos.promotionPiece = -1;
+  if ( ( pieceFrom == PAWN_WHITE && from > 55 ) || ( pieceFrom == PAWN_BLACK && from < 8 ) ) {
+    type = PROMOTION_MOVE_MASK;
+    mos.promotionPiece = QUEEN_BLACK + side;
+  }
+//TODO enpassant
+  mos.type = RIGHT_CASTLE | type;
+  memcpy ( &( pline->argmove[0] ), &mos, sizeof ( _Tmove ) );
+  memcpy ( pline->argmove + 1, line->argmove, line->cmove * sizeof ( _Tmove ) );
+  ASSERT ( line->cmove >= 0 );
   pline->cmove = line->cmove + 1;
 }

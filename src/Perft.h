@@ -1,5 +1,4 @@
-#ifdef PERFT_MODE
-#ifndef TEST_MODE
+#ifndef TUNE_CRAFTY_MODE
 #ifndef PERFT_H_
 #define PERFT_H_
 #include "maindefine.h"
@@ -11,35 +10,34 @@
 typedef struct {
   u64 key;
   u64 *nMovesXply;
-} ThashPerft;
+} _ThashPerft;
 #pragma pack(pop)
 
-class RootPerft;
-class Perft:public Thread, public GenMoves {
+class Perft;
+class PerftThread:public Thread, public GenMoves {
 public:
-  Perft ( int, char *fen, int from, int to, RootPerft * rootPerft );
-   virtual ~ Perft (  );
-  u64 search ( const int SIDE, int depth );
+  PerftThread ( int, string fen, int from, int to, Perft * Perft );
+   PerftThread (  );
+   virtual ~ PerftThread (  );
+  u64 search ( const int side, int depth, u64 key );
   virtual void run (  );
 private:
   int from, to;
   int cpuID;
-  RootPerft *rootPerft;
+  Perft *perft;
 
 };
-class RootPerft:public GenMoves {
+class Perft {
 public:
-  int HASH_SIZE, mainDepth, nCpu;
-  ThashPerft *hash;
+  int PERFT_HASH_SIZE, mainDepth, nCpu;
+  _ThashPerft *hash;
   int nCollisions;
-  void setResult ( u64 result ) {
-    TOT += result;
-  } RootPerft ( char *fen, int depth, int nCpu, int HASH_SIZE );
-  ~RootPerft (  );
+  void setResult ( u64 result );
+   Perft ( string fen, int depth, int nCpu, int HASH_SIZE );
+  ~Perft (  );
 private:
-  vector < Perft * >perftList;
+   vector < PerftThread * >perftList;
   u64 TOT;
 };
-#endif
 #endif
 #endif

@@ -5,12 +5,17 @@
 class IterativeDeeping:public Thread {
 public:
   IterativeDeeping ( Search * );
-  virtual ~ IterativeDeeping (  );
+  void setPonder ( bool );
+   virtual ~ IterativeDeeping (  );
   virtual void run (  );
+  void enablePonder ( bool b );
 private:
-   Tmove result_move;
+#ifdef DEBUG_MODE
+  int halfMove;
+#endif
+  bool ponderEnabled;
   Search *search;
-  void think ( int );
+  int ponder;
 };
 
 #endif

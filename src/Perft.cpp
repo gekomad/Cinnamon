@@ -1,32 +1,46 @@
-#ifdef PERFT_MODE
-#ifndef TEST_MODE
+#ifndef TUNE_CRAFTY_MODE
 #include "Perft.h"
 #include <iomanip>
-Perft::Perft ( int cpuID, char *fen, int from, int to, RootPerft * rootPerft ):
-GenMoves ( fen ) {
-  this->cpuID = cpuID;
-  this->rootPerft = rootPerft;
-  this->from = from;
-  this->to = to;
+PerftThread::PerftThread (  ) {
 }
 
-RootPerft::~RootPerft (  ) {
-  for ( int i = 0; i < HASH_SIZE; i++ )
+PerftThread::PerftThread ( int cpuID1, string fen1, int from1, int to1, Perft * perft1 ):
+GenMoves (  ) {
+  perftMode = true;
+  if ( !fen1.empty (  ) )
+    INITIAL_FEN = fen1;
+  loadFen ( INITIAL_FEN );
+  this->cpuID = cpuID1;
+  this->perft = perft1;
+  this->from = from1;
+  this->to = to1;
+}
+
+Perft::~Perft (  ) {
+  for ( int i = 0; i < PERFT_HASH_SIZE; i++ )
     free ( hash[i].nMovesXply );
   free ( hash );
 }
 
-RootPerft::RootPerft ( char *fen, int depth, int nCpu, int hash_size ):
-GenMoves ( fen ) {
+void
+Perft::setResult ( u64 result ) {
+  TOT += result;
+}
+Perft::Perft ( string fen, int depth, int nCpu1, int hash_size ) {
+  PerftThread *p = new PerftThread (  );
+  if ( !fen.empty (  ) )
+    p->loadFen ( fen );
+  p->setPerft ( true );
+  p->display (  );
   struct timeb start1, end1;
   TOT = nCollisions = 0;
-
-  this->HASH_SIZE = hash_size * 1024 * 1000 / ( sizeof ( u64 ) * depth + sizeof ( ThashPerft ) );
+  int side = p->getSide (  )? 1 : 0;
+  this->PERFT_HASH_SIZE = hash_size * 1024 * 1024 / ( sizeof ( u64 ) * depth + sizeof ( _ThashPerft ) );
   this->hash = NULL;
-  if ( HASH_SIZE ) {
-    hash = ( ThashPerft * ) calloc ( HASH_SIZE, sizeof ( ThashPerft ) );
+  if ( PERFT_HASH_SIZE ) {
+    hash = ( _ThashPerft * ) calloc ( PERFT_HASH_SIZE, sizeof ( _ThashPerft ) );
     myassert ( hash );
-    for ( int i = 0; i < HASH_SIZE; i++ ) {
+    for ( int i = 0; i < PERFT_HASH_SIZE; i++ ) {
       this->hash[i].key = 0xffffffffffffffffULL;
       hash[i].nMovesXply = ( u64 * ) malloc ( ( depth - 1 ) * sizeof ( u64 ) );
       myassert ( hash[i].nMovesXply );
@@ -34,32 +48,35 @@ GenMoves ( fen ) {
 	hash[i].nMovesXply[j] = 0xffffffffffffffffULL;
       }
     }
-    cout << "ok\n" << flush;
   }
   ftime ( &start1 );
   this->mainDepth = depth - 1;
-  this->nCpu = nCpu;
-  incListId (  );
-  generateCap (  );
-  generateMoves (  );
-  int listcount = getListCount (  );
-  resetList (  );
-  decListId (  );
-  myassert ( nCpu > 0 );
-  int block = listcount / nCpu - 1;
+  this->nCpu = nCpu1;
+  p->incListId (  );
+  u64 friends = p->getBitBoard ( side );
+  u64 enemies = p->getBitBoard ( side ^ 1 );
+  u64 dummy = 0;
+  p->generateCap ( side, enemies, friends, &dummy );
+  p->generateMoves ( side, friends | enemies );
+  int listcount = p->getListCount (  );
+  delete ( p );
+  p = NULL;
+  myassert ( nCpu1 > 0 );
+  int block = listcount / nCpu1 - 1;
   int s = 1;
   cout << "split:";
-  for ( int i = 0; i < nCpu - 1; i++ ) {
+  for ( int i = 0; i < nCpu1 - 1; i++ ) {
     cout << " cpu#" << i << " from: " << s << " to: " << s + block << flush;
-    perftList.push_back ( new Perft ( i, fen, s, s + block, this ) );
+    perftList.push_back ( new PerftThread ( i, fen, s, s + block, this ) );
     perftList[i]->start (  );
     s += block + 1;
   }
-  cout << " cpu#" << nCpu - 1 << " from: " << s << " to: " << listcount << flush;
-  perftList.push_back ( new Perft ( nCpu - 1, fen, s, listcount, this ) );
-  perftList[nCpu - 1]->start (  );
-  for ( int i = 0; i < nCpu; i++ ) {
+  cout << " cpu#" << nCpu1 - 1 << " from: " << s << " to: " << listcount << flush;
+  perftList.push_back ( new PerftThread ( nCpu1 - 1, fen, s, listcount, this ) );
+  perftList[nCpu1 - 1]->start (  );
+  for ( int i = 0; i < nCpu1; i++ ) {
     perftList[i]->join (  );
+    perftList[i]->stop (  );
     delete perftList[i];
   }
   ftime ( &end1 );
@@ -69,38 +86,46 @@ GenMoves ( fen ) {
 }
 
 u64
-Perft::search ( const int SIDE, int depth ) {
+PerftThread::search ( const int side, int depth, u64 key ) {
   if ( depth == 0 ) {
     return 1;
   }
-  u64 key = 0;
-  ThashPerft *phashe = NULL;
-  if ( depth >= 2 && rootPerft->hash ) {
-    key = makeZobristKey ( SIDE );
-    phashe = &( rootPerft->hash[key % rootPerft->HASH_SIZE] );
+  _ThashPerft *phashe = NULL;
+  if ( depth >= 2 && perft->hash ) {
+    phashe = &( perft->hash[key % perft->PERFT_HASH_SIZE] );
     if ( key == phashe->key && phashe->nMovesXply[depth - 2] != 0xffffffffffffffffULL ) {
       return phashe->nMovesXply[depth - 2];
     }
   }
+
   u64 n_perft = 0;
   int ii, listcount;
-  Tmove *mossa;
+  _Tmove *move;
   incListId (  );
-  if ( generateCap ( STANDARD_MOVE_MASK, SIDE ) ) {
+  u64 friends = getBitBoard ( side );
+  u64 enemies = getBitBoard ( side ^ 1 );
+  if ( generateCap ( side, enemies, friends, &key ) ) {
+
     decListId (  );
     return 0;
   }
-  generateMoves ( STANDARD_MOVE_MASK, SIDE );
+  generateMoves ( side, friends | enemies );
   listcount = getListCount (  );
   if ( !listcount ) {
     decListId (  );
     return 0;
   }
+
   for ( ii = 1; ii <= listcount; ii++ ) {
-    mossa = getList ( ii );
-    makemove ( mossa );
-    n_perft += search ( SIDE ^ 1, depth - 1 );
-    takeback ( mossa );
+
+    move = getList ( ii );
+    u64 keyold = key;
+
+    makemove ( move, &key );
+    ASSERT ( key == makeZobristKey (  ) );
+    n_perft += search ( side ^ 1, depth - 1, key );
+    takeback ( move, &key, keyold );
+
   }
   resetList (  );
   decListId (  );
@@ -113,56 +138,61 @@ Perft::search ( const int SIDE, int depth ) {
       phashe->key = key;
     }
     else {
-      rootPerft->nCollisions++;
+      perft->nCollisions++;
     }
   }
   return n_perft;
 }
 
 void
-Perft::run (  ) {
+PerftThread::run (  ) {
 
-  int ii, listcount;
+  int ii;
   struct timeb start1, end1;
   int TimeTaken = 0;
 
   ftime ( &start1 );
   init (  );
-  Tmove *mossa;
+  _Tmove *move;
   incListId (  );
   resetList (  );
-  generateCap (  );
-  generateMoves (  );
-  listcount = getListCount (  );
+
+  u64 friends = getBitBoard ( sideToMove );
+  u64 enemies = getBitBoard ( sideToMove ^ 1 );
+  u64 dummy = 0;
+  generateCap ( sideToMove, enemies, friends, &dummy );
+  generateMoves ( sideToMove, friends | enemies );
   u64 tot = 0;
+  u64 key = makeZobristKey (  );
+  u64 keyold = key;
+
   for ( ii = to; ii >= from; ii-- ) {
-    u64 n_perft1 = 0;
-    mossa = getList ( ii );
-    u64 key = 0;
-    if ( rootPerft->hash )
-      makeZobristKey ( ( !blackMove ) ^ 1 );
-    makemove ( mossa );
-    n_perft1 = search ( ( !blackMove ) ^ 1, rootPerft->mainDepth );
-    takeback ( mossa );
+    u64 n_perft = 0;
+    move = getList ( ii );
+
+    makemove ( move, &key );
+    n_perft = search ( sideToMove ^ 1, perft->mainDepth, key );
+    takeback ( move, &key, keyold );
+
     char y;
-    char x = FEN_PIECE[get_piece_at ( ( !blackMove ), TABLOG[mossa->from] )];
+    char x = FEN_PIECE[sideToMove == WHITE ? getPieceAtWhite ( TABLOG[move->from] ) : getPieceAtBlack ( TABLOG[move->from] )];
     if ( x == 'p' || x == 'P' )
       x = ' ';
-    if ( mossa->capture != 12 )
+    if ( move->capturedPiece != SQUARE_FREE )
       y = '*';
     else
       y = '-';
     cout << "\n#" << ii << " cpuID# " << cpuID;
-    cout << "\t" << x << decodeBoardinv ( mossa->type, mossa->from, !blackMove ) << y << decodeBoardinv ( mossa->type, mossa->to, !blackMove ) << "\t" << n_perft1 << " ";
+    cout << "\t" << x << decodeBoardinv ( move->type, move->from, sideToMove ) << y << decodeBoardinv ( move->type, move->to, sideToMove ) << "\t" << n_perft << " ";
     cout << flush;
-    tot += n_perft1;
+    tot += n_perft;
   }
   decListId (  );
   ftime ( &end1 );
   TimeTaken = diff_time ( end1, start1 );
   cout << "\n" << tot << " nodes in " << ( double ) TimeTaken / 1000 << " seconds";
 
-  rootPerft->setResult ( tot );
+  perft->setResult ( tot );
 #ifdef DEBUG_MODE
   if ( TimeTaken > 500 ) {
     cout << endl << "nodes per second " << tot * 1000 / TimeTaken;
@@ -171,8 +201,7 @@ Perft::run (  ) {
   cout << endl << flush;
 
 }
-Perft::~Perft (  ) {
+PerftThread::~PerftThread (  ) {
 }
 
-#endif
 #endif

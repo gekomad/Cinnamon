@@ -2,40 +2,38 @@
 #define EVAL_H_
 
 #include "maindefine.h"
-#include "Bits.h"
-#include "Search.h"
+#include "utils.h"
 #include "GenMoves.h"
-class Search;
 
-class Eval {
+enum {
+  OPEN, MIDDLE, FINAL
+};
+
+
+class Eval:public GenMoves {
 public:
-  Eval ( char *iniFile, Search * s );
-   virtual ~ Eval (  );
-  void readParam ( char *param_file );
+  Eval (  );
+  virtual ~ Eval (  );
   void setRandomParam (  );
-  void writeParam ( char *param_file, int cd_param, bool append );
+  void writeParam ( string param_file, int cd_param, bool append );
+#ifdef TUNE_CRAFTY_MODE
+  int getScore ( const int side, int *material_score, int *pawns_score, int *passed_pawns_score, int *knights_score, int *bishop_score, int *rooks_score, int *queens_score, int *kings_score, int *development_score, int *pawn_race_score, int *total_score );
+#else
+  int getScore ( const int side, const int alpha, const int beta );
+#endif
+  int lazyEval ( int side ) {
+    return side ? lazyEvalWhite (  ) - lazyEvalBlack (  ) : lazyEvalBlack (  ) - lazyEvalWhite (  );
+  }
+#ifdef DEBUG_MODE
+  int LazyEvalCuts;
+  unsigned totmosse, totGen;
+#endif
+private:
 
-  int score ( const int side
-#ifdef FP_MODE
-	      , const int alpha, const int beta
-#endif
-     );
-#ifdef TEST_MODE
-  int score ( const int side
-#ifdef FP_MODE
-	      , const int alpha, const int beta
-#endif
-	      , int *material_score, int *pawns_score, int *passed_pawns_score, int *knights_score, int *bishop_score, int *rooks_score, int *queens_score, int *kings_score, int *development_score, int *pawn_race_score, int *total_score );
-#endif
-  int lazyEval ( int SIDE ) {
-    return SIDE ? lazyEvalWhite (  ) - lazyEvalBlack (  ) : lazyEvalBlack (  ) - lazyEvalWhite (  );
-} private:
-   STRUCTURE_TAG * structure;
-  Search *search;
 #ifdef DEBUG_MODE
   int N_EVALUATION[2];
 #endif
-  int evaluateMobility ( const int side );
+
   void openColumn ( const int side );
   int evaluatePawn ( const int side );
   int evaluateBishop ( const int side );
@@ -43,8 +41,8 @@ public:
   int evaluateKnight ( const int side );
   int evaluateRook ( const int side );
   int evaluateKing ( const int side );
-  int getValue ( char *s );
-  int isPinned ( const int side, const char Position, const char piece );
+  int getValue ( string s );
+  int isPinned ( const int side, const uchar Position, const uchar piece );
   int lazyEvalBlack (  );
   int lazyEvalWhite (  );
   int PINNED_PIECE;
@@ -63,7 +61,6 @@ public:
   int ROOK_BLOCKED;
   int ROOK_7TH_RANK;
   int OPEN_FILE;
-  int BLOCK_PAWNS;
   int UNDEVELOPED;
   int HALF_OPEN_FILE_Q;
   int DOUBLED_PAWNS;
@@ -76,7 +73,6 @@ public:
   int SPACE;
   int END_OPENING;
   int PAWN_NEAR_KING;
-  int BONUS_CASTLE;
   int NEAR_xKING;
   int BONUS_11;
   int BISHOP_ON_QUEEN;
