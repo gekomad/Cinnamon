@@ -240,8 +240,10 @@ listner_winboard ( void *uuua )
 	result_move.da = QUEENSIDE;
       else
 	result_move.da = KINGSIDE;
-
-      result_move.side = black_move;
+      if ( strstr ( tt, "1" ) )
+	result_move.side = WHITE;
+      else
+	result_move.side = BLACK;
 
       result_move.tipo = CASTLE;
       makemove ( &result_move );
