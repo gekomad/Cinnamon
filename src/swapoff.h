@@ -103,7 +103,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
   bit_raw = ( uchar ) ( ( allpieces2 >> ( pos_posMod8[pos] ) ) );
   y = MOVIMENTO_MASK_CAT[bit_raw][re_position_mod_8];
   if ( y ) {
-    x = y & ( chessboard[TOWER_BLACK + ( xcolore_attaccato )] >> ( pos_posMod8[pos] ) & 255 );
+    x = y & ( chessboard[ROOK_BLACK + ( xcolore_attaccato )] >> ( pos_posMod8[pos] ) & 255 );
     if ( x )
       x = ( x << ( ( get_row[pos] ) << 3 ) );
     while ( x ) {
@@ -206,7 +206,7 @@ calcola_attaccanti ( const int pos, const int colore_attaccato ) {
   y = MOVIMENTO_MASK_CAT[bit_raw][ROT45ROT_90_MASK[pos]];
   if ( y ) {
 
-    x = y & ( rotate_board_90 ( chessboard[TOWER_BLACK + ( xcolore_attaccato )], pos ) );
+    x = y & ( rotate_board_90 ( chessboard[ROOK_BLACK + ( xcolore_attaccato )], pos ) );
     if ( x > 0 )
       x = ( inv_raw90[x][ROT45[pos]] );
     while ( x ) {

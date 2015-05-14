@@ -47,7 +47,7 @@ Depth 	Perft(Depth) 	Total Nodes
 //xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "r1b1k2r/pppp1ppp/8/4P3/1P3nP1/7P/2PKPP2/1q3B1R w - - 0 2 "
+//#define INITIAL_FEN "8/k4P2/8/8/8/8/K3p3/8 w - - 0 1   "
 
 #define debugfile "out.log"
 #define _INFINITE 2147483646
@@ -120,8 +120,8 @@ typedef unsigned char uchar;
 #define SQUARE_FREE   12
 #define PAWN_BLACK   0
 #define PAWN_WHITE   1
-#define TOWER_BLACK   2
-#define TOWER_WHITE   3
+#define ROOK_BLACK   2
+#define ROOK_WHITE   3
 #define BISHOP_BLACK   4
 #define BISHOP_WHITE   5
 #define KNIGHT_BLACK   6
@@ -134,7 +134,7 @@ typedef unsigned char uchar;
 #define PAWN_CAPTUKING_WHITE   13
 
 #define PAWN_S   0
-#define TOWER_S   1
+#define ROOK_S   1
 #define BISHOP_S   2
 #define KNIGHT_S   3
 #define RE_S   4
@@ -196,8 +196,8 @@ const int PIECES_VALUE[13] = {
 };
 
 #define _max(a,b) (a>b?a:b)
-#define square_bit_occupied(x) (x==BLACK ? (chessboard[PAWN_BLACK]|chessboard[TOWER_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]):(chessboard[PAWN_WHITE]|chessboard[TOWER_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE]))
-#define get_pieces(x) (x==BLACK ? chessboard[TOWER_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]:chessboard[TOWER_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE])
+#define square_bit_occupied(x) (x==BLACK ? (chessboard[PAWN_BLACK]|chessboard[ROOK_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]):(chessboard[PAWN_WHITE]|chessboard[ROOK_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE]))
+#define get_pieces(x) (x==BLACK ? chessboard[ROOK_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]:chessboard[ROOK_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE])
 #define n_pieces(x) (BitCount(get_pieces(x)))
 
 #define max_pieces_per_side(tipo) (BitCount(square_bit_occupied(tipo)))
@@ -206,7 +206,7 @@ const int PIECES_VALUE[13] = {
 #define R_adpt(tipo,depth) (2+((depth) > (3+((max_pieces_per_side(tipo)<3)?2:0))))
 #define null_ok(depth,side)((null_sem) ? 0:(depth < 3 ?0:(max_pieces_per_side(side) < 4 ? 0:1)))
 
-#define case_all_bit_occupate() (chessboard[PAWN_BLACK]|chessboard[TOWER_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]|chessboard[PAWN_WHITE]|chessboard[TOWER_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE])
+#define case_all_bit_occupate() (chessboard[PAWN_BLACK]|chessboard[ROOK_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]|chessboard[PAWN_WHITE]|chessboard[ROOK_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE])
 
 #define shift32(b) (((unsigned*)&b)[1])
 
@@ -217,14 +217,14 @@ const int PIECES_VALUE[13] = {
 #define get_piece_at(side,tablogpos)((side==WHITE)?(\
 (chessboard[PAWN_WHITE]&tablogpos)?PAWN_WHITE:(\
 (chessboard[KING_WHITE]&tablogpos)?KING_WHITE:(\
-(chessboard[TOWER_WHITE]&tablogpos)?TOWER_WHITE:(\
+(chessboard[ROOK_WHITE]&tablogpos)?ROOK_WHITE:(\
 (chessboard[BISHOP_WHITE]&tablogpos)?BISHOP_WHITE:(\
 (chessboard[KNIGHT_WHITE]&tablogpos)?KNIGHT_WHITE:(\
 (chessboard[QUEEN_WHITE]&tablogpos)?QUEEN_WHITE:SQUARE_FREE)))))):\
 (\
 (chessboard[PAWN_BLACK]&tablogpos)?PAWN_BLACK:(\
 (chessboard[KING_BLACK]&tablogpos)?KING_BLACK:(\
-(chessboard[TOWER_BLACK]&tablogpos)?TOWER_BLACK:(\
+(chessboard[ROOK_BLACK]&tablogpos)?ROOK_BLACK:(\
 (chessboard[BISHOP_BLACK]&tablogpos)?BISHOP_BLACK:(\
 (chessboard[KNIGHT_BLACK]&tablogpos)?KNIGHT_BLACK:(\
 (chessboard[QUEEN_BLACK]&tablogpos)?QUEEN_BLACK:SQUARE_FREE)))))))

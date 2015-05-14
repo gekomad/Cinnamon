@@ -295,7 +295,8 @@ listner_winboard ( void *uuua )
       know_command = 1;
       MAX_TIME_MILLSEC = atoi ( tt + 3 ) * 1000;
     }
-    else if ( ( strlen ( tt ) == 3 || strlen ( tt ) == 4 || strlen ( tt ) == 5 ) && ( tt[1] >= 48 && tt[1] <= 56 && tt[3] >= 48 && tt[3] <= 56 ) ) {
+    else if ( strlen ( tt ) == 4 && ( tt[1] >= 48 && tt[1] <= 56 && tt[3] >= 48 && tt[3] <= 56 )
+       ) {
       move[0] = tt[0];
       move[1] = tt[1];
       move[2] = 0;
@@ -313,10 +314,7 @@ listner_winboard ( void *uuua )
       result_move.a = decodeBoard ( move );
       if ( !force && get_piece_at ( result_move.side, TABLOG[result_move.da] ) < 2 && get_column[result_move.da] != get_column[result_move.a] && get_piece_at ( 0, TABLOG[result_move.a] ) == SQUARE_FREE && get_piece_at ( 1, TABLOG[result_move.a] ) == SQUARE_FREE )
 	result_move.tipo = ENPASSANT;
-      else if ( strlen ( tt ) == 5 ) {
-	result_move.tipo = PROMOTION;
-	result_move.promotion_piece = getFenInv ( tt[4] );
-      }
+
       else
 	result_move.tipo = STANDARD;
       makemove ( &result_move );
@@ -327,7 +325,64 @@ listner_winboard ( void *uuua )
 	go = 1;
 
     }
+    else if ( strlen ( tt ) == 5 ) {
+      result_move.tipo = PROMOTION;
+      result_move.promotion_piece = getFenInv ( tt[4] );
+      move[0] = tt[0];
+      move[1] = tt[1];
+      move[2] = 0;
+      result_move.da = decodeBoard ( move );
+      move[0] = tt[2];
+      move[1] = tt[3];
+      move[2] = 0;
+      result_move.a = decodeBoard ( move );
+      if ( tt[3] == '8' ) {
+	result_move.side = WHITE;
+	black_move = 1;
 
+      }
+      else {
+
+	result_move.side = BLACK;
+	black_move = 0;
+      }
+
+      makemove ( &result_move );
+      print (  );
+      push_fen (  );
+      know_command = 1;
+      if ( !force )
+	go = 1;
+
+    }
+    else if ( strlen ( tt ) == 3 && ( tt[1] == '7' || tt[1] == '2' ) ) {
+      result_move.tipo = PROMOTION;
+      result_move.promotion_piece = getFenInv ( tt[2] );
+      move[0] = tt[0];
+      move[1] = tt[1];
+      move[2] = 0;
+      result_move.da = decodeBoard ( move );
+      move[0] = tt[2];
+      move[1] = tt[3];
+      if ( tt[1] == '7' ) {
+	result_move.side = WHITE;
+	black_move = 1;
+	result_move.a = result_move.da + 8;
+      }
+      else {
+	result_move.side = BLACK;
+	black_move = 0;
+	result_move.a = result_move.da - 8;
+      }
+
+      makemove ( &result_move );
+      print (  );
+      push_fen (  );
+      know_command = 1;
+      if ( !force )
+	go = 1;
+
+    }
     else if ( !strcmp ( tt, "go" ) ) {
       go = 1;
       force = 0;

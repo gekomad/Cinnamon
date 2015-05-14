@@ -257,10 +257,10 @@ recognizer ()
   u64 pb = chessboard[PAWN_WHITE];
   if (pb)
     return 999;
-  u64 tn = chessboard[TOWER_BLACK];
+  u64 tn = chessboard[ROOK_BLACK];
   if (tn)
     return 999;
-  u64 tb = chessboard[TOWER_WHITE];
+  u64 tb = chessboard[ROOK_WHITE];
   if (tb)
     return 999;
   u64 rn = chessboard[QUEEN_BLACK];

@@ -353,24 +353,24 @@ un_make_castle ( const int da, const int SIDE ) {
       assert ( get_piece_at ( SIDE, TABLOG_1 ) == KING_WHITE );
       assert ( get_piece_at ( SIDE, TABLOG_0 ) == 12 );
       assert ( get_piece_at ( SIDE, TABLOG_3 ) == 12 );
-      assert ( get_piece_at ( SIDE, TABLOG_2 ) == TOWER_WHITE );
+      assert ( get_piece_at ( SIDE, TABLOG_2 ) == ROOK_WHITE );
 #endif
       chessboard[KING_WHITE] = ( chessboard[KING_WHITE] | TABLOG_3 ) & NOTTABLOG_1;
-      chessboard[TOWER_WHITE] = ( chessboard[TOWER_WHITE] | TABLOG_0 ) & NOTTABLOG_2;
+      chessboard[ROOK_WHITE] = ( chessboard[ROOK_WHITE] | TABLOG_0 ) & NOTTABLOG_2;
     }
     else {
       chessboard[KING_WHITE] = ( chessboard[KING_WHITE] | TABLOG_3 ) & NOTTABLOG_5;
-      chessboard[TOWER_WHITE] = ( chessboard[TOWER_WHITE] | TABLOG_7 ) & NOTTABLOG_4;
+      chessboard[ROOK_WHITE] = ( chessboard[ROOK_WHITE] | TABLOG_7 ) & NOTTABLOG_4;
     }
   }
   else {
     if ( da == KINGSIDE ) {
       chessboard[KING_BLACK] = ( chessboard[KING_BLACK] | TABLOG_59 ) & NOTTABLOG_57;
-      chessboard[TOWER_BLACK] = ( chessboard[TOWER_BLACK] | TABLOG_56 ) & NOTTABLOG_58;
+      chessboard[ROOK_BLACK] = ( chessboard[ROOK_BLACK] | TABLOG_56 ) & NOTTABLOG_58;
     }
     else {
       chessboard[KING_BLACK] = ( chessboard[KING_BLACK] | TABLOG_59 ) & NOTTABLOG_61;
-      chessboard[TOWER_BLACK] = ( chessboard[TOWER_BLACK] | TABLOG_63 ) & NOTTABLOG_60;
+      chessboard[ROOK_BLACK] = ( chessboard[ROOK_BLACK] | TABLOG_63 ) & NOTTABLOG_60;
     }
   }
 }
@@ -397,14 +397,14 @@ attack_square ( const int side, const int Position ) {
   //enpassant
   if ( PAWN_CAPTURE_MASK[side][Position] & chessboard[PAWN_BLACK + xside] )
     return 1;
-  if ( !( VERT_ORIZZ[Position] & ( chessboard[TOWER_BLACK + xside] | chessboard[QUEEN_BLACK + xside] ) | LEFT_RIGHT[Position] & ( chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside] ) ) ) {
+  if ( !( VERT_ORIZZ[Position] & ( chessboard[ROOK_BLACK + xside] | chessboard[QUEEN_BLACK + xside] ) | LEFT_RIGHT[Position] & ( chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside] ) ) ) {
     return 0;
   }
 
   ALLPIECES = case_all_bit_occupate (  ) | TABLOG[Position];
   Position_mod_8 = ROT45[Position];
   Position_Position_mod_8 = pos_posMod8[Position];
-  if ( MOVIMENTO_MASK_CAT[( uchar ) ( ( shr ( ALLPIECES, Position_Position_mod_8 ) ) )][Position_mod_8] & ( shr ( chessboard[TOWER_BLACK + xside], Position_Position_mod_8 ) & 255 | shr ( chessboard[QUEEN_BLACK + xside], Position_Position_mod_8 ) & 255 ) ) {
+  if ( MOVIMENTO_MASK_CAT[( uchar ) ( ( shr ( ALLPIECES, Position_Position_mod_8 ) ) )][Position_mod_8] & ( shr ( chessboard[ROOK_BLACK + xside], Position_Position_mod_8 ) & 255 | shr ( chessboard[QUEEN_BLACK + xside], Position_Position_mod_8 ) & 255 ) ) {
     //   print();
     return 1;
   }
@@ -434,7 +434,7 @@ attack_square ( const int side, const int Position ) {
 																	      Position ) | rotate_board_right_45 ( chessboard[QUEEN_BLACK + ( xside )], Position ) ) )
     return 1;
 
-  if ( MOVIMENTO_MASK_CAT[rotate_board_90 ( ALLPIECES, Position )][ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[TOWER_BLACK + xside], Position ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside], Position ) ) ) )
+  if ( MOVIMENTO_MASK_CAT[rotate_board_90 ( ALLPIECES, Position )][ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[ROOK_BLACK + xside], Position ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside], Position ) ) ) )
     return 1;
   return 0;
 }

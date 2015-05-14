@@ -51,7 +51,7 @@ const u64 RANK[8] = { 0xFFULL, RANK_1, 0xFF0000ULL, RANK_3, RANK_4, 0xFF00000000
   0xFF00000000000000ULL
 };
 
-const u64 LINK_TOWERS[64][64] = {
+const u64 LINK_ROOKS[64][64] = {
   {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2ULL, 0x6ULL, 0xeULL,
    0x1eULL, 0x3eULL,
    0x7eULL,

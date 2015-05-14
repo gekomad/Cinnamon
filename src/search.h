@@ -60,6 +60,7 @@ makemove ( Tmove * mossa ) {
     pezzoda = get_piece_at ( SIDE, TABLOG[mossada] );
     if ( mossa->tipo == PROMOTION ) {
       chessboard[pezzoda] = chessboard[pezzoda] & NOTTABLOG[mossada];
+
       chessboard[mossa->promotion_piece] = chessboard[mossa->promotion_piece] | TABLOG[mossaa];
     }
     else
@@ -84,13 +85,13 @@ makemove ( Tmove * mossa ) {
       CASTLE_NOT_POSSIBLE_QUEENSIDE[SIDE] = 1;
       CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] = 1;
     }
-    else if ( pezzoda == TOWER_WHITE && mossada == 0 && !CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] )
+    else if ( pezzoda == ROOK_WHITE && mossada == 0 && !CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] )
       CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] = 1;
-    else if ( pezzoda == TOWER_WHITE && mossada == 7 && !CASTLE_NOT_POSSIBLE_QUEENSIDE[SIDE] )
+    else if ( pezzoda == ROOK_WHITE && mossada == 7 && !CASTLE_NOT_POSSIBLE_QUEENSIDE[SIDE] )
       CASTLE_NOT_POSSIBLE_QUEENSIDE[SIDE] = 1;
-    else if ( pezzoda == TOWER_BLACK && mossada == 63 && !CASTLE_NOT_POSSIBLE_QUEENSIDE[SIDE] )
+    else if ( pezzoda == ROOK_BLACK && mossada == 63 && !CASTLE_NOT_POSSIBLE_QUEENSIDE[SIDE] )
       CASTLE_NOT_POSSIBLE_QUEENSIDE[SIDE] = 1;
-    else if ( pezzoda == TOWER_BLACK && mossada == 56 && !CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] )
+    else if ( pezzoda == ROOK_BLACK && mossada == 56 && !CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] )
       CASTLE_NOT_POSSIBLE_KINGSIDE[SIDE] = 1;
 
     if ( pezzoda == PAWN_WHITE && RANK_1 & TABLOG[mossada] && RANK_3 & TABLOG[mossaa] )
@@ -169,13 +170,13 @@ takeback ( const Tmove * mossa ) {
       if ( CASTLE_NOT_POSSIBLE_KINGSIDE[side] )
 	CASTLE_NOT_POSSIBLE_KINGSIDE[side] = 0;
     }
-    else if ( pezzoda == TOWER_WHITE && mossada == 0 && CASTLE_NOT_POSSIBLE_KINGSIDE[side] )
+    else if ( pezzoda == ROOK_WHITE && mossada == 0 && CASTLE_NOT_POSSIBLE_KINGSIDE[side] )
       CASTLE_NOT_POSSIBLE_KINGSIDE[side] = 0;
-    else if ( pezzoda == TOWER_WHITE && mossada == 7 && CASTLE_NOT_POSSIBLE_QUEENSIDE[side] )
+    else if ( pezzoda == ROOK_WHITE && mossada == 7 && CASTLE_NOT_POSSIBLE_QUEENSIDE[side] )
       CASTLE_NOT_POSSIBLE_QUEENSIDE[side] = 0;
-    else if ( pezzoda == TOWER_BLACK && mossada == 63 && CASTLE_NOT_POSSIBLE_QUEENSIDE[side] )
+    else if ( pezzoda == ROOK_BLACK && mossada == 63 && CASTLE_NOT_POSSIBLE_QUEENSIDE[side] )
       CASTLE_NOT_POSSIBLE_QUEENSIDE[side] = 0;
-    else if ( pezzoda == TOWER_BLACK && mossada == 56 && CASTLE_NOT_POSSIBLE_KINGSIDE[side] )
+    else if ( pezzoda == ROOK_BLACK && mossada == 56 && CASTLE_NOT_POSSIBLE_KINGSIDE[side] )
       CASTLE_NOT_POSSIBLE_KINGSIDE[side] = 0;
 
   }

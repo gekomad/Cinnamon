@@ -33,15 +33,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "openbook.h"
 
 int
-__controlla_mossa ( int side, int da, int a, u64 PAWN_BLACK1, u64 PAWN_WHITE1, u64 TOWER_BLACK1, u64 TOWER_WHITE1, u64 BISHOP_BLACK1, u64 BISHOP_WHITE1, u64 KNIGHT_BLACK1, u64 KNIGHT_WHITE1, u64 KING_BLACK1, u64 KING_WHITE1, u64 QUEEN_BLACK1, u64 QUEEN_WHITE1 ) {
+__controlla_mossa ( int side, int da, int a, u64 PAWN_BLACK1, u64 PAWN_WHITE1, u64 ROOK_BLACK1, u64 ROOK_WHITE1, u64 BISHOP_BLACK1, u64 BISHOP_WHITE1, u64 KNIGHT_BLACK1, u64 KNIGHT_WHITE1, u64 KING_BLACK1, u64 KING_WHITE1, u64 QUEEN_BLACK1, u64 QUEEN_WHITE1 ) {
 
 
 //      for ( list_id = 0; list_id < 0x10000; list_id++)
   //      _LSB[list_id] = slowLSB (list_id);
   chessboard[PAWN_BLACK] = PAWN_BLACK1;
   chessboard[PAWN_WHITE] = PAWN_WHITE1;
-  chessboard[TOWER_BLACK] = TOWER_BLACK1;
-  chessboard[TOWER_WHITE] = TOWER_WHITE1;
+  chessboard[ROOK_BLACK] = ROOK_BLACK1;
+  chessboard[ROOK_WHITE] = ROOK_WHITE1;
   chessboard[BISHOP_BLACK] = BISHOP_BLACK1;
   chessboard[BISHOP_WHITE] = BISHOP_WHITE1;
   chessboard[KNIGHT_BLACK] = KNIGHT_BLACK1;
@@ -92,15 +92,15 @@ __controlla_mossa ( int side, int da, int a, u64 PAWN_BLACK1, u64 PAWN_WHITE1, u
 }
 
 int
-__is_mate ( int side, u64 PAWN_BLACK1, u64 PAWN_WHITE1, u64 TOWER_BLACK1, u64 TOWER_WHITE1, u64 BISHOP_BLACK1, u64 BISHOP_WHITE1, u64 KNIGHT_BLACK1, u64 KNIGHT_WHITE1, u64 KING_BLACK1, u64 KING_WHITE1, u64 QUEEN_BLACK1, u64 QUEEN_WHITE1 ) {
+__is_mate ( int side, u64 PAWN_BLACK1, u64 PAWN_WHITE1, u64 ROOK_BLACK1, u64 ROOK_WHITE1, u64 BISHOP_BLACK1, u64 BISHOP_WHITE1, u64 KNIGHT_BLACK1, u64 KNIGHT_WHITE1, u64 KING_BLACK1, u64 KING_WHITE1, u64 QUEEN_BLACK1, u64 QUEEN_WHITE1 ) {
 
 
 //      for ( list_id = 0; list_id < 0x10000; list_id++)
 //              _LSB[list_id] = slowLSB (list_id);
   chessboard[PAWN_BLACK] = PAWN_BLACK1;
   chessboard[PAWN_WHITE] = PAWN_WHITE1;
-  chessboard[TOWER_BLACK] = TOWER_BLACK1;
-  chessboard[TOWER_WHITE] = TOWER_WHITE1;
+  chessboard[ROOK_BLACK] = ROOK_BLACK1;
+  chessboard[ROOK_WHITE] = ROOK_WHITE1;
   chessboard[BISHOP_BLACK] = BISHOP_BLACK1;
   chessboard[BISHOP_WHITE] = BISHOP_WHITE1;
   chessboard[KNIGHT_BLACK] = KNIGHT_BLACK1;

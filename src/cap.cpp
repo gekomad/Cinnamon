@@ -55,7 +55,7 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
     if ( o > 55 || o < 8 ) {	//PROMOTION
       //int pezzoda=get_piece_at(o + GG);
       if ( SIDE == WHITE && o > 55 || SIDE == BLACK && o < 8 ) {
-	if ( pushmove ( PROMOTION, o + GG, o, SIDE, TOWER_BLACK + SIDE ) )
+	if ( pushmove ( PROMOTION, o + GG, o, SIDE, ROOK_BLACK + SIDE ) )
 	  return 1;		//rock
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, QUEEN_BLACK + SIDE ) )
 	  return 1;		//queen
@@ -86,7 +86,7 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
     o = BitScanForward ( x );
     if ( o > 55 || o < 8 ) {	//PROMOTION
       if ( SIDE == WHITE && o > 55 || SIDE == BLACK && o < 8 ) {
-	if ( pushmove ( PROMOTION, o + GG, o, SIDE, TOWER_BLACK + SIDE ) )
+	if ( pushmove ( PROMOTION, o + GG, o, SIDE, ROOK_BLACK + SIDE ) )
 	  return 1;		//rock
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, QUEEN_BLACK + SIDE ) )
 	  return 1;		//queen
@@ -281,8 +281,8 @@ generateCap ( const int tipomove, const int SIDE ) {
     if ( chessboard[BISHOP_BLACK] )
       if ( performBishopCapture ( tipomove, BISHOP_BLACK, enemies, SIDE, ALLPIECES ) )
 	return 1;
-    if ( chessboard[TOWER_BLACK] )
-      if ( performTowerQueenCapture ( tipomove, TOWER_BLACK, enemies, SIDE, ALLPIECES ) )
+    if ( chessboard[ROOK_BLACK] )
+      if ( performTowerQueenCapture ( tipomove, ROOK_BLACK, enemies, SIDE, ALLPIECES ) )
 	return 1;
     if ( chessboard[QUEEN_BLACK] ) {
       if ( performTowerQueenCapture ( tipomove, QUEEN_BLACK, enemies, SIDE, ALLPIECES ) )
@@ -308,8 +308,8 @@ generateCap ( const int tipomove, const int SIDE ) {
     if ( chessboard[BISHOP_WHITE] )
       if ( performBishopCapture ( tipomove, BISHOP_WHITE, enemies, SIDE, ALLPIECES ) )
 	return 1;
-    if ( chessboard[TOWER_WHITE] )
-      if ( performTowerQueenCapture ( tipomove, TOWER_WHITE, enemies, SIDE, ALLPIECES ) )
+    if ( chessboard[ROOK_WHITE] )
+      if ( performTowerQueenCapture ( tipomove, ROOK_WHITE, enemies, SIDE, ALLPIECES ) )
 	return 1;
     if ( chessboard[QUEEN_WHITE] ) {
 
