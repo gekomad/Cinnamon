@@ -169,7 +169,7 @@ IterativeDeeping::run (  ) {
       break;
     }
     //assert(pvv.length());
-    int sc = resultMove.score / 100;;
+    int sc = resultMove.score;	/// 100;;
     if ( resultMove.score > _INFINITE - 100 )
       sc = 0x7fffffff;
 #ifdef DEBUG_MODE
@@ -204,7 +204,10 @@ IterativeDeeping::run (  ) {
     cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
 
-    cout << "info score cp " << sc << " depth " << ( int ) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+    if ( abs ( sc ) > _INFINITE )
+      cout << "info score mate 1 depth " << ( int ) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+    else
+      cout << "info score cp " << sc << " depth " << ( int ) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
     if ( mply >= maxDepth - 1 )
       break;
 

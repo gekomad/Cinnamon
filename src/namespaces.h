@@ -10,7 +10,7 @@
 namespace _board {
   using namespace std;
 
-  static const string NAME = "Cinnamon 1.1";
+  static const string NAME = "Cinnamon 1.1b";
   static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
   typedef unsigned char uchar;
