@@ -10,6 +10,7 @@ public:
   virtual ~ Uci (  );
 
 private:
+  bool uciMode;
   void listner (  );
   IterativeDeeping *it;
   void getToken ( istringstream & uip, string & token );

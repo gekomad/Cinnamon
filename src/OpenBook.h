@@ -9,10 +9,12 @@ public:
   virtual ~ OpenBook (  );
   bool load (  );
   string search ( int side, string movesPath );
-  void create ( string fileWhite, string fileBlack );
+  bool create (  );
 private:
   static const int SHIFT = 35;
   string bookFile;
+  string fileWhite;
+  string fileBlack;
   int fileSize;
   GenMoves *gen;
   char *book;
@@ -23,5 +25,6 @@ private:
   int *random[2];
   bool san2coord ( string san, int *from, int *to, int side );
   int getAttackers ( int piece, int side, int rank, int file, int to );
+  void printError (  );
 };
 #endif

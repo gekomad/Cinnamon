@@ -1,7 +1,7 @@
 #Makefile for cross-compile Linux/Windows/Mac
 
-CFLAGS_PROFILE="-std=c++0x -w -O3 -fprofile-generate -fno-exceptions -fno-rtti -fomit-frame-pointer -ffast-math -march=native -funroll-loops"
-CFLAGS_RELEASE="-std=c++0x -w -O3 -fprofile-use -fno-exceptions -fno-rtti -fomit-frame-pointer -ffast-math -march=native -funroll-loops"
+CFLAGS_PROFILE="-std=c++11 -w -O3 -fprofile-generate -fno-exceptions -fno-rtti -fomit-frame-pointer -ffast-math -march=native -funroll-loops $(EXTRACFLAGS)"
+CFLAGS_RELEASE="-std=c++11 -w -O3 -fprofile-use -fno-exceptions -fno-rtti -fomit-frame-pointer -ffast-math -march=native -funroll-loops $(EXTRACFLAGS)"
 CC="g++"
 ifndef SystemRoot
 RM=rm -f
@@ -9,20 +9,24 @@ PA="./"
 LIBS=-lpthread
 EXE="cinnamon"
 STRIP=strip
+EXTRACFLAGS= -static-libstdc++
 else
+RM=del
 PA=""
 LIBS=
 EXE="cinnamon.exe"
 STRIP=strip.exe
-RM=del
+EXTRACFLAGS= -static -static-libgcc -static-libstdc++
 endif
 
 _init_:
 ifndef CFLAGS
+	@echo
 	@echo "To compile cinnamon type:"
 	@echo ""
-	@echo "make cinnamon32"
 	@echo "make cinnamon64"
+	@echo "make cinnamon64_popcnt"
+	@echo "make cinnamon32"
 	@echo ""
 endif
 
@@ -39,6 +43,9 @@ cinnamon32:
 
 cinnamon64:
 	$(MAKE) ARC="-m64" make_cinnamon
+
+cinnamon64_popcnt:
+	$(MAKE) EXTRACFLAGS='$(EXTRACFLAGS) -DHAS_POPCNT -mpopcnt' cinnamon64
 
 all: _init_ namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o Hash.o Uci.o OpenBook.o
 	$(CC) ${CFLAGS} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o Hash.o Uci.o OpenBook.o ${LIBS} ${ARC}

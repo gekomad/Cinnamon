@@ -3,6 +3,7 @@
 #include <sys/timeb.h>
 #include "Eval.h"
 #include "namespaces.h"
+#include <climits>
 
 class Search:public Eval, public Hash {
 
@@ -44,11 +45,11 @@ private:
   int running, mainDepth, maxTimeMillsec;
   bool nullSearch;
   struct timeb startTime;
-   template < int side > int search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,int */  );
-//    bool checkInsufficientMaterial(int) ;
+   template < int side > int search ( int depth, int alpha, int beta, _TpvLine * pline, int );
+  bool checkInsufficientMaterial ( int );
   void sortHashMoves ( int listId, _Thash * );
-   template < int side > int quiescence ( u64 key, int alpha, int beta, const char promotionPiece, int dep );
+   template < int side > int quiescence ( int alpha, int beta, const char promotionPiece, int, int depth );
   void updatePv ( _TpvLine * pline, const _TpvLine * line, const _Tmove * move );
-   template < int side > void updatePv ( _TpvLine * pline, const _TpvLine * line, const int from, const int to );
+//    template <int side> void updatePv(_TpvLine * pline, const _TpvLine * line, const int from, const int to);
 };
 #endif

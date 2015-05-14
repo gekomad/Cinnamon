@@ -6,13 +6,13 @@ namespace _memory {
 
   void *_mmap ( string fileName ) {
     void *blob;
-    HANDLE hfile = CreateFile ( fileName.c_str (  ), FILE_SHARE_READ, 0x00000001, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+    HANDLE hfile = CreateFile ( fileName.c_str (  ), FILE_SHARE_READ, 1, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
     if ( hfile == INVALID_HANDLE_VALUE )
-      return NULL;
-    HANDLE map_handle = CreateFileMapping ( hfile, NULL, PAGE_READONLY, 0, 0, 0 );
+      return nullptr;
+    HANDLE map_handle = CreateFileMapping ( hfile, nullptr, PAGE_READONLY, 0, 0, 0 );
     if ( !map_handle ) {
       CloseHandle ( hfile );
-      return NULL;
+      return nullptr;
     } blob = ( void * ) MapViewOfFile ( map_handle, FILE_MAP_READ, 0, 0, 0 );
     CloseHandle ( hfile );
     CloseHandle ( map_handle );
@@ -29,7 +29,7 @@ namespace _memory {
     void *blob;
     FILE *bookBlob = fopen ( fileName.c_str (  ), "rb" );
     if ( !bookBlob )
-       return NULL;
+       return nullptr;
      blob = ( void * ) mmap ( 0, _file::fileSize ( fileName ), PROT_READ, MAP_PRIVATE, fileno ( bookBlob ), 0 );
      fclose ( bookBlob );
      return blob;
@@ -41,18 +41,14 @@ namespace _memory {
 
 }
 
+#include <chrono>
 namespace _time {
 
   int diffTime ( struct timeb t1, struct timeb t2 ) {
     return 1000 * ( t1.time - t2.time ) + t1.millitm - t2.millitm;
   } string getLocalTime (  ) {
-    struct tm *current;
-    time_t now;
-    time ( &now );
-    current = localtime ( &now );
-    char tt[30];
-    sprintf ( tt, "%i-%i-%i %i:%i:%i", current->tm_year + 1900, current->tm_mon, current->tm_mday, current->tm_hour, current->tm_min, current->tm_sec );
-    return string ( tt );
+    time_t current = chrono::system_clock::to_time_t ( chrono::system_clock::now (  ) );
+    return ctime ( &current );
   }
 }
 
@@ -68,7 +64,7 @@ namespace _string {
 
   void replace ( string & f, string s1, string s2 ) {
     int a;
-    while ( ( a = f.find ( s1 ) ) != string::npos ) {
+    while ( ( a = f.find ( s1 ) ) != ( int ) string::npos ) {
       f.replace ( a, s1.size (  ), s2 );
     };
   }
@@ -80,37 +76,39 @@ namespace _file {
     if ( !stat ( FileName.c_str (  ), &file ) )
        return file.st_size;
      return -1;
-}}
-/*
+  } string extractFileName ( string path ) {
+    replace ( path.begin (  ), path.end (  ), ':', '/' );
+    replace ( path.begin (  ), path.end (  ), '\\', '/' );
+    istringstream iss ( path );
+    string token;
+    while ( getline ( iss, token, '/' ) );
+    return token;
+  }
+
+}
+
 namespace _random {
-u64** RANDOM_KEY;
-void init() {
-    time_t seed;
-    srand ((unsigned) time(&seed));
-    RANDOM_KEY=(u64**)malloc(15*sizeof(u64*));
-    for(int i=0; i<15; i++) {
-        RANDOM_KEY[i]=(u64*)malloc(64*sizeof(u64));
-        for(int j=0; j<64; j++) {
-            RANDOM_KEY[i][j]=getRandom();
-            //cout <<hex<<RANDOM_KEY[i][j]<<endl;
-        }
-    }
-}
+#include <random>
+#include <functional>
 
-void _free() {
-    for(int i=0; i<15; i++) {
-        free(RANDOM_KEY[i]);
-    }
-    free(RANDOM_KEY);
-}
+  function < u64 (  ) > generator;
 
-u64 getRandom() {
-    return rand() | (u64)rand() << 15 | (u64)rand() << 30 | (u64)rand() << 45| (u64)rand() << 60;
-}
+  void init (  ) {
+    uniform_int_distribution < u64 > distribution ( 1, ULLONG_MAX );
+    mt19937 engine;
+     engine.seed ( time ( NULL ) );
+     generator = bind ( distribution, engine );
+  } u64 getRandom64 (  ) {
+    return generator (  );
+  }
 
 }
-*/ namespace _bits {
 
+namespace _bits {
+  u64 MASK_BIT_SET[64][64];
+  u64 MASK_BIT_SET_NOBOUND[64][64];
+  char MASK_BIT_SET_COUNT[64][64];
+  char MASK_BIT_SET_NOBOUND_COUNT[64][64];
   u64 **LINK_ROOKS;
   void _free (  ) {
     for ( int i = 0; i < 64; i++ ) {
@@ -119,6 +117,49 @@ u64 getRandom() {
   }
 
   void init (  ) {
+
+
+    memset ( MASK_BIT_SET, 0, sizeof ( MASK_BIT_SET ) );
+    for ( int i = 0; i < 64; i++ ) {
+      for ( int j = 0; j < 64; j++ ) {
+	int a = min ( i, j );
+	int b = max ( i, j );
+	MASK_BIT_SET[i][i] = 0;
+	for ( int e = a; e <= b; e++ ) {
+	  u64 r = ( RANK[i] | POW2[i] ) & ( RANK[j] | POW2[j] );
+	  if ( r )
+	    MASK_BIT_SET[i][j] |= POW2[e] & r;
+	  else {
+	    r = ( FILE_[i] | POW2[i] ) & ( FILE_[j] | POW2[j] );
+	    if ( r )
+	      MASK_BIT_SET[i][j] |= POW2[e] & r;
+
+	    else {
+	      r = ( LEFT_DIAG[i] | POW2[i] ) & ( LEFT_DIAG[j] | POW2[j] );
+	      if ( r )
+		MASK_BIT_SET[i][j] |= POW2[e] & r;
+
+	      else {
+		r = ( RIGHT_DIAG[i] | POW2[i] ) & ( RIGHT_DIAG[j] | POW2[j] );
+		if ( r )
+		  MASK_BIT_SET[i][j] |= POW2[e] & r;
+	      }
+	    }
+	  }
+
+	}
+	if ( i == j )
+	  MASK_BIT_SET[i][i] &= NOTPOW2[i];
+      }
+    }
+    for ( int i = 0; i < 64; i++ ) {
+      for ( int j = 0; j < 64; j++ ) {
+	MASK_BIT_SET_NOBOUND[i][j] = MASK_BIT_SET[i][j];
+	MASK_BIT_SET_NOBOUND[i][j] &= NOTPOW2[i];
+	MASK_BIT_SET_NOBOUND[i][j] &= NOTPOW2[j];
+	MASK_BIT_SET[i][j] &= NOTPOW2[i];
+      }
+    }
     //LINK_ROOKS
     LINK_ROOKS = ( u64 ** ) malloc ( 64 * sizeof ( u64 * ) );
     for ( int i = 0; i < 64; i++ ) {
@@ -147,5 +188,12 @@ u64 getRandom() {
 	LINK_ROOKS[i][j] = t;
       }
     }
+    for ( int i = 0; i < 64; i++ ) {
+      for ( int j = 0; j < 64; j++ ) {
+	MASK_BIT_SET_COUNT[i][j] = _bits::bitCount ( MASK_BIT_SET[i][j] );
+	MASK_BIT_SET_NOBOUND_COUNT[i][j] = _bits::bitCount ( MASK_BIT_SET_NOBOUND[i][j] );
+      }
+    }
+
   }
 }

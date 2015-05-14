@@ -4,7 +4,7 @@
 #include "Search.h"
 #include "Thread.h"
 #include "OpenBook.h"
-#include "Mutex.h"
+#include <mutex>
 
 class IterativeDeeping:public Thread, public Search {
 public:
@@ -14,14 +14,17 @@ public:
   bool getPonderEnabled (  );
   void setUseBook ( bool );
   bool getUseBook (  );
-  void lockMutex ( bool );
+  void unLock (  );
+  void lock (  );
   void clearMovesPath (  );
   void enablePonder ( bool );
   void setFollowBook ( bool b );
+  void setMaxDepth ( int );
 private:
+  int maxDepth;
   static const int valWINDOW = 50;
   bool useBook;
-  Mutex *mutex1;
+  mutex mutex1;
   bool followBook;
   OpenBook *openBook;
   bool ponderEnabled;

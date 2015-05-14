@@ -1,15 +1,19 @@
 #include "IterativeDeeping.h"
 
 IterativeDeeping::IterativeDeeping (  ) {
-  mutex1 = new Mutex (  );
-  openBook = NULL;
+  maxDepth = MAX_PLY;
+  openBook = nullptr;
   ponderEnabled = true;
   followBook = true;
-  setUseBook ( true );		//TODO
+  setUseBook ( false );
+}
+
+void
+IterativeDeeping::setMaxDepth ( int d ) {
+  maxDepth = d;
 }
 
 IterativeDeeping::~IterativeDeeping (  ) {
-  delete mutex1;
   if ( openBook )
     delete openBook;
 }
@@ -25,8 +29,13 @@ IterativeDeeping::setFollowBook ( bool b ) {
 }
 
 void
-IterativeDeeping::lockMutex ( bool b ) {
-  mutex1->lockMutex ( b );
+IterativeDeeping::unLock (  ) {
+  mutex1.unlock (  );
+}
+
+void
+IterativeDeeping::lock (  ) {
+  mutex1.lock (  );
 }
 
 bool
@@ -49,20 +58,20 @@ void
 IterativeDeeping::setUseBook ( bool b ) {
   useBook = b;
   bool valid = true;
-  if ( b && openBook == NULL ) {
+  if ( b && openBook == nullptr ) {
     openBook = new OpenBook (  );
     valid = useBook = openBook->load (  );
   }
   if ( ( !b && openBook ) || !valid ) {
     delete openBook;
-    openBook = NULL;
+    openBook = nullptr;
     useBook = false;
   }
 }
 
 void
 IterativeDeeping::run (  ) {
-  lockMutex ( true );
+  lock (  );
   _Tmove resultMove;
   memset ( &resultMove, 0, sizeof ( resultMove ) );
   struct timeb start1;
@@ -83,14 +92,8 @@ IterativeDeeping::run (  ) {
     string obMove = openBook->search ( getSide (  ), getMovesPath (  ) );
     if ( !obMove.size (  ) ) {
       followBook = false;
-#ifdef DEBUG_MODE
-      cout << "obMove not found" << endl << flush;	//TODO eliminare
-#endif
     }
     else {
-#ifdef DEBUG_MODE
-      cout << "obMove " << obMove << endl << flush;	//TODO eliminare
-#endif
       _Tmove move;
       getMoveFromSan ( obMove, &move );
       makemove ( &move );
@@ -98,14 +101,12 @@ IterativeDeeping::run (  ) {
       pushMovesPath ( ( char ) decodeBoard ( obMove.substr ( 0, 2 ) ) );
       pushMovesPath ( decodeBoard ( obMove.substr ( 2, 2 ) ) );
 
-      lockMutex ( false );
+      unLock (  );
       return;
     }
   }
   string ponderMove = "";
   while ( getRunning (  ) ) {
-    if ( mply == MAX_PLY - 3 )
-      break;
     init (  );
     ++mply;
     setMainPly ( mply );
@@ -164,10 +165,10 @@ IterativeDeeping::run (  ) {
     TimeTaken = _time::diffTime ( end1, start1 );
     totMoves += getTotMoves (  );
 
-    /* if (!pvv.length()) {//TODO
-       break;
-       } */
-    assert ( pvv.length (  ) );
+    if ( !pvv.length (  ) ) {	//TODO
+      break;
+    }
+    //assert(pvv.length());
     int sc = resultMove.score / 100;;
     if ( resultMove.score > _INFINITE - 100 )
       sc = 0x7fffffff;
@@ -190,9 +191,9 @@ IterativeDeeping::run (  ) {
     if ( TimeTaken )
       nps = totMoves * 1000 / TimeTaken;
     if ( nCutAB ) {
-      betaEfficencyCumulative += betaEfficency / totGen * 10;
-      cout << "info string beta efficency: " << ( int ) betaEfficencyCumulative << "%" << endl;
-      betaEfficency = totGen = 0.0;
+      betaEfficiencyCumulative += betaEfficiency / totGen * 10;
+      cout << "info string beta efficiency: " << ( int ) betaEfficiencyCumulative << "%" << endl;
+      betaEfficiency = totGen = 0.0;
     }
     cout << "info string millsec: " << TimeTaken << "  (" << nps / 1000 << "k nodes per seconds) " << endl;
     cout << "info string alphaBeta cut: " << nCutAB << endl;
@@ -200,17 +201,21 @@ IterativeDeeping::run (  ) {
     cout << "info string futility pruning cut: " << nCutFp << endl;
     cout << "info string razor cut: " << nCutRazor << endl;
     cout << "info string null move cut: " << nNullMoveCut << endl;
+    cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
 
-    cout << "info score cp " << sc << " depth " << ( int ) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl << flush;
+    cout << "info score cp " << sc << " depth " << ( int ) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+    if ( mply >= maxDepth - 1 )
+      break;
+
   }
 
   resultMove.capturedPiece = ( resultMove.side ^ 1 ) == WHITE ? getPieceAt < WHITE > ( POW2[resultMove.to] ) : getPieceAt < BLACK > ( POW2[resultMove.to] );
   string bestmove = decodeBoardinv ( resultMove.type, resultMove.from, resultMove.side );
   if ( !( resultMove.type & ( KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK ) ) ) {
     bestmove += decodeBoardinv ( resultMove.type, resultMove.to, resultMove.side );
-    if ( resultMove.promotionPiece != 0xFF )
-      bestmove += tolower ( FEN_PIECE[resultMove.promotionPiece] );
+    if ( resultMove.promotionPiece != -1 )
+      bestmove += tolower ( FEN_PIECE[( uchar ) resultMove.promotionPiece] );
   }
 
   cout << "bestmove " << bestmove;
@@ -220,5 +225,5 @@ IterativeDeeping::run (  ) {
   cout << endl << flush;
   pushMovesPath ( decodeBoard ( bestmove.substr ( 0, 2 ) ) );
   pushMovesPath ( decodeBoard ( bestmove.substr ( 2, 2 ) ) );
-  lockMutex ( false );
+  unLock (  );
 }

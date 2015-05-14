@@ -1,16 +1,14 @@
 #include "Hash.h"
 
 Hash::Hash (  ) {
-  hash_array_greater[BLACK] = hash_array_greater[WHITE] = NULL;
-  hash_array_always[BLACK] = hash_array_always[WHITE] = NULL;
+  hash_array_greater[BLACK] = hash_array_greater[WHITE] = nullptr;
+  hash_array_always[BLACK] = hash_array_always[WHITE] = nullptr;
   HASH_SIZE = 0;
 #ifdef DEBUG_MODE
   n_cut_hashA = n_cut_hashE = n_cut_hashB = cutFailed = probeHash = 0;
   n_cut_hash = nRecordHashA = nRecordHashB = nRecordHashE = collisions = 0;
 #endif
-#ifndef NO_HASH_MODE
   setHashSize ( 64 );
-#endif
 }
 
 void
@@ -52,7 +50,6 @@ Hash::setHashSize ( int mb ) {
 
 void
 Hash::recordHash ( bool running, _Thash * phashe_greater, _Thash * phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove * bestMove ) {
-#ifndef NO_HASH_MODE
   ASSERT ( key );
   if ( !running )
     return;
@@ -97,7 +94,6 @@ Hash::recordHash ( bool running, _Thash * phashe_greater, _Thash * phashe_always
   else {
     phashe->from = phashe->to = 0;
   }
-#endif
 }
 
 void
@@ -110,8 +106,8 @@ Hash::dispose (  ) {
     free ( hash_array_always[BLACK] );
   if ( hash_array_always[WHITE] )
     free ( hash_array_always[WHITE] );
-  hash_array_greater[BLACK] = hash_array_greater[WHITE] = NULL;
-  hash_array_always[BLACK] = hash_array_always[WHITE] = NULL;
+  hash_array_greater[BLACK] = hash_array_greater[WHITE] = nullptr;
+  hash_array_always[BLACK] = hash_array_always[WHITE] = nullptr;
   HASH_SIZE = 0;
 }
 

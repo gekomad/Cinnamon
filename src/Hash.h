@@ -7,7 +7,7 @@ using namespace _board;
 
 class Hash {
 public:
-  enum { hashfEXACT = 0, hashfALPHA = 1, hashfBETA = 2 };
+  enum:char { hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2 };
    Hash (  );
    virtual ~ Hash (  );
   void setHashSize ( int mb );
@@ -22,7 +22,7 @@ protected:
     u64 key;
     short score;
     uchar flags:2;
-    uchar depth:6;
+    char depth;
     uchar from:6;
     uchar to:6;
     uchar entryAge:1;

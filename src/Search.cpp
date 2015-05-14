@@ -37,12 +37,10 @@ Search::~Search (  ) {
 }
 
 template < int side > int
-Search::quiescence ( u64 key, int alpha, int beta, const char promotionPiece, int dep ) {
+Search::quiescence ( int alpha, int beta, const char promotionPiece, int N_PIECE, int depth ) {
   if ( !running )
     return 0;
-  ASSERT ( dep + mainDepth < MAX_PLY );
   ASSERT ( chessboard[KING_BLACK + side] );
-
   int score = -_INFINITE;
   if ( !( numMovesq++ & 1023 ) )	//TODO eliminare?
     running = checkTime (  );
@@ -51,57 +49,112 @@ Search::quiescence ( u64 key, int alpha, int beta, const char promotionPiece, in
   if ( score >= beta ) {
     return beta;
   }
-#ifndef NO_FP_MODE
+///************* hash ****************
+
+  _Thash *phashe_always = nullptr;
+  _Thash *phashe;
+  bool hash_greater = false;
+  bool hash_always = false;
+  char hashf = hashfALPHA;
+  _Thash *phashe_greater = phashe = &( hash_array_greater[side][zobristKey % HASH_SIZE] );
+  for ( int i = 0; i < 2; i++ ) {
+    if ( phashe->key == zobristKey ) {
+      if ( phashe->from != phashe->to && phashe->flags & 0 b11 )	// hashfEXACT or hashfBETA
+	!i ? hash_greater = true : hash_always = true;
+      if ( phashe->depth >= depth ) {
+	INC ( probeHash );
+	if ( !currentPly ) {
+	  if ( phashe->flags == hashfBETA ) {
+	    incKillerHeuristic ( phashe->from, phashe->to, 1 );
+	  }
+	}
+	else {
+	  if ( phashe->flags == hashfALPHA ) {
+	    if ( phashe->score <= alpha ) {
+	      INC ( n_cut_hashA );
+	      return alpha;
+	    }
+	  }
+	  else {
+	    ASSERT ( phashe->flags == hashfEXACT || phashe->flags == hashfBETA );
+	    if ( phashe->score >= beta ) {
+	      INC ( n_cut_hashB );
+	      return beta;
+	    }
+	  }
+	}
+	INC ( cutFailed );
+      }
+    }
+    phashe_always = phashe = &( hash_array_always[side][zobristKey % HASH_SIZE] );
+  }
+
+///********** end hash ***************
     /**************Delta Pruning ****************/
   char fprune = 0;
   int fscore;
-  if ( ( fscore = score + ( promotionPiece == -1 ? VALUEQUEEN : 2 * VALUEQUEEN ) ) < alpha ) {
+  if ( ( fscore = score + ( promotionPiece == NO_PROMOTION ? VALUEQUEEN : 2 * VALUEQUEEN ) ) < alpha ) {
     fprune = 1;
   }
     /************ end Delta Pruning *************/
-#endif
   if ( score > alpha )
     alpha = score;
   incListId (  );
 
   u64 friends = getBitBoard < side > (  );
   u64 enemies = getBitBoard < side ^ 1 > (  );
-  if ( generateCaptures < side > ( enemies, friends, &key ) ) {
-    gen_list[listId--].size = 0;
-    return _INFINITE - ( mainDepth - dep );
+  if ( generateCaptures < side > ( enemies, friends ) ) {
+    decListId (  );
+    return _INFINITE - ( mainDepth + depth );
   }
-  int listcount = gen_list[listId].size;
-  if ( !listcount ) {
+
+  if ( !getListSize (  ) ) {
     --listId;
     return score;
   }
   _Tmove *move;
-  u64 oldKey = key;
+  _Tmove *best = nullptr;
+  u64 oldKey = zobristKey;
+  if ( hash_greater )
+    sortHashMoves ( listId, phashe_greater );
+  else if ( hash_always )
+    sortHashMoves ( listId, phashe_always );
   while ( ( move = getNextMove ( &gen_list[listId] ) ) ) {
-    makemove ( move, &key, false );
-#ifndef NO_FP_MODE
+    if ( !makemove ( move, false, true ) ) {
+      takeback ( move, oldKey, false );
+      continue;
+    }
+    if ( checkInsufficientMaterial ( N_PIECE - 1 ) ) {	//TODO
+      takeback ( move, oldKey, false );
+      INC ( nCutInsufficientMaterial );
+      continue;
+    }
+
 	/**************Delta Pruning ****************/
     if ( fprune && ( ( move->type & 0x3 ) != PROMOTION_MOVE_MASK )	/*&& move->capturedPiece == 12 */
 	 &&fscore + PIECES_VALUE[move->capturedPiece] <= alpha /*&& !in_check (side) */  ) {
       INC ( nCutFp );
-      takeback ( move, &key, oldKey, false );
+      takeback ( move, oldKey, false );
       continue;
     }
 	/************ end Delta Pruning *************/
-#endif
-    int val = -quiescence < side ^ 1 > ( key, -beta, -alpha, move->promotionPiece, dep + 1 );
+    int val = -quiescence < side ^ 1 > ( -beta, -alpha, move->promotionPiece, N_PIECE - 1, depth - 1 );
     score = max ( score, val );
-    takeback ( move, &key, oldKey, false );
-    if ( score >= beta ) {
-      gen_list[listId--].size = 0;
-      return beta;
-    }
+    takeback ( move, oldKey, false );
     if ( score > alpha ) {
+      if ( score >= beta ) {
+	decListId (  );
+	recordHash ( running, phashe_greater, phashe_always, depth, hashfBETA, zobristKey, score, move );
+	return beta;
+      }
+      best = move;
       alpha = score;
+      hashf = hashfEXACT;
     }
   }
-  gen_list[listId--].size = 0;
-  return alpha;
+  recordHash ( running, phashe_greater, phashe_always, depth, hashf, zobristKey, score, best );
+  decListId (  );
+  return score;
 }
 
 void
@@ -142,31 +195,37 @@ Search::sortHashMoves ( int listId1, _Thash * phashe ) {
   }
 }
 
-/*TODO
-bool Search::checkInsufficientMaterial(int N_PIECE) {
-
-    if(N_PIECE > 4 )return false;
-    int s = 0;
-    //insufficient material to mate
-    if (!chessboard[PAWN_BLACK] && !chessboard[PAWN_WHITE] && !chessboard[ROOK_BLACK] && !chessboard[ROOK_WHITE] && !chessboard[QUEEN_WHITE]
-            && !chessboard[QUEEN_BLACK]) {
-        u64 allBishop = chessboard[BISHOP_BLACK] | chessboard[BISHOP_WHITE];
-        u64 allKnight = chessboard[KNIGHT_WHITE] | chessboard[KNIGHT_BLACK];
-        // king + knight versus king or king versus king
-        if (!allBishop && _bits::bitCount(allKnight) < 2)//no bishop and 0 or 1 knight
-            return true;
-        s = _bits::bitCount(allBishop);
-        if (!allKnight) {//no knight
-            if(s < 2)// 0 or 1 bishop
-                return true;
-            //kings with one or more bishops, and all bishops on the same color
-            if ((allBishop & BLACK_SQUARES)==allBishop||(allBishop & WHITE_SQUARES)==allBishop)
-                return true;
-        }
-    }
+bool
+Search::checkInsufficientMaterial ( int N_PIECE ) {
+  return false;			//TODO commentare
+  if ( N_PIECE > 4 )
     return false;
+  //insufficient material to mate
+  if ( !chessboard[PAWN_BLACK] && !chessboard[PAWN_WHITE] && !chessboard[ROOK_BLACK] && !chessboard[ROOK_WHITE] && !chessboard[QUEEN_WHITE]
+       && !chessboard[QUEEN_BLACK] ) {
+    u64 allBishop = chessboard[BISHOP_BLACK] | chessboard[BISHOP_WHITE];
+
+    //kings with one or more bishops, and all bishops on the same color
+    if ( allBishop ) {
+      if ( ( allBishop & BLACK_SQUARES ) == allBishop || ( allBishop & WHITE_SQUARES ) == allBishop ) {
+	return true;
+      }
+    }
+    else {
+      if ( _bits::bitCount ( chessboard[KNIGHT_WHITE] | chessboard[KNIGHT_BLACK] ) < 2 ) {	//no bishop and 0 or 1 knight
+	return true;
+      }
+    }
+    // king + knight versus king or king versus king
+    if ( !( chessboard[KNIGHT_WHITE] | chessboard[KNIGHT_BLACK] ) ) {	//no knight
+      if ( _bits::bitCount ( allBishop ) < 2 ) {	// no knight and 0 or 1 bishop
+	return true;
+      }
+    }
+  }
+  return false;
 }
-*/
+
 bool
 Search::checkDraw ( u64 key ) {
   int o = 0;
@@ -186,29 +245,24 @@ Search::checkDraw ( u64 key ) {
 
 int
 Search::search ( int depth, int alpha, int beta, _TpvLine * pline ) {
-#ifndef NO_HASH_MODE
-  ASSERT ( zobristKey );
-#endif
-  return getSide (  )? search < WHITE > ( zobristKey, depth, alpha, beta, pline /*,_bits::bitCount(getBitBoard(WHITE)|getBitBoard(BLACK)) */  )
-    : search < BLACK > ( zobristKey, depth, alpha, beta, pline /*,_bits::bitCount(getBitBoard(WHITE)|getBitBoard(BLACK)) */  );
+
+  return getSide (  )? search < WHITE > ( depth, alpha, beta, pline, _bits::bitCount ( getBitBoard < WHITE > (  ) | getBitBoard < BLACK > (  ) ) )
+    : search < BLACK > ( depth, alpha, beta, pline, _bits::bitCount ( getBitBoard < WHITE > (  ) | getBitBoard < BLACK > (  ) ) );
 }
 
 template < int side > int
-Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,int N_PIECE */  ) {
+Search::search ( int depth, int alpha, int beta, _TpvLine * pline, int N_PIECE ) {	//TODO eliminare N_PIECE
   if ( !running )
     return 0;
 
-  if ( mainDepth != depth && checkDraw ( key ) ) {
+  if ( mainDepth != depth && checkDraw ( zobristKey ) ) {
     return -lazyEval < side > (  ) * 2;
   }
-  /* if( mainDepth!=depth &&checkInsufficientMaterial(N_PIECE)) {
-     return 0;
-     } */
-  u64 oldKey = key;
+  u64 oldKey = zobristKey;
   INC ( cumulativeMovesCount );
 
 #ifdef DEBUG_MODE
-  double betaEfficencyCount = 0.0;
+  double betaEfficiencyCount = 0.0;
 #endif
   ASSERT ( chessboard[KING_BLACK] );
   ASSERT ( chessboard[KING_WHITE] );
@@ -222,20 +276,16 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
     extension++;
   depth += extension;
   if ( depth == 0 ) {
-    return quiescence < side > ( key, alpha, beta, -1, 0 );
+    return quiescence < side > ( alpha, beta, -1, N_PIECE, 0 );
   }
-  _Thash *phashe_greater = NULL;
-  _Thash *phashe_always = NULL;
-  bool hash_greater = false;
-  bool hash_always = false;
+
 //************* hash ****************
-  char hashf = hashfALPHA;
-#ifndef NO_HASH_MODE
-  ASSERT ( key );
-  bool updatePvFromHash = false;
-  phashe_greater = &( hash_array_greater[side][key % HASH_SIZE] );
-  if ( phashe_greater->key == key ) {
-    if ( phashe_greater->from != phashe_greater->to && ( phashe_greater->flags == hashfEXACT || phashe_greater->flags == hashfBETA ) )
+
+  bool hash_greater = false;
+  // bool updatePvFromHash=false;
+  _Thash *phashe_greater = &( hash_array_greater[side][zobristKey % HASH_SIZE] );
+  if ( phashe_greater->key == zobristKey ) {
+    if ( phashe_greater->from != phashe_greater->to && phashe_greater->flags & 0 b11 )	// hashfEXACT or hashfBETA
       hash_greater = true;
     if ( phashe_greater->depth >= depth ) {
       INC ( probeHash );
@@ -247,11 +297,10 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
 	switch ( phashe_greater->flags ) {
 	case hashfEXACT:
 	  INC ( n_cut_hashE );
-
-	  if ( phashe_greater->from != phashe_greater->to ) {
-	    updatePvFromHash = true;
-	    updatePv < side > ( pline, &line, phashe_greater->from, phashe_greater->to );
-	  }
+	  /* if (phashe_greater->from != phashe_greater->to) {
+	     updatePvFromHash=true;
+	     updatePv<side>(pline, &line, phashe_greater->from, phashe_greater->to);
+	     } */
 	  if ( phashe_greater->score >= beta ) {
 	    return beta;
 	  }
@@ -266,7 +315,6 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
 	  //alpha = max(alpha, (int) phashe_greater->score);//TODO ??
 	  break;
 	case hashfALPHA:
-
 	  if ( phashe_greater->score <= alpha ) {
 	    INC ( n_cut_hashA );
 	    return alpha;
@@ -280,9 +328,10 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
       }
     }
   }
-  phashe_always = &( hash_array_always[side][key % HASH_SIZE] );
-  if ( phashe_always->key == key ) {
-    if ( phashe_always->from != phashe_always->to && ( phashe_always->flags == hashfEXACT || phashe_always->flags == hashfBETA ) )
+  bool hash_always = false;
+  _Thash *phashe_always = &( hash_array_always[side][zobristKey % HASH_SIZE] );
+  if ( phashe_always->key == zobristKey ) {
+    if ( phashe_always->from != phashe_always->to && phashe_always->flags & 0 b11 )	// hashfEXACT or hashfBETA
       hash_always = true;
     if ( phashe_always->depth >= depth ) {
       INC ( probeHash );
@@ -294,9 +343,9 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
 	switch ( phashe_always->flags ) {
 	case hashfEXACT:
 	  INC ( n_cut_hashE );
-	  if ( !updatePvFromHash && phashe_always->from != phashe_always->to ) {
-	    updatePv < side > ( pline, &line, phashe_always->from, phashe_always->to );
-	  }
+	  /*  if (!updatePvFromHash && phashe_always->from != phashe_always->to) {
+	     updatePv<side>(pline, &line, phashe_always->from, phashe_always->to);
+	     } */
 	  if ( phashe_always->score >= beta ) {
 	    return beta;
 	  }
@@ -326,7 +375,7 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
       }
     }
   }
-#endif
+
 //********** end hash ***************
   if ( !( numMoves & 1023 ) )
     running = checkTime (  );
@@ -336,7 +385,7 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
   int n_pieces_side;
   if ( !is_incheck_side && !nullSearch && depth >= 3 && ( n_pieces_side = getNpiecesNoPawnNoKing < side > (  ) ) >= 3 ) {
     nullSearch = true;
-    int nullScore = -search < side ^ 1 > ( key, depth - ( 2 + ( depth > ( 3 + ( n_pieces_side < 2 ? 2 : 0 ) ) ) ) - 1, -beta, -beta + 1, &line /*,N_PIECE */  );
+    int nullScore = -search < side ^ 1 > ( depth - ( 2 + ( depth > ( 3 + ( n_pieces_side < 2 ? 2 : 0 ) ) ) ) - 1, -beta, -beta + 1, &line, N_PIECE );
     nullSearch = false;
     if ( nullScore >= beta ) {
       INC ( nNullMoveCut );
@@ -344,7 +393,6 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
     }
   }
 ///******* null move end ********
-#ifndef NO_FP_MODE
     /**************Futility Pruning****************/
     /**************Futility Pruning razor at pre-pre-frontier*****/
 
@@ -373,7 +421,6 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
     }
   }
     /************ end Futility Pruning*************/
-#endif
 
   incListId (  );
 
@@ -383,13 +430,13 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
   friendKing[side ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( side ^ 1 )] );
   u64 friends = getBitBoard < side > (  );
   u64 enemies = getBitBoard < side ^ 1 > (  );
-  if ( generateCaptures < side > ( enemies, friends, &key ) ) {
-    gen_list[listId--].size = 0;
+  if ( generateCaptures < side > ( enemies, friends ) ) {
+    decListId (  );
     score = _INFINITE - ( mainDepth - depth + 1 );
     return score;
   }
   generateMoves < side > ( friends | enemies );
-  int listcount = gen_list[listId].size;
+  int listcount = getListSize (  );
   if ( !listcount ) {
     --listId;
     if ( is_incheck_side )
@@ -398,7 +445,7 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
       return -lazyEval < side > (  ) * 2;
   }
 
-#ifndef NO_HASH_MODE
+
 //Enhanced Transposition Cutoff
   /*  for (int i = 0; i < listcount; i++) {
      move = &gen_list[listId][i];
@@ -421,8 +468,7 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
      }
      } */
 
-#endif
-  _Tmove *best = NULL;
+  _Tmove *best = nullptr;
   bool check_alpha = false;
   if ( hash_greater )
     sortHashMoves ( listId, phashe_greater );
@@ -430,41 +476,64 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
     sortHashMoves ( listId, phashe_always );
   INC ( totGen );
   _Tmove *move;
+  bool checkInCheck = false;
+  int countMove = 0;
+  char hashf = hashfALPHA;
   while ( ( move = getNextMove ( &gen_list[listId] ) ) ) {
-    INC ( betaEfficencyCount );
-    makemove ( move, &key, true );
-#ifndef NO_FP_MODE
+    countMove++;
+    INC ( betaEfficiencyCount );
+    if ( !makemove ( move, true, checkInCheck ) ) {
+      takeback ( move, oldKey, true );
+      continue;
+    }
+    checkInCheck = true;
     if ( futilPrune && check_alpha && ( ( move->type & 0x3 ) != PROMOTION_MOVE_MASK )	/*&& move->capturedPiece == 12 */
 	 &&futilScore + PIECES_VALUE[move->capturedPiece] <= alpha && !inCheck < side > (  ) ) {
       INC ( nCutFp );
-      takeback ( move, &key, oldKey, true );
+      takeback ( move, oldKey, true );
       continue;
     }
-#endif
+    if ( move->capturedPiece != SQUARE_FREE && checkInsufficientMaterial ( N_PIECE - 1 ) ) {	//TODO
+      takeback ( move, oldKey, true );
+      INC ( nCutInsufficientMaterial );
+      continue;
+    }
 
-    int doMws = ( score > -_INFINITE + 100 );
-    int lwb = max ( alpha, score );
-    int upb = ( doMws ? ( lwb + 1 ) : beta );
-    currentPly++;
-    int val = -search < side ^ 1 > ( key, depth - 1, -upb, -lwb, &line /*,move->capturedPiece==SQUARE_FREE?N_PIECE:N_PIECE-1 */  );
-    currentPly--;
-    if ( doMws && ( lwb < val ) && ( val < beta ) ) {
+    //Late Move Reduction
+    int val = INT_MAX;
+    if ( countMove > 4 && !is_incheck_side && depth > 4 && move->capturedPiece == SQUARE_FREE && move->promotionPiece == NO_PROMOTION ) {
       currentPly++;
-      val = -search < side ^ 1 > ( key, depth - 1, -beta, -val + 1, &line /*,move->capturedPiece==SQUARE_FREE?N_PIECE:N_PIECE-1 */  );
+      val = -search < side ^ 1 > ( depth - 2, -( alpha + 1 ), -alpha, &line, N_PIECE );
+      ASSERT ( val != INT_MAX );
       currentPly--;
     }
+
+    if ( val > alpha ) {
+      int doMws = ( score > -_INFINITE + 100 );
+      int lwb = max ( alpha, score );
+      int upb = ( doMws ? ( lwb + 1 ) : beta );
+      currentPly++;
+      val = -search < side ^ 1 > ( depth - 1, -upb, -lwb, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1 );
+      ASSERT ( val != INT_MAX );
+      currentPly--;
+      if ( doMws && ( lwb < val ) && ( val < beta ) ) {
+	currentPly++;
+	val = -search < side ^ 1 > ( depth - 1, -beta, -val + 1, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1 );
+	currentPly--;
+      }
+    }
     score = max ( score, val );
-    takeback ( move, &key, oldKey, true );
+    takeback ( move, oldKey, true );
     move->score = score;
     if ( score > alpha ) {
       if ( score >= beta ) {
-	gen_list[listId--].size = 0;
+	decListId (  );
 	ASSERT ( move->score == score );
 	INC ( nCutAB );
 #ifdef DEBUG_MODE
-	betaEfficency += betaEfficencyCount / ( double ) listcount *100.0;
+	betaEfficiency += betaEfficiencyCount / ( double ) listcount *100.0;
 #endif
-	recordHash ( running, phashe_greater, phashe_always, depth - extension, hashfBETA, key, score, move );
+	recordHash ( running, phashe_greater, phashe_always, depth - extension, hashfBETA, zobristKey, score, move );
 	setKillerHeuristic ( move->from, move->to, 0x400 );
 	return score;
       }
@@ -476,8 +545,8 @@ Search::search ( u64 key, int depth, int alpha, int beta, _TpvLine * pline /*,in
       updatePv ( pline, &line, move );
     }
   }
-  recordHash ( running, phashe_greater, phashe_always, depth - extension, hashf, key, score, best );
-  gen_list[listId--].size = 0;
+  recordHash ( running, phashe_greater, phashe_always, depth - extension, hashf, zobristKey, score, best );
+  decListId (  );
   return score;
 }
 
@@ -505,25 +574,39 @@ Search::getMovesPath (  ) {
   return movesPath;
 }
 
-template < int side > void
-Search::updatePv ( _TpvLine * pline, const _TpvLine * line, const int from, const int to ) {
-  ASSERT ( line->cmove < MAX_PLY - 1 );
-  _Tmove mos;
-  int type = STANDARD_MOVE_MASK;
-  mos.side = ( char ) side;
-  mos.capturedPiece = getPieceAt < side ^ 1 > ( POW2[to] );
-  int pieceFrom = getPieceAt < side > ( POW2[from] );
-  mos.from = from;
-  mos.to = to;
-  mos.promotionPiece = -1;
-  if ( ( pieceFrom == PAWN_WHITE && from > 55 ) || ( pieceFrom == PAWN_BLACK && from < 8 ) ) {
-    type = PROMOTION_MOVE_MASK;
-    mos.promotionPiece = QUEEN_BLACK + side;
-  }
-//TODO enpassant
-  mos.type = RIGHT_CASTLE | type;
-  memcpy ( &( pline->argmove[0] ), &mos, sizeof ( _Tmove ) );
-  memcpy ( pline->argmove + 1, line->argmove, line->cmove * sizeof ( _Tmove ) );
-  ASSERT ( line->cmove >= 0 );
-  pline->cmove = line->cmove + 1;
-}
+/*
+template <int side>
+void Search::updatePv(_TpvLine * pline, const _TpvLine * line, const int from, const int to) {
+    ASSERT(line->cmove < MAX_PLY - 1);
+    _Tmove* mos=&(pline->argmove[0]);
+    int type = STANDARD_MOVE_MASK;
+    mos->side = (char) side;
+    mos->capturedPiece = getPieceAt<side^1>(POW2[to]);
+    mos->from = from;
+    mos->to = to;
+
+    if ((chessboard[PAWN_WHITE] |chessboard[PAWN_BLACK]) & POW2[from]) {
+///promotion
+        if (POW2[to] & 0xff000000000000ffULL) {//TODO verificare
+            //  cout <<"promotion"<<endl;
+            //   display();
+            type = PROMOTION_MOVE_MASK;
+            mos->promotionPiece = QUEEN_BLACK + side;
+        } else {
+            mos->promotionPiece = NO_PROMOTION;
+///enpassant
+            //if ((chessboard[PAWN_WHITE] |chessboard[PAWN_BLACK]) & POW2[from])
+            //TODO verificare
+            if (mos->capturedPiece == SQUARE_FREE && FILE_AT[from] != FILE_AT[to]) {
+                //  cout <<"enpassant"<<endl;
+                //  display();
+                type = ENPASSANT_MOVE_MASK;
+            }
+        }
+    }
+///
+    mos->type = rightCastle | type;
+    memcpy(pline->argmove + 1, line->argmove, line->cmove * sizeof(_Tmove));
+    ASSERT(line->cmove >= 0);
+    pline->cmove = line->cmove + 1;
+}*/

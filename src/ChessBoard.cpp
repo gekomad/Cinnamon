@@ -1,10 +1,9 @@
 #include "ChessBoard.h"
 
 ChessBoard::ChessBoard (  ) {
-  START_FEN = string ( STARTPOS );
+  fenString = string ( STARTPOS );
   memset ( &structure, 0, sizeof ( _Tboard ) );
-  sideToMove = loadFen ( START_FEN );
-  uci = false;
+  sideToMove = loadFen ( fenString );
 }
 
 ChessBoard::~ChessBoard (  ) {
@@ -14,7 +13,6 @@ ChessBoard::~ChessBoard (  ) {
 u64
 ChessBoard::getBitBoard ( int side ) {
   return side ? getBitBoard < WHITE > (  ) : getBitBoard < BLACK > (  );
-
 }
 
 int
@@ -23,47 +21,41 @@ ChessBoard::getPieceAt ( int side, u64 bitmapPos ) {
 }
 #endif
 
-void
-ChessBoard::setUci ( bool b ) {
-  uci = b;
-}
-
 uchar
 ChessBoard::getRightCastle (  ) {
-  return RIGHT_CASTLE;
+  return rightCastle;
 }
 
 void
 ChessBoard::setRightCastle ( uchar r ) {
-  RIGHT_CASTLE = r;
+  rightCastle = r;
 }
 
-bool
-ChessBoard::getUci (  ) {
-  return uci;
-}
-
-u64
+void
 ChessBoard::makeZobristKey (  ) {
-  u64 x2, key = 0;
-  int i, position;
-  for ( i = 0; i < 12; i++ ) {
-    x2 = chessboard[i];
-    while ( x2 ) {
-      position = BITScanForward ( x2 );
-      updateZobristKey ( &key, i, position );
-      x2 &= NOTPOW2[position];
+  zobristKey = 0;
+  int i = 0;
+for ( u64 c:chessboard ) {
+    while ( c ) {
+      int position = BITScanForward ( c );
+      updateZobristKey ( i, position );
+      c &= NOTPOW2[position];
     }
+    i++;
   }
-  if ( enpassantPosition != -1 )
-    updateZobristKey ( &key, 13, enpassantPosition );
-  x2 = RIGHT_CASTLE;
+  if ( enpassantPosition != NO_ENPASSANT )
+    updateZobristKey ( 13, enpassantPosition );
+  u64 x2 = rightCastle;
   while ( x2 ) {
-    position = BITScanForward ( x2 );
-    updateZobristKey ( &key, 14, position );
+    int position = BITScanForward ( x2 );
+    updateZobristKey ( 14, position );
     x2 &= NOTPOW2[position];
   }
-  return key;
+}
+
+string
+ChessBoard::getFen (  ) {
+  return fenString;
 }
 
 int
@@ -76,25 +68,24 @@ ChessBoard::getPieceByChar ( char c ) {
 
 void
 ChessBoard::display (  ) {
-  if ( uci )
-    return;			//TODO
   cout << endl << "     a   b   c   d   e   f   g   h";
   for ( int t = 0; t <= 63; t++ ) {
     char x = ' ';
     if ( t % 8 == 0 ) {
-      cout << endl << "   ---------------------------------" << endl;
+      cout << endl << "   ----+---+---+---+---+---+---+----" << endl;
       cout << " " << 8 - RANK_AT[t] << " | ";
     }
     x = ( x = ( x = FEN_PIECE[getPieceAt < WHITE > ( POW2[63 - t] )] ) != '-' ? x : FEN_PIECE[getPieceAt < BLACK > ( POW2[63 - t] )] ) == '-' ? ' ' : x;
     x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
     cout << " | ";
   };
-  cout << endl << "   ---------------------------------" << endl;
+  cout << endl << "   ----+---+---+---+---+---+---+----" << endl;
   cout << "     a   b   c   d   e   f   g   h" << endl << endl;
   string fen;
   boardToFen ( fen );
   cout << endl << fen << endl << endl << flush;
 }
+
 
 void
 ChessBoard::boardToFen ( string & fen ) {
@@ -134,25 +125,25 @@ ChessBoard::boardToFen ( string & fen ) {
   else
     fen.append ( " w " );
   int cst = 0;
-  if ( RIGHT_CASTLE & RIGHT_KING_CASTLE_WHITE_MASK ) {
+  if ( rightCastle & RIGHT_KING_CASTLE_WHITE_MASK ) {
     fen.append ( "K" );
     cst++;
   }
-  if ( RIGHT_CASTLE & RIGHT_QUEEN_CASTLE_WHITE_MASK ) {
+  if ( rightCastle & RIGHT_QUEEN_CASTLE_WHITE_MASK ) {
     fen.append ( "Q" );
     cst++;
   }
-  if ( RIGHT_CASTLE & RIGHT_KING_CASTLE_BLACK_MASK ) {
+  if ( rightCastle & RIGHT_KING_CASTLE_BLACK_MASK ) {
     fen.append ( "k" );
     cst++;
   }
-  if ( RIGHT_CASTLE & RIGHT_QUEEN_CASTLE_BLACK_MASK ) {
+  if ( rightCastle & RIGHT_QUEEN_CASTLE_BLACK_MASK ) {
     fen.append ( "q" );
     cst++;
   }
   if ( !cst )
     fen.append ( "-" );
-  if ( enpassantPosition == -1 )
+  if ( enpassantPosition == NO_ENPASSANT )
     fen.append ( " -" );
   else {
     fen.append ( " " );
@@ -194,7 +185,7 @@ ChessBoard::decodeBoard ( string a ) {
 
 int
 ChessBoard::loadFen (  ) {
-  return loadFen ( START_FEN );
+  return loadFen ( fenString );
 }
 
 int
@@ -209,7 +200,7 @@ ChessBoard::loadFen ( string fen ) {
   iss >> enpassant;
   int ix = 0;
   int s[64];
-  memset ( chessboard, 0, sizeof ( chessboard ) );
+
   for ( unsigned ii = 0; ii < pos.length (  ); ii++ ) {
     uchar ch = pos.at ( ii );
     if ( ch != '/' ) {
@@ -221,42 +212,44 @@ ChessBoard::loadFen ( string fen ) {
       }
       else {
 	cout << "Bad FEN position format (" << ( char ) ch << ") " << fen << endl;
-	exit ( 1 );
+	return sideToMove;
       };
     }
   }
   if ( ix != 64 ) {
     cout << "Bad FEN position format " << fen << endl;
-    exit ( 1 );
+    return sideToMove;
   }
-  for ( int i = 0; i < 64; i++ ) {
-    int p = s[63 - i];
-    if ( p != SQUARE_FREE ) {
-      chessboard[p] |= POW2[i];
-    }
-  };
+
   if ( side == "b" )
     sideToMove = BLACK;
   else if ( side == "w" )
     sideToMove = WHITE;
   else {
     cout << "Bad FEN position format " << fen << endl;
-    exit ( 1 );
+    return sideToMove;
   }
-  RIGHT_CASTLE = 0;
+  memset ( chessboard, 0, sizeof ( chessboard ) );
+  for ( int i = 0; i < 64; i++ ) {
+    int p = s[63 - i];
+    if ( p != SQUARE_FREE ) {
+      chessboard[p] |= POW2[i];
+    }
+  };
+  rightCastle = 0;
   for ( unsigned e = 0; e < castle.length (  ); e++ ) {
     switch ( castle.at ( e ) ) {
     case 'K':
-      RIGHT_CASTLE |= RIGHT_KING_CASTLE_WHITE_MASK;
+      rightCastle |= RIGHT_KING_CASTLE_WHITE_MASK;
       break;
     case 'k':
-      RIGHT_CASTLE |= RIGHT_KING_CASTLE_BLACK_MASK;
+      rightCastle |= RIGHT_KING_CASTLE_BLACK_MASK;
       break;
     case 'Q':
-      RIGHT_CASTLE |= RIGHT_QUEEN_CASTLE_WHITE_MASK;
+      rightCastle |= RIGHT_QUEEN_CASTLE_WHITE_MASK;
       break;
     case 'q':
-      RIGHT_CASTLE |= RIGHT_QUEEN_CASTLE_BLACK_MASK;
+      rightCastle |= RIGHT_QUEEN_CASTLE_BLACK_MASK;
       break;
     default:
       ;
@@ -264,7 +257,7 @@ ChessBoard::loadFen ( string fen ) {
   };
   friendKing[WHITE] = BITScanForward ( chessboard[KING_WHITE] );
   friendKing[BLACK] = BITScanForward ( chessboard[KING_BLACK] );
-  enpassantPosition = -1;
+  enpassantPosition = NO_ENPASSANT;
   for ( int i = 0; i < 64; i++ ) {
     if ( enpassant == BOARD[i] ) {
       enpassantPosition = i;
@@ -275,6 +268,6 @@ ChessBoard::loadFen ( string fen ) {
       break;
     }
   }
-  zobristKey = makeZobristKey (  );
+  makeZobristKey (  );
   return sideToMove;
 }

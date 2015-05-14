@@ -3,9 +3,15 @@
 #include "namespaces.h"
 
 /*
+   # ENGINE                : RATING    POINTS  PLAYED    (%)
+   1 Cinnamon 1.1beta14    : 2349.1     890.0    1398   63.7%
+   2 Cinnamon 1.0          : 2250.9     508.0    1398   36.3%
+
+
+
  8| 63 62 61 60 59 58 57 56
  7| 55 54 53 52 51 50 49 48
-6| 47 46 45 44 43 42 41 40
+ 6| 47 46 45 44 43 42 41 40
  5| 39 38 37 36 35 34 33 32
  4| 31 30 29 28 27 26 25 24
  3| 23 22 21 20 19 18 17 16
@@ -26,7 +32,7 @@ rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
  8 		84998978956     verified
  9		2439530234167   verified
 
-r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -
+position fen r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -
  Depth 	Perft
  1		48              verified
  2		2039            verified
@@ -49,12 +55,17 @@ Depth 	Perft
 using namespace _board;
 
 int
-main ( int argc, char **argv ) {
+main ( int argc, char **argv ) {	//TODO comprimere con upx
   _bits::init (  );
+  _random::init (  );
   cout << NAME;
   cout << " UCI (ex Butterfly) by Giuseppe Cannella" << endl;
 #if UINTPTR_MAX == 0xffffffffffffffff
   cout << "64-bit";
+#ifdef HAS_POPCNT
+  cout << " popcnt";
+#endif
+
 #else
   cout << "32-bit";
 #endif
@@ -62,12 +73,6 @@ main ( int argc, char **argv ) {
   cout << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>" << endl << endl;
 #ifdef DEBUG_MODE
   cout << "DEBUG_MODE" << endl;
-#endif
-#ifdef NO_FP_MODE
-  cout << "NO FP_MODE" << endl;
-#endif
-#ifdef NO_HASH_MODE
-  cout << "NO HASH_MODE" << endl;
 #endif
   char opt;
   while ( ( opt = getopt ( argc, argv, "bp:" ) ) != -1 ) {
@@ -85,12 +90,8 @@ main ( int argc, char **argv ) {
       if ( string ( optarg ) != "erft" ) {
 	cout << error << endl;
 	_bits::_free (  );
-	//_random::_free();TODO
 	return 1;
       };
-#ifdef NO_HASH_MODE
-#error "recompile without -DNO_HASH_MODE"
-#endif
       int nCpu = 1;
       int perftDepth = 1;
       string fen;

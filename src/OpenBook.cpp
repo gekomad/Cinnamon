@@ -1,14 +1,18 @@
 #include "OpenBook.h"
 
 OpenBook::OpenBook (  ) {
-  book = NULL;
+  book = nullptr;
   sizeBook[WHITE] = sizeBook[BLACK] = 0;
-  bookFile = "cinnamon_book.bin";
+  bookFile = "/home/geko/chess/cinnamon_book.bin";	//TODO
+  fileWhite = "/home/geko/chess/white.txt";	//TODO
+  fileBlack = "/home/geko/chess/black.txt";	//TODO
 }
 
 bool
 OpenBook::load (  ) {
-  book = NULL;
+  book = nullptr;
+  const char *_WHITE = "WHITE";
+  const char *_BLACK = "BLACK";
   fileSize = _file::fileSize ( bookFile );
   if ( fileSize == -1 ) {
     useMmap = false;
@@ -20,23 +24,23 @@ OpenBook::load (  ) {
   else {
     useMmap = true;
     book = ( char * ) _memory::_mmap ( bookFile );
-    cout << "book loaded " << endl;	//TODO
+    cout << "book " << bookFile << " loaded " << endl;
   }
   sizeBook[WHITE] = sizeBook[BLACK] = 0;
   if ( !book ) {
-    cout << "error on load open book" << endl;
+    cout << "error on load open book " << bookFile << endl;
     return false;
   }
   char *b = book;
   int side = -1;
   while ( b - book < fileSize ) {
-    if ( !strcmp ( b, "WHITE" ) ) {
+    if ( !strcmp ( b, _WHITE ) ) {
       side = WHITE;
-      b += 6;
+      b += strlen ( _WHITE ) + 1;
     }
-    else if ( !strcmp ( b, "BLACK" ) ) {
+    else if ( !strcmp ( b, _BLACK ) ) {
       side = BLACK;
-      b += 6;
+      b += strlen ( _BLACK ) + 1;
     }
     if ( side != -1 )
       sizeBook[side]++;
@@ -46,7 +50,7 @@ OpenBook::load (  ) {
     cout << "invalid open book" << endl;
     _memory::_munmap ( book, fileSize );
     sizeBook[WHITE] = sizeBook[BLACK] = 0;
-    book = NULL;
+    book = nullptr;
     return false;
   }
   random[WHITE] = ( int * ) malloc ( sizeBook[WHITE] * sizeof ( int ) );
@@ -54,14 +58,14 @@ OpenBook::load (  ) {
   int k = -1;
   b = book;
   while ( b - book < fileSize ) {
-    if ( !strcmp ( b, "WHITE" ) ) {
+    if ( !strcmp ( b, _WHITE ) ) {
       side = WHITE;
-      b += 6;
+      b += strlen ( _WHITE ) + 1;
       k = 0;
     }
-    else if ( !strcmp ( b, "BLACK" ) ) {
+    else if ( !strcmp ( b, _BLACK ) ) {
       side = BLACK;
-      b += 6;
+      b += strlen ( _BLACK ) + 1;
       k = 0;
     }
     assert ( k != -1 );
@@ -69,11 +73,9 @@ OpenBook::load (  ) {
     b += strlen ( b ) + 1;
   }
   //shuffle
-  time_t seed;
-  srand ( ( unsigned ) time ( &seed ) );
   for ( side = 0; side < 2; side++ ) {
     for ( int j = 0; j < sizeBook[side] - 1; j++ ) {
-      unsigned r = j + ( rand (  ) % ( sizeBook[side] - j ) );
+      unsigned r = j + ( _random::getRandom64 (  ) % ( sizeBook[side] - j ) );
       int temp = random[side][j];
       random[side][j] = random[side][r];
       random[side][r] = temp;
@@ -120,11 +122,11 @@ OpenBook::getAttackers ( int piece, int side, int rank, int file, int to ) {
   gen->resetList (  );
   u64 friends = side ? gen->getBitBoard < WHITE > (  ) : gen->getBitBoard < BLACK > (  );
   u64 enemies = side ? gen->getBitBoard < BLACK > (  ) : gen->getBitBoard < WHITE > (  );
-  u64 key;
+
   u64 allpieces = enemies | friends;
   if ( piece == -1 ) {
 
-    gen->generateCaptures ( side, enemies, friends, &key );
+    gen->generateCaptures ( side, enemies, friends );
     gen->generateMoves ( side, allpieces );
 
   }
@@ -133,11 +135,11 @@ OpenBook::getAttackers ( int piece, int side, int rank, int file, int to ) {
     case ChessBoard::PAWN_WHITE:
       if ( side ) {
 	gen->performPawnShift < WHITE > ( ~allpieces );
-	gen->performPawnCapture < WHITE > ( enemies, &key );
+	gen->performPawnCapture < WHITE > ( enemies );
       }
       else {
 	gen->performPawnShift < BLACK > ( ~allpieces );
-	gen->performPawnCapture < BLACK > ( enemies, &key );
+	gen->performPawnCapture < BLACK > ( enemies );
       }
       break;
     case ChessBoard::KNIGHT_WHITE:
@@ -145,18 +147,18 @@ OpenBook::getAttackers ( int piece, int side, int rank, int file, int to ) {
       gen->performKnightShiftCapture ( ChessBoard::KNIGHT_BLACK + side, ~allpieces, side );
       break;
     case ChessBoard::BISHOP_WHITE:
-      gen->performBishopCapture ( ChessBoard::BISHOP_BLACK + side, enemies, side, allpieces );
-      gen->performBishopShift ( ChessBoard::BISHOP_BLACK + side, side, allpieces );
+      gen->performDiagCapture ( ChessBoard::BISHOP_BLACK + side, enemies, side, allpieces );
+      gen->performDiagShift ( ChessBoard::BISHOP_BLACK + side, side, allpieces );
       break;
     case ChessBoard::QUEEN_WHITE:
-      gen->performRookQueenCapture ( ChessBoard::QUEEN_BLACK + side, enemies, side, allpieces );
-      gen->performBishopCapture ( ChessBoard::QUEEN_BLACK + side, enemies, side, allpieces );
-      gen->performBishopShift ( ChessBoard::QUEEN_BLACK + side, side, allpieces );
-      gen->performRookQueenShift ( ChessBoard::QUEEN_BLACK + side, side, allpieces );
+      gen->performRankFileCapture ( ChessBoard::QUEEN_BLACK + side, enemies, side, allpieces );
+      gen->performDiagCapture ( ChessBoard::QUEEN_BLACK + side, enemies, side, allpieces );
+      gen->performDiagShift ( ChessBoard::QUEEN_BLACK + side, side, allpieces );
+      gen->performRankFileShift ( ChessBoard::QUEEN_BLACK + side, side, allpieces );
       break;
     case ChessBoard::ROOK_WHITE:
-      gen->performRookQueenCapture ( ChessBoard::ROOK_BLACK + side, enemies, side, allpieces );
-      gen->performRookQueenShift ( ChessBoard::ROOK_BLACK + side, side, allpieces );
+      gen->performRankFileCapture ( ChessBoard::ROOK_BLACK + side, enemies, side, allpieces );
+      gen->performRankFileShift ( ChessBoard::ROOK_BLACK + side, side, allpieces );
       break;
     case ChessBoard::KING_WHITE:
       if ( side ) {
@@ -173,7 +175,7 @@ OpenBook::getAttackers ( int piece, int side, int rank, int file, int to ) {
       break;
     }
 
-  int listcount = gen->getListCount (  );
+  int listcount = gen->getListSize (  );
   if ( !listcount ) {
     return -1;
   };
@@ -264,13 +266,36 @@ OpenBook::san2coord ( string san1, int *from, int *to, int side ) {
 }
 
 void
-OpenBook::create ( string fileWhite, string fileBlack ) {
+OpenBook::printError (  ) {
+  cout << "have you run ?" << endl;
+  cout << "\tpolyglot make-book -pgn book.pgn" << endl;
+  cout << "\tpolyglot dump-book -bin book.bin -color white -out " << fileWhite << endl;
+  cout << "\tpolyglot dump-book -bin book.bin -color black -out " << fileBlack << endl;
+}
+
+bool
+OpenBook::create (  ) {
+  ifstream inData;
+  inData.open ( fileWhite.c_str (  ) );
+  if ( !inData ) {
+    cout << "error file not found: " << fileWhite << endl;
+    printError (  );
+    return false;
+  }
+  inData.close (  );
+  inData.open ( fileBlack.c_str (  ) );
+  if ( !inData ) {
+    cout << "error file not found: " << fileBlack << endl;
+    printError (  );
+    return false;
+  }
+  inData.close (  );
   gen = new GenMoves (  );
   ofstream f;
   f.open ( bookFile, fstream::out );
   if ( !f.is_open (  ) ) {
-    cout << "file error" << endl;
-    return;
+    cout << "write error " << bookFile << endl;
+    return false;
   }
   f << "WHITE";
   //cout<<"WHITE"<<"\\1";;
@@ -282,6 +307,7 @@ OpenBook::create ( string fileWhite, string fileBlack ) {
   create ( fileBlack, f );
   f.close (  );
   delete gen;
+  return true;
 }
 
 void
@@ -289,7 +315,7 @@ OpenBook::create ( string fileIn, ofstream & f ) {
   ifstream inData;
   inData.open ( fileIn.c_str (  ) );
   if ( !inData ) {
-    cout << "error file not found: " << fileIn << endl;
+    cout << "error file not found: " << fileIn;
     return;
   }
   string fen;
@@ -326,7 +352,7 @@ OpenBook::create ( string fileIn, ofstream & f ) {
     uip >> token;
     int from, to;
     _Tmove move;
-    u64 dummy;
+
     string san;
     int side = WHITE;
     string castle;
@@ -356,7 +382,7 @@ OpenBook::create ( string fileIn, ofstream & f ) {
       san += BOARD[to];
 
       gen->getMoveFromSan ( san, &move );
-      gen->makemove ( &move, &dummy, true );
+      gen->makemove ( &move, true, false );
       side ^= 1;
     }
     if ( !error ) {

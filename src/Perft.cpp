@@ -6,9 +6,7 @@ Perft::PerftThread::PerftThread (  ) {
 Perft::PerftThread::PerftThread ( int cpuID1, string fen1, int from1, int to1, Perft * perft1 ):
 GenMoves (  ) {
   perftMode = true;
-  if ( !fen1.empty (  ) )
-    START_FEN = fen1;
-  loadFen ( START_FEN );
+  loadFen ( fen1 );
   this->cpuID = cpuID1;
   this->perft = perft1;
   this->from = from1;
@@ -31,7 +29,7 @@ Perft::Perft ( string fen, int depth, int nCpu1, int hash_size ) {
   totMoves = nCollisions = 0;
   int side = p->getSide (  )? 1 : 0;
   this->PERFT_HASH_SIZE = hash_size * 1024 * 1024 / ( sizeof ( u64 ) * depth + sizeof ( _ThashPerft ) );
-  this->hash = NULL;
+  this->hash = nullptr;
   if ( PERFT_HASH_SIZE ) {
     hash = ( _ThashPerft * ) calloc ( PERFT_HASH_SIZE, sizeof ( _ThashPerft ) );
     assert ( hash );
@@ -52,12 +50,11 @@ Perft::Perft ( string fen, int depth, int nCpu1, int hash_size ) {
   u64 friends = side ? p->getBitBoard < WHITE > (  ) : p->getBitBoard < BLACK > (  );
   u64 enemies = side ? p->getBitBoard < BLACK > (  ) : p->getBitBoard < WHITE > (  );
 
-  u64 dummy = 0;
-  p->generateCaptures ( side, enemies, friends, &dummy );
+  p->generateCaptures ( side, enemies, friends );
   p->generateMoves ( side, friends | enemies );
-  int listcount = p->getListCount (  );
+  int listcount = p->getListSize (  );
   delete ( p );
-  p = NULL;
+  p = nullptr;
   ASSERT ( nCpu1 > 0 );
   int block = listcount / nCpu1;
   int i, s = 0;
@@ -67,11 +64,11 @@ Perft::Perft ( string fen, int depth, int nCpu1, int hash_size ) {
   }
   threadList.push_back ( new PerftThread ( i, fen, s, listcount, this ) );
 
-  for ( vector < PerftThread * >::iterator it = threadList.begin (  ); it != threadList.end (  ); ++it ) {
+  for ( auto it = threadList.begin (  ); it != threadList.end (  ); ++it ) {
     ( *it )->start (  );
   }
 
-  for ( vector < PerftThread * >::iterator it = threadList.begin (  ); it != threadList.end (  ); ++it ) {
+  for ( auto it = threadList.begin (  ); it != threadList.end (  ); ++it ) {
     ( *it )->join (  );
     ( *it )->stop (  );
     delete *it;
@@ -103,15 +100,15 @@ Perft::Perft ( string fen, int depth, int nCpu1, int hash_size ) {
 }
 
 template < int side > u64
-Perft::PerftThread::search ( int depth, u64 key ) {
+Perft::PerftThread::search ( int depth ) {
   if ( depth == 0 ) {
     return 1;
   }
   _ThashPerft *
-    phashe = NULL;
+    phashe = nullptr;
   if ( depth >= 2 && perft->hash ) {
-    phashe = &( perft->hash[key % perft->PERFT_HASH_SIZE] );
-    if ( key == phashe->key && phashe->nMovesXply[depth - 2] != NULL_KEY ) {
+    phashe = &( perft->hash[zobristKey % perft->PERFT_HASH_SIZE] );
+    if ( zobristKey == phashe->key && phashe->nMovesXply[depth - 2] != NULL_KEY ) {
       return phashe->nMovesXply[depth - 2];
     }
   }
@@ -126,12 +123,12 @@ Perft::PerftThread::search ( int depth, u64 key ) {
     friends = getBitBoard < side > (  );
   u64
     enemies = getBitBoard < side ^ 1 > (  );
-  if ( generateCaptures < side > ( enemies, friends, &key ) ) {
+  if ( generateCaptures < side > ( enemies, friends ) ) {
     decListId (  );
     return 0;
   }
   generateMoves < side > ( friends | enemies );
-  listcount = getListCount (  );
+  listcount = getListSize (  );
   if ( !listcount ) {
     decListId (  );
     return 0;
@@ -140,22 +137,22 @@ Perft::PerftThread::search ( int depth, u64 key ) {
 
     move = getMove ( ii );
     u64
-      keyold = key;
+      keyold = zobristKey;
 
-    makemove ( move, &key, false );
-    ASSERT ( key == makeZobristKey (  ) );
-    n_perft += search < side ^ 1 > ( depth - 1, key );
-    takeback ( move, &key, keyold, false );
+    makemove ( move, false, false );
+
+    n_perft += search < side ^ 1 > ( depth - 1 );
+    takeback ( move, keyold, false );
   }
   resetList (  );
   decListId (  );
   if ( phashe ) {
-    if ( phashe->key == key ) {
+    if ( phashe->key == zobristKey ) {
       phashe->nMovesXply[depth - 2] = n_perft;
     }
     else if ( phashe->key == NULL_KEY ) {
       phashe->nMovesXply[depth - 2] = n_perft;
-      phashe->key = key;
+      phashe->key = zobristKey;
     }
     else {
       perft->nCollisions++;
@@ -177,25 +174,22 @@ Perft::PerftThread::run (  ) {
   u64
     enemies = sideToMove ? getBitBoard < BLACK > (  ) : getBitBoard < WHITE > (  );
 
-  u64
-    dummy = 0;
-  generateCaptures ( sideToMove, enemies, friends, &dummy );
+  generateCaptures ( sideToMove, enemies, friends );
   generateMoves ( sideToMove, friends | enemies );
   u64
     tot = 0;
+  makeZobristKey (  );
   u64
-    key = makeZobristKey (  );
-  u64
-    keyold = key;
+    keyold = zobristKey;
 
   for ( int ii = to - 1; ii >= from; ii-- ) {
     u64
       n_perft = 0;
     move = getMove ( ii );
 
-    makemove ( move, &key, false );
-    n_perft = ( sideToMove ^ 1 ) == WHITE ? search < WHITE > ( perft->mainDepth, key ) : search < BLACK > ( perft->mainDepth, key );
-    takeback ( move, &key, keyold, false );
+    makemove ( move, false, false );
+    n_perft = ( sideToMove ^ 1 ) == WHITE ? search < WHITE > ( perft->mainDepth ) : search < BLACK > ( perft->mainDepth );
+    takeback ( move, keyold, false );
 
     char
       y;

@@ -6,7 +6,6 @@ Uci::Uci (  ) {
 }
 
 Uci::~Uci (  ) {
-  it->stop (  );
   delete it;
 }
 
@@ -25,26 +24,13 @@ Uci::listner (  ) {
   string token;
   bool stop = false;
   int lastTime = 0;
+  uciMode = false;
   while ( !stop ) {
     getline ( cin, command );
     istringstream uip ( command, ios::in );
     getToken ( uip, token );
     knowCommand = false;
-    if ( token == "make_book" ) {
-      cout << "create open book:" << endl;
-      cout << "\tpolyglot make-book -pgn book.pgn" << endl;
-      cout << "\tpolyglot dump-book -bin book.bin -color white -out white" << endl;
-      cout << "\tpolyglot dump-book -bin book.bin -color black -out black" << endl;
-      bool useBook = it->getUseBook (  );
-      it->setUseBook ( false );
-      OpenBook *b = new OpenBook (  );
-      cout << "create book..." << flush;
-      b->create ( "/home/geko/chess/white", "/home/geko/chess/black" );	//TODO
-      cout << "ok" << endl;
-      delete b;
-      it->setUseBook ( useBook );
-      knowCommand = true;
-    }
+
     if ( token == "perft" ) {
       int perftDepth = -1;
       int nCpu = 1;
@@ -88,7 +74,7 @@ Uci::listner (  ) {
 	int hashSize = it->getHashSize (  );
 	it->setHashSize ( 0 );
 	if ( fen.empty (  ) )
-	  fen = it->START_FEN;
+	  fen = it->getFen (  );
 	cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << endl;
 	Perft *p = new Perft ( fen, perftDepth, nCpu, PERFT_HASH_SIZE );
 	delete p;
@@ -120,18 +106,17 @@ Uci::listner (  ) {
     }
     else if ( token == "uci" ) {
       knowCommand = true;
-      it->setUci ( true );
+      uciMode = true;
       cout << "id name " << NAME << endl;
       cout << "id author Giuseppe Cannella" << endl;
-#ifndef NO_HASH_MODE
       cout << "option name Hash type spin default 64 min 1 max 16384" << endl;
-#endif
       cout << "option name Nullmove type check default true" << endl;
       cout << "option name Clear Hash type button" << endl;
-      /*if(it->getUseBook())
-         cout << "option name OwnBook type check default true"<<endl;
-         else
-         cout << "option name OwnBook type check default false"<<endl; */
+      cout << "option name MakeBook type button" << endl;
+      if ( it->getUseBook (  ) )
+	cout << "option name OwnBook type check default true" << endl;	//TODO rispondere a http://immortalchess.net/forum/showthread.php?p=346514&langid=1
+      else
+	cout << "option name OwnBook type check default false" << endl;
       if ( it->getPonderEnabled (  ) )
 	cout << "option name Ponder type check default true" << endl;
       else
@@ -139,10 +124,10 @@ Uci::listner (  ) {
       cout << "uciok" << endl;
     }
     else if ( token == "score" ) {
-      int t;
-      t = it->getScore ( it->getSide (  ), -_INFINITE, _INFINITE );
-      if ( !it->getSide (  ) )
+      int t = it->getScore ( it->getSide (  ), -_INFINITE, _INFINITE );
+      if ( !it->getSide (  ) ) {
 	t = -t;
+      }
       cout << "Score: " << t << endl;
       knowCommand = true;
     }
@@ -181,10 +166,7 @@ Uci::listner (  ) {
 	  getToken ( uip, token );
 	  if ( token == "value" ) {
 	    getToken ( uip, token );
-	    if ( token == "true" )
-	      it->setUseBook ( true );
-	    else
-	      it->setUseBook ( false );
+	    it->setUseBook ( token == "true" ? true : false );
 	    knowCommand = true;
 	  }
 	}
@@ -192,12 +174,20 @@ Uci::listner (  ) {
 	  getToken ( uip, token );
 	  if ( token == "value" ) {
 	    getToken ( uip, token );
-	    if ( token == "true" )
-	      it->enablePonder ( true );
-	    else
-	      it->enablePonder ( false );
+	    it->enablePonder ( token == "true" ? true : false );
 	    knowCommand = true;
 	  }
+	}
+	else if ( token == "makebook" ) {
+	  bool useBook = it->getUseBook (  );
+	  it->setUseBook ( false );
+	  OpenBook *b = new OpenBook (  );
+	  cout << "create book..." << flush;
+	  if ( b->create (  ) )
+	    cout << " ok" << endl;
+	  delete b;
+	  it->setUseBook ( useBook );
+	  knowCommand = true;
 	}
 	else if ( token == "clear" ) {
 	  getToken ( uip, token );
@@ -209,7 +199,7 @@ Uci::listner (  ) {
       }
     }
     else if ( token == "position" ) {
-      it->lockMutex ( true );
+      it->lock (  );
       knowCommand = true;
       it->setRepetitionMapCount ( 0 );
       getToken ( uip, token );
@@ -242,9 +232,10 @@ Uci::listner (  ) {
 	  it->makemove ( &move );
 	}
       }
-      it->lockMutex ( false );
+      it->unLock (  );
     }
     else if ( token == "go" ) {
+      it->setMaxDepth ( GenMoves::MAX_PLY );
       int wtime = 200000;	//5 min
       int btime = 200000;
       int winc = 0;
@@ -260,6 +251,15 @@ Uci::listner (  ) {
 	  uip >> winc;
 	else if ( token == "binc" )
 	  uip >> binc;
+	else if ( token == "depth" ) {
+	  int depth;
+	  uip >> depth;
+	  if ( depth > GenMoves::MAX_PLY )
+	    depth = GenMoves::MAX_PLY;
+	  it->setMaxDepth ( depth );
+	  it->setMaxTimeMillsec ( 0x7FFFFFFF );
+	  forceTime = true;
+	}
 	else if ( token == "movetime" ) {
 	  int tim;
 	  uip >> tim;
@@ -291,7 +291,7 @@ Uci::listner (  ) {
 	}
 	lastTime = it->getMaxTimeMillsec (  );
       }
-      if ( !it->getUci (  ) )
+      if ( !uciMode )
 	it->display (  );
       it->stop (  );
       it->start (  );

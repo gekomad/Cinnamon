@@ -1,27 +1,22 @@
 #ifndef NAMESPACES_H_
 #define NAMESPACES_H_
-
+#include <string.h>
 #include <algorithm>
 #include <sys/stat.h>
 #include <sys/timeb.h>
-#ifdef _WIN32
-#include <windows.h>
-#include <time.h>
-#else
-#include <sys/mman.h>
-#endif
+#include <sstream>
+#include <climits>
 
 namespace _board {
   using namespace std;
 
-  static const string NAME = "Cinnamon 1.0";
+  static const string NAME = "Cinnamon 1.1";
   static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
   typedef unsigned char uchar;
   typedef long long unsigned u64;
 
-
-#define assert(a) if(!(a)){cout<<endl<<_time::getLocalTime()<<" ********************************** assert error IN "<<__FILE__<< " line "<<__LINE__<<" **********************************"<<endl<<flush;exit(1);};
+#define assert(a) if(!(a)){cout<<dec<<endl<<_time::getLocalTime()<<" ********************************** assert error in "<<_file::extractFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl<<flush;exit(1);};
 
 #ifdef DEBUG_MODE
 
@@ -36,7 +31,7 @@ namespace _board {
 #endif
 
   typedef struct {
-    uchar promotionPiece;
+    char promotionPiece;
     char pieceFrom;
     uchar capturedPiece;
     uchar from;
@@ -63,11 +58,9 @@ typedef struct{
   static const int BLACK = 0;
   static const int WHITE = 1;
   static const int _INFINITE = 32000;
-#ifndef NO_FP_MODE
   static const int FUTIL_MARGIN = 154;
   static const int EXT_FUTILY_MARGIN = 392;
   static const int RAZOR_MARGIN = 1071;
-#endif
   static const u64 POW2_0 = 0x1ULL;
   static const u64 POW2_1 = 0x2ULL;
   static const u64 POW2_2 = 0x4ULL;
@@ -99,8 +92,6 @@ typedef struct{
   static const u64 NOTPOW2_61 = 0xdfffffffffffffffULL;
   static const u64 NOTPOW2_63 = 0x7fffffffffffffffULL;
 
-
-
   static const string BOARD[64] = {
     "h1", "g1", "f1", "e1", "d1", "c1", "b1", "a1",
     "h2", "g2", "f2", "e2", "d2", "c2", "b2", "a2",
@@ -128,7 +119,7 @@ typedef struct{
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
   };
 
-  static const char ORIZ_RIGHT[] = {
+  static const uchar ORIZ_RIGHT[] = {
     0, 0, 0, 0, 0, 0, 0, 0,
     8, 8, 8, 8, 8, 8, 8, 8,
     16, 16, 16, 16, 16, 16, 16, 16,
@@ -139,7 +130,7 @@ typedef struct{
     56, 56, 56, 56, 56, 56, 56, 56
   };
 
-  static const char ORIZ_LEFT[] = {
+  static const uchar ORIZ_LEFT[] = {
     7, 7, 7, 7, 7, 7, 7, 7,
     15, 15, 15, 15, 15, 15, 15, 15,
     23, 23, 23, 23, 23, 23, 23, 23,
@@ -150,7 +141,7 @@ typedef struct{
     63, 63, 63, 63, 63, 63, 63, 63
   };
 
-  static const char VERT_UPPER[] = {
+  static const uchar VERT_UPPER[] = {
     56, 57, 58, 59, 60, 61, 62, 63,
     56, 57, 58, 59, 60, 61, 62, 63,
     56, 57, 58, 59, 60, 61, 62, 63,
@@ -161,7 +152,7 @@ typedef struct{
     56, 57, 58, 59, 60, 61, 62, 63
   };
 
-  static const char VERT_LOWER[] = {
+  static const uchar VERT_LOWER[] = {
     0, 1, 2, 3, 4, 5, 6, 7,
     0, 1, 2, 3, 4, 5, 6, 7,
     0, 1, 2, 3, 4, 5, 6, 7,
@@ -176,34 +167,137 @@ typedef struct{
 #include "random.inc"
   };
 
-  static const char RIGHT_UPPER[] = {
-    63, 55, 47, 39, 31, 23, 15, 7, 62, 63, 55, 47, 39, 31, 23, 15, 61, 62,
-    63, 55, 47, 39, 31, 23, 60, 61, 62, 63, 55, 47, 39, 31, 59, 60, 61, 62, 63,
-    55, 47, 39, 58, 59, 60, 61, 62, 63, 55, 47,
-    57, 58, 59, 60, 61, 62, 63, 55, 56, 57, 58, 59, 60, 61, 62, 63
+  static const uchar RIGHT_UPPER[] = {
+    63, 55, 47, 39, 31, 23, 15, 7,
+    62, 63, 55, 47, 39, 31, 23, 15,
+    61, 62, 63, 55, 47, 39, 31, 23,
+    60, 61, 62, 63, 55, 47, 39, 31,
+    59, 60, 61, 62, 63, 55, 47, 39,
+    58, 59, 60, 61, 62, 63, 55, 47,
+    57, 58, 59, 60, 61, 62, 63, 55,
+    56, 57, 58, 59, 60, 61, 62, 63
   };
 
-  static const char RIGHT_LOWER[] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 2, 3, 4, 5, 6, 16, 8, 0, 1,
-    2, 3, 4, 5, 24, 16, 8, 0, 1, 2, 3, 4, 32, 24, 16, 8, 0, 1, 2,
-    3, 40, 32, 24, 16, 8, 0, 1, 2, 48, 40, 32, 24, 16, 8, 0, 1, 56,
-    48, 40, 32, 24, 16, 8, 0
+  static const uchar RIGHT_LOWER[] = {
+    0, 1, 2, 3, 4, 5, 6, 7,
+    8, 0, 1, 2, 3, 4, 5, 6,
+    16, 8, 0, 1, 2, 3, 4, 5,
+    24, 16, 8, 0, 1, 2, 3, 4,
+    32, 24, 16, 8, 0, 1, 2, 3,
+    40, 32, 24, 16, 8, 0, 1, 2,
+    48, 40, 32, 24, 16, 8, 0, 1,
+    56, 48, 40, 32, 24, 16, 8, 0
   };
 
-  static const char LEFT_UPPER[] = {
-    0, 8, 16, 24, 32, 40, 48, 56, 8, 16, 24, 32, 40, 48, 56, 57, 16, 24,
-    32, 40, 48, 56, 57, 58, 24, 32, 40, 48, 56, 57, 58, 59, 32, 40, 48,
-    56, 57, 58, 59, 60, 40, 48, 56, 57, 58, 59, 60, 61, 48, 56, 57, 58,
-    59, 60, 61, 62, 56, 57, 58, 59, 60, 61, 62, 63
+  static const uchar LEFT_UPPER[] = {
+    0, 8, 16, 24, 32, 40, 48, 56,
+    8, 16, 24, 32, 40, 48, 56, 57,
+    16, 24, 32, 40, 48, 56, 57, 58,
+    24, 32, 40, 48, 56, 57, 58, 59,
+    32, 40, 48, 56, 57, 58, 59, 60,
+    40, 48, 56, 57, 58, 59, 60, 61,
+    48, 56, 57, 58, 59, 60, 61, 62,
+    56, 57, 58, 59, 60, 61, 62, 63
   };
 
-  static const char LEFT_LOWER[] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 15, 2, 3, 4, 5,
-    6, 7, 15, 23, 3, 4, 5, 6, 7, 15, 23, 31, 4, 5, 6, 7, 15, 23, 31,
-    39, 5, 6, 7, 15, 23, 31, 39, 47, 6, 7, 15, 23, 31, 39, 47, 55, 7,
-    15, 23, 31, 39, 47, 55, 63
+  static const uchar LEFT_LOWER[] = {
+    0, 1, 2, 3, 4, 5, 6, 7,
+    1, 2, 3, 4, 5, 6, 7, 15,
+    2, 3, 4, 5, 6, 7, 15, 23,
+    3, 4, 5, 6, 7, 15, 23, 31,
+    4, 5, 6, 7, 15, 23, 31, 39,
+    5, 6, 7, 15, 23, 31, 39, 47,
+    6, 7, 15, 23, 31, 39, 47, 55,
+    7, 15, 23, 31, 39, 47, 55, 63
   };
 
+  static const u64 MASK_BIT_UNSET_RIGHT_UP[] = {
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
+    0x0ULL, 0x1ULL, 0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL, 0x40ULL,
+    0x0ULL, 0x100ULL, 0x201ULL, 0x402ULL, 0x804ULL, 0x1008ULL, 0x2010ULL, 0x4020ULL,
+    0x0ULL, 0x10000ULL, 0x20100ULL, 0x40201ULL, 0x80402ULL, 0x100804ULL, 0x201008ULL, 0x402010ULL,
+    0x0ULL, 0x1000000ULL, 0x2010000ULL, 0x4020100ULL, 0x8040201ULL, 0x10080402ULL, 0x20100804ULL, 0x40201008ULL,
+    0x0ULL, 0x100000000ULL, 0x201000000ULL, 0x402010000ULL, 0x804020100ULL, 0x1008040201ULL, 0x2010080402ULL, 0x4020100804ULL,
+    0x0ULL, 0x10000000000ULL, 0x20100000000ULL, 0x40201000000ULL, 0x80402010000ULL, 0x100804020100ULL, 0x201008040201ULL, 0x402010080402ULL,
+    0x0ULL, 0x1000000000000ULL, 0x2010000000000ULL, 0x4020100000000ULL, 0x8040201000000ULL, 0x10080402010000ULL, 0x20100804020100ULL, 0x40201008040201ULL
+  };
+
+  static const u64 MASK_BIT_UNSET_RIGHT_DOWN[] = {
+    0x8040201008040200ULL, 0x80402010080400ULL, 0x804020100800ULL, 0x8040201000ULL, 0x80402000ULL, 0x804000ULL, 0x8000ULL, 0x0ULL,
+    0x4020100804020000ULL, 0x8040201008040000ULL, 0x80402010080000ULL, 0x804020100000ULL, 0x8040200000ULL, 0x80400000ULL, 0x800000ULL, 0x0ULL,
+    0x2010080402000000ULL, 0x4020100804000000ULL, 0x8040201008000000ULL, 0x80402010000000ULL, 0x804020000000ULL, 0x8040000000ULL, 0x80000000ULL, 0x0ULL,
+    0x1008040200000000ULL, 0x2010080400000000ULL, 0x4020100800000000ULL, 0x8040201000000000ULL, 0x80402000000000ULL, 0x804000000000ULL, 0x8000000000ULL, 0x0ULL,
+    0x804020000000000ULL, 0x1008040000000000ULL, 0x2010080000000000ULL, 0x4020100000000000ULL, 0x8040200000000000ULL, 0x80400000000000ULL, 0x800000000000ULL, 0x0ULL,
+    0x402000000000000ULL, 0x804000000000000ULL, 0x1008000000000000ULL, 0x2010000000000000ULL, 0x4020000000000000ULL, 0x8040000000000000ULL, 0x80000000000000ULL, 0x0ULL,
+    0x200000000000000ULL, 0x400000000000000ULL, 0x800000000000000ULL, 0x1000000000000000ULL, 0x2000000000000000ULL, 0x4000000000000000ULL, 0x8000000000000000ULL, 0x0ULL,
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL
+  };
+
+  static const u64 MASK_BIT_UNSET_LEFT_UP[] = {
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
+    0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL, 0x40ULL, 0x80ULL, 0x0ULL,
+    0x204ULL, 0x408ULL, 0x810ULL, 0x1020ULL, 0x2040ULL, 0x4080ULL, 0x8000ULL, 0x0ULL,
+    0x20408ULL, 0x40810ULL, 0x81020ULL, 0x102040ULL, 0x204080ULL, 0x408000ULL, 0x800000ULL, 0x0ULL,
+    0x2040810ULL, 0x4081020ULL, 0x8102040ULL, 0x10204080ULL, 0x20408000ULL, 0x40800000ULL, 0x80000000ULL, 0x0ULL,
+    0x204081020ULL, 0x408102040ULL, 0x810204080ULL, 0x1020408000ULL, 0x2040800000ULL, 0x4080000000ULL, 0x8000000000ULL, 0x0ULL,
+    0x20408102040ULL, 0x40810204080ULL, 0x81020408000ULL, 0x102040800000ULL, 0x204080000000ULL, 0x408000000000ULL, 0x800000000000ULL, 0x0ULL,
+    0x2040810204080ULL, 0x4081020408000ULL, 0x8102040800000ULL, 0x10204080000000ULL, 0x20408000000000ULL, 0x40800000000000ULL, 0x80000000000000ULL, 0x0ULL
+  };
+
+  static const u64 MASK_BIT_UNSET_LEFT_DOWN[] = {
+    0x0ULL, 0x100ULL, 0x10200ULL, 0x1020400ULL, 0x102040800ULL, 0x10204081000ULL, 0x1020408102000ULL, 0x102040810204000ULL,
+    0x0ULL, 0x10000ULL, 0x1020000ULL, 0x102040000ULL, 0x10204080000ULL, 0x1020408100000ULL, 0x102040810200000ULL, 0x204081020400000ULL,
+    0x0ULL, 0x1000000ULL, 0x102000000ULL, 0x10204000000ULL, 0x1020408000000ULL, 0x102040810000000ULL, 0x204081020000000ULL, 0x408102040000000ULL,
+    0x0ULL, 0x100000000ULL, 0x10200000000ULL, 0x1020400000000ULL, 0x102040800000000ULL, 0x204081000000000ULL, 0x408102000000000ULL, 0x810204000000000ULL,
+    0x0ULL, 0x10000000000ULL, 0x1020000000000ULL, 0x102040000000000ULL, 0x204080000000000ULL, 0x408100000000000ULL, 0x810200000000000ULL, 0x1020400000000000ULL,
+    0x0ULL, 0x1000000000000ULL, 0x102000000000000ULL, 0x204000000000000ULL, 0x408000000000000ULL, 0x810000000000000ULL, 0x1020000000000000ULL, 0x2040000000000000ULL,
+    0x0ULL, 0x100000000000000ULL, 0x200000000000000ULL, 0x400000000000000ULL, 0x800000000000000ULL, 0x1000000000000000ULL, 0x2000000000000000ULL, 0x4000000000000000ULL,
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL
+  };
+
+  static const u64 MASK_BIT_UNSET_DOWN[] = {
+    0x101010101010100ULL, 0x202020202020200ULL, 0x404040404040400ULL, 0x808080808080800ULL, 0x1010101010101000ULL, 0x2020202020202000ULL, 0x4040404040404000ULL, 0x8080808080808000ULL,
+    0x101010101010000ULL, 0x202020202020000ULL, 0x404040404040000ULL, 0x808080808080000ULL, 0x1010101010100000ULL, 0x2020202020200000ULL, 0x4040404040400000ULL, 0x8080808080800000ULL,
+    0x101010101000000ULL, 0x202020202000000ULL, 0x404040404000000ULL, 0x808080808000000ULL, 0x1010101010000000ULL, 0x2020202020000000ULL, 0x4040404040000000ULL, 0x8080808080000000ULL,
+    0x101010100000000ULL, 0x202020200000000ULL, 0x404040400000000ULL, 0x808080800000000ULL, 0x1010101000000000ULL, 0x2020202000000000ULL, 0x4040404000000000ULL, 0x8080808000000000ULL,
+    0x101010000000000ULL, 0x202020000000000ULL, 0x404040000000000ULL, 0x808080000000000ULL, 0x1010100000000000ULL, 0x2020200000000000ULL, 0x4040400000000000ULL, 0x8080800000000000ULL,
+    0x101000000000000ULL, 0x202000000000000ULL, 0x404000000000000ULL, 0x808000000000000ULL, 0x1010000000000000ULL, 0x2020000000000000ULL, 0x4040000000000000ULL, 0x8080000000000000ULL,
+    0x100000000000000ULL, 0x200000000000000ULL, 0x400000000000000ULL, 0x800000000000000ULL, 0x1000000000000000ULL, 0x2000000000000000ULL, 0x4000000000000000ULL, 0x8000000000000000ULL,
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL
+  };
+
+  static const u64 MASK_BIT_UNSET_UP[] = {
+    0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
+    0x1ULL, 0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL, 0x40ULL, 0x80ULL,
+    0x101ULL, 0x202ULL, 0x404ULL, 0x808ULL, 0x1010ULL, 0x2020ULL, 0x4040ULL, 0x8080ULL,
+    0x10101ULL, 0x20202ULL, 0x40404ULL, 0x80808ULL, 0x101010ULL, 0x202020ULL, 0x404040ULL, 0x808080ULL,
+    0x1010101ULL, 0x2020202ULL, 0x4040404ULL, 0x8080808ULL, 0x10101010ULL, 0x20202020ULL, 0x40404040ULL, 0x80808080ULL,
+    0x101010101ULL, 0x202020202ULL, 0x404040404ULL, 0x808080808ULL, 0x1010101010ULL, 0x2020202020ULL, 0x4040404040ULL, 0x8080808080ULL,
+    0x10101010101ULL, 0x20202020202ULL, 0x40404040404ULL, 0x80808080808ULL, 0x101010101010ULL, 0x202020202020ULL, 0x404040404040ULL, 0x808080808080ULL,
+    0x1010101010101ULL, 0x2020202020202ULL, 0x4040404040404ULL, 0x8080808080808ULL, 0x10101010101010ULL, 0x20202020202020ULL, 0x40404040404040ULL, 0x80808080808080ULL
+  };
+
+  static const u64 MASK_BIT_UNSET_LEFT[] = {
+    0x0ULL, 0x1ULL, 0x3ULL, 0x7ULL, 0xfULL, 0x1fULL, 0x3fULL, 0x7fULL,
+    0x0ULL, 0x100ULL, 0x300ULL, 0x700ULL, 0xf00ULL, 0x1f00ULL, 0x3f00ULL, 0x7f00ULL,
+    0x0ULL, 0x10000ULL, 0x30000ULL, 0x70000ULL, 0xf0000ULL, 0x1f0000ULL, 0x3f0000ULL, 0x7f0000ULL,
+    0x0ULL, 0x1000000ULL, 0x3000000ULL, 0x7000000ULL, 0xf000000ULL, 0x1f000000ULL, 0x3f000000ULL, 0x7f000000ULL,
+    0x0ULL, 0x100000000ULL, 0x300000000ULL, 0x700000000ULL, 0xf00000000ULL, 0x1f00000000ULL, 0x3f00000000ULL, 0x7f00000000ULL,
+    0x0ULL, 0x10000000000ULL, 0x30000000000ULL, 0x70000000000ULL, 0xf0000000000ULL, 0x1f0000000000ULL, 0x3f0000000000ULL, 0x7f0000000000ULL,
+    0x0ULL, 0x1000000000000ULL, 0x3000000000000ULL, 0x7000000000000ULL, 0xf000000000000ULL, 0x1f000000000000ULL, 0x3f000000000000ULL, 0x7f000000000000ULL,
+    0x0ULL, 0x100000000000000ULL, 0x300000000000000ULL, 0x700000000000000ULL, 0xf00000000000000ULL, 0x1f00000000000000ULL, 0x3f00000000000000ULL, 0x7f00000000000000ULL
+  };
+
+  static const u64 MASK_BIT_UNSET_RIGHT[] = {
+    0xfeULL, 0xfcULL, 0xf8ULL, 0xf0ULL, 0xe0ULL, 0xc0ULL, 0x80ULL, 0x0ULL,
+    0xfe00ULL, 0xfc00ULL, 0xf800ULL, 0xf000ULL, 0xe000ULL, 0xc000ULL, 0x8000ULL, 0x0ULL,
+    0xfe0000ULL, 0xfc0000ULL, 0xf80000ULL, 0xf00000ULL, 0xe00000ULL, 0xc00000ULL, 0x800000ULL, 0x0ULL,
+    0xfe000000ULL, 0xfc000000ULL, 0xf8000000ULL, 0xf0000000ULL, 0xe0000000ULL, 0xc0000000ULL, 0x80000000, 0x0ULL,
+    0xfe00000000ULL, 0xfc00000000ULL, 0xf800000000ULL, 0xf000000000ULL, 0xe000000000ULL, 0xc000000000ULL, 0x8000000000ULL, 0x0ULL,
+    0xfe0000000000ULL, 0xfc0000000000ULL, 0xf80000000000ULL, 0xf00000000000ULL, 0xe00000000000ULL, 0xc00000000000ULL, 0x800000000000ULL, 0x0ULL,
+    0xfe000000000000ULL, 0xfc000000000000ULL, 0xf8000000000000ULL, 0xf0000000000000ULL, 0xe0000000000000ULL, 0xc0000000000000ULL, 0x80000000000000ULL, 0x0ULL,
+    0xfe00000000000000ULL, 0xfc00000000000000ULL, 0xf800000000000000ULL, 0xf000000000000000ULL, 0xe000000000000000ULL, 0xc000000000000000ULL, 0x8000000000000000ULL, 0x0ULL
+  };
 
   static const u64 RANK_FILE[64] = {
     0x1010101010101feULL, 0x2020202020202fdULL,
@@ -355,8 +449,10 @@ typedef struct{
     6, 6, 6, 6, 6, 6, 6, 6,
     7, 7, 7, 7, 7, 7, 7, 7
   };
+  static const u64 PAWNS_8_1[2] = { 0xFFULL, 0xFF00000000000000ULL };
 
-  static const u64 PAWNS_7_2[2] = { 0xFF000000000000ULL, 0xFF00ULL };
+  static const u64 PAWNS_JUMP[2] = { 0xFF000000000000ULL, 0xFF00ULL };
+  static const u64 PAWNS_7_2[2] = { 0xFF00ULL, 0xFF000000000000ULL };
 
   static const u64 FILE_[64] = {
     0x101010101010101ULL, 0x202020202020202ULL, 0x404040404040404ULL, 0x808080808080808ULL, 0x1010101010101010ULL, 0x2020202020202020ULL, 0x4040404040404040ULL,
@@ -369,7 +465,6 @@ typedef struct{
     0x4040404040404040ULL, 0x8080808080808080ULL, 0x101010101010101ULL, 0x202020202020202ULL, 0x404040404040404ULL, 0x808080808080808ULL, 0x1010101010101010ULL, 0x2020202020202020ULL,
     0x4040404040404040ULL, 0x8080808080808080ULL
   };
-
 
   static const u64 POW2[64] = {
     0x1ULL, 0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL, 0x40ULL, 0x80ULL, 0x100ULL, 0x200ULL, 0x400ULL, 0x800ULL, 0x1000ULL, 0x2000ULL, 0x4000ULL, 0x8000ULL, 0x10000ULL, 0x20000ULL,
@@ -390,6 +485,123 @@ typedef struct{
     0xffff7fffffffffffULL, 0xfffeffffffffffffULL, 0xfffdffffffffffffULL, 0xfffbffffffffffffULL, 0xfff7ffffffffffffULL, 0xffefffffffffffffULL, 0xffdfffffffffffffULL, 0xffbfffffffffffffULL,
     0xff7fffffffffffffULL, 0xfeffffffffffffffULL, 0xfdffffffffffffffULL, 0xfbffffffffffffffULL, 0xf7ffffffffffffffULL, 0xefffffffffffffffULL, 0xdfffffffffffffffULL, 0xbfffffffffffffffULL,
     0x7fffffffffffffffULL
+  };
+
+  static const u64 PAWN_FORK_MASK[2][64] = { {
+					      0, 0, 0, 0, 0, 0, 0, 0,
+
+					      0x2ULL,
+					      0x5ULL,
+					      0xaULL,
+					      0x14ULL,
+					      0x28ULL,
+					      0x50ULL,
+					      0xa0ULL,
+					      0x40ULL,
+
+					      0x200ULL,
+					      0x500ULL,
+					      0xa00ULL,
+					      0x1400ULL,
+					      0x2800ULL,
+					      0x5000ULL,
+					      0xa000ULL,
+					      0x4000ULL,
+
+					      0x20000ULL,
+					      0x50000ULL,
+					      0xa0000ULL,
+					      0x140000ULL,
+					      0x280000ULL,
+					      0x500000ULL,
+					      0xa00000ULL,
+					      0x400000ULL,
+
+					      0x2000000ULL,
+					      0x5000000ULL,
+					      0xa000000ULL,
+					      0x14000000ULL,
+					      0x28000000ULL,
+					      0x50000000ULL,
+					      0xa0000000ULL,
+					      0x40000000ULL,
+
+					      0x200000000ULL,
+					      0x500000000ULL,
+					      0xa00000000ULL,
+					      0x1400000000ULL,
+					      0x2800000000ULL,
+					      0x5000000000ULL,
+					      0xa000000000ULL,
+					      0x4000000000ULL,
+
+					      0x20000000000ULL,
+					      0x50000000000ULL,
+					      0xa0000000000ULL,
+					      0x140000000000ULL,
+					      0x280000000000ULL,
+					      0x500000000000ULL,
+					      0xa00000000000ULL,
+					      0x400000000000ULL,
+
+					      0, 0, 0, 0, 0, 0, 0, 0}, {
+									0, 0, 0, 0, 0, 0, 0, 0,
+
+									0x20000ULL,
+									0x50000ULL,
+									0xa0000ULL,
+									0x140000ULL,
+									0x280000ULL,
+									0x500000ULL,
+									0xa00000ULL,
+									0x400000ULL,
+
+									0x2000000ULL,
+									0x5000000ULL,
+									0xa000000ULL,
+									0x14000000ULL,
+									0x28000000ULL,
+									0x50000000ULL,
+									0xa0000000ULL,
+									0x40000000ULL,
+
+									0x200000000ULL,
+									0x500000000ULL,
+									0xa00000000ULL,
+									0x1400000000ULL,
+									0x2800000000ULL,
+									0x5000000000ULL,
+									0xa000000000ULL,
+									0x4000000000ULL,
+
+									0x20000000000ULL,
+									0x50000000000ULL,
+									0xa0000000000ULL,
+									0x140000000000ULL,
+									0x280000000000ULL,
+									0x500000000000ULL,
+									0xa00000000000ULL,
+									0x400000000000ULL,
+
+									0x2000000000000ULL,
+									0x5000000000000ULL,
+									0xa000000000000ULL,
+									0x14000000000000ULL,
+									0x28000000000000ULL,
+									0x50000000000000ULL,
+									0xa0000000000000ULL,
+									0x40000000000000ULL,
+
+									0x200000000000000ULL,
+									0x500000000000000ULL,
+									0xa00000000000000ULL,
+									0x1400000000000000ULL,
+									0x2800000000000000ULL,
+									0x5000000000000000ULL,
+									0xa000000000000000ULL,
+									0x4000000000000000ULL,
+
+									0, 0, 0, 0, 0, 0, 0, 0}
   };
 
   static const u64 PAWN_CAPTURE_MASK[2][64] = { {
@@ -531,8 +743,12 @@ typedef struct{
 }
 
 using namespace _board;
-
 namespace _memory {
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <sys/mman.h>
+#endif
   void *_mmap ( string fileName );
   void _munmap ( void *blob, int fileSize );
 } namespace _time {
@@ -544,29 +760,45 @@ namespace _memory {
   void replace ( string & f, char c1, char c2 );
 } namespace _file {
   int fileSize ( const string & FileName );
-}
-/*
-namespace _random {
-extern u64** RANDOM_KEY;
-
-void _free();
-void init();
-u64 getRandom();
-}
-*/ namespace _bits {
+  string extractFileName ( string path );
+} namespace _random {
+  void init (  );
+  u64 getRandom64 (  );
+} namespace _bits {
+  extern u64 MASK_BIT_SET[64][64];
+  extern u64 MASK_BIT_SET_NOBOUND[64][64];
+  extern char MASK_BIT_SET_COUNT[64][64];
+  extern char MASK_BIT_SET_NOBOUND_COUNT[64][64];
   extern u64 **LINK_ROOKS;
   void init (  );
   void _free (  );
 
+   template < int side, int shift > __inline static u64 shiftForward ( const u64 bits ) {
+    return side == WHITE ? bits << shift : bits >> shift;
+  }
 #if UINTPTR_MAX == 0xffffffffffffffff
   __inline static int BITScanForward ( u64 bits ) {
     return __builtin_ffsll ( bits ) - 1;
+  }
+
+  __inline static int BITScanReverse ( u64 bits ) {
+    return 63 - __builtin_clzll ( bits );
   }
 #else
   __inline static int BITScanForward ( u64 bits ) {
     return ( ( unsigned ) bits ) ? __builtin_ffs ( bits ) - 1 : __builtin_ffs ( bits >> 32 ) + 31;
   }
+
+  __inline static int BITScanReverse ( u64 bits ) {
+    return ( ( unsigned ) ( bits >> 32 ) ) ? 63 - __builtin_clz ( bits >> 32 ) : 31 - __builtin_clz ( bits );
+  }
 #endif
+
+#ifdef HAS_POPCNT
+  __inline static int bitCount ( u64 bits ) {
+    return __builtin_popcountll ( bits );
+  }
+#else
   __inline static int bitCount ( u64 bits ) {
     int count = 0;
     while ( bits ) {
@@ -575,6 +807,7 @@ u64 getRandom();
     }
     return count;
   }
+#endif
 
 /*
 __inline static int BITScanForward(u128* bits) {
@@ -619,7 +852,36 @@ namespace _eval {
     OPEN, MIDDLE, END
   };
 
-  static const int BONUS_ATTACK_KING[16] = { 0, 0, 8, 16, 32, 64, 128, 256, 512, 512, 512, 512, 512, 512, 512, 512 };
+  static const int MOB_QUEEN[][29] = {
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {-10, -9, -5, 0, 3, 6, 7, 10, 11, 12, 15, 18, 28, 30, 32, 35, 40, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61},
+    {-20, -15, -10, 0, 1, 3, 4, 9, 11, 12, 15, 18, 28, 30, 32, 33, 34, 36, 37, 39, 40, 41, 42, 43, 44, 45, 56, 47, 48}
+  };
+
+  static const int MOB_ROOK[][15] = {
+    {-1, 0, 1, 4, 5, 6, 7, 9, 12, 14, 19, 22, 23, 24, 25},
+    {-9, -8, 1, 8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 51, 52},
+    {-15, -10, -5, 0, 9, 11, 16, 22, 30, 32, 40, 45, 50, 51, 52}
+  };
+
+  static const int MOB_KNIGHT[] = { -8, -4, 7, 10, 15, 20, 30, 35, 40 };
+  static const int MOB_BISHOP[] = { -8, -7, 2, 8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 50, 50 };
+
+  static const int MOB_KING[][9] = {
+    {1, 2, 2, 1, 0, 0, 0, 0, 0},
+    {-5, 0, 5, 5, 5, 0, 0, 0, 0},
+    {-50, -30, -10, 10, 25, 40, 50, 55, 60}
+  };
+
+  static const int MOB_CASTLE[][3] = {
+    {-50, 30, 50},
+    {-1, 10, 10},
+    {0, 0, 0}
+  };
+
+  static const int MOB_PAWNS[] = { -1, 2, 3, 4, 5, 10, 12, 14, 18, 22, 25, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 70, 75, 80, 90, 95, 100, 110 };
+
+  static const int BONUS_ATTACK_KING[] = { -1, 2, 8, 64, 128, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512 };
 
   static const u64 PAWN_PROTECTED_MASK[2][64] = { {
 						   0x200ULL, 0x500ULL, 0xa00ULL, 0x1400ULL,
@@ -720,17 +982,23 @@ namespace _eval {
   };
 
   static const uchar PAWN_PASSED[2][64] = { {
-					     200, 200, 200, 200, 200, 200, 200, 200, 100,
-					     100, 100, 100, 100, 100, 100, 100, 40, 40, 40, 40, 40, 40, 40, 40, 19,
-					     19, 19, 21, 21, 19, 19, 19, 13, 13, 13, 25, 25, 13, 13, 13, 0, 0, 0, 0,
-					     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {
-													   0, 0,
-													   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13,
-													   13, 13, 25, 25, 13, 13, 13, 19, 19, 19, 21, 21, 19, 19, 19, 40, 40, 40,
-													   40, 40, 40, 40, 40, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200,
-													   200, 200, 200, 200, 200, 200}
+					     200, 200, 200, 200, 200, 200, 200, 200,
+					     100, 100, 100, 100, 100, 100, 100, 100,
+					     40, 40, 40, 40, 40, 40, 40, 40,
+					     19, 19, 19, 21, 21, 19, 19, 19,
+					     13, 13, 13, 25, 25, 13, 13, 13,
+					     0, 0, 0, 0, 0, 0, 0, 0,
+					     0, 0, 0, 0, 0, 0, 0, 0,
+					     0, 0, 0, 0, 0, 0, 0, 0}, {
+								       0, 0, 0, 0, 0, 0, 0, 0,
+								       0, 0, 0, 0, 0, 0, 0, 0,
+								       0, 0, 0, 0, 0, 0, 0, 0,
+								       13, 13, 13, 25, 25, 13, 13, 13,
+								       19, 19, 19, 21, 21, 19, 19, 19,
+								       40, 40, 40, 40, 40, 40, 40, 40,
+								       100, 100, 100, 100, 100, 100, 100, 100,
+								       200, 200, 200, 200, 200, 200, 200, 200}
   };
-
 
   static const u64 PAWN_ISOLATED_MASK[64] = {
     0x202020202020202ULL, 0x505050505050505ULL,
@@ -757,25 +1025,28 @@ namespace _eval {
     0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL
   };
 
+  static const char DISTANCE_KING_OPENING[64] = {
+    -8, -8, -8, -8, -8, -8, -8, -8,
+    -8, -8, -8, -8, -8, -8, -8, -8,
+    -8, -8, -12, -12, -12, -12, -8, -8,
+    -8, -8, -12, -16, -16, -12, -8, -8,
+    -8, -8, -12, -16, -16, -12, -8, -8,
+    -8, -8, -12, -12, -12, -12, -8, -8,
+    -8, -8, -8, -8, -8, -8, -8, -8,
+    -8, -8, -8, -8, -8, -8, -8, -8
+  };
+
+  static const char DISTANCE_KING_ENDING[64] = {
+    12, 12, 12, 12, 12, 12, 12, 12,
+    12, 12, 12, 12, 12, 12, 12, 12,
+    12, 12, 16, 16, 16, 16, 12, 12,
+    12, 12, 16, 20, 20, 16, 12, 12,
+    12, 12, 16, 20, 20, 16, 12, 12,
+    12, 12, 16, 16, 16, 16, 12, 12,
+    12, 12, 12, 12, 12, 12, 12, 12,
+    12, 12, 12, 12, 12, 12, 12, 12
+  };
+
 }
-
-
-static const char DISTANCE_KING_OPENING[64] = {
-  -16, -16, -16, -16, -16, -16, -16,
-  -16, -16, -19, -19, -19, -19, -19, -19, -16, -16, -19, -22, -22, -22,
-  -22, -19, -16, -16, -19, -22, -24, -24, -22, -19, -16, -16, -19, -22,
-  -24, -24, -22, -19, -16, -16, -19, -22, -22, -22, -22, -19, -16, -16,
-  -19, -19, -19, -19, -19, -19, -16, -16, -16, -16, -16, -16, -16, -16,
-  -16
-};
-
-static const char DISTANCE_KING_ENDING[64] = {
-  30, 30, 30, 30, 30, 30, 30, 30, 30,
-  32, 32, 32, 32, 32, 32, 30, 30, 32, 34, 34, 34, 34, 32, 30, 30, 32, 34,
-  36, 36, 34, 32, 30, 30, 32, 34, 36, 36, 34, 32, 30, 30, 32, 34, 34, 34,
-  34, 32, 30, 30, 32, 32, 32, 32, 32, 32, 30, 30, 30, 30, 30, 30, 30, 30,
-  30
-};
-
 
 #endif
