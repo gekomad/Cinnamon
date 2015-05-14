@@ -599,6 +599,7 @@ void
 update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int depth ) {
 #ifdef DEBUG_MODE
   assert ( depth );
+  //assert(mossa->from>=0 && mossa->from<64);
 #endif
   memcpy ( &( pline->argmove[0] ), mossa, sizeof ( Tmove ) );
   memcpy ( pline->argmove + 1, line->argmove, line->cmove * sizeof ( Tmove ) );
@@ -606,8 +607,10 @@ update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int dept
   // questa mossa ha causato un taglio, quindi si incrementa il valore
   //di history cosi viene ordinata in alto la prossima volta che la
   //cerchiamo
-  HistoryHeuristic[mossa->from][mossa->to] += ( int ) TABLOG[depth];
-  KillerHeuristic[depth][mossa->from][mossa->to] = ( int ) TABLOG[depth];
+  if ( mossa->from >= 0 ) {
+    HistoryHeuristic[mossa->from][mossa->to] += ( int ) TABLOG[depth];
+    KillerHeuristic[depth][mossa->from][mossa->to] = ( int ) TABLOG[depth];
+  }
 }
 
 int

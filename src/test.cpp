@@ -93,8 +93,8 @@ test_epd ( char *testfile ) {
 
 void
 test (  ) {
-  MAX_TIME_MILLSEC = 120000;
-  MAX_DEPTH_TO_SEARCH = 67;
+  //MAX_TIME_MILLSEC = 120000;
+  //MAX_DEPTH_TO_SEARCH = 67;
   test_epd ( "wac.epd" );
   test_epd ( "sbd.epd" );
   test_epd ( "kaufman.epd" );
