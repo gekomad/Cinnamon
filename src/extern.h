@@ -27,6 +27,7 @@ extern char test_ris[20];
 extern char test_trovato[20];
 extern u64 num_moves_test;
 #endif
+extern unsigned long Index_BitScanForward;
 extern int re_amico[2], st_force, MAX_DEPTH_TO_SEARCH, HASH_SIZE, supplementary_mill_sec;
 extern u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 extern char mply, black_move;
@@ -34,7 +35,7 @@ extern int MAX_TIME_MILLSEC, winbtime, list_id, xboard, maxdep, incremental_move
 extern int attacco, evaluateMobility_mode, null_sem;
 extern u64 n_cut_hash;
 extern char *BITCOUNT;
-extern int pos_re[1];
+extern int pos_king[1];
 extern int pvv_da, pvv_a, path_pvv;
 extern int DO_QUIES, FLG_WIN_WHITE, FLG_WIN_BLACK, FLG_DRAW;
 extern int enpas, run, ob_count, fine_apertura1, mate;

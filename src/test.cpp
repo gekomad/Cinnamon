@@ -310,7 +310,7 @@ zobr (  ) {
   for ( t1 = 0; t1 < tt; t1++ )
     for ( int t = 0; t < 64; t++ )
       for ( int i = 1; i < 12; i++ ) {
-	ii += shift32 ( zobrist_key[t][i] );
+	ii += shr32 ( zobrist_key[t][i] );
       }
 
   ftime ( &end );

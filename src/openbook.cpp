@@ -228,7 +228,7 @@ load_open_book (  ) {
     return 0;
   }
 
-  s = fread ( openbook, 1, OPENBOOK_SIZE * sizeof ( Topenbook ), F );
+  s = ( long ) fread ( openbook, 1, OPENBOOK_SIZE * sizeof ( Topenbook ), F );
   if ( s != ( long ) ( OPENBOOK_SIZE * sizeof ( Topenbook ) ) ) {
     printf ( "\nerror" );
     free ( openbook );

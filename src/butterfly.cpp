@@ -13,7 +13,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-//indent -br -l400
+
 #include "winboard.h"
 #ifdef _MSC_VER
 #include "windows.h"
@@ -67,7 +67,8 @@ int evaluateMobility_mode, null_sem, supplementary_mill_sec;
 u64 n_cut_hash;
 char *BITCOUNT = NULL;
 
-int pos_re[1];
+int pos_king[1];
+unsigned long Index_BitScanForward;
 int attacco, re_amico[2];
 int pvv_da, pvv_a, path_pvv;
 int DO_QUIES, FLG_WIN_WHITE, FLG_WIN_BLACK, FLG_DRAW;
@@ -141,8 +142,8 @@ do_perft (  ) {
   assert ( list_id < MAX_PLY );
 #endif
   list_id = 0;
-  re_amico[side] = BitScanForward ( chessboard[KING_BLACK + side] );
-  re_amico[side ^ 1] = BitScanForward ( chessboard[KING_BLACK + ( side ^ 1 )] );
+  re_amico[side] = BITScanForward ( chessboard[KING_BLACK + side] );
+  re_amico[side ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( side ^ 1 )] );
   generateCap ( STANDARD, side );
   generateMoves ( STANDARD, side );
 
@@ -200,63 +201,60 @@ do_perft (  ) {
   //}
 }
 #else
-
+/*
 void
-do_movexxx ( int side ) {
+do_movexxx ( int side ) {	
   struct timeb start1;
   int alpha = -_INFINITE;
   int beta = _INFINITE;
-  LINE line;
-  int val;
-
-
+  LINE line;  
+  int val;  
+  
+  
   run = 1;
   mply = 1;
-  int score;
-  ftime ( &start_time );
-  init (  );
+  int score;  
+  ftime ( &start_time ); 
+  init (  ); 
   while ( run ) {
     ftime ( &start1 );
     initialply = mply;
-
-
+   
+	
     ++mply;
 
     printf ( "\nply: %d ................................................", mply );
 
-    list_id = 0;
-    gen_list[list_id][0].score = 0;
-    num_moves2 = 0;
-    max_depth_quies = 0;
-    generateCap ( STANDARD, side );
-    generateMoves ( STANDARD, side );
-    int listcount = gen_list[list_id][0].score;
-    Tmove *mossa;
-    if ( listcount ) {
-      int ii;
-      for ( ii = 1; ii <= listcount; ii++ ) {
-	mossa = &gen_list[list_id][ii];
-	makemove ( mossa );
-	alpha = -_INFINITE;
-	beta = _INFINITE;
-	//print();                      
-	val = -ael ( side ^ 1, mply, -beta, -alpha, &line );
-	printf ( "\n%s %s %d", decodeBoardinv ( mossa->from, mossa->side ), decodeBoardinv ( mossa->to, mossa->side ), val );
-	takeback ( mossa );
-
-	run = still_time (  );
-	if ( !run ) {
-	  printf ( "\nnnnnnnnnnn" );
-	  break;
-	}
-	score = -_INFINITE;
-	memcpy ( &result_move, &mossa, sizeof ( Tmove ) );
-      }
+	list_id=0;
+	gen_list[list_id][0].score=0;
+	num_moves2 = 0;
+	max_depth_quies = 0;
+	generateCap ( STANDARD, side );
+	generateMoves ( STANDARD, side );
+	int listcount = gen_list[list_id][0].score;
+	Tmove *mossa;
+	if ( listcount ) {
+		int ii;		
+		for ( ii = 1; ii <= listcount; ii++ ) {
+			mossa = &gen_list[list_id][ii];				
+			makemove ( mossa );
+			 alpha = -_INFINITE;
+			beta = _INFINITE;
+			//print();			
+			val = -ael ( side^1, mply, -beta,-alpha, &line );
+			printf("\n%s %s %d",decodeBoardinv ( mossa->from,  mossa->side ),decodeBoardinv (  mossa->to,  mossa->side ),val);
+			takeback ( mossa );
+   
+			run = still_time (  );
+			if(!run){printf("\nnnnnnnnnnn");break;}
+			score = -_INFINITE;
+			memcpy ( &result_move, &mossa, sizeof ( Tmove ) );
+      }  
     }
   }
-
+  
 }
-
+*/
 
 void
 do_move ( int side ) {
@@ -308,7 +306,6 @@ do_move ( int side ) {
 	return;
       }
     }
-    //if (!retry)
     ++mply;
 #ifdef DEBUG_MODE
     printf ( "\nply: %d ...", mply );
@@ -511,7 +508,11 @@ dispose (  ) {
 }
 
 void
-start ( int argc, char *argv[] ) {
+start (
+#ifdef PERFT_MODE
+	 int argc, char *argv[]
+#endif
+   ) {
   int t;
   num_tot_moves = 0;
 #ifndef PERFT_MODE
@@ -603,9 +604,20 @@ start ( int argc, char *argv[] ) {
 }
 
 int
-main ( int argc, char *argv[] ) {
-
-  start ( argc, argv );
+main ( int argc, char *argv[] ) {	//0x5d20d128d3ff0f40ULL
+  /*int a=BITScanForward2(0x5d20d128d3ff0f40ULL);
+     int b=BITScanForward(0x5d20d128d3ff0f40ULL);
+     for(int i=0;i<13;i++)
+     for(int i1=0;i1<64;i1++){
+     int a=BITScanForward2(zobrist_key[i][i1]);
+     int b=BITScanForward(zobrist_key[i][i1]);
+     printf("\n%I64u %d %d",zobrist_key[i][i1],a,b);
+     } */
+  start (
+#ifdef PERFT_MODE
+	   argc, argv
+#endif
+     );
   FEN_STACK.count = 0;
   printf ( "\nPERFT" );
 #ifdef PERFT_MODE
@@ -669,7 +681,7 @@ main ( int argc, char *argv[] ) {
   if ( argc == 3 )
     loadfen ( argv[2] );
   print (  );
-  mply = atoi ( argv[1] ) - 1;
+  mply = ( char ) atoi ( argv[1] ) - 1;
   printf ( "\nthink...\n" );
   do_perft (  );
 #endif

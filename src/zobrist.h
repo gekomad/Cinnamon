@@ -31,14 +31,14 @@ makeZobristKey (  ) {
   u64 result = 0, x2;
   x2 = ~square_all_bit_occupied (  );
   while ( x2 ) {
-    position = BitScanForward ( x2 );
+    position = BITScanForward ( x2 );
     result ^= zobrist_key[12][position];
     x2 &= NOTTABLOG[position];
   }
   for ( i = 0; i < 12; i++ ) {
     x2 = chessboard[i];
     while ( x2 ) {
-      position = BitScanForward ( x2 );
+      position = BITScanForward ( x2 );
       result ^= zobrist_key[i][position];
       x2 &= NOTTABLOG[position];
     }
@@ -111,7 +111,7 @@ FORCEINLINE u64 makeZobristKey_pawn(){
   for (int i = 0;i < 4;i++){  //PAWNS e torri
      x2=chessboard[i];
      while(x2){
-			position = BitScanForward(x2); 
+			position = BITScanForward(x2); 
 			result ^= zobrist_key[position][i];
 			x2 &= NOTTABLOG[position];      
      }

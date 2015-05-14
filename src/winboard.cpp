@@ -65,8 +65,8 @@ char *dummy;
 
 void
 writeWinboard ( char *msg ) {
-  if ( strlen ( msg ) != 0 && msg[1] != 'O' )
-    msg = lowercase ( msg );
+  //if ( strlen ( msg ) != 0 && msg[1] != 'O' )
+  // msg = lowercase ( msg );
   for ( unsigned t = 0; t < strlen ( msg ); t++ ) {
     fprintf ( stdout, "%c", msg[t] );
   };
@@ -368,10 +368,8 @@ listner_winboard ( void *uuua )
       if ( tt[3] == '8' ) {
 	result_move.side = WHITE;
 	black_move = 1;
-
       }
       else {
-
 	result_move.side = BLACK;
 	black_move = 0;
       }

@@ -1,6 +1,6 @@
 CPP  = g++
-OBJ  = cap.o checkmove.o eval.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o
-LINKOBJ  = cap.o checkmove.o eval.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o
+OBJ  = cap.o eval.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o
+LINKOBJ  = cap.o eval.o butterfly.o gen.o openbook.o search.o test.o utility.o winboard.o
 LIBS =  -lpthread 
 BIN  = butterfly
 CXXFLAGS = -DNULL_MOVEx -DFP_MODEx -DPERFT_MODEx -DHASH_MODEx -DHAS_64BITSx -DTEST_MODEx -DDEBUG_MODEx  -w  -fno-strict-aliasing -O3
@@ -19,9 +19,6 @@ $(BIN): $(OBJ)
 
 cap.o: cap.cpp
 	$(CPP) -c cap.cpp -o cap.o $(CXXFLAGS)
-
-checkmove.o: checkmove.cpp
-	$(CPP) -c checkmove.cpp -o checkmove.o $(CXXFLAGS)
 
 eval.o: eval.cpp
 	$(CPP) -c eval.cpp -o eval.o $(CXXFLAGS)

@@ -93,7 +93,7 @@ checkJumpPawn ( const int tipomove, const u64 sc, const int SIDE, const u64 XALL
     TT = 16;
   };
   while ( x ) {
-    o = BitScanForward ( x );
+    o = BITScanForward ( x );
 
     pushmove ( tipomove, o + TT, o, SIDE );
     x &= NOTTABLOG[o];
@@ -114,7 +114,7 @@ performTowerQueenShift ( const int tipomove, const int pezzo, const int SIDE, co
   assert ( x2 != 0 );
 #endif
   while ( x2 ) {
-    pos = BitScanForward ( x2 );
+    pos = BITScanForward ( x2 );
     if ( ( ORIZZ_BOUND[pos] & ALLPIECES ) != ORIZZ_BOUND[pos] )
       xx = MOVIMENTO_MASK_MOV[( uchar ) ( ALLPIECES >> ( pos_posMod8[pos] ) )][pos];
     if ( ( VERT_BOUND[pos] & ALLPIECES ) != VERT_BOUND[pos] ) {
@@ -124,7 +124,7 @@ performTowerQueenShift ( const int tipomove, const int pezzo, const int SIDE, co
       xx |= inv_raw90MOV[rotate_board_90 ( ALLPIECES, pos )][pos];
     }
     while ( xx ) {
-      o = BitScanForward ( xx );
+      o = BITScanForward ( xx );
       pushmove ( tipomove, pos, o, SIDE );
       xx &= NOTTABLOG[o];
     };
@@ -141,7 +141,7 @@ performBishopShift ( const int tipomove, const int pezzo, const int SIDE, const 
   int o, position;
   x2 = chessboard[pezzo];
   while ( x2 ) {
-    position = BitScanForward ( x2 );
+    position = BITScanForward ( x2 );
     if ( ( LEFT_BOUND[position] & ALLPIECES ) != LEFT_BOUND[position] ) {
 #ifdef DEBUG_MODE
       assert ( rotate_board_left_45 ( ALLPIECES, position ) != 0 );
@@ -174,7 +174,7 @@ performBishopShift ( const int tipomove, const int pezzo, const int SIDE, const 
 #endif
     }
     while ( x ) {
-      o = BitScanForward ( x );
+      o = BITScanForward ( x );
 #ifdef DEBUG_MODE
       assert ( position != -1 );
       assert ( o != -1 );
@@ -236,7 +236,7 @@ performPawnShift ( const int tipomove, const int SIDE, const u64 XALLPIECES ) {
   };
   x &= XALLPIECES;
   while ( x ) {
-    o = BitScanForward ( x );
+    o = BITScanForward ( x );
 #ifdef DEBUG_MODE
     assert ( get_piece_at ( SIDE, TABLOG[o + tt] ) != SQUARE_FREE );
     assert ( square_bit_occupied ( SIDE ) & TABLOG[o + tt] );

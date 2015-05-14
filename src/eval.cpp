@@ -33,15 +33,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "openbook.h"
 int
-evaluateMobility ( const int tipo ) {
-  //return 0;
+evaluateMobility ( const int type ) {
   evaluateMobility_mode = 1;
   list_id++;
 #ifdef DEBUG_MODE
   assert ( list_id < MAX_PLY );
 #endif
-  generateCap ( STANDARD, tipo );
-  generateMoves ( STANDARD, tipo );
+  generateCap ( STANDARD, type );
+  generateMoves ( STANDARD, type );
   int listcount = gen_list[list_id][0].score;
   if ( listcount == -1 )
     listcount = 0;
@@ -52,25 +51,25 @@ evaluateMobility ( const int tipo ) {
 };
 
 void
-open_column ( const int side, const u64 ALLPIECES, u64 torri_amiche, const u64 PAWNS_enemies ) {
+open_column ( const int side, const u64 ALLPIECES, u64 friends_rooks, const u64 PAWNS_enemies ) {
 #ifdef DEBUG_MODE
   check_side ( side );
 #endif
   int o;
   u64 u;
-  while ( torri_amiche ) {
-    o = BitScanForward ( torri_amiche );
-    if ( ( u = ( VERTICAL[o] & ALLPIECES ) ) == ( VERTICAL[o] & torri_amiche ) )
-      evalNode.open_column[side] |= TABLOG[o];
-    else if ( u == ( VERTICAL[o] & torri_amiche & PAWNS_enemies ) )
+  while ( friends_rooks ) {
+    o = BITScanForward ( friends_rooks );
+    if ( ( u = ( VERTICAL[o] & ALLPIECES ) ) == ( VERTICAL[o] & friends_rooks ) )
+      evalNode.open_column[side] |= TABLOG[o];	//TABLOG[n] == pow(2,n)
+    else if ( u == ( VERTICAL[o] & friends_rooks & PAWNS_enemies ) )
       evalNode.semi_open_column[side] |= TABLOG[o];
-    torri_amiche &= NOTTABLOG[o];
+    friends_rooks &= NOTTABLOG[o];
   };
 }
 
 
 int
-evaluate_pawn ( const int side, u64 ped_friends, const u64 ped_enemies, const u64 pezzi_enemies, const int pos_re_amico ) {
+evaluate_pawn ( const int side, u64 ped_friends, const u64 ped_enemies, const u64 pieces_enemies, const int pos_friend_king ) {
 #ifdef DEBUG_MODE
   check_side ( side );
 #endif
@@ -104,13 +103,13 @@ evaluate_pawn ( const int side, u64 ped_friends, const u64 ped_enemies, const u6
   }
 
   while ( ped_friends ) {
-    oo = BitScanForward ( ped_friends );
+    oo = BITScanForward ( ped_friends );
 
-    evalNode.king_security[side] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][oo] ) );	// / ( VALUEPAWN / ( BitCount ( calcola_attaccanti ( oo, side ^ 1 ) ) + 1 ) ) );
+    evalNode.king_security[side] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_friend_king][oo] ) );	// / ( VALUEPAWN / ( BitCount ( calcola_attaccanti ( oo, side ^ 1 ) ) + 1 ) ) );
 
 
     /////////////////////////
-    //if ((FORK_PAWN_PATTERN[side][oo] & pezzi_enemies)==FORK_PAWN_PATTERN[side][oo])
+    //if ((FORK_PAWN_PATTERN[side][oo] & pieces_enemies)==FORK_PAWN_PATTERN[side][oo])
     //      print();
     /////isolato //nelle colonne  adiacenti non ha PAWNS ped_friends
     if ( !( ped_friends & ISOLATED_MASK[oo] ) ) {
@@ -138,13 +137,13 @@ evaluate_pawn ( const int side, u64 ped_friends, const u64 ped_enemies, const u6
 	result -= BACKWARD_OPEN_PAWN;
     }
     /////////forchetta
-    if ( BitCount ( pezzi_enemies & evalNode.attaccate[oo] ) == 2 )
+    if ( BitCount ( pieces_enemies & evalNode.attaccate[oo] ) == 2 )
       result += FORK_SCORE;
 
-    /////////passato  //un pawn che non ha PAWNS avversari che possano impedirne la marcia verso la promozione ne sulla stessa colonna ne su quelle adiacenti
+    /////////passato  //un pawn che non ha PAWNS enemies che possano impedirne la marcia verso la promozione ne sulla stessa colonna ne su quelle adiacenti
 
-    if ( !( ped_enemies & PASSATO_MASK[side][oo] ) )
-      result += PAWN_PUSH * ( PASSATO[side][oo] );
+    if ( !( ped_enemies & PASSED_MASK[side][oo] ) )
+      result += PAWN_PUSH * ( PASSED[side][oo] );
 
     ped_friends &= NOTTABLOG[oo];
   };
@@ -157,27 +156,27 @@ evaluate_pawn ( const int side, u64 ped_friends, const u64 ped_enemies, const u6
 
 
 int
-evaluate_bishop ( const int tipo, const u64 adiacente_re_nemico, const u64 pezzi_enemies, const int pos_re_amico ) {
+evaluate_bishop ( const int type, const u64 near_friend_king, const u64 pieces_enemies, const int pos_friend_king ) {
   //mobilita
   //intrappolato
   //spazio
   //re nemico
-  //pezzi attaccati
+  //pieces attaccati
   //2 alfieri
 
   //fianchetto di fronte al re arroccato TODO
   int o, result = 0, mob;
-  u64 x = chessboard[BISHOP_BLACK + tipo];
+  u64 x = chessboard[BISHOP_BLACK + type];
   if ( END_OPEN && BitCount ( x ) > 1 )
     result += BONUS2BISHOP;
   while ( x ) {
-    o = BitScanForward ( x );
+    o = BITScanForward ( x );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
-    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) );	// / ( VALUEBISHOP / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
+    evalNode.king_security[type] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_friend_king][o] ) );	// / ( VALUEBISHOP / ( BitCount ( calcola_attaccanti ( o, type ^ 1 ) ) + 1 ) ) );
 
     /////////////////////////
-    if ( tipo ) {
+    if ( type ) {
       if ( o & ORIZZONTAL_0 )
 	result -= UNDEVELOPED;
       if ( ( o == D3 || o == E3 ) && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
@@ -189,7 +188,7 @@ evaluate_bishop ( const int tipo, const u64 adiacente_re_nemico, const u64 pezzi
       if ( ( o == D6 || o == E6 ) && get_piece_at ( BLACK, TABLOG[o - 8] ) == BLACK )
 	result -= BLOCK_PAWNS;
     }
-    if ( evalNode.re_attaccato[o] )
+    if ( evalNode.king_attacked[o] )
       result += ( BISHOP_ATTACK );
     mob = BitCount ( evalNode.attaccate[o] );
     if ( !mob )
@@ -201,8 +200,8 @@ evaluate_bishop ( const int tipo, const u64 adiacente_re_nemico, const u64 pezzi
 	result += OPEN_FILE;	//diagonale aperta
 
       result += MOB * mob;
-      result += BitCount ( pezzi_enemies & evalNode.attaccate[o] );
-      if ( adiacente_re_nemico & evalNode.attaccate[o] )
+      result += BitCount ( pieces_enemies & evalNode.attaccate[o] );
+      if ( near_friend_king & evalNode.attaccate[o] )
 	result += NEAR_XKING;
     }
     result += SPACE * ( DISTANCE_BISHOP[o] );
@@ -213,16 +212,16 @@ evaluate_bishop ( const int tipo, const u64 adiacente_re_nemico, const u64 pezzi
 };
 
 int
-evaluate_queen ( const int tipo, u64 queen, const int pos_re_nemico, const u64 ped_enemies, const u64 pezzi_enemies, const u64 ALLPIECES, const int pos_re_amico ) {
+evaluate_queen ( const int type, u64 queen, const int pos_enemy_king, const u64 ped_enemies, const u64 pieces_enemies, const u64 ALLPIECES, const int pos_friend_king ) {
   int o, mob, result = 0;
   while ( queen ) {
 
-    o = BitScanForward ( queen );
+    o = BITScanForward ( queen );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
-    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) );	/// ( VALUEQUEEN / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
+    evalNode.king_security[type] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_friend_king][o] ) );	/// ( VALUEQUEEN / ( BitCount ( calcola_attaccanti ( o, type ^ 1 ) ) + 1 ) ) );
     /////////////////////////
-    if ( tipo ) {
+    if ( type ) {
       if ( ( o == D3 || o == E3 ) && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
 	result -= BLOCK_PAWNS;
     }
@@ -234,37 +233,37 @@ evaluate_queen ( const int tipo, u64 queen, const int pos_re_nemico, const u64 p
       result += HALF_OPEN_FILE_Q;
     if ( ( VERTICAL[o] & ALLPIECES ) == TABLOG[o] )
       result += OPEN_FILE_Q;
-    if ( evalNode.re_attaccato[o] )
+    if ( evalNode.king_attacked[o] )
       result += ( QUEEN_ATTACK );
     if ( !( mob = BitCount ( evalNode.attaccate[o] ) ) )
       result -= QUEEN_TRAPPED;
     else {
       result += MOB * mob;
-      result += BitCount ( pezzi_enemies & evalNode.attaccate[o] );
+      result += BitCount ( pieces_enemies & evalNode.attaccate[o] );
     }
-    if ( LEFT_RIGHT[o] & chessboard[BISHOP_BLACK + tipo] )
+    if ( LEFT_RIGHT[o] & chessboard[BISHOP_BLACK + type] )
       result += BISHOP_ON_QUEEN;
     if ( END_OPEN )
-      result -= DIST_XKING * ( DISTANCE[o][pos_re_nemico] );
+      result -= DIST_XKING * ( DISTANCE[o][pos_enemy_king] );
     queen &= NOTTABLOG[o];
   };
   return result;
 };
 
 int
-evaluate_knight ( const int tipo, const int pos_re_amico, const int pos_re_nemico, const u64 pezzi_enemies, const u64 ped_enemies ) {
+evaluate_knight ( const int type, const int pos_friend_king, const int pos_enemy_king, const u64 pieces_enemies, const u64 ped_enemies ) {
   int mob, o, result = 0, ped_attaccanti = 0;
 
-  u64 x = chessboard[KNIGHT_BLACK + tipo];
+  u64 x = chessboard[KNIGHT_BLACK + type];
   while ( x ) {
 
-    o = BitScanForward ( x );
+    o = BITScanForward ( x );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
-    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) );	// / ( VALUEKNIGHT / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
+    evalNode.king_security[type] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_friend_king][o] ) );	// / ( VALUEKNIGHT / ( BitCount ( calcola_attaccanti ( o, type ^ 1 ) ) + 1 ) ) );
     /////////////////////////
     /* Don't block in central pawns */
-    if ( tipo ) {
+    if ( type ) {
       if ( o & ORIZZONTAL_0 )
 	result -= UNDEVELOPED;
       if ( ( o == D3 || o == E3 ) && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
@@ -276,19 +275,19 @@ evaluate_knight ( const int tipo, const int pos_re_amico, const int pos_re_nemic
       if ( ( o == D6 || o == E6 ) && get_piece_at ( BLACK, TABLOG[o - 8] ) == BLACK )
 	result -= BLOCK_PAWNS;
     }
-    if ( evalNode.re_attaccato[o] )
+    if ( evalNode.king_attacked[o] )
       result += ( KNIGHT_ATTACK );
     if ( !( mob = BitCount ( evalNode.attaccate[o] ) ) )
       result -= KNIGHT_TRAPPED;
     else {
       result += MOB * mob;
-      result += BitCount ( pezzi_enemies & evalNode.attaccate[o] );
+      result += BitCount ( pieces_enemies & evalNode.attaccate[o] );
     }
-    result -= DIST_XKING * ( DISTANCE[o][pos_re_amico] );
+    result -= DIST_XKING * ( DISTANCE[o][pos_friend_king] );
     result += SPACE * ( DISTANCE_KNIGHT[o] );
-    result -= DIST_XKING * ( DISTANCE[o][pos_re_nemico] );
+    result -= DIST_XKING * ( DISTANCE[o][pos_enemy_king] );
 
-    ped_attaccanti += BitCount ( PAWN_CAPTURE_MASK[tipo][o] & ped_enemies );
+    ped_attaccanti += BitCount ( PAWN_CAPTURE_MASK[type][o] & ped_enemies );
 
     x &= NOTTABLOG[o];
   };
@@ -297,16 +296,16 @@ evaluate_knight ( const int tipo, const int pos_re_amico, const int pos_re_nemic
 };
 
 int
-evaluate_king ( const int side, const u64 queen_nemica, const u64 PAWNS_friends, const int pos_re, const u64 pezzi_friends, const u64 pezzi_enemies ) {
+evaluate_king ( const int side, const u64 enemy_queen, const u64 PAWNS_friends, const int pos_king, const u64 pieces_friends, const u64 pieces_enemies ) {
 #ifdef DEBUG_MODE
   check_side ( side );
 #endif
   int result, col;
   if ( END_OPEN )
-    result = SPACE * ( DISTANCE_RE_CLOSURE[pos_re] );
+    result = SPACE * ( DISTANCE_RE_CLOSURE[pos_king] );
   else
-    result = SPACE * ( DISTANCE_RE_OPENING[pos_re] );
-  col = ( int ) TABLOG[get_column[pos_re]];
+    result = SPACE * ( DISTANCE_RE_OPENING[pos_king] );
+  col = ( int ) TABLOG[get_column[pos_king]];
   if ( !END_OPEN && ( ( evalNode.open_column[side] & col | evalNode.semi_open_column[side] & col ) || ( ( col <= 15 && col > 1 ) && ( evalNode.open_column[side] & ( col >> 1 ) | evalNode.semi_open_column[side] & ( col >> 1 ) ) ) || ( ( col != 128 ) && ( evalNode.open_column[side] & ( col << 1 ) | evalNode.semi_open_column[side] & ( col << 1 ) ) ) ) )
     result -= END_OPENING;
 
@@ -316,29 +315,29 @@ evaluate_king ( const int side, const u64 queen_nemica, const u64 PAWNS_friends,
      same quadrant, the side is penalised the difference multiplied by five.
      When considering enemy presence in the quadrant a queen is counted as
      three pieces. */
-  int diff = BitCount ( QUADRANTS[pos_re] & pezzi_enemies ) - BitCount ( QUADRANTS[pos_re] & pezzi_friends );
+  int diff = BitCount ( QUADRANTS[pos_king] & pieces_enemies ) - BitCount ( QUADRANTS[pos_king] & pieces_friends );
   if ( diff > 0 ) {
     result -= ENEMY_NEAR_KING * diff;
-    if ( QUADRANTS[pos_re] & queen_nemica )
+    if ( QUADRANTS[pos_king] & enemy_queen )
       result -= XQUEEN_NEAR_KING;
   }
 
-  if ( !( KING_MASK[pos_re] & PAWNS_friends ) )
+  if ( !( KING_MASK[pos_king] & PAWNS_friends ) )
     result -= PAWN_NEAR_KING;
   result += evalNode.king_security[side];
   result += evalNode.king_attak[side] / 2;
-  if ( !( col = BitCount ( evalNode.attaccate[pos_re] ) ) )
+  if ( !( col = BitCount ( evalNode.attaccate[pos_king] ) ) )
     result -= KING_TRAPPED;
   else
     result += MOB * col;
   /*non muovereil re se non per l'arrocco */
-  //if (!CASTLE_DONE[SIDE] && (SIDE && pos_re!=3 || !SIDE && pos_re!=59))
+  //if (!CASTLE_DONE[SIDE] && (SIDE && pos_king!=3 || !SIDE && pos_king!=59))
   //result -= BONUS_CASTLE;
   return result;
 };
 
 int
-evaluate_rook ( const int tipo, const u64 ped_friends, const u64 ped_enemies, const int pos_re_nemico, const u64 all_pieces, const int pos_re_amico ) {
+evaluate_rook ( const int type, const u64 ped_friends, const u64 ped_enemies, const int pos_enemy_king, const u64 all_pieces, const int pos_friend_king ) {
   //mobile su piu di 11 case
   //2 torri collegate
   //colonna aperta
@@ -350,30 +349,30 @@ evaluate_rook ( const int tipo, const u64 ped_friends, const u64 ped_enemies, co
 
   int mob, o, result = 0;
 
-  u64 x = chessboard[ROOK_BLACK + tipo];
+  u64 x = chessboard[ROOK_BLACK + type];
   if ( !x )
     return 0;
-  int da = -1;
-  int a = -1;
+  int from = -1;
+  int to = -1;
   while ( x ) {
 
     if ( END_OPEN ) {
-      if ( tipo && x & ORIZZONTAL_8 )
+      if ( type && x & ORIZZONTAL_8 )
 	result += ROOK_7TH_RANK;
-      if ( !tipo && x & ORIZZONTAL_48 )
+      if ( !type && x & ORIZZONTAL_48 )
 	result += ROOK_7TH_RANK;
     }
-    o = BitScanForward ( x );
+    o = BITScanForward ( x );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
-    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) );	/// ( VALUEROOK / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
+    evalNode.king_security[type] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_friend_king][o] ) );	/// ( VALUEROOK / ( BitCount ( calcola_attaccanti ( o, type ^ 1 ) ) + 1 ) ) );
     /////////////////////////
-    if ( da == -1 )
-      da = o;
+    if ( from == -1 )
+      from = o;
     else
-      a = o;
+      to = o;
     mob = BitCount ( evalNode.attaccate[o] );
-    if ( evalNode.re_attaccato[o] )
+    if ( evalNode.king_attacked[o] )
       result += ( ROOK_ATTACK );
 
     if ( !mob )
@@ -388,7 +387,7 @@ evaluate_rook ( const int tipo, const u64 ped_friends, const u64 ped_enemies, co
     if ( !( ped_enemies & VERTICAL[o] ) )
       result += OPEN_FILE;
     if ( END_OPEN )
-      result -= DIST_XKING * ( DISTANCE[o][pos_re_nemico] );
+      result -= DIST_XKING * ( DISTANCE[o][pos_enemy_king] );
 
     /* Penalise if Rook is Blocked Horizontally */
 
@@ -400,18 +399,18 @@ evaluate_rook ( const int tipo, const u64 ped_friends, const u64 ped_enemies, co
     x &= NOTTABLOG[o];
   };
 
-  if ( a != -1 && ( !( LINK_ROOKS[da][a] & all_pieces ) ) )
+  if ( to != -1 && ( !( LINK_ROOKS[from][to] & all_pieces ) ) )
     result += CONNECTED_ROOKS;
   return result;
 };
 
 int
-passed_and_space ( const int tipo, u64 PAWNS, const u64 avversari ) {
-  //un pawn che non ha PAWNS avversari che possano impedirne la marcia verso la promozione ne sulla stessa colonna ne su quelle adiacenti
+passed_and_space ( const int type, u64 PAWNS, const u64 enemies ) {
+  //un pawn che non ha PAWNS enemies che possano impedirne la marcia verso la promozione ne sulla stessa colonna ne su quelle adiacenti
   // 2/7 traversa
 
   int oo, result = 0;
-  if ( tipo ) {
+  if ( type ) {
     result += PAWN_7H * BitCount ( PAWNS & ORIZZONTAL_48 );
     result -= BitCount ( PAWNS & 0x181800 );
   }
@@ -421,9 +420,9 @@ passed_and_space ( const int tipo, u64 PAWNS, const u64 avversari ) {
   }
 
   while ( PAWNS ) {
-    oo = BitScanForward ( PAWNS );
-    if ( !( avversari & PASSATO_MASK[tipo][oo] ) )
-      result += PASSATO[tipo][oo];
+    oo = BITScanForward ( PAWNS );
+    if ( !( enemies & PASSED_MASK[type][oo] ) )
+      result += PASSED[type][oo];
     PAWNS &= NOTTABLOG[oo];
   };
   return result;
@@ -432,15 +431,15 @@ passed_and_space ( const int tipo, u64 PAWNS, const u64 avversari ) {
 
 /*
 int
-piece_attack ( const int side, u64 all, const int pos_re ) {
+piece_attack ( const int side, u64 all, const int pos_king ) {
 #ifdef DEBUG_MODE
   check_side ( side );
 #endif
   return 0;
   int o, result = 0;
   while ( all ) {
-    o = BitScanForward ( all );
-    if ( o != pos_re )
+    o = BITScanForward ( all );
+    if ( o != pos_king )
       result += See ( o, side ) / VALUEPAWN;
     all &= NOTTABLOG[o];
   };
@@ -498,8 +497,8 @@ eval ( const int SIDE
       return _INFINITE;
 
   u64 ALLPIECES = square_all_bit_occupied (  );
-  int pos_black_king = BitScanForward ( chessboard[KING_BLACK] );
-  int pos_white_king = BitScanForward ( chessboard[KING_WHITE] );
+  int pos_black_king = BITScanForward ( chessboard[KING_BLACK] );
+  int pos_white_king = BITScanForward ( chessboard[KING_WHITE] );
 
 #ifdef DEBUG_MODE
   assert ( pos_black_king != -1 );
@@ -570,7 +569,7 @@ eval ( const int SIDE
 
 
 
-  /*TODO muovere la queen dopo lo sviluppo dei pezzi minori
+  /*TODO muovere la regina dopo lo sviluppo dei pieces minori
    */
 
   if ( SIDE )

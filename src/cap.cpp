@@ -51,11 +51,9 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
   };
   x &= enemies;
   while ( x ) {
-    o = BitScanForward ( x );
-    if ( o > 55 || o < 8 ) {	//PROMOTION
-      //int pezzoda=get_piece_at(o + GG);
+    o = BITScanForward ( x );
+    if ( o > 55 || o < 8 ) {	//PROMOTION     
       if ( SIDE == WHITE && o > 55 || SIDE == BLACK && o < 8 ) {
-
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, QUEEN_BLACK + SIDE ) )
 	  return 1;		//queen
 #ifdef PERFT_MODE
@@ -85,7 +83,7 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
   };
   x &= enemies;
   while ( x ) {
-    o = BitScanForward ( x );	//TODO duplicato?
+    o = BITScanForward ( x );
     if ( o > 55 || o < 8 ) {	//PROMOTION
       if ( SIDE == WHITE && o > 55 || SIDE == BLACK && o < 8 ) {
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, QUEEN_BLACK + SIDE ) )
@@ -112,7 +110,7 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
     else
       to = ENP_POSSIBILE - 8;
     while ( x ) {
-      o = BitScanForward ( x );
+      o = BITScanForward ( x );
       if ( pushmove ( ENPASSANT, o, to, SIDE ) )
 	return 1;
       x &= NOTTABLOG[o];
@@ -134,7 +132,7 @@ performTowerQueenCapture ( const int tipomove, const int pezzo, const u64 enemie
   assert ( x2 != 0 );
 #endif
   while ( x2 ) {
-    pos = BitScanForward ( x2 );
+    pos = BITScanForward ( x2 );
 #ifdef DEBUG_MODE
     assert ( pos != -1 );
 #endif
@@ -146,7 +144,7 @@ performTowerQueenCapture ( const int tipomove, const int pezzo, const u64 enemie
       xx |= enemies & inv_raw90CAT[rotate_board_90 ( ALLPIECES, pos )][pos];
     }
     while ( xx ) {
-      o = BitScanForward ( xx );
+      o = BITScanForward ( xx );
       if ( pushmove ( tipomove, pos, o, SIDE ) )
 	return 1;
       xx &= NOTTABLOG[o];
@@ -165,7 +163,7 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
   int o, position;
   x2 = chessboard[pezzo];
   while ( x2 ) {
-    position = BitScanForward ( x2 );
+    position = BITScanForward ( x2 );
     if ( enemies & LEFT[position] ) {
       /////left
 #ifdef DEBUG_MODE
@@ -202,7 +200,7 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
     };
 
     while ( x ) {
-      o = BitScanForward ( x );
+      o = BITScanForward ( x );
 #ifdef DEBUG_MODE
       assert ( position != -1 );
       assert ( o != -1 );	//print();
@@ -222,7 +220,7 @@ performBishopCapture ( const int tipomove, const int pezzo, const u64 enemies, c
 };
 
 int
-performKnight_Shift_Capture ( const int tipomove, const int pezzo, const u64 pezzi, const int SIDE ) {
+performKnight_Shift_Capture ( const int tipomove, const int pezzo, const u64 pieces, const int SIDE ) {
 #ifdef DEBUG_MODE
   check_side ( SIDE );
 #endif
@@ -230,10 +228,10 @@ performKnight_Shift_Capture ( const int tipomove, const int pezzo, const u64 pez
   int o, pos;
   x = chessboard[pezzo];
   while ( x ) {
-    pos = BitScanForward ( x );
-    x1 = pezzi & KNIGHT_MASK[pos];
+    pos = BITScanForward ( x );
+    x1 = pieces & KNIGHT_MASK[pos];
     while ( x1 ) {
-      o = BitScanForward ( x1 );
+      o = BITScanForward ( x1 );
       if ( pushmove ( tipomove, pos, o, SIDE ) )
 	return 1;
       x1 &= NOTTABLOG[o];
@@ -244,19 +242,19 @@ performKnight_Shift_Capture ( const int tipomove, const int pezzo, const u64 pez
 };
 
 int
-performKing_Shift_Capture ( const int tipomove, const int pezzo, const u64 pezzi, const int SIDE ) {
+performKing_Shift_Capture ( const int tipomove, const int pezzo, const u64 pieces, const int SIDE ) {
 #ifdef DEBUG_MODE
   check_side ( SIDE );
 #endif
   u64 x1;
   int o, pos;
-  pos = BitScanForward ( chessboard[pezzo] );
+  pos = BITScanForward ( chessboard[pezzo] );
 #ifdef DEBUG_MODE
   assert ( pos != -1 );
 #endif
-  x1 = pezzi & KING_MASK[pos];
+  x1 = pieces & KING_MASK[pos];
   while ( x1 ) {
-    o = BitScanForward ( x1 );
+    o = BITScanForward ( x1 );
     if ( pushmove ( tipomove, pos, o, SIDE ) )
       return 1;
     x1 &= NOTTABLOG[o];

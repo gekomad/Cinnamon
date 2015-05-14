@@ -42,12 +42,16 @@ Depth 	Perft(Depth) 	Total Nodes
 10 		69352859712417 		71880708959936
                         
 */
-
 //indent -br -l1000 -nce -cdw -cli0 -cbi0 -prs -sai -saf -di1 -nbc -brs -brf -bli0  *.cpp *.h
 //xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "5rk1/1ppb3p/p1pb4/6q1/3P1p1r/2P1R2P/PP1BQ1P1/5RKN w - - bm "
+//#define INITIAL_FEN "rnbqkb1r/ppppppp1/5n1p/8/2PP4/4P3/PP3PPP/RNBQKBNR b KQkq - 0 4  "
+
+
+
+#define BITScanForward( bits ) (_BitScanForward(&Index_BitScanForward,(unsigned long)bits)?Index_BitScanForward:(_BitScanForward(&Index_BitScanForward,shr32(bits))?Index_BitScanForward+32:0))
+
 
 #define debugfile "out.log"
 #define _INFINITE 2147483646
@@ -56,8 +60,7 @@ typedef unsigned __int64 u64;
 #define FORCEINLINE __forceinline
 #else
 #define FORCEINLINE __inline
-#define longlong long long unsigned
-typedef longlong u64;
+typedef long long unsigned u64;
 #endif
 typedef unsigned char uchar;
 #ifndef PERFT_MODE
@@ -114,7 +117,7 @@ typedef unsigned char uchar;
 
 
 #define MAX_MOVE   90
-#define MAX_PLY   32
+#define MAX_PLY   64
 
 
 #define SQUARE_FREE   12
@@ -201,13 +204,13 @@ const int PIECES_VALUE[13] = {
 
 #define max_pieces_per_side(tipo) (BitCount(square_bit_occupied(tipo)))
 
-#define in_check()(attack_square(BLACK,BitScanForward (chessboard[KING_BLACK ])) ? 1:(attack_square(WHITE,BitScanForward (chessboard[KING_WHITE])) ? 1:0))
+#define in_check()(attack_square(BLACK,BITScanForward (chessboard[KING_BLACK ])) ? 1:(attack_square(WHITE,BITScanForward (chessboard[KING_WHITE])) ? 1:0))
 #define R_adpt(tipo,depth) (2+((depth) > (3+((max_pieces_per_side(tipo)<3)?2:0))))
 #define null_ok(depth,side)((null_sem) ? 0:(depth < 3 ?0:(max_pieces_per_side(side) < 4 ? 0:1)))
 
 #define square_all_bit_occupied() (chessboard[PAWN_BLACK]|chessboard[ROOK_BLACK]|chessboard[BISHOP_BLACK]|chessboard[KNIGHT_BLACK]|chessboard[KING_BLACK]|chessboard[QUEEN_BLACK]|chessboard[PAWN_WHITE]|chessboard[ROOK_WHITE]|chessboard[BISHOP_WHITE]|chessboard[KNIGHT_WHITE]|chessboard[KING_WHITE]|chessboard[QUEEN_WHITE])
 
-#define shift32(b) (((unsigned*)&b)[1])
+#define shr32(b) (((unsigned*)&b)[1])
 
 #define make_extension()(((chessboard[WHITE] & ORIZZONTAL_48)||(chessboard[BLACK] & ORIZZONTAL_8))? 1: 0)
 #ifdef DEBUG_MODE
@@ -278,7 +281,7 @@ struct TopenbookLeaf {
 typedef struct EvalTag {
   char open_column[2];
   char semi_open_column[2];
-  char re_attaccato[64];
+  char king_attacked[64];
   int king_attak[2];
   int king_security[2];
   u64 isolated;

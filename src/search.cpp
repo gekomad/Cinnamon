@@ -1,18 +1,18 @@
-	/*
-	   Copyright (C) 2008-2010
-	   This program is free software: you can redistribute it and/or modify
-	   it under the terms of the GNU General Public License as published by
-	   the Free Software Foundation, either version 3 of the License, or
-	   (at your option) any later version.
+/*
+Copyright (C) 2008-2010
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-	   This program is distributed in the hope that it will be useful,
-	   but WITHOUT ANY WARRANTY; without even the implied warranty of
-	   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	   GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-	   You should have received a copy of the GNU General Public License
-	   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-	 */
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "maindefine.h"
 #include "stdafx.h"
@@ -28,7 +28,7 @@
 #include "extern.h"
 #ifndef PERFT_MODE
 int
-quiescence ( int alpha, const int side, int beta, const int depth, LINE * pline ) {
+quiescence ( int alpha, const int side, int beta ) {
 #ifdef DEBUG_MODE
   check_side ( side );
   assert ( chessboard[KING_BLACK] );
@@ -40,39 +40,24 @@ quiescence ( int alpha, const int side, int beta, const int depth, LINE * pline 
   assert ( chessboard[KING_BLACK] );
   assert ( chessboard[KING_WHITE] );
 #endif
-  LINE line;
+
   int score = -_INFINITE;
-  line.cmove = 0;
-  if ( !( num_movesq & 1023 ) )
-    run = still_time (  );
-  if ( !run )
-    return score;
+  if ( !( num_movesq++ & 1023 ) )
+    if ( !( run = still_time (  ) ) )
+      return score;
   int i, xside, listcount;
   Tmove *mossa;
-#ifdef DEBUG_MODE
-  ++num_movesq;
-#endif
   u64 key = 0;
   if ( use_book )
     key = makeZobristKey (  );
-  if ( depth == 0 ) {
-    return eval ( side
-#ifdef FP_MODE
-		  , alpha, beta
-#endif
-		  , key );
-  };
   score = eval ( side
 #ifdef FP_MODE
 		 , alpha, beta
 #endif
 		 , key );
   if ( score >= beta ) {
-    return eval ( side
-#ifdef FP_MODE
-		  , alpha, beta
-#endif
-		  , key );
+    //return score;
+    return beta;
   }
   xside = side ^ 1;
   if ( score > alpha )
@@ -83,56 +68,36 @@ quiescence ( int alpha, const int side, int beta, const int depth, LINE * pline 
   assert ( list_id < MAX_PLY );
 #endif
   if ( generateCap ( STANDARD, side ) ) {
-    gen_list[list_id][0].score = 0;
-    --list_id;
+    gen_list[list_id--][0].score = 0;
     return _INFINITE;
   }
   listcount = gen_list[list_id][0].score;
   if ( !listcount ) {
     --list_id;
-    pline->cmove = 0;
-    return eval ( side
-#ifdef FP_MODE
-		  , alpha, beta
-#endif
-		  , key );
-    /*if ( !attack_square ( side, BitScanForward ( chessboard[KING_BLACK + side] ) ) )  //TODO 
-       return 0;
-       return score; */
+    return score;
   }
   //qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );  
 #ifdef DEBUG_MODE
   controlloRipetizioni ( gen_list[list_id], listcount );
 #endif
-  /*for (i = 1; i <= listcount; i++)
-     {
-     mossa = &gen_list[list_id][i];               
-     if (mossa->to == BitScanForward (chessboard[KING_BLACK + xside]))                      
-     {assert(0);
-     gen_list[list_id][0].score = 0;
-     --list_id;
-     return _INFINITE;
-     }
-     } */
+
   for ( i = 1; i <= listcount; i++ ) {
     mossa = &gen_list[list_id][i];
     makemove ( mossa );
-    score = -quiescence ( -beta, xside, -alpha, depth - 1, &line );
+    score = -quiescence ( -beta, xside, -alpha );
     takeback ( mossa );
+    if ( score >= beta ) {
+      gen_list[list_id--][0].score = 0;
+      //if ( score == _INFINITE )
+      //      update_pv ( pline, &line, mossa, 0 );
+      return beta;
+    }
     if ( score > alpha ) {
-      if ( score >= beta ) {
-	gen_list[list_id][0].score = 0;
-	--list_id;
-	if ( score == _INFINITE )
-	  update_pv ( pline, &line, mossa, depth );
-	return beta;
-      }
-      update_pv ( pline, &line, mossa, depth );
+      //update_pv ( pline, &line, mossa, 0 );
       alpha = score;
     }
   }
-  gen_list[list_id][0].score = 0;
-  --list_id;
+  gen_list[list_id--][0].score = 0;
   return alpha;
 }
 #endif
@@ -196,21 +161,21 @@ ael ( const int SIDE, int depth
 #ifndef PERFT_MODE
   LINE line;
 #endif
-  if ( depth == 0 || depth >= MAX_PLY ) {
+  if ( depth == 0 ) {
 #ifdef PERFT_MODE
     ++n_perft;
     return 0;
 #else
-    if ( 1 ) {
-      score = eval ( SIDE
-#ifdef FP_MODE
-		     , alpha, beta
-#endif
-		     , key );
-    }
-    else {
-      score = quiescence ( alpha, SIDE, beta, 32, &line );
-    }
+    /* if (0 ) {
+       score = eval ( SIDE
+       #ifdef FP_MODE
+       , alpha, beta
+       #endif
+       , key );
+       }
+       else { */
+    score = quiescence ( alpha, SIDE, beta );
+    //}
 
 #ifdef HASH_MODE
     RecordHash ( mply, hashfEXACT, SIDE, key, score );
@@ -312,7 +277,7 @@ ael ( const int SIDE, int depth
   int ii, listcount;
   //********* null move ***********
 #ifdef NULL_MODE
-  if ( !path_pvv && null_ok ( depth, SIDE ) && !attack_square ( SIDE, BitScanForward ( chessboard[KING_BLACK + SIDE] ) ) ) {
+  if ( !path_pvv && null_ok ( depth, SIDE ) && !attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) ) ) {
     null_sem = 1;
     int null_score = -ael ( SIDE ^ 1, depth - R_adpt ( SIDE, depth ) - 1, -beta, -beta + 1,
 			    &line );
@@ -341,19 +306,18 @@ ael ( const int SIDE, int depth
   assert ( list_id < MAX_PLY );
 #endif
 
-  re_amico[SIDE] = BitScanForward ( chessboard[KING_BLACK + SIDE] );
-  re_amico[SIDE ^ 1] = BitScanForward ( chessboard[KING_BLACK + ( SIDE ^ 1 )] );
+  re_amico[SIDE] = BITScanForward ( chessboard[KING_BLACK + SIDE] );
+  re_amico[SIDE ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( SIDE ^ 1 )] );
 
   if ( generateCap ( STANDARD, SIDE ) ) {
-    gen_list[list_id][0].score = 0;
-    --list_id;
+    gen_list[list_id--][0].score = 0;
     return _INFINITE;
   }
   generateMoves ( STANDARD, SIDE );
   listcount = gen_list[list_id][0].score;
   if ( !listcount ) {
     --list_id;
-    /*if (!attack_square(side,BitScanForward (chessboard[KING_BLACK+side ])))       {
+    /*if (!attack_square(side,BITScanForward (chessboard[KING_BLACK+side ])))       {
        #ifdef DEBUG_MODE
        //   printf("\n **** PATTA ****");
        //   print();
@@ -369,8 +333,7 @@ ael ( const int SIDE, int depth
     return -_INFINITE;
   }
 #ifndef PERFT_MODE
-  // qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );
-
+  //qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );
 #endif
 #ifdef DEBUG_MODE
   controlloRipetizioni ( gen_list[list_id], listcount );
@@ -378,17 +341,7 @@ ael ( const int SIDE, int depth
 #ifdef PERFT_MODE
   listcount_n++;
 #endif
-#ifndef PERFT_MODE
-  for ( ii = 1; ii <= listcount; ii++ ) {
-    mossa = &gen_list[list_id][ii];
-    if ( mossa->to == re_amico[SIDE ^ 1] ) {
-      gen_list[list_id][0].score = 0;
-      --list_id;
-      update_pv ( pline, &line, mossa, depth );
-      return _INFINITE;
-    }
-  }
-#endif
+
   for ( ii = 1; ii <= listcount; ii++ ) {
     mossa = &gen_list[list_id][ii];
     makemove ( mossa );
@@ -416,8 +369,7 @@ ael ( const int SIDE, int depth
     takeback ( mossa );
     mossa->score = score;
     if ( score >= beta ) {
-      gen_list[list_id][0].score = 0;
-      --list_id;
+      gen_list[list_id--][0].score = 0;
 #ifdef DEBUG_MODE
       assert ( mossa->score == score );
       n_cut++;
@@ -428,8 +380,10 @@ ael ( const int SIDE, int depth
       RecordHash ( ( char ) ( mply - depth ), hashfBETA, SIDE, key, beta );
 #endif
       ///// mate
-      if ( score == _INFINITE )
+      if ( score == _INFINITE ) {
+
 	update_pv ( pline, &line, mossa, depth );
+      }
       /////
       return score;
     }
@@ -439,12 +393,12 @@ ael ( const int SIDE, int depth
 #ifdef HASH_MODE
       hashf = hashfEXACT;
 #endif
+
       update_pv ( pline, &line, mossa, depth );
     }
 #endif
   }
-  gen_list[list_id][0].score = 0;
-  --list_id;
+  gen_list[list_id--][0].score = 0;
 #ifdef HASH_MODE
   //if (hashf != hashfEXACT)bestmove=score;
   //RecordHash (mply-depth,  hashf, side, key,bestmove);

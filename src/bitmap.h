@@ -2537,7 +2537,7 @@ const u64 BACKWARD_MASK[2][64] = {
    0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0}
 };
 
-const u64 PASSATO_MASK[2][64] = {
+const u64 PASSED_MASK[2][64] = {
   {0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x3ULL,
    0x7ULL, 0xeULL, 0x1cULL, 0x38ULL, 0x70ULL,
    0xe0ULL, 0xc0ULL, 0x303ULL, 0x707ULL,
@@ -2937,7 +2937,7 @@ const char DISTANCE_RE_CLOSURE[64] = {
   30, 30, 30, 30, 30, 30, 30, 30
 };
 
-const char PASSATO[2][64] = {
+const char PASSED[2][64] = {
   {
    0, 0, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 0, 0,

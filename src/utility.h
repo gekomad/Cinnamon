@@ -19,12 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma warning( disable : 4127 )
 #pragma warning( disable : 4706 )
 #pragma warning( disable : 4996 )
+#pragma warning( disable : 4530 )
+
 
 #ifndef UTILITY_H
 #define UTILITY_H
+#include <iostream>
+#include <bitset>
+#include <limits>
 
 #include <stdio.h>
-
+#if defined  _MSC_VER
+#include <intrin.h>
+#endif
 #include <stdlib.h>
 #include <math.h>
 #include "maindefine.h"
@@ -102,7 +109,7 @@ FORCEINLINE u64
 shl7 ( const u64 ss ) {
   unsigned s1 = ( unsigned ) ss;
   u64 x = s1 << 7;
-  ( ( unsigned * ) ( &x ) + 1 )[0] = ( shift32 ( ss ) << 7 ) | ( s1 >> 25 );
+  ( ( unsigned * ) ( &x ) + 1 )[0] = ( shr32 ( ss ) << 7 ) | ( s1 >> 25 );
   return x;
 }
 
@@ -110,7 +117,7 @@ FORCEINLINE u64
 shl9 ( const u64 ss ) {
   unsigned s1 = ( unsigned ) ss;
   u64 x = s1 << 9;
-  ( ( unsigned * ) ( &x ) + 1 )[0] = ( shift32 ( ss ) << 9 ) | ( s1 >> 23 );
+  ( ( unsigned * ) ( &x ) + 1 )[0] = ( shr32 ( ss ) << 9 ) | ( s1 >> 23 );
   return x;
 }
 
@@ -118,13 +125,13 @@ FORCEINLINE u64
 shl8 ( const u64 ss ) {
   unsigned s1 = ( unsigned ) ss;
   u64 x = s1 << 8;
-  ( ( unsigned * ) ( &x ) + 1 )[0] = ( shift32 ( ss ) << 8 ) | ( s1 >> 24 );
+  ( ( unsigned * ) ( &x ) + 1 )[0] = ( shr32 ( ss ) << 8 ) | ( s1 >> 24 );
   return x;
 }
 
 FORCEINLINE u64
 shr8 ( const u64 ss ) {
-  unsigned s2 = shift32 ( ss );
+  unsigned s2 = shr32 ( ss );
   u64 x = ( ( ( unsigned ) ss ) >> 8 ) | ( s2 << 24 );
   ( ( unsigned * ) ( &x ) + 1 )[0] = ( s2 >> 8 );
   return x;
@@ -132,7 +139,7 @@ shr8 ( const u64 ss ) {
 
 FORCEINLINE u64
 shr9 ( const u64 ss ) {
-  unsigned s2 = shift32 ( ss );
+  unsigned s2 = shr32 ( ss );
   u64 x = ( ( ( unsigned ) ss ) >> 9 ) | ( s2 << 23 );
   ( ( unsigned * ) ( &x ) + 1 )[0] = ( s2 >> 9 );
   return x;
@@ -140,7 +147,7 @@ shr9 ( const u64 ss ) {
 
 FORCEINLINE u64
 shr7 ( const u64 bits ) {
-  unsigned s2 = shift32 ( bits );
+  unsigned s2 = shr32 ( bits );
   u64 x = ( ( ( unsigned ) bits ) >> 7 ) | ( s2 << 25 );
   ( ( unsigned * ) ( &x ) + 1 )[0] = ( s2 >> 7 );
   return x;
@@ -151,25 +158,21 @@ shr ( const u64 bits, const int N ) {
   if ( !N )
     return bits;
   if ( N < 32 ) {
-    unsigned s2 = shift32 ( bits );
+    unsigned s2 = shr32 ( bits );
     u64 x = ( ( ( unsigned ) bits ) >> N ) | ( s2 << ( 32 - N ) );
     ( ( unsigned * ) ( &x ) + 1 )[0] = ( s2 >> N );
     return x;
   }
-  u64 x = shift32 ( bits ) >> ( N - 32 );
+  u64 x = shr32 ( bits ) >> ( N - 32 );
   return x;
 }
 
-FORCEINLINE int
-BitScanForward ( u64 bits ) {
-  return magictable[( ( ( unsigned * ) &( bits = ( bits & -bits ) * 0x0218a392cd3d5dbfULL ) )[1] ) >> 26];
-}
 
 FORCEINLINE int
 BitCount ( const u64 bits ) {
 
   unsigned lo = ( unsigned ) bits;
-  unsigned hi = shift32 ( bits );
+  unsigned hi = shr32 ( bits );
   int result = 0;
   if ( lo ) {
     result = BITCOUNT[( unsigned short ) lo] + BITCOUNT[lo >> 16];
@@ -184,7 +187,7 @@ BitCount ( const u64 bits ) {
 }
 
 #else
-
+//hash64bits
 FORCEINLINE int
 BitCount ( const u64 bits ) {
   u64 dummy, dummy2, dummy3;
@@ -200,14 +203,25 @@ asm ( "xorq %0, %0" "\n\t" " testq   %1, %1" "\n\t" " jz 2f" "\n\t" "1: leaq -1(
 #define shr7(ss) (ss>>7)
 #define shr(ss,N) (ss>>N)
 
-
-
-FORCEINLINE int
-BitScanForward ( u64 bits ) {
-  return magictable[( ( bits & -bits ) * 0x0218a392cd3d5dbf ) >> 58];
-}
 #endif
 
+#ifndef  _MSC_VER
+FORCEINLINE int
+BITScanForward ( u64 bits ) {
+  return magictable[( ( ( unsigned * ) &( bits = ( bits & -bits ) * 0x0218a392cd3d5dbfULL ) )[1] ) >> 26];
+}
+#else
+#ifdef HAS_64BITS
+FORCEINLINE int
+BITScanForward ( u64 bits ) {
+  unsigned long Index;
+  _BitScanForward64 ( &Index, ( __int64 ) bits );
+  return Index;
+}
+#else
+
+#endif
+#endif
 #ifndef PERFT_MODE
 /*
 FORCEINLINE int
@@ -245,8 +259,8 @@ recognizer ()
     return 0;
   if (cn == 0 && cb == 0 && (ab == 1 && an == 1))
     {
-      int b = BitScanForward (chessboard[BISHOP_WHITE]);
-      int n = BitScanForward (chessboard[BISHOP_BLACK]);
+      int b = BITScanForward (chessboard[BISHOP_WHITE]);
+      int n = BITScanForward (chessboard[BISHOP_BLACK]);
       if (COLORS[b] == COLORS[n])
 	return 0;
     }
@@ -262,7 +276,7 @@ uchar rotate_board_left_45 ( const u64, const int );
 uchar rotate_board_right_45 ( const u64, const int );
 uchar rotate_board_90 ( const u64, const int );
 u64 rotate_board_right_45_inv_mov ( const u64 ss, const int pos );
-char *lowercase ( char *a );
+//char *lowercase ( char *a );
 char *trim ( char *str );
 
 #endif

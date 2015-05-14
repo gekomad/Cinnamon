@@ -28,9 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "extern.h"
 #include "zobrist.h"
 #include "search.h"
-
-/*int
-compare_move ( const void *a, const void *b ) {
+/*
+int compare_move ( const void *a, const void *b ) {
   Tmove *arg1 = ( Tmove * ) a;
   Tmove *arg2 = ( Tmove * ) b;
   if ( arg1->score < arg2->score )
@@ -39,6 +38,7 @@ compare_move ( const void *a, const void *b ) {
     return 0;
   else
     return 1;
+  
 }*/
 
 int
@@ -102,7 +102,7 @@ primo++;
 c = 0;
 while (attaccanti){
 c = 1;
-t = BitScanForward (attaccanti);
+t = BITScanForward (attaccanti);
 rr = get_piece_at (xside, TABLOG[t]);
 #ifdef DEBUG_MODE
 assert (rr != SQUARE_FREE);
@@ -119,7 +119,7 @@ difensori=calcola_attaccanti (a, xside);
 c = 0;
 while (difensori){
 c = 1;
-t = BitScanForward (difensori);
+t = BITScanForward (difensori);
 rr = get_piece_at (coloreAttaccato, TABLOG[t]);
 #ifdef DEBUG_MODE
 assert (rr != SQUARE_FREE);
@@ -197,14 +197,14 @@ i >>= 1;
 }
 return k;
 }
-*/
+
 char *
 lowercase ( char *a ) {
   for ( unsigned t = 0; t < strlen ( a ); t++ )
     a[t] = ( char ) tolower ( a[t] );
   return a;
 }
-
+*/
 char *
 trim ( char *str ) {
   char *s, *dst, *last = NULL;
@@ -252,7 +252,7 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
   //return;
   //if(attack_square (SIDE, re_amico))
   //  print();
-  ///int re=BitScanForward(chessboard[KING_BLACK+XSIDE]);re_nemico
+  ///int re=BITScanForward(chessboard[KING_BLACK+XSIDE]);re_nemico
 #ifndef PERFT_MODE
   if ( evaluateMobility_mode ) {
     if ( da >= 0 ) {		//TODO gestire arrocco
@@ -266,7 +266,7 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
       evalNode.king_attak[SIDE] += DISTANCE[re_amico[SIDE ^ 1]][a];
 
       if ( ( TABLOG[a] & chessboard[KING_BLACK + SIDE] ) )
-	evalNode.re_attaccato[da] = 1;
+	evalNode.king_attacked[da] = 1;
       evalNode.attaccanti[a] |= TABLOG[da];
 #ifdef DEBUG_MODE
       assert ( gen_list[list_id][0].score < MAX_MOVE );
@@ -414,8 +414,7 @@ attack_square ( const int side, const int Position ) {
   assert ( rotate_board_left_45 ( ALLPIECES, Position ) != 0 );
   assert ( rotate_board_left_45 ( ALLPIECES, Position ) == ( rotate_board_left_45 ( ALLPIECES, Position ) & MOVES_BISHOP_LEFT_MASK[Position] ) );
 #endif
-  if ( MOVIMENTO_MASK_CAT[rotate_board_left_45 ( ALLPIECES, Position )][Position_mod_8] & ( rotate_board_left_45 ( chessboard[BISHOP_BLACK + ( xside )],	//TODO ridurre
-														   Position ) | rotate_board_left_45 ( chessboard[QUEEN_BLACK + xside], Position ) ) )
+  if ( MOVIMENTO_MASK_CAT[rotate_board_left_45 ( ALLPIECES, Position )][Position_mod_8] & ( rotate_board_left_45 ( chessboard[BISHOP_BLACK + ( xside )], Position ) | rotate_board_left_45 ( chessboard[QUEEN_BLACK + xside], Position ) ) )
     return 1;
 
   /*right \ */
@@ -424,8 +423,7 @@ attack_square ( const int side, const int Position ) {
   assert ( rotate_board_right_45 ( ALLPIECES, Position ) != -1 );
   assert ( rotate_board_right_45 ( ALLPIECES, Position ) == ( uchar ) ( rotate_board_right_45 ( ALLPIECES, Position ) & MOVES_BISHOP_RIGHT_MASK[Position] ) );
 #endif
-  if ( MOVIMENTO_MASK_CAT[rotate_board_right_45 ( ALLPIECES, Position ) | TABLOG[Position_mod_8]][Position_mod_8] & ( rotate_board_right_45 ( chessboard[BISHOP_BLACK + ( xside )],	//TODO ridurre
-																	      Position ) | rotate_board_right_45 ( chessboard[QUEEN_BLACK + ( xside )], Position ) ) )
+  if ( MOVIMENTO_MASK_CAT[rotate_board_right_45 ( ALLPIECES, Position ) | TABLOG[Position_mod_8]][Position_mod_8] & ( rotate_board_right_45 ( chessboard[BISHOP_BLACK + ( xside )], Position ) | rotate_board_right_45 ( chessboard[QUEEN_BLACK + ( xside )], Position ) ) )
     return 1;
 
   if ( MOVIMENTO_MASK_CAT[rotate_board_90 ( ALLPIECES, Position )][ROT45ROT_90_MASK[Position]] & ( ( rotate_board_90 ( chessboard[ROOK_BLACK + xside], Position ) | rotate_board_90 ( chessboard[QUEEN_BLACK + xside], Position ) ) ) )
@@ -458,7 +456,7 @@ inCheck ( const int da, const int a, const int tipo, const int pezzoda, const in
     assert ( chessboard[KING_BLACK] );
     assert ( chessboard[KING_WHITE] );
 #endif
-    result = attack_square ( SIDE, BitScanForward ( chessboard[KING_BLACK + SIDE] ) );
+    result = attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) );
 
     chessboard[pezzoda] = da1;
     if ( pezzoa != SQUARE_FREE )
@@ -466,7 +464,7 @@ inCheck ( const int da, const int a, const int tipo, const int pezzoda, const in
   }
   else if ( tipo == CASTLE ) {
     make_castle ( da, a );	//a=SIDE
-    result = attack_square ( a, BitScanForward ( chessboard[KING_BLACK + a] ) );
+    result = attack_square ( a, BITScanForward ( chessboard[KING_BLACK + a] ) );
 
     un_make_castle ( da, a );
   }
@@ -477,7 +475,7 @@ inCheck ( const int da, const int a, const int tipo, const int pezzoda, const in
     chessboard[pezzoda] &= NOTTABLOG[da];
     chessboard[pezzoa] &= NOTTABLOG[a];
     chessboard[promotion_piece] = chessboard[promotion_piece] | TABLOG[a];
-    result = attack_square ( SIDE, BitScanForward ( chessboard[KING_BLACK + SIDE] ) );
+    result = attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) );
     chessboard[pezzoa] = a1;
     chessboard[pezzoda] = da1;
     chessboard[promotion_piece] = p1;
@@ -492,7 +490,7 @@ inCheck ( const int da, const int a, const int tipo, const int pezzoda, const in
       chessboard[SIDE ^ 1] &= NOTTABLOG[a - 8];
     else
       chessboard[SIDE ^ 1] &= NOTTABLOG[a + 8];
-    result = attack_square ( SIDE, BitScanForward ( chessboard[KING_BLACK + SIDE] ) );
+    result = attack_square ( SIDE, BITScanForward ( chessboard[KING_BLACK + SIDE] ) );
 
     chessboard[pezzoa] = a1;
     chessboard[pezzoda] = da1;
@@ -664,6 +662,9 @@ decodeBoardinv ( const int a, const int side ) {
 #ifndef PERFT_MODE
 void
 update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int depth ) {
+#ifdef DEBUG_MODE
+  assert ( depth );
+#endif
   memcpy ( &( pline->argmove[0] ), mossa, sizeof ( Tmove ) );
   memcpy ( pline->argmove + 1, line->argmove, line->cmove * sizeof ( Tmove ) );
   pline->cmove = line->cmove + 1;
@@ -1280,9 +1281,9 @@ loadfen ( char *ss ) {
      SIDE = WHITE;
      } */
 
-  re_amico[black_move] = BitScanForward ( chessboard[KING_BLACK + black_move] );
+  re_amico[black_move] = BITScanForward ( chessboard[KING_BLACK + black_move] );
 
-  re_amico[black_move ^ 1] = BitScanForward ( chessboard[KING_BLACK + ( black_move ^ 1 )] );
+  re_amico[black_move ^ 1] = BITScanForward ( chessboard[KING_BLACK + ( black_move ^ 1 )] );
 
   init (  );
   return !black_move;
@@ -1298,7 +1299,7 @@ rotate_board_left_45 ( const u64 ss, const int pos ) {
 #include "rotate_board_left_45_64bit.txt"
 #else
   unsigned s1 = ( unsigned ) ss;
-  unsigned s2 = shift32 ( ss );
+  unsigned s2 = shr32 ( ss );
 #include "rotate_board_left_45_32bit.txt"
 #endif
   return result;
@@ -1314,7 +1315,7 @@ rotate_board_right_45 ( const u64 ss, const int pos ) {
 #include "rotate_board_right_45_64bit.txt"
 #else
   unsigned s1 = ( unsigned ) ss;
-  unsigned s2 = shift32 ( ss );
+  unsigned s2 = shr32 ( ss );
 
 #include "rotate_board_right_45_32bit.txt"
 #endif
@@ -1333,7 +1334,7 @@ rotate_board_90 ( u64 ss, const int pos ) {
 #include "rotate_board_90_64bit.txt"
 #else
   unsigned s1 = ( unsigned ) ss;
-  unsigned s2 = shift32 ( ss );
+  unsigned s2 = shr32 ( ss );
 
 #include "rotate_board_90_32bit.txt"
 #endif
@@ -1483,7 +1484,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
     //myassert (0, "errord");
   }
   if ( c == 1 )
-    *from = BitScanForward ( attaccanti );
+    *from = BITScanForward ( attaccanti );
   else {
     *from = -1;
     /*  if (strlen (fen) == 2)
@@ -1507,7 +1508,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
     try_locked = 0;
     attaccanti2 = attaccanti;
     while ( attaccanti ) {
-      o = BitScanForward ( attaccanti );
+      o = BITScanForward ( attaccanti );
       if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column ) && TABLOG[o] & column ) {
 	if ( *from != -1 ) {
 	  try_locked = 1;
@@ -1521,7 +1522,7 @@ fen2pos ( char *fen, int *from, int *to, int SIDE, u64 key ) {
     };
     if ( try_locked )
       while ( attaccanti ) {
-	o = BitScanForward ( attaccanti );
+	o = BITScanForward ( attaccanti );
 	if ( ( pezzo_da == -1 || pezzo_da != -1 && chessboard[pezzo_da] & TABLOG[o] & column ) && TABLOG[o] & column && !is_locked ( o, get_piece_at ( SIDE, TABLOG[o] ), SIDE ) ) {
 	  if ( *from != -1 ) {
 	    printf ( "\nambiguous, skip " );
