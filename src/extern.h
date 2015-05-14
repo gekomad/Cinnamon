@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008
+Copyright (C) 2008-2010
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -25,11 +25,12 @@ extern int euristic_pruning, EvalCuts;
 #ifdef TEST_MODE
 extern char test_ris[20];
 extern char test_trovato[20];
+extern u64 num_moves_test;
 #endif
-extern int re_amico[2], MAX_TIME_MILLSEC, st_force, MAX_DEPTH_TO_SEARCH, HASH_SIZE, supplementary_mill_sec;
+extern int re_amico[2], st_force, MAX_DEPTH_TO_SEARCH, HASH_SIZE, supplementary_mill_sec;
 extern u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 extern char mply, black_move;
-extern int winbtime, list_id, xboard, maxdep, incremental_move, force;
+extern int MAX_TIME_MILLSEC, winbtime, list_id, xboard, maxdep, incremental_move, force;
 extern int attacco, evaluateMobility_mode, null_sem;
 extern u64 n_cut_hash;
 extern char *BITCOUNT;
@@ -59,8 +60,8 @@ extern Thash *hash_array[2];
 #endif
 #ifndef PERFT_MODE
 
-extern int HistoryHeuristic[64][64];
-extern int KillerHeuristic[MAX_PLY][64][64];
+//extern int HistoryHeuristic[64][64];
+//extern int KillerHeuristic[MAX_PLY][64][64];
 extern int main_depth;
 extern TopenbookLeaf *openbook_tree;
 extern Teval evalNode;

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008
+Copyright (C) 2008-2010
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -30,66 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "LIMITS.H"
 #endif
 #include "extern.h"
-#include "swapoff.h"
 #include "openbook.h"
-/*
-int attack_square (const int side, const int Position,int tipo)
-{
-/*
-tipo:
-ORIZZONTAL 1
-VERTICAL 2
-LEFT 3
-RIGHT 4
-*/
-/*
-int Position_Position_mod_8, xside;
-char Position_mod_8;
-
-xside = side ^ 1;
-Position_mod_8 = ROT45[Position];
-Position_Position_mod_8 = pos_posMod8[Position];
-
-if(tipo==1){//ORIZZONTAL
-if (MOVIMENTO_MASK_CAT[(uchar) ((shr (ALLPIECES, Position_Position_mod_8)))][Position_mod_8] &
-(shr (chessboard[ROOK_BLACK + (xside)], Position_Position_mod_8) & 255 |
-shr (chessboard[QUEEN_BLACK + (xside)],
-Position_Position_mod_8) & 255)){
-return 1;
-}
-return 0;
-}
-
-//left
-if(tipo==3){//LEFT
-if (MOVIMENTO_MASK_CAT[rotate_board_left_45 (ALLPIECES, Position)][Position_mod_8] &
-(rotate_board_left_45 (chessboard[BISHOP_BLACK + (xside)],Position)
-|rotate_board_left_45 (chessboard[QUEEN_BLACK+(xside)], Position))){
-return 1;
-}
-return 0;
-}
-
-/*right \ */
-/*  if(tipo==4){
-if (MOVIMENTO_MASK_CAT[rotate_board_right_45 (ALLPIECES, Position) | TABLOG[Position_mod_8]][Position_mod_8] & (rotate_board_right_45 (chessboard[BISHOP_BLACK + (xside)],	//TODO ridurre
-Position)| rotate_board_right_45
-(chessboard[QUEEN_BLACK +(xside)],Position))){
-return 1;
-}
-return 0;
-}
-if(tipo==4){//VERTICAL
-if (MOVIMENTO_MASK_CAT[rotate_board_90 (ALLPIECES, Position)][ROT45ROT_90_MASK[Position]] & (rotate_board_90 (chessboard[ROOK_BLACK + (xside)], Position) |
-rotate_board_90 (chessboard[QUEEN_BLACK + (xside)],	Position))){
-return 1;
-}return 0;
-}
-return 0;
-}
-
-
-*/
 
 void
 make_castle ( const int da, const int SIDE ) {
@@ -303,10 +244,13 @@ performPawnShift ( const int tipomove, const int SIDE, const u64 XALLPIECES ) {
     if ( o > 55 || o < 8 ) {
       //int pezzoda=get_piece_at(o + tt);
       if ( SIDE == WHITE && o > 55 || SIDE == BLACK && o < 8 ) {
-	pushmove ( PROMOTION, o + tt, o, SIDE, ROOK_BLACK + SIDE );	//rock
+
 	pushmove ( PROMOTION, o + tt, o, SIDE, QUEEN_BLACK + SIDE );	//queen
+#ifdef PERFT_MODE
 	pushmove ( PROMOTION, o + tt, o, SIDE, KNIGHT_BLACK + SIDE );	//knight
 	pushmove ( PROMOTION, o + tt, o, SIDE, BISHOP_BLACK + SIDE );	//bishop
+	pushmove ( PROMOTION, o + tt, o, SIDE, ROOK_BLACK + SIDE );	//rock
+#endif
       }
     }
     else

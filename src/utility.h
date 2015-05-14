@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008
+Copyright (C) 2008-2010
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -85,53 +85,15 @@ const static unsigned rot90[64] = {
 void BoardToFEN ( char *FEN );
 #ifndef PERFT_MODE
 void update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int depth );
-/*FORCEINLINE void
-Sort ( Tmove * a, int l, int r ) {
-  if ( l >= r )
-    return;
-  int i, j;
-  int num_left, num_right;
-  Tmove pivot, temp;
-  while ( l < r ) {
-    i = l;
-    j = r + 1;
-    memcpy ( &pivot, &a[l], sizeof ( Tmove ) );
-    while ( true ) {
-      while ( ++i < r && a[i].score > pivot.score );
-      while ( --j>l && a[j].score < pivot.score );
-      if ( i >= j )
-	break;
 
-      memcpy ( &temp, &a[i], sizeof ( Tmove ) );
-      memcpy ( &a[i], &a[j], sizeof ( Tmove ) );
-      memcpy ( &a[j], &temp, sizeof ( Tmove ) );
-    };				//TODO
-
-    if ( l != j ) {
-      memcpy ( &a[l], &a[j], sizeof ( Tmove ) );
-      memcpy ( &a[j], &pivot, sizeof ( Tmove ) );
-    }
-    num_left = ( j - 1 ) - l;
-    num_right = r - ( j + 1 );
-
-    if ( num_left <= num_right ) {
-      Sort ( a, l, j - 1 );
-      l = j + 1;
-    }
-    else {
-      Sort ( a, j + 1, r );
-      r = j - 1;
-    }
-  }
-}*/
 FORCEINLINE int
 still_time (  ) {
   // return 1;
   struct timeb t_current;
   ftime ( &t_current );
-  if ( ( ( int ) ( 1000.0 * ( t_current.time - start_time.time ) + ( t_current.millitm - start_time.millitm ) ) ) >= MAX_TIME_MILLSEC )
-    return 0;
-  return 1;
+  int i = ( int ) ( 1000 * ( t_current.time - start_time.time ) );	// + ( t_current.millitm - start_time.millitm )   );
+  return i >= MAX_TIME_MILLSEC ? 0 : 1;
+
 }
 #endif
 

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008
+Copyright (C) 2008-2010
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 #include "extern.h"
 #include "cap.h"
-#include "swapoff.h"
+
 #include "openbook.h"
 int
 evaluateMobility ( const int tipo ) {
@@ -105,9 +105,8 @@ evaluate_pawn ( const int side, u64 ped_friends, const u64 ped_enemies, const u6
 
   while ( ped_friends ) {
     oo = BitScanForward ( ped_friends );
-    ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/Ndifensori_pezzo+1)
 
-    evalNode.king_security[side] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][oo] ) / ( VALUEPAWN / ( BitCount ( calcola_attaccanti ( oo, side ^ 1 ) ) + 1 ) ) );
+    evalNode.king_security[side] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][oo] ) );	// / ( VALUEPAWN / ( BitCount ( calcola_attaccanti ( oo, side ^ 1 ) ) + 1 ) ) );
 
 
     /////////////////////////
@@ -175,7 +174,7 @@ evaluate_bishop ( const int tipo, const u64 adiacente_re_nemico, const u64 pezzi
     o = BitScanForward ( x );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
-    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) / ( VALUEBISHOP / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
+    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) );	// / ( VALUEBISHOP / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
 
     /////////////////////////
     if ( tipo ) {
@@ -221,7 +220,7 @@ evaluate_queen ( const int tipo, u64 queen, const int pos_re_nemico, const u64 p
     o = BitScanForward ( queen );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
-    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) / ( VALUEQUEEN / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
+    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) );	/// ( VALUEQUEEN / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
     /////////////////////////
     if ( tipo ) {
       if ( ( o == D3 || o == E3 ) && get_piece_at ( WHITE, TABLOG[o + 8] ) == WHITE )
@@ -262,7 +261,7 @@ evaluate_knight ( const int tipo, const int pos_re_amico, const int pos_re_nemic
     o = BitScanForward ( x );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
-    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) / ( VALUEKNIGHT / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
+    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) );	// / ( VALUEKNIGHT / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
     /////////////////////////
     /* Don't block in central pawns */
     if ( tipo ) {
@@ -367,7 +366,7 @@ evaluate_rook ( const int tipo, const u64 ped_friends, const u64 ped_enemies, co
     o = BitScanForward ( x );
     ///  vicinanza_al_proprio_re(pezzo) / (valore(pezzo)/N+1)
 
-    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) / ( VALUEROOK / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
+    evalNode.king_security[tipo] += KING_PROXIMITY * ( ( 8 - DISTANCE[pos_re_amico][o] ) );	/// ( VALUEROOK / ( BitCount ( calcola_attaccanti ( o, tipo ^ 1 ) ) + 1 ) ) );
     /////////////////////////
     if ( da == -1 )
       da = o;
@@ -431,23 +430,24 @@ passed_and_space ( const int tipo, u64 PAWNS, const u64 avversari ) {
 };
 
 
-
+/*
 int
 piece_attack ( const int side, u64 all, const int pos_re ) {
 #ifdef DEBUG_MODE
   check_side ( side );
 #endif
+  return 0;
   int o, result = 0;
   while ( all ) {
     o = BitScanForward ( all );
     if ( o != pos_re )
-      result += see ( o, side ) / VALUEPAWN;
+      result += See ( o, side ) / VALUEPAWN;
     all &= NOTTABLOG[o];
   };
 
   return result;
 }
-
+*/
 int
 eval ( const int SIDE
 #ifdef FP_MODE
@@ -483,7 +483,7 @@ eval ( const int SIDE
     return openbook[mat].eval;
   }
 
-  int castle_black = 0, castle_white = 0, mob_black, mob_white, p_black, p_white, to_black, to_white, k_black, k_white, r_black, r_white, t_black, t_white, c_black, c_white, attach_black, attach_white;
+  int castle_black = 0, castle_white = 0, mob_black, mob_white, p_black, p_white, to_black, to_white, k_black, k_white, r_black, r_white, t_black, t_white, c_black, c_white;
   memset ( &evalNode, 0, sizeof ( Teval ) );
   if ( !( mob_black = evaluateMobility ( BLACK ) ) ) {
     if ( SIDE )
@@ -530,13 +530,13 @@ eval ( const int SIDE
   open_column ( BLACK, ALLPIECES, black_rook, ped_white );
 
 #ifdef DEBUG_MODE
-  mob_black = mob_white = p_black = p_white = to_black = to_white = k_black = k_white = r_black = r_white = t_black = t_white = c_black = c_white = attach_black = attach_white = 0;
+  mob_black = mob_white = p_black = p_white = to_black = to_white = k_black = k_white = r_black = r_white = t_black = t_white = c_black = c_white = 0;
 #endif
   pas_spaz_black = passed_and_space ( BLACK, chessboard[BLACK], chessboard[WHITE] );
   pas_spaz_white = passed_and_space ( WHITE, chessboard[WHITE], chessboard[BLACK] );
 
-  p_black = pas_spaz_black + evaluate_pawn ( BLACK, ped_black, ped_white, white_pieces, pos_black_king );
-  p_white = pas_spaz_white + evaluate_pawn ( WHITE, ped_white, ped_black, black_pieces, pos_white_king );
+  p_black = evaluate_pawn ( BLACK, ped_black, ped_white, white_pieces, pos_black_king );
+  p_white = evaluate_pawn ( WHITE, ped_white, ped_black, black_pieces, pos_white_king );
 
   to_black = evaluate_bishop ( BLACK, near_white_king, all_pieces_white, pos_black_king );
   to_white = evaluate_bishop ( WHITE, near_black_king, all_pieces_black, pos_white_king );
@@ -553,15 +553,21 @@ eval ( const int SIDE
   c_black = evaluate_knight ( BLACK, pos_black_king, pos_white_king, all_pieces_white, ped_white );
   c_white = evaluate_knight ( WHITE, pos_white_king, pos_black_king, all_pieces_black, ped_black );
 
-  attach_white = piece_attack ( BLACK, all_pieces_black, pos_black_king );
-  attach_black = piece_attack ( WHITE, all_pieces_white, pos_white_king );
   if ( CASTLE_DONE[BLACK] )
     castle_black = BONUS_CASTLE;
+  else if ( CASTLE_NOT_POSSIBLE[BLACK] )
+    castle_black -= BONUS_CASTLE;
+
   if ( CASTLE_DONE[WHITE] )
     castle_white = BONUS_CASTLE;
-  result = ( lazyscore_black + attach_black + attack_f2 + mob_black + p_black + to_black + k_black + r_black + t_black + c_black + castle_black ) - ( lazyscore_white + attach_white + attack_f7 + mob_white + p_white + to_white + k_white + r_white + t_white + c_white + castle_white );
-  //printf ("\n%d %d %d %d |%d| %d %d %d |%d| %d %d\n",  lazyscore_white, attach_white ,attack_f7 , mob_white , p_white , to_white, k_white , r_white , t_white, c_white , castle_white );
-  //printf ( "\n%d\n", k_black );
+  else if ( CASTLE_NOT_POSSIBLE[WHITE] )
+    castle_white -= BONUS_CASTLE;
+
+  result = ( pas_spaz_black + lazyscore_black + attack_f2 + mob_black + p_black + to_black + k_black + r_black + t_black + c_black + castle_black ) - ( pas_spaz_white + lazyscore_white + attack_f7 + mob_white + p_white + to_white + k_white + r_white + t_white + c_white + castle_white );
+
+  /// printf ("\n%d %d %d %d %d |%d| %d %d %d |%d| %d %d\n", pas_spaz_black,lazyscore_black ,attack_f2 , mob_black , p_black ,to_black ,k_black ,r_black , t_black ,c_black , castle_black );
+  //printf ("\n%d %d %d %d %d |%d| %d %d %d |%d| %d %d\n",  pas_spaz_white,lazyscore_white ,attack_f7 , mob_white , p_white , to_white, k_white , r_white , t_white, c_white , castle_white );
+
 
 
   /*TODO muovere la queen dopo lo sviluppo dei pezzi minori

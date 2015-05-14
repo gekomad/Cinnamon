@@ -1,5 +1,5 @@
 		/*
-		   Copyright (C) 2008
+		   Copyright (C) 2008-2010
 		   This program is free software: you can redistribute it and/or modify
 		   it under the terms of the GNU General Public License as published by
 		   the Free Software Foundation, either version 3 of the License, or
@@ -152,6 +152,21 @@ listner_winboard ( void *uuua )
       know_command = 1;
       edit = 0;
     }
+    else if ( !strcmp ( tt, "gettime" ) ) {
+
+      know_command = 1;
+      struct timeb t_current;
+      ftime ( &t_current );
+      printf ( "\nt_current.time %I64u", t_current.time );
+      //printf("\nt_current.millitm %I64u",t_current.millitm);
+      printf ( "\nstart_time.time %I64u", start_time.time );
+
+      int i = ( int ) ( 1000 * ( t_current.time - start_time.time ) );
+      printf ( "\ndiff %d", i );
+      printf ( "\nMAX_TIME_MILLSEC %d", MAX_TIME_MILLSEC );
+
+      fflush ( stdout );
+    }
     else if ( strlen ( tt ) == 3 && edit == 1 ) {
       know_command = 1;
       if ( !side )
@@ -300,7 +315,7 @@ listner_winboard ( void *uuua )
 	//MAX_TIME_MILLSEC = MAX_TIME_MILLSEC < supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30 ? MAX_TIME_MILLSEC : supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30;   
 	MAX_TIME_MILLSEC = supplementary_mill_sec + atoi ( tt + 5 ) * 10 / 30;
       }
-      if ( st_force < MAX_TIME_MILLSEC )
+      if ( st_force < ( int ) MAX_TIME_MILLSEC )
 	MAX_TIME_MILLSEC = st_force;
 
 

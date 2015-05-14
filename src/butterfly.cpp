@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008
+Copyright (C) 2008-2010
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -50,18 +50,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "zobrist.h"
 #include "openbook.h"
 #include "bitmap.h"
-#include "checkmove.h"
 int euristic_pruning;
 
 
 #ifdef TEST_MODE
 char test_ris[20];
 char test_trovato[20];
+u64 num_moves_test;
 #endif
 
 u64 num_moves, num_moves2, num_movesq, num_tot_moves;
 char mply, black_move;
-int winbtime, MAX_DEPTH_TO_SEARCH, MAX_TIME_MILLSEC, HASH_SIZE, st_force, list_id, xboard, maxdep, incremental_move, force;
+
+int winbtime, MAX_TIME_MILLSEC, MAX_DEPTH_TO_SEARCH, HASH_SIZE, st_force, list_id, xboard, maxdep, incremental_move, force;
 int evaluateMobility_mode, null_sem, supplementary_mill_sec;
 u64 n_cut_hash;
 char *BITCOUNT = NULL;
@@ -96,8 +97,8 @@ Thash *hash_array[2];
 #endif
 int mate;
 #ifndef PERFT_MODE
-int HistoryHeuristic[64][64];
-int KillerHeuristic[MAX_PLY][64][64];
+//int HistoryHeuristic[64][64];
+//int KillerHeuristic[MAX_PLY][64][64];
 int main_depth;
 TopenbookLeaf *openbook_tree;
 Teval evalNode;
@@ -199,34 +200,68 @@ do_perft (  ) {
   //}
 }
 #else
+
+void
+do_movexxx ( int side ) {
+  struct timeb start1;
+  int alpha = -_INFINITE;
+  int beta = _INFINITE;
+  LINE line;
+  int val;
+
+
+  run = 1;
+  mply = 1;
+  int score;
+  ftime ( &start_time );
+  init (  );
+  while ( run ) {
+    ftime ( &start1 );
+    initialply = mply;
+
+
+    ++mply;
+
+    printf ( "\nply: %d ................................................", mply );
+
+    list_id = 0;
+    gen_list[list_id][0].score = 0;
+    num_moves2 = 0;
+    max_depth_quies = 0;
+    generateCap ( STANDARD, side );
+    generateMoves ( STANDARD, side );
+    int listcount = gen_list[list_id][0].score;
+    Tmove *mossa;
+    if ( listcount ) {
+      int ii;
+      for ( ii = 1; ii <= listcount; ii++ ) {
+	mossa = &gen_list[list_id][ii];
+	makemove ( mossa );
+	alpha = -_INFINITE;
+	beta = _INFINITE;
+	//print();                      
+	val = -ael ( side ^ 1, mply, -beta, -alpha, &line );
+	printf ( "\n%s %s %d", decodeBoardinv ( mossa->from, mossa->side ), decodeBoardinv ( mossa->to, mossa->side ), val );
+	takeback ( mossa );
+
+	run = still_time (  );
+	if ( !run ) {
+	  printf ( "\nnnnnnnnnnn" );
+	  break;
+	}
+	score = -_INFINITE;
+	memcpy ( &result_move, &mossa, sizeof ( Tmove ) );
+      }
+    }
+  }
+
+}
+
+
 void
 do_move ( int side ) {
 
-/*	list_id=0;
-	generateCap ( STANDARD, side );
-	generateMoves ( STANDARD, side );
-	int listcount = gen_list[list_id][0].score;
-	Tmove *mossa;
-	if ( listcount ) {
-		int ii;
-		printf("\nbianco negativo");
-		for ( ii = 1; ii <= listcount; ii++ ) {
-			mossa = &gen_list[list_id][ii];				
-			makemove ( mossa );
-			//print();
-			printf("\nda: %s a: %s ",decodeBoardinv(mossa->from,side),decodeBoardinv(mossa->to,side));
-			printf("score: %d", eval ( side
-			#ifdef FP_MODE
-		   , alpha, beta
-			#endif
-		   , 0 ));
-			//val = ael ( side, mply, alpha, beta, &line );
-			//val = -ael ( side^1, mply,  -beta,-alpha, &line );				
-			//printf("\n%s %s %d",decodeBoardinv(mossa->from,side),decodeBoardinv(mossa->to,side),val);
-			takeback ( mossa );
-	}
-		}
-Sleep(1000000);*/
+
   struct timeb start1, end1;
   int alpha = -_INFINITE;
   int beta = _INFINITE;
@@ -243,8 +278,9 @@ Sleep(1000000);*/
   int score;
   num_moves2 = 0;
   ftime ( &start_time );
-  init (  );
+
   while ( run ) {
+    init (  );
     ftime ( &start1 );
     initialply = mply;
     memset ( &line, 0, sizeof ( line ) );
@@ -325,11 +361,11 @@ Sleep(1000000);*/
 	run = 0;
       score = -_INFINITE;
       memcpy ( &result_move, &move2, sizeof ( Tmove ) );
-      for ( int a = 0; a < 64; a++ )
-	for ( int b = 0; b < 64; b++ )
-	  if ( HistoryHeuristic[result_move.from][result_move.to] >= 100000 )
-	    HistoryHeuristic[result_move.from][result_move.to] -= 100000;
-      HistoryHeuristic[result_move.from][result_move.to] += 100000;
+      /* for ( int a = 0; a < 64; a++ )
+         for ( int b = 0; b < 64; b++ )
+         if ( HistoryHeuristic[result_move.from][result_move.to] >= 100000 )//TODO ??
+         HistoryHeuristic[result_move.from][result_move.to] -= 100000;
+         HistoryHeuristic[result_move.from][result_move.to] += 100000; */
       ftime ( &end1 );
       TimeTaken = diff_time ( end1, start1 );
 #ifdef DEBUG_MODE
@@ -445,8 +481,13 @@ hand_do_move ( void *dummy )
   push_fen (  );
   strcpy ( t, "\nmove " );
   strcat ( t, decodeBoardinv ( result_move.from, result_move.side ) );
-  if ( result_move.from >= 0 )
-    strcat ( t, decodeBoardinv ( result_move.to, result_move.side ) );
+  if ( result_move.promotion_piece != -1 )
+    t[strlen ( t )] = getFen ( result_move.promotion_piece );
+  else {
+    if ( result_move.from >= 0 )
+      strcat ( t, decodeBoardinv ( result_move.to, result_move.side ) );
+  }
+
 #ifdef DEBUG_MODE
   printf ( "da %d a %d\n", result_move.from, result_move.to );
 #endif
@@ -475,6 +516,9 @@ start ( int argc, char *argv[] ) {
   num_tot_moves = 0;
 #ifndef PERFT_MODE
   openbook = NULL;
+#endif
+#ifdef TEST_MODE
+  num_moves_test = 0;
 #endif
   CASTLE_DONE[0] = 0;
   CASTLE_DONE[1] = 0;

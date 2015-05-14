@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008
+Copyright (C) 2008-2010
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -55,15 +55,17 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
     if ( o > 55 || o < 8 ) {	//PROMOTION
       //int pezzoda=get_piece_at(o + GG);
       if ( SIDE == WHITE && o > 55 || SIDE == BLACK && o < 8 ) {
-	if ( pushmove ( PROMOTION, o + GG, o, SIDE, ROOK_BLACK + SIDE ) )
-	  return 1;		//rock
+
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, QUEEN_BLACK + SIDE ) )
 	  return 1;		//queen
+#ifdef PERFT_MODE
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, KNIGHT_BLACK + SIDE ) )
 	  return 1;		//knight
+	if ( pushmove ( PROMOTION, o + GG, o, SIDE, ROOK_BLACK + SIDE ) )
+	  return 1;		//rock
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, BISHOP_BLACK + SIDE ) )
 	  return 1;		//bishop
-
+#endif
       }
     }
     else if ( pushmove ( tipomove, o + GG, o, SIDE ) )
@@ -83,17 +85,19 @@ performPawnCapture ( const int tipomove, const u64 enemies, const int SIDE ) {
   };
   x &= enemies;
   while ( x ) {
-    o = BitScanForward ( x );
+    o = BitScanForward ( x );	//TODO duplicato?
     if ( o > 55 || o < 8 ) {	//PROMOTION
       if ( SIDE == WHITE && o > 55 || SIDE == BLACK && o < 8 ) {
-	if ( pushmove ( PROMOTION, o + GG, o, SIDE, ROOK_BLACK + SIDE ) )
-	  return 1;		//rock
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, QUEEN_BLACK + SIDE ) )
 	  return 1;		//queen
+#ifdef PERFT_MODE
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, KNIGHT_BLACK + SIDE ) )
 	  return 1;		//knight
 	if ( pushmove ( PROMOTION, o + GG, o, SIDE, BISHOP_BLACK + SIDE ) )
 	  return 1;		//bishop
+	if ( pushmove ( PROMOTION, o + GG, o, SIDE, ROOK_BLACK + SIDE ) )
+	  return 1;		//rock
+#endif
       }
     }
     else if ( pushmove ( tipomove, o + GG, o, SIDE ) )

@@ -1,5 +1,5 @@
 	/*
-	   Copyright (C) 2008
+	   Copyright (C) 2008-2010
 	   This program is free software: you can redistribute it and/or modify
 	   it under the terms of the GNU General Public License as published by
 	   the Free Software Foundation, either version 3 of the License, or
@@ -91,12 +91,16 @@ quiescence ( int alpha, const int side, int beta, const int depth, LINE * pline 
   if ( !listcount ) {
     --list_id;
     pline->cmove = 0;
-    if ( !attack_square ( side, BitScanForward ( chessboard[KING_BLACK + side] ) ) )	//TODO 
-      return 0;
-    return score;
+    return eval ( side
+#ifdef FP_MODE
+		  , alpha, beta
+#endif
+		  , key );
+    /*if ( !attack_square ( side, BitScanForward ( chessboard[KING_BLACK + side] ) ) )  //TODO 
+       return 0;
+       return score; */
   }
-  qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );
-  //Sort ( gen_list[list_id], 1, listcount );
+  //qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );  
 #ifdef DEBUG_MODE
   controlloRipetizioni ( gen_list[list_id], listcount );
 #endif
@@ -205,7 +209,7 @@ ael ( const int SIDE, int depth
 		     , key );
     }
     else {
-      score = quiescence ( alpha, SIDE, beta, 2, &line );
+      score = quiescence ( alpha, SIDE, beta, 32, &line );
     }
 
 #ifdef HASH_MODE
@@ -216,6 +220,9 @@ ael ( const int SIDE, int depth
 #endif
   };
   ++num_moves;
+#ifdef TEST_MODE
+  num_moves_test++;
+#endif
 #ifndef PERFT_MODE
   main_depth = depth;
 #endif
@@ -227,8 +234,9 @@ ael ( const int SIDE, int depth
   line.cmove = 0;
   int val;
 
-  if ( !( num_moves & 1023 ) )
+  if ( !( num_moves & 1023 ) ) {
     run = still_time (  );
+  };
   if ( !run )
     return score;
 #endif
@@ -361,8 +369,8 @@ ael ( const int SIDE, int depth
     return -_INFINITE;
   }
 #ifndef PERFT_MODE
-  qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );
-  //Sort ( gen_list[list_id], 1, listcount );
+  // qsort ( gen_list[list_id] + 1, listcount, sizeof ( Tmove ), compare_move );
+
 #endif
 #ifdef DEBUG_MODE
   controlloRipetizioni ( gen_list[list_id], listcount );

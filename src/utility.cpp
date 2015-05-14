@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008
+Copyright (C) 2008-2010
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -29,19 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "zobrist.h"
 #include "search.h"
 
-int
-compare_int ( const void *a, const void *b ) {
-  int *arg1 = ( int * ) a;
-  int *arg2 = ( int * ) b;
-  if ( *arg1 < *arg2 )
-    return -1;
-  else if ( *arg1 == *arg2 )
-    return 0;
-  else
-    return 1;
-}
-
-int
+/*int
 compare_move ( const void *a, const void *b ) {
   Tmove *arg1 = ( Tmove * ) a;
   Tmove *arg2 = ( Tmove * ) b;
@@ -51,7 +39,7 @@ compare_move ( const void *a, const void *b ) {
     return 0;
   else
     return 1;
-}
+}*/
 
 int
 is_locked ( int pos, int pezzo, int side ) {
@@ -156,7 +144,6 @@ return result/100;
 */
 void
 init (  ) {
-
   ENP_POSSIBILE = -1;
   num_moves2 = num_moves = num_movesq = mate = 0;
   pvv_da = 65;
@@ -167,7 +154,7 @@ init (  ) {
 #endif
   FLG_WIN_WHITE = false;
   FLG_WIN_BLACK = false;
-  memset ( gen_list, 0, sizeof ( gen_list ) );
+  //memset ( gen_list, 0, sizeof ( gen_list ) );
   list_id = -1;
   maxdep = evaluateMobility_mode = EvalCuts = 0;
 
@@ -182,8 +169,8 @@ init (  ) {
   n_cut = 0;
   null_move_cut = 0;
 #endif
-  memset ( HistoryHeuristic, 0, sizeof ( HistoryHeuristic ) );
-  memset ( KillerHeuristic, 0, sizeof ( KillerHeuristic ) );
+  //memset ( HistoryHeuristic, 0, sizeof ( HistoryHeuristic ) );
+  //memset ( KillerHeuristic, 0, sizeof ( KillerHeuristic ) );
 #endif
   null_sem = 0;
 
@@ -300,6 +287,7 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
     pezzoa = SIDE ^ 1;
   int pezzoda = get_piece_at ( SIDE, TABLOG[da] );
 #ifdef PERFT_MODE
+
   if ( ( t = inCheck ( da, a, tipomove, pezzoda, pezzoa, SIDE, promotion_piece ) ) == 1 )
     return 0;
 
@@ -317,17 +305,21 @@ pushmove ( const int tipomove, const int da, const int a, const int SIDE, int pr
     mos->from = ( char ) da;
     mos->to = ( char ) a;
     mos->side = ( char ) SIDE;
+
     mos->promotion_piece = ( char ) promotion_piece;
 #ifndef PERFT_MODE
     mos->score = 0;
-    //mvv lva
-    if ( da == pvv_da && a == pvv_a )
-      mos->score += 30000;
-    ( PIECES_VALUE[pezzoa] >= PIECES_VALUE[pezzoda] ) ? mos->score += ( PIECES_VALUE[pezzoa] - PIECES_VALUE[pezzoda] ) * 2 : mos->score += PIECES_VALUE[pezzoa];
-    mos->score += HistoryHeuristic[da][a];
-    mos->score += KillerHeuristic[main_depth][da][a];
-    mos->score += ( MOVE_ORDER[pezzoda][a] - MOVE_ORDER[pezzoda][da] );
+    //mvv lva TODO
+    // if ( da == pvv_da && a == pvv_a )   mos->score += 30000;
 
+    //mos->score += ( PIECES_VALUE[pezzoa] >= PIECES_VALUE[pezzoda] ) ? ( PIECES_VALUE[pezzoa] - PIECES_VALUE[pezzoda] ) * 2 : PIECES_VALUE[pezzoa];
+
+
+    /*mos->score += HistoryHeuristic[da][a];
+       mos->score += KillerHeuristic[main_depth][da][a];
+       mos->score += ( MOVE_ORDER[pezzoda][a] - MOVE_ORDER[pezzoda][da] );
+     */
+    //if(!SIDE)mos->score=-mos->score;
 #endif
 
   }
@@ -678,8 +670,8 @@ update_pv ( LINE * pline, const LINE * line, const Tmove * mossa, const int dept
   // questa mossa ha causato un taglio, quindi si incrementa il valore
   //di history cosi viene ordinata in alto la prossima volta che la
   //cerchiamo
-  HistoryHeuristic[mossa->from][mossa->to] += depth;
-  KillerHeuristic[depth][mossa->from][mossa->to] = ( int ) TABLOG[depth];
+  //HistoryHeuristic[mossa->from][mossa->to] += depth;
+  //KillerHeuristic[depth][mossa->from][mossa->to] = ( int ) TABLOG[depth];
 }
 
 int
@@ -1003,9 +995,9 @@ controlloRipetizioni ( Tmove * myarray, int right ) {
 
   for ( int t = 0; t < right; t++ )
     for ( int j = t + 1; j < right; j++ ) {
-      if ( myarray[t].da == myarray[j].da && myarray[t].a == myarray[j].a && myarray[t].promotion_piece == myarray[j].promotion_piece ) {
+      if ( myarray[t].from == myarray[j].from && myarray[t].to == myarray[j].to && myarray[t].promotion_piece == myarray[j].promotion_piece ) {
 	print (  );
-	printf ( "\n %d %d", myarray[j].da, myarray[t].a );
+	printf ( "\n %d %d", myarray[j].from, myarray[t].to );
 	assert ( 0 );
       }
     }
@@ -1034,8 +1026,9 @@ print (  ) {
 
   for ( t = 0; t <= 63; t++ ) {
 
-    if ( !( t % 8 ) )
+    if ( !( t % 8 ) ) {
       printf ( "\n   ---------------------------------\n" );
+    };
 
     x = getFen ( get_piece_at ( 1, TABLOG[63 - t] ) );
     if ( x == '-' )
@@ -1292,7 +1285,7 @@ loadfen ( char *ss ) {
   re_amico[black_move ^ 1] = BitScanForward ( chessboard[KING_BLACK + ( black_move ^ 1 )] );
 
   init (  );
-  return 1;
+  return !black_move;
 }
 
 uchar

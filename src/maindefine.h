@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008
+Copyright (C) 2008-2010
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -42,12 +42,12 @@ Depth 	Perft(Depth) 	Total Nodes
 10 		69352859712417 		71880708959936
                         
 */
-//http://chessprogramming.wikispaces.com/Perft+Results
+
 //indent -br -l1000 -nce -cdw -cli0 -cbi0 -prs -sai -saf -di1 -nbc -brs -brf -bli0  *.cpp *.h
 //xboard -fcp ./butterfly
 #define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
-//#define INITIAL_FEN "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1   "
+//#define INITIAL_FEN "5rk1/1ppb3p/p1pb4/6q1/3P1p1r/2P1R2P/PP1BQ1P1/5RKN w - - bm "
 
 #define debugfile "out.log"
 #define _INFINITE 2147483646
@@ -64,18 +64,18 @@ typedef unsigned char uchar;
 #define OPENBOOK_FILE "book.dat"
 #endif
 
-//thanks to Beowulf :-)
+
 #define ROOK_ATTACK 4
 #define BISHOP_ATTACK 4
 #define KNIGHT_ATTACK 4
 #define QUEEN_ATTACK 4
 #define OPEN_FILE_Q 3
-#define FORK_SCORE 4
+#define FORK_SCORE 8
 #define BONUS2BISHOP 15
 #define MOB 1
 #define KING_TRAPPED 2
 #define KNIGHT_TRAPPED 20
-#define BISHOP_TRAPPED 100
+#define BISHOP_TRAPPED 31
 #define ROOK_TRAPPED 30
 #define QUEEN_TRAPPED 4
 #define CONNECTED_ROOKS 5
@@ -85,11 +85,11 @@ typedef unsigned char uchar;
 #define BLOCK_PAWNS 2
 #define UNDEVELOPED 10
 #define HALF_OPEN_FILE_Q 3
-#define DOUBLED_PAWNS 12
-#define PAWN_7H 15
+#define DOUBLED_PAWNS 6
+#define PAWN_7H 5
 #define PED_CENTRE 1
 #define KING_PROXIMITY 2
-#define ISO 18
+#define ISO 5
 #define PAWN_PUSH 4
 #define SPACE 8
 #define DIST_XKING 1
@@ -97,12 +97,12 @@ typedef unsigned char uchar;
 #define ENEMY_NEAR_KING 1
 #define XQUEEN_NEAR_KING 1
 #define PAWN_NEAR_KING 3
-#define BONUS_CASTLE 8
+#define BONUS_CASTLE 15
 #define NEAR_XKING 3
 #define BONUS_11 1
 #define BISHOP_ON_QUEEN 1
 #define ENEMIES_PAWNS_ALL 1
-#define DOUBLED_ISOLATED_PAWNS 25
+#define DOUBLED_ISOLATED_PAWNS 10
 #define BACKWARD_PAWN 2
 #define BACKWARD_OPEN_PAWN 3
 
@@ -141,7 +141,6 @@ typedef unsigned char uchar;
 #define QUEEN_S   5
 #define PAWN_CAPTURE_S_BLACK   6
 #define PAWN_CAPTURE_S_WHITE   7
-//#define BONUS_CASTLE  200
 
 #define KINGSIDE -1
 #define QUEENSIDE -2
@@ -305,12 +304,11 @@ typedef struct ThashTag {
 #endif
 
 typedef struct {
-  char *fen[100];
+  char *fen[1000];
   int count;
 } fen_node;
 
 typedef u64 Tchessboard[12];
-typedef u64 lll[MAX_PLY];
 
 typedef Tmove TmoveList[MAX_PLY][MAX_MOVE];
 
