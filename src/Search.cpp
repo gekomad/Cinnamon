@@ -319,7 +319,7 @@ Search::createGtb (  ) {
   }
 }
 
-Tablebase & Search::getGtb (  ) constconst {
+Tablebase & Search::getGtb (  ) const {
   return *gtb;
 }
 
