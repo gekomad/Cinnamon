@@ -25,78 +25,79 @@ using namespace std;
 
 class Runnable {
 public:
-    virtual void run (  ) = 0;
+    virtual void run() = 0;
 };
 
 class Thread:virtual public Runnable {
+
 private:
     bool running = true;
 
     condition_variable cv;
-    thread *theThread;
-    Runnable *_runnable;
-    Runnable *execRunnable;
+    thread* theThread;
+    Runnable* _runnable;
+    Runnable* execRunnable;
 
-    static void *__run ( void *cthis ) {
-        static_cast < Runnable * >( cthis )->run (  );
+    static void* __run(void* cthis) {
+        static_cast <Runnable*>(cthis)->run();
         return nullptr;
-    } public:
-    Thread (  ):_runnable ( nullptr ) {
+    }
+
+public:
+    Thread():_runnable(nullptr) {
         theThread = nullptr;
         execRunnable = this;
     }
 
-    virtual ~ Thread (  ) {
-        if ( theThread ) {
-            theThread->detach (  );
+    virtual ~ Thread() {
+        if(theThread) {
+            theThread->detach();
             delete theThread;
             theThread = nullptr;
         }
     }
 
-    void checkWait (  ) {
-        while ( !running ) {
+    void checkWait() {
+        while(!running) {
             mutex mtx;
-            unique_lock < mutex > lck ( mtx );
-            cv.wait ( lck );
+            unique_lock <mutex> lck(mtx);
+            cv.wait(lck);
         }
     }
 
-    void notify (  ) {
-        cv.notify_all (  );
+    void notify() {
+        cv.notify_all();
     }
 
-    void start (  ) {
-        if ( this->_runnable != nullptr ) {
+    void start() {
+        if(this->_runnable != nullptr) {
             execRunnable = this->_runnable;
         }
-
-        if ( theThread ) {
+        if(theThread) {
             delete theThread;
         }
-
-        theThread = new thread ( __run, execRunnable );
+        theThread = new thread(__run, execRunnable);
     }
 
-    void join (  ) {
-        if ( theThread ) {
-            theThread->join (  );
+    void join() {
+        if(theThread) {
+            theThread->join();
             delete theThread;
             theThread = nullptr;
         }
     }
 
-    bool isJoinable (  ) {
-        return theThread->joinable (  );
+    bool isJoinable() {
+        return theThread->joinable();
     }
 
-    void sleep ( bool b ) {
+    void sleep(bool b) {
         running = !b;
     }
 
-    void stop (  ) {
-        if ( theThread ) {
-            theThread->detach (  );
+    void stop() {
+        if(theThread) {
+            theThread->detach();
             delete theThread;
             theThread = nullptr;
         }

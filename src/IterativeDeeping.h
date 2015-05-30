@@ -30,27 +30,27 @@
 
 class IterativeDeeping:public Thread, public Search {
 public:
-    IterativeDeeping (  );
-    virtual ~ IterativeDeeping (  );
+    IterativeDeeping();
+    virtual ~ IterativeDeeping();
     mutex mutex1;
-    virtual void run (  );
-    bool getPonderEnabled (  );
-    bool getGtbAvailable (  );
-    bool getUseBook (  );
-    void setUseBook ( bool );
-    void enablePonder ( bool );
-    void setMaxDepth ( int );
-    void loadBook ( string );
-    int printDtm (  );
-    bool setParameter ( String param, int value );
-    Tablebase & getGtb (  );
+    virtual void run();
+    bool getPonderEnabled();
+    bool getGtbAvailable();
+    bool getUseBook();
+    void setUseBook(bool);
+    void enablePonder(bool);
+    void setMaxDepth(int);
+    void loadBook(string);
+    int printDtm();
+    bool setParameter(String param, int value);
+    Tablebase& getGtb();
 private:
 
     int maxDepth;
     STATIC_CONST int VAL_WINDOW = 50;
     bool useBook;
 
-    OpenBook *openBook;
+    OpenBook* openBook;
     bool ponderEnabled;
 };
 #endif

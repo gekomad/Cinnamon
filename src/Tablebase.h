@@ -25,28 +25,30 @@
 class Tablebase:private Bits {
 public:
 
-    Tablebase (  );
-    virtual ~ Tablebase (  );
-    void cacheInit ( int mb );
-    bool getAvailable (  );
-    int getCache (  );
-    string getPath (  );
-    string getSchema (  );
-    bool setCacheSize ( int mb );
-    void setPath ( string path );
-    bool setScheme ( string s );
-    void restart (  );
-    bool setProbeDepth ( int d );
-    bool setInstalledPieces ( int n );
+    Tablebase();
+    virtual ~ Tablebase();
+    void cacheInit(int mb);
+    bool getAvailable();
+    int getCache();
+    string getPath();
+    string getSchema();
+    bool setCacheSize(int mb);
+    void setPath(string path);
+    bool setScheme(string s);
+    void restart();
+    bool setProbeDepth(int d);
+    bool setInstalledPieces(int n);
 
-    bool isInstalledPieces ( int p ) {
-        ASSERT ( p < 33 );
+    bool isInstalledPieces(int p) {
+        ASSERT(p < 33);
         return installedPieces[p];
-    } int getProbeDepth (  ) {
+    }
+    int getProbeDepth() {
         return probeDepth;
     }
 
-    template < int side, bool doPrint > int getDtm ( _Tchessboard & chessboard, uchar rightCastle, int depth ) {
+    template <int side, bool doPrint>
+    int getDtm(_Tchessboard& chessboard, uchar rightCastle, int depth) {
         unsigned int ws[17];	/* list of squares for white */
         unsigned int bs[17];	/* list of squares for black */
         unsigned char wp[17];	/* what white pieces are on those squares */
@@ -54,37 +56,31 @@ public:
         unsigned info = tb_UNKNOWN;	/* default, no tbvalue */
         unsigned pliestomate;
         int count = 0;
-
         //white
-        for ( int piece = 1; piece < 12; piece += 2 ) {
+        for(int piece = 1; piece < 12; piece += 2) {
             u64 b = chessboard[piece];
-
-            while ( b ) {
-                int position = BITScanForward ( b );
+            while(b) {
+                int position = BITScanForward(b);
                 ws[count] = DECODE_POSITION[position];
                 wp[count] = DECODE_PIECE[piece];
                 count++;
                 b &= NOTPOW2[position];
             }
         }
-
         ws[count] = tb_NOSQUARE;	/* it marks the end of list */
         wp[count] = tb_NOPIECE;	/* it marks the end of list */
         //black
         count = 0;
-
-        for ( int piece = 0; piece < 12; piece += 2 ) {
+        for(int piece = 0; piece < 12; piece += 2) {
             u64 b = chessboard[piece];
-
-            while ( b ) {
-                int position = BITScanForward ( b );
+            while(b) {
+                int position = BITScanForward(b);
                 bs[count] = DECODE_POSITION[position];
                 bp[count] = DECODE_PIECE[piece];
                 count++;
                 b &= NOTPOW2[position];
             }
         }
-
         bs[count] = tb_NOSQUARE;
         bp[count] = tb_NOPIECE;
         unsigned int tb_castling = 0;
@@ -93,14 +89,12 @@ public:
         tb_castling |= rightCastle & ChessBoard::RIGHT_KING_CASTLE_BLACK_MASK ? tb_BOO : 0;
         tb_castling |= rightCastle & ChessBoard::RIGHT_QUEEN_CASTLE_BLACK_MASK ? tb_BOOO : 0;
         int tb_available = 0;
-
-        if ( depth > 8 ) {
-            tb_available = tb_probe_hard ( side ^ 1, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate );
-        } else if ( depth >= probeDepth ) {
-            tb_available = tb_probe_soft ( side ^ 1, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate );
+        if(depth > 8) {
+            tb_available = tb_probe_hard(side ^ 1, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
+        } else if(depth >= probeDepth) {
+            tb_available = tb_probe_soft(side ^ 1, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
         }
-
-        return extractDtm < side ^ 1, doPrint > ( tb_available, info, pliestomate );
+        return extractDtm <side ^ 1, doPrint> (tb_available, info, pliestomate);
     }
 
 
@@ -127,42 +121,37 @@ private:
         tb_H8, tb_G8, tb_F8, tb_E8, tb_D8, tb_C8, tb_B8, tb_A8,
     };
 
-    template < unsigned stm1, bool doPrint > int extractDtm ( int tb_available1, unsigned info1, unsigned pliestomate1 ) {
-        if ( doPrint ) {
-            print ( stm1, info1, pliestomate1 );
+    template <unsigned stm1, bool doPrint>
+    int extractDtm(int tb_available1, unsigned info1, unsigned pliestomate1) {
+        if(doPrint) {
+            print(stm1, info1, pliestomate1);
         }
-
-        if ( tb_available1 ) {
-            if ( info1 == tb_DRAW ) {
+        if(tb_available1) {
+            if(info1 == tb_DRAW) {
                 return 0;
             }
-
-            if ( info1 == tb_WMATE && stm1 == tb_WHITE_TO_MOVE ) {
+            if(info1 == tb_WMATE && stm1 == tb_WHITE_TO_MOVE) {
                 return pliestomate1;
             }
-
-            if ( info1 == tb_BMATE && stm1 == tb_BLACK_TO_MOVE ) {
+            if(info1 == tb_BMATE && stm1 == tb_BLACK_TO_MOVE) {
                 return pliestomate1;
             }
-
-            if ( info1 == tb_WMATE && stm1 == tb_BLACK_TO_MOVE ) {
+            if(info1 == tb_WMATE && stm1 == tb_BLACK_TO_MOVE) {
                 return -pliestomate1;
             }
-
-            if ( info1 == tb_BMATE && stm1 == tb_WHITE_TO_MOVE ) {
+            if(info1 == tb_BMATE && stm1 == tb_WHITE_TO_MOVE) {
                 return -pliestomate1;
             }
         }
-
         return INT_MAX;
     }
 
-    void print ( unsigned stm1, unsigned info1, unsigned pliestomate1 );
-    void load (  );
+    void print(unsigned stm1, unsigned info1, unsigned pliestomate1);
+    void load();
 
     const int verbosity = 0;
     int cacheSize = 32;		//mb
-    const char **paths = nullptr;
+    const char** paths = nullptr;
     string path = "gtb/gtb4";
     int scheme = tb_CP4;
     int probeDepth = 0;

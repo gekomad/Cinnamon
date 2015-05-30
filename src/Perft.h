@@ -120,8 +120,8 @@ class Perft {
 public:
 
     const static int secondsToDump = 60 * 180;
-    Perft ( string fen, int depth, int nCpu, u64 mbSize, string dumpFile );
-    ~Perft (  );
+    Perft(string fen, int depth, int nCpu, u64 mbSize, string dumpFile);
+    ~Perft();
 
 private:
 
@@ -134,36 +134,36 @@ private:
 #pragma pack(pop)
     mutex updateHash;
     mutex mutexPrint;
-    Timer *timer = nullptr;
+    Timer* timer = nullptr;
     string fen;
     string dumpFile;
     int depth, nCpu;
     u64 mbSize;
     constexpr static u64 RANDSIDE[2] = { 0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL };
-    _ThashPerft **hash = nullptr;
+    _ThashPerft** hash = nullptr;
     u64 sizeAtDepth[255];
     atomic_ullong totMoves;
-    void alloc (  );
-    void dump (  );
-    bool load (  );
-    void setResult ( u64 result ) {
+    void alloc();
+    void dump();
+    bool load();
+    void setResult(u64 result) {
         totMoves += result;
     }
 
     class PerftThread:public Thread, public GenMoves {
     public:
 
-        PerftThread ( int, string fen, int from, int to, Perft * Perft );
-        PerftThread (  );
-        virtual ~ PerftThread (  );
+        PerftThread(int, string fen, int from, int to, Perft* Perft);
+        PerftThread();
+        virtual ~ PerftThread();
 
     private:
-        virtual void run (  );
-        void setDump (  );
-        template < int side, bool useHash > u64 search ( const int depth );
+        virtual void run();
+        void setDump();
+        template <int side, bool useHash> u64 search(const int depth);
         int from, to, cpuID;
-        Perft *perft;
+        Perft* perft;
     };
-    vector < PerftThread * >threadList;
+    vector <PerftThread*>threadList;
 };
 #endif

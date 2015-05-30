@@ -25,14 +25,13 @@
 #include "String.h"
 class Uci {
 public:
-    Uci (  );
-    virtual ~ Uci (  );
+    Uci();
+    virtual ~ Uci();
 
 private:
-    IterativeDeeping * iterativeDeeping;
+    IterativeDeeping* iterativeDeeping;
     bool uciMode;
-    void listner ( IterativeDeeping * it );
-    void getToken ( istringstream & uip, String & token );
-
+    void listner(IterativeDeeping* it);
+    void getToken(istringstream& uip, String& token);
 };
 #endif

@@ -73,7 +73,7 @@ typedef struct {
 } _Tmove;
 
 typedef struct {
-    _Tmove *moveList;
+    _Tmove* moveList;
     int size;
 } _TmoveP;
 
@@ -851,15 +851,15 @@ static const u64 ENPASSANT_MASK[2][64] = { {
 using namespace _board;
 
 namespace _time {
-string getLocalTime (  );
-int diffTime ( struct timeb a, struct timeb b );
-int getYear (  );
-int getMonth (  );
-int getDay (  );
+string getLocalTime();
+int diffTime(struct timeb a, struct timeb b);
+int getYear();
+int getMonth();
+int getDay();
 } namespace _file {
-bool fileExists ( string filename );
-int fileSize ( const string & FileName );
-string extractFileName ( string path );
+bool fileExists(string filename);
+int fileSize(const string& FileName);
+string extractFileName(string path);
 } namespace _random {
 static const u64 RANDOM_KEY[15][64] = {
 #include "random.inc"

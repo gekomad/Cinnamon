@@ -23,17 +23,16 @@
 class Bits {
 public:
 
-    Bits (  );
-    virtual ~ Bits (  );
+    Bits();
+    virtual ~ Bits();
 #ifdef HAS_POPCNT
-    static int bitCount ( u64 bits ) {
-        return __builtin_popcountll ( bits );
+    static int bitCount(u64 bits) {
+        return __builtin_popcountll(bits);
     }
 #else
-    static int bitCount ( u64 bits ) {
+    static int bitCount(u64 bits) {
         int count = 0;
-
-        while ( bits ) {
+        while(bits) {
             count++;
             bits &= bits - 1;
         }
@@ -47,37 +46,38 @@ protected:
     char MASK_BIT_SET_COUNT[64][64];
     char MASK_BIT_SET_NOBOUND_COUNT[64][64];
 
-    u64 **LINK_ROOKS;
+    u64** LINK_ROOKS;
 
-    template < int side, int shift > static u64 shiftForward ( const u64 bits ) {
-        return side == WHITE ? bits << shift : bits >> shift;
+    template <int side, int shift>
+    static u64 shiftForward(const u64 bits) {
+        return side == WHITE ? bits <<shift : bits>> shift;
     }
 
 
 
 #ifdef HAS_BSF
 #if UINTPTR_MAX == 0xffffffffffffffff
-    static int BITScanForward ( u64 bits ) {
-        return __builtin_ffsll ( bits ) - 1;
+    static int BITScanForward(u64 bits) {
+        return __builtin_ffsll(bits) - 1;
     }
 
-    static int BITScanReverse ( u64 bits ) {
-        return 63 - __builtin_clzll ( bits );
+    static int BITScanReverse(u64 bits) {
+        return 63 - __builtin_clzll(bits);
     }
 #else
-    static int BITScanForward ( u64 bits ) {
-        return ( ( unsigned ) bits ) ? __builtin_ffs ( bits ) - 1 : __builtin_ffs ( bits >> 32 ) + 31;
+    static int BITScanForward(u64 bits) {
+        return ((unsigned) bits) ? __builtin_ffs(bits) - 1 : __builtin_ffs(bits >> 32) + 31;
     }
 
-    static int BITScanReverse ( u64 bits ) {
-        return ( ( unsigned ) ( bits >> 32 ) ) ? 63 - __builtin_clz ( bits >> 32 ) : 31 - __builtin_clz ( bits );
+    static int BITScanReverse(u64 bits) {
+        return ((unsigned)(bits >> 32)) ? 63 - __builtin_clz(bits >> 32) : 31 - __builtin_clz(bits);
     }
 #endif
 #else
 
 
 
-    static int BITScanForward ( u64 bb ) {
+    static int BITScanForward(u64 bb) {
         //  @author Matt Taylor (2003)
         static const int lsb_64_table[64] = {
             63, 30, 3, 32, 59, 14, 11, 33,
@@ -91,12 +91,12 @@ protected:
         };
         unsigned int folded;
         bb ^= bb - 1;
-        folded = ( int ) bb ^ ( bb >> 32 );
+        folded = (int) bb ^ (bb >> 32);
         return lsb_64_table[folded * 0x78291ACF >> 26];
     }
 
 
-    static int BITScanReverse ( u64 bb ) {
+    static int BITScanReverse(u64 bb) {
         // authors Kim Walisch, Mark Dickinson
         static const int index64[64] = {
             0, 47, 1, 56, 48, 27, 2, 60,
@@ -115,10 +115,9 @@ protected:
         bb |= bb >> 8;
         bb |= bb >> 16;
         bb |= bb >> 32;
-        return index64[( bb * debruijn64 ) >> 58];
+        return index64[(bb * debruijn64) >> 58];
     }
 
 #endif
-
 };
 #endif

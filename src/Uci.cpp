@@ -17,24 +17,22 @@
 */
 
 #include "Uci.h"
-Uci::Uci (  ) {
-    iterativeDeeping = new IterativeDeeping (  );
-    listner ( iterativeDeeping );
+Uci::Uci() {
+    iterativeDeeping = new IterativeDeeping();
+    listner(iterativeDeeping);
 }
 
-Uci::~Uci (  ) {
+Uci::~Uci() {
     delete iterativeDeeping;
 }
 
-void
-Uci::getToken ( istringstream & uip, String & token ) {
-    token.clear (  );
+void Uci::getToken(istringstream& uip, String& token) {
+    token.clear();
     uip >> token;
-    token.toLower (  );
+    token.toLower();
 }
 
-void
-Uci::listner ( IterativeDeeping * it ) {
+void Uci::listner(IterativeDeeping* it) {
     string command;
     bool knowCommand;
     String token;
@@ -42,94 +40,80 @@ Uci::listner ( IterativeDeeping * it ) {
     int lastTime = 0;
     uciMode = false;
     static const string BOOLEAN[] = { "false", "true" };
-
-    while ( !stop ) {
-        getline ( cin, command );
-        istringstream uip ( command, ios::in );
-        getToken ( uip, token );
+    while(!stop) {
+        getline(cin, command);
+        istringstream uip(command, ios::in);
+        getToken(uip, token);
         knowCommand = false;
-
-        if ( token == "perft" ) {
+        if(token == "perft") {
             int perftDepth = -1;
             int nCpu = 1;
             int PERFT_HASH_SIZE = 0;
             string fen;
-            getToken ( uip, token );
-
-            while ( !uip.eof (  ) ) {
-                if ( token == "depth" ) {
-                    getToken ( uip, token );
-                    perftDepth = stoi ( token );
-
-                    if ( perftDepth > GenMoves::MAX_PLY || perftDepth <= 0 ) {
+            getToken(uip, token);
+            while(!uip.eof()) {
+                if(token == "depth") {
+                    getToken(uip, token);
+                    perftDepth = stoi(token);
+                    if(perftDepth > GenMoves::MAX_PLY || perftDepth <= 0) {
                         perftDepth = 2;
                     }
-
-                    getToken ( uip, token );
-                } else if ( token == "ncpu" ) {
-                    getToken ( uip, token );
-                    nCpu = stoi ( token );
-
-                    if ( nCpu > 32 || nCpu <= 0 ) {
+                    getToken(uip, token);
+                } else if(token == "ncpu") {
+                    getToken(uip, token);
+                    nCpu = stoi(token);
+                    if(nCpu > 32 || nCpu <= 0) {
                         nCpu = 1;
                     }
-
-                    getToken ( uip, token );
-                } else if ( token == "hash_size" ) {
-                    getToken ( uip, token );
-                    PERFT_HASH_SIZE = stoi ( token );
-
-                    if ( PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0 ) {
+                    getToken(uip, token);
+                } else if(token == "hash_size") {
+                    getToken(uip, token);
+                    PERFT_HASH_SIZE = stoi(token);
+                    if(PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0) {
                         PERFT_HASH_SIZE = 64;
                     }
-
-                    getToken ( uip, token );
-                } else if ( token == "fen" ) {
+                    getToken(uip, token);
+                } else if(token == "fen") {
                     uip >> token;
-
                     do {
                         fen += token;
                         fen += ' ';
                         uip >> token;
-                    } while ( token != "ncpu" && token != "hash_size" && token != "depth" && !uip.eof (  ) );
+                    } while(token != "ncpu" && token != "hash_size" && token != "depth" && !uip.eof());
                 } else {
                     break;
                 }
             }
-
-            if ( perftDepth != -1 ) {
-                int hashDepth = it->getHashSize (  );
-                it->setHashSize ( 0 );
-
-                if ( fen.empty (  ) ) {
-                    fen = it->getFen (  );
+            if(perftDepth != -1) {
+                int hashDepth = it->getHashSize();
+                it->setHashSize(0);
+                if(fen.empty()) {
+                    fen = it->getFen();
                 }
-
                 cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << endl;
-                unique_ptr < Perft > p ( new Perft ( fen, perftDepth, nCpu, PERFT_HASH_SIZE, "" ) );
-                it->setHashSize ( hashDepth );
+                unique_ptr <Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, ""));
+                it->setHashSize(hashDepth);
             } else {
                 cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string]" << endl;
             }
-
             knowCommand = true;
-        } else if ( token == "quit" ) {
+        } else if(token == "quit") {
             knowCommand = true;
-            it->setRunning ( false );
+            it->setRunning(false);
             stop = true;
-        } else if ( token == "ponderhit" ) {
+        } else if(token == "ponderhit") {
             knowCommand = true;
-            it->startClock (  );
-            it->setMaxTimeMillsec ( lastTime - lastTime / 3 );
-            it->setPonder ( false );
-        } else if ( token == "display" ) {
+            it->startClock();
+            it->setMaxTimeMillsec(lastTime - lastTime / 3);
+            it->setPonder(false);
+        } else if(token == "display") {
             knowCommand = true;
-            it->display (  );
-        } else if ( token == "isready" ) {
+            it->display();
+        } else if(token == "isready") {
             knowCommand = true;
-            it->setRunning ( 0 );
+            it->setRunning(0);
             cout << "readyok" << endl;
-        } else if ( token == "uci" ) {
+        } else if(token == "uci") {
             knowCommand = true;
             uciMode = true;
             cout << "id name " << NAME << "\n";
@@ -138,8 +122,8 @@ Uci::listner ( IterativeDeeping * it ) {
             cout << "option name Clear Hash type button" << "\n";
             cout << "option name Nullmove type check default true" << "\n";
             cout << "option name Book File type string default cinnamon.bin" << "\n";
-            cout << "option name OwnBook type check default " << BOOLEAN[it->getUseBook (  )] << "\n";
-            cout << "option name Ponder type check default " << BOOLEAN[it->getPonderEnabled (  )] << "\n";
+            cout << "option name OwnBook type check default " << BOOLEAN[it->getUseBook()] << "\n";
+            cout << "option name Ponder type check default " << BOOLEAN[it->getPonderEnabled()] << "\n";
             cout << "option name TB Endgame type combo default none var Gaviota var none" << "\n";
             cout << "option name GaviotaTbPath type string default gtb/gtb4" << "\n";
             cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024" << "\n";
@@ -148,285 +132,241 @@ Uci::listner ( IterativeDeeping * it ) {
             cout << "option name TB probing depth type spin default 0 min 0 max 5" << "\n";
             cout << "option name TB Restart type button" << "\n";
             cout << "uciok" << endl;
-        } else if ( token == "score" ) {
-            int side = it->getSide (  );
+        } else if(token == "score") {
+            int side = it->getSide();
             int t;
-
-            if ( side == WHITE ) {
-                t = it->getScore ( Bits::bitCount ( it->getBitBoard < WHITE > (  ) ), side );
+            if(side == WHITE) {
+                t = it->getScore(Bits::bitCount(it->getBitBoard <WHITE> ()), side);
             } else {
-                t = it->getScore ( Bits::bitCount ( it->getBitBoard < BLACK > (  ) ), side );
+                t = it->getScore(Bits::bitCount(it->getBitBoard <BLACK> ()), side);
             }
-
-            if ( !it->getSide (  ) ) {
+            if(!it->getSide()) {
                 t = -t;
             }
-
             cout << "Score: " << t << endl;
             knowCommand = true;
-        } else if ( token == "stop" ) {
+        } else if(token == "stop") {
             knowCommand = true;
-            it->setPonder ( false );
-            it->setRunning ( 0 );
-        } else if ( token == "ucinewgame" ) {
-            it->loadFen (  );
-            it->clearHash (  );
+            it->setPonder(false);
+            it->setRunning(0);
+        } else if(token == "ucinewgame") {
+            it->loadFen();
+            it->clearHash();
             knowCommand = true;
-        } else if ( token == "setvalue" ) {
-            getToken ( uip, token );
+        } else if(token == "setvalue") {
+            getToken(uip, token);
             String value;
-            getToken ( uip, value );
-            knowCommand = it->setParameter ( token, stoi ( value ) );
-        } else if ( token == "setoption" ) {
-            getToken ( uip, token );
-
-            if ( token == "name" ) {
-                getToken ( uip, token );
-
-                if ( token == "gaviotatbpath" ) {
-                    getToken ( uip, token );
-
-                    if ( token == "value" ) {
-                        getToken ( uip, token );
+            getToken(uip, value);
+            knowCommand = it->setParameter(token, stoi(value));
+        } else if(token == "setoption") {
+            getToken(uip, token);
+            if(token == "name") {
+                getToken(uip, token);
+                if(token == "gaviotatbpath") {
+                    getToken(uip, token);
+                    if(token == "value") {
+                        getToken(uip, token);
                         knowCommand = true;
-                        it->createGtb (  );
-                        it->getGtb (  ).setPath ( token );
+                        it->createGtb();
+                        it->getGtb().setPath(token);
                     }
-                } else if ( token == "gaviotatbcache" ) {
-                    getToken ( uip, token );
-
-                    if ( token == "value" ) {
-                        getToken ( uip, token );
-
-                        if ( it->getGtb (  ).setCacheSize ( stoi ( token ) ) ) {
+                } else if(token == "gaviotatbcache") {
+                    getToken(uip, token);
+                    if(token == "value") {
+                        getToken(uip, token);
+                        if(it->getGtb().setCacheSize(stoi(token))) {
                             knowCommand = true;
                         };
                     }
-                } else if ( token == "gaviotatbscheme" ) {
-                    getToken ( uip, token );
-
-                    if ( token == "value" ) {
-                        getToken ( uip, token );
-
-                        if ( it->getGtb (  ).setScheme ( token ) ) {
+                } else if(token == "gaviotatbscheme") {
+                    getToken(uip, token);
+                    if(token == "value") {
+                        getToken(uip, token);
+                        if(it->getGtb().setScheme(token)) {
                             knowCommand = true;
                         };
                     }
-                } else if ( token == "tb" ) {
-                    getToken ( uip, token );
-
-                    if ( token == "pieces" ) {
-                        getToken ( uip, token );
-
-                        if ( token == "installed" ) {
-                            getToken ( uip, token );
-
-                            if ( token == "value" ) {
-                                getToken ( uip, token );
-
-                                if ( it->getGtb (  ).setInstalledPieces ( stoi ( token ) ) ) {
+                } else if(token == "tb") {
+                    getToken(uip, token);
+                    if(token == "pieces") {
+                        getToken(uip, token);
+                        if(token == "installed") {
+                            getToken(uip, token);
+                            if(token == "value") {
+                                getToken(uip, token);
+                                if(it->getGtb().setInstalledPieces(stoi(token))) {
                                     knowCommand = true;
                                 };
                             }
                         }
-                    } else if ( token == "endgame" ) {
-                        getToken ( uip, token );
-
-                        if ( token == "value" ) {
-                            getToken ( uip, token );
+                    } else if(token == "endgame") {
+                        getToken(uip, token);
+                        if(token == "value") {
+                            getToken(uip, token);
                             knowCommand = true;
-
-                            if ( token == "none" ) {
-                                it->deleteGtb (  );
-                            } else if ( token == "gaviota" ) {
-                                it->getGtb (  );
+                            if(token == "none") {
+                                it->deleteGtb();
+                            } else if(token == "gaviota") {
+                                it->getGtb();
                             } else {
                                 knowCommand = false;
                             }
                         }
-                    } else if ( token == "restart" ) {
+                    } else if(token == "restart") {
                         knowCommand = true;
-                        it->getGtb (  ).restart (  );
-                    } else if ( token == "probing" ) {
-                        getToken ( uip, token );
-
-                        if ( token == "depth" ) {
-                            getToken ( uip, token );
-
-                            if ( token == "value" ) {
-                                getToken ( uip, token );
-
-                                if ( it->getGtb (  ).setProbeDepth ( stoi ( token ) ) ) {
+                        it->getGtb().restart();
+                    } else if(token == "probing") {
+                        getToken(uip, token);
+                        if(token == "depth") {
+                            getToken(uip, token);
+                            if(token == "value") {
+                                getToken(uip, token);
+                                if(it->getGtb().setProbeDepth(stoi(token))) {
                                     knowCommand = true;
                                 };
                             }
                         }
                     }
-                } else if ( token == "hash" ) {
-                    getToken ( uip, token );
-
-                    if ( token == "value" ) {
-                        getToken ( uip, token );
-
-                        if ( it->setHashSize ( stoi ( token ) ) ) {
+                } else if(token == "hash") {
+                    getToken(uip, token);
+                    if(token == "value") {
+                        getToken(uip, token);
+                        if(it->setHashSize(stoi(token))) {
                             knowCommand = true;
                         };
                     }
-                } else if ( token == "nullmove" ) {
-                    getToken ( uip, token );
-
-                    if ( token == "value" ) {
-                        getToken ( uip, token );
+                } else if(token == "nullmove") {
+                    getToken(uip, token);
+                    if(token == "value") {
+                        getToken(uip, token);
                         knowCommand = true;
-                        it->setNullMove ( token == "true" ? true : false );
+                        it->setNullMove(token == "true" ? true : false);
                     }
-                } else if ( token == "ownbook" ) {
-                    getToken ( uip, token );
-
-                    if ( token == "value" ) {
-                        getToken ( uip, token );
-                        it->setUseBook ( token == "true" ? true : false );
+                } else if(token == "ownbook") {
+                    getToken(uip, token);
+                    if(token == "value") {
+                        getToken(uip, token);
+                        it->setUseBook(token == "true" ? true : false);
                         knowCommand = true;
                     }
-                } else if ( token == "book" ) {
-                    getToken ( uip, token );
-
-                    if ( token == "file" ) {
-                        getToken ( uip, token );
-
-                        if ( token == "value" ) {
-                            getToken ( uip, token );
-                            it->loadBook ( token );
+                } else if(token == "book") {
+                    getToken(uip, token);
+                    if(token == "file") {
+                        getToken(uip, token);
+                        if(token == "value") {
+                            getToken(uip, token);
+                            it->loadBook(token);
                             knowCommand = true;
                         }
                     }
-                } else if ( token == "ponder" ) {
-                    getToken ( uip, token );
-
-                    if ( token == "value" ) {
-                        getToken ( uip, token );
-                        it->enablePonder ( token == "true" ? true : false );
+                } else if(token == "ponder") {
+                    getToken(uip, token);
+                    if(token == "value") {
+                        getToken(uip, token);
+                        it->enablePonder(token == "true" ? true : false);
                         knowCommand = true;
                     }
-                } else if ( token == "clear" ) {
-                    getToken ( uip, token );
-
-                    if ( token == "hash" ) {
+                } else if(token == "clear") {
+                    getToken(uip, token);
+                    if(token == "hash") {
                         knowCommand = true;
-                        it->clearHash (  );
+                        it->clearHash();
                     }
                 }
             }
-        } else if ( token == "position" ) {
-            lock_guard < mutex > lock ( it->mutex1 );
+        } else if(token == "position") {
+            lock_guard <mutex> lock(it->mutex1);
             //it->lock();
             knowCommand = true;
-            it->setRepetitionMapCount ( 0 );
-            getToken ( uip, token );
+            it->setRepetitionMapCount(0);
+            getToken(uip, token);
             _Tmove move;
-
-            if ( token == "startpos" ) {
-                it->setUseBook ( it->getUseBook (  ) );
-                it->loadFen (  );
-                getToken ( uip, token );
+            if(token == "startpos") {
+                it->setUseBook(it->getUseBook());
+                it->loadFen();
+                getToken(uip, token);
             }
-
-            if ( token == "fen" ) {
+            if(token == "fen") {
                 string fen;
-
-                while ( token != "moves" && !uip.eof (  ) ) {
+                while(token != "moves" && !uip.eof()) {
                     uip >> token;
                     fen += token;
                     fen += ' ';
                 }
-
-                it->init (  );
-                it->setSide ( it->loadFen ( fen ) );
-                it->pushStackMove (  );
+                it->init();
+                it->setSide(it->loadFen(fen));
+                it->pushStackMove();
             }
-
-            if ( token == "moves" ) {
-                while ( !uip.eof (  ) ) {
+            if(token == "moves") {
+                while(!uip.eof()) {
                     uip >> token;
-                    it->setSide ( !it->getMoveFromSan ( token, &move ) );
-                    it->makemove ( &move );
+                    it->setSide(!it->getMoveFromSan(token, &move));
+                    it->makemove(&move);
                 }
             }
-        } else if ( token == "go" ) {
-            it->setMaxDepth ( GenMoves::MAX_PLY );
+        } else if(token == "go") {
+            it->setMaxDepth(GenMoves::MAX_PLY);
             int wtime = 200000;	//5 min
             int btime = 200000;
             int winc = 0;
             int binc = 0;
             bool forceTime = false;
-
-            while ( !uip.eof (  ) ) {
-                getToken ( uip, token );
-
-                if ( token == "wtime" ) {
+            while(!uip.eof()) {
+                getToken(uip, token);
+                if(token == "wtime") {
                     uip >> wtime;
-                } else if ( token == "btime" ) {
+                } else if(token == "btime") {
                     uip >> btime;
-                } else if ( token == "winc" ) {
+                } else if(token == "winc") {
                     uip >> winc;
-                } else if ( token == "binc" ) {
+                } else if(token == "binc") {
                     uip >> binc;
-                } else if ( token == "depth" ) {
+                } else if(token == "depth") {
                     int depth;
                     uip >> depth;
-
-                    if ( depth > GenMoves::MAX_PLY ) {
+                    if(depth > GenMoves::MAX_PLY) {
                         depth = GenMoves::MAX_PLY;
                     }
-
-                    it->setMaxDepth ( depth );
+                    it->setMaxDepth(depth);
                     forceTime = true;
-                } else if ( token == "movetime" ) {
+                } else if(token == "movetime") {
                     int tim;
                     uip >> tim;
-                    it->setMaxTimeMillsec ( tim );
+                    it->setMaxTimeMillsec(tim);
                     forceTime = true;
-                } else if ( token == "infinite" ) {
-                    it->setMaxTimeMillsec ( 0x7FFFFFFF );
+                } else if(token == "infinite") {
+                    it->setMaxTimeMillsec(0x7FFFFFFF);
                     forceTime = true;
-                } else if ( token == "ponder" ) {
-                    it->setPonder ( true );
+                } else if(token == "ponder") {
+                    it->setPonder(true);
                 }
             }
-
-            if ( !forceTime ) {
-                if ( it->getSide (  ) == WHITE ) {
-                    winc -= ( int ) ( winc * 0.1 );
-                    it->setMaxTimeMillsec ( winc + wtime / 40 );
-
-                    if ( btime > wtime ) {
-                        it->setMaxTimeMillsec ( it->getMaxTimeMillsec (  ) - ( int ) ( it->getMaxTimeMillsec (  ) * ( ( 135.0 - wtime * 100.0 / btime ) / 100.0 ) ) );
+            if(!forceTime) {
+                if(it->getSide() == WHITE) {
+                    winc -= (int)(winc * 0.1);
+                    it->setMaxTimeMillsec(winc + wtime / 40);
+                    if(btime > wtime) {
+                        it->setMaxTimeMillsec(it->getMaxTimeMillsec() - (int)(it->getMaxTimeMillsec() * ((135.0 - wtime * 100.0 / btime) / 100.0)));
                     }
                 } else {
-                    binc -= ( int ) ( binc * 0.1 );
-                    it->setMaxTimeMillsec ( binc + btime / 40 );
-
-                    if ( wtime > btime ) {
-                        it->setMaxTimeMillsec ( it->getMaxTimeMillsec (  ) - ( int ) ( it->getMaxTimeMillsec (  ) * ( ( 135.0 - btime * 100.0 / wtime ) / 100.0 ) ) );
+                    binc -= (int)(binc * 0.1);
+                    it->setMaxTimeMillsec(binc + btime / 40);
+                    if(wtime > btime) {
+                        it->setMaxTimeMillsec(it->getMaxTimeMillsec() - (int)(it->getMaxTimeMillsec() * ((135.0 - btime * 100.0 / wtime) / 100.0)));
                     }
                 }
-
-                lastTime = it->getMaxTimeMillsec (  );
+                lastTime = it->getMaxTimeMillsec();
             }
-
-            if ( !uciMode ) {
-                it->display (  );
+            if(!uciMode) {
+                it->display();
             }
-
-            it->stop (  );
-            it->start (  );
+            it->stop();
+            it->start();
             knowCommand = true;
         }
-
-        if ( !knowCommand ) {
+        if(!knowCommand) {
             cout << "Unknown command: " << command << "\n";
         };
-
         cout << flush;
     }
 }
