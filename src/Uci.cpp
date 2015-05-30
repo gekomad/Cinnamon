@@ -327,6 +327,7 @@ void Uci::listner(IterativeDeeping* it) {
                     if(depth > GenMoves::MAX_PLY) {
                         depth = GenMoves::MAX_PLY;
                     }
+                    it->setMaxTimeMillsec(0x7FFFFFFF);
                     it->setMaxDepth(depth);
                     forceTime = true;
                 } else if(token == "movetime") {

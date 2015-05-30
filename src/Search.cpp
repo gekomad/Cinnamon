@@ -57,14 +57,8 @@ Search::~Search() {
 
 template <int side>
 int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIECE, int depth) {
-    if(!running) {
-        return 0;
-    }
     ASSERT(chessboard[KING_BLACK + side]);
     int score = -_INFINITE;
-    if(!(numMovesq++ & 1023)) {
-        running = checkTime();
-    }
     score = getScore(side, alpha, beta);
     if(score >= beta) {
         return beta;

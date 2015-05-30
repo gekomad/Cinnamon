@@ -286,7 +286,7 @@ void IterativeDeeping::run() {
             forceCheck = true;
             setRunning(2);
         }
-        if(mply >= maxDepth - 1) {
+        if(mply >= maxDepth) {
             break;
         }
     }

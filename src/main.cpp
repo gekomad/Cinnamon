@@ -20,6 +20,8 @@
 
 /*
 
+ astyle --style=java  --close-templates --unpad-paren --align-reference=type --align-pointer=type  --delete-empty-lines  --add-brackets *.cpp *.h
+
  8| 63 62 61 60 59 58 57 56
  7| 55 54 53 52 51 50 49 48
  6| 47 46 45 44 43 42 41 40
@@ -64,6 +66,11 @@ zct_2043              0  0  0  0  0  0  0  0  0  0  0    99 99
 jabba-64_2041         0  0  0  0  0  0  0  0  0  0  0  0    50
 gullydeckel-64_1982   0  0  0  0  0  0  0  0  0  0  0  0 49
 
+
+ratings
+Rank Name                 Elo    +    - games score oppo. draws
+   1 Cinnamon 1.2c          4    6    6  3660   51%    -4   29%
+   2 Cinnamon 1.2b         -4    6    6  3660   49%     4   29%
 
  */
 
