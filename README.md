@@ -27,6 +27,7 @@ Cinnamon is a chess program for Windows, Linux, Mac OS and Android, is a console
               <li>Available with Tarrasch GUI for Windows</li>
               <li>Open Book (Polyglot)</li>
               <li>Gaviota Tablebases</li>
+              <li><a href="http://cinnamonchess.altervista.org/api/1.2a/class_iterative_deeping.html" rel="nofollow">Source doc</a> </li>
               <li><a href="http://www.computerchess.org.uk/ccrl/404/cgi/compare_engines.cgi?family=Cinnamon" rel="nofollow">Elo ratings</a> </li>
             </ul>
 
