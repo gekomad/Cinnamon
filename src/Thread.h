@@ -25,82 +25,82 @@ using namespace std;
 
 class Runnable {
 public:
-  virtual void run (  ) = 0;
+    virtual void run (  ) = 0;
 };
 
 class Thread:virtual public Runnable {
 private:
-  bool running = true;
+    bool running = true;
 
-  condition_variable cv;
-  thread *theThread;
-  Runnable *_runnable;
-  Runnable *execRunnable;
+    condition_variable cv;
+    thread *theThread;
+    Runnable *_runnable;
+    Runnable *execRunnable;
 
-  static void *__run ( void *cthis ) {
-    static_cast < Runnable * >( cthis )->run (  );
-    return nullptr;
-} public:
-   Thread (  ):_runnable ( nullptr ) {
-    theThread = nullptr;
-    execRunnable = this;
-  }
-
-  virtual ~ Thread (  ) {
-    if ( theThread ) {
-      theThread->detach (  );
-      delete theThread;
-      theThread = nullptr;
-    }
-  }
-
-  void checkWait (  ) {
-    while ( !running ) {
-      mutex mtx;
-      unique_lock < mutex > lck ( mtx );
-      cv.wait ( lck );
-    }
-  }
-
-  void notify (  ) {
-    cv.notify_all (  );
-  }
-
-  void start (  ) {
-    if ( this->_runnable != nullptr ) {
-      execRunnable = this->_runnable;
+    static void *__run ( void *cthis ) {
+        static_cast < Runnable * >( cthis )->run (  );
+        return nullptr;
+    } public:
+    Thread (  ):_runnable ( nullptr ) {
+        theThread = nullptr;
+        execRunnable = this;
     }
 
-    if ( theThread ) {
-      delete theThread;
+    virtual ~ Thread (  ) {
+        if ( theThread ) {
+            theThread->detach (  );
+            delete theThread;
+            theThread = nullptr;
+        }
     }
 
-    theThread = new thread ( __run, execRunnable );
-  }
-
-  void join (  ) {
-    if ( theThread ) {
-      theThread->join (  );
-      delete theThread;
-      theThread = nullptr;
+    void checkWait (  ) {
+        while ( !running ) {
+            mutex mtx;
+            unique_lock < mutex > lck ( mtx );
+            cv.wait ( lck );
+        }
     }
-  }
 
-  bool isJoinable (  ) {
-    return theThread->joinable (  );
-  }
-
-  void sleep ( bool b ) {
-    running = !b;
-  }
-
-  void stop (  ) {
-    if ( theThread ) {
-      theThread->detach (  );
-      delete theThread;
-      theThread = nullptr;
+    void notify (  ) {
+        cv.notify_all (  );
     }
-  }
+
+    void start (  ) {
+        if ( this->_runnable != nullptr ) {
+            execRunnable = this->_runnable;
+        }
+
+        if ( theThread ) {
+            delete theThread;
+        }
+
+        theThread = new thread ( __run, execRunnable );
+    }
+
+    void join (  ) {
+        if ( theThread ) {
+            theThread->join (  );
+            delete theThread;
+            theThread = nullptr;
+        }
+    }
+
+    bool isJoinable (  ) {
+        return theThread->joinable (  );
+    }
+
+    void sleep ( bool b ) {
+        running = !b;
+    }
+
+    void stop (  ) {
+        if ( theThread ) {
+            theThread->detach (  );
+            delete theThread;
+            theThread = nullptr;
+        }
+    }
 
 };
 #endif
