@@ -72,6 +72,11 @@ Rank Name                 Elo    +    - games score oppo. draws
    1 Cinnamon 1.2c          4    6    6  3660   51%    -4   29%
    2 Cinnamon 1.2b         -4    6    6  3660   49%     4   29%
 
+ratings
+Rank Name                 Elo    +    - games score oppo. draws
+   1 beowulf_2194          250   16   15  1000   68%   108   13%
+   2 Cinnamon 1.2b         112   14   14  1000   51%   108   27%
+   3 Cinnamon 1.2c         108   10   11  2423   50%    67   16%
  */
 
 using namespace _board;
