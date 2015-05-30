@@ -25,17 +25,19 @@
 
 using namespace std;
 
-class String:public string {
+class String:public string
+{
 public:
-  String (  );
-  String ( string s ):string ( s ) {
-  };
-  String ( int );
-  virtual ~ String (  );
-  String trimRight (  );
-  String replace ( string s1, string s2 );
-  String replace ( char c1, char c2 );
-  String toUpper (  );
-  String toLower (  );
+    String (  );
+    String ( string s ):string ( s )
+    {
+    };
+    String ( int );
+    virtual ~ String (  );
+    String trimRight (  );
+    String replace ( string s1, string s2 );
+    String replace ( char c1, char c2 );
+    String toUpper (  );
+    String toLower (  );
 };
 #endif
