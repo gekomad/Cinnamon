@@ -69,8 +69,7 @@ gullydeckel-64_1982   0  0  0  0  0  0  0  0  0  0  0  0 49
 using namespace _board;
 
 int
-main ( int argc, char **argv )
-{
+main ( int argc, char **argv ) {
     cout << NAME;
     cout << " UCI by Giuseppe Cannella\n";
 #if UINTPTR_MAX == 0xffffffffffffffff
@@ -98,20 +97,16 @@ main ( int argc, char **argv )
     const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb)] [-f \"fen position\"] [-F dump file]";
     const string EPD2PGN_HELP = "-epd2pgn -f file_epd [-m max_pieces]";
 
-    while ( ( opt = getopt ( argc, argv, "e:hd:bp:f:" ) ) != -1 )
-    {
-        if ( opt == 'h' )
-        {
+    while ( ( opt = getopt ( argc, argv, "e:hd:bp:f:" ) ) != -1 ) {
+        if ( opt == 'h' ) {
             cout << "Distance to mate: " << argv[0] << " " << DTM_HELP << "\n";
             cout << "Perft test: " << argv[0] << " " << PERFT_HELP << "\n";
             cout << "Create .pgn from .epd: " << argv[0] << " " << EPD2PGN_HELP << endl;
             return 0;
         }
 
-        if ( opt == 'e' )
-        {
-            if ( string ( optarg ) != "pd2pgn" )
-            {
+        if ( opt == 'e' ) {
+            if ( string ( optarg ) != "pd2pgn" ) {
                 cout << "use: " << argv[0] << " " << EPD2PGN_HELP << endl;
                 return 1;
             };
@@ -120,15 +115,12 @@ main ( int argc, char **argv )
 
             int m = 64;
 
-            while ( ( opt = getopt ( argc, argv, "f:m:" ) ) != -1 )
-            {
-                if ( opt == 'f' )  	//file
-                {
+            while ( ( opt = getopt ( argc, argv, "f:m:" ) ) != -1 ) {
+                if ( opt == 'f' ) {	//file
                     epdfile = optarg;
                 }
 
-                if ( opt == 'm' )  	//n' pieces
-                {
+                if ( opt == 'm' ) {	//n' pieces
                     string h = optarg;
                     m = stoi ( h );
                 }
@@ -138,8 +130,7 @@ main ( int argc, char **argv )
             ifstream inData;
             string fen;
 
-            if ( !_file::fileExists ( epdfile ) )
-            {
+            if ( !_file::fileExists ( epdfile ) ) {
                 cout << "error file not found  " << epdfile << endl;
                 return 1;
             }
@@ -151,28 +142,23 @@ main ( int argc, char **argv )
             os << "[Date \"" << _time::getYear (  ) << "." << _time::getMonth (  ) << "." << _time::getDay (  ) << "\"]";
             string date = os.str (  );
 
-            while ( !inData.eof (  ) )
-            {
+            while ( !inData.eof (  ) ) {
                 getline ( inData, fen );
                 n = 0;
 
-                for ( unsigned i = 0; i < fen.size (  ); i++ )
-                {
+                for ( unsigned i = 0; i < fen.size (  ); i++ ) {
                     char c = tolower ( fen[i] );
 
-                    if ( c == ' ' )
-                    {
+                    if ( c == ' ' ) {
                         break;
                     }
 
-                    if ( c == 'b' || c == 'k' || c == 'r' || c == 'q' || c == 'p' || c == 'n' )
-                    {
+                    if ( c == 'b' || c == 'k' || c == 'r' || c == 'q' || c == 'p' || c == 'n' ) {
                         n++;
                     }
                 }
 
-                if ( n > 0 && n <= m )
-                {
+                if ( n > 0 && n <= m ) {
                     count++;
                     cout << "[Site \"" << count << " (" << n << " pieces)\"]\n";
                     cout << date << "\n";
@@ -196,18 +182,14 @@ main ( int argc, char **argv )
             return 0;
         }
 
-        if ( opt == 'b' )
-        {
+        if ( opt == 'b' ) {
             unique_ptr < IterativeDeeping > it ( new IterativeDeeping (  ) );
             it->setUseBook ( false );
             it->setMaxTimeMillsec ( 40000 );
             it->run (  );
             return 0;
-        }
-        else if ( opt == 'd' )  	// gtb dtm
-        {
-            if ( string ( optarg ) != "tm" )
-            {
+        } else if ( opt == 'd' ) {	// gtb dtm
+            if ( string ( optarg ) != "tm" ) {
                 cout << "use: " << argv[0] << " " << DTM_HELP << endl;
                 return 1;
             };
@@ -216,41 +198,30 @@ main ( int argc, char **argv )
 
             IterativeDeeping it;
 
-            while ( ( opt = getopt ( argc, argv, "f:p:s:i:" ) ) != -1 )
-            {
-                if ( opt == 'f' )  	//fen
-                {
+            while ( ( opt = getopt ( argc, argv, "f:p:s:i:" ) ) != -1 ) {
+                if ( opt == 'f' ) {	//fen
                     fen = optarg;
-                }
-                else if ( opt == 'p' )  	//path
-                {
+                } else if ( opt == 'p' ) {	//path
                     token = optarg;
                     it.getGtb (  ).setPath ( token );
-                }
-                else if ( opt == 's' )  	//scheme
-                {
+                } else if ( opt == 's' ) {	//scheme
                     token = optarg;
 
-                    if ( !it.getGtb (  ).setScheme ( token ) )
-                    {
+                    if ( !it.getGtb (  ).setScheme ( token ) ) {
                         cout << "set scheme error" << endl;
                         return 1;
                     }
-                }
-                else if ( opt == 'i' )
-                {
+                } else if ( opt == 'i' ) {
                     token = optarg;
 
-                    if ( !it.getGtb (  ).setInstalledPieces ( stoi ( token ) ) )
-                    {
+                    if ( !it.getGtb (  ).setInstalledPieces ( stoi ( token ) ) ) {
                         cout << "set installed pieces error" << endl;
                         return 1;
                     }
                 }
             }
 
-            if ( !it.getGtbAvailable (  ) )
-            {
+            if ( !it.getGtbAvailable (  ) ) {
                 cout << "error TB not found" << endl;
                 return 1;
             }
@@ -258,11 +229,8 @@ main ( int argc, char **argv )
             it.loadFen ( fen );
             it.printDtm (  );
             return 0;
-        }
-        else if ( opt == 'p' )  	// perft test
-        {
-            if ( string ( optarg ) != "erft" )
-            {
+        } else if ( opt == 'p' ) {	// perft test
+            if ( string ( optarg ) != "erft" ) {
                 continue;
             };
 
@@ -276,44 +244,31 @@ main ( int argc, char **argv )
 
             string dumpFile;
 
-            while ( ( opt = getopt ( argc, argv, "d:f:h:f:c:F:" ) ) != -1 )
-            {
-                if ( opt == 'd' )  	//depth
-                {
+            while ( ( opt = getopt ( argc, argv, "d:f:h:f:c:F:" ) ) != -1 ) {
+                if ( opt == 'd' ) {	//depth
                     perftDepth = atoi ( optarg );
-                }
-                else if ( opt == 'F' )  	//use dump
-                {
+                } else if ( opt == 'F' ) {	//use dump
                     dumpFile = optarg;
 
-                    if ( dumpFile.empty (  ) )
-                    {
+                    if ( dumpFile.empty (  ) ) {
                         cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                         return 1;
                     }
-                }
-                else if ( opt == 'c' )  	//N cpu
-                {
+                } else if ( opt == 'c' ) {	//N cpu
                     nCpu = atoi ( optarg );
-                }
-                else if ( opt == 'h' )  	//hash
-                {
+                } else if ( opt == 'h' ) {	//hash
                     PERFT_HASH_SIZE = atoi ( optarg );
-                }
-                else if ( opt == 'f' )  	//fen
-                {
+                } else if ( opt == 'f' ) {	//fen
                     fen = optarg;
                 }
             }
 
-            if ( perftDepth > GenMoves::MAX_PLY || perftDepth < 0 || nCpu > 32 || nCpu < 0 || PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0 )
-            {
+            if ( perftDepth > GenMoves::MAX_PLY || perftDepth < 0 || nCpu > 32 || nCpu < 0 || PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0 ) {
                 cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                 return 1;
             }
 
-            if ( PERFT_HASH_SIZE )
-            {
+            if ( PERFT_HASH_SIZE ) {
                 cout << "dump hash table in file every " << ( Perft::secondsToDump / 60 ) << " minutes" << endl;
             }
             unique_ptr < Perft > p ( new Perft ( fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile ) );

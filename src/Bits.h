@@ -20,24 +20,20 @@
 #define _BITS_H_
 #include "namespaces.h"
 
-class Bits
-{
+class Bits {
 public:
 
     Bits (  );
     virtual ~ Bits (  );
 #ifdef HAS_POPCNT
-    static int bitCount ( u64 bits )
-    {
+    static int bitCount ( u64 bits ) {
         return __builtin_popcountll ( bits );
     }
 #else
-    static int bitCount ( u64 bits )
-    {
+    static int bitCount ( u64 bits ) {
         int count = 0;
 
-        while ( bits )
-        {
+        while ( bits ) {
             count++;
             bits &= bits - 1;
         }
@@ -53,8 +49,7 @@ protected:
 
     u64 **LINK_ROOKS;
 
-    template < int side, int shift > static u64 shiftForward ( const u64 bits )
-    {
+    template < int side, int shift > static u64 shiftForward ( const u64 bits ) {
         return side == WHITE ? bits << shift : bits >> shift;
     }
 
@@ -62,23 +57,19 @@ protected:
 
 #ifdef HAS_BSF
 #if UINTPTR_MAX == 0xffffffffffffffff
-    static int BITScanForward ( u64 bits )
-    {
+    static int BITScanForward ( u64 bits ) {
         return __builtin_ffsll ( bits ) - 1;
     }
 
-    static int BITScanReverse ( u64 bits )
-    {
+    static int BITScanReverse ( u64 bits ) {
         return 63 - __builtin_clzll ( bits );
     }
 #else
-    static int BITScanForward ( u64 bits )
-    {
+    static int BITScanForward ( u64 bits ) {
         return ( ( unsigned ) bits ) ? __builtin_ffs ( bits ) - 1 : __builtin_ffs ( bits >> 32 ) + 31;
     }
 
-    static int BITScanReverse ( u64 bits )
-    {
+    static int BITScanReverse ( u64 bits ) {
         return ( ( unsigned ) ( bits >> 32 ) ) ? 63 - __builtin_clz ( bits >> 32 ) : 31 - __builtin_clz ( bits );
     }
 #endif
@@ -86,11 +77,9 @@ protected:
 
 
 
-    static int BITScanForward ( u64 bb )
-    {
+    static int BITScanForward ( u64 bb ) {
         //  @author Matt Taylor (2003)
-        static const int lsb_64_table[64] =
-        {
+        static const int lsb_64_table[64] = {
             63, 30, 3, 32, 59, 14, 11, 33,
             60, 24, 50, 9, 55, 19, 21, 34,
             61, 29, 2, 53, 51, 23, 41, 18,
@@ -107,11 +96,9 @@ protected:
     }
 
 
-    static int BITScanReverse ( u64 bb )
-    {
+    static int BITScanReverse ( u64 bb ) {
         // authors Kim Walisch, Mark Dickinson
-        static const int index64[64] =
-        {
+        static const int index64[64] = {
             0, 47, 1, 56, 48, 27, 2, 60,
             57, 49, 41, 37, 28, 16, 3, 61,
             54, 58, 35, 52, 50, 42, 21, 44,

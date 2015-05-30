@@ -25,12 +25,10 @@
 
 using namespace std;
 
-class String:public string
-{
+class String:public string {
 public:
     String (  );
-    String ( string s ):string ( s )
-    {
+    String ( string s ):string ( s ) {
     };
     String ( int );
     virtual ~ String (  );

@@ -29,52 +29,52 @@ class Search:public Hash, public Eval {
 
 public:
 
-  Search (  );
-  virtual ~ Search (  );
-  void setRunning ( int );
-  void setPonder ( bool );
-  void setNullMove ( bool );
-  void setMaxTimeMillsec ( int );
-  int getMaxTimeMillsec (  );
-  void startClock (  );
-  int getRunning (  );
-  void createGtb (  );
-  void deleteGtb (  );
-   Tablebase & getGtb (  ) const;
-  bool getGtbAvailable (  );
-  STATIC_CONST int NULLMOVE_DEPTH = 3;
-  STATIC_CONST int NULLMOVES_MIN_PIECE = 3;
-  STATIC_CONST int NULLMOVES_R1 = 2;
-  STATIC_CONST int NULLMOVES_R2 = 3;
-  STATIC_CONST int NULLMOVES_R3 = 2;
-  STATIC_CONST int NULLMOVES_R4 = 2;
+    Search (  );
+    virtual ~ Search (  );
+    void setRunning ( int );
+    void setPonder ( bool );
+    void setNullMove ( bool );
+    void setMaxTimeMillsec ( int );
+    int getMaxTimeMillsec (  );
+    void startClock (  );
+    int getRunning (  );
+    void createGtb (  );
+    void deleteGtb (  );
+    Tablebase & getGtb (  ) const;
+    bool getGtbAvailable (  );
+    STATIC_CONST int NULLMOVE_DEPTH = 3;
+    STATIC_CONST int NULLMOVES_MIN_PIECE = 3;
+    STATIC_CONST int NULLMOVES_R1 = 2;
+    STATIC_CONST int NULLMOVES_R2 = 3;
+    STATIC_CONST int NULLMOVES_R3 = 2;
+    STATIC_CONST int NULLMOVES_R4 = 2;
 protected:
 
-  typedef struct {
-    int cmove;
-    _Tmove argmove[GenMoves::MAX_PLY];
-  } _TpvLine;
+    typedef struct {
+        int cmove;
+        _Tmove argmove[GenMoves::MAX_PLY];
+    } _TpvLine;
 
-  void setMainPly ( int );
-  int search ( int depth, int alpha, int beta, _TpvLine * pline, int *mateIn );
+    void setMainPly ( int );
+    int search ( int depth, int alpha, int beta, _TpvLine * pline, int *mateIn );
 #ifdef DEBUG_MODE
-  unsigned cumulativeMovesCount, totGen;
+    unsigned cumulativeMovesCount, totGen;
 #endif
 private:
-   Tablebase * gtb = nullptr;
-  void setMaxDepthSearch ( int );
-  int getMaxDepthSearch (  );
-  bool ponder;
-  int checkTime (  );
-  int running, mainDepth, maxTimeMillsec;
-  bool nullSearch;
-  struct timeb startTime;
-  bool checkDraw ( u64 );
-   template < int side > int search ( int depth, int alpha, int beta, _TpvLine * pline, int, int *mateIn );
-  bool checkInsufficientMaterial ( int );
-  void sortHashMoves ( int listId, _Thash * );
-   template < int side > int quiescence ( int alpha, int beta, const char promotionPiece, int, int depth );
-  void updatePv ( _TpvLine * pline, const _TpvLine * line, const _Tmove * move );
+    Tablebase * gtb = nullptr;
+    void setMaxDepthSearch ( int );
+    int getMaxDepthSearch (  );
+    bool ponder;
+    int checkTime (  );
+    int running, mainDepth, maxTimeMillsec;
+    bool nullSearch;
+    struct timeb startTime;
+    bool checkDraw ( u64 );
+    template < int side > int search ( int depth, int alpha, int beta, _TpvLine * pline, int, int *mateIn );
+    bool checkInsufficientMaterial ( int );
+    void sortHashMoves ( int listId, _Thash * );
+    template < int side > int quiescence ( int alpha, int beta, const char promotionPiece, int, int depth );
+    void updatePv ( _TpvLine * pline, const _TpvLine * line, const _Tmove * move );
 
 };
 #endif

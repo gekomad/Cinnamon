@@ -22,54 +22,55 @@
 #include <chrono>
 namespace _time {
 
-  int diffTime ( struct timeb t1, struct timeb t2 ) {
+int diffTime ( struct timeb t1, struct timeb t2 ) {
     return 1000 * ( t1.time - t2.time ) + t1.millitm - t2.millitm;
-  } string getLocalTime (  ) {
+} string getLocalTime (  ) {
     time_t current = chrono::system_clock::to_time_t ( chrono::system_clock::now (  ) );
     return ctime ( &current );
-  }
+}
 
-  int getYear (  ) {
+int getYear (  ) {
     time_t t = time ( NULL );
     tm *timePtr = localtime ( &t );
     return 1900 + timePtr->tm_year;
-  }
+}
 
-  int getMonth (  ) {
+int getMonth (  ) {
     time_t t = time ( NULL );
     tm *timePtr = localtime ( &t );
     return 1 + timePtr->tm_mon;
-  }
+}
 
-  int getDay (  ) {
+int getDay (  ) {
     time_t t = time ( NULL );
     tm *timePtr = localtime ( &t );
     return timePtr->tm_mday;
-  }
+}
 }
 
 namespace _file {
-  bool fileExists ( string filename ) {
+bool fileExists ( string filename ) {
     ifstream inData;
-     inData.open ( filename );
+    inData.open ( filename );
 
     if ( !inData ) {
-      return false;
-    } inData.close (  );
+        return false;
+    }
+    inData.close (  );
     return true;
-  }
+}
 
-  int fileSize ( const string & FileName ) {
+int fileSize ( const string & FileName ) {
     struct stat file;
 
     if ( !stat ( FileName.c_str (  ), &file ) ) {
-      return file.st_size;
+        return file.st_size;
     }
 
     return -1;
-  }
+}
 
-  string extractFileName ( string path ) {
+string extractFileName ( string path ) {
     replace ( path.begin (  ), path.end (  ), ':', '/' );
     replace ( path.begin (  ), path.end (  ), '\\', '/' );
     istringstream iss ( path );
@@ -78,6 +79,6 @@ namespace _file {
     while ( getline ( iss, token, '/' ) );
 
     return token;
-  }
+}
 
 }

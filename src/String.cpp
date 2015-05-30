@@ -18,13 +18,14 @@
 
 #include "String.h"
 
-String::String (  ):string (  ) {;
+String::String (  ):string (  ) {
+    ;
 }
 
 String::String ( int d ) {
-  stringstream ss;
-  ss << d;
-  assign ( ss.str (  ) );
+    stringstream ss;
+    ss << d;
+    assign ( ss.str (  ) );
 }
 
 String::~String (  ) {
@@ -32,41 +33,41 @@ String::~String (  ) {
 
 String
 String::trimRight (  ) {
-  int pos = find_last_not_of ( " " );
-  erase ( pos + 1 );
-  return *this;
+    int pos = find_last_not_of ( " " );
+    erase ( pos + 1 );
+    return *this;
 }
 
 String
 String::replace ( char c1, char c2 ) {
-  for ( unsigned i = 0; i < size (  ); i++ ) {
-    if ( at ( i ) == c1 ) {
-      at ( i ) = c2;
+    for ( unsigned i = 0; i < size (  ); i++ ) {
+        if ( at ( i ) == c1 ) {
+            at ( i ) = c2;
+        }
     }
-  }
 
-  return *this;
+    return *this;
 }
 
 String
 String::replace ( string s1, string s2 ) {
-  int a;
+    int a;
 
-  while ( ( a = find ( s1 ) ) != ( int ) string::npos ) {
-    string::replace ( a, s1.size (  ), s2 );
-  };
+    while ( ( a = find ( s1 ) ) != ( int ) string::npos ) {
+        string::replace ( a, s1.size (  ), s2 );
+    };
 
-  return *this;
+    return *this;
 }
 
 String
 String::toUpper (  ) {
-  transform ( begin (  ), end (  ), begin (  ),::toupper );
-  return *this;
+    transform ( begin (  ), end (  ), begin (  ),::toupper );
+    return *this;
 }
 
 String
 String::toLower (  ) {
-  transform ( begin (  ), end (  ), begin (  ),::tolower );
-  return *this;
+    transform ( begin (  ), end (  ), begin (  ),::tolower );
+    return *this;
 }

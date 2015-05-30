@@ -23,32 +23,32 @@
 class Timer:public Thread {
 public:
 
-  Timer ( int seconds1 ) {
-    seconds = seconds1;
-  } void run (  ) {
-    while ( 1 ) {
-      this_thread::sleep_for ( chrono::seconds ( seconds ) );
-      notifyObservers (  );
+    Timer ( int seconds1 ) {
+        seconds = seconds1;
+    } void run (  ) {
+        while ( 1 ) {
+            this_thread::sleep_for ( chrono::seconds ( seconds ) );
+            notifyObservers (  );
+        }
     }
-  }
 
-  void registerObservers ( function < void ( void ) > f ) {
-    observers.push_back ( f );
-  }
-
-  void notifyObservers ( void ) {
-    for ( auto i = observers.begin (  ); i != observers.end (  ); ++i ) {
-      ( *i ) (  );
+    void registerObservers ( function < void ( void ) > f ) {
+        observers.push_back ( f );
     }
-  }
 
-  virtual ~ Timer (  ) {
-  }
+    void notifyObservers ( void ) {
+        for ( auto i = observers.begin (  ); i != observers.end (  ); ++i ) {
+            ( *i ) (  );
+        }
+    }
+
+    virtual ~ Timer (  ) {
+    }
 
 
 private:
-  int seconds;
-  vector < function < void ( void ) >> observers;
+    int seconds;
+    vector < function < void ( void ) >> observers;
 };
 
 #endif
