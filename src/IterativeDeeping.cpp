@@ -152,7 +152,7 @@ void IterativeDeeping::run() {
     string pvv;
     _Tmove move2;
     int TimeTaken = 0;
-    setRunning(1);
+    setRunning(2);
     int mply = 0;
     if(useBook) {
         ASSERT(openBook);
@@ -216,9 +216,9 @@ void IterativeDeeping::run() {
             break;
         }
         totMoves = 0;
-        //if(mply == 2) {
-        //    setRunning(1);
-        //}
+        if(mply == 2) {
+            setRunning(1);
+        }
         memcpy(&move2, line.argmove, sizeof(_Tmove));
         pvv.clear();
         string pvvTmp;
@@ -276,16 +276,20 @@ void IterativeDeeping::run() {
         cout << "info string null move cut: " << nNullMoveCut << endl;
         cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
-
         ///is invalid move?
-        u64 oldKey=zobristKey;
-        makemove(&resultMove);
-        if(resultMove.side == WHITE ? inCheck<WHITE>():inCheck<BLACK>()) {
-            red++;
-        } else {
+        bool print =true;
+        if(sc == INT_MAX) {
+            u64 oldKey=zobristKey;
+            makemove(&resultMove);
+            if(resultMove.side == WHITE ? inCheck<WHITE>():inCheck<BLACK>()) {
+                red++;
+                print= false;
+            }
+            takeback(&resultMove, oldKey, false);
+        }
+        if(print) {
             cout << "info score cp " << sc << " depth " << (int) mply-red << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         }
-        takeback(&resultMove, oldKey, false);
         if(forceCheck) {
             forceCheck = false;
             setRunning(1);
