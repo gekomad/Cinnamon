@@ -179,6 +179,7 @@ void IterativeDeeping::run() {
     ponderMove = "";
     int mateIn = INT_MAX;
     bool inMate=false;
+    int red=0;
     while(getRunning() && mateIn == INT_MAX) {
         init();
         ++mply;
@@ -275,10 +276,16 @@ void IterativeDeeping::run() {
         cout << "info string null move cut: " << nNullMoveCut << endl;
         cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
-        //  cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-        //} else {
-        cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-        //}
+
+        ///is invalid move?
+        u64 oldKey=zobristKey;
+        makemove(&resultMove);
+        if(resultMove.side == WHITE ? inCheck<WHITE>():inCheck<BLACK>()) {
+            red++;
+        } else {
+            cout << "info score cp " << sc << " depth " << (int) mply-red << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+        }
+        takeback(&resultMove, oldKey, false);
         if(forceCheck) {
             forceCheck = false;
             setRunning(1);
@@ -286,7 +293,7 @@ void IterativeDeeping::run() {
             forceCheck = true;
             setRunning(2);
         }
-        if(mply >= maxDepth && (getRunning()!=2 || inMate)) {
+        if(mply >= maxDepth+red && (getRunning()!=2 || inMate)) {
             break;
         }
         if(abs(sc) > _INFINITE-MAX_PLY) {
@@ -295,11 +302,11 @@ void IterativeDeeping::run() {
     }
     if(forceCheck && getRunning()) {
         while(forceCheck && getRunning());
-        if(abs(sc) > _INFINITE-MAX_PLY) {
-            //cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-            //} else {
-            cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-        }
+        //if(abs(sc) > _INFINITE-MAX_PLY) {
+        //cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+        //} else {
+        cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+        //}
     }
     resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? getPieceAt <WHITE> (POW2[resultMove.to]) : getPieceAt <BLACK> (POW2[resultMove.to]);
     string bestmove = decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
