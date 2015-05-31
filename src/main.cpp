@@ -20,7 +20,7 @@
 
 /*
 
- astyle --style=java  --close-templates --unpad-paren --align-reference=type --align-pointer=type  --delete-empty-lines  --add-brackets *.cpp *.h
+ astyle --style=java  --suffix=none --close-templates --unpad-paren --align-reference=type --align-pointer=type  --delete-empty-lines  --add-brackets *.cpp *.h
 
  8| 63 62 61 60 59 58 57 56
  7| 55 54 53 52 51 50 49 48

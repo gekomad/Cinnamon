@@ -410,7 +410,7 @@ GenMoves::~GenMoves() {
     free(repetitionMap);
 }
 
-
+/*
 bool GenMoves::isPinned(const int side, const uchar position, const uchar piece) {
     u64 king = chessboard[KING_BLACK + side];
     int posKing = BITScanForward(king);
@@ -504,6 +504,7 @@ bool GenMoves::isPinned(const int side, const uchar position, const uchar piece)
     chessboard[piece] |= pow2position;
     return false;
 }
+*/
 
 void GenMoves::performCastle(const int side, const uchar type) {
     ASSERT_RANGE(side, 0, 1);

@@ -152,7 +152,7 @@ void IterativeDeeping::run() {
     string pvv;
     _Tmove move2;
     int TimeTaken = 0;
-    setRunning(2);
+    setRunning(1);
     int mply = 0;
     if(useBook) {
         ASSERT(openBook);
@@ -178,6 +178,7 @@ void IterativeDeeping::run() {
     memset(&resultMove, 0, sizeof(resultMove));
     ponderMove = "";
     int mateIn = INT_MAX;
+    bool inMate=false;
     while(getRunning() && mateIn == INT_MAX) {
         init();
         ++mply;
@@ -207,16 +208,16 @@ void IterativeDeeping::run() {
             }
             val = tmp;
         }
-        if(mateIn != INT_MAX) {
-            cout << "mate in: " << abs(mateIn) << endl;
-        }
+        //if(mateIn != INT_MAX) {
+        //    cout << "mate in: " << abs(mateIn) << endl;
+        //}
         if(!getRunning()) {
             break;
         }
         totMoves = 0;
-        if(mply == 2) {
-            setRunning(1);
-        }
+        //if(mply == 2) {
+        //    setRunning(1);
+        //}
         memcpy(&move2, line.argmove, sizeof(_Tmove));
         pvv.clear();
         string pvvTmp;
@@ -240,9 +241,9 @@ void IterativeDeeping::run() {
         if(!pvv.length()) {
             break;
         }
-        sc = resultMove.score;	/// 100;;
-        if(resultMove.score > _INFINITE - 100) {
-            sc = 0x7fffffff;
+        sc = resultMove.score;
+        if(resultMove.score > _INFINITE - MAX_PLY) {
+            sc = INT_MAX;
         }
 #ifdef DEBUG_MODE
         int totStoreHash = nRecordHashA + nRecordHashB + nRecordHashE + 1;
@@ -274,27 +275,29 @@ void IterativeDeeping::run() {
         cout << "info string null move cut: " << nNullMoveCut << endl;
         cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
-        if(abs(sc) > _INFINITE) {
-            cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-        } else {
-            cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-        }
+        //  cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+        //} else {
+        cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+        //}
         if(forceCheck) {
             forceCheck = false;
             setRunning(1);
-        } else if(abs(sc) > _INFINITE) {
+        } else if(abs(sc) > _INFINITE-MAX_PLY) {
             forceCheck = true;
             setRunning(2);
         }
-        if(mply >= maxDepth) {
+        if(mply >= maxDepth && (getRunning()!=2 || inMate)) {
             break;
+        }
+        if(abs(sc) > _INFINITE-MAX_PLY) {
+            inMate=true;
         }
     }
     if(forceCheck && getRunning()) {
         while(forceCheck && getRunning());
-        if(abs(sc) > _INFINITE) {
-            cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-        } else {
+        if(abs(sc) > _INFINITE-MAX_PLY) {
+            //cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+            //} else {
             cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         }
     }

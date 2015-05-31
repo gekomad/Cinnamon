@@ -94,7 +94,7 @@ public:
     void performDiagShift(const int piece, const int side, const u64 allpieces);
     void performRankFileShift(const int piece, const int side, const u64 allpieces);
     bool makemove(_Tmove* move, bool rep = true, bool = false);
-    bool isPinned(const int side, const uchar Position, const uchar piece);
+    //bool isPinned(const int side, const uchar Position, const uchar piece);
     void incListId() {
         listId++;
 #ifdef DEBUG_MODE
