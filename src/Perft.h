@@ -159,7 +159,7 @@ private:
 
     private:
         virtual void run();
-        void setDump();
+        //void setDump();
         template <int side, bool useHash> u64 search(const int depth);
         int from, to, cpuID;
         Perft* perft;

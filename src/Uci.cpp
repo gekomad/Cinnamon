@@ -240,13 +240,13 @@ void Uci::listner(IterativeDeeping* it) {
                     if(token == "value") {
                         getToken(uip, token);
                         knowCommand = true;
-                        it->setNullMove(token == "true" ? true : false);
+                        it->setNullMove(token == "true");
                     }
                 } else if(token == "ownbook") {
                     getToken(uip, token);
                     if(token == "value") {
                         getToken(uip, token);
-                        it->setUseBook(token == "true" ? true : false);
+                        it->setUseBook(token == "true");
                         knowCommand = true;
                     }
                 } else if(token == "book") {
@@ -263,7 +263,7 @@ void Uci::listner(IterativeDeeping* it) {
                     getToken(uip, token);
                     if(token == "value") {
                         getToken(uip, token);
-                        it->enablePonder(token == "true" ? true : false);
+                        it->enablePonder(token == "true");
                         knowCommand = true;
                     }
                 } else if(token == "clear") {
