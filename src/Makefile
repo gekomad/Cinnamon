@@ -51,10 +51,12 @@ help:
 	@echo
 	@echo "Makefile for cross-compile Linux/Windows/OSX"
 	@echo ""
+	@echo "make cinnamon64-native           > x86 64-bit optimized for native cpu"
 	@echo "make cinnamon64-modern-INTEL     > x86 64-bit optimized for modern Intel cpu"
 	@echo "make cinnamon64-modern-AMD       > x86 64-bit optimized for modern Amd cpu"
 	@echo "make cinnamon64-modern           > x86 64-bit with popcnt bsf sse3 support"
 	@echo "make cinnamon64-generic          > unspecified 64-bit"
+	@echo "make cinnamon32-native           > x86 32-bit optimized for native cpu"
 	@echo "make cinnamon32-modern           > x86 32-bit with sse support"
 	@echo "make cinnamon32-generic          > unspecified 32-bit"
 	@echo ""
@@ -70,14 +72,20 @@ build:
 	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-use all
 	$(STRIP) $(EXE)
 
+cinnamon32-native:
+	$(MAKE)  ARC="$(ARC) -march=native" cinnamon32-generic
+
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
 
-cinnamon64-generic:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -fprefetch-loop-arrays -m64" build
-
 cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse" cinnamon32-generic
+
+cinnamon64-native:
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -march=native" build
+
+cinnamon64-generic:
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -fprefetch-loop-arrays -m64" build
 
 cinnamon64-modern:
 	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF " cinnamon64-generic
