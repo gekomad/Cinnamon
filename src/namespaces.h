@@ -32,6 +32,7 @@ namespace _board {
 
 static const string NAME = "Cinnamon 1.2c";
 static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+//static const string STARTPOS = "1Q6/8/8/8/8/4K3/8/2k5 w - -";
 
 typedef unsigned char uchar;
 

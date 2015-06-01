@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "IterativeDeeping.h"
-IterativeDeeping::IterativeDeeping():maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
+
+IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
     setUseBook(false);
 #if defined(DEBUG_MODE)
     string
@@ -76,10 +77,11 @@ Tablebase& IterativeDeeping::getGtb() {
 
 int IterativeDeeping::printDtm() {
     int side = getSide();
-    u64 friends = side == WHITE ? getBitBoard <WHITE> () : getBitBoard <BLACK> ();
-    u64 enemies = side == BLACK ? getBitBoard <WHITE> () : getBitBoard <BLACK> ();
+    u64 friends = side == WHITE ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
+    u64 enemies = side == BLACK ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
     display();
-    int res = side ? getGtb().getDtm <WHITE, true> (chessboard, rightCastle, 100) : getGtb().getDtm <BLACK, true> (chessboard, rightCastle, 100);
+    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100) : getGtb().getDtm<BLACK, true>(
+                  chessboard, rightCastle, 100);
     cout << " res: " << res;
     incListId();
     generateCaptures(side, enemies, friends);
@@ -91,8 +93,10 @@ int IterativeDeeping::printDtm() {
     for(int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
-        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) << decodeBoardinv(move->type, move->to, getSide()) << " ";
-        res = side ? -getGtb().getDtm <BLACK, true> (chessboard, rightCastle, 100) : getGtb().getDtm <WHITE, true> (chessboard, rightCastle, 100);
+        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) <<
+             decodeBoardinv(move->type, move->to, getSide()) << " ";
+        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100) : getGtb().getDtm<WHITE, true>(
+                  chessboard, rightCastle, 100);
         if(res != -INT_MAX) {
             cout << " res: " << res;
         }
@@ -138,7 +142,7 @@ void IterativeDeeping::setUseBook(bool b) {
 }
 
 void IterativeDeeping::run() {
-    lock_guard <mutex> lock(mutex1);
+    lock_guard<mutex> lock(mutex1);
     _Tmove resultMove;
     struct timeb start1;
     struct timeb end1;
@@ -173,8 +177,8 @@ void IterativeDeeping::run() {
     memset(&resultMove, 0, sizeof(resultMove));
     ponderMove = "";
     int mateIn = INT_MAX;
-    bool inMate=false;
-    int red=0;
+    bool inMate = false;
+    int red = 0;
     while(getRunning() && mateIn == INT_MAX) {
         init();
         ++mply;
@@ -272,46 +276,51 @@ void IterativeDeeping::run() {
         cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
         ///is invalid move?
-        bool print =true;
+        bool print = true;
         if(sc == INT_MAX) {
-            bool b=getForceCheck();
-
-            u64 oldKey=zobristKey;
-            makemove(&resultMove);
-            setForceCheck(false);
-            if(resultMove.side == WHITE ? inCheck<WHITE>():inCheck<BLACK>()) {
+            bool b = getForceCheck();
+            u64 oldKey = zobristKey;
+            setForceCheck(true);
+            bool valid = makemove(&resultMove);
+            if(!valid) {
                 red++;
-                print= false;
+                print = false;
             }
-            takeback(&resultMove, oldKey, false);
+            takeback(&resultMove, oldKey, true);
             setForceCheck(b);
         }
         if(print) {
-            cout << "info score cp " << sc << " depth " << (int) mply-red << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+            if(abs(sc) > _INFINITE - MAX_PLY) {
+                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+            } else {
+                cout << "info score cp " << sc << " depth " << mply - red << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+            }
         }
         if(getForceCheck()) {
             setForceCheck(false);
             setRunning(1);
-        } else if(abs(sc) > _INFINITE-MAX_PLY) {
+        } else if(abs(sc) > _INFINITE - MAX_PLY) {
             setForceCheck(true);
             setRunning(2);
         }
-        if(mply >= maxDepth+red && (getRunning()!=2 || inMate)) {
+        if(mply >= maxDepth + red && (getRunning() != 2 || inMate)) {
             break;
         }
-        if(abs(sc) > _INFINITE-MAX_PLY) {
-            inMate=true;
+        if(abs(sc) > _INFINITE - MAX_PLY) {
+            inMate = true;
         }
     }
     if(getForceCheck() && getRunning()) {
         while(getForceCheck() && getRunning());
-        //if(abs(sc) > _INFINITE-MAX_PLY) {
-        //cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-        //} else {
-        cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-        //}
+        if(abs(sc) > _INFINITE - MAX_PLY) {
+            cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+        } else {
+            cout << "info score cp " << sc << " depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+        }
     }
-    resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? getPieceAt <WHITE> (POW2[resultMove.to]) : getPieceAt <BLACK> (POW2[resultMove.to]);
+    resultMove.capturedPiece =
+        (resultMove.side ^ 1) == WHITE ? getPieceAt<WHITE>(POW2[resultMove.to]) : getPieceAt<BLACK>(
+            POW2[resultMove.to]);
     string bestmove = decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
     if(!(resultMove.type & (KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK))) {
         bestmove += decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);

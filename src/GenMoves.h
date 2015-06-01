@@ -143,9 +143,12 @@ protected:
     _Tmove* getNextMove(decltype(gen_list));
     u64 getKingAttackers(const int xside, u64, int);
     void clearKillerHeuristic();
-    void setForceCheck(bool b){
-        forceCheck=b;}
-    bool getForceCheck(){return forceCheck;}
+    void setForceCheck(bool b) {
+        forceCheck=b;
+    }
+    bool getForceCheck() {
+        return forceCheck;
+    }
     u64 getTotMoves();
     int getMobilityRook(const int position, const u64 enemies, const u64 friends);
     int getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces);
