@@ -478,7 +478,7 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
     side == WHITE ? lazyscore_black -= 5 : lazyscore_white += 5;
     int result = (mobBlack + attack_king_black + bonus_attack_black_king + lazyscore_black + pawns_score_black + knights_score_black + bishop_score_black + rooks_score_black + queens_score_black + kings_score_black)
                  - (mobWhite + attack_king_white + bonus_attack_white_king + lazyscore_white + pawns_score_white + knights_score_white + bishop_score_white + rooks_score_white + queens_score_white + kings_score_white);
-#ifdef DEBUG_MODEx
+#ifdef xDEBUG_MODE
     cout << endl << "total..........   " << (double) result / 100 << endl;
     cout << "PHASE: ";
     if(status == OPEN) {

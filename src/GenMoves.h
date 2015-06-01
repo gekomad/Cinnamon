@@ -136,13 +136,16 @@ protected:
 
     u64* repetitionMap;
     int currentPly;
-    bool perftMode, forceCheck = false;
+    bool perftMode;
     u64 numMoves, numMovesq;
     int listId;
     _TmoveP* gen_list;
     _Tmove* getNextMove(decltype(gen_list));
     u64 getKingAttackers(const int xside, u64, int);
     void clearKillerHeuristic();
+    void setForceCheck(bool b){
+        forceCheck=b;}
+    bool getForceCheck(){return forceCheck;}
     u64 getTotMoves();
     int getMobilityRook(const int position, const u64 enemies, const u64 friends);
     int getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces);
@@ -188,7 +191,7 @@ protected:
     }
 
 private:
-
+    bool forceCheck = false;
     static const int NO_PROMOTION = -1;
     static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;

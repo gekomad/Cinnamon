@@ -22,18 +22,13 @@ IterativeDeeping::IterativeDeeping():maxDepth(MAX_PLY), openBook(nullptr), ponde
     string
     parameterFile = "parameter.txt";
     if(!_file::fileExists(parameterFile)) {
-        cout << "error file not found  " << parameterFile << endl;
+        cout << "warning file not found  " << parameterFile << endl;
         return;
     }
-    ifstream
-    inData;
-    string
-    svalue,
-    line;
-    String
-    param;
-    int
-    value;
+    ifstream inData;
+    string svalue, line;
+    String param;
+    int value;
     inData.open(parameterFile);
     while(!inData.eof()) {
         getline(inData, line);
@@ -165,7 +160,7 @@ void IterativeDeeping::run() {
             return;
         }
     }
-    forceCheck = false;
+    setForceCheck(false);
     int sc = 0;
     u64 totMoves = 0;
     string ponderMove;
@@ -279,22 +274,26 @@ void IterativeDeeping::run() {
         ///is invalid move?
         bool print =true;
         if(sc == INT_MAX) {
+            bool b=getForceCheck();
+
             u64 oldKey=zobristKey;
             makemove(&resultMove);
+            setForceCheck(false);
             if(resultMove.side == WHITE ? inCheck<WHITE>():inCheck<BLACK>()) {
                 red++;
                 print= false;
             }
             takeback(&resultMove, oldKey, false);
+            setForceCheck(b);
         }
         if(print) {
             cout << "info score cp " << sc << " depth " << (int) mply-red << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         }
-        if(forceCheck) {
-            forceCheck = false;
+        if(getForceCheck()) {
+            setForceCheck(false);
             setRunning(1);
         } else if(abs(sc) > _INFINITE-MAX_PLY) {
-            forceCheck = true;
+            setForceCheck(true);
             setRunning(2);
         }
         if(mply >= maxDepth+red && (getRunning()!=2 || inMate)) {
@@ -304,8 +303,8 @@ void IterativeDeeping::run() {
             inMate=true;
         }
     }
-    if(forceCheck && getRunning()) {
-        while(forceCheck && getRunning());
+    if(getForceCheck() && getRunning()) {
+        while(getForceCheck() && getRunning());
         //if(abs(sc) > _INFINITE-MAX_PLY) {
         //cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         //} else {
