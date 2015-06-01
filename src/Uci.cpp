@@ -311,6 +311,7 @@ void Uci::listner(IterativeDeeping* it) {
             int winc = 0;
             int binc = 0;
             bool forceTime = false;
+            bool setMovetime = false;
             while(!uip.eof()) {
                 getToken(uip, token);
                 if(token == "wtime") {
@@ -327,12 +328,15 @@ void Uci::listner(IterativeDeeping* it) {
                     if(depth > GenMoves::MAX_PLY) {
                         depth = GenMoves::MAX_PLY;
                     }
-                    it->setMaxTimeMillsec(0x7FFFFFFF);
+                    if(!setMovetime) {
+                        it->setMaxTimeMillsec(0x7FFFFFFF);
+                    }
                     it->setMaxDepth(depth);
                     forceTime = true;
                 } else if(token == "movetime") {
                     int tim;
                     uip >> tim;
+                    setMovetime = true;
                     it->setMaxTimeMillsec(tim);
                     forceTime = true;
                 } else if(token == "infinite") {
