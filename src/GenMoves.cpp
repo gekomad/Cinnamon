@@ -48,10 +48,10 @@ bool GenMoves::pushmove(const int from, const int to, const int side, int promot
         piece_captured = side ^ 1;
     }
     if(!(type & 0xc) && (forceCheck || perftMode)) {	//no castle
-        if(side == WHITE && inCheckPerft <WHITE> (from, to, type, pieceFrom, piece_captured, promotionPiece)) {
+        if(side == WHITE && inCheck<WHITE> (from, to, type, pieceFrom, piece_captured, promotionPiece)) {
             return false;
         }
-        if(side == BLACK && inCheckPerft <BLACK> (from, to, type, pieceFrom, piece_captured, promotionPiece)) {
+        if(side == BLACK && inCheck<BLACK> (from, to, type, pieceFrom, piece_captured, promotionPiece)) {
             return false;
         }
     }
@@ -945,13 +945,13 @@ void GenMoves::unPerformCastle(const int side, const uchar type) {
 }
 
 template <int side> bool
-GenMoves::inCheckPerft(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece) {
+GenMoves::inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece) {
     ASSERT_RANGE(from, 0, 63);
     ASSERT_RANGE(to, 0, 63);
     ASSERT_RANGE(side, 0, 1);
     ASSERT_RANGE(pieceFrom, 0, 12);
     ASSERT_RANGE(pieceTo, 0, 12);
-    ASSERT(perftMode);
+    ASSERT(perftMode || forceCheck);
     ASSERT(!(type & 0xC));
     bool result = 0;
     if((type & 0x3) == STANDARD_MOVE_MASK) {

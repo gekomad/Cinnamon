@@ -159,7 +159,7 @@ protected:
 #endif
     void pushRepetition(u64);
     int killerHeuristic[64][64];
-    template <int side> bool inCheckPerft(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
+    template <int side> bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
     void performCastle(const int side, const uchar type);
     void unPerformCastle(const int side, const uchar type);
     void tryAllCastle(const int side, const u64 allpieces);
