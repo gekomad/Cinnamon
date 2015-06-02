@@ -277,7 +277,7 @@ void IterativeDeeping::run() {
 #endif
         ///is invalid move?
         bool print = true;
-        if(sc == INT_MAX) {
+        if(abs(sc) > _INFINITE - MAX_PLY) {
             bool b = getForceCheck();
             u64 oldKey = zobristKey;
             setForceCheck(true);
