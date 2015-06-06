@@ -33,8 +33,7 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
     inData.open(parameterFile);
     while(!inData.eof()) {
         getline(inData, line);
-        stringstream
-        ss(line);
+        stringstream ss(line);
         ss >> param;
         ss >> svalue;
         value = stoi(svalue);

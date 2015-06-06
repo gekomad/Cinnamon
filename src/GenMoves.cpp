@@ -55,8 +55,7 @@ bool GenMoves::pushmove(const int from, const int to, const int side, int promot
             return false;
         }
     }
-    _Tmove*
-    mos;
+    _Tmove* mos;
     ASSERT(listId >= 0);
     ASSERT(listId < MAX_PLY);
     ASSERT(getListSize() < MAX_MOVE);
@@ -101,7 +100,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
             if(q) {
                 bound = BITScanReverse(q);
                 if(enemies & POW2[bound]) {
-                    if(pushmove <STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
+                    if(pushmove<STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
                         return true;
                     }
                 }
@@ -110,7 +109,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
             if(q) {
                 bound = BITScanForward(q);
                 if(enemies & POW2[bound]) {
-                    if(pushmove <STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
+                    if(pushmove<STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
                         return true;
                     }
                 }
@@ -122,7 +121,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
             if(q) {
                 bound = BITScanForward(q);
                 if(enemies & POW2[bound]) {
-                    if(pushmove <STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
+                    if(pushmove<STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
                         return true;
                     }
                 }
@@ -131,7 +130,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
             if(q) {
                 bound = BITScanReverse(q);
                 if(enemies & POW2[bound]) {
-                    if(pushmove <STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
+                    if(pushmove<STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
                         return true;
                     }
                 }
@@ -209,7 +208,7 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
         if(q) {
             bound = BITScanReverse(q);
             if(enemies & POW2[bound]) {
-                if(pushmove <STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
+                if(pushmove<STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
                     return true;
                 }
             }
@@ -218,7 +217,7 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
         if(q) {
             bound = BITScanForward(q);
             if(enemies & POW2[bound]) {
-                if(pushmove <STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
+                if(pushmove<STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
                     return true;
                 }
             }
@@ -228,7 +227,7 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
         if(q) {
             bound = BITScanReverse(q);
             if(enemies & POW2[bound]) {
-                if(pushmove <STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
+                if(pushmove<STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
                     return true;
                 }
             }
@@ -237,7 +236,7 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
         if(q) {
             bound = BITScanForward(q);
             if(enemies & POW2[bound]) {
-                if(pushmove <STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
+                if(pushmove<STANDARD_MOVE_MASK> (position, bound, side, NO_PROMOTION, piece)) {
                     return true;
                 }
             }
@@ -288,7 +287,7 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
         int n;
         while(k) {
             n = BITScanForward(k);
-            pushmove <STANDARD_MOVE_MASK> (position, n, side, NO_PROMOTION, piece);
+            pushmove<STANDARD_MOVE_MASK> (position, n, side, NO_PROMOTION, piece);
             k &= NOTPOW2[n];
         }
         x2 &= NOTPOW2[position];
@@ -449,7 +448,7 @@ bool GenMoves::isPinned(const int side, const uchar position, const uchar piece)
                 chessboard[piece] |= pow2position;
                 return true;
             }
-            if(POW2[n] & allpieces) {
+            if(POW2[n]&allpieces) {
                 break;
             }
         }
@@ -458,7 +457,7 @@ bool GenMoves::isPinned(const int side, const uchar position, const uchar piece)
                 chessboard[piece] |= pow2position;
                 return true;
             }
-            if(POW2[n] & allpieces) {
+            if(POW2[n]&allpieces) {
                 break;
             }
         }

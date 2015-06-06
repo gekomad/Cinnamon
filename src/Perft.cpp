@@ -18,8 +18,7 @@
 
 #include "Perft.h"
 
-Perft::PerftThread::PerftThread() {
-}
+Perft::PerftThread::PerftThread()  {}
 
 Perft::PerftThread::PerftThread(int cpuID1, string fen1, int from1, int to1, Perft* perft1):GenMoves() {
     perftMode = true;
@@ -35,7 +34,7 @@ void Perft::dump() {
         return;
     }
     static mutex m;
-    lock_guard <mutex> lock(m);
+    lock_guard<mutex> lock(m);
     cout << endl << "dump hash table in " << dumpFile << " file.." << flush;
     ofstream f;
     string tmpFile = dumpFile + ".tmp";
@@ -44,16 +43,16 @@ void Perft::dump() {
         cout << "error create file " << tmpFile << endl;
         return;
     }
-    for(auto it:threadList) {
+    for(auto it : threadList) {
         it->sleep(true);
     }
     f << fen;
     f.put(10);
-    f.write(reinterpret_cast <char*>(&depth), sizeof(int));
-    f.write(reinterpret_cast <char*>(&nCpu), sizeof(int));
-    f.write(reinterpret_cast <char*>(&mbSize), sizeof(u64));
+    f.write(reinterpret_cast<char*>(&depth), sizeof(int));
+    f.write(reinterpret_cast<char*>(&nCpu), sizeof(int));
+    f.write(reinterpret_cast<char*>(&mbSize), sizeof(u64));
     for(int i = 1; i <= depth; i++) {
-        f.write(reinterpret_cast <char*>(hash[i]), sizeAtDepth[i] * sizeof(_ThashPerft));
+        f.write(reinterpret_cast<char*>(hash[i]), sizeAtDepth[i] * sizeof(_ThashPerft));
     }
     f.close();
     rename(tmpFile.c_str(), dumpFile.c_str());
@@ -163,8 +162,7 @@ Perft::Perft(string fen1, int depth1, int nCpu2, u64 mbSize1, string dumpFile1) 
         timer = new Timer(secondsToDump);
         timer->registerObservers([this]() {
             dump();
-        }
-                                );
+        });
         timer->start();
     }
     if(fen.empty()) {
@@ -244,8 +242,8 @@ Perft::Perft(string fen1, int depth1, int nCpu2, u64 mbSize1, string dumpFile1) 
     threadList.clear();
 }
 
-template <int side, bool useHash> u64
-Perft::PerftThread::search(const int depth) {
+template <int side, bool useHash>
+u64 Perft::PerftThread::search(const int depth) {
     checkWait();
     if(depth == 0) {
         return 1;
@@ -265,20 +263,17 @@ Perft::PerftThread::search(const int depth) {
             return n_perft;
         }
     }
-    int
-    listcount;
-    _Tmove*
-    move;
+    int listcount;
+    _Tmove* move;
     incListId();
-    u64
-    friends = getBitBoard <side> ();
-    u64
-    enemies = getBitBoard <side ^ 1> ();
-    if(generateCaptures <side> (enemies, friends)) {
+    u64 friends = getBitBoard<side>();
+    u64 enemies = getBitBoard<side^1>();
+    if(generateCaptures<side> (enemies, friends)) {
+        ASSERT(okey == zobristKey);
         decListId();
         return 0;
     }
-    generateMoves <side> (friends | enemies);
+    generateMoves<side> (friends | enemies);
     listcount = getListSize();
     if(!listcount) {
         decListId();
@@ -286,15 +281,14 @@ Perft::PerftThread::search(const int depth) {
     }
     for(int ii = 0; ii < listcount; ii++) {
         move = getMove(ii);
-        u64
-        keyold = zobristKey;
+        u64 keyold = zobristKey;
         makemove(move, false, false);
-        n_perft += search <side ^ 1, useHash> (depth - 1);
+        n_perft += search<side ^ 1, useHash> (depth - 1);
         takeback(move, keyold, false);
     }
     decListId();
     if(useHash) {
-        lock_guard <mutex> lock(perft->updateHash);
+        lock_guard<mutex> lock(perft->updateHash);
         phashe->nMoves = n_perft;
         phashe->key = zobristKeyR;
     }
@@ -303,36 +297,28 @@ Perft::PerftThread::search(const int depth) {
 
 void Perft::PerftThread::run() {
     init();
-    _Tmove*
-    move;
+    _Tmove* move;
     incListId();
     resetList();
-    u64
-    friends = sideToMove ? getBitBoard <WHITE> () : getBitBoard <BLACK> ();
-    u64
-    enemies = sideToMove ? getBitBoard <BLACK> () : getBitBoard <WHITE> ();
+    u64 friends = sideToMove ? getBitBoard <WHITE> () : getBitBoard <BLACK> ();
+    u64 enemies = sideToMove ? getBitBoard <BLACK> () : getBitBoard <WHITE> ();
     generateCaptures(sideToMove, enemies, friends);
     generateMoves(sideToMove, friends | enemies);
-    u64
-    tot = 0;
+    u64 tot = 0;
     makeZobristKey();
-    u64
-    keyold = zobristKey;
+    u64 keyold = zobristKey;
     for(int ii = to - 1; ii >= from; ii--) {
-        u64
-        n_perft = 0;
+        u64 n_perft = 0;
         move = getMove(ii);
         makemove(move, false, false);
         if(perft->hash != nullptr) {
-            n_perft = (sideToMove ^ 1) == WHITE ? search <WHITE, true> (perft->depth - 1) : search <BLACK, true> (perft->depth - 1);
+            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, true> (perft->depth - 1) : search <BLACK, true> (perft->depth - 1);
         } else {
-            n_perft = (sideToMove ^ 1) == WHITE ? search <WHITE, false> (perft->depth - 1) : search <BLACK, false> (perft->depth - 1);
+            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, false> (perft->depth - 1) : search <BLACK, false> (perft->depth - 1);
         }
         takeback(move, keyold, false);
-        char
-        y;
-        char
-        x = FEN_PIECE[sideToMove ? getPieceAt <WHITE> (POW2[move->from]) : getPieceAt <BLACK> (POW2[move->from])];
+        char y;
+        char x = FEN_PIECE[sideToMove ? getPieceAt <WHITE> (POW2[move->from]) : getPieceAt <BLACK> (POW2[move->from])];
         if(x == 'p' || x == 'P') {
             x = ' ';
         }
@@ -342,7 +328,7 @@ void Perft::PerftThread::run() {
             y = '-';
         }
         {
-            lock_guard <mutex> lock(perft->mutexPrint);
+            lock_guard<mutex> lock(perft->mutexPrint);
             cout << endl << "#" << ii + 1 << " cpuID# " << cpuID;
             if((decodeBoardinv(move->type, move->to, sideToMove)).length() > 2) {
                 cout << "\t" << decodeBoardinv(move->type, move->to, sideToMove) << "\t" << n_perft << " ";

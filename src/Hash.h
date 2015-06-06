@@ -27,7 +27,7 @@ class Hash {
 public:
     enum:char { hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2 };
     Hash();
-    virtual ~ Hash();
+    virtual ~Hash();
     bool setHashSize(int mb);
     int getHashSize();
     void clearHash();

@@ -28,7 +28,7 @@ class GenMoves:public virtual ChessBoard {
 public:
     static const int MAX_PLY = 96;
     GenMoves();
-    virtual ~ GenMoves();
+    virtual ~GenMoves();
     void setPerft(const bool b);
     bool generateCaptures(const int side, u64, u64);
     void generateMoves(const int side, const u64);

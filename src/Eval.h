@@ -28,12 +28,11 @@ class Eval:public GenMoves {
 
 public:
     Eval();
-    virtual ~ Eval();
+    virtual ~Eval();
     int getScore(const int side, const int alpha = -_INFINITE, const int beta = _INFINITE);
 
-    template <int side>
-    int lazyEval() {
-        return lazyEvalSide <side> () - lazyEvalSide <side ^ 1> ();
+    template <int side> int lazyEval() {
+        return lazyEvalSide<side>() - lazyEvalSide<side^1>();
     }
 
 protected:
