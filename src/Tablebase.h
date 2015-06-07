@@ -94,7 +94,7 @@ public:
         } else if(depth >= probeDepth) {
             tb_available = tb_probe_soft(side ^ 1, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
         }
-        return extractDtm <side ^ 1, doPrint> (tb_available, info, pliestomate);
+        return extractDtm <side ^ 1, doPrint>(tb_available, info, pliestomate);
     }
 
 

@@ -43,7 +43,7 @@ void Perft::dump() {
         cout << "error create file " << tmpFile << endl;
         return;
     }
-    for(auto it : threadList) {
+    for(auto it:threadList) {
         it->sleep(true);
     }
     f << fen;
@@ -189,8 +189,8 @@ Perft::Perft(string fen1, int depth1, int nCpu2, u64 mbSize1, string dumpFile1) 
     struct timeb start1, end1;
     ftime(&start1);
     p->incListId();
-    u64 friends = side ? p->getBitBoard <WHITE> () : p->getBitBoard <BLACK> ();
-    u64 enemies = side ? p->getBitBoard <BLACK> () : p->getBitBoard <WHITE> ();
+    u64 friends = side ? p->getBitBoard <WHITE>() : p->getBitBoard <BLACK>();
+    u64 enemies = side ? p->getBitBoard <BLACK>() : p->getBitBoard <WHITE>();
     p->generateCaptures(side, enemies, friends);
     p->generateMoves(side, friends | enemies);
     int listcount = p->getListSize();
@@ -268,12 +268,12 @@ u64 Perft::PerftThread::search(const int depth) {
     incListId();
     u64 friends = getBitBoard<side>();
     u64 enemies = getBitBoard<side^1>();
-    if(generateCaptures<side> (enemies, friends)) {
+    if(generateCaptures<side>(enemies, friends)) {
         ASSERT(okey == zobristKey);
         decListId();
         return 0;
     }
-    generateMoves<side> (friends | enemies);
+    generateMoves<side>(friends | enemies);
     listcount = getListSize();
     if(!listcount) {
         decListId();
@@ -283,7 +283,7 @@ u64 Perft::PerftThread::search(const int depth) {
         move = getMove(ii);
         u64 keyold = zobristKey;
         makemove(move, false, false);
-        n_perft += search<side ^ 1, useHash> (depth - 1);
+        n_perft += search<side ^ 1, useHash>(depth - 1);
         takeback(move, keyold, false);
     }
     decListId();
@@ -300,8 +300,8 @@ void Perft::PerftThread::run() {
     _Tmove* move;
     incListId();
     resetList();
-    u64 friends = sideToMove ? getBitBoard <WHITE> () : getBitBoard <BLACK> ();
-    u64 enemies = sideToMove ? getBitBoard <BLACK> () : getBitBoard <WHITE> ();
+    u64 friends = sideToMove ? getBitBoard <WHITE>() : getBitBoard <BLACK>();
+    u64 enemies = sideToMove ? getBitBoard <BLACK>() : getBitBoard <WHITE>();
     generateCaptures(sideToMove, enemies, friends);
     generateMoves(sideToMove, friends | enemies);
     u64 tot = 0;
@@ -312,13 +312,13 @@ void Perft::PerftThread::run() {
         move = getMove(ii);
         makemove(move, false, false);
         if(perft->hash != nullptr) {
-            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, true> (perft->depth - 1) : search <BLACK, true> (perft->depth - 1);
+            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, true>(perft->depth - 1) : search <BLACK, true>(perft->depth - 1);
         } else {
-            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, false> (perft->depth - 1) : search <BLACK, false> (perft->depth - 1);
+            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, false>(perft->depth - 1) : search <BLACK, false>(perft->depth - 1);
         }
         takeback(move, keyold, false);
         char y;
-        char x = FEN_PIECE[sideToMove ? getPieceAt <WHITE> (POW2[move->from]) : getPieceAt <BLACK> (POW2[move->from])];
+        char x = FEN_PIECE[sideToMove ? getPieceAt <WHITE>(POW2[move->from]) : getPieceAt <BLACK>(POW2[move->from])];
         if(x == 'p' || x == 'P') {
             x = ' ';
         }

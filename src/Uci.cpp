@@ -136,9 +136,9 @@ void Uci::listner(IterativeDeeping* it) {
             int side = it->getSide();
             int t;
             if(side == WHITE) {
-                t = it->getScore(Bits::bitCount(it->getBitBoard <WHITE> ()), side);
+                t = it->getScore(Bits::bitCount(it->getBitBoard <WHITE>()), side);
             } else {
-                t = it->getScore(Bits::bitCount(it->getBitBoard <BLACK> ()), side);
+                t = it->getScore(Bits::bitCount(it->getBitBoard <BLACK>()), side);
             }
             if(!it->getSide()) {
                 t = -t;

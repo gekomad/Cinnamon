@@ -44,8 +44,7 @@ int Hash::getHashSize() {
     return HASH_SIZE / (1024 * 1000 / (sizeof(_Thash) * 2));
 }
 
-bool
-Hash::setHashSize(int mb) {
+bool Hash::setHashSize(int mb) {
     if(mb < 1 || mb > 32768) {
         return false;
     }

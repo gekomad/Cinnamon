@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "IterativeDeeping.h"
-
-IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
+IterativeDeeping::IterativeDeeping():maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
     setUseBook(false);
 #if defined(DEBUG_MODE)
     string
@@ -163,7 +162,6 @@ void IterativeDeeping::run() {
             return;
         }
     }
-    setForceCheck(false);
     int sc = 0;
     u64 totMoves = 0;
     string ponderMove;

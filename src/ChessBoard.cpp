@@ -30,11 +30,11 @@ ChessBoard::~ChessBoard() {
 #ifdef DEBUG_MODE
 u64
 ChessBoard::getBitBoard(int side) {
-    return side ? getBitBoard <WHITE> () : getBitBoard <BLACK> ();
+    return side ? getBitBoard <WHITE>() : getBitBoard <BLACK>();
 }
 
 int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
-    return side ? getPieceAt<WHITE> (bitmapPos) : getPieceAt<BLACK> (bitmapPos);
+    return side ? getPieceAt<WHITE>(bitmapPos) : getPieceAt<BLACK>(bitmapPos);
 }
 #endif
 
@@ -49,7 +49,7 @@ void ChessBoard::setRightCastle(uchar r) {
 void ChessBoard::makeZobristKey() {
     zobristKey = 0;
     int i = 0;
-    for(u64 c : chessboard) {
+    for(u64 c:chessboard) {
         while(c) {
             int position = BITScanForward(c);
             updateZobristKey(i, position);
@@ -89,7 +89,7 @@ void ChessBoard::display() {
             cout << "\n   ----+---+---+---+---+---+---+----\n";
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
-        x = (x = (x = FEN_PIECE[getPieceAt<WHITE> (POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt <BLACK> (POW2[63 - t])]) == '-' ? ' ' : x;
+        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt <BLACK>(POW2[63 - t])]) == '-' ? ' ' : x;
         x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     };
@@ -108,9 +108,9 @@ string ChessBoard::boardToFen() {
         strcpy(row, "");
         for(x = 0; x < 8; x++) {
             sq = (y * 8) + x;
-            q = getPieceAt <BLACK> (POW2[63 - sq]);
+            q = getPieceAt <BLACK>(POW2[63 - sq]);
             if(q == SQUARE_FREE) {
-                q = getPieceAt <WHITE> (POW2[63 - sq]);
+                q = getPieceAt <WHITE>(POW2[63 - sq]);
             }
             if(q == SQUARE_FREE) {
                 l++;

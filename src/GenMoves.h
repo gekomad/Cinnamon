@@ -43,7 +43,7 @@ public:
         performRankFileShift(ROOK_BLACK + side, side, allpieces);
         performRankFileShift(QUEEN_BLACK + side, side, allpieces);
         performDiagShift(QUEEN_BLACK + side, side, allpieces);
-        performPawnShift <side> (~allpieces);
+        performPawnShift <side>(~allpieces);
         performKnightShiftCapture(KNIGHT_BLACK + side, ~allpieces, side);
         performKingShiftCapture(side, ~allpieces);
     }
@@ -54,7 +54,7 @@ public:
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
         u64 allpieces = enemies | friends;
-        if(performPawnCapture <side> (enemies)) {
+        if(performPawnCapture <side>(enemies)) {
             return true;
         }
         if(performKingShiftCapture(side, enemies)) {
@@ -175,12 +175,12 @@ protected:
 
     template <int side>
     bool inCheck() {
-        return attackSquare <side> (BITScanForward(chessboard[KING_BLACK + side]));
+        return attackSquare <side>(BITScanForward(chessboard[KING_BLACK + side]));
     }
 
     template <int side>
     bool attackSquare(const uchar position) {
-        return attackSquare <side> (position, getBitBoard <BLACK> () | getBitBoard <WHITE> ());
+        return attackSquare <side>(position, getBitBoard <BLACK>() | getBitBoard <WHITE>());
     }
     void setKillerHeuristic(const int from, const int to, const int value) {
         ASSERT(from >= 0 && from < 64 && to >= 0 && to < 64);
