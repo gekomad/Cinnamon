@@ -26,7 +26,7 @@ class Tablebase:private Bits {
 public:
 
     Tablebase();
-    virtual ~ Tablebase();
+    virtual ~Tablebase();
     void cacheInit(int mb);
     bool getAvailable();
     int getCache();
@@ -43,6 +43,7 @@ public:
         ASSERT(p < 33);
         return installedPieces[p];
     }
+
     int getProbeDepth() {
         return probeDepth;
     }
@@ -94,7 +95,7 @@ public:
         } else if(depth >= probeDepth) {
             tb_available = tb_probe_soft(side ^ 1, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
         }
-        return extractDtm <side ^ 1, doPrint> (tb_available, info, pliestomate);
+        return extractDtm<side ^ 1, doPrint>(tb_available, info, pliestomate);
     }
 
 

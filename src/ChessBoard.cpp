@@ -26,16 +26,13 @@ ChessBoard::ChessBoard() {
 
 ChessBoard::~ChessBoard() {
 }
-
 #ifdef DEBUG_MODE
-u64
-ChessBoard::getBitBoard(int side) {
-    return side ? getBitBoard <WHITE> () : getBitBoard <BLACK> ();
+u64 ChessBoard::getBitBoard(int side) {
+    return side ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
 }
 
-int
-ChessBoard::getPieceAt(int side, u64 bitmapPos) {
-    return side ? getPieceAt <WHITE> (bitmapPos) : getPieceAt <BLACK> (bitmapPos);
+int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
+    return side ? getPieceAt<WHITE> (bitmapPos) : getPieceAt<BLACK> (bitmapPos);
 }
 #endif
 
@@ -90,7 +87,7 @@ void ChessBoard::display() {
             cout << "\n   ----+---+---+---+---+---+---+----\n";
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
-        x = (x = (x = FEN_PIECE[getPieceAt <WHITE> (POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt <BLACK> (POW2[63 - t])]) == '-' ? ' ' : x;
+        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt <BLACK>(POW2[63 - t])]) == '-' ? ' ' : x;
         x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     };
@@ -109,9 +106,9 @@ string ChessBoard::boardToFen() {
         strcpy(row, "");
         for(x = 0; x < 8; x++) {
             sq = (y * 8) + x;
-            q = getPieceAt <BLACK> (POW2[63 - sq]);
+            q = getPieceAt<BLACK>(POW2[63 - sq]);
             if(q == SQUARE_FREE) {
-                q = getPieceAt <WHITE> (POW2[63 - sq]);
+                q = getPieceAt<WHITE>(POW2[63 - sq]);
             }
             if(q == SQUARE_FREE) {
                 l++;

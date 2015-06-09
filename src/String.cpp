@@ -27,8 +27,7 @@ String::String(int d) {
     assign(ss.str());
 }
 
-String::~String() {
-}
+String::~String() {}
 
 String String::trimRight() {
     int pos = find_last_not_of(" ");
@@ -57,7 +56,6 @@ String String::toUpper() {
     transform(begin(), end(), begin(),::toupper);
     return *this;
 }
-
 String String::toLower() {
     transform(begin(), end(), begin(),::tolower);
     return *this;

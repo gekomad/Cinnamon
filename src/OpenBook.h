@@ -27,7 +27,7 @@
 class OpenBook {
 public:
     OpenBook();
-    virtual ~ OpenBook();
+    virtual ~OpenBook();
     bool load(string fileName);
     string search(string fen);
 private:

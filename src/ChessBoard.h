@@ -31,7 +31,7 @@ class ChessBoard:protected Bits {
 public:
 
     ChessBoard();
-    virtual ~ ChessBoard();
+    virtual ~ChessBoard();
     static const uchar RIGHT_KING_CASTLE_WHITE_MASK = 0x10;
     static const uchar RIGHT_QUEEN_CASTLE_WHITE_MASK = 0x20;
     static const uchar RIGHT_KING_CASTLE_BLACK_MASK = 0x40;
@@ -76,15 +76,18 @@ public:
         return sideToMove;
     }
 
-    template <int side>
-    u64 getBitBoardNoPawns() {
+    template <int side> u64 getBitBoardNoPawns() {
         return chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side]
                | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
 
-    template <int side>
-    int getPieceAt(u64 bitmapPos) {
-        return ((chessboard[PAWN_BLACK + side] & bitmapPos) ? PAWN_BLACK + side : ((chessboard[ROOK_BLACK + side] & bitmapPos) ? ROOK_BLACK + side : ((chessboard[BISHOP_BLACK + side] & bitmapPos) ? BISHOP_BLACK + side : ((chessboard[KNIGHT_BLACK + side] & bitmapPos) ? KNIGHT_BLACK + side : ((chessboard[QUEEN_BLACK + side] & bitmapPos) ? QUEEN_BLACK + side : ((chessboard[KING_BLACK + side] & bitmapPos) ? KING_BLACK + side : SQUARE_FREE))))));
+    template <int side> int getPieceAt(u64 bitmapPos) {
+        return ((chessboard[PAWN_BLACK + side] & bitmapPos) ? PAWN_BLACK + side :
+                ((chessboard[ROOK_BLACK + side] & bitmapPos) ? ROOK_BLACK + side :
+                 ((chessboard[BISHOP_BLACK + side] & bitmapPos) ? BISHOP_BLACK + side :
+                  ((chessboard[KNIGHT_BLACK + side] & bitmapPos) ? KNIGHT_BLACK + side :
+                   ((chessboard[QUEEN_BLACK + side] & bitmapPos) ? QUEEN_BLACK + side :
+                    ((chessboard[KING_BLACK + side] & bitmapPos) ? KING_BLACK + side : SQUARE_FREE))))));
     }
 
 protected:

@@ -122,7 +122,8 @@ void Tablebase::print(unsigned stm1, unsigned info1, unsigned pliestomate1) {
     }
 }
 
-bool Tablebase::setCacheSize(int mb) {
+bool
+Tablebase::setCacheSize(int mb) {
     if(mb < 1 || mb > 1024) {
         return false;
     }

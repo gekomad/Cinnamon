@@ -30,41 +30,6 @@
  1| 07 06 05 04 03 02 01 00
  ...a  b  c  d  e  f  g  h
 
-ratings
-Rank Name                  Elo    +    - games score oppo. draws
-   1 buzz-008_2181         385   13   13  2551   79%   146   14%
-   2 beowulf_2194          368   13   13  2551   77%   146   14%
-   3 gk-090-64-ja_2109     360   13   13  2552   77%   146   16%
-   4 clarabit_2098         263   12   12  2542   65%   146   18%
-   5 soldat_1960           197   12   12  2542   56%   146   16%
-   6 smash_1925            172   12   12  2552   53%   146   12%
-   7 faile-64_1976         153   11   11  2552   51%   146   20%
-   8 Cinnamon 1.2a         152   11   11  2550   51%   146   30%
-   9 Cinnamon 1.2b         146    5    5 33140   52%   -11   15%
-  10 Cinnamon 1.1c         105   11   11  2552   44%   146   27%
-  11 heracles_1973         105   12   12  2551   44%   146   16%
-  12 zct_2043              -15   12   12  2542   30%   146   12%
-  13 jabba-64_2041       -1196  200  179  2551    0%   146    0%
-  14 gullydeckel-64_1982 -1196  200  179  2552    0%   146    0%
-
-los
-                     bu be gk cl so sm fa Ci Ci Ci he zc ja gu
-buzz-008_2181           95 99100100100100100100100100100100100
-beowulf_2194          4    78100100100100100100100100100100100
-gk-090-64-ja_2109     0 21   100100100100100100100100100100100
-clarabit_2098         0  0  0    99100100100100100100100100100
-soldat_1960           0  0  0  0    99 99 99 99100100100100100
-smash_1925            0  0  0  0  0    98 99 99 99 99100100100
-faile-64_1976         0  0  0  0  0  1    54 86 99 99100100100
-Cinnamon 1.2a         0  0  0  0  0  0 45    83 99 99100100100
-Cinnamon 1.2b         0  0  0  0  0  0 13 16    99 99100100100
-Cinnamon 1.1c         0  0  0  0  0  0  0  0  0    52100100100
-heracles_1973         0  0  0  0  0  0  0  0  0 47   100100100
-zct_2043              0  0  0  0  0  0  0  0  0  0  0    99 99
-jabba-64_2041         0  0  0  0  0  0  0  0  0  0  0  0    50
-gullydeckel-64_1982   0  0  0  0  0  0  0  0  0  0  0  0 49
-
-
  */
 
 using namespace _board;
@@ -111,10 +76,10 @@ int main(int argc, char** argv) {
             string epdfile;
             int m = 64;
             while((opt = getopt(argc, argv, "f:m:")) != -1) {
-                if(opt == 'f') {	//file
+                if(opt == 'f') {    //file
                     epdfile = optarg;
                 }
-                if(opt == 'm') {	//n' pieces
+                if(opt == 'm') {    //n' pieces
                     string h = optarg;
                     m = stoi(h);
                 }
@@ -167,12 +132,12 @@ int main(int argc, char** argv) {
             return 0;
         }
         if(opt == 'b') {
-            unique_ptr <IterativeDeeping> it(new IterativeDeeping());
+            unique_ptr<IterativeDeeping> it(new IterativeDeeping());
             it->setUseBook(false);
             it->setMaxTimeMillsec(40000);
             it->run();
             return 0;
-        } else if(opt == 'd') {	// gtb dtm
+        } else if(opt == 'd') {  // gtb dtm
             if(string(optarg) != "tm") {
                 cout << "use: " << argv[0] << " " << DTM_HELP << endl;
                 return 1;
@@ -180,12 +145,12 @@ int main(int argc, char** argv) {
             string fen, token;
             IterativeDeeping it;
             while((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
-                if(opt == 'f') {	//fen
+                if(opt == 'f') {    //fen
                     fen = optarg;
-                } else if(opt == 'p') {	//path
+                } else if(opt == 'p') { //path
                     token = optarg;
                     it.getGtb().setPath(token);
-                } else if(opt == 's') {	//scheme
+                } else if(opt == 's') { //scheme
                     token = optarg;
                     if(!it.getGtb().setScheme(token)) {
                         cout << "set scheme error" << endl;
@@ -206,7 +171,7 @@ int main(int argc, char** argv) {
             it.loadFen(fen);
             it.printDtm();
             return 0;
-        } else if(opt == 'p') {	// perft test
+        } else if(opt == 'p') {  // perft test
             if(string(optarg) != "erft") {
                 continue;
             };
@@ -216,19 +181,19 @@ int main(int argc, char** argv) {
             int PERFT_HASH_SIZE = 0;
             string dumpFile;
             while((opt = getopt(argc, argv, "d:f:h:f:c:F:")) != -1) {
-                if(opt == 'd') {	//depth
+                if(opt == 'd') {    //depth
                     perftDepth = atoi(optarg);
-                } else if(opt == 'F') {	//use dump
+                } else if(opt == 'F') { //use dump
                     dumpFile = optarg;
                     if(dumpFile.empty()) {
                         cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                         return 1;
                     }
-                } else if(opt == 'c') {	//N cpu
+                } else if(opt == 'c') {  //N cpu
                     nCpu = atoi(optarg);
-                } else if(opt == 'h') {	//hash
+                } else if(opt == 'h') {  //hash
                     PERFT_HASH_SIZE = atoi(optarg);
-                } else if(opt == 'f') {	//fen
+                } else if(opt == 'f') {  //fen
                     fen = optarg;
                 }
             }
@@ -239,10 +204,10 @@ int main(int argc, char** argv) {
             if(PERFT_HASH_SIZE) {
                 cout << "dump hash table in file every " << (Perft::secondsToDump / 60) << " minutes" << endl;
             }
-            unique_ptr <Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile));
+            unique_ptr<Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile));
             return 0;
         }
     }
-    unique_ptr <Uci> p(new Uci());
+    unique_ptr<Uci> p(new Uci());
     return 0;
 }

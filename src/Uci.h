@@ -26,7 +26,7 @@
 class Uci {
 public:
     Uci();
-    virtual ~ Uci();
+    virtual ~Uci();
 
 private:
     IterativeDeeping* iterativeDeeping;
