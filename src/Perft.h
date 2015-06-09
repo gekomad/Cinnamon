@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2014 Giuseppe Cannella
+    Copyright (C) 2011-2015 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -120,7 +120,9 @@ class Perft {
 public:
 
     const static int secondsToDump = 60 * 180;
+
     Perft(string fen, int depth, int nCpu, u64 mbSize, string dumpFile);
+
     ~Perft();
 
 private:
@@ -139,31 +141,41 @@ private:
     string dumpFile;
     int depth, nCpu;
     u64 mbSize;
-    constexpr static u64 RANDSIDE[2] = { 0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL };
     _ThashPerft** hash = nullptr;
     u64 sizeAtDepth[255];
     atomic_ullong totMoves;
+
     void alloc();
+
     void dump();
+
     bool load();
+
     void setResult(u64 result) {
         totMoves += result;
     }
 
-    class PerftThread:public Thread, public GenMoves {
+    class PerftThread : public Thread, public GenMoves {
     public:
 
         PerftThread(int, string fen, int from, int to, Perft* Perft);
+
         PerftThread();
+
         virtual ~ PerftThread();
 
     private:
         virtual void run();
+
         //void setDump();
-        template <int side, bool useHash> u64 search(const int depth);
+        template<int side, bool useHash>
+        u64 search(const int depth);
+
         int from, to, cpuID;
         Perft* perft;
     };
-    vector <PerftThread*>threadList;
+
+    vector<PerftThread*> threadList;
 };
+
 #endif

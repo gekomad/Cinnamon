@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2014 Giuseppe Cannella
+    Copyright (C) 2011-2015 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -95,8 +95,27 @@ int main(int argc, char** argv) {
 #ifdef HAS_BSF
     cout << "bsf ";
 #endif
-    cout << "version compiled " << __DATE__ << " with gcc " << __VERSION__ << "\n";
-    cout << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\n";
+    cout << "version compiled " << __DATE__ << " with ";
+#if defined(__clang__)
+    cout <<"Clang/LLVM "<<__clang_major__<<"."<<__clang_minor__<<"."<<__clang_patchlevel__;
+#elif defined(__ICC) || defined(__INTEL_COMPILER)
+    cout << "Intel ICC "<<__VERSION__;
+#elif defined(__GNUC__) || defined(__GNUG__)
+    cout << "GNU GCC " << __VERSION__;
+#elif defined(__HP_cc) || defined(__HP_aCC)
+    cout << "Hewlett-Packard aC++" <<__HP_aCC;
+#elif defined(__IBMC__) || defined(__IBMCPP__)
+    cout << "IBM XL C++ <<"__IBMCPP__;
+#elif defined(_MSC_VER)
+    cout << "Microsoft Visual Studio. "<<_MSC_VER;
+#elif defined(__PGI)
+    cout << "Portland Group PGCC/PGCPP "<<__PGIC__;
+#elif defined(__SUNPRO_C) || defined(__SUNPRO_CC)
+    cout << "Oracle Solaris Studio "<<__SUNPRO_CC;
+#else
+    cout << "Unknow compiler";
+#endif
+    cout << "\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\n";
 #ifdef CLOP
     cout << "CLOP ENABLED\n";
 #endif
@@ -123,10 +142,10 @@ int main(int argc, char** argv) {
             string epdfile;
             int m = 64;
             while((opt = getopt(argc, argv, "f:m:")) != -1) {
-                if(opt == 'f') {	//file
+                if(opt == 'f') {     //file
                     epdfile = optarg;
                 }
-                if(opt == 'm') {	//n' pieces
+                if(opt == 'm') {     //n' pieces
                     string h = optarg;
                     m = stoi(h);
                 }
@@ -179,12 +198,12 @@ int main(int argc, char** argv) {
             return 0;
         }
         if(opt == 'b') {
-            unique_ptr <IterativeDeeping> it(new IterativeDeeping());
+            unique_ptr<IterativeDeeping> it(new IterativeDeeping());
             it->setUseBook(false);
             it->setMaxTimeMillsec(40000);
             it->run();
             return 0;
-        } else if(opt == 'd') {	// gtb dtm
+        } else if(opt == 'd') {     // gtb dtm
             if(string(optarg) != "tm") {
                 cout << "use: " << argv[0] << " " << DTM_HELP << endl;
                 return 1;
@@ -192,12 +211,12 @@ int main(int argc, char** argv) {
             string fen, token;
             IterativeDeeping it;
             while((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
-                if(opt == 'f') {	//fen
+                if(opt == 'f') {     //fen
                     fen = optarg;
-                } else if(opt == 'p') {	//path
+                } else if(opt == 'p') {     //path
                     token = optarg;
                     it.getGtb().setPath(token);
-                } else if(opt == 's') {	//scheme
+                } else if(opt == 's') {     //scheme
                     token = optarg;
                     if(!it.getGtb().setScheme(token)) {
                         cout << "set scheme error" << endl;
@@ -218,7 +237,7 @@ int main(int argc, char** argv) {
             it.loadFen(fen);
             it.printDtm();
             return 0;
-        } else if(opt == 'p') {	// perft test
+        } else if(opt == 'p') {     // perft test
             if(string(optarg) != "erft") {
                 continue;
             };
@@ -228,33 +247,34 @@ int main(int argc, char** argv) {
             int PERFT_HASH_SIZE = 0;
             string dumpFile;
             while((opt = getopt(argc, argv, "d:f:h:f:c:F:")) != -1) {
-                if(opt == 'd') {	//depth
+                if(opt == 'd') {     //depth
                     perftDepth = atoi(optarg);
-                } else if(opt == 'F') {	//use dump
+                } else if(opt == 'F') {     //use dump
                     dumpFile = optarg;
                     if(dumpFile.empty()) {
                         cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                         return 1;
                     }
-                } else if(opt == 'c') {	//N cpu
+                } else if(opt == 'c') {     //N cpu
                     nCpu = atoi(optarg);
-                } else if(opt == 'h') {	//hash
+                } else if(opt == 'h') {     //hash
                     PERFT_HASH_SIZE = atoi(optarg);
-                } else if(opt == 'f') {	//fen
+                } else if(opt == 'f') {     //fen
                     fen = optarg;
                 }
             }
-            if(perftDepth > GenMoves::MAX_PLY || perftDepth < 0 || nCpu > 32 || nCpu < 0 || PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0) {
+            if(perftDepth > GenMoves::MAX_PLY || perftDepth < 0 || nCpu > 32 || nCpu < 0 || PERFT_HASH_SIZE > 32768 ||
+                    PERFT_HASH_SIZE < 0) {
                 cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                 return 1;
             }
             if(PERFT_HASH_SIZE) {
                 cout << "dump hash table in file every " << (Perft::secondsToDump / 60) << " minutes" << endl;
             }
-            unique_ptr <Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile));
+            unique_ptr<Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile));
             return 0;
         }
     }
-    unique_ptr <Uci> p(new Uci());
+    unique_ptr<Uci> p(new Uci());
     return 0;
 }

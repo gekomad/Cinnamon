@@ -1,5 +1,5 @@
 #    Cinnamon is a UCI chess engine - Makefile for cross-compile Linux/Windows/OSX
-#    Copyright (C) 2011-2013 Giuseppe Cannella
+#    Copyright (C) 2011-2015 Giuseppe Cannella
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -14,13 +14,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-PARAM="-std=c++11 -O3 -s -pipe -finline-functions -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wall -Wcast-qual -Wextra -Wshadow "
-
-CC="g++"
+COMP=g++
 
 ifndef SystemRoot
-#Linux/OSX
+# *nix
 ARC=
 LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 OS=$(shell uname -s)
@@ -37,7 +34,7 @@ STRIP=strip
 
 else
 
-#Windows
+# Windows
 ARC="-mno-ms-bitfields"
 OS=Windows
 RM=del
@@ -47,33 +44,48 @@ EXE="cinnamon.exe"
 STRIP=strip.exe
 endif
 
+ifeq ($(COMP),g++)
+	PARAM="-std=c++11 -O3 -s -pipe -finline-functions -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wall -Wcast-qual -Wextra -Wshadow "
+else
+ifeq ($(COMP),clang++)
+	PARAM="-std=c++11 -O3 -pipe  -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long  -Wcast-qual -Wextra -Wshadow "
+else
+	PARAM="-std=c++11 -O3 "
+endif
+endif
+
 help:
-	@echo
+
 	@echo "Makefile for cross-compile Linux/Windows/OSX"
 	@echo ""
-	@echo "make cinnamon64-native           > x86 64-bit optimized for native cpu"
 	@echo "make cinnamon64-modern-INTEL     > x86 64-bit optimized for modern Intel cpu"
 	@echo "make cinnamon64-modern-AMD       > x86 64-bit optimized for modern Amd cpu"
 	@echo "make cinnamon64-modern           > x86 64-bit with popcnt bsf sse3 support"
 	@echo "make cinnamon64-generic          > unspecified 64-bit"
-	@echo "make cinnamon32-native           > x86 32-bit optimized for native cpu"
+	@echo "make cinnamon64-CLOP             > x86 64-bit optimized for CLOP parameter tuning"
 	@echo "make cinnamon32-modern           > x86 32-bit with sse support"
 	@echo "make cinnamon32-generic          > unspecified 32-bit"
+	@echo "make cinnamon32-CLOP             > x86 32-bit optimized for CLOP parameter tuning"
+	@echo ""
+	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
+	@echo "example: make cinnamon64-modern-INTEL COMP=clang++"
 	@echo ""
 
-
 build:
-
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
-	@echo "optimize..."
-	$(PA)$(EXE) -b >bench.tmp
-	$(RM) *.o bench.tmp
-	@echo "build..."
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-use all
+ifeq ($(COMP),g++)
+		$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
+		@echo "optimize..."
+		$(PA)$(EXE) -b >bench.tmp
+		$(RM) *.o bench.tmp
+		@echo "build..."
+		$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-use all
+else
+		$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC) all
+endif
 	$(STRIP) $(EXE)
 
-cinnamon32-native:
-	$(MAKE)  ARC="$(ARC) -march=native" cinnamon32-generic
+cinnamon32-CLOP:
+	$(MAKE)  ARC="$(ARC) -DCLOP" cinnamon32-generic
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
@@ -81,11 +93,11 @@ cinnamon32-generic:
 cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse" cinnamon32-generic
 
-cinnamon64-native:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -march=native" build
+cinnamon64-CLOP:
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -DCLOP" build
 
 cinnamon64-generic:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -fprefetch-loop-arrays -m64" build
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
 
 cinnamon64-modern:
 	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF " cinnamon64-generic
@@ -97,52 +109,52 @@ cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
 all: namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o
-	$(CC) ${CFLAGS} ${ARC} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o ${LIBS}
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o ${LIBS}
 
 default:
 	help
 
 namespaces.o: namespaces.cpp
-	$(CC) -c namespaces.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c namespaces.cpp ${CFLAGS} ${ARC}
 
 ChessBoard.o: ChessBoard.cpp
-	$(CC) -c ChessBoard.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c ChessBoard.cpp ${CFLAGS} ${ARC}
 
 Eval.o: Eval.cpp
-	$(CC) -c Eval.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c Eval.cpp ${CFLAGS} ${ARC}
 
 GenMoves.o: GenMoves.cpp
-	$(CC) -c GenMoves.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c GenMoves.cpp ${CFLAGS} ${ARC}
 
 IterativeDeeping.o: IterativeDeeping.cpp
-	$(CC) -c IterativeDeeping.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c IterativeDeeping.cpp ${CFLAGS} ${ARC}
 
 main.o: main.cpp
-	$(CC) -c main.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c main.cpp ${CFLAGS} ${ARC}
 
 Perft.o: Perft.cpp
-	$(CC) -c Perft.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c Perft.cpp ${CFLAGS} ${ARC}
 
 Search.o: Search.cpp
-	$(CC) -c Search.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c Search.cpp ${CFLAGS} ${ARC}
 
 Uci.o: Uci.cpp
-	$(CC) -c Uci.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c Uci.cpp ${CFLAGS} ${ARC}
 
 Hash.o: Hash.cpp
-	$(CC) -c Hash.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c Hash.cpp ${CFLAGS} ${ARC}
 
 OpenBook.o: OpenBook.cpp
-	$(CC) -c OpenBook.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c OpenBook.cpp ${CFLAGS} ${ARC}
 
 Tablebase.o: Tablebase.cpp
-	$(CC) -c Tablebase.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c Tablebase.cpp ${CFLAGS} ${ARC}
 
 String.o: String.cpp
-	$(CC) -c String.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c String.cpp ${CFLAGS} ${ARC}
 
 Bits.o: Bits.cpp
-	$(CC) -c Bits.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c Bits.cpp ${CFLAGS} ${ARC}
 
 
 clean:

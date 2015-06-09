@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2014 Giuseppe Cannella
+    Copyright (C) 2011-2015 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -132,6 +132,7 @@ protected:
     static const uchar ENPASSANT_MOVE_MASK = 0x1;
     static const uchar PROMOTION_MOVE_MASK = 0x2;
     static const int MAX_REP_COUNT = 1024;
+    static const int NO_PROMOTION = -1;
     int repetitionMapCount;
 
     u64* repetitionMap;
@@ -195,7 +196,6 @@ protected:
 
 private:
     bool forceCheck = false;
-    static const int NO_PROMOTION = -1;
     static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;

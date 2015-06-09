@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2014 Giuseppe Cannella
+    Copyright (C) 2011-2015 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -185,7 +185,6 @@ string ChessBoard::decodeBoardinv(const uchar type, const int a, const int side)
         return BOARD[a];
     }
     assert(0);
-    return "";
 }
 
 char ChessBoard::decodeBoard(string a) {
