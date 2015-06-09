@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -114,11 +114,13 @@ u64 OpenBook::createKey(string fen1) {
     if(ep_square_s[0] != '-') {
         f = ep_square_s[0] - 'a';
         if(to_move_c == 'b') {
-            if((f > 0 && board[f - 1][3] == 'p') || (f < 7 && board[f + 1][3] == 'p')) {
+            if((f > 0 && board[f - 1][3] == 'p') ||
+                    (f < 7 && board[f + 1][3] == 'p')) {
                 key ^= RandomEnPassant[f];
             }
         } else {
-            if((f > 0 && board[f - 1][4] == 'P') || (f < 7 && board[f + 1][4] == 'P')) {
+            if((f > 0 && board[f - 1][4] == 'P') ||
+                    (f < 7 && board[f + 1][4] == 'P')) {
                 key ^= RandomEnPassant[f];
             }
         }

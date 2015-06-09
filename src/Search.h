@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,10 +30,10 @@ class Search:public Hash, public Eval {
 public:
 
     Search();
-    virtual ~ Search();
+    virtual ~Search();
     void setRunning(int);
-    void setPonder(bool);
-    void setNullMove(bool);
+    void setPonder(bool) ;
+    void setNullMove(bool) ;
     void setMaxTimeMillsec(int);
     int getMaxTimeMillsec();
     void startClock();
@@ -78,3 +78,4 @@ private:
 
 };
 #endif
+

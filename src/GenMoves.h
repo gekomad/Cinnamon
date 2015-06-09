@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ public:
         performRankFileShift(ROOK_BLACK + side, side, allpieces);
         performRankFileShift(QUEEN_BLACK + side, side, allpieces);
         performDiagShift(QUEEN_BLACK + side, side, allpieces);
-        performPawnShift <side>(~allpieces);
+        performPawnShift<side> (~allpieces);
         performKnightShiftCapture(KNIGHT_BLACK + side, ~allpieces, side);
         performKingShiftCapture(side, ~allpieces);
     }
@@ -54,7 +54,7 @@ public:
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
         u64 allpieces = enemies | friends;
-        if(performPawnCapture <side>(enemies)) {
+        if(performPawnCapture<side> (enemies)) {
             return true;
         }
         if(performKingShiftCapture(side, enemies)) {
@@ -127,29 +127,22 @@ protected:
     static const u64 RANK_1 = 0xff00ULL;
     static const u64 RANK_3 = 0xff000000ULL;
     static const u64 RANK_4 = 0xff00000000ULL;
-    static const u64 RANK_6 = 0xff000000000000ULL;
+    static const u64  RANK_6 = 0xff000000000000ULL;
     static const uchar STANDARD_MOVE_MASK = 0x3;
     static const uchar ENPASSANT_MOVE_MASK = 0x1;
     static const uchar PROMOTION_MOVE_MASK = 0x2;
     static const int MAX_REP_COUNT = 1024;
-    static const int NO_PROMOTION = -1;
     int repetitionMapCount;
 
     u64* repetitionMap;
     int currentPly;
-    bool perftMode;
+    bool perftMode, forceCheck = false;
     u64 numMoves, numMovesq;
     int listId;
     _TmoveP* gen_list;
     _Tmove* getNextMove(decltype(gen_list));
     u64 getKingAttackers(const int xside, u64, int);
     void clearKillerHeuristic();
-    void setForceCheck(bool b) {
-        forceCheck=b;
-    }
-    bool getForceCheck() {
-        return forceCheck;
-    }
     u64 getTotMoves();
     int getMobilityRook(const int position, const u64 enemies, const u64 friends);
     int getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces);
@@ -163,7 +156,7 @@ protected:
 #endif
     void pushRepetition(u64);
     int killerHeuristic[64][64];
-    template <int side> bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
+    template <int side> bool inCheckPerft(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
     void performCastle(const int side, const uchar type);
     void unPerformCastle(const int side, const uchar type);
     void tryAllCastle(const int side, const u64 allpieces);
@@ -176,12 +169,12 @@ protected:
 
     template <int side>
     bool inCheck() {
-        return attackSquare <side>(BITScanForward(chessboard[KING_BLACK + side]));
+        return attackSquare<side>(BITScanForward(chessboard[KING_BLACK + side]));
     }
 
     template <int side>
     bool attackSquare(const uchar position) {
-        return attackSquare <side>(position, getBitBoard <BLACK>() | getBitBoard <WHITE>());
+        return attackSquare<side>(position, getBitBoard<BLACK>() | getBitBoard<WHITE>());
     }
     void setKillerHeuristic(const int from, const int to, const int value) {
         ASSERT(from >= 0 && from < 64 && to >= 0 && to < 64);
@@ -195,7 +188,8 @@ protected:
     }
 
 private:
-    bool forceCheck = false;
+
+    static const int NO_PROMOTION = -1;
     static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;

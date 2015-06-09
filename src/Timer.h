@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ public:
     Timer(int seconds1) {
         seconds = seconds1;
     }
+
     void run() {
         while(1) {
             this_thread::sleep_for(chrono::seconds(seconds));
@@ -33,7 +34,7 @@ public:
         }
     }
 
-    void registerObservers(function <void (void)> f) {
+    void registerObservers(function<void (void)> f) {
         observers.push_back(f);
     }
 
@@ -43,13 +44,12 @@ public:
         }
     }
 
-    virtual ~ Timer() {
-    }
+    virtual ~Timer() {}
 
 
 private:
     int seconds;
-    vector <function <void (void)>> observers;
+    vector<function<void (void)>> observers;
 };
 
 #endif

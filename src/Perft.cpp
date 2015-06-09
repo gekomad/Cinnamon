@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #include "Perft.h"
 
-Perft::PerftThread::PerftThread() { }
+Perft::PerftThread::PerftThread() {}
 
 Perft::PerftThread::PerftThread(int cpuID1, string fen1, int from1, int to1, Perft* perft1) : GenMoves() {
     perftMode = true;
@@ -77,14 +77,14 @@ bool Perft::load() {
     f.open(dumpFile, ios_base::in | ios_base::binary);
     cout << endl << "load hash table from " << dumpFile << " file.." << endl;
     getline(f, fen1);
-    f.read(reinterpret_cast <char*>(&depthHash), sizeof(int));
+    f.read(reinterpret_cast<char*>(&depthHash), sizeof(int));
     if(depthHash > depth) {
         cout << "error depth < hash depth" << endl;
         f.close();
         exit(1);
     };
-    f.read(reinterpret_cast <char*>(&nCpuHash), sizeof(int));
-    f.read(reinterpret_cast <char*>(&mbSizeHash), sizeof(u64));
+    f.read(reinterpret_cast<char*>(&nCpuHash), sizeof(int));
+    f.read(reinterpret_cast<char*>(&mbSizeHash), sizeof(u64));
     alloc();
     if(fen.empty()) {
         fen = fen1;
@@ -106,7 +106,7 @@ bool Perft::load() {
     _ThashPerft* tmp = (_ThashPerft*) malloc(sizeAtDepthHash[depthHash] * sizeof(_ThashPerft));
     assert(tmp);
     for(int i = 1; i <= depthHash; i++) {
-        f.read(reinterpret_cast <char*>(tmp), sizeAtDepthHash[i] * sizeof(_ThashPerft));
+        f.read(reinterpret_cast<char*>(tmp), sizeAtDepthHash[i] * sizeof(_ThashPerft));
         for(unsigned y = 0; y < sizeAtDepthHash[i]; y++) {
             if(tmp[y].key) {
                 u64 rr = tmp[y].key % sizeAtDepth[i];
@@ -243,19 +243,18 @@ Perft::Perft(string fen1, int depth1, int nCpu2, u64 mbSize1, string dumpFile1) 
 }
 
 template<int side, bool useHash>
-u64 Perft::PerftThread::search(const int depthx) {
+u64 Perft::PerftThread::search(const int depth) {
     checkWait();
-    if(depthx == 0) {
+    if(depth == 0) {
         return 1;
     }
     u64 zobristKeyR;
     u64 n_perft = 0;
-    _ThashPerft*
-    phashe = nullptr;
+    _ThashPerft* phashe = nullptr;
     if(useHash) {
-        zobristKeyR = side ? zobristKey ^ 0xd2a5cab966b3d6cULL : zobristKey ^ 0x1cf0862fa4118029ULL;
+        zobristKeyR = zobristKey ^ RANDSIDE[side];
         lock_guard<mutex> lock(perft->updateHash);
-        phashe = &(perft->hash[depthx][zobristKeyR % perft->sizeAtDepth[depthx]]);
+        phashe = & (perft->hash[depth][zobristKeyR % perft->sizeAtDepth[depth]]);
         if(zobristKeyR == phashe->key) {
             n_perft = phashe->nMoves;
             return n_perft;
@@ -265,7 +264,7 @@ u64 Perft::PerftThread::search(const int depthx) {
     _Tmove* move;
     incListId();
     u64 friends = getBitBoard<side>();
-    u64 enemies = getBitBoard<side ^ 1>();
+    u64 enemies = getBitBoard<side^1>();
     if(generateCaptures<side>(enemies, friends)) {
         decListId();
         return 0;
@@ -280,7 +279,7 @@ u64 Perft::PerftThread::search(const int depthx) {
         move = getMove(ii);
         u64 keyold = zobristKey;
         makemove(move, false, false);
-        n_perft += search<side ^ 1, useHash>(depthx - 1);
+        n_perft += search<side^1, useHash> (depth - 1);
         takeback(move, keyold, false);
     }
     decListId();
@@ -309,11 +308,9 @@ void Perft::PerftThread::run() {
         move = getMove(ii);
         makemove(move, false, false);
         if(perft->hash != nullptr) {
-            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, true>(perft->depth - 1) : search<BLACK, true>(
-                          perft->depth - 1);
+            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, true>(perft->depth - 1) : search<BLACK, true>(perft->depth - 1);
         } else {
-            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, false>(perft->depth - 1) : search<BLACK, false>(
-                          perft->depth - 1);
+            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, false>(perft->depth - 1) : search<BLACK, false>(perft->depth - 1);
         }
         takeback(move, keyold, false);
         char y;
@@ -332,8 +329,7 @@ void Perft::PerftThread::run() {
             if((decodeBoardinv(move->type, move->to, sideToMove)).length() > 2) {
                 cout << "\t" << decodeBoardinv(move->type, move->to, sideToMove) << "\t" << n_perft << " ";
             } else {
-                cout << "\t" << x << decodeBoardinv(move->type, move->from, sideToMove) << y <<
-                     decodeBoardinv(move->type, move->to, sideToMove) << "\t" << n_perft << " ";
+                cout << "\t" << x << decodeBoardinv(move->type, move->from, sideToMove) << y << decodeBoardinv(move->type, move->to, sideToMove) << "\t" << n_perft << " ";
             }
         }
         cout << flush;

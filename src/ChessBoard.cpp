@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,15 +26,13 @@ ChessBoard::ChessBoard() {
 
 ChessBoard::~ChessBoard() {
 }
-
 #ifdef DEBUG_MODE
-u64
-ChessBoard::getBitBoard(int side) {
-    return side ? getBitBoard <WHITE>() : getBitBoard <BLACK>();
+u64 ChessBoard::getBitBoard(int side) {
+    return side ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
 }
 
 int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
-    return side ? getPieceAt<WHITE>(bitmapPos) : getPieceAt<BLACK>(bitmapPos);
+    return side ? getPieceAt<WHITE> (bitmapPos) : getPieceAt<BLACK> (bitmapPos);
 }
 #endif
 
@@ -108,9 +106,9 @@ string ChessBoard::boardToFen() {
         strcpy(row, "");
         for(x = 0; x < 8; x++) {
             sq = (y * 8) + x;
-            q = getPieceAt <BLACK>(POW2[63 - sq]);
+            q = getPieceAt<BLACK>(POW2[63 - sq]);
             if(q == SQUARE_FREE) {
-                q = getPieceAt <WHITE>(POW2[63 - sq]);
+                q = getPieceAt<WHITE>(POW2[63 - sq]);
             }
             if(q == SQUARE_FREE) {
                 l++;
@@ -185,6 +183,7 @@ string ChessBoard::decodeBoardinv(const uchar type, const int a, const int side)
         return BOARD[a];
     }
     assert(0);
+    return "";
 }
 
 char ChessBoard::decodeBoard(string a) {

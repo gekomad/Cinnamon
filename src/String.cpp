@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,8 +27,7 @@ String::String(int d) {
     assign(ss.str());
 }
 
-String::~String() {
-}
+String::~String() {}
 
 String String::trimRight() {
     int pos = find_last_not_of(" ");
@@ -57,7 +56,6 @@ String String::toUpper() {
     transform(begin(), end(), begin(),::toupper);
     return *this;
 }
-
 String String::toLower() {
     transform(begin(), end(), begin(),::tolower);
     return *this;

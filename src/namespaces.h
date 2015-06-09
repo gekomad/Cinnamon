@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 using namespace std;
 namespace _board {
 
-static const string NAME = "Cinnamon 1.2c";
+static const string NAME = "Cinnamon 1.2a";
 static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 typedef unsigned char uchar;
@@ -113,7 +113,7 @@ static const u64 NOTPOW2_60 = 0xefffffffffffffffULL;
 static const u64 NOTPOW2_61 = 0xdfffffffffffffffULL;
 static const u64 NOTPOW2_63 = 0x7fffffffffffffffULL;
 
-static const u64 RANDSIDE[2] = { 0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL };
+static const u64 RANDSIDE[2] = {0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL};
 static const u64 BIG_CENTER = 0x3c3c3c3c0000ULL;
 static const string BOARD[64] = {
     "h1", "g1", "f1", "e1", "d1", "c1", "b1", "a1",
@@ -126,7 +126,7 @@ static const string BOARD[64] = {
     "h8", "g8", "f8", "e8", "d8", "c8", "b8", "a8"
 };
 
-static const char FEN_PIECE[] = { 'p', 'P', 'r', 'R', 'b', 'B', 'n', 'N', 'k', 'K', 'q', 'Q', '-' };
+static const char FEN_PIECE[] = {'p', 'P', 'r', 'R', 'b', 'B', 'n', 'N', 'k', 'K', 'q', 'Q', '-'};
 
 static const int INV_FEN[] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -468,8 +468,8 @@ static const char RANK_AT[64] = {
     6, 6, 6, 6, 6, 6, 6, 6,
     7, 7, 7, 7, 7, 7, 7, 7
 };
-static const char MASK_BIT_SET_COUNT_VERT_UPPER[64] = { 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-static const char MASK_BIT_SET_COUNT_ORIZ_LEFT[64] = { 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0 };
+static const char MASK_BIT_SET_COUNT_VERT_UPPER[64] = { 7, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+static const char MASK_BIT_SET_COUNT_ORIZ_LEFT[64] = { 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0};
 static const u64 MASK_BIT_SET_VERT_LOWER[64] = {
     0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x1ULL,
     0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL, 0x40ULL, 0x80ULL, 0x101ULL,
@@ -856,11 +856,15 @@ int diffTime(struct timeb a, struct timeb b);
 int getYear();
 int getMonth();
 int getDay();
-} namespace _file {
+} 
+
+namespace _file {
 bool fileExists(string filename);
 int fileSize(const string& FileName);
 string extractFileName(string path);
-} namespace _random {
+} 
+
+namespace _random {
 static const u64 RANDOM_KEY[15][64] = {
 #include "random.inc"
 };
@@ -897,7 +901,7 @@ static const int MOB_ROOK[][15] = {
     {-15, -10, -5, 0, 9, 11, 16, 22, 30, 32, 40, 45, 50, 51, 52}
 };
 
-static const int MOB_KNIGHT[] = { -8, -4, 7, 10, 15, 20, 30, 35, 40 };
+static const int MOB_KNIGHT[] = { -8, -4, 7, 10, 15, 20, 30, 35, 40};
 
 static const int MOB_BISHOP[][14] = {
     {-8, -7, 2, 8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 50},
@@ -917,7 +921,7 @@ static const int MOB_CASTLE[][3] = {
     {0, 0, 0}
 };
 
-static const int MOB_PAWNS[] = { -1, 2, 3, 4, 5, 10, 12, 14, 18, 22, 25, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 70, 75, 80, 90, 95, 100, 110 };
+static const int MOB_PAWNS[] = { -1, 2, 3, 4, 5, 10, 12, 14, 18, 22, 25, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 70, 75, 80, 90, 95, 100, 110};
 
 static const int BONUS_ATTACK_KING[] = { -1, 2, 8, 64, 128, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512 };
 
@@ -1096,3 +1100,4 @@ static const char DISTANCE_KING_ENDING[64] = {
 }
 
 #endif
+

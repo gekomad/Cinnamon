@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,10 +19,9 @@
 IterativeDeeping::IterativeDeeping():maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
     setUseBook(false);
 #if defined(DEBUG_MODE)
-    string
-    parameterFile = "parameter.txt";
+    string parameterFile = "parameter.txt";
     if(!_file::fileExists(parameterFile)) {
-        cout << "warning file not found  " << parameterFile << endl;
+        cout << "error file not found  " << parameterFile << endl;
         return;
     }
     ifstream inData;
@@ -78,8 +77,7 @@ int IterativeDeeping::printDtm() {
     u64 friends = side == WHITE ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
     u64 enemies = side == BLACK ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
     display();
-    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100) : getGtb().getDtm<BLACK, true>(
-                  chessboard, rightCastle, 100);
+    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100) : getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100);
     cout << " res: " << res;
     incListId();
     generateCaptures(side, enemies, friends);
@@ -91,10 +89,8 @@ int IterativeDeeping::printDtm() {
     for(int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
-        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) <<
-             decodeBoardinv(move->type, move->to, getSide()) << " ";
-        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100) : getGtb().getDtm<WHITE, true>(
-                  chessboard, rightCastle, 100);
+        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) << decodeBoardinv(move->type, move->to, getSide()) << " ";
+        res = side ? -getGtb().getDtm<BLACK, true> (chessboard , rightCastle, 100) : getGtb().getDtm<WHITE, true> (chessboard , rightCastle, 100);
         if(res != -INT_MAX) {
             cout << " res: " << res;
         }
@@ -162,6 +158,7 @@ void IterativeDeeping::run() {
             return;
         }
     }
+    forceCheck = false;
     int sc = 0;
     u64 totMoves = 0;
     string ponderMove;
@@ -174,8 +171,6 @@ void IterativeDeeping::run() {
     memset(&resultMove, 0, sizeof(resultMove));
     ponderMove = "";
     int mateIn = INT_MAX;
-    bool inMate = false;
-    int red = 0;
     while(getRunning() && mateIn == INT_MAX) {
         init();
         ++mply;
@@ -205,9 +200,9 @@ void IterativeDeeping::run() {
             }
             val = tmp;
         }
-        //if(mateIn != INT_MAX) {
-        //    cout << "mate in: " << abs(mateIn) << endl;
-        //}
+        if(mateIn != INT_MAX) {
+            cout << "mate in: " << abs(mateIn) << endl;
+        }
         if(!getRunning()) {
             break;
         }
@@ -239,8 +234,8 @@ void IterativeDeeping::run() {
             break;
         }
         sc = resultMove.score;
-        if(resultMove.score > _INFINITE - MAX_PLY) {
-            sc = INT_MAX;
+        if(resultMove.score > _INFINITE - 100) {
+            sc = 0x7fffffff;
         }
 #ifdef DEBUG_MODE
         int totStoreHash = nRecordHashA + nRecordHashB + nRecordHashE + 1;
@@ -272,52 +267,31 @@ void IterativeDeeping::run() {
         cout << "info string null move cut: " << nNullMoveCut << endl;
         cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
-        ///is invalid move?
-        bool print = true;
-        if(abs(sc) > _INFINITE - MAX_PLY) {
-            bool b = getForceCheck();
-            u64 oldKey = zobristKey;
-            setForceCheck(true);
-            bool valid = makemove(&resultMove);
-            if(!valid) {
-                red++;
-                print = false;
-            }
-            takeback(&resultMove, oldKey, true);
-            setForceCheck(b);
+        if(abs(sc) > _INFINITE) {
+            cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+        } else {
+            cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         }
-        if(print) {
-            if(abs(sc) > _INFINITE - MAX_PLY) {
-                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-            } else {
-                cout << "info score cp " << sc << " depth " << mply - red << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-            }
-        }
-        if(getForceCheck()) {
-            setForceCheck(false);
-            setRunning(1);
-        } else if(abs(sc) > _INFINITE - MAX_PLY) {
-            setForceCheck(true);
-            setRunning(2);
-        }
-        if(mply >= maxDepth + red && (getRunning() != 2 || inMate)) {
+        if(mply >= maxDepth - 1) {
             break;
         }
-        if(abs(sc) > _INFINITE - MAX_PLY) {
-            inMate = true;
+        if(forceCheck) {
+            forceCheck = false;
+            setRunning(1);
+        }
+        if(mply >= maxDepth - 1) {
+            break;
         }
     }
-    if(getForceCheck() && getRunning()) {
-        while(getForceCheck() && getRunning());
-        if(abs(sc) > _INFINITE - MAX_PLY) {
-            cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+    if(forceCheck && getRunning()) {
+        while(forceCheck && getRunning());
+        if(abs(sc) > _INFINITE) {
+            cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         } else {
-            cout << "info score cp " << sc << " depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+            cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         }
     }
-    resultMove.capturedPiece =
-        (resultMove.side ^ 1) == WHITE ? getPieceAt<WHITE>(POW2[resultMove.to]) : getPieceAt<BLACK>(
-            POW2[resultMove.to]);
+    resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? getPieceAt<WHITE> (POW2[resultMove.to]) : getPieceAt<BLACK> (POW2[resultMove.to]);
     string bestmove = decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
     if(!(resultMove.type & (KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK))) {
         bestmove += decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
@@ -326,7 +300,7 @@ void IterativeDeeping::run() {
         }
     }
     cout << "bestmove " << bestmove;
-    if(ponderEnabled && ponderMove.size()) {
+    if(ponderEnabled  && ponderMove.size()) {
         cout << " ponder " << ponderMove;
     }
     cout << endl << flush;
@@ -422,4 +396,5 @@ bool IterativeDeeping::setParameter(String param, int value) {
     cout << param << value;
     assert(0);
 #endif
+    return true;
 }

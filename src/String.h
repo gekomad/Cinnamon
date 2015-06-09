@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,8 +28,7 @@ using namespace std;
 class String:public string {
 public:
     String();
-    String(string s):string(s) {
-    };
+    String(string s):string(s) {};
     String(int);
     virtual ~ String();
     String trimRight();

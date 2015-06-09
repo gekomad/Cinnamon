@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ class Bits {
 public:
 
     Bits();
-    virtual ~ Bits();
+    virtual ~Bits();
 #ifdef HAS_POPCNT
     static int bitCount(u64 bits) {
         return __builtin_popcountll(bits);

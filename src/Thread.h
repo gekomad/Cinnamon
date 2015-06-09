@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ private:
     Runnable* execRunnable;
 
     static void* __run(void* cthis) {
-        static_cast <Runnable*>(cthis)->run();
+        static_cast<Runnable*>(cthis)->run();
         return nullptr;
     }
 
@@ -49,7 +49,7 @@ public:
         execRunnable = this;
     }
 
-    virtual ~ Thread() {
+    virtual ~Thread() {
         if(theThread) {
             theThread->detach();
             delete theThread;
@@ -60,7 +60,7 @@ public:
     void checkWait() {
         while(!running) {
             mutex mtx;
-            unique_lock <mutex> lck(mtx);
+            unique_lock<mutex> lck(mtx);
             cv.wait(lck);
         }
     }

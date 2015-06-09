@@ -1,6 +1,6 @@
 /*
     Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2015 Giuseppe Cannella
+    Copyright (C) 2011-2014 Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ void Uci::listner(IterativeDeeping* it) {
     bool stop = false;
     int lastTime = 0;
     uciMode = false;
-    static const string BOOLEAN[] = { "false", "true" };
+    static const string BOOLEAN[] = {"false", "true"};
     while(!stop) {
         getline(cin, command);
         istringstream uip(command, ios::in);
@@ -91,7 +91,7 @@ void Uci::listner(IterativeDeeping* it) {
                     fen = it->getFen();
                 }
                 cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << endl;
-                unique_ptr <Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, ""));
+                unique_ptr<Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, ""));
                 it->setHashSize(hashDepth);
             } else {
                 cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string]" << endl;
@@ -136,9 +136,9 @@ void Uci::listner(IterativeDeeping* it) {
             int side = it->getSide();
             int t;
             if(side == WHITE) {
-                t = it->getScore(Bits::bitCount(it->getBitBoard <WHITE>()), side);
+                t = it->getScore(Bits::bitCount(it->getBitBoard<WHITE>()), side);
             } else {
-                t = it->getScore(Bits::bitCount(it->getBitBoard <BLACK>()), side);
+                t = it->getScore(Bits::bitCount(it->getBitBoard<BLACK>()), side);
             }
             if(!it->getSide()) {
                 t = -t;
@@ -240,13 +240,13 @@ void Uci::listner(IterativeDeeping* it) {
                     if(token == "value") {
                         getToken(uip, token);
                         knowCommand = true;
-                        it->setNullMove(token == "true");
+                        it->setNullMove(token == "true" ? true : false);
                     }
                 } else if(token == "ownbook") {
                     getToken(uip, token);
                     if(token == "value") {
                         getToken(uip, token);
-                        it->setUseBook(token == "true");
+                        it->setUseBook(token == "true" ? true : false);
                         knowCommand = true;
                     }
                 } else if(token == "book") {
@@ -263,7 +263,7 @@ void Uci::listner(IterativeDeeping* it) {
                     getToken(uip, token);
                     if(token == "value") {
                         getToken(uip, token);
-                        it->enablePonder(token == "true");
+                        it->enablePonder(token == "true" ? true : false);
                         knowCommand = true;
                     }
                 } else if(token == "clear") {
@@ -275,7 +275,7 @@ void Uci::listner(IterativeDeeping* it) {
                 }
             }
         } else if(token == "position") {
-            lock_guard <mutex> lock(it->mutex1);
+            lock_guard<mutex> lock(it->mutex1);
             //it->lock();
             knowCommand = true;
             it->setRepetitionMapCount(0);
@@ -306,12 +306,11 @@ void Uci::listner(IterativeDeeping* it) {
             }
         } else if(token == "go") {
             it->setMaxDepth(GenMoves::MAX_PLY);
-            int wtime = 200000;	//5 min
+            int wtime = 200000; //5 min
             int btime = 200000;
             int winc = 0;
             int binc = 0;
             bool forceTime = false;
-            bool setMovetime = false;
             while(!uip.eof()) {
                 getToken(uip, token);
                 if(token == "wtime") {
@@ -328,15 +327,11 @@ void Uci::listner(IterativeDeeping* it) {
                     if(depth > GenMoves::MAX_PLY) {
                         depth = GenMoves::MAX_PLY;
                     }
-                    if(!setMovetime) {
-                        it->setMaxTimeMillsec(0x7FFFFFFF);
-                    }
                     it->setMaxDepth(depth);
                     forceTime = true;
                 } else if(token == "movetime") {
                     int tim;
                     uip >> tim;
-                    setMovetime = true;
                     it->setMaxTimeMillsec(tim);
                     forceTime = true;
                 } else if(token == "infinite") {
