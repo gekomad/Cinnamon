@@ -19,8 +19,7 @@
 IterativeDeeping::IterativeDeeping():maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
     setUseBook(false);
 #if defined(DEBUG_MODE)
-    string
-    parameterFile = "parameter.txt";
+    string parameterFile = "parameter.txt";
     if(!_file::fileExists(parameterFile)) {
         cout << "warning file not found  " << parameterFile << endl;
         return;
@@ -78,8 +77,7 @@ int IterativeDeeping::printDtm() {
     u64 friends = side == WHITE ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
     u64 enemies = side == BLACK ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
     display();
-    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100) : getGtb().getDtm<BLACK, true>(
-                  chessboard, rightCastle, 100);
+    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100) : getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100);
     cout << " res: " << res;
     incListId();
     generateCaptures(side, enemies, friends);
@@ -91,10 +89,8 @@ int IterativeDeeping::printDtm() {
     for(int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
-        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) <<
-             decodeBoardinv(move->type, move->to, getSide()) << " ";
-        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100) : getGtb().getDtm<WHITE, true>(
-                  chessboard, rightCastle, 100);
+        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) << decodeBoardinv(move->type, move->to, getSide()) << " ";
+        res = side ? -getGtb().getDtm<BLACK, true> (chessboard , rightCastle, 100) : getGtb().getDtm<WHITE, true> (chessboard , rightCastle, 100);
         if(res != -INT_MAX) {
             cout << " res: " << res;
         }

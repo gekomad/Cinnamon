@@ -80,8 +80,8 @@ int Eval::evaluatePawn() {
             }
         }
         /// blocked
-        result -= (!(PAWN_FORK_MASK[side][o] & structure.allPiecesSide[side ^ 1])) && (structure.allPieces & (shiftForward <side, 8>(pos))) ? PAWN_BLOCKED : 0;
-        ADD(SCORE_DEBUG.PAWN_BLOCKED[side], (!(PAWN_FORK_MASK[side][o] & structure.allPiecesSide[side ^ 1])) && (structure.allPieces & (shiftForward <side, 8>(pos))) ? -PAWN_BLOCKED : 0);
+        result -= (!(PAWN_FORK_MASK[side][o] & structure.allPiecesSide[side ^ 1])) && (structure.allPieces & (shiftForward<side, 8>(pos))) ? PAWN_BLOCKED : 0;
+        ADD(SCORE_DEBUG.PAWN_BLOCKED[side], (!(PAWN_FORK_MASK[side][o] & structure.allPiecesSide[side ^ 1])) && (structure.allPieces & (shiftForward<side, 8>(pos))) ? -PAWN_BLOCKED : 0);
         /// unprotected
         if(!(ped_friends & PAWN_PROTECTED_MASK[side][o])) {
             result -= UNPROTECTED_PAWNS;
@@ -372,8 +372,8 @@ int Eval::evaluateKing(int side, u64 squares) {
 }
 
 int Eval::getScore(const int side, const int alpha, const int beta) {
-    int lazyscore_white = lazyEvalSide <WHITE>();
-    int lazyscore_black = lazyEvalSide <BLACK>();
+    int lazyscore_white = lazyEvalSide<WHITE>();
+    int lazyscore_black = lazyEvalSide<BLACK>();
     int lazyscore = lazyscore_black - lazyscore_white;
     if(side) {
         lazyscore = -lazyscore;
@@ -387,7 +387,7 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
     memset(&SCORE_DEBUG, 0, sizeof(_TSCORE_DEBUG));
 #endif
     memset(structure.kingSecurityDistance, 0, sizeof(structure.kingSecurityDistance));
-    int npieces = getNpiecesNoPawnNoKing <WHITE>() + getNpiecesNoPawnNoKing <BLACK>();
+    int npieces = getNpiecesNoPawnNoKing<WHITE>() + getNpiecesNoPawnNoKing<BLACK>();
     _Tstatus status;
     if(npieces < 4) {
         status = END;
@@ -396,8 +396,8 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
     } else {
         status = OPEN;
     }
-    structure.allPiecesNoPawns[BLACK] = getBitBoardNoPawns <BLACK>();
-    structure.allPiecesNoPawns[WHITE] = getBitBoardNoPawns <WHITE>();
+    structure.allPiecesNoPawns[BLACK] = getBitBoardNoPawns<BLACK>();
+    structure.allPiecesNoPawns[WHITE] = getBitBoardNoPawns<WHITE>();
     structure.allPiecesSide[BLACK] = structure.allPiecesNoPawns[BLACK] | chessboard[PAWN_BLACK];
     structure.allPiecesSide[WHITE] = structure.allPiecesNoPawns[WHITE] | chessboard[PAWN_WHITE];
     structure.allPieces = structure.allPiecesSide[BLACK] | structure.allPiecesSide[WHITE];
@@ -426,47 +426,47 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
     int bonus_attack_black_king = 0;
     int bonus_attack_white_king = 0;
     if(status == OPEN) {
-        pawns_score_black = evaluatePawn <BLACK, OPEN>();
-        pawns_score_white = evaluatePawn <WHITE, OPEN>();
-        bishop_score_black = evaluateBishop <BLACK, OPEN>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-        bishop_score_white = evaluateBishop <WHITE, OPEN>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-        queens_score_black = evaluateQueen <OPEN>(BLACK, structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-        queens_score_white = evaluateQueen <OPEN>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-        rooks_score_black = evaluateRook <BLACK, OPEN>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-        rooks_score_white = evaluateRook <WHITE, OPEN>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-        knights_score_black = evaluateKnight <BLACK, OPEN>(structure.pawns[WHITE], ~structure.allPiecesSide[BLACK]);
-        knights_score_white = evaluateKnight <WHITE, OPEN>(structure.pawns[BLACK], ~structure.allPiecesSide[WHITE]);
-        kings_score_black = evaluateKing <OPEN>(BLACK, ~structure.allPiecesSide[BLACK]);
-        kings_score_white = evaluateKing <OPEN>(WHITE, ~structure.allPiecesSide[WHITE]);
+        pawns_score_black = evaluatePawn<BLACK, OPEN>();
+        pawns_score_white = evaluatePawn<WHITE, OPEN>();
+        bishop_score_black = evaluateBishop<BLACK, OPEN>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+        bishop_score_white = evaluateBishop<WHITE, OPEN>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+        queens_score_black = evaluateQueen<OPEN>(BLACK, structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+        queens_score_white = evaluateQueen<OPEN>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+        rooks_score_black = evaluateRook<BLACK, OPEN>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+        rooks_score_white = evaluateRook<WHITE, OPEN>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+        knights_score_black = evaluateKnight<BLACK, OPEN>(structure.pawns[WHITE], ~structure.allPiecesSide[BLACK]);
+        knights_score_white = evaluateKnight<WHITE, OPEN>(structure.pawns[BLACK], ~structure.allPiecesSide[WHITE]);
+        kings_score_black = evaluateKing<OPEN>(BLACK, ~structure.allPiecesSide[BLACK]);
+        kings_score_white = evaluateKing<OPEN>(WHITE, ~structure.allPiecesSide[WHITE]);
     } else {
         bonus_attack_black_king = BONUS_ATTACK_KING[bitCount(structure.kingAttackers[WHITE])];
         bonus_attack_white_king = BONUS_ATTACK_KING[bitCount(structure.kingAttackers[BLACK])];
         if(status == END) {
-            pawns_score_black = evaluatePawn <BLACK, END>();
-            pawns_score_white = evaluatePawn <WHITE, END>();
-            bishop_score_black = evaluateBishop <BLACK, END>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            bishop_score_white = evaluateBishop <WHITE, END>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            queens_score_black = evaluateQueen <END>(BLACK, structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            queens_score_white = evaluateQueen <END>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            rooks_score_black = evaluateRook <BLACK, END>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            rooks_score_white = evaluateRook <WHITE, END>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            knights_score_black = evaluateKnight <BLACK, END>(structure.pawns[WHITE], ~structure.allPiecesSide[BLACK]);
-            knights_score_white = evaluateKnight <WHITE, END>(structure.pawns[BLACK], ~structure.allPiecesSide[WHITE]);
-            kings_score_black = evaluateKing <END>(BLACK, ~structure.allPiecesSide[BLACK]);
-            kings_score_white = evaluateKing <END>(WHITE, ~structure.allPiecesSide[WHITE]);
+            pawns_score_black = evaluatePawn<BLACK, END>();
+            pawns_score_white = evaluatePawn<WHITE, END>();
+            bishop_score_black = evaluateBishop<BLACK, END>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+            bishop_score_white = evaluateBishop<WHITE, END>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+            queens_score_black = evaluateQueen<END>(BLACK, structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+            queens_score_white = evaluateQueen<END>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+            rooks_score_black = evaluateRook<BLACK, END>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+            rooks_score_white = evaluateRook<WHITE, END>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+            knights_score_black = evaluateKnight<BLACK, END>(structure.pawns[WHITE], ~structure.allPiecesSide[BLACK]);
+            knights_score_white = evaluateKnight<WHITE, END>(structure.pawns[BLACK], ~structure.allPiecesSide[WHITE]);
+            kings_score_black = evaluateKing<END>(BLACK, ~structure.allPiecesSide[BLACK]);
+            kings_score_white = evaluateKing<END>(WHITE, ~structure.allPiecesSide[WHITE]);
         } else {
-            pawns_score_black = evaluatePawn <BLACK, MIDDLE>();
-            pawns_score_white = evaluatePawn <WHITE, MIDDLE>();
-            bishop_score_black = evaluateBishop <BLACK, MIDDLE>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            bishop_score_white = evaluateBishop <WHITE, MIDDLE>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            queens_score_black = evaluateQueen <MIDDLE>(BLACK, structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            queens_score_white = evaluateQueen <MIDDLE>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            rooks_score_black = evaluateRook <BLACK, MIDDLE>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            rooks_score_white = evaluateRook <WHITE, MIDDLE>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            knights_score_black = evaluateKnight <BLACK, MIDDLE>(structure.pawns[WHITE], ~structure.allPiecesSide[BLACK]);
-            knights_score_white = evaluateKnight <WHITE, MIDDLE>(structure.pawns[BLACK], ~structure.allPiecesSide[WHITE]);
-            kings_score_black = evaluateKing <MIDDLE>(BLACK, ~structure.allPiecesSide[BLACK]);
-            kings_score_white = evaluateKing <MIDDLE>(WHITE, ~structure.allPiecesSide[WHITE]);
+            pawns_score_black = evaluatePawn<BLACK, MIDDLE>();
+            pawns_score_white = evaluatePawn<WHITE, MIDDLE>();
+            bishop_score_black = evaluateBishop<BLACK, MIDDLE>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+            bishop_score_white = evaluateBishop<WHITE, MIDDLE>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+            queens_score_black = evaluateQueen<MIDDLE>(BLACK, structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+            queens_score_white = evaluateQueen<MIDDLE>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+            rooks_score_black = evaluateRook<BLACK, MIDDLE>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+            rooks_score_white = evaluateRook<WHITE, MIDDLE>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+            knights_score_black = evaluateKnight<BLACK, MIDDLE>(structure.pawns[WHITE], ~structure.allPiecesSide[BLACK]);
+            knights_score_white = evaluateKnight<WHITE, MIDDLE>(structure.pawns[BLACK], ~structure.allPiecesSide[WHITE]);
+            kings_score_black = evaluateKing<MIDDLE>(BLACK, ~structure.allPiecesSide[BLACK]);
+            kings_score_white = evaluateKing<MIDDLE>(WHITE, ~structure.allPiecesSide[WHITE]);
         }
     }
     ASSERT(getMobilityCastle(WHITE, structure.allPieces) < (int)(sizeof(MOB_CASTLE[status]) / sizeof(int)));

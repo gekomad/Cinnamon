@@ -142,10 +142,10 @@ int main(int argc, char** argv) {
             string epdfile;
             int m = 64;
             while((opt = getopt(argc, argv, "f:m:")) != -1) {
-                if(opt == 'f') {     //file
+                if(opt == 'f') {    //file
                     epdfile = optarg;
                 }
-                if(opt == 'm') {     //n' pieces
+                if(opt == 'm') {    //n' pieces
                     string h = optarg;
                     m = stoi(h);
                 }
@@ -203,7 +203,7 @@ int main(int argc, char** argv) {
             it->setMaxTimeMillsec(40000);
             it->run();
             return 0;
-        } else if(opt == 'd') {     // gtb dtm
+        } else if(opt == 'd') {  // gtb dtm
             if(string(optarg) != "tm") {
                 cout << "use: " << argv[0] << " " << DTM_HELP << endl;
                 return 1;
@@ -211,12 +211,12 @@ int main(int argc, char** argv) {
             string fen, token;
             IterativeDeeping it;
             while((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
-                if(opt == 'f') {     //fen
+                if(opt == 'f') {    //fen
                     fen = optarg;
-                } else if(opt == 'p') {     //path
+                } else if(opt == 'p') { //path
                     token = optarg;
                     it.getGtb().setPath(token);
-                } else if(opt == 's') {     //scheme
+                } else if(opt == 's') { //scheme
                     token = optarg;
                     if(!it.getGtb().setScheme(token)) {
                         cout << "set scheme error" << endl;
@@ -237,7 +237,7 @@ int main(int argc, char** argv) {
             it.loadFen(fen);
             it.printDtm();
             return 0;
-        } else if(opt == 'p') {     // perft test
+        } else if(opt == 'p') {  // perft test
             if(string(optarg) != "erft") {
                 continue;
             };
@@ -247,24 +247,23 @@ int main(int argc, char** argv) {
             int PERFT_HASH_SIZE = 0;
             string dumpFile;
             while((opt = getopt(argc, argv, "d:f:h:f:c:F:")) != -1) {
-                if(opt == 'd') {     //depth
+                if(opt == 'd') {    //depth
                     perftDepth = atoi(optarg);
-                } else if(opt == 'F') {     //use dump
+                } else if(opt == 'F') { //use dump
                     dumpFile = optarg;
                     if(dumpFile.empty()) {
                         cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                         return 1;
                     }
-                } else if(opt == 'c') {     //N cpu
+                } else if(opt == 'c') {  //N cpu
                     nCpu = atoi(optarg);
-                } else if(opt == 'h') {     //hash
+                } else if(opt == 'h') {  //hash
                     PERFT_HASH_SIZE = atoi(optarg);
-                } else if(opt == 'f') {     //fen
+                } else if(opt == 'f') {  //fen
                     fen = optarg;
                 }
             }
-            if(perftDepth > GenMoves::MAX_PLY || perftDepth < 0 || nCpu > 32 || nCpu < 0 || PERFT_HASH_SIZE > 32768 ||
-                    PERFT_HASH_SIZE < 0) {
+            if(perftDepth > GenMoves::MAX_PLY || perftDepth < 0 || nCpu > 32 || nCpu < 0 || PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0) {
                 cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                 return 1;
             }

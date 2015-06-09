@@ -30,10 +30,10 @@ class Search:public Hash, public Eval {
 public:
 
     Search();
-    virtual ~ Search();
+    virtual ~Search();
     void setRunning(int);
-    void setPonder(bool);
-    void setNullMove(bool);
+    void setPonder(bool) ;
+    void setNullMove(bool) ;
     void setMaxTimeMillsec(int);
     int getMaxTimeMillsec();
     void startClock();

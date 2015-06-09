@@ -27,8 +27,7 @@ String::String(int d) {
     assign(ss.str());
 }
 
-String::~String() {
-}
+String::~String() {}
 
 String String::trimRight() {
     int pos = find_last_not_of(" ");

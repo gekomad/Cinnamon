@@ -22,9 +22,7 @@
 #ifndef _STACKTRACE_H_
 #define _STACKTRACE_H_
 #if defined(_WIN32) || !defined(DEBUG_MODE)
-static inline void
-print_stacktrace() {
-}
+static inline void print_stacktrace() {}
 #else
 
 #include <stdio.h>
@@ -34,8 +32,7 @@ print_stacktrace() {
 
 
 /** Print a demangled stack backtrace of the caller function to FILE* out. */
-static inline void
-print_stacktrace(FILE* out = stdout, unsigned int max_frames = 512) {
+static inline void print_stacktrace(FILE* out = stdout, unsigned int max_frames = 512) {
     fprintf(out, "stack trace:\n");
     // storage array for stack trace address data
     void** addrlist = (void**) malloc(max_frames + 1);
@@ -68,7 +65,8 @@ print_stacktrace(FILE* out = stdout, unsigned int max_frames = 512) {
                 break;
             }
         }
-        if(begin_name && begin_offset && end_offset && begin_name < begin_offset) {
+        if(begin_name && begin_offset && end_offset
+                && begin_name < begin_offset) {
             *begin_name++ = '\0';
             *begin_offset++ = '\0';
             *end_offset = '\0';

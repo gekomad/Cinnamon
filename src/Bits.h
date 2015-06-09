@@ -24,7 +24,7 @@ class Bits {
 public:
 
     Bits();
-    virtual ~ Bits();
+    virtual ~Bits();
 #ifdef HAS_POPCNT
     static int bitCount(u64 bits) {
         return __builtin_popcountll(bits);
