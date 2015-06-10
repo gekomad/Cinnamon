@@ -190,7 +190,7 @@ protected:
 
     void incKillerHeuristic(const int from, const int to, const int value) {
         ASSERT(from >= 0 && from < 64 && to >= 0 && to < 64);
-        ASSERT(killerHeuristic[from][to] <= INT_MAX - 100);
+        ASSERT(killerHeuristic[from][to] <= INT_MAX - MAX_PLY);
         killerHeuristic[from][to] += value;
     }
 

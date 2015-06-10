@@ -506,7 +506,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine* pline, int N_PIECE,
             currentPly--;
         }
         if(val > alpha) {
-            int doMws = (score > -_INFINITE + 100);
+            int doMws = (score > -_INFINITE + MAX_PLY);
             int lwb = max(alpha, score);
             int upb = (doMws ? (lwb + 1) : beta);
             currentPly++;
