@@ -17,31 +17,44 @@
 COMP=g++
 
 ifndef SystemRoot
-# *nix
-ARC=
-LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
-OS=$(shell uname -s)
-ifeq ($(OS),Darwin)
-	LIBS= -static-libgcc -static-libstdc++ -lpthread
-	OS=OSX
-else
-STATIC="-static "
-endif
-RM=rm -f
-PA="./"
-EXE="cinnamon"
-STRIP=strip
+	# *nix
+	ARC=
+	LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
+	OS=$(shell uname -s)
+	ifeq ($(OS),Darwin)
+		LIBS= -static-libgcc -static-libstdc++ -lpthread
+		OS=OSX
+	else
+		STATIC="-static "
+	endif
 
+	RM=rm -f
+	PA="./"
+	EXE="cinnamon"
+	STRIP=strip
+	UNAME_P := $(shell uname -p)
+	ifeq ($(UNAME_P),x86_64)
+		NATIVE_ARCH="64"
+	endif
+	ifneq ($(filter %86,$(UNAME_P)),)
+		NATIVE_ARCH="32"
+	endif
 else
+	# Windows
+	ARC="-mno-ms-bitfields"
+	OS=Windows
+	RM=del
+	PA=""
+	LIBS=-static -static-libgcc -static-libstdc++
+	EXE="cinnamon.exe"
+	STRIP=strip.exe
 
-# Windows
-ARC="-mno-ms-bitfields"
-OS=Windows
-RM=del
-PA=""
-LIBS=-static -static-libgcc -static-libstdc++
-EXE="cinnamon.exe"
-STRIP=strip.exe
+	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+		NATIVE_ARCH="64"
+	endif
+	ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+		NATIVE_ARCH="32"
+	endif
 endif
 
 ifeq ($(COMP),g++)
@@ -54,19 +67,21 @@ else
 endif
 endif
 
+
 help:
 
 	@echo "Makefile for cross-compile Linux/Windows/OSX"
 	@echo ""
-	@echo "make cinnamon64-native           > x86 64-bit optimized for native cpu"
-	@echo "make cinnamon64-modern-INTEL     > x86 64-bit optimized for modern Intel cpu"
-	@echo "make cinnamon64-modern-AMD       > x86 64-bit optimized for modern Amd cpu"
-	@echo "make cinnamon64-modern           > x86 64-bit with popcnt bsf sse3 support"
-	@echo "make cinnamon64-generic          > unspecified 64-bit"
-	@echo "make cinnamon32-native           > x86 32-bit optimized for native cpu"
-	@echo "make cinnamon32-modern           > x86 32-bit with sse support"
-	@echo "make cinnamon32-generic          > unspecified 32-bit"
-	@echo "make cinnamon32-CLOP             > x86 32-bit optimized for CLOP parameter tuning"
+	@echo "make cinnamon64-modern-INTEL     > 64-bit optimized for modern Intel cpu"
+	@echo "make cinnamon64-modern-AMD       > 64-bit optimized for modern Amd cpu"
+	@echo "make cinnamon64-modern           > 64-bit with popcnt bsf sse3 support"
+	@echo "make cinnamon64-generic          > Unspecified 64-bit"
+	@echo ""
+	@echo "make cinnamon32-modern           > 32-bit with sse support"
+	@echo "make cinnamon32-generic          > Unspecified 32-bit"
+	@echo ""
+	@echo "make cinnamon-native             > Optimized for native cpu"
+	@echo "make cinnamon-CLOP               > Enable CLOP parameter tuning"
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
 	@echo "example: make cinnamon64-modern-INTEL COMP=clang++"
@@ -85,18 +100,17 @@ else
 endif
 	$(STRIP) $(EXE)
 
-cinnamon32-native:
-	$(MAKE)  ARC="$(ARC) -march=native" cinnamon32-generic
-
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
 
 cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse" cinnamon32-generic
 
+cinnamon-CLOP:
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -DCLOP -march=native" build
 
-cinnamon64-native:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -march=native" build
+cinnamon-native:
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
 
 cinnamon64-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
