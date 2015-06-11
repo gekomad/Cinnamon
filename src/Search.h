@@ -62,8 +62,8 @@ protected:
 #endif
 private:
     Tablebase* gtb = nullptr;
-    void setMaxDepthSearch(int);
-    int getMaxDepthSearch();
+    //void setMaxDepthSearch(int);
+    //int getMaxDepthSearch();
     bool ponder;
     int checkTime();
     int running, mainDepth, maxTimeMillsec;
