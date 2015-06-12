@@ -26,7 +26,6 @@ ChessBoard::ChessBoard() {
 
 ChessBoard::~ChessBoard() {
 }
-
 #ifdef DEBUG_MODE
 u64 ChessBoard::getBitBoard(int side) {
     return side ? getBitBoard<WHITE>() : getBitBoard<BLACK>();

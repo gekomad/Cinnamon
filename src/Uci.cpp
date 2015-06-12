@@ -152,6 +152,7 @@ void Uci::listner(IterativeDeeping* it) {
         } else if(token == "ucinewgame") {
             it->loadFen();
             it->clearHash();
+            it->clearAge();
             knowCommand = true;
         } else if(token == "setvalue") {
             getToken(uip, token);
