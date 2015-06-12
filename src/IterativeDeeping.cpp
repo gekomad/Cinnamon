@@ -272,34 +272,34 @@ void IterativeDeeping::run() {
 #endif
         ///is invalid move?
         bool print = true;
-        if (abs(sc) > _INFINITE - MAX_PLY) {
+        if(abs(sc) > _INFINITE - MAX_PLY) {
             bool b = getForceCheck();
             u64 oldKey = zobristKey;
             setForceCheck(true);
             bool valid = makemove(&resultMove);
-            if (!valid) {
+            if(!valid) {
                 red++;
                 print = false;
             }
             takeback(&resultMove, oldKey, true);
             setForceCheck(b);
         }
-        if (print) {
+        if(print) {
             resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? getPieceAt<WHITE>(POW2[resultMove.to]) : getPieceAt<BLACK>(POW2[resultMove.to]);
             bestmove = decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
-            if (!(resultMove.type & (KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK))) {
+            if(!(resultMove.type & (KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK))) {
                 bestmove += decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
-                if (resultMove.promotionPiece != -1) {
+                if(resultMove.promotionPiece != -1) {
                     bestmove += tolower(FEN_PIECE[(uchar) resultMove.promotionPiece]);
                 }
             }
-            if (abs(sc) > _INFINITE - MAX_PLY) {
+            if(abs(sc) > _INFINITE - MAX_PLY) {
                 cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
             } else {
                 cout << "info score cp " << sc << " depth " << mply - red << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
             }
         }
-        if (getForceCheck()) {
+        if(getForceCheck()) {
             setForceCheck(false);
             setRunning(1);
         } else if(abs(sc) > _INFINITE - MAX_PLY) {
