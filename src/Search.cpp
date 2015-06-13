@@ -468,7 +468,6 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     ASSERT(KING_BLACK + (side ^ 1) >= 0 && KING_BLACK + (side ^ 1) < 12);
     u64 friends = getBitBoard<side>();
     u64 enemies = getBitBoard<side ^ 1>();
-
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
         score = _INFINITE - (mainDepth - depth + 1);
