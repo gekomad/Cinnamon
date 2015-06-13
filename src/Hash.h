@@ -18,18 +18,27 @@
 
 #ifndef HASH_H_
 #define HASH_H_
+
 #include <iostream>
 #include <string.h>
 #include "namespaces.h"
+
 using namespace _board;
 
 class Hash {
 public:
-    enum:char { hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2 };
+    enum : char {
+        hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2
+    };
+
     Hash();
+
     virtual ~Hash();
+
     bool setHashSize(int mb);
+
     int getHashSize();
+
     void clearHash();
 
 protected:
@@ -48,10 +57,14 @@ protected:
 #pragma pack(pop)
 
     int HASH_SIZE;
-    _Thash* hash_array_greater;
-    _Thash* hash_array_always;
-    void recordHash(bool running, _Thash* phashe_greater, _Thash* phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove* bestMove);
+    _Thash *hash_array_greater;
+    _Thash *hash_array_always;
+
+    void recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags,
+                    const u64 key, const int score, _Tmove *bestMove);
+
     void clearAge();
+
 #ifdef DEBUG_MODE
     unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions;
     unsigned n_cut_hash;
@@ -61,4 +74,5 @@ protected:
 private:
     void dispose();
 };
+
 #endif

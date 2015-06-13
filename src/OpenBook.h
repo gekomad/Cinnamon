@@ -18,8 +18,10 @@
 
 #ifndef OPENBOOK_H
 #define OPENBOOK_H
+
 #include <fstream>
 #include "Eval.h"
+
 #if defined(_WIN32)
 #include "Time.h"
 #endif
@@ -27,9 +29,13 @@
 class OpenBook {
 public:
     OpenBook();
+
     virtual ~OpenBook();
+
     bool load(string fileName);
+
     string search(string fen);
+
 private:
     typedef struct {
         u64 key;
@@ -38,14 +44,21 @@ private:
         unsigned learn;
     } entry_t;
 
-    FILE* openBookFile;
+    FILE *openBookFile;
+
     u64 createKey(string fen);
 
-    int intFromFile(int l, u64* r);
-    int entryFromFile(entry_t* entry);
-    int findKey(u64 key, entry_t* entry);
+    int intFromFile(int l, u64 *r);
+
+    int entryFromFile(entry_t *entry);
+
+    int findKey(u64 key, entry_t *entry);
+
     void moveToString(char move_s[6], unsigned short move);
+
     void dispose();
-    u64* Random64;
+
+    u64 *Random64;
 };
+
 #endif

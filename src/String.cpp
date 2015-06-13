@@ -18,7 +18,7 @@
 
 #include "String.h"
 
-String::String():string() {
+String::String() : string() {
 }
 
 String::String(int d) {
@@ -27,7 +27,7 @@ String::String(int d) {
     assign(ss.str());
 }
 
-String::~String() {}
+String::~String() { }
 
 String String::trimRight() {
     int pos = find_last_not_of(" ");
@@ -36,8 +36,8 @@ String String::trimRight() {
 }
 
 String String::replace(char c1, char c2) {
-    for(unsigned i = 0; i < size(); i++) {
-        if(at(i) == c1) {
+    for (unsigned i = 0; i < size(); i++) {
+        if (at(i) == c1) {
             at(i) = c2;
         }
     }
@@ -46,18 +46,18 @@ String String::replace(char c1, char c2) {
 
 String String::replace(string s1, string s2) {
     int a;
-    while((a = find(s1)) != (int) string::npos) {
+    while ((a = find(s1)) != (int) string::npos) {
         string::replace(a, s1.size(), s2);
     }
     return *this;
 }
 
 String String::toUpper() {
-    transform(begin(), end(), begin(),::toupper);
+    transform(begin(), end(), begin(), ::toupper);
     return *this;
 }
 
 String String::toLower() {
-    transform(begin(), end(), begin(),::tolower);
+    transform(begin(), end(), begin(), ::tolower);
     return *this;
 }

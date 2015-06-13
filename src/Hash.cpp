@@ -18,7 +18,7 @@
 
 #include "Hash.h"
 
-Hash::Hash():HASH_SIZE(0) {
+Hash::Hash() : HASH_SIZE(0) {
     hash_array_greater = hash_array_always = nullptr;
 #ifdef DEBUG_MODE
     n_cut_hashA = n_cut_hashE = n_cut_hashB = cutFailed = probeHash = 0;
@@ -28,13 +28,13 @@ Hash::Hash():HASH_SIZE(0) {
 }
 
 void Hash::clearAge() {
-    for(int i = 0; i < HASH_SIZE; i++) {
+    for (int i = 0; i < HASH_SIZE; i++) {
         hash_array_greater[i].entryAge = 0;
     }
 }
 
 void Hash::clearHash() {
-    if(!HASH_SIZE) {
+    if (!HASH_SIZE) {
         return;
     }
     memset(hash_array_greater, 0, sizeof(_Thash) * HASH_SIZE);
@@ -45,46 +45,47 @@ int Hash::getHashSize() {
 }
 
 bool Hash::setHashSize(int mb) {
-    if(mb < 1 || mb > 32768) {
+    if (mb < 1 || mb > 32768) {
         return false;
     }
     dispose();
-    if(mb) {
+    if (mb) {
         HASH_SIZE = mb * 1024 * 1000 / (sizeof(_Thash) * 2);
-        hash_array_greater = (_Thash*) calloc(HASH_SIZE, sizeof(_Thash));
+        hash_array_greater = (_Thash *) calloc(HASH_SIZE, sizeof(_Thash));
         assert(hash_array_greater);
-        hash_array_always = (_Thash*) calloc(HASH_SIZE, sizeof(_Thash));
+        hash_array_always = (_Thash *) calloc(HASH_SIZE, sizeof(_Thash));
         assert(hash_array_always);
     }
     return true;
 }
 
-void Hash::recordHash(bool running, _Thash* phashe_greater, _Thash* phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove* bestMove) {
+void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags,
+                      const u64 key, const int score, _Tmove *bestMove) {
     ASSERT(key);
-    if(!running) {
+    if (!running) {
         return;
     }
     ASSERT(abs(score) <= 32200);
-    _Thash* phashe = phashe_greater;
+    _Thash *phashe = phashe_greater;
     phashe->key = key;
     phashe->score = score;
     phashe->flags = flags;
     phashe->depth = depth;
-    if(bestMove && bestMove->from != bestMove->to) {
+    if (bestMove && bestMove->from != bestMove->to) {
         phashe->from = bestMove->from;
         phashe->to = bestMove->to;
     } else {
         phashe->from = phashe->to = 0;
     }
     phashe = phashe_always;
-    if(phashe->key && phashe->depth >= depth && phashe->entryAge) {
+    if (phashe->key && phashe->depth >= depth && phashe->entryAge) {
         INC(collisions);
         return;
     }
 #ifdef DEBUG_MODE
-    if(flags == hashfALPHA) {
+    if (flags == hashfALPHA) {
         nRecordHashA++;
-    } else if(flags == hashfBETA) {
+    } else if (flags == hashfBETA) {
         nRecordHashB++;
     } else {
         nRecordHashE++;
@@ -95,7 +96,7 @@ void Hash::recordHash(bool running, _Thash* phashe_greater, _Thash* phashe_alway
     phashe->flags = flags;
     phashe->depth = depth;
     phashe->entryAge = 1;
-    if(bestMove && bestMove->from != bestMove->to) {
+    if (bestMove && bestMove->from != bestMove->to) {
         phashe->from = bestMove->from;
         phashe->to = bestMove->to;
     } else {
@@ -104,10 +105,10 @@ void Hash::recordHash(bool running, _Thash* phashe_greater, _Thash* phashe_alway
 }
 
 void Hash::dispose() {
-    if(hash_array_greater) {
+    if (hash_array_greater) {
         free(hash_array_greater);
     }
-    if(hash_array_always) {
+    if (hash_array_always) {
         free(hash_array_always);
     }
     hash_array_greater = hash_array_always = nullptr;

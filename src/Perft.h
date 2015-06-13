@@ -120,7 +120,9 @@ class Perft {
 public:
 
     const static int secondsToDump = 60 * 180;
+
     Perft(string fen, int depth, int nCpu, u64 mbSize, string dumpFile);
+
     ~Perft();
 
 private:
@@ -134,26 +136,32 @@ private:
 #pragma pack(pop)
     mutex updateHash;
     mutex mutexPrint;
-    Timer* timer = nullptr;
+    Timer *timer = nullptr;
     string fen;
     string dumpFile;
     int depth, nCpu;
     u64 mbSize;
-    _ThashPerft** hash = nullptr;
+    _ThashPerft **hash = nullptr;
     u64 sizeAtDepth[255];
     atomic_ullong totMoves;
+
     void alloc();
+
     void dump();
+
     bool load();
+
     void setResult(u64 result) {
         totMoves += result;
     }
 
-    class PerftThread: public Thread, public GenMoves {
+    class PerftThread : public Thread, public GenMoves {
     public:
 
-        PerftThread(int, string fen, int from, int to, Perft* Perft);
+        PerftThread(int, string fen, int from, int to, Perft *Perft);
+
         PerftThread();
+
         virtual ~PerftThread();
 
     private:
@@ -164,9 +172,10 @@ private:
         u64 search(const int depth);
 
         int from, to, cpuID;
-        Perft* perft;
+        Perft *perft;
     };
-    vector<PerftThread*> threadList;
+
+    vector<PerftThread *> threadList;
 };
 
 #endif
