@@ -38,7 +38,7 @@ void Hash::clearHash() {
         return;
     }
     memset(hash_array_greater, 0, sizeof(_Thash) * HASH_SIZE);
-    memset(hash_array_always, 0, sizeof(_Thash) * HASH_SIZE);
+    //memset(hash_array_always, 0, sizeof(_Thash) * HASH_SIZE);
 }
 
 int Hash::getHashSize() {
