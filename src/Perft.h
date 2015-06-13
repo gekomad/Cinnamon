@@ -55,7 +55,7 @@ Depth   Perft
  6      8031647685          verified
  7      374190009323        verified
  8      15493944087984      verified
- 9		708027759953502	    verified
+ 9	708027759953502	    verified
 
 Be2-d1	9684737364184
 Be2*a6	11610329611080

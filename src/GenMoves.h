@@ -121,7 +121,7 @@ public:
     void incListId() {
         listId++;
 #ifdef DEBUG_MODE
-        if (listId < 0 || listId >= MAX_PLY) {
+        if(listId < 0 || listId >= MAX_PLY) {
             display();
         }
         ASSERT_RANGE(listId, 0, MAX_PLY - 1);

@@ -175,7 +175,6 @@ protected:
     _Tboard structure;
     bool sideToMove;
 
-    //int friendKing[2];
     string boardToFen();
 
     string decodeBoardinv(const uchar type, const int a, const int side);
@@ -199,7 +198,7 @@ protected:
     int getPieceAt(int side, u64 bitmapPos);
 
 #else
-#define updateZobristKey(piece,  position) (zobristKey ^= _random::RANDOM_KEY[piece][position])
+#define updateZobristKey(piece, position) (zobristKey ^= _random::RANDOM_KEY[piece][position])
 
 #endif
 private:

@@ -93,6 +93,5 @@ static inline void print_stacktrace(FILE *out = stdout, unsigned int max_frames 
     free(symbollist);
     free(addrlist);
 }
-
 #endif
 #endif // _STACKTRACE_H_

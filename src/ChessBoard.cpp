@@ -28,7 +28,6 @@ ChessBoard::~ChessBoard() {
 }
 
 #ifdef DEBUG_MODE
-
 u64 ChessBoard::getBitBoard(int side) {
     return side ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
 }
@@ -36,7 +35,6 @@ u64 ChessBoard::getBitBoard(int side) {
 int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
     return side ? getPieceAt<WHITE>(bitmapPos) : getPieceAt<BLACK>(bitmapPos);
 }
-
 #endif
 
 uchar ChessBoard::getRightCastle() {
@@ -98,11 +96,12 @@ void ChessBoard::display() {
     cout << "\n   ----+---+---+---+---+---+---+----\n";
     cout << "     a   b   c   d   e   f   g   h\n\n\n" << boardToFen() << "\n" << endl;
 #ifdef DEBUG_MODE
+
     cout << "zobristKey: " << zobristKey << "\n";
     cout << "enpassantPosition: " << enpassantPosition << "\n";
     cout << "rightCastle: " << (int) rightCastle << "\n";
     cout << "sideToMove: " << sideToMove << "\n";
-//   cout<< "friendKing: "<<friendKing[0]<<" "<<friendKing[1]<<"\n";
+
 #endif
 }
 

@@ -21,7 +21,7 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
     setUseBook(false);
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
-    if (!_file::fileExists(parameterFile)) {
+    if(!_file::fileExists(parameterFile)) {
         cout << "warning file not found  " << parameterFile << endl;
         return;
     }
@@ -30,7 +30,7 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
     String param;
     int value;
     inData.open(parameterFile);
-    while (!inData.eof()) {
+    while(!inData.eof()) {
         getline(inData, line);
         stringstream ss(line);
         ss >> param;
@@ -206,9 +206,6 @@ void IterativeDeeping::run() {
             }
             val = tmp;
         }
-        //if(mateIn != INT_MAX) {
-        //    cout << "mate in: " << abs(mateIn) << endl;
-        //}
         if (!getRunning()) {
             break;
         }
