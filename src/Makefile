@@ -1,5 +1,5 @@
 #    Cinnamon is a UCI chess engine - Makefile for cross-compile Linux/Windows/OSX
-#    Copyright (C) 2011-2015 Giuseppe Cannella
+#    Copyright (C) Giuseppe Cannella
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
