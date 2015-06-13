@@ -452,8 +452,8 @@ int Search::search(int depth, int alpha, int beta, _TpvLine* pline, int N_PIECE,
     incListId();
     ASSERT(KING_BLACK + side >= 0 && KING_BLACK + side < 12);
     ASSERT(KING_BLACK + (side^1) >= 0 && KING_BLACK + (side^1) < 12);
-    friendKing[side] = BITScanForward(chessboard[KING_BLACK + side]);
-    friendKing[side^1] = BITScanForward(chessboard[KING_BLACK + (side^1)]);
+//    friendKing[side] = BITScanForward(chessboard[KING_BLACK + side]);
+ //   friendKing[side^1] = BITScanForward(chessboard[KING_BLACK + (side^1)]);
     u64 friends = getBitBoard<side>();
     u64 enemies = getBitBoard<side^1>();
     if(generateCaptures<side>(enemies, friends)) {

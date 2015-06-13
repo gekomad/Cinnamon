@@ -54,6 +54,7 @@ public:
     static const int QUEEN_WHITE = 11;
     static const int NO_ENPASSANT = -1;
     void display();
+    void makeZobristKey();
     string getFen();
     char decodeBoard(string);
     virtual int loadFen(string);
@@ -160,10 +161,9 @@ protected:
     _Tchessboard chessboard;
     _Tboard structure;
     bool sideToMove;
-    int friendKing[2];
+    //int friendKing[2];
     string boardToFen();
     string decodeBoardinv(const uchar type, const int a, const int side);
-    void makeZobristKey();
 
     template <int side>
     int getNpiecesNoPawnNoKing() {

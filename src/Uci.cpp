@@ -152,7 +152,6 @@ void Uci::listner(IterativeDeeping* it) {
         } else if(token == "ucinewgame") {
             it->loadFen();
             it->clearHash();
-            //it->clearAge();
             knowCommand = true;
         } else if(token == "setvalue") {
             getToken(uip, token);
@@ -304,6 +303,7 @@ void Uci::listner(IterativeDeeping* it) {
                     it->setSide(!it->getMoveFromSan(token, &move));
                     it->makemove(&move);
                 }
+                it->makeZobristKey();
             }
         } else if(token == "go") {
             it->setMaxDepth(GenMoves::MAX_PLY);
