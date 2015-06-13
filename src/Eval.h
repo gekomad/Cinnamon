@@ -18,21 +18,27 @@
 
 #ifndef EVAL_H_
 #define EVAL_H_
+
 #include "GenMoves.h"
 #include <fstream>
 #include <string.h>
+
 using namespace _board;
 using namespace _eval;
 
-class Eval:public GenMoves {
+class Eval : public GenMoves {
+
 public:
     Eval();
+
     virtual ~Eval();
+
     int getScore(const int side, const int alpha = -_INFINITE, const int beta = _INFINITE);
 
-    template <int side> int
+    template<int side>
+    int
     lazyEval() {
-        return lazyEvalSide<side>() - lazyEvalSide<side^1>();
+        return lazyEvalSide<side>() - lazyEvalSide<side ^ 1>();
     }
 
 protected:
@@ -127,15 +133,35 @@ private:
 #ifdef DEBUG_MODE
     int evaluationCount[2];
 #endif
+
     void openColumn(int side);
-    template <int side, _Tstatus status> int evaluatePawn();
-    template <int side, _Tstatus status> int evaluateBishop(const u64, u64);
-    template <_Tstatus status> int evaluateQueen(int side, u64 enemies, u64 friends);
-    template <int side, _Tstatus status> int evaluateKnight(const u64, const u64);
-    template <int side, _Tstatus status> int evaluateRook(const u64, u64 enemies, u64 friends);
-    template <_Tstatus status> int evaluateKing(int side, u64 squares);
-    template <int side> int lazyEvalSide() {
-        return bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN + bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK + bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP + bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT + bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
+
+    template<int side, _Tstatus status>
+    int evaluatePawn();
+
+    template<int side, _Tstatus status>
+    int evaluateBishop(const u64, u64);
+
+    template<_Tstatus status>
+    int evaluateQueen(int side, u64 enemies, u64 friends);
+
+    template<int side, _Tstatus status>
+    int evaluateKnight(const u64, const u64);
+
+    template<int side, _Tstatus status>
+    int evaluateRook(const u64, u64 enemies, u64 friends);
+
+    template<_Tstatus status>
+    int evaluateKing(int side, u64 squares);
+
+    template<int side>
+    int lazyEvalSide() {
+        return bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN +
+               bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK +
+               bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP +
+               bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT +
+               bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
     }
 };
+
 #endif

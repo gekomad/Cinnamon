@@ -18,6 +18,7 @@
 
 #ifndef CHESSBOARD_H_
 #define CHESSBOARD_H_
+
 #include <iostream>
 #include <string.h>
 #include <sstream>
@@ -27,11 +28,13 @@
 
 using namespace _board;
 
-class ChessBoard:protected Bits {
+class ChessBoard : protected Bits {
 public:
 
     ChessBoard();
+
     virtual ~ChessBoard();
+
     static const uchar RIGHT_KING_CASTLE_WHITE_MASK = 0x10;
     static const uchar RIGHT_QUEEN_CASTLE_WHITE_MASK = 0x20;
     static const uchar RIGHT_KING_CASTLE_BLACK_MASK = 0x40;
@@ -53,18 +56,25 @@ public:
     static const int QUEEN_BLACK = 10;
     static const int QUEEN_WHITE = 11;
     static const int NO_ENPASSANT = -1;
+
     void display();
+
     string getFen();
+
     char decodeBoard(string);
+
     virtual int loadFen(string);
+
     int getPieceByChar(char);
+
 #ifdef DEBUG_MODE
     u64 getBitBoard(int side);
 #endif
 
-    template <int side>
+    template<int side>
     u64 getBitBoard() {
-        return chessboard[PAWN_BLACK + side] | chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side]
+        return chessboard[PAWN_BLACK + side] | chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] |
+               chessboard[KNIGHT_BLACK + side]
                | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
 
@@ -76,12 +86,14 @@ public:
         return sideToMove;
     }
 
-    template <int side> u64 getBitBoardNoPawns() {
+    template<int side>
+    u64 getBitBoardNoPawns() {
         return chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side]
                | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
 
-    template <int side> int getPieceAt(u64 bitmapPos) {
+    template<int side>
+    int getPieceAt(u64 bitmapPos) {
         return ((chessboard[PAWN_BLACK + side] & bitmapPos) ? PAWN_BLACK + side :
                 ((chessboard[ROOK_BLACK + side] & bitmapPos) ? ROOK_BLACK + side :
                  ((chessboard[BISHOP_BLACK + side] & bitmapPos) ? BISHOP_BLACK + side :
@@ -159,14 +171,20 @@ protected:
     _Tboard structure;
     bool sideToMove;
     int friendKing[2];
+
     string boardToFen();
+
     string decodeBoardinv(const uchar type, const int a, const int side);
+
     void makeZobristKey();
 
-    template <int side>
+    template<int side>
     int getNpiecesNoPawnNoKing() {
-        return bitCount(chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[QUEEN_BLACK + side]);
+        return bitCount(
+                chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] |
+                chessboard[QUEEN_BLACK + side]);
     }
+
 #ifdef DEBUG_MODE
     void updateZobristKey(int piece, int position) {
         ASSERT_RANGE(position, 0, 63);
@@ -177,13 +195,17 @@ protected:
 
     int getPieceAt(int side, u64 bitmapPos);
 #else
-#define updateZobristKey(piece,  position) (zobristKey ^= _random::RANDOM_KEY[piece][position])
+#define updateZobristKey(piece, position) (zobristKey ^= _random::RANDOM_KEY[piece][position])
 
 #endif
 private:
     string fenString;
+
     void setRightCastle(uchar r);
+
     int loadFen();
+
     uchar getRightCastle();
 };
+
 #endif

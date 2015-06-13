@@ -18,9 +18,11 @@
 
 #ifndef THREAD_H_
 #define THREAD_H_
+
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+
 using namespace std;
 
 class Runnable {
@@ -28,28 +30,29 @@ public:
     virtual void run() = 0;
 };
 
-class Thread:virtual public Runnable {
+class Thread : virtual public Runnable {
+
 private:
     bool running = true;
 
     condition_variable cv;
-    thread* theThread;
-    Runnable* _runnable;
-    Runnable* execRunnable;
+    thread *theThread;
+    Runnable *_runnable;
+    Runnable *execRunnable;
 
-    static void* __run(void* cthis) {
-        static_cast<Runnable*>(cthis)->run();
+    static void *__run(void *cthis) {
+        static_cast<Runnable *>(cthis)->run();
         return nullptr;
     }
 
 public:
-    Thread():_runnable(nullptr) {
+    Thread() : _runnable(nullptr) {
         theThread = nullptr;
         execRunnable = this;
     }
 
     virtual ~Thread() {
-        if(theThread) {
+        if (theThread) {
             theThread->detach();
             delete theThread;
             theThread = nullptr;
@@ -57,7 +60,7 @@ public:
     }
 
     void checkWait() {
-        while(!running) {
+        while (!running) {
             mutex mtx;
             unique_lock<mutex> lck(mtx);
             cv.wait(lck);
@@ -69,17 +72,17 @@ public:
     }
 
     void start() {
-        if(this->_runnable != nullptr) {
+        if (this->_runnable != nullptr) {
             execRunnable = this->_runnable;
         }
-        if(theThread) {
+        if (theThread) {
             delete theThread;
         }
         theThread = new thread(__run, execRunnable);
     }
 
     void join() {
-        if(theThread) {
+        if (theThread) {
             theThread->join();
             delete theThread;
             theThread = nullptr;
@@ -95,7 +98,7 @@ public:
     }
 
     void stop() {
-        if(theThread) {
+        if (theThread) {
             theThread->detach();
             delete theThread;
             theThread = nullptr;
@@ -103,4 +106,5 @@ public:
     }
 
 };
+
 #endif

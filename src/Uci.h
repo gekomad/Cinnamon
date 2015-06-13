@@ -23,15 +23,20 @@
 #include "Perft.h"
 #include <string.h>
 #include "String.h"
+
 class Uci {
 public:
     Uci();
+
     virtual ~Uci();
 
 private:
-    IterativeDeeping* iterativeDeeping;
+    IterativeDeeping *iterativeDeeping;
     bool uciMode;
-    void listner(IterativeDeeping* it);
-    void getToken(istringstream& uip, String& token);
+
+    void listner(IterativeDeeping *it);
+
+    void getToken(istringstream &uip, String &token);
 };
+
 #endif
