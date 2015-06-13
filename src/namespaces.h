@@ -50,9 +50,9 @@ namespace _board {
 #else
 
 #define ASSERT(a)
-#define ASSERT_RANGE(value,from,to)
+#define ASSERT_RANGE(value, from, to)
 #define INC(a)
-#define ADD(a,b)
+#define ADD(a, b)
 #endif
 
 #if defined(CLOP) || defined(DEBUG_MODE)

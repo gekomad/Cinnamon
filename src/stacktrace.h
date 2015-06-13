@@ -22,7 +22,9 @@
 #ifndef _STACKTRACE_H_
 #define _STACKTRACE_H_
 #if defined(_WIN32) || !defined(DEBUG_MODE)
-static inline void print_stacktrace() {}
+
+static inline void print_stacktrace() { }
+
 #else
 
 #include <stdio.h>
