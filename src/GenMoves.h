@@ -157,7 +157,7 @@ protected:
     static const int MAX_REP_COUNT = 1024;
     static const int NO_PROMOTION = -1;
     int repetitionMapCount;
-
+    int running;
     u64 *repetitionMap;
     int currentPly;
     bool perftMode;
@@ -233,11 +233,17 @@ protected:
     }
 
     void setKillerHeuristic(const int from, const int to, const int value) {
+        if (!running) {
+            return;
+        }
         ASSERT(from >= 0 && from < 64 && to >= 0 && to < 64);
         killerHeuristic[from][to] = value;
     }
 
     void incKillerHeuristic(const int from, const int to, const int value) {
+        if (!running) {
+            return;
+        }
         ASSERT(from >= 0 && from < 64 && to >= 0 && to < 64);
         ASSERT(killerHeuristic[from][to] <= INT_MAX - MAX_PLY);
         killerHeuristic[from][to] += value;

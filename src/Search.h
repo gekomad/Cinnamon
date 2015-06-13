@@ -82,7 +82,7 @@ private:
 
     int checkTime();
 
-    int running, mainDepth, maxTimeMillsec;
+    int mainDepth, maxTimeMillsec;
     bool nullSearch;
     struct timeb startTime;
 

@@ -57,7 +57,13 @@ Search::~Search() {
 
 template<int side>
 int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIECE, int depth) {
+    if (!running) {
+        return 0;
+    }
     ASSERT(chessboard[KING_BLACK + side]);
+    if (!(numMovesq++ & 1023)) {
+        running = checkTime();
+    }
     int score = getScore(side, alpha, beta);
     if (score >= beta) {
         return beta;
@@ -462,6 +468,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     ASSERT(KING_BLACK + (side ^ 1) >= 0 && KING_BLACK + (side ^ 1) < 12);
     u64 friends = getBitBoard<side>();
     u64 enemies = getBitBoard<side ^ 1>();
+    
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
         score = _INFINITE - (mainDepth - depth + 1);
