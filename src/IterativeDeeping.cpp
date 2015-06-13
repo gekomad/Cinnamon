@@ -174,6 +174,7 @@ void IterativeDeeping::run() {
     memset(&resultMove, 0, sizeof(resultMove));
     ponderMove = "";
     int mateIn = INT_MAX;
+    setForceCheck(false);
     bool inMate = false;
     int red = 0;
     string bestmove;
