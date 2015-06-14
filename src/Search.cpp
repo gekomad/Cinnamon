@@ -241,9 +241,13 @@ bool Search::checkDraw(u64 key) {
         if (repetitionMap[i] == 0) {
             return false;
         }
+
+        //fifty-move rule
         if (++count >= 99) {
             return true;
         }
+        
+        //Threefold repetition
         if (repetitionMap[i] == key && ++o > 2) {
             return true;
         }
