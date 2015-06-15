@@ -43,9 +43,9 @@ namespace _board {
 
 #ifdef DEBUG_MODE
 #define ASSERT(a) assert(a)
-#define ASSERT_RANGE(value,from,to) assert(value>=from && value<=to)
+#define ASSERT_RANGE(value, from, to) assert(value>=from && value<=to)
 #define INC(a) (a++)
-#define ADD(a,b) (a+=b)
+#define ADD(a, b) (a+=b)
 
 #else
 

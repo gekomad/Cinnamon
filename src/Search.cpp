@@ -246,7 +246,7 @@ bool Search::checkDraw(u64 key) {
         if (++count >= 99) {
             return true;
         }
-        
+
         //Threefold repetition
         if (repetitionMap[i] == key && ++o > 2) {
             return true;

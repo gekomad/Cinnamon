@@ -21,7 +21,7 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
     setUseBook(false);
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
-    if(!_file::fileExists(parameterFile)) {
+    if (!_file::fileExists(parameterFile)) {
         cout << "warning file not found  " << parameterFile << endl;
         return;
     }
@@ -30,7 +30,7 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
     String param;
     int value;
     inData.open(parameterFile);
-    while(!inData.eof()) {
+    while (!inData.eof()) {
         getline(inData, line);
         stringstream ss(line);
         ss >> param;
@@ -320,24 +320,6 @@ void IterativeDeeping::run() {
             inMate = true;
         }
     }
-//    if(getForceCheck() && getRunning()) {
-//        while(getForceCheck() && getRunning());
-//        if(abs(sc) > _INFINITE - MAX_PLY) {
-//            cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-//        } else {
-//            cout << "info score cp " << sc << " depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
-//        }
-//    }
-//    if (pvv.length() > 0) {
-//        resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? getPieceAt<WHITE>(POW2[resultMove.to]) : getPieceAt<BLACK>(POW2[resultMove.to]);
-//        bestmove = decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
-//        if(!(resultMove.type & (KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK))) {
-//            bestmove += decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
-//            if(resultMove.promotionPiece != -1) {
-//                bestmove += tolower(FEN_PIECE[(uchar) resultMove.promotionPiece]);
-//            }
-//        }
-//    }
     cout << "bestmove " << bestmove;
     if (ponderEnabled && ponderMove.size()) {
         cout << " ponder " << ponderMove;

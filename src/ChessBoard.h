@@ -70,7 +70,9 @@ public:
     int getPieceByChar(char);
 
 #ifdef DEBUG_MODE
+
     u64 getBitBoard(int side);
+
 #endif
 
     template<int side>
@@ -185,6 +187,7 @@ protected:
     }
 
 #ifdef DEBUG_MODE
+
     void updateZobristKey(int piece, int position) {
         ASSERT_RANGE(position, 0, 63);
         ASSERT(piece != 12);
@@ -193,6 +196,7 @@ protected:
     }
 
     int getPieceAt(int side, u64 bitmapPos);
+
 #else
 #define updateZobristKey(piece, position) (zobristKey ^= _random::RANDOM_KEY[piece][position])
 

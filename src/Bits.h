@@ -29,9 +29,11 @@ public:
     virtual ~Bits();
 
 #ifdef HAS_POPCNT
+
     static int bitCount(u64 bits) {
         return __builtin_popcountll(bits);
     }
+
 #else
 
     static int bitCount(u64 bits) {
@@ -61,6 +63,7 @@ protected:
 
 #ifdef HAS_BSF
 #if UINTPTR_MAX == 0xffffffffffffffff
+
     static int BITScanForward(u64 bits) {
         return __builtin_ffsll(bits) - 1;
     }
@@ -68,6 +71,7 @@ protected:
     static int BITScanReverse(u64 bits) {
         return 63 - __builtin_clzll(bits);
     }
+
 #else
     static int BITScanForward(u64 bits) {
         return ((unsigned) bits) ? __builtin_ffs(bits) - 1 : __builtin_ffs(bits >> 32) + 31;

@@ -28,6 +28,7 @@ ChessBoard::~ChessBoard() {
 }
 
 #ifdef DEBUG_MODE
+
 u64 ChessBoard::getBitBoard(int side) {
     return side ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
 }
@@ -35,6 +36,7 @@ u64 ChessBoard::getBitBoard(int side) {
 int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
     return side ? getPieceAt<WHITE>(bitmapPos) : getPieceAt<BLACK>(bitmapPos);
 }
+
 #endif
 
 uchar ChessBoard::getRightCastle() {
@@ -274,8 +276,6 @@ int ChessBoard::loadFen(string fen) {
             default:;
         };
     };
-//    friendKing[WHITE] = BITScanForward(chessboard[KING_WHITE]);
-    // friendKing[BLACK] = BITScanForward(chessboard[KING_BLACK]);
     enpassantPosition = NO_ENPASSANT;
     for (int i = 0; i < 64; i++) {
         if (enpassant == BOARD[i]) {
