@@ -30,51 +30,6 @@
  1| 07 06 05 04 03 02 01 00
  ...a  b  c  d  e  f  g  h
 
-ratings
-Rank Name                  Elo    +    - games score oppo. draws
-   1 buzz-008_2181         385   13   13  2551   79%   146   14%
-   2 beowulf_2194          368   13   13  2551   77%   146   14%
-   3 gk-090-64-ja_2109     360   13   13  2552   77%   146   16%
-   4 clarabit_2098         263   12   12  2542   65%   146   18%
-   5 soldat_1960           197   12   12  2542   56%   146   16%
-   6 smash_1925            172   12   12  2552   53%   146   12%
-   7 faile-64_1976         153   11   11  2552   51%   146   20%
-   8 Cinnamon 1.2a         152   11   11  2550   51%   146   30%
-   9 Cinnamon 1.2b         146    5    5 33140   52%   -11   15%
-  10 Cinnamon 1.1c         105   11   11  2552   44%   146   27%
-  11 heracles_1973         105   12   12  2551   44%   146   16%
-  12 zct_2043              -15   12   12  2542   30%   146   12%
-  13 jabba-64_2041       -1196  200  179  2551    0%   146    0%
-  14 gullydeckel-64_1982 -1196  200  179  2552    0%   146    0%
-
-los
-                     bu be gk cl so sm fa Ci Ci Ci he zc ja gu
-buzz-008_2181           95 99100100100100100100100100100100100
-beowulf_2194          4    78100100100100100100100100100100100
-gk-090-64-ja_2109     0 21   100100100100100100100100100100100
-clarabit_2098         0  0  0    99100100100100100100100100100
-soldat_1960           0  0  0  0    99 99 99 99100100100100100
-smash_1925            0  0  0  0  0    98 99 99 99 99100100100
-faile-64_1976         0  0  0  0  0  1    54 86 99 99100100100
-Cinnamon 1.2a         0  0  0  0  0  0 45    83 99 99100100100
-Cinnamon 1.2b         0  0  0  0  0  0 13 16    99 99100100100
-Cinnamon 1.1c         0  0  0  0  0  0  0  0  0    52100100100
-heracles_1973         0  0  0  0  0  0  0  0  0 47   100100100
-zct_2043              0  0  0  0  0  0  0  0  0  0  0    99 99
-jabba-64_2041         0  0  0  0  0  0  0  0  0  0  0  0    50
-gullydeckel-64_1982   0  0  0  0  0  0  0  0  0  0  0  0 49
-
-
-ratings
-Rank Name                 Elo    +    - games score oppo. draws
-   1 Cinnamon 1.2c          4    6    6  3660   51%    -4   29%
-   2 Cinnamon 1.2b         -4    6    6  3660   49%     4   29%
-
-ratings
-Rank Name                 Elo    +    - games score oppo. draws
-   1 beowulf_2194          250   16   15  1000   68%   108   13%
-   2 Cinnamon 1.2b         112   14   14  1000   51%   108   27%
-   3 Cinnamon 1.2c         108   10   11  2423   50%    67   16%
  */
 
 using namespace _board;
@@ -93,27 +48,8 @@ int main(int argc, char **argv) {
 #ifdef HAS_BSF
     cout << "bsf ";
 #endif
-    cout << "version compiled " << __DATE__ << " with ";
-#if defined(__clang__)
-    cout <<"Clang/LLVM "<<__clang_major__<<"."<<__clang_minor__<<"."<<__clang_patchlevel__;
-#elif defined(__ICC) || defined(__INTEL_COMPILER)
-    cout << "Intel ICC "<<__VERSION__;
-#elif defined(__GNUC__) || defined(__GNUG__)
-    cout << "GNU GCC " << __VERSION__;
-#elif defined(__HP_cc) || defined(__HP_aCC)
-    cout << "Hewlett-Packard aC++" <<__HP_aCC;
-#elif defined(__IBMC__) || defined(__IBMCPP__)
-    cout << "IBM XL C++ <<"__IBMCPP__;
-#elif defined(_MSC_VER)
-    cout << "Microsoft Visual Studio. "<<_MSC_VER;
-#elif defined(__PGI)
-    cout << "Portland Group PGCC/PGCPP "<<__PGIC__;
-#elif defined(__SUNPRO_C) || defined(__SUNPRO_CC)
-    cout << "Oracle Solaris Studio "<<__SUNPRO_CC;
-#else
-    cout << "Unknow compiler";
-#endif
-    cout << "\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\n";
+    cout << "version compiled " << __DATE__ << " with gcc " << __VERSION__ << "\n";
+    cout << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\n";
 #ifdef CLOP
     cout << "CLOP ENABLED\n";
 #endif
