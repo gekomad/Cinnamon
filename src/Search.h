@@ -58,7 +58,7 @@ public:
 
     STATIC_CONST int NULLMOVE_DEPTH = 3;
     STATIC_CONST int NULLMOVES_MIN_PIECE = 3;
-    STATIC_CONST int NULLMOVES_R1 = 2;
+    STATIC_CONST int NULLMOVES_R1 = 2;    //TODO 1 da CLOP
     STATIC_CONST int NULLMOVES_R2 = 3;
     STATIC_CONST int NULLMOVES_R3 = 2;
     STATIC_CONST int NULLMOVES_R4 = 2;
@@ -78,16 +78,11 @@ protected:
 #endif
 private:
     Tablebase *gtb = nullptr;
-
-    void setMaxDepthSearch(int);
-
-    int getMaxDepthSearch();
-
     bool ponder;
 
     int checkTime();
 
-    int running, mainDepth, maxTimeMillsec;
+    int mainDepth, maxTimeMillsec;
     bool nullSearch;
     struct timeb startTime;
 

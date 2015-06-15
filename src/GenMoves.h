@@ -117,12 +117,11 @@ public:
 
     bool makemove(_Tmove *move, bool rep = true, bool = false);
 
-    bool isPinned(const int side, const uchar Position, const uchar piece);
-
+    //bool isPinned(const int side, const uchar Position, const uchar piece);
     void incListId() {
         listId++;
 #ifdef DEBUG_MODE
-        if(listId < 0 || listId >= MAX_PLY) {
+        if (listId < 0 || listId >= MAX_PLY) {
             display();
         }
         ASSERT_RANGE(listId, 0, MAX_PLY - 1);
@@ -156,11 +155,12 @@ protected:
     static const uchar ENPASSANT_MOVE_MASK = 0x1;
     static const uchar PROMOTION_MOVE_MASK = 0x2;
     static const int MAX_REP_COUNT = 1024;
+    static const int NO_PROMOTION = -1;
     int repetitionMapCount;
-
+    int running;
     u64 *repetitionMap;
     int currentPly;
-    bool perftMode, forceCheck = false;
+    bool perftMode;
     u64 numMoves, numMovesq;
     int listId;
     _TmoveP *gen_list;
@@ -170,6 +170,14 @@ protected:
     u64 getKingAttackers(const int xside, u64, int);
 
     void clearKillerHeuristic();
+
+    void setForceCheck(bool b) {
+        forceCheck = b;
+    }
+
+    bool getForceCheck() {
+        return forceCheck;
+    }
 
     u64 getTotMoves();
 
@@ -196,8 +204,8 @@ protected:
     int killerHeuristic[64][64];
 
     template<int side>
-    bool inCheckPerft(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo,
-                      int promotionPiece);
+    bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo,
+                 int promotionPiece);
 
     void performCastle(const int side, const uchar type);
 
@@ -225,19 +233,24 @@ protected:
     }
 
     void setKillerHeuristic(const int from, const int to, const int value) {
+        if (!running) {
+            return;
+        }
         ASSERT(from >= 0 && from < 64 && to >= 0 && to < 64);
         killerHeuristic[from][to] = value;
     }
 
     void incKillerHeuristic(const int from, const int to, const int value) {
+        if (!running) {
+            return;
+        }
         ASSERT(from >= 0 && from < 64 && to >= 0 && to < 64);
-        ASSERT(killerHeuristic[from][to] <= INT_MAX - 100);
+        ASSERT(killerHeuristic[from][to] <= INT_MAX - MAX_PLY);
         killerHeuristic[from][to] += value;
     }
 
 private:
-
-    static const int NO_PROMOTION = -1;
+    bool forceCheck = false;
     static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;

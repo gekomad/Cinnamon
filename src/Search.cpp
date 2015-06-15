@@ -61,11 +61,10 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
         return 0;
     }
     ASSERT(chessboard[KING_BLACK + side]);
-    int score = -_INFINITE;
     if (!(numMovesq++ & 1023)) {
         running = checkTime();
     }
-    score = getScore(side, alpha, beta);
+    int score = getScore(side, alpha, beta);
     if (score >= beta) {
         return beta;
     }
@@ -242,9 +241,13 @@ bool Search::checkDraw(u64 key) {
         if (repetitionMap[i] == 0) {
             return false;
         }
+
+        //fifty-move rule
         if (++count >= 99) {
             return true;
         }
+
+        //Threefold repetition
         if (repetitionMap[i] == key && ++o > 2) {
             return true;
         }
@@ -467,8 +470,6 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     incListId();
     ASSERT(KING_BLACK + side >= 0 && KING_BLACK + side < 12);
     ASSERT(KING_BLACK + (side ^ 1) >= 0 && KING_BLACK + (side ^ 1) < 12);
-    friendKing[side] = BITScanForward(chessboard[KING_BLACK + side]);
-    friendKing[side ^ 1] = BITScanForward(chessboard[KING_BLACK + (side ^ 1)]);
     u64 friends = getBitBoard<side>();
     u64 enemies = getBitBoard<side ^ 1>();
     if (generateCaptures<side>(enemies, friends)) {
@@ -521,7 +522,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             currentPly--;
         }
         if (val > alpha) {
-            int doMws = (score > -_INFINITE + 100);
+            int doMws = (score > -_INFINITE + MAX_PLY);
             int lwb = max(alpha, score);
             int upb = (doMws ? (lwb + 1) : beta);
             currentPly++;

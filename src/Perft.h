@@ -55,7 +55,7 @@ Depth   Perft
  6      8031647685          verified
  7      374190009323        verified
  8      15493944087984      verified
- 9	708027759953502	    verified
+ 9		708027759953502	    verified
 
 Be2-d1	9684737364184
 Be2*a6	11610329611080
@@ -141,7 +141,6 @@ private:
     string dumpFile;
     int depth, nCpu;
     u64 mbSize;
-    constexpr static u64 RANDSIDE[2] = {0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL};
     _ThashPerft **hash = nullptr;
     u64 sizeAtDepth[255];
     atomic_ullong totMoves;
@@ -163,13 +162,12 @@ private:
 
         PerftThread();
 
-        virtual ~ PerftThread();
+        virtual ~PerftThread();
 
     private:
         virtual void run();
 
-        void setDump();
-
+        //void setDump();
         template<int side, bool useHash>
         u64 search(const int depth);
 

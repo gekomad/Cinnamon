@@ -243,18 +243,18 @@ Perft::Perft(string fen1, int depth1, int nCpu2, u64 mbSize1, string dumpFile1) 
 }
 
 template<int side, bool useHash>
-u64 Perft::PerftThread::search(const int depth) {
+u64 Perft::PerftThread::search(const int depthx) {
     checkWait();
-    if (depth == 0) {
+    if (depthx == 0) {
         return 1;
     }
     u64 zobristKeyR;
     u64 n_perft = 0;
     _ThashPerft *phashe = nullptr;
     if (useHash) {
-        zobristKeyR = zobristKey ^ RANDSIDE[side];
+        zobristKeyR = side ? zobristKey ^ 0xd2a5cab966b3d6cULL : zobristKey ^ 0x1cf0862fa4118029ULL;
         lock_guard<mutex> lock(perft->updateHash);
-        phashe = &(perft->hash[depth][zobristKeyR % perft->sizeAtDepth[depth]]);
+        phashe = &(perft->hash[depthx][zobristKeyR % perft->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
             n_perft = phashe->nMoves;
             return n_perft;
@@ -279,7 +279,7 @@ u64 Perft::PerftThread::search(const int depth) {
         move = getMove(ii);
         u64 keyold = zobristKey;
         makemove(move, false, false);
-        n_perft += search<side ^ 1, useHash>(depth - 1);
+        n_perft += search<side ^ 1, useHash>(depthx - 1);
         takeback(move, keyold, false);
     }
     decListId();

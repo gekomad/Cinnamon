@@ -83,9 +83,9 @@ void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_alway
         return;
     }
 #ifdef DEBUG_MODE
-    if(flags == hashfALPHA) {
+    if (flags == hashfALPHA) {
         nRecordHashA++;
-    } else if(flags == hashfBETA) {
+    } else if (flags == hashfBETA) {
         nRecordHashB++;
     } else {
         nRecordHashE++;

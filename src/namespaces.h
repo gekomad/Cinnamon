@@ -31,7 +31,7 @@
 using namespace std;
 namespace _board {
 
-    static const string NAME = "Cinnamon 1.2b";
+    static const string NAME = "Cinnamon 1.2c-SNAPSHOT";
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     typedef unsigned char uchar;
@@ -43,9 +43,9 @@ namespace _board {
 
 #ifdef DEBUG_MODE
 #define ASSERT(a) assert(a)
-#define ASSERT_RANGE(value,from,to) assert(value>=from && value<=to)
+#define ASSERT_RANGE(value, from, to) assert(value>=from && value<=to)
 #define INC(a) (a++)
-#define ADD(a,b) (a+=b)
+#define ADD(a, b) (a+=b)
 
 #else
 
