@@ -176,7 +176,7 @@ void IterativeDeeping::run() {
     int mateIn = INT_MAX;
     setForceCheck(false);
     bool inMate = false;
-    int red = 0;
+    int extension = 0;
     string bestmove;
     while (getRunning() && mateIn == INT_MAX) {
         init();
@@ -239,7 +239,7 @@ void IterativeDeeping::run() {
         }
         sc = resultMove.score;
         if (resultMove.score > _INFINITE - MAX_PLY) {
-            sc = INT_MAX;
+            sc = 0x7fffffff;
         }
 #ifdef DEBUG_MODE
         int totStoreHash = nRecordHashA + nRecordHashB + nRecordHashE + 1;
@@ -252,10 +252,8 @@ void IterativeDeeping::run() {
         int percCutHashE = n_cut_hashE * 100 / totCutHash;
         cout << endl << "info string ply: " << mply << endl;
         cout << "info string tot moves: " << totMoves << endl;
-        cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" <<
-        percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
-        cout << "info string cut hash " << totCutHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" <<
-        percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
+        cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
+        cout << "info string cut hash " << totCutHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
         u64 nps = 0;
         if (TimeTaken) {
             nps = totMoves * 1000 / TimeTaken;
@@ -281,7 +279,7 @@ void IterativeDeeping::run() {
             setForceCheck(true);
             bool valid = makemove(&resultMove);
             if (!valid) {
-                red++;
+                extension++;
                 print = false;
             }
             takeback(&resultMove, oldKey, true);
@@ -302,7 +300,7 @@ void IterativeDeeping::run() {
                 cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << TimeTaken <<
                 " pv " << pvv << endl;
             } else {
-                cout << "info score cp " << sc << " depth " << mply - red << " nodes " << totMoves << " time " <<
+                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " <<
                 TimeTaken << " pv " << pvv << endl;
             }
         }
@@ -313,7 +311,7 @@ void IterativeDeeping::run() {
             setForceCheck(true);
             setRunning(2);
         }
-        if (mply >= maxDepth + red && (getRunning() != 2 || inMate)) {
+        if (mply >= maxDepth + extension && (getRunning() != 2 || inMate)) {
             break;
         }
         if (abs(sc) > _INFINITE - MAX_PLY) {
