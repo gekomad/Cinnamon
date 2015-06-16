@@ -67,8 +67,7 @@ static inline void print_stacktrace(FILE *out = stdout, unsigned int max_frames 
                 break;
             }
         }
-        if (begin_name && begin_offset && end_offset
-            && begin_name < begin_offset) {
+        if (begin_name && begin_offset && end_offset && begin_name < begin_offset) {
             *begin_name++ = '\0';
             *begin_offset++ = '\0';
             *end_offset = '\0';
@@ -76,8 +75,7 @@ static inline void print_stacktrace(FILE *out = stdout, unsigned int max_frames 
             // offset in [begin_offset, end_offset). now apply
             // __cxa_demangle():
             int status;
-            char *ret = abi::__cxa_demangle(begin_name,
-                                            funcname, &funcnamesize, &status);
+            char *ret = abi::__cxa_demangle(begin_name, funcname, &funcnamesize, &status);
             if (status == 0) {
                 funcname = ret;        // use possibly realloc()-ed string
                 fprintf(out, "  %s+%s\n", funcname, begin_offset);

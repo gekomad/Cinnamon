@@ -60,8 +60,7 @@ protected:
     _Thash *hash_array_greater;
     _Thash *hash_array_always;
 
-    void recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags,
-                    const u64 key, const int score, _Tmove *bestMove);
+    void recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
 
     void clearAge();
 

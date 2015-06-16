@@ -91,8 +91,7 @@ void Uci::listner(IterativeDeeping *it) {
                 if (fen.empty()) {
                     fen = it->getFen();
                 }
-                cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE <<
-                " fen " << fen << endl;
+                cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << endl;
                 unique_ptr<Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, ""));
                 it->setHashSize(hashDepth);
             } else {
@@ -129,8 +128,7 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name TB Endgame type combo default none var Gaviota var none" << "\n";
             cout << "option name GaviotaTbPath type string default gtb/gtb4" << "\n";
             cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024" << "\n";
-            cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4" <<
-            "\n";
+            cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4" << "\n";
             cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << "\n";
             cout << "option name TB probing depth type spin default 0 min 0 max 5" << "\n";
             cout << "option name TB Restart type button" << "\n";
@@ -355,17 +353,13 @@ void Uci::listner(IterativeDeeping *it) {
                     winc -= (int) (winc * 0.1);
                     it->setMaxTimeMillsec(winc + wtime / 40);
                     if (btime > wtime) {
-                        it->setMaxTimeMillsec(it->getMaxTimeMillsec() - (int) (it->getMaxTimeMillsec() *
-                                                                               ((135.0 - wtime * 100.0 / btime) /
-                                                                                100.0)));
+                        it->setMaxTimeMillsec(it->getMaxTimeMillsec() - (int) (it->getMaxTimeMillsec() * ((135.0 - wtime * 100.0 / btime) / 100.0)));
                     }
                 } else {
                     binc -= (int) (binc * 0.1);
                     it->setMaxTimeMillsec(binc + btime / 40);
                     if (wtime > btime) {
-                        it->setMaxTimeMillsec(it->getMaxTimeMillsec() - (int) (it->getMaxTimeMillsec() *
-                                                                               ((135.0 - btime * 100.0 / wtime) /
-                                                                                100.0)));
+                        it->setMaxTimeMillsec(it->getMaxTimeMillsec() - (int) (it->getMaxTimeMillsec() * ((135.0 - btime * 100.0 / wtime) / 100.0)));
                     }
                 }
                 lastTime = it->getMaxTimeMillsec();

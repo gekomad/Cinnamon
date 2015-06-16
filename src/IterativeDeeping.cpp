@@ -78,8 +78,7 @@ int IterativeDeeping::printDtm() {
     u64 friends = side == WHITE ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
     u64 enemies = side == BLACK ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
     display();
-    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100) : getGtb().getDtm<BLACK, true>(
-            chessboard, rightCastle, 100);
+    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100) : getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100);
     cout << " res: " << res;
     incListId();
     generateCaptures(side, enemies, friends);
@@ -91,10 +90,8 @@ int IterativeDeeping::printDtm() {
     for (int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
-        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) <<
-        decodeBoardinv(move->type, move->to, getSide()) << " ";
-        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100) : getGtb().getDtm<WHITE, true>(
-                chessboard, rightCastle, 100);
+        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) << decodeBoardinv(move->type, move->to, getSide()) << " ";
+        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100) : getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100);
         if (res != -INT_MAX) {
             cout << " res: " << res;
         }
@@ -286,9 +283,7 @@ void IterativeDeeping::run() {
             setForceCheck(b);
         }
         if (print) {
-            resultMove.capturedPiece =
-                    (resultMove.side ^ 1) == WHITE ? getPieceAt<WHITE>(POW2[resultMove.to]) : getPieceAt<BLACK>(
-                            POW2[resultMove.to]);
+            resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? getPieceAt<WHITE>(POW2[resultMove.to]) : getPieceAt<BLACK>(POW2[resultMove.to]);
             bestmove = decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
             if (!(resultMove.type & (KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK))) {
                 bestmove += decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
@@ -297,11 +292,9 @@ void IterativeDeeping::run() {
                 }
             }
             if (abs(sc) > _INFINITE - MAX_PLY) {
-                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << TimeTaken <<
-                " pv " << pvv << endl;
+                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
             } else {
-                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " <<
-                TimeTaken << " pv " << pvv << endl;
+                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
             }
         }
         if (getForceCheck()) {

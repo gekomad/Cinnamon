@@ -59,8 +59,7 @@ bool Hash::setHashSize(int mb) {
     return true;
 }
 
-void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags,
-                      const u64 key, const int score, _Tmove *bestMove) {
+void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
     ASSERT(key);
     if (!running) {
         return;

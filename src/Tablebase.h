@@ -114,26 +114,9 @@ public:
 
 private:
 
-    const int DECODE_PIECE[13] = {
-            tb_PAWN, tb_PAWN,
-            tb_ROOK, tb_ROOK,
-            tb_BISHOP, tb_BISHOP,
-            tb_KNIGHT, tb_KNIGHT,
-            tb_KING, tb_KING,
-            tb_QUEEN, tb_QUEEN,
-            tb_NOPIECE
-    };
+    const int DECODE_PIECE[13] = {tb_PAWN, tb_PAWN, tb_ROOK, tb_ROOK, tb_BISHOP, tb_BISHOP, tb_KNIGHT, tb_KNIGHT, tb_KING, tb_KING, tb_QUEEN, tb_QUEEN, tb_NOPIECE};
 
-    const int DECODE_POSITION[64] = {
-            tb_H1, tb_G1, tb_F1, tb_E1, tb_D1, tb_C1, tb_B1, tb_A1,
-            tb_H2, tb_G2, tb_F2, tb_E2, tb_D2, tb_C2, tb_B2, tb_A2,
-            tb_H3, tb_G3, tb_F3, tb_E3, tb_D3, tb_C3, tb_B3, tb_A3,
-            tb_H4, tb_G4, tb_F4, tb_E4, tb_D4, tb_C4, tb_B4, tb_A4,
-            tb_H5, tb_G5, tb_F5, tb_E5, tb_D5, tb_C5, tb_B5, tb_A5,
-            tb_H6, tb_G6, tb_F6, tb_E6, tb_D6, tb_C6, tb_B6, tb_A6,
-            tb_H7, tb_G7, tb_F7, tb_E7, tb_D7, tb_C7, tb_B7, tb_A7,
-            tb_H8, tb_G8, tb_F8, tb_E8, tb_D8, tb_C8, tb_B8, tb_A8,
-    };
+    const int DECODE_POSITION[64] = {tb_H1, tb_G1, tb_F1, tb_E1, tb_D1, tb_C1, tb_B1, tb_A1, tb_H2, tb_G2, tb_F2, tb_E2, tb_D2, tb_C2, tb_B2, tb_A2, tb_H3, tb_G3, tb_F3, tb_E3, tb_D3, tb_C3, tb_B3, tb_A3, tb_H4, tb_G4, tb_F4, tb_E4, tb_D4, tb_C4, tb_B4, tb_A4, tb_H5, tb_G5, tb_F5, tb_E5, tb_D5, tb_C5, tb_B5, tb_A5, tb_H6, tb_G6, tb_F6, tb_E6, tb_D6, tb_C6, tb_B6, tb_A6, tb_H7, tb_G7, tb_F7, tb_E7, tb_D7, tb_C7, tb_B7, tb_A7, tb_H8, tb_G8, tb_F8, tb_E8, tb_D8, tb_C8, tb_B8, tb_A8,};
 
     template<unsigned stm1, bool doPrint>
     int extractDtm(int tb_available1, unsigned info1, unsigned pliestomate1) {

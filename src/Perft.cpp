@@ -308,11 +308,9 @@ void Perft::PerftThread::run() {
         move = getMove(ii);
         makemove(move, false, false);
         if (perft->hash != nullptr) {
-            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, true>(perft->depth - 1) : search<BLACK, true>(
-                    perft->depth - 1);
+            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, true>(perft->depth - 1) : search<BLACK, true>(perft->depth - 1);
         } else {
-            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, false>(perft->depth - 1) : search<BLACK, false>(
-                    perft->depth - 1);
+            n_perft = (sideToMove ^ 1) == WHITE ? search<WHITE, false>(perft->depth - 1) : search<BLACK, false>(perft->depth - 1);
         }
         takeback(move, keyold, false);
         char y;
@@ -331,8 +329,7 @@ void Perft::PerftThread::run() {
             if ((decodeBoardinv(move->type, move->to, sideToMove)).length() > 2) {
                 cout << "\t" << decodeBoardinv(move->type, move->to, sideToMove) << "\t" << n_perft << " ";
             } else {
-                cout << "\t" << x << decodeBoardinv(move->type, move->from, sideToMove) << y <<
-                decodeBoardinv(move->type, move->to, sideToMove) << "\t" << n_perft << " ";
+                cout << "\t" << x << decodeBoardinv(move->type, move->from, sideToMove) << y << decodeBoardinv(move->type, move->to, sideToMove) << "\t" << n_perft << " ";
             }
         }
         cout << flush;

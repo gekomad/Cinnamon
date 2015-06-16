@@ -36,8 +36,7 @@ public:
     int getScore(const int side, const int alpha = -_INFINITE, const int beta = _INFINITE);
 
     template<int side>
-    int
-    lazyEval() {
+    int lazyEval() {
         return lazyEvalSide<side>() - lazyEvalSide<side ^ 1>();
     }
 
@@ -156,11 +155,7 @@ private:
 
     template<int side>
     int lazyEvalSide() {
-        return bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN +
-               bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK +
-               bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP +
-               bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT +
-               bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
+        return bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN + bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK + bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP + bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT + bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
     }
 };
 
