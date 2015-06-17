@@ -252,7 +252,7 @@ u64 Perft::PerftThread::search(const int depthx) {
     u64 n_perft = 0;
     _ThashPerft *phashe = nullptr;
     if (useHash) {
-        zobristKeyR = side ? zobristKey ^ 0xd2a5cab966b3d6cULL : zobristKey ^ 0x1cf0862fa4118029ULL;
+        zobristKeyR = zobristKey ^ RANDSIDE[side];
         lock_guard<mutex> lock(perft->updateHash);
         phashe = &(perft->hash[depthx][zobristKeyR % perft->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
