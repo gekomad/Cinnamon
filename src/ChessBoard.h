@@ -59,8 +59,6 @@ public:
 
     void display();
 
-    void makeZobristKey();
-
     string getFen();
 
     char decodeBoard(string);
@@ -170,6 +168,8 @@ protected:
     string boardToFen();
 
     string decodeBoardinv(const uchar type, const int a, const int side);
+    
+    void makeZobristKey();
 
     template<int side>
     int getNpiecesNoPawnNoKing() {
