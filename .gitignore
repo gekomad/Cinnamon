@@ -35,3 +35,4 @@ ehthumbs.db
 Thumbs.db
 *.gcda
 src/cinnamon
+.idea/
