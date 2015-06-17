@@ -85,7 +85,7 @@ int IterativeDeeping::printDtm() {
     generateMoves(side, friends | enemies);
     _Tmove *move;
     u64 oldKey = 0;
-    cout << "\n succ. " << endl;
+    cout << "\n succ. \n";
     int best = -_INFINITE;
     for (int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
@@ -247,8 +247,8 @@ void IterativeDeeping::run() {
         int percCutHashA = n_cut_hashA * 100 / totCutHash;
         int percCutHashB = n_cut_hashB * 100 / totCutHash;
         int percCutHashE = n_cut_hashE * 100 / totCutHash;
-        cout << endl << "info string ply: " << mply << endl;
-        cout << "info string tot moves: " << totMoves << endl;
+        cout << "\ninfo string ply: " << mply << "\n";
+        cout << "info string tot moves: " << totMoves << "\n";
         cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
         cout << "info string cut hash " << totCutHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
         u64 nps = 0;
@@ -257,15 +257,15 @@ void IterativeDeeping::run() {
         }
         if (nCutAB) {
             betaEfficiencyCumulative += betaEfficiency / totGen * 10;
-            cout << "info string beta efficiency: " << (int) betaEfficiencyCumulative << "%" << endl;
+            cout << "info string beta efficiency: " << (int) betaEfficiencyCumulative << "%\n";
             betaEfficiency = totGen = 0.0;
         }
-        cout << "info string millsec: " << TimeTaken << "  (" << nps / 1000 << "k nodes per seconds) " << endl;
-        cout << "info string alphaBeta cut: " << nCutAB << endl;
-        cout << "info string lazy eval cut: " << LazyEvalCuts << endl;
-        cout << "info string futility pruning cut: " << nCutFp << endl;
-        cout << "info string razor cut: " << nCutRazor << endl;
-        cout << "info string null move cut: " << nNullMoveCut << endl;
+        cout << "info string millsec: " << TimeTaken << "  (" << nps / 1000 << "k nodes per seconds) \n";
+        cout << "info string alphaBeta cut: " << nCutAB << "\n";
+        cout << "info string lazy eval cut: " << LazyEvalCuts << "\n";
+        cout << "info string futility pruning cut: " << nCutFp << "\n";
+        cout << "info string razor cut: " << nCutRazor << "\n";
+        cout << "info string null move cut: " << nNullMoveCut << "\n";
         cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
         ///is invalid move?
@@ -315,7 +315,7 @@ void IterativeDeeping::run() {
     if (ponderEnabled && ponderMove.size()) {
         cout << " ponder " << ponderMove;
     }
-    cout << endl << flush;
+    cout << "\n" << flush;
 }
 
 bool IterativeDeeping::setParameter(String param, int value) {

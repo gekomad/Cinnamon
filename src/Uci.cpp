@@ -91,11 +91,11 @@ void Uci::listner(IterativeDeeping *it) {
                 if (fen.empty()) {
                     fen = it->getFen();
                 }
-                cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << endl;
+                cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << "\n";
                 unique_ptr<Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, ""));
                 it->setHashSize(hashDepth);
             } else {
-                cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string]" << endl;
+                cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string]\n";
             }
             knowCommand = true;
         } else if (token == "quit") {
@@ -113,7 +113,7 @@ void Uci::listner(IterativeDeeping *it) {
         } else if (token == "isready") {
             knowCommand = true;
             it->setRunning(0);
-            cout << "readyok" << endl;
+            cout << "readyok\n";
         } else if (token == "uci") {
             knowCommand = true;
             uciMode = true;
@@ -132,7 +132,7 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << "\n";
             cout << "option name TB probing depth type spin default 0 min 0 max 5" << "\n";
             cout << "option name TB Restart type button" << "\n";
-            cout << "uciok" << endl;
+            cout << "uciok\n";
         } else if (token == "score") {
             int side = it->getSide();
             int t;
@@ -144,7 +144,7 @@ void Uci::listner(IterativeDeeping *it) {
             if (!it->getSide()) {
                 t = -t;
             }
-            cout << "Score: " << t << endl;
+            cout << "Score: " << t << "\n";
             knowCommand = true;
         } else if (token == "stop") {
             knowCommand = true;
