@@ -18,9 +18,10 @@
 
 #ifndef TIMER_H_
 #define TIMER_H_
+
 #include "Thread.h"
 
-class Timer:public Thread {
+class Timer : public Thread {
 public:
 
     Timer(int seconds1) {
@@ -28,28 +29,28 @@ public:
     }
 
     void run() {
-        while(1) {
+        while (1) {
             this_thread::sleep_for(chrono::seconds(seconds));
             notifyObservers();
         }
     }
 
-    void registerObservers(function<void (void)> f) {
+    void registerObservers(function<void(void)> f) {
         observers.push_back(f);
     }
 
     void notifyObservers(void) {
-        for(auto i = observers.begin(); i != observers.end(); ++i) {
+        for (auto i = observers.begin(); i != observers.end(); ++i) {
             (*i)();
         }
     }
 
-    virtual ~Timer() {}
+    virtual ~Timer() { }
 
 
 private:
     int seconds;
-    vector<function<void (void)>> observers;
+    vector<function<void(void)>> observers;
 };
 
 #endif
