@@ -28,6 +28,7 @@ ChessBoard::~ChessBoard() {
 }
 
 #ifdef DEBUG_MODE
+
 u64 ChessBoard::getBitBoard(int side) {
     return side ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
 }
@@ -35,6 +36,7 @@ u64 ChessBoard::getBitBoard(int side) {
 int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
     return side ? getPieceAt<WHITE>(bitmapPos) : getPieceAt<BLACK>(bitmapPos);
 }
+
 #endif
 
 uchar ChessBoard::getRightCastle() {
@@ -88,8 +90,7 @@ void ChessBoard::display() {
             cout << "\n   ----+---+---+---+---+---+---+----\n";
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
-        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(
-                POW2[63 - t])]) == '-' ? ' ' : x;
+        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(POW2[63 - t])]) == '-' ? ' ' : x;
         x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     };

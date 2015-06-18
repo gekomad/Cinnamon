@@ -122,7 +122,7 @@ public:
     void incListId() {
         listId++;
 #ifdef DEBUG_MODE
-        if(listId < 0 || listId >= MAX_PLY) {
+        if (listId < 0 || listId >= MAX_PLY) {
             display();
         }
         ASSERT_RANGE(listId, 0, MAX_PLY - 1);
@@ -196,8 +196,7 @@ protected:
     int killerHeuristic[64][64];
 
     template<int side>
-    bool inCheckPerft(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo,
-                      int promotionPiece);
+    bool inCheckPerft(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
 
     void performCastle(const int side, const uchar type);
 

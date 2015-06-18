@@ -59,8 +59,7 @@ bool Hash::setHashSize(int mb) {
     return true;
 }
 
-void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags,
-                      const u64 key, const int score, _Tmove *bestMove) {
+void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
     ASSERT(key);
     if (!running) {
         return;
@@ -83,9 +82,9 @@ void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_alway
         return;
     }
 #ifdef DEBUG_MODE
-    if(flags == hashfALPHA) {
+    if (flags == hashfALPHA) {
         nRecordHashA++;
-    } else if(flags == hashfBETA) {
+    } else if (flags == hashfBETA) {
         nRecordHashB++;
     } else {
         nRecordHashE++;

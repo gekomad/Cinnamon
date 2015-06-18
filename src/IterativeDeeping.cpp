@@ -21,7 +21,7 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
     setUseBook(false);
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
-    if(!_file::fileExists(parameterFile)) {
+    if (!_file::fileExists(parameterFile)) {
         cout << "error file not found  " << parameterFile << endl;
         return;
     }
@@ -30,7 +30,7 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
     String param;
     int value;
     inData.open(parameterFile);
-    while(!inData.eof()) {
+    while (!inData.eof()) {
         getline(inData, line);
         stringstream ss(line);
         ss >> param;
@@ -78,8 +78,7 @@ int IterativeDeeping::printDtm() {
     u64 friends = side == WHITE ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
     u64 enemies = side == BLACK ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
     display();
-    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100) : getGtb().getDtm<BLACK, true>(
-            chessboard, rightCastle, 100);
+    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100) : getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100);
     cout << " res: " << res;
     incListId();
     generateCaptures(side, enemies, friends);
@@ -91,10 +90,8 @@ int IterativeDeeping::printDtm() {
     for (int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
-        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) <<
-        decodeBoardinv(move->type, move->to, getSide()) << " ";
-        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100) : getGtb().getDtm<WHITE, true>(
-                chessboard, rightCastle, 100);
+        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) << decodeBoardinv(move->type, move->to, getSide()) << " ";
+        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100) : getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100);
         if (res != -INT_MAX) {
             cout << " res: " << res;
         }
@@ -255,10 +252,10 @@ void IterativeDeeping::run() {
         cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
         cout << "info string cut hash " << totCutHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
         u64 nps = 0;
-        if(TimeTaken) {
+        if (TimeTaken) {
             nps = totMoves * 1000 / TimeTaken;
         }
-        if(nCutAB) {
+        if (nCutAB) {
             betaEfficiencyCumulative += betaEfficiency / totGen * 10;
             cout << "info string beta efficiency: " << (int) betaEfficiencyCumulative << "%" << endl;
             betaEfficiency = totGen = 0.0;
@@ -272,11 +269,9 @@ void IterativeDeeping::run() {
         cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
         if (abs(sc) > _INFINITE) {
-            cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken <<
-            " pv " << pvv << endl;
+            cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         } else {
-            cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " <<
-            TimeTaken << " pv " << pvv << endl;
+            cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         }
         if (forceCheck) {
             forceCheck = false;
@@ -292,16 +287,12 @@ void IterativeDeeping::run() {
     if (forceCheck && getRunning()) {
         while (forceCheck && getRunning());
         if (abs(sc) > _INFINITE) {
-            cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken <<
-            " pv " << pvv << endl;
+            cout << "info score mate 1 depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         } else {
-            cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " <<
-            TimeTaken << " pv " << pvv << endl;
+            cout << "info score cp " << sc << " depth " << (int) mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
         }
     }
-    resultMove.capturedPiece =
-            (resultMove.side ^ 1) == WHITE ? getPieceAt<WHITE>(POW2[resultMove.to]) : getPieceAt<BLACK>(
-                    POW2[resultMove.to]);
+    resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? getPieceAt<WHITE>(POW2[resultMove.to]) : getPieceAt<BLACK>(POW2[resultMove.to]);
     string bestmove = decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
     if (!(resultMove.type & (KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK))) {
         bestmove += decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
@@ -320,83 +311,83 @@ bool IterativeDeeping::setParameter(String param, int value) {
 #if defined(CLOP) || defined(DEBUG_MODE)
     param.toUpper();
     bool res = true;
-    if(param == "FUTIL_MARGIN") {
+    if (param == "FUTIL_MARGIN") {
         FUTIL_MARGIN = value;
-    } else if(param == "EXT_FUTILY_MARGIN") {
+    } else if (param == "EXT_FUTILY_MARGIN") {
         EXT_FUTILY_MARGIN = value;
-    } else if(param == "RAZOR_MARGIN") {
+    } else if (param == "RAZOR_MARGIN") {
         RAZOR_MARGIN = value;
-    } else if(param == "ATTACK_KING") {
+    } else if (param == "ATTACK_KING") {
         ATTACK_KING = value;
-    } else if(param == "BACKWARD_PAWN") {
+    } else if (param == "BACKWARD_PAWN") {
         BACKWARD_PAWN = value;
-    } else if(param == "BISHOP_ON_QUEEN") {
+    } else if (param == "BISHOP_ON_QUEEN") {
         BISHOP_ON_QUEEN = value;
-    } else if(param == "NO_PAWNS") {
+    } else if (param == "NO_PAWNS") {
         NO_PAWNS = value;
-    } else if(param == "BONUS2BISHOP") {
+    } else if (param == "BONUS2BISHOP") {
         BONUS2BISHOP = value;
-    } else if(param == "CONNECTED_ROOKS") {
+    } else if (param == "CONNECTED_ROOKS") {
         CONNECTED_ROOKS = value;
-    } else if(param == "DOUBLED_ISOLATED_PAWNS") {
+    } else if (param == "DOUBLED_ISOLATED_PAWNS") {
         DOUBLED_ISOLATED_PAWNS = value;
-    } else if(param == "DOUBLED_PAWNS") {
+    } else if (param == "DOUBLED_PAWNS") {
         DOUBLED_PAWNS = value;
-    } else if(param == "END_OPENING") {
+    } else if (param == "END_OPENING") {
         END_OPENING = value;
-    } else if(param == "ENEMY_NEAR_KING") {
+    } else if (param == "ENEMY_NEAR_KING") {
         ENEMY_NEAR_KING = value;
-    } else if(param == "FRIEND_NEAR_KING") {
+    } else if (param == "FRIEND_NEAR_KING") {
         FRIEND_NEAR_KING = value;
-    } else if(param == "BISHOP_NEAR_KING") {
+    } else if (param == "BISHOP_NEAR_KING") {
         BISHOP_NEAR_KING = value;
-    } else if(param == "HALF_OPEN_FILE_Q") {
+    } else if (param == "HALF_OPEN_FILE_Q") {
         HALF_OPEN_FILE_Q = value;
-    } else if(param == "KNIGHT_TRAPPED") {
+    } else if (param == "KNIGHT_TRAPPED") {
         KNIGHT_TRAPPED = value;
-    } else if(param == "OPEN_FILE") {
+    } else if (param == "OPEN_FILE") {
         OPEN_FILE = value;
-    } else if(param == "OPEN_FILE_Q") {
+    } else if (param == "OPEN_FILE_Q") {
         OPEN_FILE_Q = value;
-    } else if(param == "PAWN_7H") {
+    } else if (param == "PAWN_7H") {
         PAWN_7H = value;
-    } else if(param == "PAWN_CENTER") {
+    } else if (param == "PAWN_CENTER") {
         PAWN_CENTER = value;
-    } else if(param == "PAWN_IN_RACE") {
+    } else if (param == "PAWN_IN_RACE") {
         PAWN_IN_RACE = value;
-    } else if(param == "PAWN_ISOLATED") {
+    } else if (param == "PAWN_ISOLATED") {
         PAWN_ISOLATED = value;
-    } else if(param == "PAWN_NEAR_KING") {
+    } else if (param == "PAWN_NEAR_KING") {
         PAWN_NEAR_KING = value;
-    } else if(param == "PAWN_BLOCKED") {
+    } else if (param == "PAWN_BLOCKED") {
         PAWN_BLOCKED = value;
-    } else if(param == "ROOK_7TH_RANK") {
+    } else if (param == "ROOK_7TH_RANK") {
         ROOK_7TH_RANK = value;
-    } else if(param == "ROOK_BLOCKED") {
+    } else if (param == "ROOK_BLOCKED") {
         ROOK_BLOCKED = value;
-    } else if(param == "ROOK_TRAPPED") {
+    } else if (param == "ROOK_TRAPPED") {
         ROOK_TRAPPED = value;
-    } else if(param == "UNDEVELOPED") {
+    } else if (param == "UNDEVELOPED") {
         UNDEVELOPED = value;
-    } else if(param == "UNDEVELOPED_BISHOP") {
+    } else if (param == "UNDEVELOPED_BISHOP") {
         UNDEVELOPED_BISHOP = value;
-    } else if(param == "VAL_WINDOW") {
+    } else if (param == "VAL_WINDOW") {
         VAL_WINDOW = value;
-    } else if(param == "UNPROTECTED_PAWNS") {
+    } else if (param == "UNPROTECTED_PAWNS") {
         UNPROTECTED_PAWNS = value;
-    } else if(param == "ENEMIES_PAWNS_ALL") {
+    } else if (param == "ENEMIES_PAWNS_ALL") {
         ENEMIES_PAWNS_ALL = value;
-    } else if(param == "NULLMOVE_DEPTH") {
+    } else if (param == "NULLMOVE_DEPTH") {
         NULLMOVE_DEPTH = value;
-    } else if(param == "NULLMOVES_MIN_PIECE") {
+    } else if (param == "NULLMOVES_MIN_PIECE") {
         NULLMOVES_MIN_PIECE = value;
-    } else if(param == "NULLMOVES_R1") {
+    } else if (param == "NULLMOVES_R1") {
         NULLMOVES_R1 = value;
-    } else if(param == "NULLMOVES_R2") {
+    } else if (param == "NULLMOVES_R2") {
         NULLMOVES_R2 = value;
-    } else if(param == "NULLMOVES_R3") {
+    } else if (param == "NULLMOVES_R3") {
         NULLMOVES_R3 = value;
-    } else if(param == "NULLMOVES_R4") {
+    } else if (param == "NULLMOVES_R4") {
         NULLMOVES_R4 = value;
     } else {
         res = false;

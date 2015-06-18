@@ -197,8 +197,7 @@ int main(int argc, char **argv) {
                     fen = optarg;
                 }
             }
-            if (perftDepth > GenMoves::MAX_PLY || perftDepth < 0 || nCpu > 32 || nCpu < 0 || PERFT_HASH_SIZE > 32768 ||
-                PERFT_HASH_SIZE < 0) {
+            if (perftDepth > GenMoves::MAX_PLY || perftDepth < 0 || nCpu > 32 || nCpu < 0 || PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0) {
                 cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                 return 1;
             }
