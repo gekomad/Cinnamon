@@ -239,7 +239,7 @@ bool Search::checkDraw(u64 key) {
         }
 
         //fifty-move rule
-        if (++count >= 99) {
+        if (++count > 100) {
             return true;
         }
 
