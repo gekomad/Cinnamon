@@ -297,9 +297,9 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                     res = -res;
                 }
             }
-            ASSERT(res >= -_INFINITE && res <= _INFINITE);
+            ASSERT_RANGE(res, -_INFINITE, _INFINITE);
             ASSERT(mainDepth >= depth);
-            cout << side << " " << (*mateIn) << " " << res << endl;
+            cout << side << " " << (*mateIn) << " " << res << "\n";
             return res;
         }
     }
@@ -457,8 +457,8 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     /************ end Futility Pruning*************/
     incListId();
-    ASSERT(KING_BLACK + side >= 0 && KING_BLACK + side < 12);
-    ASSERT(KING_BLACK + (side ^ 1) >= 0 && KING_BLACK + (side ^ 1) < 12);
+    ASSERT_RANGE(KING_BLACK + side, 0, 11);
+    ASSERT_RANGE(KING_BLACK + (side ^ 1), 0, 11);
     u64 friends = getBitBoard<side>();
     u64 enemies = getBitBoard<side ^ 1>();
     if (generateCaptures<side>(enemies, friends)) {

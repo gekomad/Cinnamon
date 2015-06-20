@@ -235,7 +235,8 @@ protected:
         if (!running) {
             return;
         }
-        ASSERT(from >= 0 && from < 64 && to >= 0 && to < 64);
+        ASSERT_RANGE(from, 0, 63);
+        ASSERT_RANGE(to, 0, 63);
         killerHeuristic[from][to] = value;
     }
 
@@ -243,8 +244,9 @@ protected:
         if (!running) {
             return;
         }
-        ASSERT(from >= 0 && from < 64 && to >= 0 && to < 64);
-        ASSERT(killerHeuristic[from][to] <= INT_MAX - MAX_PLY);
+        ASSERT_RANGE(from, 0, 63);
+        ASSERT_RANGE(to, 0, 63);
+        ASSERT(killerHeuristic[from][to] <= killerHeuristic[from][to] + value);
         killerHeuristic[from][to] += value;
     }
 

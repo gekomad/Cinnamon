@@ -71,9 +71,11 @@ bool GenMoves::pushmove(const int from, const int to, const int side, int promot
             if (res == true) {
                 mos->score = _INFINITE;
             } else {
+                ASSERT_RANGE(pieceFrom, 0, 11);
+                ASSERT_RANGE(to, 0, 63);
+                ASSERT_RANGE(from, 0, 63);
                 mos->score = killerHeuristic[from][to];
                 mos->score += (PIECES_VALUE[piece_captured] >= PIECES_VALUE[pieceFrom]) ? (PIECES_VALUE[piece_captured] - PIECES_VALUE[pieceFrom]) * 2 : PIECES_VALUE[piece_captured];
-                ASSERT(pieceFrom >= 0 && pieceFrom < 12 && to >= 0 && to < 64 && from >= 0 && from < 64);
             }
         }
     } else if (type & 0xc) {    //castle
@@ -1015,8 +1017,8 @@ void GenMoves::takeback(_Tmove *move, const u64 oldkey, bool rep) {
         posTo = move->to;
         posFrom = move->from;
         movecapture = move->capturedPiece;
-        ASSERT(posFrom >= 0 && posFrom < 64);
-        ASSERT(posTo >= 0 && posTo < 64);
+        ASSERT_RANGE(posFrom,0,63);
+        ASSERT_RANGE(posTo,0,63);
         pieceFrom = move->pieceFrom;
         chessboard[pieceFrom] = (chessboard[pieceFrom] & NOTPOW2[posTo]) | POW2[posFrom];
         if (movecapture != SQUARE_FREE) {
@@ -1055,10 +1057,9 @@ bool GenMoves::makemove(_Tmove *move, bool rep, bool checkInCheck) {
     if (!(move->type & 0xc)) { //no castle
         posTo = move->to;
         posFrom = move->from;
-        ASSERT(posTo >= 0);
         movecapture = move->capturedPiece;
-        ASSERT(posFrom >= 0 && posFrom < 64);
-        ASSERT(posTo >= 0 && posTo < 64);
+        ASSERT_RANGE(posFrom,0,63);
+        ASSERT_RANGE(posTo,0,63);
         pieceFrom = move->pieceFrom;
         if ((move->type & 0x3) == PROMOTION_MOVE_MASK) {
             chessboard[pieceFrom] &= NOTPOW2[posFrom];
