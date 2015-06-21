@@ -265,11 +265,6 @@ int main(int argc, char **argv) {
                     fen = optarg;
                 }
             }
-            if (perftDepth > GenMoves::MAX_PLY || perftDepth < 0 || nCpu > 32 || nCpu < 0 || PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0) {
-                cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
-                return 1;
-            }
-
             Perft *p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile));
             p->start();
             unique_ptr<Uci> u(new Uci(p));

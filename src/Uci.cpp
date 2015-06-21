@@ -93,9 +93,6 @@ void Uci::listner(IterativeDeeping *it) {
                 } else if (token == "hash_size") {
                     getToken(uip, token);
                     PERFT_HASH_SIZE = stoi(token);
-                    if (PERFT_HASH_SIZE > 32768 || PERFT_HASH_SIZE < 0) {
-                        PERFT_HASH_SIZE = 64;
-                    }
                     getToken(uip, token);
                 } else if (token == "fen") {
                     uip >> token;
