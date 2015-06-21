@@ -1017,8 +1017,8 @@ void GenMoves::takeback(_Tmove *move, const u64 oldkey, bool rep) {
         posTo = move->to;
         posFrom = move->from;
         movecapture = move->capturedPiece;
-        ASSERT_RANGE(posFrom,0,63);
-        ASSERT_RANGE(posTo,0,63);
+        ASSERT_RANGE(posFrom, 0, 63);
+        ASSERT_RANGE(posTo, 0, 63);
         pieceFrom = move->pieceFrom;
         chessboard[pieceFrom] = (chessboard[pieceFrom] & NOTPOW2[posTo]) | POW2[posFrom];
         if (movecapture != SQUARE_FREE) {
@@ -1058,8 +1058,8 @@ bool GenMoves::makemove(_Tmove *move, bool rep, bool checkInCheck) {
         posTo = move->to;
         posFrom = move->from;
         movecapture = move->capturedPiece;
-        ASSERT_RANGE(posFrom,0,63);
-        ASSERT_RANGE(posTo,0,63);
+        ASSERT_RANGE(posFrom, 0, 63);
+        ASSERT_RANGE(posTo, 0, 63);
         pieceFrom = move->pieceFrom;
         if ((move->type & 0x3) == PROMOTION_MOVE_MASK) {
             chessboard[pieceFrom] &= NOTPOW2[posFrom];

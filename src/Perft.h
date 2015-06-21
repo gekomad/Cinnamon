@@ -63,13 +63,14 @@ class Perft : public Thread {
 
 public:
 
-    const static int secondsToDump = 60 * 60 * 24;
 
     Perft(string fen, int depth, int nCpu, u64 mbSize, string dumpFile);
 
     ~Perft();
 
     void dump();
+
+    void registerObservers(function<void(void)> f);
 
 private:
 
@@ -119,11 +120,16 @@ private:
         Perft *perft;
     };
 
+    const static int secondsToDump = 60 * 60 * 24;
+
     void getToken(istringstream &uip, String &token);
 
     virtual void run();
 
+    void notifyObservers(void);
+
     vector<PerftThread *> threadList;
+    vector<function<void(void)>> observers;
 };
 
 #endif

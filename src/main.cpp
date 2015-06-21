@@ -73,6 +73,15 @@ Rank Name                     Elo    +    - games score oppo. draws
  */
 
 using namespace _board;
+const string EPD2PGN_HELP = "-epd2pgn -f file_epd [-m max_pieces]";
+const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb)] [-f \"fen position\"] [-F dump file]";
+const string DTM_HELP = "-dtm -f \"fen position\" [-p path] [-s scheme] [-i installed pieces]";
+
+void help(char **argv) {
+    cout << "Perft test: " << argv[0] << " " << PERFT_HELP << "\n";
+    cout << "Distance to mate: " << argv[0] << " " << DTM_HELP << "\n";
+    cout << "Create .pgn from .epd: " << argv[0] << " " << EPD2PGN_HELP << endl;
+}
 
 int main(int argc, char **argv) {
     cout << NAME;
@@ -116,15 +125,15 @@ int main(int argc, char **argv) {
     cout << "DEBUG_MODE\n";
 #endif
     cout << flush;
+    if (argc == 2 && !strcmp(argv[1], "--help")) {
+        help(argv);
+        return 1;
+    }
     char opt;
-    const string DTM_HELP = "-dtm -f \"fen position\" [-p path] [-s scheme] [-i installed pieces]";
-    const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb)] [-f \"fen position\"] [-F dump file]";
-    const string EPD2PGN_HELP = "-epd2pgn -f file_epd [-m max_pieces]";
+
     while ((opt = getopt(argc, argv, "e:hd:bp:f:")) != -1) {
         if (opt == 'h') {
-            cout << "Distance to mate: " << argv[0] << " " << DTM_HELP << "\n";
-            cout << "Perft test: " << argv[0] << " " << PERFT_HELP << "\n";
-            cout << "Create .pgn from .epd: " << argv[0] << " " << EPD2PGN_HELP << endl;
+            help(argv);
             return 0;
         }
         if (opt == 'e') {
@@ -260,10 +269,8 @@ int main(int argc, char **argv) {
                 cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                 return 1;
             }
-            if (PERFT_HASH_SIZE) {
-                cout << "dump hash table in file every " << (Perft::secondsToDump / 60) << " minutes or type flush" << endl;
-            }
-            Perft* p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile));
+
+            Perft *p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile));
             p->start();
             unique_ptr<Uci> u(new Uci(p));
             delete(p);

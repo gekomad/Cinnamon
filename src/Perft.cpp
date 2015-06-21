@@ -35,7 +35,7 @@ void Perft::dump() {
     }
     static mutex m;
     lock_guard<mutex> lock(m);
-    cout << endl << "dump hash table in " << dumpFile << " file.." << flush;
+    cout << endl << "Dump hash table in " << dumpFile << " file..." << flush;
     ofstream f;
     string tmpFile = dumpFile + ".tmp";
     f.open(tmpFile, ios_base::out | ios_base::binary);
@@ -140,7 +140,9 @@ void Perft::alloc() {
     for (int i = 1; i <= depth; i++) {
         sizeAtDepth[i] = k * POW2[i - 1] / sizeof(_ThashPerft);
         hash[i] = (_ThashPerft *) calloc(sizeAtDepth[i], sizeof(_ThashPerft));
+#ifdef DEBUG_MODE
         cout << "alloc hash[" << i << "] " << sizeAtDepth[i] * sizeof(_ThashPerft) << endl;
+#endif
         assert(hash[i]);
     }
 }
@@ -162,8 +164,9 @@ void Perft::run() {
             alloc();
         }
     }
-    if (hash) {
+    if (hash && !dumpFile.empty()) {
         timer = new Timer(secondsToDump);
+        cout << "dump hash table in file every " << (secondsToDump / 60) << " minutes or type 'flush'" << endl;
         timer->registerObservers([this]() {
             dump();
         });
@@ -185,11 +188,12 @@ void Perft::run() {
     p->setPerft(true);
     int side = p->getSide() ? 1 : 0;
     p->display();
-    cout << "fen: " << fen << "\n";
-    cout << "depth: " << depth << "\n";
-    cout << "#cpu: " << nCpu << "\n";
-    cout << "cache size: " << mbSize << "\n";
-    cout << "dump file: " << dumpFile << "\n";
+    cout << "fen:\t\t\t" << fen << "\n";
+    cout << "depth:\t\t\t" << depth << "\n";
+    cout << "#cpu:\t\t\t" << nCpu << "\n";
+    cout << "cache size:\t\t" << mbSize << "\n";
+    cout << "dump file:\t\t" << dumpFile << "\n";
+    cout << "\nstart...\n";
     struct timeb start1, end1;
     ftime(&start1);
     p->incListId();
@@ -244,6 +248,7 @@ void Perft::run() {
         it = nullptr;
     }
     threadList.clear();
+    notifyObservers();
 }
 
 template<int side, bool useHash>
@@ -344,4 +349,14 @@ void Perft::PerftThread::run() {
 }
 
 Perft::PerftThread::~PerftThread() {
+}
+
+void Perft::registerObservers(function<void(void)> f) {
+    observers.push_back(f);
+}
+
+void Perft::notifyObservers(void) {
+    for (auto i = observers.begin(); i != observers.end(); ++i) {
+        (*i)();
+    }
 }

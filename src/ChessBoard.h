@@ -168,7 +168,7 @@ protected:
     string boardToFen();
 
     string decodeBoardinv(const uchar type, const int a, const int side);
-    
+
     void makeZobristKey();
 
     template<int side>

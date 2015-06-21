@@ -20,6 +20,9 @@
 
 Uci::Uci(Perft *perft1) {
     perft = perft1;
+    perft->registerObservers([this]() {
+        exit(0);//workaround
+    });
     startListner();
 }
 
@@ -112,9 +115,13 @@ void Uci::listner(IterativeDeeping *it) {
                     fen = it->getFen();
                 }
                 it->setHashSize(hashDepth);
-                cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << " dumpFile " << dumpFile << "\n";
-                //unique_ptr<Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, ""));
+                //cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << " dumpFile '" << dumpFile << "'\n";
                 perft = new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile);
+                perft->registerObservers([this]() {
+                    perft->stop();
+                    delete perft;
+                    perft = nullptr;
+                });
                 perft->start();
             } else {
                 cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string] [dumpFile file_name]\n";
