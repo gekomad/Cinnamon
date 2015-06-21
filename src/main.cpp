@@ -261,9 +261,12 @@ int main(int argc, char **argv) {
                 return 1;
             }
             if (PERFT_HASH_SIZE) {
-                cout << "dump hash table in file every " << (Perft::secondsToDump / 60) << " minutes" << endl;
+                cout << "dump hash table in file every " << (Perft::secondsToDump / 60) << " minutes or type flush" << endl;
             }
-            unique_ptr<Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile));
+            Perft* p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile));
+            p->start();
+            unique_ptr<Uci> u(new Uci(p));
+            delete(p);
             return 0;
         }
     }

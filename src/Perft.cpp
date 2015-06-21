@@ -152,6 +152,10 @@ Perft::Perft(string fen1, int depth1, int nCpu2, u64 mbSize1, string dumpFile1) 
     nCpu = nCpu2;
     dumpFile = dumpFile1;
     totMoves = 0;
+}
+
+void Perft::run() {
+
     if (!load()) {
         hash = nullptr;
         if (mbSize) {
@@ -183,9 +187,9 @@ Perft::Perft(string fen1, int depth1, int nCpu2, u64 mbSize1, string dumpFile1) 
     p->display();
     cout << "fen: " << fen << "\n";
     cout << "depth: " << depth << "\n";
-    cout << "# cpu: " << nCpu << "\n";
+    cout << "#cpu: " << nCpu << "\n";
     cout << "cache size: " << mbSize << "\n";
-    cout << "dump: " << dumpFile << "\n";
+    cout << "dump file: " << dumpFile << "\n";
     struct timeb start1, end1;
     ftime(&start1);
     p->incListId();

@@ -28,15 +28,20 @@ class Uci {
 public:
     Uci();
 
+    Uci(Perft *);
+
     virtual ~Uci();
 
 private:
+    Perft *perft = nullptr;
     IterativeDeeping *iterativeDeeping;
     bool uciMode;
 
     void listner(IterativeDeeping *it);
 
     void getToken(istringstream &uip, String &token);
+
+    void startListner();
 };
 
 #endif

@@ -18,9 +18,18 @@
 
 #include "Uci.h"
 
-Uci::Uci() {
+Uci::Uci(Perft *perft1) {
+    perft = perft1;
+    startListner();
+}
+
+void Uci::startListner() {
     iterativeDeeping = new IterativeDeeping();
     listner(iterativeDeeping);
+}
+
+Uci::Uci() {
+    startListner();
 }
 
 Uci::~Uci() {
@@ -40,15 +49,22 @@ void Uci::listner(IterativeDeeping *it) {
     bool stop = false;
     int lastTime = 0;
     uciMode = false;
+
     static const string BOOLEAN[] = {"false", "true"};
     while (!stop) {
         getline(cin, command);
         istringstream uip(command, ios::in);
         getToken(uip, token);
         knowCommand = false;
-        if (token == "perft") {
+        if (token == "flush") {
+            if (perft) {
+                perft->dump();
+            }
+            knowCommand = true;
+        } else if (token == "perft") {
             int perftDepth = -1;
             int nCpu = 1;
+            string dumpFile;
             int PERFT_HASH_SIZE = 0;
             string fen;
             getToken(uip, token);
@@ -66,6 +82,10 @@ void Uci::listner(IterativeDeeping *it) {
                     if (nCpu > 32 || nCpu <= 0) {
                         nCpu = 1;
                     }
+                    getToken(uip, token);
+                } else if (token == "dumpfile") {
+                    getToken(uip, token);
+                    dumpFile = token;
                     getToken(uip, token);
                 } else if (token == "hash_size") {
                     getToken(uip, token);
@@ -91,11 +111,13 @@ void Uci::listner(IterativeDeeping *it) {
                 if (fen.empty()) {
                     fen = it->getFen();
                 }
-                cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << "\n";
-                unique_ptr<Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, ""));
                 it->setHashSize(hashDepth);
+                cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << " dumpFile " << dumpFile << "\n";
+                //unique_ptr<Perft> p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, ""));
+                perft = new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile);
+                perft->start();
             } else {
-                cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string]\n";
+                cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string] [dumpFile file_name]\n";
             }
             knowCommand = true;
         } else if (token == "quit") {
