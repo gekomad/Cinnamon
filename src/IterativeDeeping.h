@@ -37,7 +37,7 @@ public:
 
     virtual ~ IterativeDeeping();
 
-    Search search;
+    Search search[4];
     //TODO private
     mutex mutex1;
 
@@ -61,7 +61,7 @@ public:
 
     bool setParameter(String param, int value);
 
-    Tablebase &getGtb();
+   // Tablebase &getGtb();
 
 private:
 

@@ -40,8 +40,26 @@ public:
     uchar rightCastle;
     u64 zobristKey;
 
-    string decodeBoardinv(const uchar type, const int a, const int side);
 
+    static string decodeBoardinv(const uchar type, const int a, const int side) {
+        if (type & QUEEN_SIDE_CASTLE_MOVE_MASK && side == WHITE) {
+            return "e1c1";
+        }
+        if (type & KING_SIDE_CASTLE_MOVE_MASK && side == WHITE) {
+            return "e1g1";
+        }
+        if (type & QUEEN_SIDE_CASTLE_MOVE_MASK && side == BLACK) {
+            return "e8c8";
+        }
+        if (type & KING_SIDE_CASTLE_MOVE_MASK && side == BLACK) {
+            return "e8g8";
+        }
+        ASSERT(!(type & 0xC));
+        if (a >= 0 && a < 64) {
+            return BOARD[a];
+        }
+        assert(0);
+    }
     static const uchar RIGHT_KING_CASTLE_WHITE_MASK = 0x10;
     static const uchar RIGHT_QUEEN_CASTLE_WHITE_MASK = 0x20;
     static const uchar RIGHT_KING_CASTLE_BLACK_MASK = 0x40;
