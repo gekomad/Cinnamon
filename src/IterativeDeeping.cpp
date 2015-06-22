@@ -240,22 +240,22 @@ void IterativeDeeping::run() {
             int tmp = search[0].getValue();
             if (tmp >val -VAL_WINDOW && tmp < val + VAL_WINDOW) {
                 threadWin = 0;
-                search[1].stop();
-                search[2].stop();
-                search[3].stop();
+                search[1].stop1();
+                search[2].stop1();
+                search[3].stop1();
             } else {
                 search[1].join();
                 int tmp = search[1].getValue();
                 if (tmp >val-VAL_WINDOW * 2 && tmp < val + VAL_WINDOW * 2) {
                     threadWin = 1;
-                    search[2].stop();
-                    search[3].stop();
+                    search[2].stop1();
+                    search[3].stop1();
                 } else {
                     search[2].join();
                     int tmp = search[2].getValue();
                     if (tmp > val-VAL_WINDOW * 4 && tmp < val + VAL_WINDOW * 4) {
                         threadWin = 2;
-                        search[3].stop();
+                        search[3].stop1();
                     } else {
                         search[3].join();
                         threadWin = 3;
@@ -300,7 +300,7 @@ void IterativeDeeping::run() {
         if (resultMove.score > _INFINITE - MAX_PLY) {
             sc = 0x7fffffff;
         }
-#ifdef DEBUG_MODE
+#ifdef DEBUG_MODEkk
         int totStoreHash = nRecordHashA + nRecordHashB + nRecordHashE + 1;
         int percStoreHashA = nRecordHashA * 100 / totStoreHash;
         int percStoreHashB = nRecordHashB * 100 / totStoreHash;
@@ -381,7 +381,7 @@ void IterativeDeeping::run() {
 }
 
 bool IterativeDeeping::setParameter(String param, int value) {
-#if defined(CLOP) || defined(DEBUG_MODE)
+#if defined(CLOP) || defined(DEBUG_MODEkk)
     param.toUpper();
     bool res = true;
     if (param == "FUTIL_MARGIN") {

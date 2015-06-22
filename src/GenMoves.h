@@ -30,11 +30,11 @@ public:
 
     GenMoves();
 
-    int listId;
+
 
     virtual ~GenMoves();
 
-    _TmoveP *gen_list;
+
 
     void setPerft(const bool b);
 
@@ -173,7 +173,8 @@ public:
     }
 
 protected:
-
+    int listId;
+    _TmoveP *gen_list;
     static const u64 RANK_1 = 0xff00ULL;
     static const u64 RANK_3 = 0xff000000ULL;
     static const u64 RANK_4 = 0xff00000000ULL;

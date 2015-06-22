@@ -37,8 +37,9 @@ public:
 
     virtual ~ IterativeDeeping();
 
-    Search search[4];
     //TODO private
+    Search search[5];
+
     mutex mutex1;
 
     virtual void run();

@@ -376,6 +376,7 @@ void GenMoves::clearKillerHeuristic() {
 
 _Tmove *GenMoves::getNextMove(_TmoveP *list) {
     _Tmove *gen_list1 = list->moveList;
+    ASSERT(gen_list1);
     int listcount = list->size;
     int bestId = -1;
     int j, bestScore;

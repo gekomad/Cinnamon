@@ -48,6 +48,11 @@ public:
 
     void startClock();
 
+    void stop1() {
+        running=0;
+        stop();
+    }
+
     int getRunning();
 
     void createGtb();
