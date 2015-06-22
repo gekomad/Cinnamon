@@ -33,7 +33,7 @@ public:
 class Thread : virtual public Runnable {
 
 private:
-    bool running = true;
+    bool _running = true;
 
     condition_variable cv;
     thread *theThread;
@@ -60,7 +60,7 @@ public:
     }
 
     void checkWait() {
-        while (!running) {
+        while (!_running) {
             mutex mtx;
             unique_lock<mutex> lck(mtx);
             cv.wait(lck);
@@ -94,7 +94,7 @@ public:
     }
 
     void sleep(bool b) {
-        running = !b;
+        _running = !b;
     }
 
     void stop() {

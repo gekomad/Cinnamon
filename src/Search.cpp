@@ -272,8 +272,19 @@ void Search::deleteGtb() {
     gtb = nullptr;
 }
 
-int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn) {
-    return getSide() ? search<WHITE>(depth, alpha, beta, pline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), mateIn) : search<BLACK>(depth, alpha, beta, pline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), mateIn);
+void Search::run() {
+    threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
+}
+
+
+void Search::search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn) {
+    threadDepth = depth;
+    threadAlpha = alpha;
+    threadBeta = beta;
+    threadPline = pline;
+    threadMateIn = mateIn;
+
+    //return getSide() ? search<WHITE>(depth, alpha, beta, pline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), mateIn) : search<BLACK>(depth, alpha, beta, pline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), mateIn);
 }
 
 template<int side>

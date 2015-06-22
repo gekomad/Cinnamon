@@ -33,7 +33,14 @@ public:
 
     ChessBoard();
 
+    _Tchessboard chessboard;
+
     virtual ~ChessBoard();
+
+    uchar rightCastle;
+    u64 zobristKey;
+
+    string decodeBoardinv(const uchar type, const int a, const int side);
 
     static const uchar RIGHT_KING_CASTLE_WHITE_MASK = 0x10;
     static const uchar RIGHT_QUEEN_CASTLE_WHITE_MASK = 0x20;
@@ -56,8 +63,12 @@ public:
     static const int QUEEN_BLACK = 10;
     static const int QUEEN_WHITE = 11;
     static const int NO_ENPASSANT = -1;
+    static const uchar KING_SIDE_CASTLE_MOVE_MASK = 0x4;
+    static const uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0x8;
 
     void display();
+
+    string boardToFen();
 
     string getFen();
 
@@ -155,19 +166,14 @@ protected:
     static const int G8 = 57;
     static const u64 BLACK_SQUARES = 0x55AA55AA55AA55AAULL;
     static const u64 WHITE_SQUARES = 0xAA55AA55AA55AA55ULL;
-    static const uchar KING_SIDE_CASTLE_MOVE_MASK = 0x4;
-    static const uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0x8;
 
-    u64 zobristKey;
+
     int enpassantPosition;
-    uchar rightCastle;
-    _Tchessboard chessboard;
+
+
     _Tboard structure;
     bool sideToMove;
 
-    string boardToFen();
-
-    string decodeBoardinv(const uchar type, const int a, const int side);
 
     void makeZobristKey();
 

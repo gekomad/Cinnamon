@@ -26,11 +26,15 @@ using namespace _eval;
 class GenMoves : public virtual ChessBoard {
 
 public:
-    static const int MAX_PLY = 96;
+
 
     GenMoves();
 
+    int listId;
+
     virtual ~GenMoves();
+
+    _TmoveP *gen_list;
 
     void setPerft(const bool b);
 
@@ -83,6 +87,14 @@ public:
         return false;
     }
 
+    bool getForceCheck() {
+        return forceCheck;
+    }
+
+    void setForceCheck(bool b) {
+        forceCheck = b;
+    }
+
     int getMoveFromSan(const string fenStr, _Tmove *move);
 
     void init();
@@ -90,6 +102,8 @@ public:
     virtual int loadFen(string fen = "");
 
     u64 performDiagCaptureCount(const int, const u64 allpieces);
+
+    void takeback(_Tmove *move, const u64 oldkey, bool rep);
 
     void setRepetitionMapCount(int i);
 
@@ -101,6 +115,8 @@ public:
 
     bool performDiagCapture(const int piece, const u64 enemies, const int side, const u64 allpieces);
 
+    u64 getTotMoves();
+
     bool performRankFileCapture(const int piece, const u64 enemies, const int side, const u64 allpieces);
 
     template<int side>
@@ -108,6 +124,8 @@ public:
 
     template<int side>
     void performPawnShift(const u64 xallpieces);
+
+    void clearKillerHeuristic();
 
     int performPawnShiftCount(int side, const u64 xallpieces);
 
@@ -144,6 +162,15 @@ public:
         gen_list[listId].size = 0;
     }
 
+    void incKillerHeuristic(const int from, const int to, const int value) {
+        if (!running) {
+            return;
+        }
+        ASSERT_RANGE(from, 0, 63);
+        ASSERT_RANGE(to, 0, 63);
+        ASSERT(killerHeuristic[from][to] <= killerHeuristic[from][to] + value);
+        killerHeuristic[from][to] += value;
+    }
 
 protected:
 
@@ -162,24 +189,10 @@ protected:
     int currentPly;
     bool perftMode;
     u64 numMoves, numMovesq;
-    int listId;
-    _TmoveP *gen_list;
 
     _Tmove *getNextMove(decltype(gen_list));
 
     u64 getKingAttackers(const int xside, u64, int);
-
-    void clearKillerHeuristic();
-
-    void setForceCheck(bool b) {
-        forceCheck = b;
-    }
-
-    bool getForceCheck() {
-        return forceCheck;
-    }
-
-    u64 getTotMoves();
 
     int getMobilityRook(const int position, const u64 enemies, const u64 friends);
 
@@ -212,7 +225,6 @@ protected:
 
     void tryAllCastle(const int side, const u64 allpieces);
 
-    void takeback(_Tmove *move, const u64 oldkey, bool rep);
 
     template<uchar type>
     bool pushmove(const int from, const int to, const int side, int promotionPiece, int pieceFrom);
@@ -240,15 +252,6 @@ protected:
         killerHeuristic[from][to] = value;
     }
 
-    void incKillerHeuristic(const int from, const int to, const int value) {
-        if (!running) {
-            return;
-        }
-        ASSERT_RANGE(from, 0, 63);
-        ASSERT_RANGE(to, 0, 63);
-        ASSERT(killerHeuristic[from][to] <= killerHeuristic[from][to] + value);
-        killerHeuristic[from][to] += value;
-    }
 
 private:
     bool forceCheck = false;

@@ -54,7 +54,7 @@ namespace _board {
 #define INC(a)
 #define ADD(a, b)
 #endif
-
+    static const int MAX_PLY = 96;
 #if defined(CLOP) || defined(DEBUG_MODE)
 #define STATIC_CONST
 #else
@@ -78,6 +78,10 @@ namespace _board {
         int size;
     } _TmoveP;
 
+    typedef struct {
+        int cmove;
+        _Tmove argmove[MAX_PLY];
+    } _TpvLine;
 
     static const int BLACK = 0;
     static const int WHITE = 1;

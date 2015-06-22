@@ -75,7 +75,7 @@ void Uci::listner(IterativeDeeping *it) {
                 if (token == "depth") {
                     getToken(uip, token);
                     perftDepth = stoi(token);
-                    if (perftDepth > GenMoves::MAX_PLY || perftDepth <= 0) {
+                    if (perftDepth > MAX_PLY || perftDepth <= 0) {
                         perftDepth = 2;
                     }
                     getToken(uip, token);
@@ -106,12 +106,12 @@ void Uci::listner(IterativeDeeping *it) {
                 }
             }
             if (perftDepth != -1) {
-                int hashDepth = it->getHashSize();
-                it->setHashSize(0);
+                int hashDepth = it->search.getHashSize();
+                it->search.setHashSize(0);
                 if (fen.empty()) {
-                    fen = it->getFen();
+                    fen = it->search.getFen();
                 }
-                it->setHashSize(hashDepth);
+                it->search.setHashSize(hashDepth);
                 //cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << " dumpFile '" << dumpFile << "'\n";
                 perft = new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile);
                 perft->registerObservers([this]() {
@@ -126,19 +126,19 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
         } else if (token == "quit") {
             knowCommand = true;
-            it->setRunning(false);
+            it->search.setRunning(false);
             stop = true;
         } else if (token == "ponderhit") {
             knowCommand = true;
-            it->startClock();
+            it->search.startClock();
             it->setMaxTimeMillsec(lastTime - lastTime / 3);
-            it->setPonder(false);
+            it->search.setPonder(false);
         } else if (token == "display") {
             knowCommand = true;
-            it->display();
+            it->search.display();
         } else if (token == "isready") {
             knowCommand = true;
-            it->setRunning(0);
+            it->search.setRunning(0);
             cout << "readyok\n";
         } else if (token == "uci") {
             knowCommand = true;
@@ -160,25 +160,25 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name TB Restart type button" << "\n";
             cout << "uciok\n";
         } else if (token == "score") {
-            int side = it->getSide();
+            int side = it->search.getSide();
             int t;
             if (side == WHITE) {
-                t = it->getScore(Bits::bitCount(it->getBitBoard<WHITE>()), side);
+                t = it->search.getScore(Bits::bitCount(it->search.getBitBoard<WHITE>()), side);
             } else {
-                t = it->getScore(Bits::bitCount(it->getBitBoard<BLACK>()), side);
+                t = it->search.getScore(Bits::bitCount(it->search.getBitBoard<BLACK>()), side);
             }
-            if (!it->getSide()) {
+            if (!it->search.getSide()) {
                 t = -t;
             }
             cout << "Score: " << t << "\n";
             knowCommand = true;
         } else if (token == "stop") {
             knowCommand = true;
-            it->setPonder(false);
-            it->setRunning(0);
+            it->search.setPonder(false);
+            it->search.setRunning(0);
         } else if (token == "ucinewgame") {
-            it->loadFen();
-            it->clearHash();
+            it->search.loadFen();
+            it->search.clearHash();
             knowCommand = true;
         } else if (token == "setvalue") {
             getToken(uip, token);
@@ -194,7 +194,7 @@ void Uci::listner(IterativeDeeping *it) {
                     if (token == "value") {
                         getToken(uip, token);
                         knowCommand = true;
-                        it->createGtb();
+                        it->search.createGtb();
                         it->getGtb().setPath(token);
                     }
                 } else if (token == "gaviotatbcache") {
@@ -232,7 +232,7 @@ void Uci::listner(IterativeDeeping *it) {
                             getToken(uip, token);
                             knowCommand = true;
                             if (token == "none") {
-                                it->deleteGtb();
+                                it->search.deleteGtb();
                             } else if (token == "gaviota") {
                                 it->getGtb();
                             } else {
@@ -258,7 +258,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        if (it->setHashSize(stoi(token))) {
+                        if (it->search.setHashSize(stoi(token))) {
                             knowCommand = true;
                         };
                     }
@@ -267,7 +267,7 @@ void Uci::listner(IterativeDeeping *it) {
                     if (token == "value") {
                         getToken(uip, token);
                         knowCommand = true;
-                        it->setNullMove(token == "true");
+                        it->search.setNullMove(token == "true");
                     }
                 } else if (token == "ownbook") {
                     getToken(uip, token);
@@ -297,7 +297,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "hash") {
                         knowCommand = true;
-                        it->clearHash();
+                        it->search.clearHash();
                     }
                 }
             }
@@ -305,12 +305,12 @@ void Uci::listner(IterativeDeeping *it) {
             lock_guard<mutex> lock(it->mutex1);
             //it->lock();
             knowCommand = true;
-            it->setRepetitionMapCount(0);
+            it->search.setRepetitionMapCount(0);
             getToken(uip, token);
             _Tmove move;
             if (token == "startpos") {
                 it->setUseBook(it->getUseBook());
-                it->loadFen();
+                it->search.loadFen();
                 getToken(uip, token);
             }
             if (token == "fen") {
@@ -320,19 +320,19 @@ void Uci::listner(IterativeDeeping *it) {
                     fen += token;
                     fen += ' ';
                 }
-                it->init();
-                it->setSide(it->loadFen(fen));
-                it->pushStackMove();
+                it->search.init();
+                it->search.setSide(it->search.loadFen(fen));
+                it->search.pushStackMove();
             }
             if (token == "moves") {
                 while (!uip.eof()) {
                     uip >> token;
-                    it->setSide(!it->getMoveFromSan(token, &move));
-                    it->makemove(&move);
+                    it->search.setSide(!it->search.getMoveFromSan(token, &move));
+                    it->search.makemove(&move);
                 }
             }
         } else if (token == "go") {
-            it->setMaxDepth(GenMoves::MAX_PLY);
+            it->setMaxDepth(MAX_PLY);
             int wtime = 200000; //5 min
             int btime = 200000;
             int winc = 0;
@@ -352,8 +352,8 @@ void Uci::listner(IterativeDeeping *it) {
                 } else if (token == "depth") {
                     int depth;
                     uip >> depth;
-                    if (depth > GenMoves::MAX_PLY) {
-                        depth = GenMoves::MAX_PLY;
+                    if (depth > MAX_PLY) {
+                        depth = MAX_PLY;
                     }
                     if (!setMovetime) {
                         it->setMaxTimeMillsec(0x7FFFFFFF);
@@ -370,27 +370,27 @@ void Uci::listner(IterativeDeeping *it) {
                     it->setMaxTimeMillsec(0x7FFFFFFF);
                     forceTime = true;
                 } else if (token == "ponder") {
-                    it->setPonder(true);
+                    it->search.setPonder(true);
                 }
             }
             if (!forceTime) {
-                if (it->getSide() == WHITE) {
+                if (it->search.getSide() == WHITE) {
                     winc -= (int) (winc * 0.1);
                     it->setMaxTimeMillsec(winc + wtime / 40);
                     if (btime > wtime) {
-                        it->setMaxTimeMillsec(it->getMaxTimeMillsec() - (int) (it->getMaxTimeMillsec() * ((135.0 - wtime * 100.0 / btime) / 100.0)));
+                        it->setMaxTimeMillsec(it->search.getMaxTimeMillsec() - (int) (it->search.getMaxTimeMillsec() * ((135.0 - wtime * 100.0 / btime) / 100.0)));
                     }
                 } else {
                     binc -= (int) (binc * 0.1);
                     it->setMaxTimeMillsec(binc + btime / 40);
                     if (wtime > btime) {
-                        it->setMaxTimeMillsec(it->getMaxTimeMillsec() - (int) (it->getMaxTimeMillsec() * ((135.0 - btime * 100.0 / wtime) / 100.0)));
+                        it->setMaxTimeMillsec(it->search.getMaxTimeMillsec() - (int) (it->search.getMaxTimeMillsec() * ((135.0 - btime * 100.0 / wtime) / 100.0)));
                     }
                 }
-                lastTime = it->getMaxTimeMillsec();
+                lastTime = it->search.getMaxTimeMillsec();
             }
             if (!uciMode) {
-                it->display();
+                it->search.display();
             }
             it->stop();
             it->start();

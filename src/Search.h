@@ -25,8 +25,10 @@
 #include "namespaces.h"
 #include <climits>
 #include "Tablebase.h"
+#include "Thread.h"
 
-class Search : public Hash, public Eval {
+
+class Search : public Hash, public Eval, public Thread {
 
 public:
 
@@ -52,7 +54,17 @@ public:
 
     void deleteGtb();
 
+    void search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn);
+
+    int getValue() {
+        return threadValue;
+    }
+
+    virtual void run();
+
     Tablebase &getGtb() const;
+
+    void setMainPly(int);
 
     bool getGtbAvailable();
 
@@ -62,16 +74,9 @@ public:
     STATIC_CONST int NULLMOVES_R2 = 3;
     STATIC_CONST int NULLMOVES_R3 = 2;
     STATIC_CONST int NULLMOVES_R4 = 2;
+
+
 protected:
-
-    typedef struct {
-        int cmove;
-        _Tmove argmove[GenMoves::MAX_PLY];
-    } _TpvLine;
-
-    void setMainPly(int);
-
-    int search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn);
 
 #ifdef DEBUG_MODE
     unsigned cumulativeMovesCount, totGen;
@@ -79,6 +84,12 @@ protected:
 private:
     Tablebase *gtb = nullptr;
     bool ponder;
+    int threadDepth;
+    int threadValue;
+    int threadAlpha;
+    int threadBeta;
+    _TpvLine *threadPline;
+    int *threadMateIn;
 
     int checkTime();
 

@@ -29,12 +29,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-class IterativeDeeping : public Thread, public Search {
+class IterativeDeeping : public Thread {
 public:
     IterativeDeeping();
 
+    void setMaxTimeMillsec(int i);
+
     virtual ~ IterativeDeeping();
 
+    Search search;
+    //TODO private
     mutex mutex1;
 
     virtual void run();

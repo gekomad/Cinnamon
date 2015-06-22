@@ -42,12 +42,16 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
 #endif
 }
 
+void IterativeDeeping::setMaxTimeMillsec(int i) {
+    search.setMaxTimeMillsec(i);
+}
+
 void IterativeDeeping::setMaxDepth(int d) {
     maxDepth = d;
 }
 
 bool IterativeDeeping::getGtbAvailable() {
-    return Search::getGtbAvailable();
+    return search.getGtbAvailable();
 }
 
 IterativeDeeping::~IterativeDeeping() {
@@ -69,34 +73,34 @@ bool IterativeDeeping::getUseBook() {
 }
 
 Tablebase &IterativeDeeping::getGtb() {
-    createGtb();
-    return Search::getGtb();
+    search.createGtb();
+    return search.getGtb();
 }
 
 int IterativeDeeping::printDtm() {
-    int side = getSide();
-    u64 friends = side == WHITE ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
-    u64 enemies = side == BLACK ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
-    display();
-    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100) : getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100);
+    int side = search.getSide();
+    u64 friends = side == WHITE ? search.getBitBoard<WHITE>() : search.getBitBoard<BLACK>();
+    u64 enemies = side == BLACK ? search.getBitBoard<WHITE>() : search.getBitBoard<BLACK>();
+    search.display();
+    int res = side ? getGtb().getDtm<WHITE, true>(search.chessboard, search.rightCastle, 100) : getGtb().getDtm<BLACK, true>(search.chessboard, search.rightCastle, 100);
     cout << " res: " << res;
-    incListId();
-    generateCaptures(side, enemies, friends);
-    generateMoves(side, friends | enemies);
+    search.incListId();
+    search.generateCaptures(side, enemies, friends);
+    search.generateMoves(side, friends | enemies);
     _Tmove *move;
     u64 oldKey = 0;
     cout << "\n succ. \n";
     int best = -_INFINITE;
-    for (int i = 0; i < getListSize(); i++) {
-        move = &gen_list[listId].moveList[i];
-        makemove(move, false, false);
-        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) << decodeBoardinv(move->type, move->to, getSide()) << " ";
-        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, rightCastle, 100) : getGtb().getDtm<WHITE, true>(chessboard, rightCastle, 100);
+    for (int i = 0; i < search.getListSize(); i++) {
+        move = &search.gen_list[search.listId].moveList[i];
+        search.makemove(move, false, false);
+        cout << "\n" << search.decodeBoardinv(move->type, move->from, search.getSide()) << search.decodeBoardinv(move->type, move->to, search.getSide()) << " ";
+        res = side ? -getGtb().getDtm<BLACK, true>(search.chessboard, search.rightCastle, 100) : getGtb().getDtm<WHITE, true>(search.chessboard, search.rightCastle, 100);
         if (res != -INT_MAX) {
             cout << " res: " << res;
         }
         cout << "\n";
-        takeback(move, oldKey, false);
+        search.takeback(move, oldKey, false);
         if (res > best) {
             best = res;
         }
@@ -107,7 +111,7 @@ int IterativeDeeping::printDtm() {
         best = -(_INFINITE - best);
     }
     cout << endl;
-    decListId();
+    search.decListId();
     return best;
 }
 
@@ -141,20 +145,21 @@ void IterativeDeeping::run() {
     _Tmove resultMove;
     struct timeb start1;
     struct timeb end1;
+
     _TpvLine line;
     int val = 0, tmp;
     string pvv;
     _Tmove move2;
     int TimeTaken = 0;
-    setRunning(2);
+    search.setRunning(2);
     int mply = 0;
     if (useBook) {
         ASSERT(openBook);
-        string obMove = openBook->search(boardToFen());
+        string obMove = openBook->search(search.boardToFen());
         if (!obMove.empty()) {
             _Tmove move;
-            getMoveFromSan(obMove, &move);
-            makemove(&move);
+            search.getMoveFromSan(obMove, &move);
+            search.makemove(&move);
             cout << "bestmove " << obMove << endl;
             return;
         }
@@ -164,61 +169,76 @@ void IterativeDeeping::run() {
     string ponderMove;
     val = 0;
     mply = 0;
-    startClock();
-    clearKillerHeuristic();
-    clearAge();
+    search.startClock();
+    search.clearKillerHeuristic();
+    search.clearAge();
     ftime(&start1);
     memset(&resultMove, 0, sizeof(resultMove));
     ponderMove = "";
     int mateIn = INT_MAX;
-    setForceCheck(false);
+    search.setForceCheck(false);
     bool inMate = false;
     int extension = 0;
     string bestmove;
-    while (getRunning() && mateIn == INT_MAX) {
-        init();
+    while (search.getRunning() && mateIn == INT_MAX) {
+        search.init();
         ++mply;
-        setMainPly(mply);
+        search.setMainPly(mply);
         if (mply == 1) {
             memset(&line, 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            val = search(mply, -_INFINITE, _INFINITE, &line, &mateIn);
+            search.search(mply, -_INFINITE, _INFINITE, &line, &mateIn);
+            search.start();
+            search.join();
+            val = search.getValue();
         } else {
             memset(&line, 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            tmp = search(mply, val - VAL_WINDOW, val + VAL_WINDOW, &line, &mateIn);
+            search.search(mply, val - VAL_WINDOW, val + VAL_WINDOW, &line, &mateIn);
+            search.start();
+            search.join();
+            tmp = search.getValue();
             if (tmp <= val - VAL_WINDOW || tmp >= val + VAL_WINDOW) {
                 memset(&line, 0, sizeof(_TpvLine));
                 mateIn = INT_MAX;
-                tmp = search(mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &line, &mateIn);
+                search.search(mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &line, &mateIn);
+                search.start();
+                search.join();
+                tmp = search.getValue();
             }
             if (tmp <= val - VAL_WINDOW * 2 || tmp >= val + VAL_WINDOW * 2) {
                 memset(&line, 0, sizeof(_TpvLine));
                 mateIn = INT_MAX;
-                tmp = search(mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &line, &mateIn);
+                search.search(mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &line, &mateIn);
+                search.start();
+                search.join();
+                tmp = search.getValue();
             }
             if (tmp <= val - VAL_WINDOW * 4 || tmp >= val + VAL_WINDOW * 4) {
                 memset(&line, 0, sizeof(_TpvLine));
                 mateIn = INT_MAX;
-                tmp = search(mply, -_INFINITE, _INFINITE, &line, &mateIn);
+                search.search(mply, -_INFINITE, _INFINITE, &line, &mateIn);
+                search.start();
+                search.join();
+                tmp = search.getValue();
             }
             val = tmp;
         }
-        if (!getRunning()) {
+        if (!search.getRunning()) {
             break;
         }
         totMoves = 0;
         if (mply == 2) {
-            setRunning(1);
+            search.setRunning(1);
         }
         memcpy(&move2, line.argmove, sizeof(_Tmove));
         pvv.clear();
         string pvvTmp;
         for (int t = 0; t < line.cmove; t++) {
             pvvTmp.clear();
-            pvvTmp += decodeBoardinv(line.argmove[t].type, line.argmove[t].from, getSide());
+            pvvTmp += search.decodeBoardinv(line.argmove[t].type, line.argmove[t].from, search.getSide());
             if (pvvTmp.length() != 4) {
-                pvvTmp += decodeBoardinv(line.argmove[t].type, line.argmove[t].to, getSide());
+                pvvTmp += search.decodeBoardinv(line.argmove[t].type, line.argmove[t].to, search.getSide());
             }
             pvv += pvvTmp;
             if (t == 1) {
@@ -227,10 +247,10 @@ void IterativeDeeping::run() {
             pvv += " ";
         };
         memcpy(&resultMove, &move2, sizeof(_Tmove));
-        incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
+        search.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
         ftime(&end1);
         TimeTaken = _time::diffTime(end1, start1);
-        totMoves += getTotMoves();
+        totMoves += search.getTotMoves();
         if (!pvv.length()) {
             break;
         }
@@ -271,22 +291,22 @@ void IterativeDeeping::run() {
         ///is invalid move?
         bool print = true;
         if (abs(sc) > _INFINITE - MAX_PLY) {
-            bool b = getForceCheck();
-            u64 oldKey = zobristKey;
-            setForceCheck(true);
-            bool valid = makemove(&resultMove);
+            bool b = search.getForceCheck();
+            u64 oldKey = search.zobristKey;
+            search.setForceCheck(true);
+            bool valid = search.makemove(&resultMove);
             if (!valid) {
                 extension++;
                 print = false;
             }
-            takeback(&resultMove, oldKey, true);
-            setForceCheck(b);
+            search.takeback(&resultMove, oldKey, true);
+            search.setForceCheck(b);
         }
         if (print) {
-            resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? getPieceAt<WHITE>(POW2[resultMove.to]) : getPieceAt<BLACK>(POW2[resultMove.to]);
-            bestmove = decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
-            if (!(resultMove.type & (KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK))) {
-                bestmove += decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
+            resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? search.getPieceAt<WHITE>(POW2[resultMove.to]) : search.getPieceAt<BLACK>(POW2[resultMove.to]);
+            bestmove = search.decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
+            if (!(resultMove.type & (Search::KING_SIDE_CASTLE_MOVE_MASK | Search::QUEEN_SIDE_CASTLE_MOVE_MASK))) {
+                bestmove += search.decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
                 if (resultMove.promotionPiece != -1) {
                     bestmove += tolower(FEN_PIECE[(uchar) resultMove.promotionPiece]);
                 }
@@ -297,14 +317,14 @@ void IterativeDeeping::run() {
                 cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
             }
         }
-        if (getForceCheck()) {
-            setForceCheck(false);
-            setRunning(1);
+        if (search.getForceCheck()) {
+            search.setForceCheck(false);
+            search.setRunning(1);
         } else if (abs(sc) > _INFINITE - MAX_PLY) {
-            setForceCheck(true);
-            setRunning(2);
+            search.setForceCheck(true);
+            search.setRunning(2);
         }
-        if (mply >= maxDepth + extension && (getRunning() != 2 || inMate)) {
+        if (mply >= maxDepth + extension && (search.getRunning() != 2 || inMate)) {
             break;
         }
         if (abs(sc) > _INFINITE - MAX_PLY) {

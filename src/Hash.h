@@ -41,6 +41,8 @@ public:
 
     void clearHash();
 
+    void clearAge();
+
 protected:
 
 #pragma pack(push)
@@ -62,7 +64,6 @@ protected:
 
     void recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
 
-    void clearAge();
 
 #ifdef DEBUG_MODE
     unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions;
