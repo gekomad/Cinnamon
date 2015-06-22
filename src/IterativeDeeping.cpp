@@ -245,21 +245,21 @@ void IterativeDeeping::run() {
                 search[3].stop1();
             } else {
                 search[1].join();
-                int tmp = search[1].getValue();
+                tmp = search[1].getValue();
                 if (tmp >val-VAL_WINDOW * 2 && tmp < val + VAL_WINDOW * 2) {
                     threadWin = 1;
                     search[2].stop1();
                     search[3].stop1();
                 } else {
                     search[2].join();
-                    int tmp = search[2].getValue();
+                    tmp = search[2].getValue();
                     if (tmp > val-VAL_WINDOW * 4 && tmp < val + VAL_WINDOW * 4) {
                         threadWin = 2;
                         search[3].stop1();
                     } else {
                         search[3].join();
                         threadWin = 3;
-                        int tmp = search[3].getValue();
+                        tmp = search[3].getValue();
                     }
                 }
             }
