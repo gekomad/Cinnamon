@@ -31,9 +31,7 @@ public:
     GenMoves();
 
 
-
     virtual ~GenMoves();
-
 
 
     void setPerft(const bool b);
@@ -173,7 +171,7 @@ public:
     }
 
 protected:
-    int listId;
+    int listId = -1;
     _TmoveP *gen_list;
     static const u64 RANK_1 = 0xff00ULL;
     static const u64 RANK_3 = 0xff000000ULL;
@@ -188,7 +186,7 @@ protected:
     int running;
     u64 *repetitionMap;
     int currentPly;
-    bool perftMode;
+    bool perftMode = false;
     u64 numMoves, numMovesq;
 
     _Tmove *getNextMove(decltype(gen_list));

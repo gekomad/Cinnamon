@@ -152,7 +152,7 @@ void IterativeDeeping::run() {
     struct timeb end1;
 
     _TpvLine line1[5];
-    int val = 0, tmp[5];
+    int val = 0;
     string pvv;
     _Tmove move2;
     int TimeTaken = 0;
@@ -237,34 +237,34 @@ void IterativeDeeping::run() {
 
             //for (int i = 0; i < 4; i++) {
             search[0].join();
-            int tmp = search[0].getValue();
-            if (tmp >val -VAL_WINDOW && tmp < val + VAL_WINDOW) {
+            int tmp1 = search[0].getValue();
+            if (tmp1 >val -VAL_WINDOW && tmp1 < val + VAL_WINDOW) {
                 threadWin = 0;
                 search[1].stop1();
                 search[2].stop1();
                 search[3].stop1();
             } else {
                 search[1].join();
-                tmp = search[1].getValue();
-                if (tmp >val-VAL_WINDOW * 2 && tmp < val + VAL_WINDOW * 2) {
+                tmp1 = search[1].getValue();
+                if (tmp1 >val-VAL_WINDOW * 2 && tmp1 < val + VAL_WINDOW * 2) {
                     threadWin = 1;
                     search[2].stop1();
                     search[3].stop1();
                 } else {
                     search[2].join();
-                    tmp = search[2].getValue();
-                    if (tmp > val-VAL_WINDOW * 4 && tmp < val + VAL_WINDOW * 4) {
+                    tmp1 = search[2].getValue();
+                    if (tmp1 > val-VAL_WINDOW * 4 && tmp1 < val + VAL_WINDOW * 4) {
                         threadWin = 2;
                         search[3].stop1();
                     } else {
                         search[3].join();
                         threadWin = 3;
-                        tmp = search[3].getValue();
+                        tmp1 = search[3].getValue();
                     }
                 }
             }
             //}
-            val = tmp;
+            val = tmp1;
         }
         if (!search[0].getRunning()) {
             break;
