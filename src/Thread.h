@@ -72,22 +72,24 @@ public:
     }
 
     void start() {
-        if (this->_runnable != nullptr) {
-            execRunnable = this->_runnable;
-        }
-        if (theThread) {
-            //theThread->detach();
-            delete theThread;
-            theThread = nullptr;
+
+        if (!theThread) {
+            if (this->_runnable != nullptr) {
+                execRunnable = this->_runnable;
+            }
+
+            //delete theThread;
+            //gtheThread = nullptr;
         }
         theThread = new thread(__run, execRunnable);
+
     }
 
     void join() {
         if (theThread) {
             theThread->join();
-            delete theThread;
-            theThread = nullptr;
+            // delete theThread;
+            //theThread = nullptr;
         }
     }
 

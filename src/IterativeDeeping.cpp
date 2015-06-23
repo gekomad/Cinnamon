@@ -204,7 +204,7 @@ void IterativeDeeping::run() {
             search[k].search(mply, -_INFINITE, _INFINITE, &line1[k], &mateIn, -1);
             search[k].start();
             search[k].join();
-            search[k].stop();
+//            search[k].stop();
             val = search[k].getValue();
         } else {
             k = 0;
@@ -250,12 +250,10 @@ void IterativeDeeping::run() {
                 search[1].setRunning(0);
                 search[2].setRunning(0);
                 search[3].setRunning(0);
-                while(!search[1].finished)cout <<"a1\n";
-                while(!search[2].finished)cout <<"a2\n";
-                while(!search[3].finished)cout <<"a3\n";
-                search[1].stop();
-                search[2].stop();
-                search[3].stop();
+
+//                search[1].stop();
+//                search[2].stop();
+//                search[3].stop();
             } else {
                 search[1].join();
                 tmp1 = search[1].getValue();
@@ -263,18 +261,18 @@ void IterativeDeeping::run() {
                     threadWin = 1;
                     search[2].setRunning(0);
                     search[3].setRunning(0);
-                    while(!search[2].finished)cout <<"a4\n";
-                    while(!search[3].finished)cout <<"a5\n";
-                    search[2].stop();
-                    search[3].stop();
+//                    while (!search[2].finished)cout << "a4\n";
+//                    while (!search[3].finished)cout << "a5\n";
+//                    search[2].stop();
+//                    search[3].stop();
                 } else {
                     search[2].join();
                     tmp1 = search[2].getValue();
                     if (tmp1 > val - VAL_WINDOW * 4 && tmp1 < val + VAL_WINDOW * 4) {
                         threadWin = 2;
                         search[3].setRunning(0);
-                        while(!search[3].finished)cout <<"a6\n";
-                        search[3].stop();
+//                        while(!search[3].finished)cout <<"a6\n";
+//                        search[3].stop();
                     } else {
                         search[3].join();
                         threadWin = 3;
@@ -282,6 +280,9 @@ void IterativeDeeping::run() {
                     }
                 }
             }
+            while (!search[1].finished);
+            while (!search[2].finished);
+            while (!search[3].finished);
             //}
             val = tmp1;
         }
@@ -385,7 +386,7 @@ void IterativeDeeping::run() {
         }
         for (Search &s:search) {
             if (s.getForceCheck()) {
-               s.setForceCheck(false);
+                s.setForceCheck(false);
                 s.setRunning(1);
             } else if (abs(sc) > _INFINITE - MAX_PLY) {
                 s.setForceCheck(true);
