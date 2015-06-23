@@ -31,7 +31,7 @@
 class Search : public Hash, public Eval, public Thread {
 
 public:
-
+    bool finished = true;
     Search();
 
     virtual ~Search();
@@ -47,11 +47,6 @@ public:
     int getMaxTimeMillsec();
 
     void startClock();
-
-    void stop1() {
-        setRunning(0);
-        //stop();
-    }
 
     int getRunning();
 
@@ -90,7 +85,8 @@ private:
     Tablebase *gtb = nullptr;
     bool ponder;
     int threadDepth;
-    int threadValue;
+    int threadValue=1;
+
     int threadAlpha;
     int threadBeta,threadID;
     _TpvLine *threadPline;

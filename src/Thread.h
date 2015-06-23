@@ -76,7 +76,9 @@ public:
             execRunnable = this->_runnable;
         }
         if (theThread) {
+            //theThread->detach();
             delete theThread;
+            theThread = nullptr;
         }
         theThread = new thread(__run, execRunnable);
     }

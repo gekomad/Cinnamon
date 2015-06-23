@@ -274,7 +274,9 @@ void Search::deleteGtb() {
 }
 
 void Search::run() {
+    finished=false;
     threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
+    finished=true;
 }
 
 

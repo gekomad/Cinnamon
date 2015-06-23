@@ -204,6 +204,7 @@ void IterativeDeeping::run() {
             search[k].search(mply, -_INFINITE, _INFINITE, &line1[k], &mateIn, -1);
             search[k].start();
             search[k].join();
+            search[k].stop();
             val = search[k].getValue();
         } else {
             k = 0;
@@ -212,60 +213,68 @@ void IterativeDeeping::run() {
             ASSERT(search[k].getRunning());
             search[k].search(mply, val - VAL_WINDOW, val + VAL_WINDOW, &line1[k], &mateIn, k);
             search[k].start();
-           // search[k].join();
+            //search[k].join();
             k = 1;
             //if (tmp[k] <= val - VAL_WINDOW || tmp[k] >= val + VAL_WINDOW) {
             memset(&line1[k], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
             ASSERT(search[k].getRunning());
+
             search[k].search(mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &line1[k], &mateIn, k);
             search[k].start();
-          //  search[k].join();
+            //search[k].join();
             k = 2;
             //}
             //if (tmp <= val - VAL_WINDOW * 2 || tmp >= val + VAL_WINDOW * 2) {
             memset(&line1[k], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
             ASSERT(search[k].getRunning());
+
             search[k].search(mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &line1[k], &mateIn, k);
             search[k].start();
-           // search[k].join();
+            //search[k].join();
             k = 3;
             //}
             //if (tmp <= val - VAL_WINDOW * 4 || tmp >= val + VAL_WINDOW * 4) {
             memset(&line1[k], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
             ASSERT(search[k].getRunning());
+
             search[k].search(mply, -_INFINITE, _INFINITE, &line1[k], &mateIn, k);
             search[k].start();
-          //  search[k].join();
+            //search[k].join();
             search[0].join();
             int tmp1 = search[0].getValue();
             if (tmp1 > val - VAL_WINDOW && tmp1 < val + VAL_WINDOW) {
                 threadWin = 0;
-                search[1].stop1();
-                search[2].stop1();
-                search[3].stop1();
-                search[1].join();
-                search[2].join();
-                search[3].join();
+                search[1].setRunning(0);
+                search[2].setRunning(0);
+                search[3].setRunning(0);
+                while(!search[1].finished)cout <<"a1\n";
+                while(!search[2].finished)cout <<"a2\n";
+                while(!search[3].finished)cout <<"a3\n";
+                search[1].stop();
+                search[2].stop();
+                search[3].stop();
             } else {
                 search[1].join();
                 tmp1 = search[1].getValue();
                 if (tmp1 > val - VAL_WINDOW * 2 && tmp1 < val + VAL_WINDOW * 2) {
                     threadWin = 1;
-                    search[2].stop1();
-                    search[3].stop1();
-                    search[2].join();
-                    search[3].join();
+                    search[2].setRunning(0);
+                    search[3].setRunning(0);
+                    while(!search[2].finished)cout <<"a4\n";
+                    while(!search[3].finished)cout <<"a5\n";
+                    search[2].stop();
+                    search[3].stop();
                 } else {
                     search[2].join();
                     tmp1 = search[2].getValue();
                     if (tmp1 > val - VAL_WINDOW * 4 && tmp1 < val + VAL_WINDOW * 4) {
                         threadWin = 2;
-                        search[3].stop1();
-
-                        search[3].join();
+                        search[3].setRunning(0);
+                        while(!search[3].finished)cout <<"a6\n";
+                        search[3].stop();
                     } else {
                         search[3].join();
                         threadWin = 3;
