@@ -43,7 +43,7 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
 }
 
 void IterativeDeeping::setMaxTimeMillsec(int i) {
-    for (Search& s:search) {
+    for (Search &s:search) {
         s.setMaxTimeMillsec(i);
     }
 }
@@ -156,7 +156,7 @@ void IterativeDeeping::run() {
     string pvv;
     _Tmove move2;
     int TimeTaken = 0;
-    for (Search& s:search) {
+    for (Search &s:search) {
         s.setRunning(2);
     }
     int mply = 0;
@@ -176,7 +176,7 @@ void IterativeDeeping::run() {
     string ponderMove;
     val = 0;
     mply = 0;
-    for (Search& s:search) {
+    for (Search &s:search) {
         s.startClock();
         s.clearKillerHeuristic();
         s.clearAge();
@@ -193,7 +193,7 @@ void IterativeDeeping::run() {
     int threadWin = 0;
     while (search[0].getRunning() && mateIn == INT_MAX) {
         ++mply;
-        for (Search& s:search) {
+        for (Search &s:search) {
             s.init();
             s.setMainPly(mply);
         }
@@ -201,7 +201,7 @@ void IterativeDeeping::run() {
         if (mply == 1) {
             memset(&line1[k], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            search[k].search(mply, -_INFINITE, _INFINITE, &line1[k], &mateIn);
+            search[k].search(mply, -_INFINITE, _INFINITE, &line1[k], &mateIn, -1);
             search[k].start();
             search[k].join();
             val = search[k].getValue();
@@ -209,53 +209,63 @@ void IterativeDeeping::run() {
             k = 0;
             memset(&line1[k], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            search[k].search(mply, val - VAL_WINDOW, val + VAL_WINDOW, &line1[k], &mateIn);
+            ASSERT(search[k].getRunning());
+            search[k].search(mply, val - VAL_WINDOW, val + VAL_WINDOW, &line1[k], &mateIn, k);
             search[k].start();
-
+           // search[k].join();
             k = 1;
             //if (tmp[k] <= val - VAL_WINDOW || tmp[k] >= val + VAL_WINDOW) {
             memset(&line1[k], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            search[k].search(mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &line1[k], &mateIn);
+            ASSERT(search[k].getRunning());
+            search[k].search(mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &line1[k], &mateIn, k);
             search[k].start();
-
+          //  search[k].join();
             k = 2;
             //}
             //if (tmp <= val - VAL_WINDOW * 2 || tmp >= val + VAL_WINDOW * 2) {
             memset(&line1[k], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            search[k].search(mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &line1[k], &mateIn);
+            ASSERT(search[k].getRunning());
+            search[k].search(mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &line1[k], &mateIn, k);
             search[k].start();
-
+           // search[k].join();
             k = 3;
             //}
             //if (tmp <= val - VAL_WINDOW * 4 || tmp >= val + VAL_WINDOW * 4) {
             memset(&line1[k], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            search[k].search(mply, -_INFINITE, _INFINITE, &line1[k], &mateIn);
+            ASSERT(search[k].getRunning());
+            search[k].search(mply, -_INFINITE, _INFINITE, &line1[k], &mateIn, k);
             search[k].start();
-
-            //for (int i = 0; i < 4; i++) {
+          //  search[k].join();
             search[0].join();
             int tmp1 = search[0].getValue();
-            if (tmp1 >val -VAL_WINDOW && tmp1 < val + VAL_WINDOW) {
+            if (tmp1 > val - VAL_WINDOW && tmp1 < val + VAL_WINDOW) {
                 threadWin = 0;
                 search[1].stop1();
                 search[2].stop1();
                 search[3].stop1();
+                search[1].join();
+                search[2].join();
+                search[3].join();
             } else {
                 search[1].join();
                 tmp1 = search[1].getValue();
-                if (tmp1 >val-VAL_WINDOW * 2 && tmp1 < val + VAL_WINDOW * 2) {
+                if (tmp1 > val - VAL_WINDOW * 2 && tmp1 < val + VAL_WINDOW * 2) {
                     threadWin = 1;
                     search[2].stop1();
                     search[3].stop1();
+                    search[2].join();
+                    search[3].join();
                 } else {
                     search[2].join();
                     tmp1 = search[2].getValue();
-                    if (tmp1 > val-VAL_WINDOW * 4 && tmp1 < val + VAL_WINDOW * 4) {
+                    if (tmp1 > val - VAL_WINDOW * 4 && tmp1 < val + VAL_WINDOW * 4) {
                         threadWin = 2;
                         search[3].stop1();
+
+                        search[3].join();
                     } else {
                         search[3].join();
                         threadWin = 3;
@@ -270,17 +280,20 @@ void IterativeDeeping::run() {
             break;
         }
         totMoves = 0;
-        if (mply == 2) {
-            search[0].setRunning(1);
+        //if (mply == 2)
+        {
+            for (Search &s:search) {
+                s.setRunning(1);
+            }
         }
         memcpy(&move2, line1[threadWin].argmove, sizeof(_Tmove));
         pvv.clear();
         string pvvTmp;
         for (int t = 0; t < line1[threadWin].cmove; t++) {
             pvvTmp.clear();
-            pvvTmp += Search::decodeBoardinv(line1[threadWin].argmove[t].type, line1[threadWin].argmove[t].from, search[0].getSide());
+            pvvTmp += Search::decodeBoardinv(line1[threadWin].argmove[t].type, line1[threadWin].argmove[t].from, search[threadWin].getSide());
             if (pvvTmp.length() != 4) {
-                pvvTmp += Search::decodeBoardinv(line1[threadWin].argmove[t].type, line1[threadWin].argmove[t].to, search[0].getSide());
+                pvvTmp += Search::decodeBoardinv(line1[threadWin].argmove[t].type, line1[threadWin].argmove[t].to, search[threadWin].getSide());
             }
             pvv += pvvTmp;
             if (t == 1) {
@@ -289,7 +302,9 @@ void IterativeDeeping::run() {
             pvv += " ";
         };
         memcpy(&resultMove, &move2, sizeof(_Tmove));
-        search[0].incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
+        for (Search &s:search) {
+            s.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
+        }
         ftime(&end1);
         TimeTaken = _time::diffTime(end1, start1);
         totMoves += search[0].getTotMoves();
@@ -345,7 +360,7 @@ void IterativeDeeping::run() {
             search[threadWin].setForceCheck(b);
         }
         if (print) {
-            resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? search[0].getPieceAt<WHITE>(POW2[resultMove.to]) : search[0].getPieceAt<BLACK>(POW2[resultMove.to]);
+            resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? search[threadWin].getPieceAt<WHITE>(POW2[resultMove.to]) : search[threadWin].getPieceAt<BLACK>(POW2[resultMove.to]);
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
             if (!(resultMove.type & (Search::KING_SIDE_CASTLE_MOVE_MASK | Search::QUEEN_SIDE_CASTLE_MOVE_MASK))) {
                 bestmove += Search::decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
@@ -359,15 +374,17 @@ void IterativeDeeping::run() {
                 cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
             }
         }
-        if (search[0].getForceCheck()) {
-            search[0].setForceCheck(false);
-            search[0].setRunning(1);
-        } else if (abs(sc) > _INFINITE - MAX_PLY) {
-            search[0].setForceCheck(true);
-            search[0].setRunning(2);
-        }
-        if (mply >= maxDepth + extension && (search[0].getRunning() != 2 || inMate)) {
-            break;
+        for (Search &s:search) {
+            if (s.getForceCheck()) {
+               s.setForceCheck(false);
+                s.setRunning(1);
+            } else if (abs(sc) > _INFINITE - MAX_PLY) {
+                s.setForceCheck(true);
+                s.setRunning(2);
+            }
+            if (mply >= maxDepth + extension && (search[0].getRunning() != 2 || inMate)) {
+                break;
+            }
         }
         if (abs(sc) > _INFINITE - MAX_PLY) {
             inMate = true;

@@ -183,7 +183,7 @@ protected:
     static const int MAX_REP_COUNT = 1024;
     static const int NO_PROMOTION = -1;
     int repetitionMapCount;
-    int running;
+
     u64 *repetitionMap;
     int currentPly;
     bool perftMode = false;
@@ -232,6 +232,10 @@ protected:
         return &gen_list[listId].moveList[i];
     }
 
+    void setRunning(int t) {
+        running = t;
+    }
+    int getRunning() { return running ; }
     template<int side>
     bool inCheck() {
         return attackSquare<side>(BITScanForward(chessboard[KING_BLACK + side]));
@@ -253,6 +257,7 @@ protected:
 
 
 private:
+    int running;
     bool forceCheck = false;
     static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;

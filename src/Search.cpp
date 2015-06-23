@@ -38,7 +38,7 @@ void Search::setMainPly(int m) {
 }
 
 int Search::checkTime() {
-    if (running == 2) {
+    if (getRunning() == 2) {
         return 2;
     }
     if (ponder) {
@@ -57,12 +57,12 @@ Search::~Search() {
 
 template<int side>
 int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIECE, int depth) {
-    if (!running) {
+    if (!getRunning()) {
         return 0;
     }
     ASSERT(chessboard[KING_BLACK + side]);
     if (!(numMovesq++ & 1023)) {
-        running = checkTime();
+        setRunning( checkTime());
     }
     int score = getScore(side, alpha, beta);
     if (score >= beta) {
@@ -154,7 +154,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
         if (score > alpha) {
             if (score >= beta) {
                 decListId();
-                recordHash(running, phashe_greater, phashe_always, depth, hashfBETA, zobristKeyR, score, move);
+                recordHash(getRunning(), phashe_greater, phashe_always, depth, hashfBETA, zobristKeyR, score, move);
                 return beta;
             }
             best = move;
@@ -162,7 +162,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
             hashf = hashfEXACT;
         }
     }
-    recordHash(running, phashe_greater, phashe_always, depth, hashf, zobristKeyR, score, best);
+    recordHash(getRunning(), phashe_greater, phashe_always, depth, hashf, zobristKeyR, score, best);
     decListId();
     return score;
 }
@@ -172,14 +172,15 @@ void Search::setPonder(bool r) {
 }
 
 void Search::setRunning(int r) {
-    running = r;
+    GenMoves::setRunning(r);
     if (!r) {
         maxTimeMillsec = 0;
     }
 }
 
 int Search::getRunning() {
-    return running;
+    int t= GenMoves::getRunning();
+    return t;
 }
 
 void Search::setMaxTimeMillsec(int n) {
@@ -277,20 +278,20 @@ void Search::run() {
 }
 
 
-void Search::search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn) {
+void Search::search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn,int threadID1) {
     threadDepth = depth;
     threadAlpha = alpha;
     threadBeta = beta;
     threadPline = pline;
     threadMateIn = mateIn;
-
+    threadID = threadID1;
     //return getSide() ? search<WHITE>(depth, alpha, beta, pline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), mateIn) : search<BLACK>(depth, alpha, beta, pline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), mateIn);
 }
 
 template<int side>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
     ASSERT_RANGE(side, 0, 1);
-    if (!running) {
+    if (!getRunning()) {
         return 0;
     }
     int score = -_INFINITE;
@@ -426,7 +427,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     ///********** end hash ***************
     if (!(numMoves & 1023)) {
-        running = checkTime();
+        setRunning( checkTime());
     }
     ++numMoves;
     ///********* null move ***********
@@ -542,7 +543,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                 ASSERT(move->score == score);
                 INC(nCutAB);
                 ADD(betaEfficiency, betaEfficiencyCount / (double) listcount * 100.0);
-                recordHash(running, phashe_greater, phashe_always, depth - extension, hashfBETA, zobristKeyR, score, move);
+                recordHash(getRunning(), phashe_greater, phashe_always, depth - extension, hashfBETA, zobristKeyR, score, move);
                 setKillerHeuristic(move->from, move->to, 0x400);
                 return score;
             }
@@ -553,7 +554,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             updatePv(pline, &line, move);
         }
     }
-    recordHash(running, phashe_greater, phashe_always, depth - extension, hashf, zobristKeyR, score, best);
+    recordHash(getRunning(), phashe_greater, phashe_always, depth - extension, hashf, zobristKeyR, score, best);
     decListId();
     return score;
 }

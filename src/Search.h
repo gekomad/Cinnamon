@@ -49,8 +49,8 @@ public:
     void startClock();
 
     void stop1() {
-        running=0;
-        stop();
+        setRunning(0);
+        //stop();
     }
 
     int getRunning();
@@ -59,7 +59,7 @@ public:
 
     void deleteGtb();
 
-    void search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn);
+    void search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn,int threadID1);
 
     int getValue() {
         return threadValue;
@@ -92,7 +92,7 @@ private:
     int threadDepth;
     int threadValue;
     int threadAlpha;
-    int threadBeta;
+    int threadBeta,threadID;
     _TpvLine *threadPline;
     int *threadMateIn;
 
