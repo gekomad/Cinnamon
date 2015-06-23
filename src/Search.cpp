@@ -275,9 +275,13 @@ void Search::deleteGtb() {
 
 void Search::run() {
     //finished=0;
+    ASSERT(getRunning());
     threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
-
+    bool a=(getRunning() && threadPline->cmove || !getRunning() );
+    if(!a)
+        cout<<"a\n";
     notifyObservers();
+
 //finished=1;
 }
 

@@ -210,9 +210,9 @@ void IterativeDeeping::run() {
             search[k].search(mply, -_INFINITE, _INFINITE, &line1[k], &mateIn, -1);
             search[k].start();
             search[k].join();
-//            search[k].stop();
+           // search[k].stop();
             val = search[k].getValue();
-            threadWin = 0;
+            threadWin = k;
 
         } else {
             countTerminatedThread = 0;
@@ -222,7 +222,8 @@ void IterativeDeeping::run() {
             ASSERT(search[k].getRunning());
             search[k].search(mply, val - VAL_WINDOW, val + VAL_WINDOW, &line1[k], &mateIn, k);
             search[k].registerObservers([this]() {
-                ASSERT(line1[k].cmove);
+                if(!(search[k].getRunning() && line1[k].cmove || !search[k].getRunning() ))
+                    cout<<"bbbbb line1[k].cmove==0\n";
                 int t = search[k].getValue();
                 if (search[k].getRunning() && threadWin == -1 && t > val - VAL_WINDOW && t < val + VAL_WINDOW) {
                     tmp1[k] = t;
@@ -362,7 +363,7 @@ void IterativeDeeping::run() {
         TimeTaken = _time::diffTime(end1, start1);
         totMoves += search[0].getTotMoves();
         if (!pvv.length()) {
-            cout << "aaaaaaaaa\n";
+            cout << "aaa pvv.length() == 0\n";
             break;
         }
         sc = resultMove.score;
