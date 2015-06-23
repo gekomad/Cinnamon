@@ -31,7 +31,7 @@
 class Search : public Hash, public Eval, public Thread {
 
 public:
-    bool finished = true;
+   // int finished;
     Search();
 
     virtual ~Search();
@@ -58,6 +58,10 @@ public:
 
     int getValue() {
         return threadValue;
+    }
+
+    void registerObservers(function<void(void)> f) {
+        observers.push_back(f);
     }
 
     virtual void run();
@@ -111,6 +115,10 @@ private:
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
+    vector<function<void(void)>> observers;
+
+    void notifyObservers(void);
+
 
 };
 

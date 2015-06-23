@@ -32,7 +32,7 @@ using namespace std;
 namespace _board {
 
     static const string NAME = "Cinnamon 1.2c-SNAPSHOT";
-    static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    static const string STARTPOS = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
 
     typedef unsigned char uchar;
 
@@ -82,6 +82,8 @@ namespace _board {
         int cmove;
         _Tmove argmove[MAX_PLY];
     } _TpvLine;
+
+    static const int N_THREAD = 5;
 
     static const int BLACK = 0;
     static const int WHITE = 1;

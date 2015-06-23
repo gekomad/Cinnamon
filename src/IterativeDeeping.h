@@ -38,7 +38,7 @@ public:
     virtual ~ IterativeDeeping();
 
     //TODO private
-    Search search[5];
+    Search search[N_THREAD];
 
     mutex mutex1;
 

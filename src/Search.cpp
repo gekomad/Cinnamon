@@ -274,11 +274,18 @@ void Search::deleteGtb() {
 }
 
 void Search::run() {
-    finished=false;
+    //finished=0;
     threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
-    finished=true;
+
+    notifyObservers();
+//finished=1;
 }
 
+void Search::notifyObservers(void) {
+    for (auto i = observers.begin(); i != observers.end(); ++i) {
+        (*i)();
+    }
+}
 
 void Search::search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn,int threadID1) {
     threadDepth = depth;
