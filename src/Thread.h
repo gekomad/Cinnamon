@@ -71,8 +71,8 @@ public:
         cv.notify_all();
     }
 
-    void start() {
 
+    void start() {
         if (!theThread) {
             if (this->_runnable != nullptr) {
                 execRunnable = this->_runnable;
@@ -80,6 +80,8 @@ public:
 
             //delete theThread;
             //gtheThread = nullptr;
+        } else {
+            delete theThread;
         }
         theThread = new thread(__run, execRunnable);
 
@@ -100,6 +102,10 @@ public:
     void sleep(bool b) {
         _running = !b;
     }
+
+//    void terminate() {
+//        std::terminate();
+//    }
 
     void stop() {
         if (theThread) {
