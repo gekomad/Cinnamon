@@ -199,7 +199,68 @@ void IterativeDeeping::run() {
     atomic<int> static threadWin;
     atomic<int> static countTerminatedThread;
 
+    search[0].registerObservers([this]() {
+        lock_guard<mutex> lock(mutexObserver);
+        countTerminatedThread++;
+
+        if (threadWin == -1) {
+            //ASSERT(line1[0].cmove);
+            int t = search[0].getValue();
+            if (t > val - VAL_WINDOW && t < val + VAL_WINDOW) {
+                tmp1[0] = t;
+                threadWin = 0;
+                for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+            }
+            cout << "exit 0 " << countTerminatedThread << endl;
+        }
+    });
+    search[1].registerObservers([this]() {
+        lock_guard<mutex> lock(mutexObserver);
+        countTerminatedThread++;
+
+        if (threadWin == -1) {
+            //ASSERT(line1[1].cmove);
+            int t = search[1].getValue();
+            if (t > val - VAL_WINDOW * 2 && t < val + VAL_WINDOW * 2) {
+                tmp1[1] = t;
+                threadWin = 1;
+                for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+            }
+
+            cout << "exit 1 " << countTerminatedThread << endl;
+        }
+    });
+    search[2].registerObservers([this]() {
+        lock_guard<mutex> lock(mutexObserver);
+        countTerminatedThread++;
+
+        if (threadWin == -1) {
+
+            // ASSERT(line1[2].cmove);
+            int t = search[2].getValue();
+            if (t > val - VAL_WINDOW * 4 && t < val + VAL_WINDOW * 4) {
+                tmp1[2] = t;
+                threadWin = 2;
+                for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+            }
+            cout << "exit 2 " << countTerminatedThread << endl;
+        }
+    });
+    search[3].registerObservers([this]() {
+        lock_guard<mutex> lock(mutexObserver);
+        countTerminatedThread++;
+
+        if (threadWin == -1) {
+            ASSERT(line1[3].cmove);
+            tmp1[3] = search[3].getValue();
+            threadWin = 3;
+            for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+
+            cout << "exit 3 " << countTerminatedThread << endl;
+        }
+    });
     while (search[0].getRunning() && mateIn == INT_MAX) {
+
         //while (1) {
         ++mply;
         for (Search &s:search) {
@@ -226,50 +287,17 @@ void IterativeDeeping::run() {
             mateIn = INT_MAX;
             ASSERT(search[0].getRunning());
             search[0].search(mply, val - VAL_WINDOW, val + VAL_WINDOW, &line1[0], &mateIn, 0);
-            search[0].registerObservers([this]() {
-                countTerminatedThread++;
-                if (threadWin == -1) {
-                    lock_guard<mutex> lock(mutexObserver);
-                    bool x = (search[0].getRunning() && line1[0].cmove || !search[0].getRunning());
-                    if (!x) {
-                        cout << "bbbbb line1[0].cmove==0\n";
-                        ASSERT(0);
-                    }
-                    ASSERT(line1[0].cmove);
-                    int t = search[0].getValue();
-                    if (t > val - VAL_WINDOW && t < val + VAL_WINDOW) {
-                        tmp1[0] = t;
-                        threadWin = 0;
-                        for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
-                    }
 
-                    cout << "exit 0 " << countTerminatedThread << endl;
-                }
-            });
             search[0].start();
             //search[k].join();
             //k = 1;
             //if (tmp[k] <= val - VAL_WINDOW || tmp[k] >= val + VAL_WINDOW) {
             memset(&line1[1], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            ASSERT(search[1].getRunning());
+           // ASSERT(search[1].getRunning());
 
             search[1].search(mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &line1[1], &mateIn, 1);
-            search[1].registerObservers([this]() {
-                countTerminatedThread++;
-                if (threadWin == -1) {
-                    lock_guard<mutex> lock(mutexObserver);
-                    ASSERT(line1[1].cmove);
-                    int t = search[1].getValue();
-                    if (t > val - VAL_WINDOW * 2 && t < val + VAL_WINDOW * 2) {
-                        tmp1[1] = t;
-                        threadWin = 1;
-                        for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
-                    }
 
-                    cout << "exit 1 " << countTerminatedThread << endl;
-                }
-            });
             search[1].start();
             //search[k].join();
             //k = 2;
@@ -277,23 +305,10 @@ void IterativeDeeping::run() {
             //if (tmp <= val - VAL_WINDOW * 2 || tmp >= val + VAL_WINDOW * 2) {
             memset(&line1[2], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            ASSERT(search[2].getRunning());
+          //  ASSERT(search[2].getRunning());
 
             search[2].search(mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &line1[2], &mateIn, 2);
-            search[2].registerObservers([this]() {
-                countTerminatedThread++;
-                if (threadWin == -1) {
-                    lock_guard<mutex> lock(mutexObserver);
-                    ASSERT(line1[2].cmove);
-                    int t = search[2].getValue();
-                    if (t > val - VAL_WINDOW * 4 && t < val + VAL_WINDOW * 4) {
-                        tmp1[2] = t;
-                        threadWin = 2;
-                        for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
-                    }
-                    cout << "exit 2 " << countTerminatedThread << endl;
-                }
-            });
+
             search[2].start();
             //search[k].join();
             //k = 3;
@@ -301,21 +316,10 @@ void IterativeDeeping::run() {
             //if (tmp <= val - VAL_WINDOW * 4 || tmp >= val + VAL_WINDOW * 4) {
             memset(&line1[3], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            ASSERT(search[3].getRunning());
+            // ASSERT(search[3].getRunning());
 
             search[3].search(mply, -_INFINITE, _INFINITE, &line1[3], &mateIn, 3);
-            search[3].registerObservers([this]() {
-                countTerminatedThread++;
-                if (threadWin == -1) {
-                    lock_guard<mutex> lock(mutexObserver);
-                    ASSERT(line1[3].cmove);
-                    tmp1[3] = search[3].getValue();
-                    threadWin = 3;
-                    for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
 
-                    cout << "exit 3 " << countTerminatedThread << endl;
-                }
-            });
             search[3].start();
 
             int x = 0;

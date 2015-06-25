@@ -62,7 +62,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     }
     ASSERT(chessboard[KING_BLACK + side]);
     if (!(numMovesq++ & 1023)) {
-        setRunning( checkTime());
+        setRunning(checkTime());
     }
     int score = getScore(side, alpha, beta);
     if (score >= beta) {
@@ -179,7 +179,7 @@ void Search::setRunning(int r) {
 }
 
 int Search::getRunning() {
-    int t= GenMoves::getRunning();
+    int t = GenMoves::getRunning();
     return t;
 }
 
@@ -274,23 +274,23 @@ void Search::deleteGtb() {
 }
 
 void Search::run() {
-    //finished=0;
-    ASSERT(getRunning());
+//    if (!getRunning()) {
+//        return;
+//    }
+   // ASSERT(getRunning());
     threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
-    bool a=(getRunning() && threadPline->cmove || !getRunning() );
-    ASSERT(a);
+    ASSERT(getRunning() && threadPline->cmove || !getRunning());
     notifyObservers();
-
-//finished=1;
 }
 
 void Search::notifyObservers(void) {
+    ASSERT(observers.size() == 1);
     for (auto i = observers.begin(); i != observers.end(); ++i) {
         (*i)();
     }
 }
 
-void Search::search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn,int threadID1) {
+void Search::search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn, int threadID1) {
     threadDepth = depth;
     threadAlpha = alpha;
     threadBeta = beta;
@@ -438,7 +438,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     ///********** end hash ***************
     if (!(numMoves & 1023)) {
-        setRunning( checkTime());
+        setRunning(checkTime());
     }
     ++numMoves;
     ///********* null move ***********
