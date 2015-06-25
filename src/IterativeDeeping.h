@@ -41,7 +41,7 @@ public:
     Search search[N_THREAD];
 
     mutex mutex1;
-
+    mutex mutexObserver;
     virtual void run();
 
     bool getPonderEnabled();

@@ -184,6 +184,7 @@ void IterativeDeeping::run() {
         s.clearKillerHeuristic();
         s.clearAge();
         s.setForceCheck(false);
+
     }
     ftime(&start1);
     memset(&resultMove, 0, sizeof(resultMove));
@@ -194,7 +195,7 @@ void IterativeDeeping::run() {
     int extension = 0;
     string bestmove;
 
-    atomic<int> static tmp1[N_THREAD];
+    int static tmp1[N_THREAD];
     atomic<int> static threadWin;
     atomic<int> static countTerminatedThread;
 
@@ -202,11 +203,9 @@ void IterativeDeeping::run() {
         //while (1) {
         ++mply;
         for (Search &s:search) {
-            s.init();
+            s.init();//TODO eliminarlo e metterlo fuori dal while
             s.setMainPly(mply);
         }
-        //static int k = 0;
-        //static volatile int threadWin = -1;
 
         threadWin = -1;
         countTerminatedThread = 0;
@@ -228,21 +227,24 @@ void IterativeDeeping::run() {
             ASSERT(search[0].getRunning());
             search[0].search(mply, val - VAL_WINDOW, val + VAL_WINDOW, &line1[0], &mateIn, 0);
             search[0].registerObservers([this]() {
-
-                bool x = (search[0].getRunning() && line1[0].cmove || !search[0].getRunning());
-                if (!x) {
-                    cout << "bbbbb line1[0].cmove==0\n";
-                    ASSERT(0);
-                }
-
-                int t = search[0].getValue();
-                if (search[0].getRunning() && threadWin == -1 && t > val - VAL_WINDOW && t < val + VAL_WINDOW) {
-                    tmp1[0] = t;
-                    threadWin = 0;
-                    for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
-                }
                 countTerminatedThread++;
-                cout <<"exit 0 "<<countTerminatedThread <<endl;
+                if (threadWin == -1) {
+                    lock_guard<mutex> lock(mutexObserver);
+                    bool x = (search[0].getRunning() && line1[0].cmove || !search[0].getRunning());
+                    if (!x) {
+                        cout << "bbbbb line1[0].cmove==0\n";
+                        ASSERT(0);
+                    }
+                    ASSERT(line1[0].cmove);
+                    int t = search[0].getValue();
+                    if (t > val - VAL_WINDOW && t < val + VAL_WINDOW) {
+                        tmp1[0] = t;
+                        threadWin = 0;
+                        for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+                    }
+
+                    cout << "exit 0 " << countTerminatedThread << endl;
+                }
             });
             search[0].start();
             //search[k].join();
@@ -254,16 +256,19 @@ void IterativeDeeping::run() {
 
             search[1].search(mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &line1[1], &mateIn, 1);
             search[1].registerObservers([this]() {
-                ASSERT(line1[1].cmove);
-                int t = search[1].getValue();
-                if (search[1].getRunning() && threadWin == -1 && t > val - VAL_WINDOW * 2 && t < val + VAL_WINDOW * 2) {
-                    tmp1[1] = t;
-                    threadWin = 1;
-                    for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
-                }
                 countTerminatedThread++;
-                cout <<"exit 1 "<<countTerminatedThread <<endl;
+                if (threadWin == -1) {
+                    lock_guard<mutex> lock(mutexObserver);
+                    ASSERT(line1[1].cmove);
+                    int t = search[1].getValue();
+                    if (t > val - VAL_WINDOW * 2 && t < val + VAL_WINDOW * 2) {
+                        tmp1[1] = t;
+                        threadWin = 1;
+                        for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+                    }
 
+                    cout << "exit 1 " << countTerminatedThread << endl;
+                }
             });
             search[1].start();
             //search[k].join();
@@ -276,17 +281,18 @@ void IterativeDeeping::run() {
 
             search[2].search(mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &line1[2], &mateIn, 2);
             search[2].registerObservers([this]() {
-
-                ASSERT(line1[2].cmove);
-                int t = search[2].getValue();
-                if (search[2].getRunning() && threadWin == -1 && t > val - VAL_WINDOW * 4 && t < val + VAL_WINDOW * 4) {
-                    tmp1[2] = t;
-                    threadWin = 2;
-                    for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
-
-                }
                 countTerminatedThread++;
-                cout <<"exit 2 "<<countTerminatedThread <<endl;
+                if (threadWin == -1) {
+                    lock_guard<mutex> lock(mutexObserver);
+                    ASSERT(line1[2].cmove);
+                    int t = search[2].getValue();
+                    if (t > val - VAL_WINDOW * 4 && t < val + VAL_WINDOW * 4) {
+                        tmp1[2] = t;
+                        threadWin = 2;
+                        for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+                    }
+                    cout << "exit 2 " << countTerminatedThread << endl;
+                }
             });
             search[2].start();
             //search[k].join();
@@ -299,55 +305,29 @@ void IterativeDeeping::run() {
 
             search[3].search(mply, -_INFINITE, _INFINITE, &line1[3], &mateIn, 3);
             search[3].registerObservers([this]() {
-
-                if (search[3].getRunning() && threadWin == -1) {
+                countTerminatedThread++;
+                if (threadWin == -1) {
+                    lock_guard<mutex> lock(mutexObserver);
                     ASSERT(line1[3].cmove);
                     tmp1[3] = search[3].getValue();
                     threadWin = 3;
                     for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+
+                    cout << "exit 3 " << countTerminatedThread << endl;
                 }
-                countTerminatedThread++;
-                cout <<"exit 3 "<<countTerminatedThread <<endl;
             });
             search[3].start();
 
-//            search[0].join();
-//            int tmp1 = search[0].getValue();
-//            if (tmp1 > val - VAL_WINDOW && tmp1 < val + VAL_WINDOW) {
-//                threadWin = 0;
-//                search[1].setRunning(0);
-//                search[2].setRunning(0);
-//                search[3].setRunning(0);
-//            } else {
-//                search[1].join();
-//                tmp1 = search[1].getValue();
-//                if (tmp1 > val - VAL_WINDOW * 2 && tmp1 < val + VAL_WINDOW * 2) {
-//                    threadWin = 1;
-//                    search[2].setRunning(0);
-//                    search[3].setRunning(0);
-//                } else {
-//                    search[2].join();
-//                    tmp1 = search[2].getValue();
-//                    if (tmp1 > val - VAL_WINDOW * 4 && tmp1 < val + VAL_WINDOW * 4) {
-//                        threadWin = 2;
-//                        search[3].setRunning(0);
-//                    } else {
-//                        search[3].join();
-//                        threadWin = 3;
-//                        tmp1 = search[3].getValue();
-//                    }
-            //}
-            //}
-int x=0;
-            while (countTerminatedThread != 4){
+            int x = 0;
+            while (countTerminatedThread != 4) {
                 x++;
-                if(x%500000000 ==0)
-                cout << "a" << countTerminatedThread << " " << threadWin << "\n";
+                if (x % 500000000 == 0)
+                    cout << "wait " << countTerminatedThread << " " << threadWin << "\n";
             }
-            while (threadWin == -1){
+            while (threadWin == -1) {
                 x++;
-                if(x%50000000 ==0)
-                cout << (x++)<<" countTerminatedThread: " << countTerminatedThread << " threadWin: " << threadWin << "\n";
+                if (x % 50000000 == 0)
+                    cout << (x++) << " countTerminatedThread: " << countTerminatedThread << " threadWin: " << threadWin << "\n";
             }
 
             ASSERT(threadWin != -1);

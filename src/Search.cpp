@@ -278,8 +278,7 @@ void Search::run() {
     ASSERT(getRunning());
     threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
     bool a=(getRunning() && threadPline->cmove || !getRunning() );
-    if(!a)
-        cout<<"a\n";
+    ASSERT(a);
     notifyObservers();
 
 //finished=1;
@@ -298,7 +297,6 @@ void Search::search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn
     threadPline = pline;
     threadMateIn = mateIn;
     threadID = threadID1;
-    //return getSide() ? search<WHITE>(depth, alpha, beta, pline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), mateIn) : search<BLACK>(depth, alpha, beta, pline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), mateIn);
 }
 
 template<int side>

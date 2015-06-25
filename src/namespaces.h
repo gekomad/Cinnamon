@@ -83,7 +83,7 @@ namespace _board {
         _Tmove argmove[MAX_PLY];
     } _TpvLine;
 
-    static const int N_THREAD = 5;
+    static const int N_THREAD = 4;
 
     static const int BLACK = 0;
     static const int WHITE = 1;
