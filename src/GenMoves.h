@@ -161,8 +161,6 @@ public:
         gen_list[listId].size = 0;
     }
 
-    int getRunning2() { return running2; }
-
     void incKillerHeuristic(const int from, const int to, const int value) {
         if (!getRunning()) {
             return;
@@ -173,8 +171,8 @@ public:
         killerHeuristic[from][to] += value;
     }
 
-    void setRunning2(int t) {
-        running2 = t;
+    void setRunningThread(int t) {
+        runningThread = t;
     }
 
 protected:
@@ -240,16 +238,12 @@ protected:
     }
 
     void setRunning(int t) {
-        running1 = t;
+        running = t;
     }
-
 
     int getRunning() {
-        //cout <<endl<<"|"<<running <<"|"<<running2<<"|"<<endl;
-        if(running2==0)return 0;
-        return running1;
+        return !runningThread ? 0 : running;
     }
-
 
     template<int side>
     bool inCheck() {
@@ -272,8 +266,8 @@ protected:
 
 
 private:
-    int running1;
-    int running2;
+    int running;
+    int runningThread;
     bool forceCheck = false;
     static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;

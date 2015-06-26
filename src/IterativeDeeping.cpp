@@ -170,7 +170,7 @@ void IterativeDeeping::run() {
     int TimeTaken = 0;
     for (Search *s:searchPool) {
         s->setRunning(2);
-        s->setRunning2(2);
+        s->setRunningThread(2);
     }
     int mply = 0;
 //    if (useBook) {
@@ -219,7 +219,7 @@ void IterativeDeeping::run() {
                 if (t > val - VAL_WINDOW && t < val + VAL_WINDOW) {
                     tmp1 = t;
                     threadWin = 0;
-                    for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunning2(0);
+                    for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunningThread(0);
                 }
                 // cout << "exit 0 " << countTerminatedThread << endl;
             }
@@ -233,7 +233,7 @@ void IterativeDeeping::run() {
                 if (t > val - VAL_WINDOW * 2 && t < val + VAL_WINDOW * 2) {
                     tmp1 = t;
                     threadWin = 1;
-                    for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunning2(0);
+                    for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunningThread(0);
                 }
 
                 // cout << "exit 1 " << countTerminatedThread << endl;
@@ -249,7 +249,7 @@ void IterativeDeeping::run() {
                 if (t > val - VAL_WINDOW * 4 && t < val + VAL_WINDOW * 4) {
                     tmp1 = t;
                     threadWin = 2;
-                    for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunning2(0);
+                    for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunningThread(0);
                 }
                 //cout << "exit 2 " << countTerminatedThread << endl;
             }
@@ -262,13 +262,13 @@ void IterativeDeeping::run() {
                 ASSERT(line1[3].cmove);
                 tmp1 = searchPool[3]->getValue();
                 threadWin = 3;
-                for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunning2(0);
+                for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunningThread(0);
 
                 // cout << "exit 3 " << countTerminatedThread << endl;
             }
         });
     }
-    while (searchPool[0]->getRunning() /*&&searchPool[0]->getRunning2() */ && mateIn == INT_MAX) {
+    while (searchPool[0]->getRunning() && mateIn == INT_MAX) {
 
         ++mply;
         for (Search *s:searchPool) {
@@ -340,7 +340,7 @@ void IterativeDeeping::run() {
 
         totMoves = 0;
         for (Search *s: searchPool) {
-            s->setRunning2(1);
+            s->setRunningThread(1);
         }
         if (mply == 2) {
             for (Search *s: searchPool) {
