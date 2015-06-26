@@ -60,6 +60,7 @@ public:
         }
         assert(0);
     }
+
     static const uchar RIGHT_KING_CASTLE_WHITE_MASK = 0x10;
     static const uchar RIGHT_QUEEN_CASTLE_WHITE_MASK = 0x20;
     static const uchar RIGHT_KING_CASTLE_BLACK_MASK = 0x40;

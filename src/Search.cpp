@@ -277,7 +277,7 @@ void Search::run() {
 //    if (!getRunning()) {
 //        return;
 //    }
-   // ASSERT(getRunning());
+    // ASSERT(getRunning());
     threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
     ASSERT(getRunning() && threadPline->cmove || !getRunning());
     notifyObservers();

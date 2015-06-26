@@ -217,7 +217,7 @@ int main(int argc, char **argv) {
                     fen = optarg;
                 } else if (opt == 'p') { //path
                     token = optarg;
-                 //   it.getGtb().setPath(token);
+                    //   it.getGtb().setPath(token);
                 } else if (opt == 's') { //scheme
                     token = optarg;
 //                    if (!it.getGtb().setScheme(token)) {

@@ -176,7 +176,6 @@ string ChessBoard::boardToFen() {
     return fen;
 }
 
-
 char ChessBoard::decodeBoard(string a) {
     for (int i = 0; i < 64; i++) {
         if (!a.compare(BOARD[i])) {

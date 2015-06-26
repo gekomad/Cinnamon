@@ -42,6 +42,7 @@ public:
 
     mutex mutex1;
     mutex mutexObserver;
+
     virtual void run();
 
     bool getPonderEnabled();
@@ -62,7 +63,7 @@ public:
 
     bool setParameter(String param, int value);
 
-   // Tablebase &getGtb();
+    // Tablebase &getGtb();
 
 private:
 

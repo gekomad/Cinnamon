@@ -1,4 +1,4 @@
-#    Cinnamon is a UCI chess engine - Makefile for cross-compile Linux/Windows/OSX
+#    Cinnamon is a UCI chess engine - Makefile for cross-compile
 #    Copyright (C) Giuseppe Cannella
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -20,13 +20,18 @@ ifndef SystemRoot
 	# *nix
 	ARC=
 	LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
-	OS=$(shell uname -s)
-	ifeq ($(OS),Darwin)
+
+	ifeq ($(shell uname -s),Darwin)
 		LIBS= -static-libgcc -static-libstdc++ -lpthread
 		OS=OSX
 	else
 		STATIC="-static "
+		OS=Linux
 	endif
+
+ 	ifneq ($(shell grep "model name" /proc/cpuinfo |grep "ARM" -c),0)
+        	OS=ARM
+    endif
 
 	RM=rm -f
 	PA="./"
@@ -61,16 +66,15 @@ ifeq ($(COMP),g++)
 	PARAM="-std=c++11 -O3 -s -pipe -finline-functions -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wall -Wcast-qual -Wextra -Wshadow "
 else
 ifeq ($(COMP),clang++)
-	PARAM="-std=c++11 -O3 -pipe  -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long  -Wcast-qual -Wextra -Wshadow "
+	PARAM="-std=c++11 -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long  -Wcast-qual -Wextra -Wshadow "
 else
-	PARAM="-std=c++11 -O3 "
+	PARAM="-std=c++11 -O3 -DNDEBUG "
 endif
 endif
-
 
 help:
 
-	@echo "Makefile for cross-compile Linux/Windows/OSX"
+	@echo "Makefile for cross-compile Linux/Windows/OSX/Raspberry"
 	@echo ""
 	@echo "make cinnamon64-modern-INTEL     > 64-bit optimized for modern Intel cpu"
 	@echo "make cinnamon64-modern-AMD       > 64-bit optimized for modern Amd cpu"
@@ -80,11 +84,11 @@ help:
 	@echo "make cinnamon32-modern           > 32-bit with sse support"
 	@echo "make cinnamon32-generic          > Unspecified 32-bit"
 	@echo ""
-	@echo "make cinnamon-native             > Optimized for native cpu"
+	@echo "make cinnamon-native             > Optimized for native cpu (also Raspberry Pi)"
 	@echo "make cinnamon-CLOP               > Enable CLOP parameter tuning"
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
-	@echo "example: make cinnamon64-modern-INTEL COMP=clang++"
+	@echo " example: make cinnamon64-modern-INTEL COMP=clang++"
 	@echo ""
 
 build:
@@ -110,7 +114,11 @@ cinnamon-CLOP:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -DCLOP -march=native" build
 
 cinnamon-native:
+ifeq ($(OS),ARM)	
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -w" build
+else
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
+endif
 
 cinnamon64-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
@@ -172,7 +180,5 @@ String.o: String.cpp
 Bits.o: Bits.cpp
 	$(COMP) -c Bits.cpp ${CFLAGS} ${ARC}
 
-
 clean:
 	$(RM) *.o $(EXE) *.gcda
-

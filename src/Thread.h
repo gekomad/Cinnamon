@@ -33,7 +33,7 @@ public:
 class Thread : virtual public Runnable {
 
 private:
-    bool _running = true;
+    bool running = true;
 
     condition_variable cv;
     thread *theThread;
@@ -60,7 +60,7 @@ public:
     }
 
     void checkWait() {
-        while (!_running) {
+        while (!running) {
             mutex mtx;
             unique_lock<mutex> lck(mtx);
             cv.wait(lck);
@@ -71,27 +71,21 @@ public:
         cv.notify_all();
     }
 
-
     void start() {
-        if (!theThread) {
-            if (this->_runnable != nullptr) {
-                execRunnable = this->_runnable;
-            }
-
-            //delete theThread;
-            //gtheThread = nullptr;
-        } else {
+        if (this->_runnable != nullptr) {
+            execRunnable = this->_runnable;
+        }
+        if (theThread) {
             delete theThread;
         }
         theThread = new thread(__run, execRunnable);
-
     }
 
     void join() {
         if (theThread) {
             theThread->join();
-            // delete theThread;
-            //theThread = nullptr;
+            delete theThread;
+            theThread = nullptr;
         }
     }
 
@@ -100,12 +94,8 @@ public:
     }
 
     void sleep(bool b) {
-        _running = !b;
+        running = !b;
     }
-
-//    void terminate() {
-//        std::terminate();
-//    }
 
     void stop() {
         if (theThread) {

@@ -31,7 +31,7 @@
 using namespace std;
 namespace _board {
 
-    static const string NAME = "Cinnamon 1.2c-SNAPSHOT";
+    static const string NAME = "Cinnamon 1.2c-parallel";
     static const string STARTPOS = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
 
     typedef unsigned char uchar;

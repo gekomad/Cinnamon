@@ -294,7 +294,7 @@ void IterativeDeeping::run() {
             //if (tmp[k] <= val - VAL_WINDOW || tmp[k] >= val + VAL_WINDOW) {
             memset(&line1[1], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-           // ASSERT(search[1].getRunning());
+            // ASSERT(search[1].getRunning());
 
             search[1].search(mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &line1[1], &mateIn, 1);
 
@@ -305,7 +305,7 @@ void IterativeDeeping::run() {
             //if (tmp <= val - VAL_WINDOW * 2 || tmp >= val + VAL_WINDOW * 2) {
             memset(&line1[2], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-          //  ASSERT(search[2].getRunning());
+            //  ASSERT(search[2].getRunning());
 
             search[2].search(mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &line1[2], &mateIn, 2);
 
@@ -445,13 +445,8 @@ void IterativeDeeping::run() {
                 cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
             }
         }
-        for (Search &s:
-                search) {
-            if (s.
-
-                    getForceCheck()
-
-                    ) {
+        for (Search &s: search) {
+            if (s.getForceCheck()) {
                 s.setForceCheck(false);
                 s.setRunning(1);
             } else if (abs(sc) > _INFINITE - MAX_PLY) {

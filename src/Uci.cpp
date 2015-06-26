@@ -195,7 +195,7 @@ void Uci::listner(IterativeDeeping *it) {
                         getToken(uip, token);
                         knowCommand = true;
                         it->search[0].createGtb();
-                       // it->getGtb().setPath(token);
+                        // it->getGtb().setPath(token);
                     }
                 } else if (token == "gaviotatbcache") {
                     getToken(uip, token);
@@ -234,14 +234,14 @@ void Uci::listner(IterativeDeeping *it) {
                             if (token == "none") {
                                 it->search[0].deleteGtb();
                             } else if (token == "gaviota") {
-                              //  it->getGtb();
+                                //  it->getGtb();
                             } else {
                                 knowCommand = false;
                             }
                         }
                     } else if (token == "restart") {
                         knowCommand = true;
-                       // it->getGtb().restart();
+                        // it->getGtb().restart();
                     } else if (token == "probing") {
                         getToken(uip, token);
                         if (token == "depth") {

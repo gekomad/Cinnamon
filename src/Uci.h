@@ -34,7 +34,7 @@ public:
 
 private:
     Perft *perft = nullptr;
-
+    
     IterativeDeeping *iterativeDeeping;
     bool uciMode;
 

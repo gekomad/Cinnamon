@@ -31,7 +31,7 @@
 class Search : public Hash, public Eval, public Thread {
 
 public:
-   // int finished;
+    // int finished;
     Search();
 
     virtual ~Search();
@@ -54,7 +54,7 @@ public:
 
     void deleteGtb();
 
-    void search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn,int threadID1);
+    void search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn, int threadID1);
 
     int getValue() {
         return threadValue;
@@ -89,10 +89,10 @@ private:
     Tablebase *gtb = nullptr;
     bool ponder;
     int threadDepth;
-    int threadValue=1;
+    int threadValue = 1;
 
     int threadAlpha;
-    int threadBeta,threadID;
+    int threadBeta, threadID;
     _TpvLine *threadPline;
     int *threadMateIn;
 
@@ -115,6 +115,7 @@ private:
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
+
     vector<function<void(void)>> observers;
 
     void notifyObservers(void);
