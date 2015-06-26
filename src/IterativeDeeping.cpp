@@ -335,22 +335,23 @@ void IterativeDeeping::run() {
 
             searchPool[3]->start();
 
-            int x = 0;
-            while (countTerminatedThread != 4) {
-                x++;
-                if (x % 500000000 == 0)
-                    cout << "wait " << countTerminatedThread << " " << threadWin << "\n";
-            }
-            while (threadWin == -1) {
-                x++;
-                if (x % 50000000 == 0)
-                    cout << (x++) << " countTerminatedThread: " << countTerminatedThread << " threadWin: " << threadWin << "\n";
-            }
+//            int x = 0;
+//            while (countTerminatedThread != 4) {
+//                x++;
+//                if (x % 500000000 == 0)
+//                    cout << "wait " << countTerminatedThread << " " << threadWin << "\n";
+//            }
+//            while (threadWin == -1) {
+//                x++;
+//                if (x % 50000000 == 0)
+//                    cout << (x++) << " countTerminatedThread: " << countTerminatedThread << " threadWin: " << threadWin << "\n";
+//            }
 
-            ASSERT(threadWin != -1);
+
             for (Search *s:searchPool) {
                 s->join();
             }
+            ASSERT(threadWin != -1);
             val = tmp1[threadWin];
 
 //            while (!searchPool[0]->finished);
