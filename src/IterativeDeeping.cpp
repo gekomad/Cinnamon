@@ -21,6 +21,10 @@
 #include "namespaces.h"
 
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
+    for (int i = 0; i < N_THREAD; i++) {
+        searchPool[i] = new Search();
+    }
+
     setUseBook(false);
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
@@ -43,11 +47,12 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
     }
     inData.close();
 #endif
+
 }
 
 void IterativeDeeping::setMaxTimeMillsec(int i) {
-    for (Search &s:search) {
-        s.setMaxTimeMillsec(i);
+    for (Search *s:searchPool) {
+        s->setMaxTimeMillsec(i);
     }
 }
 
@@ -149,7 +154,7 @@ void IterativeDeeping::setUseBook(bool b) {
 }
 
 void IterativeDeeping::run() {
-    lock_guard<mutex> lock(mutex1);
+    lock_guard<mutex> lock1(mutex1);
     _Tmove resultMove;
     struct timeb start1;
     struct timeb end1;
@@ -159,8 +164,8 @@ void IterativeDeeping::run() {
     string pvv;
     _Tmove move2;
     int TimeTaken = 0;
-    for (Search &s:search) {
-        s.setRunning(2);
+    for (Search *s:searchPool) {
+        s->setRunning(2);
     }
     int mply = 0;
 //    if (useBook) {
@@ -179,11 +184,11 @@ void IterativeDeeping::run() {
     string ponderMove;
     val = 0;
     mply = 0;
-    for (Search &s:search) {
-        s.startClock();
-        s.clearKillerHeuristic();
-        s.clearAge();
-        s.setForceCheck(false);
+    for (Search *s:searchPool) {
+        s->startClock();
+        s->clearKillerHeuristic();
+        s->clearAge();
+        s->setForceCheck(false);
 
     }
     ftime(&start1);
@@ -199,73 +204,81 @@ void IterativeDeeping::run() {
     atomic<int> static threadWin;
     atomic<int> static countTerminatedThread;
 
-    search[0].registerObservers([this]() {
+    searchPool[0]->registerObservers([this]() {
         lock_guard<mutex> lock(mutexObserver);
         countTerminatedThread++;
 
         if (threadWin == -1) {
             //ASSERT(line1[0].cmove);
-            int t = search[0].getValue();
+            int t = searchPool[0]->getValue();
             if (t > val - VAL_WINDOW && t < val + VAL_WINDOW) {
                 tmp1[0] = t;
                 threadWin = 0;
-                for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+                for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunning(0);
             }
             cout << "exit 0 " << countTerminatedThread << endl;
         }
     });
-    search[1].registerObservers([this]() {
+    searchPool[1]->registerObservers([this]() {
         lock_guard<mutex> lock(mutexObserver);
         countTerminatedThread++;
 
         if (threadWin == -1) {
             //ASSERT(line1[1].cmove);
-            int t = search[1].getValue();
+            int t = searchPool[1]->getValue();
             if (t > val - VAL_WINDOW * 2 && t < val + VAL_WINDOW * 2) {
                 tmp1[1] = t;
                 threadWin = 1;
-                for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+                for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunning(0);
             }
 
             cout << "exit 1 " << countTerminatedThread << endl;
         }
     });
-    search[2].registerObservers([this]() {
+    searchPool[2]->registerObservers([this]() {
         lock_guard<mutex> lock(mutexObserver);
         countTerminatedThread++;
 
         if (threadWin == -1) {
 
             // ASSERT(line1[2].cmove);
-            int t = search[2].getValue();
+            int t = searchPool[2]->getValue();
             if (t > val - VAL_WINDOW * 4 && t < val + VAL_WINDOW * 4) {
                 tmp1[2] = t;
                 threadWin = 2;
-                for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+                for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunning(0);
             }
             cout << "exit 2 " << countTerminatedThread << endl;
         }
     });
-    search[3].registerObservers([this]() {
+    searchPool[3]->registerObservers([this]() {
         lock_guard<mutex> lock(mutexObserver);
         countTerminatedThread++;
 
         if (threadWin == -1) {
             ASSERT(line1[3].cmove);
-            tmp1[3] = search[3].getValue();
+            tmp1[3] = searchPool[3]->getValue();
             threadWin = 3;
-            for (int i = 0; i < N_THREAD; i++)search[i].setRunning(0);
+            for (int i = 0; i < N_THREAD; i++)searchPool[i]->setRunning(0);
 
             cout << "exit 3 " << countTerminatedThread << endl;
         }
     });
-    while (search[0].getRunning() && mateIn == INT_MAX) {
+    while (searchPool[0]->getRunning() && mateIn == INT_MAX) {
+//        for (int i=0;i<N_THREAD;i++) {
+//            delete  searchPool[i];
+//            searchPool[i] = new Search();
+//        }
+//
+        for (Search *s:searchPool) {
+            s->setRunning(2);
+        }
 
         //while (1) {
         ++mply;
-        for (Search &s:search) {
-            s.init();//TODO eliminarlo e metterlo fuori dal while
-            s.setMainPly(mply);
+        for (Search *s:searchPool) {
+
+            s->setMainPly(mply);
         }
 
         threadWin = -1;
@@ -273,11 +286,11 @@ void IterativeDeeping::run() {
         if (mply == 1) {
             memset(&line1[0], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            search[0].search(mply, -_INFINITE, _INFINITE, &line1[0], &mateIn, -1);
-            search[0].start();
-            search[0].join();
-            // search[k].stop();
-            val = search[0].getValue();
+            searchPool[0]->search(mply, -_INFINITE, _INFINITE, &line1[0], &mateIn, -1);
+            searchPool[0]->start();
+            searchPool[0]->join();
+            // searchPool[k].stop();
+            val = searchPool[0]->getValue();
             threadWin = 0;
 
         } else {
@@ -285,42 +298,42 @@ void IterativeDeeping::run() {
             //k = 0;
             memset(&line1[0], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            ASSERT(search[0].getRunning());
-            search[0].search(mply, val - VAL_WINDOW, val + VAL_WINDOW, &line1[0], &mateIn, 0);
+            ASSERT(searchPool[0]->getRunning());
+            searchPool[0]->search(mply, val - VAL_WINDOW, val + VAL_WINDOW, &line1[0], &mateIn, 0);
 
-            search[0].start();
-            //search[k].join();
+            searchPool[0]->start();
+            //searchPool[k].join();
             //k = 1;
             //if (tmp[k] <= val - VAL_WINDOW || tmp[k] >= val + VAL_WINDOW) {
             memset(&line1[1], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            // ASSERT(search[1].getRunning());
+            // ASSERT(searchPool[1].getRunning());
 
-            search[1].search(mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &line1[1], &mateIn, 1);
+            searchPool[1]->search(mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &line1[1], &mateIn, 1);
 
-            search[1].start();
-            //search[k].join();
+            searchPool[1]->start();
+            //searchPool[k].join();
             //k = 2;
             //}
             //if (tmp <= val - VAL_WINDOW * 2 || tmp >= val + VAL_WINDOW * 2) {
             memset(&line1[2], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            //  ASSERT(search[2].getRunning());
+            //  ASSERT(searchPool[2].getRunning());
 
-            search[2].search(mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &line1[2], &mateIn, 2);
+            searchPool[2]->search(mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &line1[2], &mateIn, 2);
 
-            search[2].start();
-            //search[k].join();
+            searchPool[2]->start();
+            //searchPool[k].join();
             //k = 3;
             //}
             //if (tmp <= val - VAL_WINDOW * 4 || tmp >= val + VAL_WINDOW * 4) {
             memset(&line1[3], 0, sizeof(_TpvLine));
             mateIn = INT_MAX;
-            // ASSERT(search[3].getRunning());
+            // ASSERT(searchPool[3].getRunning());
 
-            search[3].search(mply, -_INFINITE, _INFINITE, &line1[3], &mateIn, 3);
+            searchPool[3]->search(mply, -_INFINITE, _INFINITE, &line1[3], &mateIn, 3);
 
-            search[3].start();
+            searchPool[3]->start();
 
             int x = 0;
             while (countTerminatedThread != 4) {
@@ -335,35 +348,36 @@ void IterativeDeeping::run() {
             }
 
             ASSERT(threadWin != -1);
-            for (Search &s:search) {
-                s.join();
+            for (Search *s:searchPool) {
+                s->join();
             }
             val = tmp1[threadWin];
 
-//            while (!search[0].finished);
-//            while (!search[1].finished);
-//            while (!search[2].finished);
-//            while (!search[3].finished);
+//            while (!searchPool[0]->finished);
+//            while (!searchPool[1].finished);
+//            while (!searchPool[2].finished);
+//            while (!searchPool[3].finished);
         }
 
-//        if (!search[0].getRunning()) {
+//        if (!searchPool[0]->getRunning()) {
 //            break;
 //        }
         totMoves = 0;
 //if (mply == 2)
         {
-            for (Search &s: search) {
-                s.setRunning(1);
+            for (Search *s: searchPool) {
+                s->setRunning(1);
             }
         }
         memcpy(&move2, line1[threadWin].argmove, sizeof(_Tmove));
         pvv.clear();
         string pvvTmp;
+        ASSERT(line1[threadWin].cmove);
         for (int t = 0; t < line1[threadWin].cmove; t++) {
             pvvTmp.clear();
-            pvvTmp += Search::decodeBoardinv(line1[threadWin].argmove[t].type, line1[threadWin].argmove[t].from, search[threadWin].getSide());
+            pvvTmp += Search::decodeBoardinv(line1[threadWin].argmove[t].type, line1[threadWin].argmove[t].from, searchPool[threadWin]->getSide());
             if (pvvTmp.length() != 4) {
-                pvvTmp += Search::decodeBoardinv(line1[threadWin].argmove[t].type, line1[threadWin].argmove[t].to, search[threadWin].getSide());
+                pvvTmp += Search::decodeBoardinv(line1[threadWin].argmove[t].type, line1[threadWin].argmove[t].to, searchPool[threadWin]->getSide());
             }
             pvv += pvvTmp;
             if (t == 1) {
@@ -372,12 +386,12 @@ void IterativeDeeping::run() {
             pvv += " ";
         };
         memcpy(&resultMove, &move2, sizeof(_Tmove));
-        for (Search &s:search) {
-            s.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
+        for (Search *s:searchPool) {
+            s->incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
         }
         ftime(&end1);
         TimeTaken = _time::diffTime(end1, start1);
-        totMoves += search[0].getTotMoves();
+        totMoves += searchPool[0]->getTotMoves();
         if (!pvv.length()) {
             cout << "aaa pvv.length() == 0\n";
             break;
@@ -419,19 +433,19 @@ void IterativeDeeping::run() {
 ///is invalid move?
         bool print = true;
         if (abs(sc) > _INFINITE - MAX_PLY) {
-            bool b = search[threadWin].getForceCheck();
-            u64 oldKey = search[threadWin].zobristKey;
-            search[threadWin].setForceCheck(true);
-            bool valid = search[threadWin].makemove(&resultMove);
+            bool b = searchPool[threadWin]->getForceCheck();
+            u64 oldKey = searchPool[threadWin]->zobristKey;
+            searchPool[threadWin]->setForceCheck(true);
+            bool valid = searchPool[threadWin]->makemove(&resultMove);
             if (!valid) {
                 extension++;
                 print = false;
             }
-            search[threadWin].takeback(&resultMove, oldKey, true);
-            search[threadWin].setForceCheck(b);
+            searchPool[threadWin]->takeback(&resultMove, oldKey, true);
+            searchPool[threadWin]->setForceCheck(b);
         }
         if (print) {
-            resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? search[threadWin].getPieceAt<WHITE>(POW2[resultMove.to]) : search[threadWin].getPieceAt<BLACK>(POW2[resultMove.to]);
+            resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? searchPool[threadWin]->getPieceAt<WHITE>(POW2[resultMove.to]) : searchPool[threadWin]->getPieceAt<BLACK>(POW2[resultMove.to]);
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
             if (!(resultMove.type & (Search::KING_SIDE_CASTLE_MOVE_MASK | Search::QUEEN_SIDE_CASTLE_MOVE_MASK))) {
                 bestmove += Search::decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
@@ -445,15 +459,15 @@ void IterativeDeeping::run() {
                 cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
             }
         }
-        for (Search &s: search) {
-            if (s.getForceCheck()) {
-                s.setForceCheck(false);
-                s.setRunning(1);
+        for (Search *s: searchPool) {
+            if (s->getForceCheck()) {
+                s->setForceCheck(false);
+                s->setRunning(1);
             } else if (abs(sc) > _INFINITE - MAX_PLY) {
-                s.setForceCheck(true);
-                s.setRunning(2);
+                s->setForceCheck(true);
+                s->setRunning(2);
             }
-            if (mply >= maxDepth + extension && (search[0].getRunning() != 2 || inMate)) {
+            if (mply >= maxDepth + extension && (searchPool[0]->getRunning() != 2 || inMate)) {
                 break;
             }
         }

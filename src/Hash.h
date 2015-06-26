@@ -25,7 +25,7 @@
 
 using namespace _board;
 
-class Hash {
+class Hash {//TODO singleton
 public:
     enum : char {
         hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2

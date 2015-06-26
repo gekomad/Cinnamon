@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
                 cout << "error TB not found" << endl;
                 return 1;
             }
-            it.search[0].loadFen(fen);
+            it.searchPool[0]->loadFen(fen);
             it.printDtm();
             return 0;
         } else if (opt == 'p') {  // perft test

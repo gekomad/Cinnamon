@@ -172,7 +172,7 @@ public:
     }
 
 protected:
-    int listId = -1;
+    int listId;
     _TmoveP *gen_list;
     static const u64 RANK_1 = 0xff00ULL;
     static const u64 RANK_3 = 0xff000000ULL;
@@ -187,7 +187,7 @@ protected:
 
     u64 *repetitionMap;
     int currentPly;
-    bool perftMode = false;
+    bool perftMode;
     u64 numMoves, numMovesq;
 
     _Tmove *getNextMove(decltype(gen_list));

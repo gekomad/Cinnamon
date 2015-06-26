@@ -179,8 +179,8 @@ void Search::setRunning(int r) {
 }
 
 int Search::getRunning() {
-    int t = GenMoves::getRunning();
-    return t;
+    return GenMoves::getRunning();
+
 }
 
 void Search::setMaxTimeMillsec(int n) {
@@ -279,7 +279,7 @@ void Search::run() {
 //    }
     // ASSERT(getRunning());
     threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
-    ASSERT(getRunning() && threadPline->cmove || !getRunning());
+    //ASSERT(getRunning() && threadPline->cmove || !getRunning());
     notifyObservers();
 }
 
