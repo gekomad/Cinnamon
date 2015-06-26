@@ -38,7 +38,7 @@ public:
     virtual ~ IterativeDeeping();
 
     //TODO private
-    Search* searchPool[N_THREAD];
+    Search* searchPool[N_THREAD]={nullptr};
 
     mutex mutex1;
     mutex mutexObserver;
@@ -66,7 +66,7 @@ public:
     // Tablebase &getGtb();
 
 private:
-
+    bool searchPoolObserver=false;
     int maxDepth;
     STATIC_CONST int VAL_WINDOW = 50;
     bool useBook;

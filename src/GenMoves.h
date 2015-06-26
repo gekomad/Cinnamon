@@ -161,14 +161,20 @@ public:
         gen_list[listId].size = 0;
     }
 
+    int getRunning2() { return running2; }
+
     void incKillerHeuristic(const int from, const int to, const int value) {
-        if (!running) {
+        if (!getRunning()) {
             return;
         }
         ASSERT_RANGE(from, 0, 63);
         ASSERT_RANGE(to, 0, 63);
         ASSERT(killerHeuristic[from][to] <= killerHeuristic[from][to] + value);
         killerHeuristic[from][to] += value;
+    }
+
+    void setRunning2(int t) {
+        running2 = t;
     }
 
 protected:
@@ -234,10 +240,16 @@ protected:
     }
 
     void setRunning(int t) {
-        running = t;
+        running1 = t;
     }
 
-    int getRunning() { return running; }
+
+    int getRunning() {
+        //cout <<endl<<"|"<<running <<"|"<<running2<<"|"<<endl;
+        if(running2==0)return 0;
+        return running1;
+    }
+
 
     template<int side>
     bool inCheck() {
@@ -250,7 +262,7 @@ protected:
     }
 
     void setKillerHeuristic(const int from, const int to, const int value) {
-        if (!running) {
+        if (!getRunning()) {
             return;
         }
         ASSERT_RANGE(from, 0, 63);
@@ -260,7 +272,8 @@ protected:
 
 
 private:
-    atomic<int> running;
+    int running1;
+    int running2;
     bool forceCheck = false;
     static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
