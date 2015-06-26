@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <mutex>
 #include "Hash.h"
 
 Hash::Hash() : HASH_SIZE(0) {
@@ -65,6 +66,7 @@ void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_alway
     if (!running) {
         return;
     }
+    lock_guard<mutex> lock(mutexRecordHash);
     ASSERT(abs(score) <= 32200);
     _Thash *phashe = phashe_greater;
     phashe->key = key;
@@ -117,4 +119,12 @@ void Hash::dispose() {
 
 Hash::~Hash() {
     dispose();
+}
+
+
+Hash & Hash::getInstance() {
+
+//    lock_guard<mutex> lock(mutex1);
+    static Hash _hash;
+    return _hash;
 }

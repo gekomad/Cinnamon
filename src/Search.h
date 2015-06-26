@@ -28,7 +28,7 @@
 #include "Thread.h"
 
 
-class Search : public Hash, public Eval, public Thread {
+class Search : public Eval, public Thread {
 
 public:
     // int finished;
@@ -79,6 +79,19 @@ public:
     STATIC_CONST int NULLMOVES_R3 = 2;
     STATIC_CONST int NULLMOVES_R4 = 2;
 
+    void clearAge() {
+        hash.clearAge();
+    }
+    int getHashSize() {
+        return hash.getHashSize();
+    }
+    bool setHashSize(int i) {
+        return hash.setHashSize(i);
+    }
+    void clearHash() {
+         hash.clearHash();
+    }
+
 
 protected:
 
@@ -86,6 +99,7 @@ protected:
     unsigned cumulativeMovesCount, totGen;
 #endif
 private:
+    Hash &hash;
     Tablebase *gtb = nullptr;
     bool ponder;
     int threadDepth;
@@ -109,7 +123,7 @@ private:
 
     bool checkInsufficientMaterial(int);
 
-    void sortHashMoves(int listId, _Thash *);
+    void sortHashMoves(int listId, Hash::_Thash *);
 
     template<int side>
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);

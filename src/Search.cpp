@@ -18,11 +18,12 @@
 
 #include "Search.h"
 
-Search::Search() : ponder(false), nullSearch(false) {
+Search::Search() : ponder(false), nullSearch(false),hash(Hash::getInstance()) {
 #ifdef DEBUG_MODE
     LazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
     gtb = nullptr;
+    //hash = Hash::getInstance();
 }
 
 void Search::setNullMove(bool b) {
@@ -69,42 +70,42 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
         return beta;
     }
     ///************* hash ****************
-    _Thash *phashe_always = nullptr;
-    _Thash *phashe;
+    Hash::_Thash *phashe_always = nullptr;
+    Hash::_Thash *phashe;
     bool hash_greater = false;
     bool hash_always = false;
-    char hashf = hashfALPHA;
+    char hashf = Hash::hashfALPHA;
     u64 zobristKeyR = zobristKey ^RANDSIDE[side];
-    _Thash *phashe_greater = phashe = &(hash_array_greater[zobristKeyR % HASH_SIZE]);
+    Hash::_Thash *phashe_greater = phashe = &(hash.hash_array_greater[zobristKeyR % hash.HASH_SIZE]);
     for (int i = 0; i < 2; i++) {
         if (phashe->key == zobristKeyR) {
             if (phashe->from != phashe->to && phashe->flags & 0x3) {    // hashfEXACT or hashfBETA
                 !i ? hash_greater = true : hash_always = true;
             }
             if (phashe->depth >= depth) {
-                INC(probeHash);
+                INC(hash.probeHash);
                 if (!currentPly) {
-                    if (phashe->flags == hashfBETA) {
+                    if (phashe->flags == Hash::hashfBETA) {
                         incKillerHeuristic(phashe->from, phashe->to, 1);
                     }
                 } else {
-                    if (phashe->flags == hashfALPHA) {
+                    if (phashe->flags == Hash::hashfALPHA) {
                         if (phashe->score <= alpha) {
-                            INC(n_cut_hashA);
+                            INC(hash.n_cut_hashA);
                             return alpha;
                         }
                     } else {
-                        ASSERT(phashe->flags == hashfEXACT || phashe->flags == hashfBETA);
+                        ASSERT(phashe->flags == Hash::hashfEXACT || phashe->flags == Hash::hashfBETA);
                         if (phashe->score >= beta) {
-                            INC(n_cut_hashB);
+                            INC(hash.n_cut_hashB);
                             return beta;
                         }
                     }
                 }
-                INC(cutFailed);
+                INC(hash.cutFailed);
             }
         }
-        phashe_always = phashe = &(hash_array_always[zobristKeyR % HASH_SIZE]);
+        phashe_always = phashe = &(hash.hash_array_always[zobristKeyR % hash.HASH_SIZE]);
     }
     ///********** end hash ***************
     /**************Delta Pruning ****************/
@@ -154,15 +155,15 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
         if (score > alpha) {
             if (score >= beta) {
                 decListId();
-                recordHash(getRunning(), phashe_greater, phashe_always, depth, hashfBETA, zobristKeyR, score, move);
+                hash.recordHash(getRunning(), phashe_greater, phashe_always, depth, Hash::hashfBETA, zobristKeyR, score, move);
                 return beta;
             }
             best = move;
             alpha = score;
-            hashf = hashfEXACT;
+            hashf = Hash::hashfEXACT;
         }
     }
-    recordHash(getRunning(), phashe_greater, phashe_always, depth, hashf, zobristKeyR, score, best);
+    hash.recordHash(getRunning(), phashe_greater, phashe_always, depth, hashf, zobristKeyR, score, best);
     decListId();
     return score;
 }
@@ -191,7 +192,7 @@ int Search::getMaxTimeMillsec() {
     return maxTimeMillsec;
 }
 
-void Search::sortHashMoves(int listId1, _Thash *phashe) {
+void Search::sortHashMoves(int listId1, Hash::_Thash *phashe) {
     for (int r = 0; r < gen_list[listId1].size; r++) {
         _Tmove *mos = &gen_list[listId1].moveList[r];
         if (phashe && phashe->from == mos->from && phashe->to == mos->to) {
@@ -357,82 +358,82 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     //************* hash ****************
     bool hash_greater = false;
     u64 zobristKeyR = zobristKey ^RANDSIDE[side];
-    _Thash *phashe_greater = &(hash_array_greater[zobristKeyR % HASH_SIZE]);
+    Hash::_Thash *phashe_greater = &(hash.hash_array_greater[zobristKeyR % hash.HASH_SIZE]);
     if (phashe_greater->key == zobristKeyR) {
         if (phashe_greater->from != phashe_greater->to && phashe_greater->flags & 0x3) {    // hashfEXACT or hashfBETA
             hash_greater = true;
         }
         if (phashe_greater->depth >= depth) {
-            INC(probeHash);
+            INC(hash.probeHash);
             if (!currentPly) {
-                if (phashe_greater->flags == hashfBETA) {
+                if (phashe_greater->flags == Hash::hashfBETA) {
                     incKillerHeuristic(phashe_greater->from, phashe_greater->to, 1);
                 }
             } else {
                 switch (phashe_greater->flags) {
-                    case hashfEXACT:
-                        INC(n_cut_hashE);
+                    case Hash::hashfEXACT:
+                        INC(hash.n_cut_hashE);
                         if (phashe_greater->score >= beta) {
                             return beta;
                         }
                         break;
-                    case hashfBETA:
+                    case Hash::hashfBETA:
                         incKillerHeuristic(phashe_greater->from, phashe_greater->to, 1);
                         if (phashe_greater->score >= beta) {
-                            INC(n_cut_hashB);
+                            INC(hash.n_cut_hashB);
                             return beta;
                         }
                         break;
-                    case hashfALPHA:
+                    case Hash::hashfALPHA:
                         if (phashe_greater->score <= alpha) {
-                            INC(n_cut_hashA);
+                            INC(hash.n_cut_hashA);
                             return alpha;
                         }
                         break;
                     default:
                         break;
                 }
-                INC(cutFailed);
+                INC(hash.cutFailed);
             }
         }
     }
     bool hash_always = false;
-    _Thash *phashe_always = &(hash_array_always[zobristKeyR % HASH_SIZE]);
+    Hash::_Thash *phashe_always = &(hash.hash_array_always[zobristKeyR % hash.HASH_SIZE]);
     if (phashe_always->key == zobristKeyR) {
         if (phashe_always->from != phashe_always->to && phashe_always->flags & 0x3) {    // hashfEXACT or hashfBETA
             hash_always = true;
         }
         if (phashe_always->depth >= depth) {
-            INC(probeHash);
+            INC(hash.probeHash);
             if (!currentPly) {
-                if (phashe_always->flags == hashfBETA) {
+                if (phashe_always->flags == Hash::hashfBETA) {
                     incKillerHeuristic(phashe_always->from, phashe_always->to, 1);
                 }
             } else {
                 switch (phashe_always->flags) {
-                    case hashfEXACT:
-                        INC(n_cut_hashE);
+                    case Hash::hashfEXACT:
+                        INC(hash.n_cut_hashE);
                         if (phashe_always->score >= beta) {
                             return beta;
                         }
                         break;
-                    case hashfBETA:
+                    case Hash::hashfBETA:
                         incKillerHeuristic(phashe_always->from, phashe_always->to, 1);
                         if (phashe_always->score >= beta) {
-                            INC(n_cut_hashB);
+                            INC(hash.n_cut_hashB);
                             return beta;
                         }
                         break;
-                    case hashfALPHA:
+                    case Hash::hashfALPHA:
                         if (phashe_always->score <= alpha) {
-                            INC(n_cut_hashA);
+                            INC(hash.n_cut_hashA);
                             return alpha;
                         }
                         break;
                     default:
                         break;
                 }
-                INC(cutFailed);
+                INC(hash.cutFailed);
             }
         }
     }
@@ -509,7 +510,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     _Tmove *move;
     bool checkInCheck = false;
     int countMove = 0;
-    char hashf = hashfALPHA;
+    char hashf = Hash::hashfALPHA;
     while ((move = getNextMove(&gen_list[listId]))) {
         countMove++;
         INC(betaEfficiencyCount);
@@ -554,18 +555,18 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                 ASSERT(move->score == score);
                 INC(nCutAB);
                 ADD(betaEfficiency, betaEfficiencyCount / (double) listcount * 100.0);
-                recordHash(getRunning(), phashe_greater, phashe_always, depth - extension, hashfBETA, zobristKeyR, score, move);
+                hash.recordHash(getRunning(), phashe_greater, phashe_always, depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
                 setKillerHeuristic(move->from, move->to, 0x400);
                 return score;
             }
             alpha = score;
-            hashf = hashfEXACT;
+            hashf = Hash::hashfEXACT;
             best = move;
             move->score = score;    //used in it
             updatePv(pline, &line, move);
         }
     }
-    recordHash(getRunning(), phashe_greater, phashe_always, depth - extension, hashf, zobristKeyR, score, best);
+    hash.recordHash(getRunning(), phashe_greater, phashe_always, depth - extension, hashf, zobristKeyR, score, best);
     decListId();
     return score;
 }

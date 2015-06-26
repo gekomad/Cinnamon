@@ -22,27 +22,12 @@
 #include <iostream>
 #include <string.h>
 #include "namespaces.h"
+#include <mutex>
 
 using namespace _board;
 
 class Hash {//TODO singleton
 public:
-    enum : char {
-        hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2
-    };
-
-    Hash();
-
-    virtual ~Hash();
-
-    bool setHashSize(int mb);
-
-    int getHashSize();
-
-    void clearHash();
-
-    void clearAge();
-protected:
 
 #pragma pack(push)
 #pragma pack(1)
@@ -56,21 +41,43 @@ protected:
         uchar flags:2;
     } _Thash;
 #pragma pack(pop)
-
-    int HASH_SIZE;
+    enum : char {
+        hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2
+    };
+    //TODO private
     _Thash *hash_array_greater;
     _Thash *hash_array_always;
-
-    void recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
-
+    int HASH_SIZE;
 #ifdef DEBUG_MODE
     unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions;
     unsigned n_cut_hash;
     int n_cut_hashA, n_cut_hashE, n_cut_hashB, cutFailed, probeHash;
 #endif
 
+    virtual ~Hash();
+
+    bool setHashSize(int mb);
+
+    int getHashSize();
+
+    void clearHash();
+
+    void clearAge();
+
+
+    void recordHash(bool running, Hash::_Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
+
+    static Hash &getInstance();
+
 private:
+    Hash();
+
     void dispose();
+
+    mutex mutexRecordHash;
+
+
+
 };
 
 #endif
