@@ -26,7 +26,7 @@
 
 using namespace _board;
 
-class Hash {//TODO singleton
+class Hash {
 public:
 
 #pragma pack(push)

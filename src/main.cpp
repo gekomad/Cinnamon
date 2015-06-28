@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
 #ifdef HAS_BSF
     cout << "bsf ";
 #endif
-    cout << "version compiled " << __DATE__ << " with ";
+    cout << "compiled " << __DATE__ << " with ";
 #if defined(__clang__)
     cout <<"Clang/LLVM "<<__clang_major__<<"."<<__clang_minor__<<"."<<__clang_patchlevel__;
 #elif defined(__ICC) || defined(__INTEL_COMPILER)
@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
                 cout << "error TB not found" << endl;
                 return 1;
             }
-            it.searchPool[0]->loadFen(fen);
+            it.loadFen(fen);
             it.printDtm();
             return 0;
         } else if (opt == 'p') {  // perft test

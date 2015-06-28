@@ -18,7 +18,7 @@
 
 #include "Search.h"
 
-Search::Search() : ponder(false), nullSearch(false),hash(Hash::getInstance()) {
+Search::Search() : ponder(false), nullSearch(false), hash(Hash::getInstance()) {
 #ifdef DEBUG_MODE
     LazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
@@ -275,13 +275,15 @@ void Search::deleteGtb() {
 }
 
 void Search::run() {
-//    if (!getRunning()) {
-//        return;
-//    }
-    // ASSERT(getRunning());
+    if (!getRunning()) {
+        return;
+    }
+//    ASSERT(getRunning());
     threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
     //ASSERT(getRunning() && threadPline->cmove || !getRunning());
-    notifyObservers();
+    if(threadPline->cmove) {
+        notifyObservers();
+    }
 }
 
 void Search::notifyObservers(void) {

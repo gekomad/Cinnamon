@@ -22,26 +22,22 @@
 #include <cstring>
 #include <string.h>
 #include "String.h"
-#include "Search.h"
 #include "Thread.h"
 #include "OpenBook.h"
-#include <mutex>
+#include "SearchPool.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+
 class IterativeDeeping : public Thread {
 public:
+    mutex mutexIT;
+
     IterativeDeeping();
 
     void setMaxTimeMillsec(int i);
 
     virtual ~ IterativeDeeping();
-
-    //TODO private
-    Search* searchPool[N_THREAD]={nullptr};
-
-    mutex mutex1;
-    mutex mutexObserver;
 
     virtual void run();
 
@@ -65,10 +61,57 @@ public:
 
     // Tablebase &getGtb();
 
+   // int loadFen(string fen);
+    virtual int loadFen(string fen = "");
+    void display();
+
+    int getHashSize();
+
+    bool setHashSize(int i);
+
+    void setRunning(bool i);
+
+    void startClock();
+
+    void setPonder(bool i);
+
+    string getFen();
+
+    int getSide();
+
+    int getScore(int side);
+
+    //u64 getBitBoard();
+
+    void clearHash();
+
+    int getMaxTimeMillsec();
+
+    void setNullMove(bool i);
+
+    void makemove(_Tmove *ptr);
+
+    void setSide(bool i);
+
+    int getMoveFromSan(String string, _Tmove *ptr);
+
+
+    void pushStackMove();
+
+    void init();
+
+    void setRepetitionMapCount(int i);
+
+    void deleteGtb();
+
+    void createGtb();
+
+
 private:
-    bool searchPoolObserver=false;
+
+    SearchPool& searchPool = SearchPool::getInstance();
     int maxDepth;
-    STATIC_CONST int VAL_WINDOW = 50;
+
     bool useBook;
 
     OpenBook *openBook;

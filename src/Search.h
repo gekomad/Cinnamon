@@ -57,6 +57,7 @@ public:
     void search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn, int threadID1);
 
     int getValue() {
+        ASSERT(threadValue != INT_MAX);
         return threadValue;
     }
 
@@ -82,14 +83,17 @@ public:
     void clearAge() {
         hash.clearAge();
     }
+
     int getHashSize() {
         return hash.getHashSize();
     }
+
     bool setHashSize(int i) {
         return hash.setHashSize(i);
     }
+
     void clearHash() {
-         hash.clearHash();
+        hash.clearHash();
     }
 
 
@@ -103,7 +107,7 @@ private:
     Tablebase *gtb = nullptr;
     bool ponder;
     int threadDepth;
-    int threadValue = 1;
+    int threadValue = INT_MAX;
 
     int threadAlpha;
     int threadBeta, threadID;

@@ -55,12 +55,12 @@ namespace _board {
 #define ADD(a, b)
 #endif
     static const int MAX_PLY = 96;
-#if defined(CLOP) || defined(DEBUG_MODE)
+#if defined(CLOP)
 #define STATIC_CONST
 #else
 #define STATIC_CONST static const
 #endif
-
+    STATIC_CONST int VAL_WINDOW = 50;
     typedef struct {
         char promotionPiece;
         char pieceFrom;
@@ -83,7 +83,7 @@ namespace _board {
         _Tmove argmove[MAX_PLY];
     } _TpvLine;
 
-    static const int N_THREAD = 4;
+
 
     static const int BLACK = 0;
     static const int WHITE = 1;
