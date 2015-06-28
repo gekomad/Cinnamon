@@ -31,7 +31,7 @@
 class Search : public Eval, public Thread {
 
 public:
-    // int finished;
+
     Search();
 
     virtual ~Search();

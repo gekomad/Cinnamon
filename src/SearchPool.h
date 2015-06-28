@@ -35,7 +35,7 @@ public:
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
     int loadFen(string fen) {
-        int i;
+        int i = 0;
         for (Search *s:searchPool) {
             i = s->loadFen(fen);
         }
@@ -73,7 +73,7 @@ public:
     }
 
     int getValue(int i) {
-        searchPool[i]->getValue();
+       return searchPool[i]->getValue();
     }
 
 
@@ -158,7 +158,7 @@ public:
     }
 
     string getFen() {
-        searchPool[0]->getFen();
+        return searchPool[0]->getFen();
     }
 
     bool setHashSize(int s) {

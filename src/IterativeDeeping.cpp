@@ -18,7 +18,6 @@
 #include <unistd.h>
 #include <atomic>
 #include "IterativeDeeping.h"
-#include "namespaces.h"
 
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
 
@@ -195,7 +194,7 @@ void IterativeDeeping::run() {
     int extension = 0;
     string bestmove;
     string ponderMove;
-    int val;
+    int val = 0;
     while (searchPool.getRunning(0) /*&& mateIn == INT_MAX*/) {
 
         ++mply;
@@ -471,7 +470,7 @@ void IterativeDeeping::startClock() {
 }
 
 string IterativeDeeping::getFen() {
-    searchPool.getFen();
+    return searchPool.getFen();
 }
 
 void IterativeDeeping::setPonder(bool i) {

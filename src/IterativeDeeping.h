@@ -22,12 +22,12 @@
 #include <cstring>
 #include <string.h>
 #include "String.h"
+#include "SearchPool.h"
 #include "Thread.h"
 #include "OpenBook.h"
-#include "SearchPool.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "namespaces.h"
 
 class IterativeDeeping : public Thread {
 public:
