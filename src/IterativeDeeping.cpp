@@ -209,7 +209,7 @@ void IterativeDeeping::run() {
             searchPool.setRunning(2);
             mateIn[k] = INT_MAX;
             searchPool.startThread(k, mply, -_INFINITE, _INFINITE, &mateIn[k]);
-            //searchPool.join(k);
+            searchPool.join(k);
             val = searchPool.getValue(k);
 
         } else {
