@@ -22,6 +22,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include "namespaces.h"
 
 using namespace std;
 
@@ -82,7 +83,9 @@ public:
     }
 
     void join() {
+        ASSERT(theThread);
         if (theThread) {
+            ASSERT(isJoinable());
             theThread->join();
             delete theThread;
             theThread = nullptr;

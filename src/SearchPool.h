@@ -26,6 +26,7 @@
 class SearchPool {
 public:
     static const int N_THREAD = 4;
+
     static SearchPool &getInstance() {
         static SearchPool _instance;
         return _instance;
@@ -259,7 +260,6 @@ public:
 private:
 
     int val;
-
     atomic<int> threadWin;
     _TpvLine line1[N_THREAD];//TODO metterlo dentro search
     bool searchPoolObserver = false;
