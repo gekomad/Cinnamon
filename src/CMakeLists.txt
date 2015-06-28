@@ -26,6 +26,8 @@ set(SOURCE_FILES
     Perft.h
     Search.cpp
     Search.h
+    SearchPool.cpp
+    SearchPool.h
     stacktrace.h
     String.cpp
     String.h

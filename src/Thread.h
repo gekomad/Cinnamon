@@ -83,7 +83,6 @@ public:
     }
 
     void join() {
-        ASSERT(theThread);
         if (theThread) {
             ASSERT(isJoinable());
             theThread->join();
