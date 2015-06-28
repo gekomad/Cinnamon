@@ -32,7 +32,7 @@ public:
         return _instance;
     }
 
-    void getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
+    bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
     int loadFen(string fen) {
         int i;
@@ -260,7 +260,7 @@ public:
 private:
 
     int val;
-    atomic<int> threadWin;
+    int threadWin;
     _TpvLine line1[N_THREAD];//TODO metterlo dentro search
     bool searchPoolObserver = false;
     Search *searchPool[N_THREAD] = {nullptr};

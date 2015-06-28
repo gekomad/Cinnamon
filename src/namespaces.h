@@ -84,7 +84,6 @@ namespace _board {
     } _TpvLine;
 
 
-
     static const int BLACK = 0;
     static const int WHITE = 1;
     static const int _INFINITE = 32000;

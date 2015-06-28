@@ -192,8 +192,8 @@ protected:
     u64 *repetitionMap;
     int currentPly;
     bool perftMode;
-    u64 numMoves=0;
-    u64 numMovesq=0;
+    u64 numMoves = 0;
+    u64 numMovesq = 0;
 
     _Tmove *getNextMove(decltype(gen_list));
 

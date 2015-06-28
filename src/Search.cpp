@@ -281,8 +281,8 @@ void Search::run() {
 //    ASSERT(getRunning());
     threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
     //ASSERT(getRunning() && threadPline->cmove || !getRunning());
-    if(threadPline->cmove) {
-        ASSERT(threadValue!=INT_MAX);
+    if (threadPline->cmove) {
+        ASSERT(threadValue != INT_MAX);
         notifyObservers();
     }
 }

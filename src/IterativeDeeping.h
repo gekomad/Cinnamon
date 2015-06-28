@@ -61,8 +61,9 @@ public:
 
     // Tablebase &getGtb();
 
-   // int loadFen(string fen);
+    // int loadFen(string fen);
     virtual int loadFen(string fen = "");
+
     void display();
 
     int getHashSize();
@@ -109,7 +110,7 @@ public:
 
 private:
 
-    SearchPool& searchPool = SearchPool::getInstance();
+    SearchPool &searchPool = SearchPool::getInstance();
     int maxDepth;
 
     bool useBook;

@@ -253,16 +253,16 @@ void IterativeDeeping::run() {
         string pvv;
         _Tmove resultMove;
 
-        searchPool.getRes(resultMove, ponderMove, pvv);
+        if (!searchPool.getRes(resultMove, ponderMove, pvv)) {
+
+            break;
+        }
         searchPool.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
 
         ftime(&end1);
         TimeTaken = _time::diffTime(end1, start1);
         totMoves += searchPool.getTotMoves();
-        if (!pvv.length()) {
-            ASSERT(0);
-            break;
-        }
+
         sc = resultMove.score;
         if (resultMove.score > _INFINITE - MAX_PLY) {
             sc = 0x7fffffff;

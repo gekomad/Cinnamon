@@ -122,7 +122,7 @@ Hash::~Hash() {
 }
 
 
-Hash & Hash::getInstance() {
+Hash &Hash::getInstance() {
 
 //    lock_guard<mutex> lock(mutex1);
     static Hash _hash;

@@ -77,7 +77,6 @@ private:
     mutex mutexRecordHash;
 
 
-
 };
 
 #endif

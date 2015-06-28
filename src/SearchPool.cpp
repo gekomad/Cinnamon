@@ -26,12 +26,14 @@ SearchPool::~SearchPool() {
     }
 }
 
-void SearchPool::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
-
+bool SearchPool::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
+    if (threadWin == -1) {
+        return false;
+    }
     pvv.clear();
     string pvvTmp;
-    ASSERT(threadWin != -1);
-    ASSERT_RANGE(threadWin, 0, N_THREAD - 1);
+    //ASSERT(threadWin != -1 || threadWin == -1 && !searchPool[0]->getRunning() && !searchPool[1]->getRunning() && !searchPool[2]->getRunning() && !searchPool[3]->getRunning());
+    //ASSERT_RANGE(threadWin, 0, N_THREAD - 1);
     ASSERT(line1[threadWin].cmove);
     for (int t = 0; t < line1[threadWin].cmove; t++) {
         pvvTmp.clear();
@@ -46,7 +48,7 @@ void SearchPool::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
         pvv.append(" ");
     };
     memcpy(&resultMove, line1[threadWin].argmove, sizeof(_Tmove));
-
+    return true;
 }
 
 SearchPool::SearchPool() {
@@ -57,58 +59,66 @@ SearchPool::SearchPool() {
     if (!searchPoolObserver) {
         searchPoolObserver = true;
         searchPool[0]->registerObservers([this]() {
-
-            if (threadWin == -1) {
+            if (getRunning(0)) {
                 lock_guard<mutex> lock(mutexSearch);
-
-                int t = searchPool[0]->getValue();
-                if (t > val - VAL_WINDOW && t < val + VAL_WINDOW) {
-                    ASSERT(line1[0].cmove);
-                    val = t;
-                    threadWin = 0;
-                    for (Search *s:searchPool) {
-                        s->setRunningThread(0);
+                if (threadWin == -1) {
+                    int t = searchPool[0]->getValue();
+                    if (t > val - VAL_WINDOW && t < val + VAL_WINDOW) {
+                        ASSERT(line1[0].cmove);
+                        val = t;
+                        threadWin = 0;
+                        for (Search *s:searchPool) {
+                            s->setRunningThread(0);
+                        }
                     }
                 }
             }
         });
         searchPool[1]->registerObservers([this]() {
-
-            if (threadWin == -1) {
+            if (getRunning(1)) {
                 lock_guard<mutex> lock(mutexSearch);
-                int t = searchPool[1]->getValue();
-                if (t > val - VAL_WINDOW * 2 && t < val + VAL_WINDOW * 2) {
-                    ASSERT(line1[1].cmove);
-                    val = t;
-                    threadWin = 1;
-                    for (Search *s:searchPool) {
-                        s->setRunningThread(0);
+                if (threadWin == -1) {
+
+                    int t = searchPool[1]->getValue();
+                    if (t > val - VAL_WINDOW * 2 && t < val + VAL_WINDOW * 2) {
+                        ASSERT(line1[1].cmove);
+                        val = t;
+                        threadWin = 1;
+                        for (Search *s:searchPool) {
+                            s->setRunningThread(0);
+                        }
                     }
                 }
             }
         });
         searchPool[2]->registerObservers([this]() {
-            if (threadWin == -1) {
+            if (getRunning(2)) {
                 lock_guard<mutex> lock(mutexSearch);
-                int t = searchPool[2]->getValue();
-                if (t > val - VAL_WINDOW * 4 && t < val + VAL_WINDOW * 4) {
-                    ASSERT(line1[2].cmove);
-                    val = t;
-                    threadWin = 2;
-                    for (Search *s:searchPool) {
-                        s->setRunningThread(0);
+                if (threadWin == -1) {
+
+                    int t = searchPool[2]->getValue();
+                    if (t > val - VAL_WINDOW * 4 && t < val + VAL_WINDOW * 4) {
+                        ASSERT(line1[2].cmove);
+                        val = t;
+                        threadWin = 2;
+                        for (Search *s:searchPool) {
+                            s->setRunningThread(0);
+                        }
                     }
                 }
             }
         });
         searchPool[3]->registerObservers([this]() {
-            if (threadWin == -1) {
+            if (getRunning(3)) {
                 lock_guard<mutex> lock(mutexSearch);
-                ASSERT(line1[3].cmove);
-                val = searchPool[3]->getValue();
-                threadWin = 3;
-                for (Search *s:searchPool) {
-                    s->setRunningThread(0);
+                if (threadWin == -1) {
+
+                    ASSERT(line1[3].cmove);
+                    val = searchPool[3]->getValue();
+                    threadWin = 3;
+                    for (Search *s:searchPool) {
+                        s->setRunningThread(0);
+                    }
                 }
             }
         });
