@@ -31,13 +31,29 @@
 using namespace std;
 namespace _board {
 
-    static const string NAME = "Cinnamon 1.2c-smp";
+    static const string NAME = "Cinnamon 1.2c-smp2";
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     typedef unsigned char uchar;
 
     typedef long long unsigned u64;
-    typedef u64 _Tchessboard[12];
+    typedef u64 _Tchessboard[16];
+    static const int PAWN_BLACK = 0;
+    static const int PAWN_WHITE = 1;
+    static const int ROOK_BLACK = 2;
+    static const int ROOK_WHITE = 3;
+    static const int BISHOP_BLACK = 4;
+    static const int BISHOP_WHITE = 5;
+    static const int KNIGHT_BLACK = 6;
+    static const int KNIGHT_WHITE = 7;
+    static const int KING_BLACK = 8;
+    static const int KING_WHITE = 9;
+    static const int QUEEN_BLACK = 10;
+    static const int QUEEN_WHITE = 11;
+    static const int RIGHT_CASTLE_IDX = 12;
+    static const int ENPASSANT_IDX = 13;
+    static const int SIDETOMOVE_IDX = 14;
+    static const int ZOBRISTKEY_IDX = 15;
 
 #define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<_time::getLocalTime()<<" ********************************** assert error in "<<_file::extractFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;exit(1);};
 

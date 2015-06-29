@@ -37,8 +37,8 @@ public:
 
     virtual ~ChessBoard();
 
-    uchar rightCastle;
-    u64 zobristKey;
+    // uchar rightCastle;
+    //u64 zobristKey;
 
 
     static string decodeBoardinv(const uchar type, const int a, const int side) {
@@ -81,7 +81,7 @@ public:
     static const int KING_WHITE = 9;
     static const int QUEEN_BLACK = 10;
     static const int QUEEN_WHITE = 11;
-    static const int NO_ENPASSANT = -1;
+    static const int NO_ENPASSANT = INT_MAX;
     static const uchar KING_SIDE_CASTLE_MOVE_MASK = 0x4;
     static const uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0x8;
 
@@ -109,11 +109,11 @@ public:
     }
 
     void setSide(bool b) {
-        sideToMove = b;
+        chessboard[SIDETOMOVE_IDX] = b;
     }
 
     int getSide() {
-        return sideToMove;
+        return chessboard[SIDETOMOVE_IDX];
     }
 
     template<int side>
@@ -186,13 +186,7 @@ protected:
     static const u64 BLACK_SQUARES = 0x55AA55AA55AA55AAULL;
     static const u64 WHITE_SQUARES = 0xAA55AA55AA55AA55ULL;
 
-
-    int enpassantPosition;
-
-
     _Tboard structure;
-    bool sideToMove;
-
 
     void makeZobristKey();
 
@@ -207,13 +201,13 @@ protected:
         ASSERT_RANGE(position, 0, 63);
         ASSERT(piece != 12);
         ASSERT_RANGE(piece, 0, 14);
-        zobristKey ^= _random::RANDOM_KEY[piece][position];
+        chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];
     }
 
     int getPieceAt(int side, u64 bitmapPos);
 
 #else
-#define updateZobristKey(piece, position) (zobristKey ^= _random::RANDOM_KEY[piece][position])
+#define updateZobristKey(piece, position) (chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position])
 
 #endif
 private:

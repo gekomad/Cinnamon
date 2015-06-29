@@ -154,7 +154,7 @@ public:
     }
 
     void pushStackMove() {
-        pushStackMove(zobristKey);
+        pushStackMove(chessboard[ZOBRISTKEY_IDX]);
     }
 
     void resetList() {

@@ -21,7 +21,7 @@
 ChessBoard::ChessBoard() {
     fenString = string(STARTPOS);
     memset(&structure, 0, sizeof(_Tboard));
-    sideToMove = loadFen(fenString);
+    chessboard[SIDETOMOVE_IDX] = loadFen(fenString);
 }
 
 ChessBoard::~ChessBoard() {
@@ -40,17 +40,18 @@ int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
 #endif
 
 uchar ChessBoard::getRightCastle() {
-    return rightCastle;
+    return (uchar) chessboard[RIGHT_CASTLE_IDX];
 }
 
 void ChessBoard::setRightCastle(uchar r) {
-    rightCastle = r;
+    chessboard[RIGHT_CASTLE_IDX] = r;
 }
 
 void ChessBoard::makeZobristKey() {
-    zobristKey = 0;
+    chessboard[ZOBRISTKEY_IDX] = 0;
     int i = 0;
-    for (u64 c:chessboard) {
+    for (int u = 0; u < 12; u++) {
+        u64 c = chessboard[u];
         while (c) {
             int position = BITScanForward(c);
             updateZobristKey(i, position);
@@ -58,16 +59,17 @@ void ChessBoard::makeZobristKey() {
         }
         i++;
     }
-    if (enpassantPosition != NO_ENPASSANT) {
-        updateZobristKey(13, enpassantPosition);
+    if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
+        updateZobristKey(13, chessboard[ENPASSANT_IDX]);
     }
-    u64 x2 = rightCastle;
+    u64 x2 = chessboard[RIGHT_CASTLE_IDX];
     while (x2) {
         int position = BITScanForward(x2);
         updateZobristKey(14, position);
         x2 &= NOTPOW2[position];
     }
 }
+
 
 string ChessBoard::getFen() {
     return fenString;
@@ -98,10 +100,10 @@ void ChessBoard::display() {
     cout << "     a   b   c   d   e   f   g   h\n\n\n" << boardToFen() << "\n" << endl;
 #ifdef DEBUG_MODE
 
-    cout << "zobristKey: " << zobristKey << "\n";
-    cout << "enpassantPosition: " << enpassantPosition << "\n";
-    cout << "rightCastle: " << (int) rightCastle << "\n";
-    cout << "sideToMove: " << sideToMove << "\n";
+    cout << "zobristKey: " << chessboard[ZOBRISTKEY_IDX] << "\n";
+    cout << "enpassantPosition: " << chessboard[ENPASSANT_IDX] << "\n";
+    cout << "rightCastle: " << (int) chessboard[RIGHT_CASTLE_IDX] << "\n";
+    cout << "sideToMove: " << chessboard[SIDETOMOVE_IDX] << "\n";
 
 #endif
 }
@@ -142,36 +144,36 @@ string ChessBoard::boardToFen() {
             fen.append("/");
         }
     }
-    if (sideToMove == BLACK) {
+    if (chessboard[SIDETOMOVE_IDX] == BLACK) {
         fen.append(" b ");
     } else {
         fen.append(" w ");
     }
     int cst = 0;
-    if (rightCastle & RIGHT_KING_CASTLE_WHITE_MASK) {
+    if (chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK) {
         fen.append("K");
         cst++;
     }
-    if (rightCastle & RIGHT_QUEEN_CASTLE_WHITE_MASK) {
+    if (chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK) {
         fen.append("Q");
         cst++;
     }
-    if (rightCastle & RIGHT_KING_CASTLE_BLACK_MASK) {
+    if (chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK) {
         fen.append("k");
         cst++;
     }
-    if (rightCastle & RIGHT_QUEEN_CASTLE_BLACK_MASK) {
+    if (chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK) {
         fen.append("q");
         cst++;
     }
     if (!cst) {
         fen.append("-");
     }
-    if (enpassantPosition == NO_ENPASSANT) {
+    if (chessboard[ENPASSANT_IDX] == NO_ENPASSANT) {
         fen.append(" -");
     } else {
         fen.append(" ");
-        sideToMove ? fen.append(BOARD[enpassantPosition + 8]) : fen.append(BOARD[enpassantPosition - 8]);
+        chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(BOARD[chessboard[ENPASSANT_IDX] - 8]);
     }
     return fen;
 }
@@ -214,59 +216,61 @@ int ChessBoard::loadFen(string fen) {
                 }
             } else {
                 cout << "Bad FEN position format (" << (char) ch << ") " << fen << endl;
-                return sideToMove;
+                return chessboard[SIDETOMOVE_IDX];//TODO retun -1
             };
         }
     }
     if (ix != 64) {
         cout << "Bad FEN position format " << fen << endl;
-        return sideToMove;
+        return chessboard[SIDETOMOVE_IDX];//TODO retun -1
     }
     if (side == "b") {
-        sideToMove = BLACK;
+        chessboard[SIDETOMOVE_IDX] = BLACK;
     } else if (side == "w") {
-        sideToMove = WHITE;
+        chessboard[SIDETOMOVE_IDX] = WHITE;
     } else {
         cout << "Bad FEN position format " << fen << endl;
-        return sideToMove;
+        return chessboard[SIDETOMOVE_IDX];//TODO retun -1
     }
-    memset(chessboard, 0, sizeof(chessboard));
+    //memset(chessboard, 0, sizeof(chessboard));//TODO eliminare
     for (int i = 0; i < 64; i++) {
         int p = s[63 - i];
         if (p != SQUARE_FREE) {
             chessboard[p] |= POW2[i];
+        } else {
+            chessboard[p] &= NOTPOW2[i];
         }
     };
-    rightCastle = 0;
+    chessboard[RIGHT_CASTLE_IDX] = 0;
     for (unsigned e = 0; e < castle.length(); e++) {
         switch (castle.at(e)) {
             case 'K':
-                rightCastle |= RIGHT_KING_CASTLE_WHITE_MASK;
+                chessboard[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_WHITE_MASK;
                 break;
             case 'k':
-                rightCastle |= RIGHT_KING_CASTLE_BLACK_MASK;
+                chessboard[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_BLACK_MASK;
                 break;
             case 'Q':
-                rightCastle |= RIGHT_QUEEN_CASTLE_WHITE_MASK;
+                chessboard[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_WHITE_MASK;
                 break;
             case 'q':
-                rightCastle |= RIGHT_QUEEN_CASTLE_BLACK_MASK;
+                chessboard[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_BLACK_MASK;
                 break;
             default:;
         };
     };
-    enpassantPosition = NO_ENPASSANT;
+    chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
     for (int i = 0; i < 64; i++) {
         if (enpassant == BOARD[i]) {
-            enpassantPosition = i;
-            if (sideToMove) {
-                enpassantPosition -= 8;
+            chessboard[ENPASSANT_IDX] = i;
+            if (chessboard[SIDETOMOVE_IDX]) {
+                chessboard[ENPASSANT_IDX] -= 8;
             } else {
-                enpassantPosition += 8;
+                chessboard[ENPASSANT_IDX] += 8;
             }
             break;
         }
     }
     makeZobristKey();
-    return sideToMove;
+    return chessboard[SIDETOMOVE_IDX];
 }

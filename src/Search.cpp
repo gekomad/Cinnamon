@@ -75,7 +75,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     bool hash_greater = false;
     bool hash_always = false;
     char hashf = Hash::hashfALPHA;
-    u64 zobristKeyR = zobristKey ^RANDSIDE[side];
+    u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^RANDSIDE[side];
     Hash::_Thash *phashe_greater = phashe = &(hash.hash_array_greater[zobristKeyR % hash.HASH_SIZE]);
     for (int i = 0; i < 2; i++) {
         if (phashe->key == zobristKeyR) {
@@ -131,7 +131,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     }
     _Tmove *move;
     _Tmove *best = nullptr;
-    u64 oldKey = zobristKey;
+    u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     if (hash_greater) {
         sortHashMoves(listId, phashe_greater);
     } else if (hash_always) {
@@ -312,7 +312,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     int score = -_INFINITE;
     /* gtb */
     if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(N_PIECE) && depth >= gtb->getProbeDepth()) {
-        int v = gtb->getDtm<side, false>(chessboard, rightCastle, depth);
+        int v = gtb->getDtm<side, false>(chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
         if (abs(v) != INT_MAX) {
             *mateIn = v;
             int res = 0;
@@ -330,7 +330,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             return res;
         }
     }
-    u64 oldKey = zobristKey;
+    u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     INC(cumulativeMovesCount);
 #ifdef DEBUG_MODE
     double betaEfficiencyCount = 0.0;
@@ -347,7 +347,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             }
             return -lazyEval<side>() * 2;
         }
-        if (checkDraw(zobristKey)) {
+        if (checkDraw(chessboard[ZOBRISTKEY_IDX])) {
             return -lazyEval<side>() * 2;
         }
     }
@@ -360,7 +360,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     //************* hash ****************
     bool hash_greater = false;
-    u64 zobristKeyR = zobristKey ^RANDSIDE[side];
+    u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^RANDSIDE[side];
     Hash::_Thash *phashe_greater = &(hash.hash_array_greater[zobristKeyR % hash.HASH_SIZE]);
     if (phashe_greater->key == zobristKeyR) {
         if (phashe_greater->from != phashe_greater->to && phashe_greater->flags & 0x3) {    // hashfEXACT or hashfBETA

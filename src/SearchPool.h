@@ -73,7 +73,7 @@ public:
     }
 
     int getValue(int i) {
-       return searchPool[i]->getValue();
+        return searchPool[i]->getValue();
     }
 
 

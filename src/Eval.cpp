@@ -48,7 +48,7 @@ int Eval::evaluatePawn() {
         return -NO_PAWNS;
     }
     structure.isolated[side] = 0;
-    int result = MOB_PAWNS[getMobilityPawns(side, enpassantPosition, ped_friends, side == WHITE ? structure.allPiecesSide[BLACK] : structure.allPiecesSide[WHITE], ~structure.allPiecesSide[BLACK] | ~structure.allPiecesSide[WHITE])];
+    int result = MOB_PAWNS[getMobilityPawns(side, chessboard[ENPASSANT_IDX], ped_friends, side == WHITE ? structure.allPiecesSide[BLACK] : structure.allPiecesSide[WHITE], ~structure.allPiecesSide[BLACK] | ~structure.allPiecesSide[WHITE])];
     ADD(SCORE_DEBUG.MOB_PAWNS[side], result);
     if (bitCount(structure.pawns[side ^ 1]) == 8) {
         result -= ENEMIES_PAWNS_ALL;
