@@ -27,12 +27,12 @@ SearchPool::~SearchPool() {
 }
 
 int SearchPool::loadFen(string fen) {
-    int i = searchPool[0]->loadFen(fen);
-    ASSERT_RANGE(i,0,1)
+    int res = searchPool[0]->loadFen(fen);
+    ASSERT_RANGE(res,0,1)
     for (int i = 1; i < N_THREAD; i++) {
         searchPool[i]->setChessboard(searchPool[0]->getChessboard());
     }
-    return i;
+    return res;
 }
 
 bool SearchPool::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
