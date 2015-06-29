@@ -197,6 +197,7 @@ int ChessBoard::loadFen(string fen) {
     if (fen.empty()) {
         return loadFen();
     }
+    memset(chessboard, 0, sizeof(chessboard));
     istringstream iss(fen);
     string pos, castle, enpassant, side;
     iss >> pos;
@@ -232,7 +233,7 @@ int ChessBoard::loadFen(string fen) {
         cout << "Bad FEN position format " << fen << endl;
         return chessboard[SIDETOMOVE_IDX];//TODO retun -1
     }
-    //memset(chessboard, 0, sizeof(chessboard));//TODO eliminare
+
     for (int i = 0; i < 64; i++) {
         int p = s[63 - i];
         if (p != SQUARE_FREE) {

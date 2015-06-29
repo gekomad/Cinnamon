@@ -34,13 +34,7 @@ public:
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
-    int loadFen(string fen) {
-        int i = 0;
-        for (Search *s:searchPool) {
-            i = s->loadFen(fen);
-        }
-        return i;
-    }
+    int loadFen(string fen);
 
     template<int side>
     int getPieceAt(int i) {
@@ -173,9 +167,6 @@ public:
 
     ~SearchPool();
 
-    //  int loadFen();
-
-
     void setPonder(bool i) {
         for (Search *s:searchPool) {
             s->setPonder(i);
@@ -191,11 +182,6 @@ public:
         ASSERT(searchPool[0]->getScore(side) == searchPool[1]->getScore(side) == searchPool[2]->getScore(side) == searchPool[3]->getScore(side));
         return searchPool[0]->getScore(side);
     }
-
-//    u64 getBitBoard() {
-//        //ASSERT(searchPool[0]->getBitBoard() == searchPool[1]->getBitBoard() == searchPool[2]->getBitBoard() == searchPool[3]->getBitBoard());
-//        return side == WHITE ? searchPool[0]->getBitBoard<WHITE>() : searchPool[0]->getBitBoard<BLACK>();
-//    }
 
     void clearHash() {
         searchPool[0]->clearHash();

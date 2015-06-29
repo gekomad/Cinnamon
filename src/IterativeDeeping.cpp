@@ -154,14 +154,11 @@ void IterativeDeeping::run() {
     struct timeb start1;
     struct timeb end1;
 
-
-
-    // _Tmove move2;
     int TimeTaken = 0;
     searchPool.setRunningAll(2);
     searchPool.setRunningAllThread(2);
     int mply = 0;
-//    if (useBook) {
+//    if (useBook) {TODO
 //        ASSERT(openBook);
 //        string obMove = openBook->search(search.boardToFen());
 //        if (!obMove.empty()) {
@@ -175,7 +172,6 @@ void IterativeDeeping::run() {
     int sc = 0;
     u64 totMoves = 0;
 
-    //  val = 0;
     mply = 0;
 
     searchPool.startClock();
@@ -184,10 +180,8 @@ void IterativeDeeping::run() {
     searchPool.setForceCheck(false);
     searchPool.setRunning(2);
 
-
     ftime(&start1);
-    //memset(&resultMove, 0, sizeof(resultMove));
-    //ponderMove = "";
+
     int mateIn[SearchPool::N_THREAD] = {INT_MAX};
 
     bool inMate = false;
@@ -195,7 +189,7 @@ void IterativeDeeping::run() {
     string bestmove;
     string ponderMove;
     int val = 0;
-    while (searchPool.getRunning(0) /*&& mateIn == INT_MAX*/) {
+    while (searchPool.getRunning(0) /*&& mateIn == INT_MAX TODO*/) {
 
         ++mply;
 

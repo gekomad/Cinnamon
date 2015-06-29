@@ -581,3 +581,11 @@ void Search::updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move)
     ASSERT(line->cmove >= 0);
     pline->cmove = line->cmove + 1;
 }
+
+_Tchessboard& Search::getChessboard() {
+    return chessboard;
+}
+
+void Search::setChessboard(_Tchessboard& b) {
+    memcpy(chessboard,b,sizeof(chessboard));
+}

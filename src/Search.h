@@ -96,6 +96,8 @@ public:
         hash.clearHash();
     }
 
+    void setChessboard(_Tchessboard&);
+    _Tchessboard& getChessboard();
 
 protected:
 
