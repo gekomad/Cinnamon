@@ -25,6 +25,7 @@ ifndef SystemRoot
 		LIBS= -static-libgcc -static-libstdc++ -lpthread
 		OS=OSX
 	else
+		PROFILE_USE_THREAD=" -fprofile-correction -fprofile-use "
 		STATIC="-static "
 		OS=Linux
 	endif
@@ -98,7 +99,7 @@ ifeq ($(COMP),g++)
 		$(PA)$(EXE) -b >bench.tmp
 		$(RM) *.o bench.tmp
 		@echo "build..."
-		$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-use all
+		$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)$(PROFILE_USE_THREAD)  all
 else
 		$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC) all
 endif
