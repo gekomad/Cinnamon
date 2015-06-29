@@ -132,8 +132,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o SearchPool.o Search.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o
-	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o SearchPool.o Search.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o ${LIBS}
+all: namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o SearchPool.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o SearchPool.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o ${LIBS}
 
 default:
 	help
@@ -150,9 +150,6 @@ Eval.o: Eval.cpp
 GenMoves.o: GenMoves.cpp
 	$(COMP) -c GenMoves.cpp ${CFLAGS} ${ARC}
 
-SearchPool.o: SearchPool.cpp
-	$(COMP) -c SearchPool.cpp ${CFLAGS} ${ARC}
-
 IterativeDeeping.o: IterativeDeeping.cpp
 	$(COMP) -c IterativeDeeping.cpp ${CFLAGS} ${ARC}
 
@@ -164,6 +161,9 @@ Perft.o: Perft.cpp
 
 Search.o: Search.cpp
 	$(COMP) -c Search.cpp ${CFLAGS} ${ARC}
+
+SearchPool.o: SearchPool.cpp
+	$(COMP) -c SearchPool.cpp ${CFLAGS} ${ARC}
 
 Uci.o: Uci.cpp
 	$(COMP) -c Uci.cpp ${CFLAGS} ${ARC}
