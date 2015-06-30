@@ -160,25 +160,15 @@ void IterativeDeeping::run() {
             val = searchPool.getValue(k);
 
         } else {
-            int k = 0;
-
-            mateIn[k] = INT_MAX;
-            if (searchPool.getRunning(k)) {
-                searchPool.startThread(k, mply, val - VAL_WINDOW, val + VAL_WINDOW, &mateIn[k]);
+            for (int k = 0; k < 3; k++) {
+                mateIn[k] = INT_MAX;
+                if (searchPool.getRunning(k)) {
+                    int window = VAL_WINDOW * pow(2, k - 1);
+                    searchPool.startThread(k, mply, val - window, val + window, &mateIn[k]);
+                }
             }
-            k = 1;
 
-            mateIn[k] = INT_MAX;
-            if (searchPool.getRunning(k)) {
-                searchPool.startThread(k, mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &mateIn[k]);
-            }
-            k = 2;
-
-            mateIn[k] = INT_MAX;
-            if (searchPool.getRunning(k)) {
-                searchPool.startThread(k, mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &mateIn[k]);
-            }
-            k = 3;
+            int k = 3;
 
             mateIn[k] = INT_MAX;
             if (searchPool.getRunning(k)) {
@@ -186,7 +176,6 @@ void IterativeDeeping::run() {
             }
 
             searchPool.joinAll();
-
         }
 
         totMoves = 0;
