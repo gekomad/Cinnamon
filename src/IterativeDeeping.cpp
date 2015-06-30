@@ -158,17 +158,17 @@ void IterativeDeeping::run() {
     searchPool.setRunningAll(2);
     searchPool.setRunningAllThread(2);
     int mply = 0;
-//    if (useBook) {TODO
-//        ASSERT(openBook);
-//        string obMove = openBook->search(search.boardToFen());
-//        if (!obMove.empty()) {
-//            _Tmove move;
-//            search.getMoveFromSan(obMove, &move);
-//            search.makemove(&move);
-//            cout << "bestmove " << obMove << endl;
-//            return;
-//        }
-//    }
+    if (useBook) {
+        ASSERT(openBook);
+        string obMove = openBook->search(searchPool.boardToFen());
+        if (!obMove.empty()) {
+            _Tmove move;
+            searchPool.getMoveFromSan(obMove, &move);
+            searchPool.makemove(&move);
+            cout << "bestmove " << obMove << endl;
+            return;
+        }
+    }
     int sc = 0;
     u64 totMoves = 0;
 

@@ -83,6 +83,10 @@ public:
         }
     }
 
+    string boardToFen() {
+        return searchPool[0]->boardToFen();
+    }
+
     void clearKillerHeuristic() {
         for (Search *s:searchPool) {
             s->clearKillerHeuristic();
