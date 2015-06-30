@@ -77,15 +77,6 @@ bool IterativeDeeping::getUseBook() {
     return useBook;
 }
 
-//Tablebase &IterativeDeeping::getGtb() {
-//    //search.createGtb();
-//    //return search.getGtb();
-//    Tablebase a;
-//    return a;//TODO
-//}
-
-
-
 void IterativeDeeping::loadBook(string f) {
     if (!openBook) {
         openBook = new OpenBook();
@@ -161,7 +152,7 @@ void IterativeDeeping::run() {
 
         if (mply == 1) {
             int k = 3;
-            searchPool.resetPVLine(k);
+
             searchPool.setRunning(2);
             mateIn[k] = INT_MAX;
             searchPool.startThread(k, mply, -_INFINITE, _INFINITE, &mateIn[k]);
@@ -170,25 +161,25 @@ void IterativeDeeping::run() {
 
         } else {
             int k = 0;
-            searchPool.resetPVLine(k);
+
             mateIn[k] = INT_MAX;
             if (searchPool.getRunning(k)) {
                 searchPool.startThread(k, mply, val - VAL_WINDOW, val + VAL_WINDOW, &mateIn[k]);
             }
             k = 1;
-            searchPool.resetPVLine(k);
+
             mateIn[k] = INT_MAX;
             if (searchPool.getRunning(k)) {
                 searchPool.startThread(k, mply, val - VAL_WINDOW * 2, val + VAL_WINDOW * 2, &mateIn[k]);
             }
             k = 2;
-            searchPool.resetPVLine(k);
+
             mateIn[k] = INT_MAX;
             if (searchPool.getRunning(k)) {
                 searchPool.startThread(k, mply, val - VAL_WINDOW * 4, val + VAL_WINDOW * 4, &mateIn[k]);
             }
             k = 3;
-            searchPool.resetPVLine(k);
+
             mateIn[k] = INT_MAX;
             if (searchPool.getRunning(k)) {
                 searchPool.startThread(k, mply, -_INFINITE, _INFINITE, &mateIn[k]);

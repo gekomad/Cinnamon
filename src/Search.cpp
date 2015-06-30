@@ -316,13 +316,22 @@ void Search::run() {
     if (!getRunning()) {
         return;
     }
-//    ASSERT(getRunning());
-    threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, threadPline, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
-    //ASSERT(getRunning() && threadPline->cmove || !getRunning());
-    if (threadPline->cmove) {
+
+    threadValue = getSide() ? search<WHITE>(threadDepth, threadAlpha, threadBeta, &line1, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn) : search<BLACK>(threadDepth, threadAlpha, threadBeta, &line1, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), threadMateIn);
+
+    if (line1.cmove) {
         ASSERT(threadValue != INT_MAX);
         notifyObservers();
     }
+}
+
+void Search::search(int depth, int alpha, int beta, int *mateIn, int threadID1) {
+    memset(&line1, 0, sizeof(_TpvLine));
+    threadDepth = depth;
+    threadAlpha = alpha;
+    threadBeta = beta;
+    threadMateIn = mateIn;
+    threadID = threadID1;
 }
 
 void Search::notifyObservers(void) {
@@ -332,14 +341,6 @@ void Search::notifyObservers(void) {
     }
 }
 
-void Search::search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn, int threadID1) {
-    threadDepth = depth;
-    threadAlpha = alpha;
-    threadBeta = beta;
-    threadPline = pline;
-    threadMateIn = mateIn;
-    threadID = threadID1;
-}
 
 template<int side>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
@@ -620,10 +621,10 @@ void Search::updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move)
     pline->cmove = line->cmove + 1;
 }
 
-_Tchessboard& Search::getChessboard() {
+_Tchessboard &Search::getChessboard() {
     return chessboard;
 }
 
-void Search::setChessboard(_Tchessboard& b) {
-    memcpy(chessboard,b,sizeof(chessboard));
+void Search::setChessboard(_Tchessboard &b) {
+    memcpy(chessboard, b, sizeof(chessboard));
 }
