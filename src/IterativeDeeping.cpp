@@ -201,7 +201,6 @@ void IterativeDeeping::run() {
         _Tmove resultMove;
 
         if (!searchPool.getRes(resultMove, ponderMove, pvv)) {
-
             break;
         }
         searchPool.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
@@ -244,22 +243,22 @@ void IterativeDeeping::run() {
         cout << "info string null move cut: " << nNullMoveCut << "\n";
         cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
-///is invalid move?
+        ///is valid move?
         bool print = true;
-//        if (abs(sc) > _INFINITE - MAX_PLY) {TODO ripristinare!!
-//            bool b = searchPool[threadWin]->getForceCheck();
-//            u64 oldKey = searchPool[threadWin]->zobristKey;
-//            searchPool[threadWin]->setForceCheck(true);
-//            bool valid = searchPool[threadWin]->makemove(&resultMove);
-//            if (!valid) {
-//                extension++;
-//                print = false;
-//            }
-//            searchPool[threadWin]->takeback(&resultMove, oldKey, true);
-//            searchPool[threadWin]->setForceCheck(b);
-//        }
+        if (abs(sc) > _INFINITE - MAX_PLY) {
+            bool b = searchPool.getForceCheck();
+            u64 oldKey = searchPool.getZobristKey();
+            searchPool.setForceCheck(true);
+            bool valid = searchPool.makemove(&resultMove);
+            if (!valid) {
+                extension++;
+                print = false;
+            }
+            searchPool.takeback(&resultMove, oldKey, true);
+            searchPool.setForceCheck(b);
+        }
         if (print) {
-            //resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? searchPool[threadWin]->getPieceAt<WHITE>(POW2[resultMove.to]) : searchPool[threadWin]->getPieceAt<BLACK>(POW2[resultMove.to]);
+            
             resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? searchPool.getPieceAt<WHITE>(POW2[resultMove.to]) : searchPool.getPieceAt<BLACK>(POW2[resultMove.to]);
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
             if (!(resultMove.type & (Search::KING_SIDE_CASTLE_MOVE_MASK | Search::QUEEN_SIDE_CASTLE_MOVE_MASK))) {
@@ -288,7 +287,7 @@ void IterativeDeeping::run() {
             ASSERT(0);
             break;
         }
-//        }
+
         if (abs(sc) > _INFINITE - MAX_PLY) {
             inMate = true;
         }

@@ -54,7 +54,11 @@ public:
 
     void deleteGtb();
 
-    void search(int depth, int alpha, int beta, _TpvLine *pline, int *mateIn, int threadID1);
+    _TpvLine &getPvLine() {
+        return line1;
+    }
+
+    void search(int depth, int alpha, int beta, int *mateIn, int threadID1);
 
     int getValue() {
         ASSERT(threadValue != INT_MAX);
@@ -66,7 +70,9 @@ public:
     }
 
     virtual void run();
+
     int printDtm();
+
     Tablebase &getGtb() const;
 
     void setMainPly(int);
@@ -96,8 +102,11 @@ public:
         hash.clearHash();
     }
 
-    void setChessboard(_Tchessboard&);
-    _Tchessboard& getChessboard();
+    void setChessboard(_Tchessboard &);
+
+    _Tchessboard &getChessboard();
+
+    u64 getZobristKey();
 
 protected:
 
@@ -105,6 +114,7 @@ protected:
     unsigned cumulativeMovesCount, totGen;
 #endif
 private:
+    _TpvLine line1;
     Hash &hash;
     Tablebase *gtb = nullptr;
     bool ponder;
@@ -113,7 +123,7 @@ private:
 
     int threadAlpha;
     int threadBeta, threadID;
-    _TpvLine *threadPline;
+
     int *threadMateIn;
 
     int checkTime();
@@ -125,7 +135,7 @@ private:
     bool checkDraw(u64);
 
     template<int side>
-    int search(int depth, int alpha, int beta, _TpvLine *pline, int, int *mateIn);
+    int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
 
     bool checkInsufficientMaterial(int);
 

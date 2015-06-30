@@ -628,3 +628,7 @@ _Tchessboard &Search::getChessboard() {
 void Search::setChessboard(_Tchessboard &b) {
     memcpy(chessboard, b, sizeof(chessboard));
 }
+
+u64 Search::getZobristKey() {
+    return chessboard[ZOBRISTKEY_IDX];
+}

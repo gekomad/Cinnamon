@@ -55,7 +55,7 @@ public:
 
     void loadBook(string);
 
-    int printDtm(){
+    int printDtm() {
         searchPool.printDtm();
     }
 

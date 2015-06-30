@@ -49,20 +49,18 @@ public:
         return i;
     }
 
-
     void incKillerHeuristic(int from, int to, int value) {
         for (Search *s:searchPool) {
             s->incKillerHeuristic(from, to, value);
         }
     }
 
-
     int getHashSize() {
         return searchPool[0]->getHashSize();
     }
 
     void startThread(int threadID1, int depth, int alpha, int beta, int *mateIn) {
-        searchPool[threadID1]->search(depth, alpha, beta, &SearchPool::line1[threadID1], mateIn, threadID1);
+        searchPool[threadID1]->search(depth, alpha, beta, mateIn, threadID1);
         searchPool[threadID1]->start();
     }
 
@@ -104,6 +102,10 @@ public:
         return searchPool[0]->getForceCheck();
     }
 
+    u64 getZobristKey() {
+        return searchPool[0]->getZobristKey();
+    }
+
 
     void setForceCheck(bool a) {
         for (Search *s:searchPool) {
@@ -133,9 +135,6 @@ public:
         }
     }
 
-    void resetPVLine(int i) {
-        memset(&line1[i], 0, sizeof(_TpvLine));
-    }
 
     void setRunning(int i) {
         for (Search *s:searchPool) {
@@ -202,9 +201,17 @@ public:
         }
     }
 
-    void makemove(_Tmove *i) {
+    bool makemove(_Tmove *i) {
+        bool b = false;
         for (Search *s:searchPool) {
-            s->makemove(i);
+            b = s->makemove(i);
+        }
+        return b;
+    }
+
+    void takeback(_Tmove *move, const u64 oldkey, bool rep) {
+        for (Search *s:searchPool) {
+            s->takeback(move, oldkey, rep);
         }
     }
 
@@ -214,7 +221,7 @@ public:
         }
     }
 
-    bool getGtbAvailable(){
+    bool getGtbAvailable() {
         return searchPool[0]->getGtbAvailable();
     }
 
@@ -223,7 +230,7 @@ public:
         return searchPool[0]->getMoveFromSan(string, ptr);
     }
 
-    int printDtm(){
+    int printDtm() {
         return searchPool[0]->printDtm();
     }
 
@@ -257,7 +264,6 @@ private:
 
     int val;
     int threadWin;
-    _TpvLine line1[N_THREAD];//TODO metterlo dentro search
     bool searchPoolObserver = false;
     Search *searchPool[N_THREAD] = {nullptr};
     mutex mutexSearch;
