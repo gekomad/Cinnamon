@@ -56,7 +56,7 @@ void IterativeDeeping::setMaxDepth(int d) {
 }
 
 bool IterativeDeeping::getGtbAvailable() {
-    return 0;//TODOsearch.getGtbAvailable();
+    return searchPool.getGtbAvailable();
 }
 
 IterativeDeeping::~IterativeDeeping() {
@@ -84,44 +84,7 @@ bool IterativeDeeping::getUseBook() {
 //    return a;//TODO
 //}
 
-int IterativeDeeping::printDtm() {
-//    int side = search.getSide();
-//    u64 friends = side == WHITE ? search.getBitBoard<WHITE>() : search.getBitBoard<BLACK>();
-//    u64 enemies = side == BLACK ? search.getBitBoard<WHITE>() : search.getBitBoard<BLACK>();
-//    search.display();
-//    int res = side ? getGtb().getDtm<WHITE, true>(search.chessboard, search.rightCastle, 100) : getGtb().getDtm<BLACK, true>(search.chessboard, search.rightCastle, 100);
-//    cout << " res: " << res;
-//    search.incListId();
-//    search.generateCaptures(side, enemies, friends);
-//    search.generateMoves(side, friends | enemies);
-//    _Tmove *move;
-//    u64 oldKey = 0;
-//    cout << "\n succ. \n";
-//    int best = -_INFINITE;
-//    for (int i = 0; i < search.getListSize(); i++) {
-//        move = &search.gen_list[search.listId].moveList[i];
-//        search.makemove(move, false, false);
-//        cout << "\n" << search.decodeBoardinv(move->type, move->from, search.getSide()) << search.decodeBoardinv(move->type, move->to, search.getSide()) << " ";
-//        res = side ? -getGtb().getDtm<BLACK, true>(search.chessboard, search.rightCastle, 100) : getGtb().getDtm<WHITE, true>(search.chessboard, search.rightCastle, 100);
-//        if (res != -INT_MAX) {
-//            cout << " res: " << res;
-//        }
-//        cout << "\n";
-//        search.takeback(move, oldKey, false);
-//        if (res > best) {
-//            best = res;
-//        }
-//    }
-//    if (best > 0) {
-//        best = _INFINITE - best;
-//    } else if (best < 0) {
-//        best = -(_INFINITE - best);
-//    }
-//    cout << endl;
-//    search.decListId();
-//    return best;
-    return 0;//TODO
-}
+
 
 void IterativeDeeping::loadBook(string f) {
     if (!openBook) {

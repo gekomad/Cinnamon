@@ -26,6 +26,44 @@ Search::Search() : ponder(false), nullSearch(false), hash(Hash::getInstance()) {
     //hash = Hash::getInstance();
 }
 
+int Search::printDtm() {
+    int side = getSide();
+    u64 friends = side == WHITE ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
+    u64 enemies = side == BLACK ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
+    display();
+    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100) : getGtb().getDtm<BLACK, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+    cout << " res: " << res;
+    incListId();
+    generateCaptures(side, enemies, friends);
+    generateMoves(side, friends | enemies);
+    _Tmove *move;
+    u64 oldKey = 0;
+    cout << "\n succ. \n";
+    int best = -_INFINITE;
+    for (int i = 0; i < getListSize(); i++) {
+        move = &gen_list[listId].moveList[i];
+        makemove(move, false, false);
+        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) << decodeBoardinv(move->type, move->to, getSide()) << " ";
+        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100) : getGtb().getDtm<WHITE, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+        if (res != -INT_MAX) {
+            cout << " res: " << res;
+        }
+        cout << "\n";
+        takeback(move, oldKey, false);
+        if (res > best) {
+            best = res;
+        }
+    }
+    if (best > 0) {
+        best = _INFINITE - best;
+    } else if (best < 0) {
+        best = -(_INFINITE - best);
+    }
+    cout << endl;
+    decListId();
+    return best;
+}
+
 void Search::setNullMove(bool b) {
     nullSearch = !b;
 }

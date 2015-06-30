@@ -214,9 +214,17 @@ public:
         }
     }
 
+    bool getGtbAvailable(){
+        return searchPool[0]->getGtbAvailable();
+    }
+
     int getMoveFromSan(String string, _Tmove *ptr) {
         ASSERT(searchPool[0]->getMoveFromSan(string, ptr) == searchPool[1]->getMoveFromSan(string, ptr) == searchPool[2]->getMoveFromSan(string, ptr) == searchPool[3]->getMoveFromSan(string, ptr));
         return searchPool[0]->getMoveFromSan(string, ptr);
+    }
+
+    int printDtm(){
+        return searchPool[0]->printDtm();
     }
 
     void pushStackMove() {
@@ -238,13 +246,11 @@ public:
     }
 
     void deleteGtb() {
-        assert(0);
-        //TODO searchPool.deleteGtb();
+        searchPool[0]->deleteGtb();
     }
 
     void createGtb() {
-        assert(0);
-        //TODO  searchPool.createGtb();
+        searchPool[0]->createGtb();
     }
 
 private:
