@@ -283,10 +283,10 @@ void IterativeDeeping::run() {
             searchPool.setRunning(2);
 
         }
-        if (mply >= maxDepth + extension && (searchPool.getRunning(0) != 2 || inMate)) {
-            ASSERT(0);
-            break;
-        }
+//        if (mply >= maxDepth + extension && (searchPool.getRunning(0) != 2 || inMate)) {
+//            ASSERT(0);
+//            break;
+//        }
 
         if (abs(sc) > _INFINITE - MAX_PLY) {
             inMate = true;
