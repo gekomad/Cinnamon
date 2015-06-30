@@ -258,7 +258,7 @@ void IterativeDeeping::run() {
             searchPool.setForceCheck(b);
         }
         if (print) {
-            
+
             resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? searchPool.getPieceAt<WHITE>(POW2[resultMove.to]) : searchPool.getPieceAt<BLACK>(POW2[resultMove.to]);
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
             if (!(resultMove.type & (Search::KING_SIDE_CASTLE_MOVE_MASK | Search::QUEEN_SIDE_CASTLE_MOVE_MASK))) {
