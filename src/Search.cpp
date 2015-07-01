@@ -312,7 +312,7 @@ void Search::deleteGtb() {
 
 
 int Search::searchNOparall(int depth, int alpha, int beta) {
-    return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mateIn) : search<BLACK>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mateIn);
+    return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
 }
 
 void Search::run() {
@@ -635,7 +635,7 @@ u64 Search::getZobristKey() {
 }
 
 int Search::getMateIn() {
-    return mateIn;
+    return mainMateIn;
 }
 
 void Search::setGtb(Tablebase &tablebase) {

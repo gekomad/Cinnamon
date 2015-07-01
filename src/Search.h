@@ -154,7 +154,7 @@ private:
     void notifyObservers(void);
 
 
-    int mateIn;
+    int mainMateIn;
 };
 
 #endif
