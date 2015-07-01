@@ -27,6 +27,7 @@ class SearchManager : public Singleton<SearchManager> {
     friend class Singleton<SearchManager>;
 
 public:
+    int PVSplit(int mply, int alpha, int beta);
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 

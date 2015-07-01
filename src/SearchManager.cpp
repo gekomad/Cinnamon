@@ -17,27 +17,26 @@
 */
 
 #include "SearchManager.h"
-
-//int PVSplit(k, mply, -_INFINITE, _INFINITE, &mateIn[k]) {
-//    if (mply<5) {
-//        searchManager[???]->search(depth, alpha, beta, mateIn, threadID1);
-//        searchManager[???]->start();
-//        return searchManager[??]->search();
+//
+//int SearchManager::PVSplit(int depth, int alpha, int beta) {
+//    int k=0;
+//    if (depth < 5) {
+//        return searchPool[k]->searchNOparall(depth, alpha, beta);
 //    }
 //
-//    succnode = GetFirstSucc(curnode );
-//    score = PVSplit(curnode, alpha, beta );
-//    if(score > beta) {
+//    succnode = GetFirstSucc(curnode);
+//    score = PVSplit(curnode, alpha, beta);
+//    if (score > beta) {
 //        return beta;
 //    }
 //    if (score > alpha) {
 //        alpha = score;
 //    }
 //    while (HasMoreSuccessors(cur node )) {
-//        succ
-//        node = GetNextSucc(cur
+//        succ node = GetNextSucc(cur
 //        node );
-//        score = AlphaBeta(succ        node, alpha, beta );
+//        score = AlphaBeta(succ
+//        node, alpha, beta );
 //        if (score > beta) {
 //            return beta;
 //        }
@@ -50,19 +49,18 @@
 //}
 
 SearchManager::~SearchManager() {
-    for (int i = 0; i < N_THREAD; i++) {
-        for (Search *s:searchPool) {
-            delete s;
-            s = nullptr;
-        }
+    for (Search *s:searchPool) {
+        delete s;
+        s = nullptr;
     }
+
 }
 
 int SearchManager::loadFen(string fen) {
     int res = searchPool[0]->loadFen(fen);
     ASSERT_RANGE(res, 0, 1)
-    for (int i = 1; i < N_THREAD; i++) {
-        searchPool[i]->setChessboard(searchPool[0]->getChessboard());
+    for (Search *s:searchPool) {
+        s->setChessboard(searchPool[0]->getChessboard());
     }
     return res;
 }
@@ -284,7 +282,7 @@ void SearchManager::setRunningAllThread(int r) {
 }
 
 void SearchManager::setRunningAll(int r) {
-    for (int i = 0; i < N_THREAD; i++) {
+    for (Search *s:searchPool) {
         setRunning(r);
     }
 }
