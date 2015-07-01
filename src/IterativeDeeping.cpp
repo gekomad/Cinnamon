@@ -432,7 +432,7 @@ void IterativeDeeping::deleteGtb() {
 }
 
 int IterativeDeeping::printDtm() {
-    searchManager.printDtm();
+    return searchManager.printDtm();
 }
 
 void IterativeDeeping::createGtb() {

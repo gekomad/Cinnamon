@@ -283,7 +283,7 @@ void SearchManager::setRunningAllThread(int r) {
 
 void SearchManager::setRunningAll(int r) {
     for (Search *s:searchPool) {
-        setRunning(r);
+        s->setRunning(r);
     }
 }
 
