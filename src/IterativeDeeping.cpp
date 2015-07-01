@@ -20,8 +20,7 @@
 #include "IterativeDeeping.h"
 
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
-
-
+    
     setUseBook(false);
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";

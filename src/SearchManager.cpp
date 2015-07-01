@@ -49,12 +49,14 @@
 //    return alpha;
 //}
 
-//SearchManager::~SearchManager() {
-//    for (int i = 0; i < N_THREAD; i++) {
-//        delete searchManager[i];
-//        searchManager[i] = nullptr;
-//    }
-//}
+SearchManager::~SearchManager() {
+    for (int i = 0; i < N_THREAD; i++) {
+        for (Search *s:searchPool) {
+            delete s;
+            s = nullptr;
+        }
+    }
+}
 
 int SearchManager::loadFen(string fen) {
     int res = searchPool[0]->loadFen(fen);

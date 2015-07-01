@@ -30,6 +30,8 @@ public:
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
+    ~SearchManager();
+
     int loadFen(string fen);
 
     int getPieceAt(int side, int i);
