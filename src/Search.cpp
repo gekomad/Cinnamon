@@ -95,6 +95,7 @@ Search::~Search() {
     if (gtb) {
         delete gtb;
     }
+    gtb= nullptr;
 }
 
 template<int side>

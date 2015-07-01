@@ -91,7 +91,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
 
 SearchManager::SearchManager() {
     for (int i = 0; i < N_THREAD; i++) {
-        searchPool[i] = new Search();
+        searchPool.push_back(new Search());
     }
     threadWin = -1;
     if (!searchPoolObserver) {

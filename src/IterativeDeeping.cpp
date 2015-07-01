@@ -59,6 +59,7 @@ bool IterativeDeeping::getGtbAvailable() {
 }
 
 IterativeDeeping::~IterativeDeeping() {
+    delete &searchManager;
     if (openBook) {
         delete openBook;
     }
