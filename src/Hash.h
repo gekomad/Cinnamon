@@ -22,11 +22,14 @@
 #include <iostream>
 #include <string.h>
 #include "namespaces.h"
+#include "Singleton.h"
 #include <mutex>
 
 using namespace _board;
 
-class Hash {
+class Hash : public Singleton<Hash> {
+    friend class Singleton<Hash>;
+
 public:
 
 #pragma pack(push)
@@ -64,10 +67,7 @@ public:
 
     void clearAge();
 
-
     void recordHash(bool running, Hash::_Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
-
-    static Hash &getInstance();
 
 private:
     Hash();

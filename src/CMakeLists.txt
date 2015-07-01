@@ -26,8 +26,8 @@ set(SOURCE_FILES
     Perft.h
     Search.cpp
     Search.h
-    SearchPool.cpp
-    SearchPool.h
+    SearchManager.cpp
+    SearchManager.h
     stacktrace.h
     String.cpp
     String.h
@@ -36,6 +36,7 @@ set(SOURCE_FILES
     Thread.h
     Timer.h
     Uci.cpp
+    Singleton.h
     Uci.h)
 
 add_executable(cinnamon ${SOURCE_FILES})

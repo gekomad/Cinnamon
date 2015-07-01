@@ -22,7 +22,7 @@
 #include <cstring>
 #include <string.h>
 #include "String.h"
-#include "SearchPool.h"
+#include "SearchManager.h"
 #include "Thread.h"
 #include "OpenBook.h"
 #include <stdio.h>
@@ -30,10 +30,11 @@
 #include "namespaces.h"
 
 class IterativeDeeping : public Thread {
-public:
-    mutex mutexIT;
 
-    IterativeDeeping();
+public:
+    //TODO private
+    mutex mutexIT;//TODO eliminare?
+
 
     void setMaxTimeMillsec(int i);
 
@@ -55,15 +56,10 @@ public:
 
     void loadBook(string);
 
-    int printDtm() {
-        searchPool.printDtm();
-    }
+    int printDtm();
 
     bool setParameter(String param, int value);
 
-    // Tablebase &getGtb();
-
-    // int loadFen(string fen);
     virtual int loadFen(string fen = "");
 
     void display();
@@ -83,8 +79,6 @@ public:
     int getSide();
 
     int getScore(int side);
-
-    //u64 getBitBoard();
 
     void clearHash();
 
@@ -109,14 +103,28 @@ public:
 
     void createGtb();
 
+    void setGtbPath(String string);
+
+    bool setGtbCacheSize(int i);
+
+    bool setGtbScheme(String string);
+
+    bool setGtbInstalledPieces(int i);
+
+    bool setGtbProbeDepth(int i);
+
+    void restartGtb();
+
+    IterativeDeeping();
+
 
 private:
 
-    SearchPool &searchPool = SearchPool::getInstance();
+    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     int maxDepth;
 
     bool useBook;
-
+    Tablebase *tablebase = nullptr;
     OpenBook *openBook;
     bool ponderEnabled;
 };

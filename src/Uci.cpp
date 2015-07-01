@@ -190,23 +190,23 @@ void Uci::listner(IterativeDeeping *it) {
                         getToken(uip, token);
                         knowCommand = true;
                         it->createGtb();
-                        // it->getGtb().setPath(token);
+                        it->setGtbPath(token);
                     }
                 } else if (token == "gaviotatbcache") {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-//                        if (it->getGtb().setCacheSize(stoi(token))) {
-//                            knowCommand = true;
-//                        };
+                        if (it->setGtbCacheSize(stoi(token))) {
+                            knowCommand = true;
+                        };
                     }
                 } else if (token == "gaviotatbscheme") {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-//                        if (it->getGtb().setScheme(token)) {
-//                            knowCommand = true;
-//                        };
+                        if (it->setGtbScheme(token)) {
+                            knowCommand = true;
+                        };
                     }
                 } else if (token == "tb") {
                     getToken(uip, token);
@@ -216,9 +216,9 @@ void Uci::listner(IterativeDeeping *it) {
                             getToken(uip, token);
                             if (token == "value") {
                                 getToken(uip, token);
-//                                if (it->getGtb().setInstalledPieces(stoi(token))) {
-//                                    knowCommand = true;
-//                                };
+                                if (it->setGtbInstalledPieces(stoi(token))) {
+                                    knowCommand = true;
+                                };
                             }
                         }
                     } else if (token == "endgame") {
@@ -228,24 +228,27 @@ void Uci::listner(IterativeDeeping *it) {
                             knowCommand = true;
                             if (token == "none") {
                                 it->deleteGtb();
+                                knowCommand = true;
                             } else if (token == "gaviota") {
-                                //  it->getGtb();
-                            } else {
-                                knowCommand = false;
+                                //it->getGtb();
+                                knowCommand = true;
                             }
+//                            else {
+//                                knowCommand = false;
+//                            }
                         }
                     } else if (token == "restart") {
                         knowCommand = true;
-                        // it->getGtb().restart();
+                        it->restartGtb();
                     } else if (token == "probing") {
                         getToken(uip, token);
                         if (token == "depth") {
                             getToken(uip, token);
                             if (token == "value") {
                                 getToken(uip, token);
-//                                if (it->getGtb().setProbeDepth(stoi(token))) {
-//                                    knowCommand = true;
-//                                };
+                                if (it->setGtbProbeDepth(stoi(token))) {
+                                    knowCommand = true;
+                                };
                             }
                         }
                     }

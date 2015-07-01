@@ -19,7 +19,8 @@
 #include <mutex>
 #include "Hash.h"
 
-Hash::Hash() : HASH_SIZE(0) {
+Hash::Hash() {
+    HASH_SIZE = 0;
     hash_array_greater = hash_array_always = nullptr;
 #ifdef DEBUG_MODE
     n_cut_hashA = n_cut_hashE = n_cut_hashB = cutFailed = probeHash = 0;
@@ -122,9 +123,3 @@ Hash::~Hash() {
 }
 
 
-Hash &Hash::getInstance() {
-
-//    lock_guard<mutex> lock(mutex1);
-    static Hash _hash;
-    return _hash;
-}

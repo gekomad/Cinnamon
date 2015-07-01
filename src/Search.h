@@ -50,15 +50,15 @@ public:
 
     int getRunning();
 
-    void createGtb();
-
     void deleteGtb();
 
     _TpvLine &getPvLine() {
-        return line1;
+        return pvLine;
     }
 
-    void search(int depth, int alpha, int beta, int *mateIn, int threadID1);
+    void search(int depth, int alpha, int beta, int threadID1);
+
+    int searchNOparall(int depth, int alpha, int beta);
 
     int getValue() {
         ASSERT(threadValue != INT_MAX);
@@ -87,19 +87,19 @@ public:
     STATIC_CONST int NULLMOVES_R4 = 2;
 
     void clearAge() {
-        hash.clearAge();
+        hash->clearAge();
     }
 
     int getHashSize() {
-        return hash.getHashSize();
+        return hash->getHashSize();
     }
 
     bool setHashSize(int i) {
-        return hash.setHashSize(i);
+        return hash->setHashSize(i);
     }
 
     void clearHash() {
-        hash.clearHash();
+        hash->clearHash();
     }
 
     void setChessboard(_Tchessboard &);
@@ -108,23 +108,26 @@ public:
 
     u64 getZobristKey();
 
+    int getMateIn();
+
+    void setGtb(Tablebase &tablebase);
+
 protected:
 
 #ifdef DEBUG_MODE
     unsigned cumulativeMovesCount, totGen;
 #endif
 private:
-    _TpvLine line1;
-    Hash &hash;
-    Tablebase *gtb = nullptr;
+
+    _TpvLine pvLine;
+    static Hash *hash;
+    static Tablebase *gtb;
     bool ponder;
     int threadDepth;
     int threadValue = INT_MAX;
 
     int threadAlpha;
     int threadBeta, threadID;
-
-    int *threadMateIn;
 
     int checkTime();
 
@@ -151,6 +154,7 @@ private:
     void notifyObservers(void);
 
 
+    int mateIn;
 };
 
 #endif

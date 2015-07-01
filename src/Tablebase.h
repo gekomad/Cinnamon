@@ -22,13 +22,14 @@
 #include "gtb/gtb-probe.h"
 #include "namespaces.h"
 #include "ChessBoard.h"
+#include "Singleton.h"
 
-class Tablebase : private Bits {
+class Tablebase : private Bits, public Singleton<Tablebase> {
+    friend class Singleton<Tablebase>;
+
 public:
 
-    Tablebase();
-
-    virtual ~Tablebase();
+    ~Tablebase();
 
     void cacheInit(int mb);
 
@@ -111,8 +112,8 @@ public:
         return extractDtm<side ^ 1, doPrint>(tb_available, info, pliestomate);
     }
 
-
 private:
+    Tablebase();
 
     const int DECODE_PIECE[13] = {tb_PAWN, tb_PAWN, tb_ROOK, tb_ROOK, tb_BISHOP, tb_BISHOP, tb_KNIGHT, tb_KNIGHT, tb_KING, tb_KING, tb_QUEEN, tb_QUEEN, tb_NOPIECE};
 

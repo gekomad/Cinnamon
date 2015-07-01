@@ -48,7 +48,7 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
 }
 
 void IterativeDeeping::setMaxTimeMillsec(int i) {
-    searchPool.setMaxTimeMillsec(i);
+    searchManager.setMaxTimeMillsec(i);
 }
 
 void IterativeDeeping::setMaxDepth(int d) {
@@ -56,7 +56,7 @@ void IterativeDeeping::setMaxDepth(int d) {
 }
 
 bool IterativeDeeping::getGtbAvailable() {
-    return searchPool.getGtbAvailable();
+    return searchManager.getGtbAvailable();
 }
 
 IterativeDeeping::~IterativeDeeping() {
@@ -108,17 +108,17 @@ void IterativeDeeping::run() {
     struct timeb start1;
     struct timeb end1;
 
-    int TimeTaken = 0;
-    searchPool.setRunningAll(2);
-    searchPool.setRunningAllThread(2);
+    int timeTaken = 0;
+    searchManager.setRunningAll(2);
+    searchManager.setRunningAllThread(2);
     int mply = 0;
     if (useBook) {
         ASSERT(openBook);
-        string obMove = openBook->search(searchPool.boardToFen());
+        string obMove = openBook->search(searchManager.boardToFen());
         if (!obMove.empty()) {
             _Tmove move;
-            searchPool.getMoveFromSan(obMove, &move);
-            searchPool.makemove(&move);
+            searchManager.getMoveFromSan(obMove, &move);
+            searchManager.makemove(&move);
             cout << "bestmove " << obMove << endl;
             return;
         }
@@ -128,75 +128,40 @@ void IterativeDeeping::run() {
 
     mply = 0;
 
-    searchPool.startClock();
-    searchPool.clearKillerHeuristic();
-    searchPool.clearAge();
-    searchPool.setForceCheck(false);
-    searchPool.setRunning(2);
+    searchManager.startClock();
+    searchManager.clearKillerHeuristic();
+    searchManager.clearAge();
+    searchManager.setForceCheck(false);
+    searchManager.setRunning(2);
 
     ftime(&start1);
-
-    int mateIn[SearchPool::N_THREAD] = {INT_MAX};
 
     bool inMate = false;
     int extension = 0;
     string bestmove;
     string ponderMove;
     int val = 0;
-    while (searchPool.getRunning(0) /*&& mateIn == INT_MAX TODO*/) {
-
-        ++mply;
-
-        searchPool.setMainPly(mply);
-        searchPool.resetThread();
-
-        if (mply == 1) {
-            int k = 3;
-
-            searchPool.setRunning(2);
-            mateIn[k] = INT_MAX;
-            searchPool.startThread(k, mply, -_INFINITE, _INFINITE, &mateIn[k]);
-            searchPool.join(k);
-            val = searchPool.getValue(k);
-
-        } else {
-            for (int k = 0; k < 3; k++) {
-                mateIn[k] = INT_MAX;
-                if (searchPool.getRunning(k)) {
-                    int window = VAL_WINDOW * pow(2, k - 1);
-                    searchPool.startThread(k, mply, val - window, val + window, &mateIn[k]);
-                }
-            }
-
-            int k = 3;
-
-            mateIn[k] = INT_MAX;
-            if (searchPool.getRunning(k)) {
-                searchPool.startThread(k, mply, -_INFINITE, _INFINITE, &mateIn[k]);
-            }
-
-            searchPool.joinAll();
-        }
-
+    int mateIn = INT_MAX;
+    string pvv;
+    _Tmove resultMove;
+    while (searchManager.getRunning(0) && mateIn == INT_MAX && mply < maxDepth) {
+        mateIn = INT_MAX;
         totMoves = 0;
-
-        searchPool.setRunningAllThread(1);
-
+        ++mply;
+        searchManager.parallelSearch(mply);
+        searchManager.setRunningAllThread(1);
         if (mply == 2) {
-            searchPool.setRunningAll(1);
+            searchManager.setRunningAll(1);
         }
 
-        string pvv;
-        _Tmove resultMove;
-
-        if (!searchPool.getRes(resultMove, ponderMove, pvv)) {
+        if (!searchManager.getRes(resultMove, ponderMove, pvv)) {
             break;
         }
-        searchPool.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
+        searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
 
         ftime(&end1);
-        TimeTaken = _time::diffTime(end1, start1);
-        totMoves += searchPool.getTotMoves();
+        timeTaken = _time::diffTime(end1, start1);
+        totMoves += searchManager.getTotMoves();
 
         sc = resultMove.score;
         if (resultMove.score > _INFINITE - MAX_PLY) {
@@ -216,15 +181,15 @@ void IterativeDeeping::run() {
         cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
         cout << "info string cut hash " << totCutHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
         u64 nps = 0;
-        if (TimeTaken) {
-            nps = totMoves * 1000 / TimeTaken;
+        if (timeTaken) {
+            nps = totMoves * 1000 / timeTaken;
         }
         if (nCutAB) {
             betaEfficiencyCumulative += betaEfficiency / totGen * 10;
             cout << "info string beta efficiency: " << (int) betaEfficiencyCumulative << "%\n";
             betaEfficiency = totGen = 0.0;
         }
-        cout << "info string millsec: " << TimeTaken << "  (" << nps / 1000 << "k nodes per seconds) \n";
+        cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds) \n";
         cout << "info string alphaBeta cut: " << nCutAB << "\n";
         cout << "info string lazy eval cut: " << LazyEvalCuts << "\n";
         cout << "info string futility pruning cut: " << nCutFp << "\n";
@@ -235,20 +200,21 @@ void IterativeDeeping::run() {
         ///is valid move?
         bool print = true;
         if (abs(sc) > _INFINITE - MAX_PLY) {
-            bool b = searchPool.getForceCheck();
-            u64 oldKey = searchPool.getZobristKey();
-            searchPool.setForceCheck(true);
-            bool valid = searchPool.makemove(&resultMove);
+            bool b = searchManager.getForceCheck();
+            u64 oldKey = searchManager.getZobristKey();
+            searchManager.setForceCheck(true);
+            bool valid = searchManager.makemove(&resultMove);
             if (!valid) {
                 extension++;
                 print = false;
             }
-            searchPool.takeback(&resultMove, oldKey, true);
-            searchPool.setForceCheck(b);
+            searchManager.takeback(&resultMove, oldKey, true);
+            searchManager.setForceCheck(b);
         }
         if (print) {
-
-            resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? searchPool.getPieceAt<WHITE>(POW2[resultMove.to]) : searchPool.getPieceAt<BLACK>(POW2[resultMove.to]);
+            int mateIn = searchManager.getMateIn();
+            //resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? searchManager.getPieceAt<WHITE>(POW2[resultMove.to]) : searchManager.getPieceAt<BLACK>(POW2[resultMove.to]);
+            resultMove.capturedPiece = searchManager.getPieceAt(resultMove.side ^ 1, POW2[resultMove.to]);
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
             if (!(resultMove.type & (Search::KING_SIDE_CASTLE_MOVE_MASK | Search::QUEEN_SIDE_CASTLE_MOVE_MASK))) {
                 bestmove += Search::decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
@@ -257,22 +223,22 @@ void IterativeDeeping::run() {
                 }
             }
             if (abs(sc) > _INFINITE - MAX_PLY) {
-                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << timeTaken << " pv " << pvv << endl;
             } else {
-                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << TimeTaken << " pv " << pvv << endl;
+                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << timeTaken << " pv " << pvv << endl;
             }
         }
-//        for (Search *s: searchPool) {
-        if (searchPool.getForceCheck()) {
-            searchPool.setForceCheck(false);
-            searchPool.setRunning(1);
+
+        if (searchManager.getForceCheck()) {
+            searchManager.setForceCheck(false);
+            searchManager.setRunning(1);
 
         } else if (abs(sc) > _INFINITE - MAX_PLY) {
-            searchPool.setForceCheck(true);
-            searchPool.setRunning(2);
+            searchManager.setForceCheck(true);
+            searchManager.setRunning(2);
 
         }
-//        if (mply >= maxDepth + extension && (searchPool.getRunning(0) != 2 || inMate)) {
+//        if (mply >= maxDepth + extension && (searchManager.getRunning(0) != 2 || inMate)) {
 //            ASSERT(0);
 //            break;
 //        }
@@ -382,89 +348,118 @@ bool IterativeDeeping::setParameter(String param, int value) {
 }
 
 int IterativeDeeping::loadFen(string fen) {
-    return searchPool.loadFen(fen);
+    return searchManager.loadFen(fen);
 }
 
 void IterativeDeeping::display() {
-    searchPool.display();
+    searchManager.display();
 }
 
 int IterativeDeeping::getHashSize() {
-    return searchPool.getHashSize();
+    return searchManager.getHashSize();
 }
 
 bool IterativeDeeping::setHashSize(int i) {
-    return searchPool.setHashSize(i);
+    return searchManager.setHashSize(i);
 }
 
 void IterativeDeeping::setRunning(bool i) {
-    searchPool.setRunning(i);
+    searchManager.setRunning(i);
 }
 
 void IterativeDeeping::startClock() {
-    searchPool.startClock();
+    searchManager.startClock();
 }
 
 string IterativeDeeping::getFen() {
-    return searchPool.getFen();
+    return searchManager.getFen();
 }
 
 void IterativeDeeping::setPonder(bool i) {
-    searchPool.setPonder(i);
+    searchManager.setPonder(i);
 }
 
 int IterativeDeeping::getSide() {
-    return searchPool.getSide();
+    return searchManager.getSide();
 }
 
 int IterativeDeeping::getScore(int side) {
-    return searchPool.getScore(side);
+    return searchManager.getScore(side);
 }
 
 //u64 IterativeDeeping::getBitBoard() {
-//    return searchPool.getBitBoard();
+//    return searchManager.getBitBoard();
 //}
 
 void IterativeDeeping::clearHash() {
-    searchPool.clearHash();
+    searchManager.clearHash();
 }
 
 int IterativeDeeping::getMaxTimeMillsec() {
-    return searchPool.getMaxTimeMillsec();
+    return searchManager.getMaxTimeMillsec();
 }
 
 void IterativeDeeping::setNullMove(bool i) {
-    searchPool.setNullMove(i);
+    searchManager.setNullMove(i);
 }
 
 void IterativeDeeping::makemove(_Tmove *ptr) {
-    searchPool.makemove(ptr);
+    searchManager.makemove(ptr);
 }
 
 void IterativeDeeping::setSide(bool i) {
-    searchPool.setSide(i);
+    searchManager.setSide(i);
 }
 
 int IterativeDeeping::getMoveFromSan(String string, _Tmove *ptr) {
-    return searchPool.getMoveFromSan(string, ptr);
+    return searchManager.getMoveFromSan(string, ptr);
 }
 
 void IterativeDeeping::pushStackMove() {
-    searchPool.pushStackMove();
+    searchManager.pushStackMove();
 }
 
 void IterativeDeeping::init() {
-    searchPool.init();
+    searchManager.init();
 }
 
 void IterativeDeeping::setRepetitionMapCount(int i) {
-    searchPool.setRepetitionMapCount(i);
+    searchManager.setRepetitionMapCount(i);
 }
 
 void IterativeDeeping::deleteGtb() {
-    searchPool.deleteGtb();
+    searchManager.deleteGtb();
+}
+
+int IterativeDeeping::printDtm() {
+    searchManager.printDtm();
 }
 
 void IterativeDeeping::createGtb() {
-    searchPool.createGtb();
+    tablebase = &Tablebase::getInstance();
+    searchManager.setGtb(*tablebase);
+}
+
+void IterativeDeeping::setGtbPath(String path) {
+    tablebase->setPath(path);
+}
+
+bool IterativeDeeping::setGtbCacheSize(int i) {
+    return tablebase->setCacheSize(i);
+}
+
+bool IterativeDeeping::setGtbScheme(String s) {
+    return tablebase->setScheme(s);
+}
+
+bool IterativeDeeping::setGtbInstalledPieces(int i) {
+    return tablebase->setInstalledPieces(i);
+}
+
+bool IterativeDeeping::setGtbProbeDepth(int i) {
+    return tablebase->setProbeDepth(i);
+}
+
+void IterativeDeeping::restartGtb() {
+    tablebase->restart();
 }
