@@ -41,8 +41,7 @@ ifndef SystemRoot
 	UNAME_P := $(shell uname -p)
 	ifeq ($(UNAME_P),x86_64)
 		NATIVE_ARCH="64"
-	endif
-	ifneq ($(filter %86,$(UNAME_P)),)
+	else
 		NATIVE_ARCH="32"
 	endif
 else
@@ -57,8 +56,7 @@ else
 
 	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
 		NATIVE_ARCH="64"
-	endif
-	ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+	else
 		NATIVE_ARCH="32"
 	endif
 endif
@@ -116,7 +114,7 @@ cinnamon-CLOP:
 
 cinnamon-native:
 ifeq ($(OS),ARM)	
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -w" build
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -fsigned-char -w" build
 else
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
 endif
