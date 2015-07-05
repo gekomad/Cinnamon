@@ -20,10 +20,13 @@
 
 Hash *Search::hash;
 Tablebase *Search::gtb;
+#ifdef DEBUG_MODE
+unsigned Search::cumulativeMovesCount, Search::totGen;
+#endif
 
 Search::Search() : ponder(false), nullSearch(false) {
 #ifdef DEBUG_MODE
-    LazyEvalCuts = cumulativeMovesCount = totGen = 0;
+    lazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
     gtb = nullptr;
     hash = &Hash::getInstance();
@@ -345,6 +348,7 @@ void Search::notifyObservers(void) {
 
 template<int side>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
+    INC(cumulativeMovesCount);
     ASSERT_RANGE(side, 0, 1);
     if (!getRunning()) {
         return 0;
@@ -371,7 +375,6 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         }
     }
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
-    INC(cumulativeMovesCount);
 #ifdef DEBUG_MODE
     double betaEfficiencyCount = 0.0;
 #endif

@@ -40,6 +40,9 @@ public:
         return lazyEvalSide<side>() - lazyEvalSide<side ^ 1>();
     }
 
+#ifdef DEBUG_MODE
+    static int lazyEvalCuts;
+#endif
 protected:
     STATIC_CONST int FUTIL_MARGIN = 154;        //CLOP 147
     STATIC_CONST int EXT_FUTILY_MARGIN = 392;    //CLOP 405
@@ -74,7 +77,6 @@ protected:
     STATIC_CONST int UNDEVELOPED = 4;
     STATIC_CONST int UNDEVELOPED_BISHOP = 4;
 #ifdef DEBUG_MODE
-    int LazyEvalCuts;
     typedef struct {
         int BAD_BISHOP[2];
         int MOB_BISHOP[2];

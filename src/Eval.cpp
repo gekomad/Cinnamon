@@ -18,6 +18,9 @@
 
 #include "Eval.h"
 
+#ifdef DEBUG_MODE
+int Eval::lazyEvalCuts;
+#endif
 Eval::Eval() {
 }
 
@@ -378,7 +381,7 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
         lazyscore = -lazyscore;
     }
     if (lazyscore > (beta + FUTIL_MARGIN) || lazyscore < (alpha - FUTIL_MARGIN)) {
-        INC(LazyEvalCuts);
+        INC(lazyEvalCuts);
         return lazyscore;
     }
 #ifdef DEBUG_MODE

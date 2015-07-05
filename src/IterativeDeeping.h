@@ -120,6 +120,9 @@ public:
 
 private:
 
+#ifdef DEBUG_MODE
+    Hash &hash = Hash::getInstance();
+#endif
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     int maxDepth;
 

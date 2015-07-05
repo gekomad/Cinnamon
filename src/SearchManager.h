@@ -115,6 +115,46 @@ public:
 
     void deleteGtb();
 
+#ifdef DEBUG_MODE
+
+    unsigned getCumulativeMovesCount() {
+        return searchPool[0]->cumulativeMovesCount;
+    }
+
+    int getNCutAB() {
+        return searchPool[0]->nCutAB;
+    }
+
+    double getBetaEfficiency() {
+        return searchPool[0]->betaEfficiency;
+    }
+
+    int getLazyEvalCuts() {
+        return searchPool[0]->lazyEvalCuts;
+    }
+
+    int getNCutFp() {
+        return searchPool[0]->nCutFp;
+    }
+
+    int getNCutRazor() {
+        return searchPool[0]->nCutRazor;
+    }
+
+    int getNNullMoveCut() {
+        return searchPool[0]->nNullMoveCut;
+    }
+
+    unsigned getTotGen() {
+        return searchPool[0]->totGen;
+    }
+
+    int getNCutInsufficientMaterial() {
+        return searchPool[0]->nCutInsufficientMaterial;
+    }
+
+
+#endif
 private:
     SearchManager();
 

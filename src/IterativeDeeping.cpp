@@ -19,6 +19,12 @@
 #include <atomic>
 #include "IterativeDeeping.h"
 
+#ifdef DEBUG_MODE
+
+#include "Hash.h"
+#include "SearchManager.h"
+
+#endif
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
 
     setUseBook(false);
@@ -166,26 +172,36 @@ void IterativeDeeping::run() {
         if (resultMove.score > _INFINITE - MAX_PLY) {
             sc = 0x7fffffff;
         }
-#ifdef DEBUG_MODEkk
-        int totStoreHash = nRecordHashA + nRecordHashB + nRecordHashE + 1;
-        int percStoreHashA = nRecordHashA * 100 / totStoreHash;
-        int percStoreHashB = nRecordHashB * 100 / totStoreHash;
-        int percStoreHashE = nRecordHashE * 100 / totStoreHash;
-        int totCutHash = n_cut_hashA + n_cut_hashB + n_cut_hashE + 1;
-        int percCutHashA = n_cut_hashA * 100 / totCutHash;
-        int percCutHashB = n_cut_hashB * 100 / totCutHash;
-        int percCutHashE = n_cut_hashE * 100 / totCutHash;
+#ifdef DEBUG_MODE
+        int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
+        int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
+        int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
+        int percStoreHashE = hash.nRecordHashE * 100 / totStoreHash;
+        int totCutHash = hash.n_cut_hashA + hash.n_cut_hashB + hash.n_cut_hashE + 1;
+        int percCutHashA = hash.n_cut_hashA * 100 / totCutHash;
+        int percCutHashB = hash.n_cut_hashB * 100 / totCutHash;
+        int percCutHashE = hash.n_cut_hashE * 100 / totCutHash;
         cout << "\ninfo string ply: " << mply << "\n";
         cout << "info string tot moves: " << totMoves << "\n";
+        unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
         cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
-        cout << "info string cut hash " << totCutHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
+        ASSERT(totStoreHash <= cumulativeMovesCount);
+        cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
+        ASSERT(totCutHash <= cumulativeMovesCount);
         u64 nps = 0;
         if (timeTaken) {
             nps = totMoves * 1000 / timeTaken;
         }
+        int nCutAB = searchManager.getNCutAB();
+        double betaEfficiency = searchManager.getBetaEfficiency();
+        int LazyEvalCuts = searchManager.getLazyEvalCuts();
+        int nCutFp = searchManager.getNCutFp();
+        int nCutRazor = searchManager.getNCutRazor();
+        int nNullMoveCut = searchManager.getNNullMoveCut();
+        unsigned totGen = searchManager.getTotGen();
+        int nCutInsufficientMaterial = searchManager.getNCutInsufficientMaterial();
         if (nCutAB) {
-            betaEfficiencyCumulative += betaEfficiency / totGen * 10;
-            cout << "info string beta efficiency: " << (int) betaEfficiencyCumulative << "%\n";
+            cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%\n";
             betaEfficiency = totGen = 0.0;
         }
         cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds) \n";

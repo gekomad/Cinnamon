@@ -112,10 +112,9 @@ public:
 
     void setGtb(Tablebase &tablebase);
 
-protected:
-
 #ifdef DEBUG_MODE
-    unsigned cumulativeMovesCount, totGen;
+    static unsigned cumulativeMovesCount;
+    static unsigned totGen;
 #endif
 private:
 

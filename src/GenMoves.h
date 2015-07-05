@@ -175,6 +175,10 @@ public:
         runningThread = t;
     }
 
+#ifdef DEBUG_MODE
+    static int nCutAB, nNullMoveCut, nCutFp, nCutRazor, nCutInsufficientMaterial;
+    static double betaEfficiency;
+#endif
 protected:
     int listId;
     _TmoveP *gen_list;
@@ -212,10 +216,6 @@ protected:
 
     void initKillerHeuristic();
 
-#ifdef DEBUG_MODE
-    int nCutAB, nNullMoveCut, nCutFp, nCutRazor, nCutInsufficientMaterial;
-    double betaEfficiencyCumulative, betaEfficiency;
-#endif
 
     void pushRepetition(u64);
 

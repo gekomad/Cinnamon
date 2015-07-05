@@ -18,6 +18,10 @@
 
 #include "GenMoves.h"
 
+#ifdef DEBUG_MODE
+int GenMoves::nCutAB, GenMoves::nNullMoveCut, GenMoves::nCutFp, GenMoves::nCutRazor, GenMoves::nCutInsufficientMaterial;
+double GenMoves::betaEfficiency;
+#endif
 GenMoves::GenMoves() : perftMode(false), listId(-1) {
     currentPly = 0;
     gen_list = (_TmoveP *) calloc(MAX_PLY, sizeof(_TmoveP));
@@ -1157,7 +1161,7 @@ void GenMoves::init() {
     numMoves = numMovesq = 0;
 #ifdef DEBUG_MODE
     nCutFp = nCutRazor = 0;
-    betaEfficiency = betaEfficiencyCumulative = 0.0;
+    betaEfficiency = 0.0;
     nCutAB = 0;
     nNullMoveCut = nCutInsufficientMaterial = 0;
 #endif
