@@ -20,26 +20,19 @@
 #define _SINGLETON_H
 
 #include <mutex>
-
 template<class T>
 class Singleton {
 public:
 
     static T &getInstance() {
         static lock_guard<mutex> lock(singletonMutex);
-        if (!_instanceSingleton) {
-            _instanceSingleton = new T();
-        }
-        return *_instanceSingleton;
+        static T i;
+        return i;
     }
-
 private:
-    static T *_instanceSingleton;
     static mutex singletonMutex;
 };
 
-
-template<class T> T *Singleton<T>::_instanceSingleton = nullptr;
 template<class T> mutex Singleton<T>::singletonMutex;
 
 #endif
