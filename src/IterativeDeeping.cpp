@@ -144,7 +144,7 @@ void IterativeDeeping::run() {
     int mateIn = INT_MAX;
     string pvv;
     _Tmove resultMove;
-    while (searchManager.getRunning(0) && mateIn == INT_MAX && mply < maxDepth) {
+    while (searchManager.getRunning(0) &&/* mateIn == INT_MAX &&*/ mply < maxDepth) {
         mateIn = INT_MAX;
         totMoves = 0;
         ++mply;
