@@ -58,9 +58,9 @@ SearchManager::~SearchManager() {
 
 int SearchManager::loadFen(string fen) {
     int res = searchPool[0]->loadFen(fen);
-    ASSERT_RANGE(res, 0, 1)
-    for (Search *s:searchPool) {
-        s->setChessboard(searchPool[0]->getChessboard());
+    ASSERT_RANGE(res, 0, 1);
+    for (uchar i = 1; i < searchPool.size(); i++) {
+        searchPool[i]->setChessboard(searchPool[0]->getChessboard());
     }
     return res;
 }

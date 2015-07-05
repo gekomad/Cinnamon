@@ -202,7 +202,7 @@ int main(int argc, char **argv) {
         if (opt == 'b') {
             unique_ptr<IterativeDeeping> it(new IterativeDeeping());
             it->setUseBook(false);
-            it->setMaxTimeMillsec(40000);
+            it->setMaxTimeMillsec(10000);
             it->run();
             return 0;
         } else if (opt == 'd') {  // gtb dtm

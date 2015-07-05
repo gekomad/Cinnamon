@@ -127,6 +127,7 @@ void Uci::listner(IterativeDeeping *it) {
         } else if (token == "quit") {
             knowCommand = true;
             it->setRunning(false);
+            it->join();
             stop = true;
         } else if (token == "ponderhit") {
             knowCommand = true;
