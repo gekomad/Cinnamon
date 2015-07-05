@@ -199,7 +199,6 @@ void IterativeDeeping::run() {
         int nCutRazor = searchManager.getNCutRazor();
         int nNullMoveCut = searchManager.getNNullMoveCut();
         unsigned totGen = searchManager.getTotGen();
-        int nCutInsufficientMaterial = searchManager.getNCutInsufficientMaterial();
         if (nCutAB) {
             cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%\n";
             betaEfficiency = totGen = 0.0;
@@ -210,7 +209,6 @@ void IterativeDeeping::run() {
         cout << "info string futility pruning cut: " << nCutFp << "\n";
         cout << "info string razor cut: " << nCutRazor << "\n";
         cout << "info string null move cut: " << nNullMoveCut << "\n";
-        cout << "info string insufficientMaterial cut: " << nCutInsufficientMaterial << endl;
 #endif
         ///is valid move?
         bool print = true;

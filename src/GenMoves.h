@@ -176,7 +176,7 @@ public:
     }
 
 #ifdef DEBUG_MODE
-    static int nCutAB, nNullMoveCut, nCutFp, nCutRazor, nCutInsufficientMaterial;
+    static int nCutAB, nNullMoveCut, nCutFp, nCutRazor;
     static double betaEfficiency;
 #endif
 protected:

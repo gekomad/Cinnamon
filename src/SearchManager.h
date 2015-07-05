@@ -149,11 +149,6 @@ public:
         return searchPool[0]->totGen;
     }
 
-    int getNCutInsufficientMaterial() {
-        return searchPool[0]->nCutInsufficientMaterial;
-    }
-
-
 #endif
 private:
     SearchManager();

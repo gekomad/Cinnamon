@@ -19,7 +19,7 @@
 #include "GenMoves.h"
 
 #ifdef DEBUG_MODE
-int GenMoves::nCutAB, GenMoves::nNullMoveCut, GenMoves::nCutFp, GenMoves::nCutRazor, GenMoves::nCutInsufficientMaterial;
+int GenMoves::nCutAB, GenMoves::nNullMoveCut, GenMoves::nCutFp, GenMoves::nCutRazor;
 double GenMoves::betaEfficiency;
 #endif
 GenMoves::GenMoves() : perftMode(false), listId(-1) {
@@ -1163,7 +1163,7 @@ void GenMoves::init() {
     nCutFp = nCutRazor = 0;
     betaEfficiency = 0.0;
     nCutAB = 0;
-    nNullMoveCut = nCutInsufficientMaterial = 0;
+    nNullMoveCut = 0;
 #endif
     listId = 0;
 }
