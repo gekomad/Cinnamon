@@ -27,7 +27,7 @@ class SearchManager : public Singleton<SearchManager> {
     friend class Singleton<SearchManager>;
 
 public:
-    int PVSplit(int mply, int alpha, int beta);
+    int PVSplit(const int depth, atomic<int>& alpha,const int beta);
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
@@ -197,13 +197,14 @@ private:
 
     vector<Search *> searchPool;
     mutex mutexSearch;
-
+    Search * searchMoves;
     void joinAll();
 
     void setMainPly(int r);
 
     template<int threadID>
     void startThread(int depth);
+    int getNextThread();
 };
 
 #endif

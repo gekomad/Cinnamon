@@ -365,6 +365,9 @@ int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 f
     return performRankFileCaptureCount(position, enemies, enemies | friends) + performRankFileShiftCount(position, enemies | friends);
 }
 
+_Tmove *GenMoves::getNextMove() {
+    return GenMoves::getNextMove(&gen_list[listId++]);
+}
 
 void GenMoves::setPerft(const bool b) {
     perftMode = b;

@@ -22,7 +22,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include "namespaces.h"
+#include "../namespaces.h"
 
 using namespace std;
 

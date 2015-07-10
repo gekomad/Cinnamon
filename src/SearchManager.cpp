@@ -16,36 +16,48 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <future>
 #include "SearchManager.h"
 
-int SearchManager::PVSplit(int depth, int alpha, int beta) {
-//    int k = 0;
-//    if (depth < 5) {
-//        return searchPool[k]->searchNOparall(depth, alpha, beta);
-//    }
-//
-//    succnode = GetFirstSucc(curnode);
-//    score = PVSplit(curnode, alpha, beta);
-//    if (score > beta) {
-//        return beta;
-//    }
-//    if (score > alpha) {
-//        alpha = score;
-//    }
-//    while (HasMoreSuccessors(cur node )) {
-//        succ node = GetNextSucc(cur
-//        node );
-//        score = AlphaBeta(succ
-//        node, alpha, beta );
-//        if (score > beta) {
-//            return beta;
-//        }
-//        if (score > alpha) {
-//            alpha = score;
-//        }
-//    }
-//
-//    return alpha;
+int SearchManager::getNextThread() {
+    return -1;
+}
+
+int SearchManager::PVSplit(const int depth, atomic<int> &alpha, const int beta) {
+    int threadID = getNextThread();
+    if (depth < 5) {
+        return searchPool[threadID]->searchNOparall(depth, alpha, beta);
+    }
+
+    //succnode = GetFirstSucc(curnode);
+    int score = PVSplit(depth, alpha, beta);
+    if (score > beta) {
+        return beta;
+    }
+    if (score > alpha) {
+        alpha = score;
+    }
+    _Tmove *move;
+    threadID = getNextThread();
+    // Begin parallel loop
+    while ((move = searchMoves->getNextMove())) {
+        int threadID = getNextThread();
+        thread a = thread([] {
+            u64 oldKey = searchPool[threadID]->chessboard[ZOBRISTKEY_IDX];
+            searchPool[threadID]->makemove(move, true, false);
+            score = searchPool[threadID]->searchNOparall(depth, alpha, beta);
+            if (score > beta) {
+                takeback(move, oldKey, true);
+                return beta;
+            }
+            if (score > alpha) {
+                alpha = score;
+            }
+            takeback(move, oldKey, true);
+        });
+    }
+//    // End parallel loop
+    return alpha;
 }
 
 SearchManager::~SearchManager() {
@@ -181,7 +193,9 @@ void SearchManager::parallelSearch(int mply) {
     joinAll();
 
     if (threadWin == -1) {
-        PVSplit(mply, -_INFINITE, _INFINITE);
+        searchMoves->clone(searchPool[0]);
+        atomic<int> alpha(-_INFINITE);
+        PVSplit(mply, alpha, _INFINITE);
     }
 
 }

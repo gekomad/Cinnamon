@@ -22,7 +22,7 @@
 #include <iostream>
 #include <string.h>
 #include "namespaces.h"
-#include "Singleton.h"
+#include "util/Singleton.h"
 #include <mutex>
 
 using namespace _board;

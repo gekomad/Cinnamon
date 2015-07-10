@@ -20,12 +20,12 @@
 #define PERFT_H_
 
 #include "Search.h"
-#include "Thread.h"
+#include "util/Thread.h"
 #include <iomanip>
 #include <atomic>
 #include <fstream>
 #include <unistd.h>
-#include "Timer.h"
+#include "util/Timer.h"
 #include <mutex>
 
 

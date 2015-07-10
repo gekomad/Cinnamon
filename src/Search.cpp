@@ -29,6 +29,10 @@ Search::Search() : ponder(false), nullSearch(false) {
     hash = &Hash::getInstance();
 }
 
+void Search::clone(const Search* s) {
+    memcpy(chessboard,s->chessboard,sizeof(_Tchessboard));
+}
+
 int Search::printDtm() {
     int side = getSide();
     u64 friends = side == WHITE ? getBitBoard<WHITE>() : getBitBoard<BLACK>();

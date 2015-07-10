@@ -21,9 +21,9 @@
 
 #include <cstring>
 #include <string.h>
-#include "String.h"
+#include "util/String.h"
 #include "SearchManager.h"
-#include "Thread.h"
+#include "util/Thread.h"
 #include "OpenBook.h"
 #include <stdio.h>
 #include <stdlib.h>

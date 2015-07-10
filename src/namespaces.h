@@ -26,7 +26,7 @@
 #include <sstream>
 #include <climits>
 #include <fstream>
-#include "stacktrace.h"
+#include "util/stacktrace.h"
 
 using namespace std;
 namespace _board {

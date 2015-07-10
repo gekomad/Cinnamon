@@ -25,7 +25,7 @@
 #include "namespaces.h"
 #include <climits>
 #include "Tablebase.h"
-#include "Thread.h"
+#include "util/Thread.h"
 
 
 class Search : public Eval, public Thread {
@@ -33,7 +33,7 @@ class Search : public Eval, public Thread {
 public:
 
     Search();
-
+    void clone(const Search*);
     virtual ~Search();
 
     void setRunning(int);

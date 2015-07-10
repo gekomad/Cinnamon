@@ -19,7 +19,7 @@
 #ifndef _BITS_H_
 #define _BITS_H_
 
-#include "namespaces.h"
+#include "../namespaces.h"
 
 class Bits {
 public:

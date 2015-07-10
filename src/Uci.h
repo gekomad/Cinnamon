@@ -22,7 +22,7 @@
 #include "IterativeDeeping.h"
 #include "Perft.h"
 #include <string.h>
-#include "String.h"
+#include "util/String.h"
 
 class Uci {
 public:

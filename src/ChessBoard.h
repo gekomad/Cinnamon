@@ -22,8 +22,8 @@
 #include <iostream>
 #include <string.h>
 #include <sstream>
-#include "String.h"
-#include "Bits.h"
+#include "util/String.h"
+#include "util/Bits.h"
 #include "namespaces.h"
 
 using namespace _board;

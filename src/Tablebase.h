@@ -22,7 +22,7 @@
 #include "gtb/gtb-probe.h"
 #include "namespaces.h"
 #include "ChessBoard.h"
-#include "Singleton.h"
+#include "util/Singleton.h"
 
 class Tablebase : private Bits, public Singleton<Tablebase> {
     friend class Singleton<Tablebase>;
