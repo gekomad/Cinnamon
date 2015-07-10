@@ -90,7 +90,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
 }
 
 template<int threadID>
-void SearchManager::getWindowRage(const int V, int *from, int *to) {
+void SearchManager::getWindowRange(const int V, int *from, int *to) {
     switch (threadID) {
         case 0:
             *from = V - VAL_WINDOW;
@@ -121,7 +121,7 @@ void SearchManager::receiveObserver() {
             int t = searchPool[threadID]->getValue();
             int from, to;
 
-            getWindowRage<threadID>(valWindow, &from, &to);
+            getWindowRange<threadID>(valWindow, &from, &to);
             if (t > from && t < to) {
                 valWindow = t;
                 threadWin = threadID;
@@ -170,19 +170,19 @@ void SearchManager::parallelSearch(int mply) {
         //int window = VAL_WINDOW * pow(2, k - 1);??? -1
         int from, to;
         ASSERT(getRunning(0));
-        getWindowRage<0>(valWindow, &from, &to);
+        getWindowRange<0>(valWindow, &from, &to);
         startThread<0>(mply, from, to);
 
         ASSERT(getRunning(1));
-        getWindowRage<1>(valWindow, &from, &to);
+        getWindowRange<1>(valWindow, &from, &to);
         startThread<1>(mply, from, to);
 
         ASSERT(getRunning(2));
-        getWindowRage<2>(valWindow, &from, &to);
+        getWindowRange<2>(valWindow, &from, &to);
         startThread<2>(mply, from, to);
 
         ASSERT(getRunning(3));
-        getWindowRage<3>(valWindow, &from, &to);
+        getWindowRange<3>(valWindow, &from, &to);
         startThread<3>(mply, from, to);
 //            }
     }

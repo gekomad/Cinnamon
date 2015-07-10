@@ -157,7 +157,7 @@ private:
     void receiveObserver();
 
     template<int threadID>
-    void getWindowRage(const int val, int *from, int *to);
+    void getWindowRange(const int val, int *from, int *to);
 
     static const int N_THREAD = 4;
     int valWindow;
