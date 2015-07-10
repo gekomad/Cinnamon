@@ -53,10 +53,6 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
 
 }
 
-//void IterativeDeeping::setMaxTimeMillsec(int i) {
-//    searchManager.setMaxTimeMillsec(i);
-//}
-
 void IterativeDeeping::setMaxDepth(int d) {
     maxDepth = d;
 }
@@ -228,7 +224,7 @@ void IterativeDeeping::run() {
         }
         if (print) {
             mateIn = searchManager.getMateIn();
-            //resultMove.capturedPiece = (resultMove.side ^ 1) == WHITE ? searchManager.getPieceAt<WHITE>(POW2[resultMove.to]) : searchManager.getPieceAt<BLACK>(POW2[resultMove.to]);
+
             resultMove.capturedPiece = searchManager.getPieceAt(resultMove.side ^ 1, POW2[resultMove.to]);
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
             if (!(resultMove.type & (Search::KING_SIDE_CASTLE_MOVE_MASK | Search::QUEEN_SIDE_CASTLE_MOVE_MASK))) {

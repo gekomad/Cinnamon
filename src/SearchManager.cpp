@@ -17,9 +17,9 @@
 */
 
 #include "SearchManager.h"
-//
+
 //int SearchManager::PVSplit(int depth, int alpha, int beta) {
-//    int k=0;
+//    int k = 0;
 //    if (depth < 5) {
 //        return searchPool[k]->searchNOparall(depth, alpha, beta);
 //    }
@@ -181,9 +181,9 @@ void SearchManager::parallelSearch(int mply) {
         getWindowRange<2>(valWindow, &from, &to);
         startThread<2>(mply, from, to);
 
-        ASSERT(getRunning(3));
-        getWindowRange<3>(valWindow, &from, &to);
-        startThread<3>(mply, from, to);
+//        ASSERT(getRunning(3));
+//        getWindowRange<3>(valWindow, &from, &to);
+//        startThread<3>(mply, from, to);
 //            }
     }
 
@@ -195,6 +195,9 @@ void SearchManager::parallelSearch(int mply) {
 
     joinAll();
 
+    if(threadWin==-1){
+        PVSplit(mply, -_INFINITE, _INFINITE);
+    }
 
 }
 
@@ -216,7 +219,7 @@ void SearchManager::setMainPly(int r) {
     }
 }
 
-int SearchManager::getPieceAt(int side, int i) {
+int SearchManager::getPieceAt(int side, u64 i) {
     return side == WHITE ? searchPool[0]->getPieceAt<WHITE>(i) : searchPool[0]->getPieceAt<BLACK>(i);
 }
 

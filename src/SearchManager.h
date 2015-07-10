@@ -35,7 +35,7 @@ public:
 
     int loadFen(string fen = "");
 
-    int getPieceAt(int side, int i);
+    int getPieceAt(int side, u64 i);
 
     u64 getTotMoves();
 
