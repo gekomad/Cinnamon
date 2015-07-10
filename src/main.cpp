@@ -125,6 +125,7 @@ int main(int argc, char **argv) {
     cout << "DEBUG_MODE\n";
 #endif
     cout << flush;
+    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     if (argc == 2 && !strcmp(argv[1], "--help")) {
         help(argv);
         return 1;
@@ -202,7 +203,7 @@ int main(int argc, char **argv) {
         if (opt == 'b') {
             unique_ptr<IterativeDeeping> it(new IterativeDeeping());
             it->setUseBook(false);
-            it->setMaxTimeMillsec(10000);
+            searchManager.setMaxTimeMillsec(10000);
             it->run();
             return 0;
         } else if (opt == 'd') {  // gtb dtm
@@ -236,8 +237,8 @@ int main(int argc, char **argv) {
                 cout << "error TB not found" << endl;
                 return 1;
             }
-            it.loadFen(fen);
-            it.printDtm();
+            searchManager.loadFen(fen);
+            searchManager.printDtm();
             return 0;
         } else if (opt == 'p') {  // perft test
             if (string(optarg) != "erft") {

@@ -89,110 +89,119 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
     return true;
 }
 
+template<int threadID>
+void SearchManager::getWindowRage(const int val, int *from, int *to) {
+    switch (threadID) {
+        case 0:
+            *from = val - VAL_WINDOW;
+            *to = val + VAL_WINDOW;
+            break;
+        case 1:
+            *from = val - VAL_WINDOW * 2;
+            *to = val + VAL_WINDOW * 2;
+            break;
+        case 2:
+            *from = val - VAL_WINDOW * 4;
+            *to = val + VAL_WINDOW * 4;
+            break;
+        case 3:
+            *from = -_INFINITE;
+            *to = _INFINITE;
+            break;
+        default:
+        assert(0);
+    }
+}
+
+template<int threadID>
+void SearchManager::receiveObserver() {
+    if (getRunning(threadID)) {
+        lock_guard<mutex> lock(mutexSearch);
+        if (threadWin == -1) {
+            int t = searchPool[threadID]->getValue();
+            int from, to;
+
+            getWindowRage<threadID>(val, &from, &to);
+            if (t > from && t < to) {
+                val = t;
+                threadWin = threadID;
+                ASSERT(searchPool[threadWin]->getPvLine().cmove);
+                for (Search *s:searchPool) {
+                    s->setRunningThread(threadID);
+                }
+            }
+        }
+    }
+}
+
 SearchManager::SearchManager() {
     for (int i = 0; i < N_THREAD; i++) {
         searchPool.push_back(new Search());
     }
     threadWin = -1;
-    if (!searchPoolObserver) {
-        searchPoolObserver = true;
-        searchPool[0]->registerObservers([this]() {
-            if (getRunning(0)) {
-                lock_guard<mutex> lock(mutexSearch);
-                if (threadWin == -1) {
-                    int t = searchPool[0]->getValue();
-                    if (t > val - VAL_WINDOW && t < val + VAL_WINDOW) {
-                        val = t;
-                        threadWin = 0;
-                        ASSERT(searchPool[threadWin]->getPvLine().cmove);
-                        for (Search *s:searchPool) {
-                            s->setRunningThread(0);
-                        }
-                    }
-                }
-            }
-        });
-        searchPool[1]->registerObservers([this]() {
-            if (getRunning(1)) {
-                lock_guard<mutex> lock(mutexSearch);
-                if (threadWin == -1) {
 
-                    int t = searchPool[1]->getValue();
-                    if (t > val - VAL_WINDOW * 2 && t < val + VAL_WINDOW * 2) {
-                        val = t;
-                        threadWin = 1;
-                        ASSERT(searchPool[threadWin]->getPvLine().cmove);
-                        for (Search *s:searchPool) {
-                            s->setRunningThread(0);
-                        }
-                    }
-                }
-            }
-        });
-        searchPool[2]->registerObservers([this]() {
-            if (getRunning(2)) {
-                lock_guard<mutex> lock(mutexSearch);
-                if (threadWin == -1) {
+    searchPool[0]->registerObservers([this]() {
+        receiveObserver<0>();
+    });
+    searchPool[1]->registerObservers([this]() {
+        receiveObserver<1>();
+    });
+    searchPool[2]->registerObservers([this]() {
+        receiveObserver<2>();
+    });
+    searchPool[3]->registerObservers([this]() {
+        receiveObserver<3>();
+    });
 
-                    int t = searchPool[2]->getValue();
-                    if (t > val - VAL_WINDOW * 4 && t < val + VAL_WINDOW * 4) {
-                        val = t;
-                        threadWin = 2;
-                        ASSERT(searchPool[threadWin]->getPvLine().cmove);
-                        for (Search *s:searchPool) {
-                            s->setRunningThread(0);
-                        }
-                    }
-                }
-            }
-        });
-        searchPool[3]->registerObservers([this]() {
-            if (getRunning(3)) {
-                lock_guard<mutex> lock(mutexSearch);
-                if (threadWin == -1) {
-                    val = searchPool[3]->getValue();
-                    threadWin = 3;
-                    ASSERT(searchPool[threadWin]->getPvLine().cmove);
-                    for (Search *s:searchPool) {
-                        s->setRunningThread(0);
-                    }
-                }
-            }
-        });
-    }
 }
 
 void SearchManager::parallelSearch(int mply) {
     threadWin = -1;
     setMainPly(mply);
-    if (mply < 5) {
-        int k = 3;
-
-        startThread(k, mply, -_INFINITE, _INFINITE);
-        join(k);
-        val = getValue(k);
+//    if (mply < 5) { 
+    if (mply == 1) {
+        startThread<3>(mply, -_INFINITE, _INFINITE);
+        join(3);
+        val = getValue(3);
 
     } else {
-        for (int k = 0; k < 3; k++) {
-            if (getRunning(k)) {
-                int window = VAL_WINDOW * pow(2, k - 1);
-                startThread(k, mply, val - window, val + window);
-            }
-        }
+//        for (int k = 0; k < 3; k++) {
+//        if (getRunning(k)) {
+        //int window = VAL_WINDOW * pow(2, k - 1);??? -1
+        int from, to;
+        ASSERT(getRunning(0));
+        getWindowRage<0>(val, &from, &to);
+        startThread<0>(mply, from, to);
 
-        int k = 3;
+        ASSERT(getRunning(1));
+        getWindowRage<1>(val, &from, &to);
+        startThread<1>(mply, from, to);
 
-        if (getRunning(k)) {
-            startThread(k, mply, -_INFINITE, _INFINITE);
-        }
+        ASSERT(getRunning(2));
+        getWindowRage<2>(val, &from, &to);
+        startThread<2>(mply, from, to);
 
-        joinAll();
+        ASSERT(getRunning(3));
+        getWindowRage<3>(val, &from, &to);
+        startThread<3>(mply, from, to);
+//            }
     }
+
+//    int k = 3;
+//
+//    if (getRunning(k)) {
+//        startThread(k, mply, -_INFINITE, _INFINITE);
+//    }
+
+    joinAll();
+
+
 }
 
-void SearchManager::startThread(int threadID1, int depth, int alpha, int beta) {
-    searchPool[threadID1]->search(depth, alpha, beta, threadID1);
-    searchPool[threadID1]->start();
+template<int threadID>
+void SearchManager::startThread(int depth, int alpha, int beta) {
+    searchPool[threadID]->search(depth, alpha, beta);
+    searchPool[threadID]->start();
 }
 
 void SearchManager::joinAll() {

@@ -36,7 +36,7 @@ public:
     mutex mutexIT;//TODO eliminare?
 
 
-    void setMaxTimeMillsec(int i);
+//    void setMaxTimeMillsec(int i);
 
     virtual ~ IterativeDeeping();
 
@@ -56,64 +56,64 @@ public:
 
     void loadBook(string);
 
-    int printDtm();
+//    int printDtm();
 
     bool setParameter(String param, int value);
 
-    virtual int loadFen(string fen = "");
+//    virtual int loadFen(string fen = "");
 
-    void display();
+//    void display();
 
-    int getHashSize();
+//    int getHashSize();
 
-    bool setHashSize(int i);
+//    bool setHashSize(int i);
 
-    void setRunning(bool i);
+//    void setRunning(bool i);
 
-    void startClock();
+//    void startClock();
 
-    void setPonder(bool i);
+//    void setPonder(bool i);
 
-    string getFen();
+//    string getFen();
 
-    int getSide();
+//    int getSide();
 
-    int getScore(int side);
+//    int getScore(int side);
 
-    void clearHash();
+//    void clearHash();
 
-    int getMaxTimeMillsec();
+//    int getMaxTimeMillsec();
 
-    void setNullMove(bool i);
+//    void setNullMove(bool i);
 
-    void makemove(_Tmove *ptr);
+//    void makemove(_Tmove *ptr);
 
-    void setSide(bool i);
+    //  void setSide(bool i);
 
-    int getMoveFromSan(String string, _Tmove *ptr);
+//    int getMoveFromSan(String string, _Tmove *ptr);
 
 
-    void pushStackMove();
+//    void pushStackMove();
 
-    void init();
+//    void init();
 
-    void setRepetitionMapCount(int i);
+//    void setRepetitionMapCount(int i);
 
-    void deleteGtb();
+//    void deleteGtb();
 
     void createGtb();
 
-    void setGtbPath(String string);
+//    void setGtbPath(String string);
 
-    bool setGtbCacheSize(int i);
+//    bool setGtbCacheSize(int i);
 
-    bool setGtbScheme(String string);
+//    bool setGtbScheme(String string);
 
-    bool setGtbInstalledPieces(int i);
+//    bool setGtbInstalledPieces(int i);
 
-    bool setGtbProbeDepth(int i);
+//    bool setGtbProbeDepth(int i);
 
-    void restartGtb();
+//    void restartGtb();
 
     IterativeDeeping();
 

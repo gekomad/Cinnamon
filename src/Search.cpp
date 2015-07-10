@@ -330,12 +330,11 @@ void Search::run() {
     }
 }
 
-void Search::search(int depth, int alpha, int beta, int threadID1) {
+void Search::search(int depth, int alpha, int beta) {
     memset(&pvLine, 0, sizeof(_TpvLine));
     threadDepth = depth;
     threadAlpha = alpha;
     threadBeta = beta;
-    threadID = threadID1;
 }
 
 void Search::notifyObservers(void) {

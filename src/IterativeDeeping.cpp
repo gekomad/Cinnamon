@@ -53,9 +53,9 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), pon
 
 }
 
-void IterativeDeeping::setMaxTimeMillsec(int i) {
-    searchManager.setMaxTimeMillsec(i);
-}
+//void IterativeDeeping::setMaxTimeMillsec(int i) {
+//    searchManager.setMaxTimeMillsec(i);
+//}
 
 void IterativeDeeping::setMaxDepth(int d) {
     maxDepth = d;
@@ -362,119 +362,119 @@ bool IterativeDeeping::setParameter(String param, int value) {
 #endif
 }
 
-int IterativeDeeping::loadFen(string fen) {
-    return searchManager.loadFen(fen);
-}
+//int IterativeDeeping::loadFen(string fen) {
+//    return searchManager.loadFen(fen);
+//}
 
-void IterativeDeeping::display() {
-    searchManager.display();
-}
+//void IterativeDeeping::display() {
+//    searchManager.display();
+//}
 
-int IterativeDeeping::getHashSize() {
-    return searchManager.getHashSize();
-}
+//int IterativeDeeping::getHashSize() {
+//    return searchManager.getHashSize();
+//}
 
-bool IterativeDeeping::setHashSize(int i) {
-    return searchManager.setHashSize(i);
-}
+//bool IterativeDeeping::setHashSize(int i) {
+//    return searchManager.setHashSize(i);
+//}
 
-void IterativeDeeping::setRunning(bool i) {
-    searchManager.setRunning(i);
-}
+//void IterativeDeeping::setRunning(bool i) {
+//    searchManager.setRunning(i);
+//}
 
-void IterativeDeeping::startClock() {
-    searchManager.startClock();
-}
+//void IterativeDeeping::startClock() {
+//    searchManager.startClock();
+//}
 
-string IterativeDeeping::getFen() {
-    return searchManager.getFen();
-}
+//string IterativeDeeping::getFen() {
+//    return searchManager.getFen();
+//}
 
-void IterativeDeeping::setPonder(bool i) {
-    searchManager.setPonder(i);
-}
+//void IterativeDeeping::setPonder(bool i) {
+//    searchManager.setPonder(i);
+//}
 
-int IterativeDeeping::getSide() {
-    return searchManager.getSide();
-}
-
-int IterativeDeeping::getScore(int side) {
-    return searchManager.getScore(side);
-}
+//int IterativeDeeping::getSide() {
+//    return searchManager.getSide();
+//}
+//
+//int IterativeDeeping::getScore(int side) {
+//    return searchManager.getScore(side);
+//}
 
 //u64 IterativeDeeping::getBitBoard() {
 //    return searchManager.getBitBoard();
 //}
 
-void IterativeDeeping::clearHash() {
-    searchManager.clearHash();
-}
+//void IterativeDeeping::clearHash() {
+//    searchManager.clearHash();
+//}
 
-int IterativeDeeping::getMaxTimeMillsec() {
-    return searchManager.getMaxTimeMillsec();
-}
+//int IterativeDeeping::getMaxTimeMillsec() {
+//    return searchManager.getMaxTimeMillsec();
+//}
 
-void IterativeDeeping::setNullMove(bool i) {
-    searchManager.setNullMove(i);
-}
+//void IterativeDeeping::setNullMove(bool i) {
+//    searchManager.setNullMove(i);
+//}
+//
+//void IterativeDeeping::makemove(_Tmove *ptr) {
+//    searchManager.makemove(ptr);
+//}
 
-void IterativeDeeping::makemove(_Tmove *ptr) {
-    searchManager.makemove(ptr);
-}
+//void IterativeDeeping::setSide(bool i) {
+//    searchManager.setSide(i);
+//}
 
-void IterativeDeeping::setSide(bool i) {
-    searchManager.setSide(i);
-}
-
-int IterativeDeeping::getMoveFromSan(String string, _Tmove *ptr) {
-    return searchManager.getMoveFromSan(string, ptr);
-}
-
-void IterativeDeeping::pushStackMove() {
-    searchManager.pushStackMove();
-}
-
-void IterativeDeeping::init() {
-    searchManager.init();
-}
-
-void IterativeDeeping::setRepetitionMapCount(int i) {
-    searchManager.setRepetitionMapCount(i);
-}
-
-void IterativeDeeping::deleteGtb() {
-    searchManager.deleteGtb();
-}
-
-int IterativeDeeping::printDtm() {
-    return searchManager.printDtm();
-}
+//int IterativeDeeping::getMoveFromSan(String string, _Tmove *ptr) {
+//    return searchManager.getMoveFromSan(string, ptr);
+//}
+//
+//void IterativeDeeping::pushStackMove() {
+//    searchManager.pushStackMove();
+//}
+//
+//void IterativeDeeping::init() {
+//    searchManager.init();
+//}
+//
+//void IterativeDeeping::setRepetitionMapCount(int i) {
+//    searchManager.setRepetitionMapCount(i);
+//}
+//
+//void IterativeDeeping::deleteGtb() {
+//    searchManager.deleteGtb();
+//}
+//
+//int IterativeDeeping::printDtm() {
+//    return searchManager.printDtm();
+//}
 
 void IterativeDeeping::createGtb() {
     tablebase = &Tablebase::getInstance();
     searchManager.setGtb(*tablebase);
 }
-
-void IterativeDeeping::setGtbPath(String path) {
-    tablebase->setPath(path);
-}
-
-bool IterativeDeeping::setGtbCacheSize(int i) {
-    return tablebase->setCacheSize(i);
-}
-
-bool IterativeDeeping::setGtbScheme(String s) {
-    return tablebase->setScheme(s);
-}
-
-bool IterativeDeeping::setGtbInstalledPieces(int i) {
-    return tablebase->setInstalledPieces(i);
-}
-
-bool IterativeDeeping::setGtbProbeDepth(int i) {
-    return tablebase->setProbeDepth(i);
-}
-
-void IterativeDeeping::restartGtb() {
-    tablebase->restart();
-}
+//
+//void IterativeDeeping::setGtbPath(String path) {
+//    tablebase->setPath(path);
+//}
+//
+//bool IterativeDeeping::setGtbCacheSize(int i) {
+//    return tablebase->setCacheSize(i);
+//}
+//
+//bool IterativeDeeping::setGtbScheme(String s) {
+//    return tablebase->setScheme(s);
+//}
+//
+//bool IterativeDeeping::setGtbInstalledPieces(int i) {
+//    return tablebase->setInstalledPieces(i);
+//}
+//
+//bool IterativeDeeping::setGtbProbeDepth(int i) {
+//    return tablebase->setProbeDepth(i);
+//}
+//
+//void IterativeDeeping::restartGtb() {
+//    tablebase->restart();
+//}

@@ -56,7 +56,7 @@ public:
         return pvLine;
     }
 
-    void search(int depth, int alpha, int beta, int threadID1);
+    void search(int depth, int alpha, int beta);
 
     int searchNOparall(int depth, int alpha, int beta);
 
@@ -126,7 +126,7 @@ private:
     int threadValue = INT_MAX;
 
     int threadAlpha;
-    int threadBeta, threadID;
+    int threadBeta;
 
     int checkTime();
 

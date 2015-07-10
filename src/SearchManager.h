@@ -33,7 +33,7 @@ public:
 
     ~SearchManager();
 
-    int loadFen(string fen);
+    int loadFen(string fen = "");
 
     int getPieceAt(int side, int i);
 
@@ -153,11 +153,17 @@ public:
 private:
     SearchManager();
 
+    template<int threadID>
+    void receiveObserver();
+
+    template<int threadID>
+    void getWindowRage(const int val, int *from, int *to);
+
     static const int N_THREAD = 4;
     int val;
     int threadWin;
-    bool searchPoolObserver = false;
-    // Search *searchPool[N_THREAD] = {nullptr};
+//    bool searchPoolObserver = false;
+
     vector<Search *> searchPool;
     mutex mutexSearch;
 
@@ -165,8 +171,8 @@ private:
 
     void setMainPly(int r);
 
-
-    void startThread(int threadID1, int depth, int alpha, int beta);
+    template<int threadID>
+    void startThread(int depth, int alpha, int beta);
 };
 
 #endif
