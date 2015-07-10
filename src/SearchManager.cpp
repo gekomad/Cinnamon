@@ -18,7 +18,7 @@
 
 #include "SearchManager.h"
 
-//int SearchManager::PVSplit(int depth, int alpha, int beta) {
+int SearchManager::PVSplit(int depth, int alpha, int beta) {
 //    int k = 0;
 //    if (depth < 5) {
 //        return searchPool[k]->searchNOparall(depth, alpha, beta);
@@ -46,7 +46,7 @@
 //    }
 //
 //    return alpha;
-//}
+}
 
 SearchManager::~SearchManager() {
     for (Search *s:searchPool) {
@@ -158,51 +158,38 @@ SearchManager::SearchManager() {
 void SearchManager::parallelSearch(int mply) {
     threadWin = -1;
     setMainPly(mply);
-//    if (mply < 5) {
+//  if (mply < 5) {
     if (mply == 1) {
-        startThread<3>(mply, -_INFINITE, _INFINITE);
+        startThread<3>(mply);
         join(3);
         valWindow = getValue(3);
 
     } else {
-//        for (int k = 0; k < 3; k++) {
-//        if (getRunning(k)) {
-        //int window = VAL_WINDOW * pow(2, k - 1);??? -1
-        int from, to;
+//  Parallel Aspiration
+
         ASSERT(getRunning(0));
-        getWindowRange<0>(valWindow, &from, &to);
-        startThread<0>(mply, from, to);
+        startThread<0>(mply);
 
         ASSERT(getRunning(1));
-        getWindowRange<1>(valWindow, &from, &to);
-        startThread<1>(mply, from, to);
+        startThread<1>(mply);
 
         ASSERT(getRunning(2));
-        getWindowRange<2>(valWindow, &from, &to);
-        startThread<2>(mply, from, to);
+        startThread<2>(mply);
 
-        ASSERT(getRunning(3));
-        getWindowRange<3>(valWindow, &from, &to);
-        startThread<3>(mply, from, to);
     }
-
-
-//    int k = 3;
-//
-//    if (getRunning(k)) {
-//        startThread(k, mply, -_INFINITE, _INFINITE);
-//    }
 
     joinAll();
 
-//    if(threadWin==-1){
-//        PVSplit(mply, -_INFINITE, _INFINITE);
-//    }
+    if (threadWin == -1) {
+        PVSplit(mply, -_INFINITE, _INFINITE);
+    }
 
 }
 
 template<int threadID>
-void SearchManager::startThread(int depth, int alpha, int beta) {
+void SearchManager::startThread(int depth) {
+    int alpha, beta;
+    getWindowRange<threadID>(valWindow, &alpha, &beta);
     searchPool[threadID]->search(depth, alpha, beta);
     searchPool[threadID]->start();
 }

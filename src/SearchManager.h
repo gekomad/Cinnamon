@@ -118,35 +118,67 @@ public:
 #ifdef DEBUG_MODE
 
     unsigned getCumulativeMovesCount() {
-        return searchPool[0]->cumulativeMovesCount;
+        unsigned i=0;
+        for (Search *s:searchPool) {
+            i+=s->cumulativeMovesCount;
+        }
+        return i;
     }
 
-    int getNCutAB() {
-        return searchPool[0]->nCutAB;
+    unsigned getNCutAB() {
+        unsigned i=0;
+        for (Search *s:searchPool) {
+            i+=s->nCutAB;
+        }
+        return i;
     }
 
     double getBetaEfficiency() {
-        return searchPool[0]->betaEfficiency;
+        double i=0;
+        for (Search *s:searchPool) {
+            i+=s->betaEfficiency;
+        }
+        return i;
     }
 
-    int getLazyEvalCuts() {
-        return searchPool[0]->lazyEvalCuts;
+    unsigned getLazyEvalCuts() {
+        unsigned i=0;
+        for (Search *s:searchPool) {
+            i+=s->lazyEvalCuts;
+        }
+        return i;
     }
 
-    int getNCutFp() {
-        return searchPool[0]->nCutFp;
+    unsigned getNCutFp() {
+        unsigned i=0;
+        for (Search *s:searchPool) {
+            i+=s->nCutFp;
+        }
+        return i;
     }
 
-    int getNCutRazor() {
-        return searchPool[0]->nCutRazor;
+    unsigned getNCutRazor() {
+        unsigned i=0;
+        for (Search *s:searchPool) {
+            i+=s->nCutRazor;
+        }
+        return i;
     }
 
-    int getNNullMoveCut() {
-        return searchPool[0]->nNullMoveCut;
+    unsigned getNNullMoveCut() {
+        unsigned i=0;
+        for (Search *s:searchPool) {
+            i+=s->nNullMoveCut;
+        }
+        return i;
     }
 
     unsigned getTotGen() {
-        return searchPool[0]->totGen;
+        unsigned i=0;
+        for (Search *s:searchPool) {
+            i+=s->totGen;
+        }
+        return i;
     }
 
 #endif
@@ -159,7 +191,7 @@ private:
     template<int threadID>
     void getWindowRange(const int val, int *from, int *to);
 
-    static const int N_THREAD = 4;
+    int N_THREAD = 4;
     int valWindow;
     int threadWin;
 
@@ -171,7 +203,7 @@ private:
     void setMainPly(int r);
 
     template<int threadID>
-    void startThread(int depth, int alpha, int beta);
+    void startThread(int depth);
 };
 
 #endif

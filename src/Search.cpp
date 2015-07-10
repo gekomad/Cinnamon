@@ -20,9 +20,6 @@
 
 Hash *Search::hash;
 Tablebase *Search::gtb;
-#ifdef DEBUG_MODE
-unsigned Search::cumulativeMovesCount, Search::totGen;
-#endif
 
 Search::Search() : ponder(false), nullSearch(false) {
 #ifdef DEBUG_MODE

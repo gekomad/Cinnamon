@@ -142,7 +142,7 @@ void IterativeDeeping::run() {
     int extension = 0;
     string bestmove;
     string ponderMove;
-    int val = 0;
+    searchManager.init();
     int mateIn = INT_MAX;
     string pvv;
     _Tmove resultMove;

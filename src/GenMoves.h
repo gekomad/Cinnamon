@@ -176,8 +176,8 @@ public:
     }
 
 #ifdef DEBUG_MODE
-    static int nCutAB, nNullMoveCut, nCutFp, nCutRazor;
-    static double betaEfficiency;
+    unsigned nCutAB, nNullMoveCut, nCutFp, nCutRazor;
+    double betaEfficiency;
 #endif
 protected:
     int listId;

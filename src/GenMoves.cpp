@@ -18,11 +18,6 @@
 
 #include "GenMoves.h"
 
-#ifdef DEBUG_MODE
-int GenMoves::nCutAB, GenMoves::nNullMoveCut, GenMoves::nCutFp, GenMoves::nCutRazor;
-double GenMoves::betaEfficiency;
-#endif
-
 GenMoves::GenMoves() : perftMode(false), listId(-1) {
     currentPly = 0;
     gen_list = (_TmoveP *) calloc(MAX_PLY, sizeof(_TmoveP));
@@ -1159,14 +1154,13 @@ bool GenMoves::makemove(_Tmove *move, bool rep, bool checkInCheck) {
 }
 
 void GenMoves::init() {
-    numMoves = numMovesq = 0;
+    numMoves = numMovesq = listId = 0;
 #ifdef DEBUG_MODE
     nCutFp = nCutRazor = 0;
     betaEfficiency = 0.0;
     nCutAB = 0;
     nNullMoveCut = 0;
 #endif
-    listId = 0;
 }
 
 u64 GenMoves::getTotMoves() {

@@ -41,7 +41,7 @@ public:
     }
 
 #ifdef DEBUG_MODE
-    static int lazyEvalCuts;
+    unsigned lazyEvalCuts;
 #endif
 protected:
     STATIC_CONST int FUTIL_MARGIN = 154;        //CLOP 147
