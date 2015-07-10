@@ -29,7 +29,7 @@ int SearchManager::PVSplit(const int depth, atomic<int> &alpha, const int beta) 
         return searchPool[threadID]->searchNOparall(depth, alpha, beta);
     }
 
-    //succnode = GetFirstSucc(curnode);
+    succnode = GetFirstSucc(curnode);
     int score = PVSplit(depth, alpha, beta);
     if (score > beta) {
         return beta;
