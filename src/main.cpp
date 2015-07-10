@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
         help(argv);
         return 1;
     }
-    char opt;
+    int opt;
 
     while ((opt = getopt(argc, argv, "e:hd:bp:f:")) != -1) {
         if (opt == 'h') {

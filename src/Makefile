@@ -113,11 +113,7 @@ cinnamon-CLOP:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -DCLOP -march=native" build
 
 cinnamon-native:
-ifeq ($(OS),ARM)	
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -fsigned-char -w" build
-else
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
-endif
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -w" build
 
 cinnamon64-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
