@@ -21,6 +21,7 @@
 #ifdef DEBUG_MODE
 int Eval::lazyEvalCuts;
 #endif
+
 Eval::Eval() {
 }
 

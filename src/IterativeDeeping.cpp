@@ -25,6 +25,7 @@
 #include "SearchManager.h"
 
 #endif
+
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
 
     setUseBook(false);
@@ -155,6 +156,7 @@ void IterativeDeeping::run() {
         ++mply;
         searchManager.parallelSearch(mply);
         searchManager.setRunningAllThread(1);
+        searchManager.setRunning(1);
         if (mply == 2) {
             searchManager.setRunningAll(1);
         }

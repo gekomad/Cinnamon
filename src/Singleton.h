@@ -20,6 +20,7 @@
 #define _SINGLETON_H
 
 #include <mutex>
+
 template<class T>
 class Singleton {
 public:
@@ -29,6 +30,7 @@ public:
         static T i;
         return i;
     }
+
 private:
     static mutex singletonMutex;
 };

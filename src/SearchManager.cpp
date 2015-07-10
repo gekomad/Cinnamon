@@ -165,9 +165,9 @@ SearchManager::SearchManager() {
 void SearchManager::parallelSearch(int mply) {
     threadWin = -1;
     setMainPly(mply);
-    if (mply == 1) {
+    if (mply < 5) {
         int k = 3;
-        setRunning(2);
+
         startThread(k, mply, -_INFINITE, _INFINITE);
         join(k);
         val = getValue(k);

@@ -158,7 +158,7 @@ private:
     int threadWin;
     bool searchPoolObserver = false;
     // Search *searchPool[N_THREAD] = {nullptr};
-    vector<Search*> searchPool;
+    vector<Search *> searchPool;
     mutex mutexSearch;
 
     void joinAll();
