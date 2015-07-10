@@ -181,11 +181,11 @@ void SearchManager::parallelSearch(int mply) {
         getWindowRange<2>(valWindow, &from, &to);
         startThread<2>(mply, from, to);
 
-//        ASSERT(getRunning(3));
-//        getWindowRange<3>(valWindow, &from, &to);
-//        startThread<3>(mply, from, to);
-//            }
+        ASSERT(getRunning(3));
+        getWindowRange<3>(valWindow, &from, &to);
+        startThread<3>(mply, from, to);
     }
+
 
 //    int k = 3;
 //
@@ -195,9 +195,9 @@ void SearchManager::parallelSearch(int mply) {
 
     joinAll();
 
-    if(threadWin==-1){
-        PVSplit(mply, -_INFINITE, _INFINITE);
-    }
+//    if(threadWin==-1){
+//        PVSplit(mply, -_INFINITE, _INFINITE);
+//    }
 
 }
 

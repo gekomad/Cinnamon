@@ -53,7 +53,7 @@ public:
     int HASH_SIZE;
 #ifdef DEBUG_MODE
     unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions;
-    unsigned n_cut_hash;
+    //unsigned n_cut_hash;
     int n_cut_hashA, n_cut_hashE, n_cut_hashB, cutFailed, probeHash;
 #endif
 
