@@ -160,9 +160,8 @@ private:
     void getWindowRage(const int val, int *from, int *to);
 
     static const int N_THREAD = 4;
-    int val;
+    int valWindow;
     int threadWin;
-//    bool searchPoolObserver = false;
 
     vector<Search *> searchPool;
     mutex mutexSearch;

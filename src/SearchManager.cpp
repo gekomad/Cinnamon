@@ -90,19 +90,19 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
 }
 
 template<int threadID>
-void SearchManager::getWindowRage(const int val, int *from, int *to) {
+void SearchManager::getWindowRage(const int V, int *from, int *to) {
     switch (threadID) {
         case 0:
-            *from = val - VAL_WINDOW;
-            *to = val + VAL_WINDOW;
+            *from = V - VAL_WINDOW;
+            *to = V + VAL_WINDOW;
             break;
         case 1:
-            *from = val - VAL_WINDOW * 2;
-            *to = val + VAL_WINDOW * 2;
+            *from = V - VAL_WINDOW * 2;
+            *to = V + VAL_WINDOW * 2;
             break;
         case 2:
-            *from = val - VAL_WINDOW * 4;
-            *to = val + VAL_WINDOW * 4;
+            *from = V - VAL_WINDOW * 4;
+            *to = V + VAL_WINDOW * 4;
             break;
         case 3:
             *from = -_INFINITE;
@@ -121,9 +121,9 @@ void SearchManager::receiveObserver() {
             int t = searchPool[threadID]->getValue();
             int from, to;
 
-            getWindowRage<threadID>(val, &from, &to);
+            getWindowRage<threadID>(valWindow, &from, &to);
             if (t > from && t < to) {
-                val = t;
+                valWindow = t;
                 threadWin = threadID;
                 ASSERT(searchPool[threadWin]->getPvLine().cmove);
                 for (Search *s:searchPool) {
@@ -158,11 +158,11 @@ SearchManager::SearchManager() {
 void SearchManager::parallelSearch(int mply) {
     threadWin = -1;
     setMainPly(mply);
-//    if (mply < 5) { 
+//    if (mply < 5) {
     if (mply == 1) {
         startThread<3>(mply, -_INFINITE, _INFINITE);
         join(3);
-        val = getValue(3);
+        valWindow = getValue(3);
 
     } else {
 //        for (int k = 0; k < 3; k++) {
@@ -170,19 +170,19 @@ void SearchManager::parallelSearch(int mply) {
         //int window = VAL_WINDOW * pow(2, k - 1);??? -1
         int from, to;
         ASSERT(getRunning(0));
-        getWindowRage<0>(val, &from, &to);
+        getWindowRage<0>(valWindow, &from, &to);
         startThread<0>(mply, from, to);
 
         ASSERT(getRunning(1));
-        getWindowRage<1>(val, &from, &to);
+        getWindowRage<1>(valWindow, &from, &to);
         startThread<1>(mply, from, to);
 
         ASSERT(getRunning(2));
-        getWindowRage<2>(val, &from, &to);
+        getWindowRage<2>(valWindow, &from, &to);
         startThread<2>(mply, from, to);
 
         ASSERT(getRunning(3));
-        getWindowRage<3>(val, &from, &to);
+        getWindowRage<3>(valWindow, &from, &to);
         startThread<3>(mply, from, to);
 //            }
     }
