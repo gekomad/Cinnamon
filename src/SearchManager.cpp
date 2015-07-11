@@ -18,6 +18,7 @@
 
 #include <future>
 #include "SearchManager.h"
+#include "namespaces.h"
 
 atomic<int> SearchManager::PVSalpha;
 
@@ -29,8 +30,12 @@ int SearchManager::PVSplit(const int depth, const int beta) {
     if (depth < 5) {
         return searchPool[idThread1]->searchNOparall(depth, PVSalpha, beta);
     }
+    searchMoves.init();
+    searchMoves.generateCapturesMoves();
     _Tmove *move = searchMoves.getNextMove();
+
     u64 oldKey = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
+
     searchPool[idThread1]->makemove(move, true, false);
     int score = PVSplit(depth, beta);
     if (score > beta) {

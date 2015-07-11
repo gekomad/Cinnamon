@@ -37,7 +37,7 @@ public:
     void setPerft(const bool b);
 
     bool generateCaptures(const int side, u64, u64);
-
+    bool generateCapturesMoves();
     void generateMoves(const int side, const u64);
 
     template<int side>
