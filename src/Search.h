@@ -71,9 +71,14 @@ public:
         return threadValue;
     }
 
-    void registerObservers(function<void(void)> f) {
-        observers.push_back(f);
+    void registerObserversSearch(function<void(void)> f) {
+        observerSearch = f;
     }
+
+    void registerObserversPVS(function<void(void)> f) {
+        observerPVS = f;
+    }
+
 
     virtual void run();
 
@@ -154,10 +159,17 @@ private:
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
-    vector<function<void(void)>> observers;
+    function<void(void)> observerSearch;
 
-    void notifyObservers(void);
+    function<void(void)> observerPVS;
 
+    void notifyObserversSearch(void) {
+        observerSearch();
+    }
+
+    void notifyObserversPVS(void) {
+        observerPVS();
+    }
 
     int mainMateIn;
     bool pvsMode = false;

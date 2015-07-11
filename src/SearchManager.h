@@ -20,15 +20,19 @@
 #define SEARCHPOOL_H_
 
 #include <mutex>
+#include <unistd.h>
 #include "Search.h"
+#include "ThreadPool.h"
 
-
-class SearchManager : public Singleton<SearchManager> {
+class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search> {
     friend class Singleton<SearchManager>;
 
 public:
-    int PVSplit(const int depth,const int beta);
+
+    int PVSplit(const int depth, const int beta);
+
     static atomic<int> PVSalpha;
+
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
     ~SearchManager();
@@ -118,93 +122,92 @@ public:
 #ifdef DEBUG_MODE
 
     unsigned getCumulativeMovesCount() {
-        unsigned i=0;
+        unsigned i = 0;
         for (Search *s:searchPool) {
-            i+=s->cumulativeMovesCount;
+            i += s->cumulativeMovesCount;
         }
         return i;
     }
 
     unsigned getNCutAB() {
-        unsigned i=0;
+        unsigned i = 0;
         for (Search *s:searchPool) {
-            i+=s->nCutAB;
+            i += s->nCutAB;
         }
         return i;
     }
 
     double getBetaEfficiency() {
-        double i=0;
+        double i = 0;
         for (Search *s:searchPool) {
-            i+=s->betaEfficiency;
+            i += s->betaEfficiency;
         }
         return i;
     }
 
     unsigned getLazyEvalCuts() {
-        unsigned i=0;
+        unsigned i = 0;
         for (Search *s:searchPool) {
-            i+=s->lazyEvalCuts;
+            i += s->lazyEvalCuts;
         }
         return i;
     }
 
     unsigned getNCutFp() {
-        unsigned i=0;
+        unsigned i = 0;
         for (Search *s:searchPool) {
-            i+=s->nCutFp;
+            i += s->nCutFp;
         }
         return i;
     }
 
     unsigned getNCutRazor() {
-        unsigned i=0;
+        unsigned i = 0;
         for (Search *s:searchPool) {
-            i+=s->nCutRazor;
+            i += s->nCutRazor;
         }
         return i;
     }
 
     unsigned getNNullMoveCut() {
-        unsigned i=0;
+        unsigned i = 0;
         for (Search *s:searchPool) {
-            i+=s->nNullMoveCut;
+            i += s->nNullMoveCut;
         }
         return i;
     }
 
     unsigned getTotGen() {
-        unsigned i=0;
+        unsigned i = 0;
         for (Search *s:searchPool) {
-            i+=s->totGen;
+            i += s->totGen;
         }
         return i;
     }
 
 #endif
+
 private:
     SearchManager();
 
-    template<int threadID>
-    void receiveObserver();
+    template<int>
+    void receiveObserverSearch();
 
-    template<int threadID>
+    template<int>
     void getWindowRange(const int val, int *from, int *to);
 
-    int N_THREAD = 4;
     int valWindow;
     int threadWin;
 
-    vector<Search *> searchPool;
-    mutex mutexSearch;
-    Search * searchMoves;
     void joinAll();
 
     void setMainPly(int r);
 
+    Search searchMoves;
+
     template<int threadID>
     void startThread(int depth);
-    int getNextThread();
+
 };
 
 #endif

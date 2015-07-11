@@ -39,5 +39,5 @@ set(SOURCE_FILES
     util/Singleton.h
     Uci.h)
 
-add_executable(cinnamon ${SOURCE_FILES})
+add_executable(cinnamon ${SOURCE_FILES} )
 target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/64/libgtb.a)

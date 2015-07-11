@@ -150,6 +150,8 @@ void IterativeDeeping::run() {
         mateIn = INT_MAX;
         totMoves = 0;
         ++mply;
+
+
         searchManager.parallelSearch(mply);
         searchManager.setRunningAllThread(1);
         searchManager.setRunning(1);

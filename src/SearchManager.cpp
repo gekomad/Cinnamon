@@ -21,18 +21,17 @@
 
 atomic<int> SearchManager::PVSalpha;
 
-int SearchManager::getNextThread() {
-    return -1;
-}
-
 int SearchManager::PVSplit(const int depth, const int beta) {
-    int idThread = getNextThread();
+//  int i = getNextThread();
+//  cout << time(0) << " start thread " << i << endl;
+//  searchPool[i]->start();
+    int idThread1 = getNextThread();
     if (depth < 5) {
-        return searchPool[idThread]->searchNOparall(depth, PVSalpha, beta);
+        return searchPool[idThread1]->searchNOparall(depth, PVSalpha, beta);
     }
-    _Tmove *move = searchMoves->getNextMove();
-    u64 oldKey = searchPool[idThread]->chessboard[ZOBRISTKEY_IDX];
-    searchPool[idThread]->makemove(move, true, false);
+    _Tmove *move = searchMoves.getNextMove();
+    u64 oldKey = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
+    searchPool[idThread1]->makemove(move, true, false);
     int score = PVSplit(depth, beta);
     if (score > beta) {
         takeback(move, oldKey, true);
@@ -44,9 +43,9 @@ int SearchManager::PVSplit(const int depth, const int beta) {
 
     //idThread = getNextThread();
     // Begin parallel loop
-    while ((move = searchMoves->getNextMove())) {
+    while ((move = searchMoves.getNextMove())) {
         int idThread = getNextThread();
-        _Tmove *move = searchMoves->getNextMove();
+        _Tmove *move = searchMoves.getNextMove();
         searchPool[idThread]->makemove(move, true, false);
         searchPool[idThread]->setPVSplit(depth, beta);
         searchPool[idThread]->start();
@@ -121,8 +120,9 @@ void SearchManager::getWindowRange(const int V, int *from, int *to) {
 }
 
 template<int threadID>
-void SearchManager::receiveObserver() {
+void SearchManager::receiveObserverSearch() {
     if (getRunning(threadID)) {
+        mutex mutexSearch;
         lock_guard<mutex> lock(mutexSearch);
         if (threadWin == -1) {
             int t = searchPool[threadID]->getValue();
@@ -142,28 +142,49 @@ void SearchManager::receiveObserver() {
 }
 
 SearchManager::SearchManager() {
-    for (int i = 0; i < N_THREAD; i++) {
-        searchPool.push_back(new Search());
-    }
-    threadWin = -1;
 
-    searchPool[0]->registerObservers([this]() {
-        receiveObserver<0>();
+    searchPool[0]->registerObserversSearch([this]() {
+        receiveObserverSearch<0>();
     });
-    searchPool[1]->registerObservers([this]() {
-        receiveObserver<1>();
+    searchPool[1]->registerObserversSearch([this]() {
+        receiveObserverSearch<1>();
     });
-    searchPool[2]->registerObservers([this]() {
-        receiveObserver<2>();
+    searchPool[2]->registerObserversSearch([this]() {
+        receiveObserverSearch<2>();
     });
-    searchPool[3]->registerObservers([this]() {
-        receiveObserver<3>();
+    searchPool[3]->registerObserversSearch([this]() {
+        receiveObserverSearch<3>();
+    });
+
+    searchPool[0]->registerObserversPVS([this]() {
+        observerPVS<0>();
+    });
+    searchPool[1]->registerObserversPVS([this]() {
+        observerPVS<1>();
+    });
+    searchPool[2]->registerObserversPVS([this]() {
+        observerPVS<2>();
+    });
+    searchPool[3]->registerObserversPVS([this]() {
+        observerPVS<3>();
     });
 
 }
 
 void SearchManager::parallelSearch(int mply) {
+//    {
+//        srand(time(NULL));
+//
+//        while (1) {
+//            int i = getNextThread();
+//            cout << time(0) << " start thread " << i << endl;
+//            searchPool[i]->setPVSplit(2,2);
+//            searchPool[i]->start();
+//        }
+//    }
+
     threadWin = -1;
+
     setMainPly(mply);
 //  if (mply < 5) {
     if (mply == 1) {
@@ -188,7 +209,9 @@ void SearchManager::parallelSearch(int mply) {
     joinAll();
 
     if (threadWin == -1) {
-        searchMoves->clone(searchPool[0]);
+
+        ThreadPool::init();
+        searchMoves.clone(searchPool[0]);
         PVSalpha = -_INFINITE;
         PVSplit(mply, _INFINITE);
     }

@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <unistd.h>
 #include "Search.h"
 #include "SearchManager.h"
 
@@ -319,7 +320,6 @@ void Search::setPVSplit(const int depth, const int beta) {
     pvsMode = true;
     PVSdepth = depth;
     PVSbeta = beta;
-
 }
 
 int Search::PVSplit() {
@@ -344,16 +344,22 @@ int Search::searchNOparall(int depth, int alpha, int beta) {
 }
 
 void Search::run() {
+//    int iSecret = rand() % (1000000 * 5);
+//    cout << "start thread sleep " <<iSecret<< endl;
+//    usleep(iSecret);
+//    cout << "end thread: " << endl;
+//    notifyObservers();
     if (!getRunning()) {
         return;
     }
     if (pvsMode) {
         PVSplit();
+        notifyObserversPVS();
     } else {
         threadValue = searchNOparall(threadDepth, threadAlpha, threadBeta);
         if (pvLine.cmove) {
             ASSERT(threadValue != INT_MAX);
-            notifyObservers();
+            notifyObserversSearch();
         }
     }
 }
@@ -364,13 +370,6 @@ void Search::search(int depth, int alpha, int beta) {
     threadDepth = depth;
     threadAlpha = alpha;
     threadBeta = beta;
-}
-
-void Search::notifyObservers(void) {
-    ASSERT(observers.size() == 1);
-    for (auto i = observers.begin(); i != observers.end(); ++i) {
-        (*i)();
-    }
 }
 
 

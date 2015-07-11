@@ -127,8 +127,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o
-	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o ${LIBS}
+all: namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o util/String.o util/Bits.o
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o util/String.o util/Bits.o ${LIBS}
 
 default:
 	help
@@ -172,11 +172,11 @@ OpenBook.o: OpenBook.cpp
 Tablebase.o: Tablebase.cpp
 	$(COMP) -c Tablebase.cpp ${CFLAGS} ${ARC}
 
-String.o: String.cpp
+String.o: util/String.cpp
 	$(COMP) -c String.cpp ${CFLAGS} ${ARC}
 
-Bits.o: Bits.cpp
-	$(COMP) -c Bits.cpp ${CFLAGS} ${ARC}
+Bits.o: util/Bits.cpp
+	$(COMP) -c util/Bits.cpp ${CFLAGS} ${ARC}
 
 clean:
 	$(RM) *.o $(EXE) *.gcda

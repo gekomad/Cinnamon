@@ -76,9 +76,7 @@ public:
         if (this->_runnable != nullptr) {
             execRunnable = this->_runnable;
         }
-        if (theThread) {
-            delete theThread;
-        }
+        join();
         theThread = new thread(__run, execRunnable);
     }
 
@@ -106,7 +104,6 @@ public:
             theThread = nullptr;
         }
     }
-
 };
 
 #endif
