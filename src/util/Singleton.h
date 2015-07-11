@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _SINGLETON_H
-#define _SINGLETON_H
+#pragma once
 
 #include <mutex>
 
@@ -36,5 +35,3 @@ private:
 };
 
 template<class T> mutex Singleton<T>::singletonMutex;
-
-#endif

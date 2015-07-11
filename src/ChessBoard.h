@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CHESSBOARD_H_
-#define CHESSBOARD_H_
+#pragma once
 
 #include <iostream>
 #include <string.h>
@@ -220,4 +219,3 @@ private:
     uchar getRightCastle();
 };
 
-#endif

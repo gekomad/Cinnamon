@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SEARCH_H_
-#define SEARCH_H_
+#pragma once
 
 #include <sys/timeb.h>
 #include "Hash.h"
@@ -177,4 +176,4 @@ private:
     int PVSbeta;
 };
 
-#endif
+

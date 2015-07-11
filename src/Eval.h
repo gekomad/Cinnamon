@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef EVAL_H_
-#define EVAL_H_
+#pragma once
 
 #include "GenMoves.h"
 #include <fstream>
@@ -161,4 +160,3 @@ private:
     }
 };
 
-#endif

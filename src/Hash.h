@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HASH_H_
-#define HASH_H_
+#pragma once
 
 #include <iostream>
 #include <string.h>
@@ -79,4 +78,3 @@ private:
 
 };
 
-#endif

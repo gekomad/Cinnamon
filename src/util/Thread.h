@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef THREAD_H_
-#define THREAD_H_
+#pragma once
 
 #include <thread>
 #include <mutex>
@@ -105,5 +104,3 @@ public:
         }
     }
 };
-
-#endif

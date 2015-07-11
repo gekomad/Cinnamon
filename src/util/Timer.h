@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TIMER_H_
-#define TIMER_H_
+#pragma once
 
 #include "Thread.h"
 
@@ -53,4 +52,3 @@ private:
     vector<function<void(void)>> observers;
 };
 
-#endif

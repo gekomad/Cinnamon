@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPENBOOK_H
-#define OPENBOOK_H
+#pragma once
 
 #include <fstream>
 #include "Eval.h"
@@ -61,4 +60,3 @@ private:
     u64 *Random64;
 };
 
-#endif

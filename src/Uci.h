@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UCI_H_
-#define UCI_H_
+#pragma once
 
 #include "IterativeDeeping.h"
 #include "Perft.h"
@@ -46,4 +45,3 @@ private:
     void startListner();
 };
 
-#endif

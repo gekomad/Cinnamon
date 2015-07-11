@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PERFT_H_
-#define PERFT_H_
+#pragma once
 
 #include "Search.h"
 #include "util/Thread.h"
@@ -132,4 +131,3 @@ private:
     vector<function<void(void)>> observers;
 };
 
-#endif

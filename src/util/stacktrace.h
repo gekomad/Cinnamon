@@ -19,8 +19,7 @@
 /// stacktrace.h (c) 2008, Timo Bingmann from http://idlebox.net/
 /// published under the WTFPL v2.0
 
-#ifndef _STACKTRACE_H_
-#define _STACKTRACE_H_
+#pragma once
 #if defined(_WIN32) || !defined(DEBUG_MODE)
 
 static inline void print_stacktrace() { }
@@ -95,4 +94,4 @@ static inline void print_stacktrace(FILE *out = stdout, unsigned int max_frames 
 }
 
 #endif
-#endif // _STACKTRACE_H_
+

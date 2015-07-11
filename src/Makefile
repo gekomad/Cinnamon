@@ -173,7 +173,7 @@ Tablebase.o: Tablebase.cpp
 	$(COMP) -c Tablebase.cpp ${CFLAGS} ${ARC}
 
 String.o: util/String.cpp
-	$(COMP) -c String.cpp ${CFLAGS} ${ARC}
+	$(COMP) -c util/String.cpp ${CFLAGS} ${ARC}
 
 Bits.o: util/Bits.cpp
 	$(COMP) -c util/Bits.cpp ${CFLAGS} ${ARC}

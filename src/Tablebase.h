@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TABLEBASE_H
-#define TABLEBASE_H
+#pragma once
 
 #include "gtb/gtb-probe.h"
 #include "namespaces.h"
@@ -159,4 +158,4 @@ private:
 
 };
 
-#endif
+

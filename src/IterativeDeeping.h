@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ITERATIVEDEEPING_H_
-#define ITERATIVEDEEPING_H_
+#pragma once
 
 #include <cstring>
 #include <string.h>
@@ -34,9 +33,6 @@ class IterativeDeeping : public Thread {
 public:
     //TODO private
     mutex mutexIT;//TODO eliminare?
-
-
-//    void setMaxTimeMillsec(int i);
 
     virtual ~ IterativeDeeping();
 
@@ -56,67 +52,11 @@ public:
 
     void loadBook(string);
 
-//    int printDtm();
-
     bool setParameter(String param, int value);
-
-//    virtual int loadFen(string fen = "");
-
-//    void display();
-
-//    int getHashSize();
-
-//    bool setHashSize(int i);
-
-//    void setRunning(bool i);
-
-//    void startClock();
-
-//    void setPonder(bool i);
-
-//    string getFen();
-
-//    int getSide();
-
-//    int getScore(int side);
-
-//    void clearHash();
-
-//    int getMaxTimeMillsec();
-
-//    void setNullMove(bool i);
-
-//    void makemove(_Tmove *ptr);
-
-    //  void setSide(bool i);
-
-//    int getMoveFromSan(String string, _Tmove *ptr);
-
-
-//    void pushStackMove();
-
-//    void init();
-
-//    void setRepetitionMapCount(int i);
-
-//    void deleteGtb();
 
     void createGtb();
 
-//    void setGtbPath(String string);
-
-//    bool setGtbCacheSize(int i);
-
-//    bool setGtbScheme(String string);
-
-//    bool setGtbInstalledPieces(int i);
-
-//    bool setGtbProbeDepth(int i);
-
-//    void restartGtb();
-
     IterativeDeeping();
-
 
 private:
 
@@ -132,4 +72,3 @@ private:
     bool ponderEnabled;
 };
 
-#endif

@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SEARCHPOOL_H_
-#define SEARCHPOOL_H_
+#pragma once
 
 #include <mutex>
 #include <unistd.h>
@@ -210,4 +209,3 @@ private:
 
 };
 
-#endif

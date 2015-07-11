@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef THREADPOOL_H_
-#define THREADPOOL_H_
+#pragma once
 
 #include <mutex>
 #include <unistd.h>
@@ -86,4 +85,3 @@ private:
     condition_variable cv;
 };
 
-#endif

@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef GENMOVES_H_
-#define GENMOVES_H_
+#pragma once
 
 #include <atomic>
 #include "ChessBoard.h"
@@ -297,4 +296,3 @@ private:
     }
 };
 
-#endif
