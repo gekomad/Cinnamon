@@ -17,6 +17,7 @@
 */
 
 #include "Search.h"
+#include "SearchManager.h"
 
 Hash *Search::hash;
 Tablebase *Search::gtb;
@@ -29,8 +30,8 @@ Search::Search() : ponder(false), nullSearch(false) {
     hash = &Hash::getInstance();
 }
 
-void Search::clone(const Search* s) {
-    memcpy(chessboard,s->chessboard,sizeof(_Tchessboard));
+void Search::clone(const Search *s) {
+    memcpy(chessboard, s->chessboard, sizeof(_Tchessboard));
 }
 
 int Search::printDtm() {
@@ -314,6 +315,29 @@ void Search::deleteGtb() {
     gtb = nullptr;
 }
 
+void Search::setPVSplit(const int depth, const int beta) {
+    pvsMode = true;
+    PVSdepth = depth;
+    PVSbeta = beta;
+
+}
+
+int Search::PVSplit() {
+//    u64 oldKey = chessboard[ZOBRISTKEY_IDX];
+
+//    makemove(move, true, false);
+    int alpha = SearchManager::PVSalpha;
+    int score = searchNOparall(PVSdepth, alpha, PVSbeta);
+    if (score > PVSbeta) {
+//        takeback(move, oldKey, true);
+        return PVSbeta;
+    }
+    if (score > SearchManager::PVSalpha) {
+        SearchManager::PVSalpha = score;
+    }
+//    takeback(move, oldKey, true);
+    return SearchManager::PVSalpha;
+}
 
 int Search::searchNOparall(int depth, int alpha, int beta) {
     return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
@@ -323,15 +347,19 @@ void Search::run() {
     if (!getRunning()) {
         return;
     }
-
-    threadValue = searchNOparall(threadDepth, threadAlpha, threadBeta);
-    if (pvLine.cmove) {
-        ASSERT(threadValue != INT_MAX);
-        notifyObservers();
+    if (pvsMode) {
+        PVSplit();
+    } else {
+        threadValue = searchNOparall(threadDepth, threadAlpha, threadBeta);
+        if (pvLine.cmove) {
+            ASSERT(threadValue != INT_MAX);
+            notifyObservers();
+        }
     }
 }
 
 void Search::search(int depth, int alpha, int beta) {
+    pvsMode = false;
     memset(&pvLine, 0, sizeof(_TpvLine));
     threadDepth = depth;
     threadAlpha = alpha;

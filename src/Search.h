@@ -33,10 +33,16 @@ class Search : public Eval, public Thread {
 public:
 
     Search();
-    void clone(const Search*);
+
+    void clone(const Search *);
+
     virtual ~Search();
 
+    int PVSplit();
+
     void setRunning(int);
+
+    void setPVSplit(const int depth, const int beta);
 
     void setPonder(bool);
 
@@ -154,6 +160,9 @@ private:
 
 
     int mainMateIn;
+    bool pvsMode = false;
+    int PVSdepth;
+    int PVSbeta;
 };
 
 #endif
