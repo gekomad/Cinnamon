@@ -26,13 +26,13 @@ int SearchManager::getNextThread() {
 }
 
 int SearchManager::PVSplit(const int depth, const int beta) {
-    int threadID = getNextThread();
+    int idThread = getNextThread();
     if (depth < 5) {
-        return searchPool[threadID]->searchNOparall(depth, PVSalpha, beta);
+        return searchPool[idThread]->searchNOparall(depth, PVSalpha, beta);
     }
     _Tmove *move = searchMoves->getNextMove();
-    u64 oldKey = searchPool[threadID]->chessboard[ZOBRISTKEY_IDX];
-    searchPool[threadID]->makemove(move, true, false);
+    u64 oldKey = searchPool[idThread]->chessboard[ZOBRISTKEY_IDX];
+    searchPool[idThread]->makemove(move, true, false);
     int score = PVSplit(depth, beta);
     if (score > beta) {
         takeback(move, oldKey, true);
@@ -42,14 +42,14 @@ int SearchManager::PVSplit(const int depth, const int beta) {
         PVSalpha = score;
     }
 
-    threadID = getNextThread();
+    //idThread = getNextThread();
     // Begin parallel loop
     while ((move = searchMoves->getNextMove())) {
-        int threadID = getNextThread();
+        int idThread = getNextThread();
         _Tmove *move = searchMoves->getNextMove();
-        searchPool[threadID]->makemove(move, true, false);
-        searchPool[threadID]->setPVSplit(depth, beta);
-        searchPool[threadID]->start();
+        searchPool[idThread]->makemove(move, true, false);
+        searchPool[idThread]->setPVSplit(depth, beta);
+        searchPool[idThread]->start();
     }
 //    // End parallel loop
     return PVSalpha;
