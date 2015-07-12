@@ -44,10 +44,12 @@ public:
     }
 
     int getNextThread() {
-        mutex mx;
+        cout <<"getthread prima"<<endl;
+
         lock_guard<mutex> lock1(mx);
-        mutex mtx;
-        std::unique_lock<std::mutex> lck(mtx);
+        cout <<"getthread dentro"<<endl;
+
+        std::unique_lock<std::mutex> lck(mtx1);
 
         ASSERT(Bits::bitCount(threadsBits) <= N_THREAD);
         if (Bits::bitCount(threadsBits) == N_THREAD) {
@@ -56,17 +58,22 @@ public:
 
         int i = getFirstBit(threadsBits);
         threadsBits |= POW2[i];
+        cout <<"getthread dopo"<<endl;
         return i;
+    }
+
+    void releaseThread(int threadID){
+        threadsBits &= ~POW2[threadID];
     }
 
     template<int threadID>
     void observerPVS() {
-        mutex mx;
-        lock_guard<mutex> lock1(mx);
+       // mutex mx;
+        lock_guard<mutex> lock1(mx1);
 
         cout << "tolgo bit " << threadID << " maschera: " << threadsBits;
-        threadsBits &= ~POW2[threadID];
 
+        releaseThread(threadID);
         cout << " nuova maschera: " << threadsBits << " " << Bits::bitCount(threadsBits) << endl;
         cv.notify_all();
     }
@@ -79,7 +86,9 @@ protected:
     vector<T *> searchPool;
 
 private:
-
+    mutex mx;
+    mutex mx1;
+    mutex mtx1;
     int threadsBits;
     int N_THREAD = 4;
     condition_variable cv;
