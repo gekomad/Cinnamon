@@ -64,6 +64,7 @@ public:
 
     void releaseThread(int threadID){
         threadsBits &= ~POW2[threadID];
+        cv.notify_all();
     }
 
     template<int threadID>
@@ -75,7 +76,7 @@ public:
 
         releaseThread(threadID);
         cout << " nuova maschera: " << threadsBits << " " << Bits::bitCount(threadsBits) << endl;
-        cv.notify_all();
+
     }
 
     void init() {

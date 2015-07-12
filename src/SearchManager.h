@@ -28,7 +28,7 @@ class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>
 
 public:
 
-    int PVSplit(const int depth, const int beta);
+    int PVSplit(int,const int depth, const int beta);
 
     static atomic<int> PVSalpha;
 

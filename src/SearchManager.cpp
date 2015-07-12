@@ -22,11 +22,10 @@
 
 atomic<int> SearchManager::PVSalpha;
 
-int SearchManager::PVSplit(const int depth, const int beta) {
+int SearchManager::PVSplit(int idThread1,const int depth, const int beta) {
     cout << "***********************" << depth << endl;
 
     if (depth < 5) {
-        int idThread1 = getNextThread();
         int t = searchPool[idThread1]->searchNOparall(depth, PVSalpha, beta);
         releaseThread(idThread1);
         return t;
@@ -34,12 +33,12 @@ int SearchManager::PVSplit(const int depth, const int beta) {
     searchMoves.incListId();
     searchMoves.generateCapturesMoves();//TODO return false?
     _Tmove *move = searchMoves.getNextMove();
-    int idThread1 = getNextThread();
-    u64 oldKey = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
+
+    u64 oldKey =searchMoves.chessboard[ZOBRISTKEY_IDX];
 
     searchPool[idThread1]->makemove(move, true, false);
 
-    int score = PVSplit(depth - 1, beta);
+    int score = PVSplit(idThread1,depth - 1, beta);
     releaseThread(idThread1);
     if (score > beta) {
         takeback(move, oldKey, true);
@@ -55,12 +54,12 @@ int SearchManager::PVSplit(const int depth, const int beta) {
     // Begin parallel loop
     while ((move = searchMoves.getNextMove())) {
         cout << "fuori" << endl;
-        int idThread = getNextThread();
+        idThread1 = getNextThread();
         cout << "dentro" << endl;
         //  _Tmove *move = searchMoves.getNextMove();
-        searchPool[idThread]->makemove(move, true, false);
-        searchPool[idThread]->setPVSplit(depth, beta);
-        searchPool[idThread]->start();
+        searchPool[idThread1]->makemove(move, true, false);
+        searchPool[idThread1]->setPVSplit(depth, beta);
+        searchPool[idThread1]->start();
     }
 //    // End parallel loop
     searchMoves.decListId();
@@ -111,7 +110,7 @@ void SearchManager::parallelSearch(int mply) {
         ThreadPool::init();
         searchMoves.clone(searchPool[0]);
         PVSalpha = -_INFINITE;
-        PVSplit(mply, _INFINITE);
+        PVSplit( getNextThread(),mply, _INFINITE);
     }
 
 }
