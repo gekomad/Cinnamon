@@ -169,27 +169,27 @@ void SearchManager::getWindowRange(int threadID, const int V, int *from, int *to
     }
 }
 
-void SearchManager::updateAB(int depth, int side, int bound) {
+void SearchManager::updateAB(int depth, int side, int score) {
     if (side > 0) {
-        alphaValue[depth] = max(alphaValue[depth], bound);
+        alphaValue[depth] = max(alphaValue[depth], score);
     } else {
-        betaValue[depth] = min(betaValue[depth], bound);
+        betaValue[depth] = min(betaValue[depth], score);
     }
     if (depth > 0) {
-        updateAB(depth - 1, -side, -bound);
+        updateAB(depth - 1, -side, -score);
     }
 }
 
 void SearchManager::receiveObserverPVSplit(int threadID, int score) {
     mutex mutex1;
     lock_guard<mutex> lock1(mutex1);
-    updateAB()
-    if (score > PVSalpha) PVSalpha = score;
-    if (score > PVSbeta) {
+    updateAB(depth,side,score);
+    if (score > alphaValue[depth]) alphaValue[depth] = score;
+    if (score > betaValue[depth]) {
         searchPool[threadID]->takeback(rollbackValue[threadID]->move, rollbackValue[threadID]->oldKey, true);
         searchPool[threadID]->decListId();
         releaseThread(threadID);
-        PVSbeta = score;
+        //PVSbeta = score;
     }
     releaseThread(threadID);
 }
