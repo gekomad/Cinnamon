@@ -40,7 +40,7 @@ public:
 
     void setRunning(int);
 
-    void setPVSplit(const int depth, const int beta);
+    void setPVSplit(const int depth, const int alpha, const int beta);
 
     void setPonder(bool);
 
@@ -152,7 +152,7 @@ private:
     int mainMateIn;
     bool pvsMode = false;
     int PVSdepth;
-    int PVSbeta;
+    int PVSbeta,PVSalpha;
     int threadID;
 };
 

@@ -30,9 +30,10 @@ class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>
 
 public:
 
-    void PVSplit(int, const int depth, const int beta);
+    int PVSplit(int PVSplit, const int depth);
 
     static atomic<int> PVSalpha;
+    static atomic<int> PVSbeta;
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
@@ -205,7 +206,7 @@ private:
 
     void setMainPly(int r);
 
-    Search searchMoves{(100)};
+    //Search searchMoves{(100)};
 
     void startThread(int threadID, int depth);
 

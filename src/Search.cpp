@@ -317,10 +317,11 @@ void Search::deleteGtb() {
     gtb = nullptr;
 }
 
-void Search::setPVSplit(const int depth, const int beta) {
+void Search::setPVSplit(const int depth, const int alpha, const int beta) {
     pvsMode = true;
     PVSdepth = depth;
     PVSbeta = beta;
+    PVSalpha = alpha;
 }
 
 
