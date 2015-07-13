@@ -267,12 +267,12 @@ bool Search::checkInsufficientMaterial(int N_PIECE) {
             //insufficient material to mate
             if (!allKnight) {
                 //regexp: KB+KB*
-                if ((bitCount(allBishop) == 1) || ((allBishop & BLACK_SQUARES) == allBishop || (allBishop & WHITE_SQUARES) == allBishop)) {
+                if ((Bits::bitCount(allBishop) == 1) || ((allBishop & BLACK_SQUARES) == allBishop || (allBishop & WHITE_SQUARES) == allBishop)) {
                     return true;
                 }
             } else {
                 //KNKN*
-                if (!allBishop && bitCount(allKnight) < 3) {
+                if (!allBishop && Bits::bitCount(allKnight) < 3) {
                     return true;
                 }
             }
@@ -327,7 +327,7 @@ void Search::setPVSplit(const int depth, const int alpha, const int beta, const 
 
 
 int Search::searchNOparall(int depth, int alpha, int beta) {
-    return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
+    return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
 }
 
 void Search::run() {
@@ -340,7 +340,7 @@ void Search::run() {
         return;
     }
     if (pvsMode) {
-       // int alpha = SearchManager::PVSalpha;
+        // int alpha = SearchManager::PVSalpha;
         int score = searchNOparall(PVSdepth, PVSalpha, PVSbeta);
         notifyPVSplit(threadID, score);
     } else {

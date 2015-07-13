@@ -27,7 +27,7 @@
 
 using namespace _board;
 
-class ChessBoard : protected Bits {
+class ChessBoard {
 public:
 
     ChessBoard();
@@ -186,12 +186,13 @@ protected:
     static const u64 WHITE_SQUARES = 0xAA55AA55AA55AA55ULL;
 
     _Tboard structure;
+    Bits &bits = Bits::getInstance();
 
     void makeZobristKey();
 
     template<int side>
     int getNpiecesNoPawnNoKing() {
-        return bitCount(chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[QUEEN_BLACK + side]);
+        return Bits::bitCount(chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[QUEEN_BLACK + side]);
     }
 
 #ifdef DEBUG_MODE
@@ -217,5 +218,6 @@ private:
     int loadFen();
 
     uchar getRightCastle();
+
 };
 

@@ -19,14 +19,16 @@
 #pragma once
 
 #include "../namespaces.h"
+#include "Singleton.h"
 
-class Bits {
+class Bits : public Singleton<Bits> {
+    friend class Singleton<Bits>;
+
 public:
-
-    Bits();
 
     virtual ~Bits();
 
+    u64 **LINK_ROOKS;
 #ifdef HAS_POPCNT
 
     static int bitCount(u64 bits) {
@@ -45,14 +47,7 @@ public:
     }
 
 #endif
-protected:
 
-    u64 MASK_BIT_SET_NOBOUND[64][64];
-    uchar DISTANCE[64][64];
-    char MASK_BIT_SET_COUNT[64][64];
-    char MASK_BIT_SET_NOBOUND_COUNT[64][64];
-
-    u64 **LINK_ROOKS;
 
     template<int side, int shift>
     static u64 shiftForward(const u64 bits) {
@@ -107,5 +102,14 @@ protected:
     }
 
 #endif
+
+    u64 MASK_BIT_SET_NOBOUND[64][64];
+    //uchar DISTANCE[64][64];
+    char MASK_BIT_SET_COUNT[64][64];
+    char MASK_BIT_SET_NOBOUND_COUNT[64][64];
+
+
+private:
+    Bits();
 };
 

@@ -30,7 +30,7 @@ class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>
 
 public:
 
-    int PVSplit(int PVSplit, const int depth,int alpha,int beta);
+    int PVSplit(int PVSplit, const int depth, int alpha, int beta);
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
@@ -194,6 +194,7 @@ private:
     SearchManager();
 
     void updateAB(int depth, int side, int bound);
+
     void getWindowRange(int, const int val, int *from, int *to);
 
     int valWindow;
@@ -209,7 +210,7 @@ private:
 
     typedef struct {
         u64 oldKey;
-        _Tmove* move;
+        _Tmove *move;
     } _RollbackValue;
     vector<_RollbackValue *> rollbackValue;
 

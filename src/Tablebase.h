@@ -23,7 +23,7 @@
 #include "ChessBoard.h"
 #include "util/Singleton.h"
 
-class Tablebase : private Bits, public Singleton<Tablebase> {
+class Tablebase : public Singleton<Tablebase> {
     friend class Singleton<Tablebase>;
 
 public:
@@ -74,7 +74,7 @@ public:
         for (int piece = 1; piece < 12; piece += 2) {
             u64 b = chessboard[piece];
             while (b) {
-                int position = BITScanForward(b);
+                int position = Bits::BITScanForward(b);
                 ws[count] = DECODE_POSITION[position];
                 wp[count] = DECODE_PIECE[piece];
                 count++;
@@ -88,7 +88,7 @@ public:
         for (int piece = 0; piece < 12; piece += 2) {
             u64 b = chessboard[piece];
             while (b) {
-                int position = BITScanForward(b);
+                int position = Bits::BITScanForward(b);
                 bs[count] = DECODE_POSITION[position];
                 bp[count] = DECODE_PIECE[piece];
                 count++;

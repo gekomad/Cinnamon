@@ -53,7 +53,7 @@ void ChessBoard::makeZobristKey() {
     for (int u = 0; u < 12; u++) {
         u64 c = chessboard[u];
         while (c) {
-            int position = BITScanForward(c);
+            int position = Bits::BITScanForward(c);
             updateZobristKey(i, position);
             c &= NOTPOW2[position];
         }
@@ -64,7 +64,7 @@ void ChessBoard::makeZobristKey() {
     }
     u64 x2 = chessboard[RIGHT_CASTLE_IDX];
     while (x2) {
-        int position = BITScanForward(x2);
+        int position = Bits::BITScanForward(x2);
         updateZobristKey(14, position);
         x2 &= NOTPOW2[position];
     }

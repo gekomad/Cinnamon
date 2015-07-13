@@ -48,11 +48,11 @@ Bits::Bits() {
         }
     }
     //DISTANCE
-    for (int i = 0; i < 64; i++) {
-        for (int j = 0; j < 64; j++) {
-            DISTANCE[i][j] = max(abs(RANK_AT[i] - FILE_AT[j]), abs(RANK_AT[j] - FILE_AT[i]));
-        }
-    }
+//    for (int i = 0; i < 64; i++) {
+//        for (int j = 0; j < 64; j++) {
+//            DISTANCE[i][j] = max(abs(RANK_AT[i] - FILE_AT[j]), abs(RANK_AT[j] - FILE_AT[i]));
+//        }
+//    }
     ///
     u64 MASK_BIT_SET[64][64];
     memset(MASK_BIT_SET, 0, sizeof(MASK_BIT_SET));
@@ -97,8 +97,8 @@ Bits::Bits() {
     }
     for (int i = 0; i < 64; i++) {
         for (int j = 0; j < 64; j++) {
-            MASK_BIT_SET_COUNT[i][j] = bitCount(MASK_BIT_SET[i][j]);
-            MASK_BIT_SET_NOBOUND_COUNT[i][j] = bitCount(MASK_BIT_SET_NOBOUND[i][j]);
+            MASK_BIT_SET_COUNT[i][j] = Bits::bitCount(MASK_BIT_SET[i][j]);
+            MASK_BIT_SET_NOBOUND_COUNT[i][j] = Bits::bitCount(MASK_BIT_SET_NOBOUND[i][j]);
         }
     }
 }

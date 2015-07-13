@@ -40,7 +40,7 @@ public:
 
     void setRunning(int);
 
-    void setPVSplit(const int depth, const int alpha, const int beta,const u64 oldKey);
+    void setPVSplit(const int depth, const int alpha, const int beta, const u64 oldKey);
 
     void setPonder(bool);
 
@@ -152,7 +152,7 @@ private:
     int mainMateIn;
     bool pvsMode = false;
     int PVSdepth;
-    int PVSbeta,PVSalpha;
+    int PVSbeta, PVSalpha;
     int threadID;
     u64 oldKeyPVS;
 

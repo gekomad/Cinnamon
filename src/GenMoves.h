@@ -251,7 +251,7 @@ protected:
 
     template<int side>
     bool inCheck() {
-        return attackSquare<side>(BITScanForward(chessboard[KING_BLACK + side]));
+        return attackSquare<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]));
     }
 
     template<int side>
