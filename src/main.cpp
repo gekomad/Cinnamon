@@ -273,6 +273,6 @@ int main(int argc, char **argv) {
             return 0;
         }
     }
-    unique_ptr<Uci> p(new Uci());
+    Uci::getInstance();
     return 0;
 }

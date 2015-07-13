@@ -23,15 +23,18 @@
 #include <string.h>
 #include "util/String.h"
 
-class Uci {
+class Uci : public Singleton<Uci> {
+    friend class Singleton<Uci>;
+
 public:
-    Uci();
+
 
     Uci(Perft *);
 
     virtual ~Uci();
 
 private:
+    Uci();
     Perft *perft = nullptr;
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     IterativeDeeping *iterativeDeeping;

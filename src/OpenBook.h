@@ -25,9 +25,11 @@
 #include "Time.h"
 #endif
 
-class OpenBook {
+class OpenBook : public Singleton<OpenBook> {
+    friend class Singleton<OpenBook>;
+
 public:
-    OpenBook();
+
 
     virtual ~OpenBook();
 
@@ -36,6 +38,7 @@ public:
     string search(string fen);
 
 private:
+    OpenBook();
     typedef struct {
         u64 key;
         unsigned short move;

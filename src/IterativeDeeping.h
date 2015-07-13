@@ -68,7 +68,7 @@ private:
 
     bool useBook;
     Tablebase *tablebase = nullptr;
-    OpenBook *openBook;
+    OpenBook *openBook= nullptr;
     bool ponderEnabled;
 };
 

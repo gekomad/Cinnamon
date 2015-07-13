@@ -81,7 +81,7 @@ bool IterativeDeeping::getUseBook() {
 
 void IterativeDeeping::loadBook(string f) {
     if (!openBook) {
-        openBook = new OpenBook();
+        openBook = &OpenBook::getInstance();
     }
     useBook = openBook->load(f);
     if (!useBook) {
@@ -94,7 +94,7 @@ void IterativeDeeping::setUseBook(bool b) {
     useBook = b;
     bool valid = true;
     if (b && openBook == nullptr) {
-        openBook = new OpenBook();
+        openBook =&OpenBook::getInstance();
         valid = useBook = openBook->load("cinnamon.bin");
     }
     if ((!b && openBook) || !valid) {
