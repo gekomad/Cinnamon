@@ -25,41 +25,38 @@ atomic<int> SearchManager::PVSbeta;
 
 int SearchManager::PVSplit(int idThread1, const int depth) {
 
-    if(depth<5){
-        return searchPool[idThread1]->searchNOparall(depth,PVSalpha,PVSbeta);
+    if (depth < 5) {
+        return searchPool[idThread1]->searchNOparall(depth, PVSalpha, PVSbeta);
     }
 
     searchPool[idThread1]->incListId();
     searchPool[idThread1]->generateCapturesMoves();//TODO return false?
-    u64 oldKey =  searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
-    _Tmove *move =  searchPool[idThread1]->getNextMove();
+    u64 oldKey = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
+    _Tmove *move = searchPool[idThread1]->getNextMove();
     searchPool[idThread1]->makemove(move, true, false);
 
 
-    int score = -PVSplit(idThread1,depth-1);
-
+    int score = -PVSplit(idThread1, depth - 1);
+    searchPool[idThread1]->takeback(move, oldKey, true);
     if (score > PVSalpha) PVSalpha = score;
-
+    searchPool[idThread1]->decListId();
+    releaseThread(idThread1);
 
     if (score > PVSbeta) {
-        takeback(move, oldKey, true);
-        searchPool[idThread1]->decListId();
-        releaseThread(idThread1);
-        PVSbeta=score;
+
+        PVSbeta = score;
         return PVSbeta;
     }
     while ((move = searchPool[idThread1]->getNextMove())) {
         cout << "fuori" << endl;
         idThread1 = getNextThread();
         cout << "dentro" << endl;
-        //  _Tmove *move = searchMoves.getNextMove();
+        u64 oldKey = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
         searchPool[idThread1]->makemove(move, true, false);
-        searchPool[idThread1]->setPVSplit(depth, PVSalpha, PVSbeta);
+        searchPool[idThread1]->setPVSplit(depth, PVSalpha, PVSbeta,oldKey);
         searchPool[idThread1]->start();
     }
-    takeback(move, oldKey, true);
-    searchPool[idThread1]->decListId();
-    releaseThread(idThread1);
+
 }
 
 
@@ -101,7 +98,7 @@ void SearchManager::parallelSearch(int mply) {
     if (threadWin == -1) {
         ThreadPool:
         init();
-      //  searchMoves.clone(searchPool[0]);
+        //  searchMoves.clone(searchPool[0]);
         PVSalpha = -_INFINITE;
         PVSplit(getNextThread(), mply);
     }
@@ -170,16 +167,14 @@ void SearchManager::getWindowRange(int threadID, const int V, int *from, int *to
     }
 }
 
-void SearchManager::receiveObserverPVSplit(int threadID, int score) {
+void SearchManager::receiveObserverPVSplit(int threadID, int score,u64 oldKey) {
 
     if (score > PVSalpha) PVSalpha = score;
-
-
     if (score > PVSbeta) {
-        //takeback(move, oldKey, true);
+        searchPool[threadID]->takeback(move, oldKey, true);
         searchPool[threadID]->decListId();
         releaseThread(threadID);
-        PVSbeta=score;
+        PVSbeta = score;
     }
     releaseThread(threadID);
 }

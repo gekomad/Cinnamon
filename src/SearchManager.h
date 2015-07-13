@@ -121,7 +121,7 @@ public:
 
     void deleteGtb();
 
-    void receiveObserverPVSplit(int threadID, int value);
+    void receiveObserverPVSplit(int threadID, int value,u64);
 
     void receiveObserverSearch(int threadID);
 

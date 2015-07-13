@@ -317,11 +317,12 @@ void Search::deleteGtb() {
     gtb = nullptr;
 }
 
-void Search::setPVSplit(const int depth, const int alpha, const int beta) {
+void Search::setPVSplit(const int depth, const int alpha, const int beta, const u64 oldKey) {
     pvsMode = true;
     PVSdepth = depth;
     PVSbeta = beta;
     PVSalpha = alpha;
+    oldKeyPVS = oldKey;
 }
 
 
@@ -341,7 +342,7 @@ void Search::run() {
     if (pvsMode) {
         int alpha = SearchManager::PVSalpha;
         int score = searchNOparall(PVSdepth, alpha, PVSbeta);
-        notifyPVSplit(threadID, score);
+        notifyPVSplit(threadID, score, oldKeyPVS);
     } else {
         threadValue = searchNOparall(threadDepth, threadAlpha, threadBeta);
         if (pvLine.cmove) {
