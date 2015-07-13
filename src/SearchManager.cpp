@@ -20,13 +20,11 @@
 #include "SearchManager.h"
 #include "namespaces.h"
 
-atomic<int> SearchManager::PVSalpha;
-atomic<int> SearchManager::PVSbeta;
 
-int SearchManager::PVSplit(int idThread1, const int depth) {
+int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) {
 
     if (depth < 5) {
-        return searchPool[idThread1]->searchNOparall(depth, PVSalpha, PVSbeta);
+        return searchPool[idThread1]->searchNOparall(depth, alpha, beta);
     }
 
     searchPool[idThread1]->incListId();
@@ -37,16 +35,15 @@ int SearchManager::PVSplit(int idThread1, const int depth) {
     searchPool[idThread1]->makemove(move, true, false);
 
 
-    int score = -PVSplit(idThread1, depth - 1);
+    int score = -PVSplit(idThread1, depth - 1, -beta, -alpha);
     searchPool[idThread1]->takeback(move, oldKey, true);
-    if (score > PVSalpha) PVSalpha = score;
+    if (score > alpha) alpha = score;
     searchPool[idThread1]->decListId();
     releaseThread(idThread1);
 
-    if (score > PVSbeta) {
-
-        PVSbeta = score;
-        return PVSbeta;
+    if (score > beta) {
+        beta = score;
+        return beta;
     }
     while ((move = searchPool[idThread1]->getNextMove())) {
         cout << "fuori" << endl;
@@ -58,7 +55,7 @@ int SearchManager::PVSplit(int idThread1, const int depth) {
         rollbackValue[idThread1]->move = move;
 
         searchPool[idThread1]->makemove(move, true, false);
-        searchPool[idThread1]->setPVSplit(depth, PVSalpha, PVSbeta, oldKey);
+        searchPool[idThread1]->setPVSplit(depth, alpha, beta, oldKey);
         searchPool[idThread1]->start();
     }
 
@@ -104,8 +101,8 @@ void SearchManager::parallelSearch(int mply) {
         ThreadPool:
         init();
         //  searchMoves.clone(searchPool[0]);
-        PVSalpha = -_INFINITE;
-        PVSplit(getNextThread(), mply);
+        //PVSalpha = -_INFINITE;
+        PVSplit(getNextThread(), mply, -_INFINITE, _INFINITE);
     }
 }
 
@@ -172,8 +169,21 @@ void SearchManager::getWindowRange(int threadID, const int V, int *from, int *to
     }
 }
 
-void SearchManager::receiveObserverPVSplit(int threadID, int score) {
+void SearchManager::updateAB(int depth, int side, int bound) {
+    if (side > 0) {
+        alphaValue[depth] = max(alphaValue[depth], bound);
+    } else {
+        betaValue[depth] = min(betaValue[depth], bound);
+    }
+    if (depth > 0) {
+        updateAB(depth - 1, -side, -bound);
+    }
+}
 
+void SearchManager::receiveObserverPVSplit(int threadID, int score) {
+    mutex mutex1;
+    lock_guard<mutex> lock1(mutex1);
+    updateAB()
     if (score > PVSalpha) PVSalpha = score;
     if (score > PVSbeta) {
         searchPool[threadID]->takeback(rollbackValue[threadID]->move, rollbackValue[threadID]->oldKey, true);

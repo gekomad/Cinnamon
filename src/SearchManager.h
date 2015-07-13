@@ -30,10 +30,7 @@ class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>
 
 public:
 
-    int PVSplit(int PVSplit, const int depth);
-
-    static atomic<int> PVSalpha;
-    static atomic<int> PVSbeta;
+    int PVSplit(int PVSplit, const int depth,int alpha,int beta);
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
@@ -196,7 +193,7 @@ public:
 private:
     SearchManager();
 
-
+    void updateAB(int depth, int side, int bound);
     void getWindowRange(int, const int val, int *from, int *to);
 
     int valWindow;
@@ -216,6 +213,8 @@ private:
     } _RollbackValue;
     vector<_RollbackValue *> rollbackValue;
 
+    int alphaValue[MAX_PLY];
+    int betaValue[MAX_PLY];
 
 };
 

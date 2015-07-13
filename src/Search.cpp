@@ -340,8 +340,8 @@ void Search::run() {
         return;
     }
     if (pvsMode) {
-        int alpha = SearchManager::PVSalpha;
-        int score = searchNOparall(PVSdepth, alpha, PVSbeta);
+       // int alpha = SearchManager::PVSalpha;
+        int score = searchNOparall(PVSdepth, PVSalpha, PVSbeta);
         notifyPVSplit(threadID, score);
     } else {
         threadValue = searchNOparall(threadDepth, threadAlpha, threadBeta);
