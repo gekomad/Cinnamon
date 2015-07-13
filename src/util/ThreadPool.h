@@ -67,6 +67,9 @@ public:
         threadsBits = 0;
     }
 
+    int getSize() {
+        return N_THREAD;
+    }
 
 protected:
     vector<T *> searchPool;

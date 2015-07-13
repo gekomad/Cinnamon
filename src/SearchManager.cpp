@@ -33,6 +33,7 @@ int SearchManager::PVSplit(int idThread1, const int depth) {
     searchPool[idThread1]->generateCapturesMoves();//TODO return false?
     u64 oldKey = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
     _Tmove *move = searchPool[idThread1]->getNextMove();
+
     searchPool[idThread1]->makemove(move, true, false);
 
 
@@ -52,8 +53,12 @@ int SearchManager::PVSplit(int idThread1, const int depth) {
         idThread1 = getNextThread();
         cout << "dentro" << endl;
         u64 oldKey = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
+
+        rollbackValue[idThread1]->oldKey = oldKey;
+        rollbackValue[idThread1]->move = move;
+
         searchPool[idThread1]->makemove(move, true, false);
-        searchPool[idThread1]->setPVSplit(depth, PVSalpha, PVSbeta,oldKey);
+        searchPool[idThread1]->setPVSplit(depth, PVSalpha, PVSbeta, oldKey);
         searchPool[idThread1]->start();
     }
 
@@ -167,11 +172,11 @@ void SearchManager::getWindowRange(int threadID, const int V, int *from, int *to
     }
 }
 
-void SearchManager::receiveObserverPVSplit(int threadID, int score,u64 oldKey) {
+void SearchManager::receiveObserverPVSplit(int threadID, int score) {
 
     if (score > PVSalpha) PVSalpha = score;
     if (score > PVSbeta) {
-        searchPool[threadID]->takeback(move, oldKey, true);
+        searchPool[threadID]->takeback(rollbackValue[threadID]->move, rollbackValue[threadID]->oldKey, true);
         searchPool[threadID]->decListId();
         releaseThread(threadID);
         PVSbeta = score;
@@ -203,6 +208,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
 SearchManager::SearchManager() {
     for (Search *s:searchPool) {
         s->registerObserver(this);
+        rollbackValue.push_back(new _RollbackValue);
     }
 }
 

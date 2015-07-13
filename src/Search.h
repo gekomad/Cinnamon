@@ -155,6 +155,7 @@ private:
     int PVSbeta,PVSalpha;
     int threadID;
     u64 oldKeyPVS;
+
 };
 
 

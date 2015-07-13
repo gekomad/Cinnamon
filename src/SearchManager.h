@@ -121,7 +121,7 @@ public:
 
     void deleteGtb();
 
-    void receiveObserverPVSplit(int threadID, int value,u64);
+    void receiveObserverPVSplit(int threadID, int value);
 
     void receiveObserverSearch(int threadID);
 
@@ -209,6 +209,13 @@ private:
     //Search searchMoves{(100)};
 
     void startThread(int threadID, int depth);
+
+    typedef struct {
+        u64 oldKey;
+        _Tmove* move;
+    } _RollbackValue;
+    vector<_RollbackValue *> rollbackValue;
+
 
 };
 
