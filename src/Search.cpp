@@ -23,11 +23,12 @@
 Hash *Search::hash;
 Tablebase *Search::gtb;
 
-Search::Search() : ponder(false), nullSearch(false) {
+Search::Search(int threadID) : ponder(false), nullSearch(false) {
 #ifdef DEBUG_MODE
     lazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
     gtb = nullptr;
+    this->threadID = threadID;
     hash = &Hash::getInstance();
 }
 
@@ -322,22 +323,6 @@ void Search::setPVSplit(const int depth, const int beta) {
     PVSbeta = beta;
 }
 
-int Search::PVSplit() {
-//    u64 oldKey = chessboard[ZOBRISTKEY_IDX];
-
-//    makemove(move, true, false);
-    int alpha = SearchManager::PVSalpha;
-    int score = searchNOparall(PVSdepth, alpha, PVSbeta);
-    if (score > PVSbeta) {
-//        takeback(move, oldKey, true);
-        return PVSbeta;
-    }
-    if (score > SearchManager::PVSalpha) {
-        SearchManager::PVSalpha = score;
-    }
-//    takeback(move, oldKey, true);
-    return SearchManager::PVSalpha;
-}
 
 int Search::searchNOparall(int depth, int alpha, int beta) {
     return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
@@ -353,13 +338,14 @@ void Search::run() {
         return;
     }
     if (pvsMode) {
-        PVSplit();
-        notifyObserversPVS();
+        int alpha = SearchManager::PVSalpha;
+        int score = searchNOparall(PVSdepth, alpha, PVSbeta);
+        notifyPVSplit(threadID, score);
     } else {
         threadValue = searchNOparall(threadDepth, threadAlpha, threadBeta);
         if (pvLine.cmove) {
             ASSERT(threadValue != INT_MAX);
-            notifyObserversSearch();
+            notifySearch(threadID);
         }
     }
 }

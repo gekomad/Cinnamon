@@ -54,7 +54,7 @@ bool GenMoves::pushmove(const int from, const int to, const int side, int promot
         }
     }
     _Tmove *mos;
-    ASSERT_RANGE(listId, 0,MAX_PLY-1);
+    ASSERT_RANGE(listId, 0, MAX_PLY - 1);
 
     ASSERT(getListSize() < MAX_MOVE);
     mos = &gen_list[listId].moveList[getListSize()];
@@ -346,8 +346,8 @@ void GenMoves::generateMoves(const int side, const u64 allpieces) {
 }
 
 bool GenMoves::generateCapturesMoves() {
-    u64 w = getBitBoardNoPawns<WHITE>()| chessboard[PAWN_WHITE];
-    u64 b = getBitBoardNoPawns<BLACK>()| chessboard[PAWN_BLACK];
+    u64 w = getBitBoardNoPawns<WHITE>() | chessboard[PAWN_WHITE];
+    u64 b = getBitBoardNoPawns<BLACK>() | chessboard[PAWN_BLACK];
 
     int side = getSide();
     if (side == WHITE) {

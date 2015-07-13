@@ -34,6 +34,7 @@ set(SOURCE_FILES
     Tablebase.cpp
     Tablebase.h
     util/Thread.h
+    util/ThreadPool.h
     util/Timer.h
     Uci.cpp
     util/Singleton.h

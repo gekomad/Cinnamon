@@ -21,14 +21,16 @@
 #include <mutex>
 #include <unistd.h>
 #include "Search.h"
-#include "ThreadPool.h"
+#include "util/ThreadPool.h"
+#include "util/ObserverSearch.h"
+#include "util/String.h"
 
-class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search> {
+class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch {
     friend class Singleton<SearchManager>;
 
 public:
 
-    int PVSplit(int,const int depth, const int beta);
+    void PVSplit(int, const int depth, const int beta);
 
     static atomic<int> PVSalpha;
 
@@ -118,6 +120,10 @@ public:
 
     void deleteGtb();
 
+    void receiveObserverPVSplit(int threadID, int value);
+
+    void receiveObserverSearch(int threadID);
+
 #ifdef DEBUG_MODE
 
     unsigned getCumulativeMovesCount() {
@@ -189,11 +195,8 @@ public:
 private:
     SearchManager();
 
-    template<int>
-    void receiveObserverSearch();
 
-    template<int>
-    void getWindowRange(const int val, int *from, int *to);
+    void getWindowRange(int, const int val, int *from, int *to);
 
     int valWindow;
     int threadWin;
@@ -202,10 +205,9 @@ private:
 
     void setMainPly(int r);
 
-    Search searchMoves;
+    Search searchMoves{(100)};
 
-    template<int threadID>
-    void startThread(int depth);
+    void startThread(int threadID, int depth);
 
 };
 

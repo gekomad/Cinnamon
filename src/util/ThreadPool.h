@@ -27,28 +27,22 @@ class ThreadPool {
 public:
 
     ThreadPool() {
+        generateBitMap();
         for (int i = 0; i < N_THREAD; i++) {
-            searchPool.push_back(new T());
+            searchPool.push_back(new T(i));
         }
     }
 
     int getFirstBit(int threadsBits1) {
-        //TODO ottimizzare
-        for (int i = 0; i < N_THREAD; ++i) {
-            if ((threadsBits1 & POW2[i]) == 0) {
-                return i;
-            }
-        }
-        assert(0);
-        return 0;
+        return bitMap[threadsBits1];
     }
 
     int getNextThread() {
-        cout <<"getthread prima"<<endl;
-
+        cout << "getthread prima" << endl;
+        mutex mx;
         lock_guard<mutex> lock1(mx);
-        cout <<"getthread dentro"<<endl;
-
+        cout << "getthread dentro" << endl;
+        mutex mtx1;
         std::unique_lock<std::mutex> lck(mtx1);
 
         ASSERT(Bits::bitCount(threadsBits) <= N_THREAD);
@@ -58,40 +52,48 @@ public:
 
         int i = getFirstBit(threadsBits);
         threadsBits |= POW2[i];
-        cout <<"getthread dopo"<<endl;
+        cout << "getthread dopo" << endl;
         return i;
     }
 
-    void releaseThread(int threadID){
+    void releaseThread(int threadID) {
+        mutex mx1;
+        lock_guard<mutex> lock1(mx1);
         threadsBits &= ~POW2[threadID];
         cv.notify_all();
-    }
-
-    template<int threadID>
-    void observerPVS() {
-       // mutex mx;
-        lock_guard<mutex> lock1(mx1);
-
-        cout << "tolgo bit " << threadID << " maschera: " << threadsBits;
-
-        releaseThread(threadID);
-        cout << " nuova maschera: " << threadsBits << " " << Bits::bitCount(threadsBits) << endl;
-
     }
 
     void init() {
         threadsBits = 0;
     }
 
+
 protected:
     vector<T *> searchPool;
 
 private:
-    mutex mx;
-    mutex mx1;
-    mutex mtx1;
+
     int threadsBits;
     int N_THREAD = 4;
     condition_variable cv;
+    int bitMap[16];
+
+
+    void generateBitMap() {
+        auto lambda = [this](int threadsBits1) {
+            ASSERT(N_THREAD == 4);
+            for (int i = 0; i < N_THREAD; ++i) {
+                if ((threadsBits1 & 1) == 0) {
+                    return i;
+                }
+                threadsBits1 >>= 1;
+            }
+            return -1;
+        };
+        for (int i = 0; i < pow(2, N_THREAD); i++) {
+            bitMap[i] = lambda(i);
+        }
+    }
+
 };
 

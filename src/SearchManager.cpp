@@ -22,48 +22,35 @@
 
 atomic<int> SearchManager::PVSalpha;
 
-int SearchManager::PVSplit(int idThread1,const int depth, const int beta) {
-    cout << "***********************" << depth << endl;
+void SearchManager::PVSplit(int idThread1, const int depth, const int beta) {
 
-    if (depth < 5) {
-        int t = searchPool[idThread1]->searchNOparall(depth, PVSalpha, beta);
-        releaseThread(idThread1);
-        return t;
-    }
+    int bestScore = -_INFINITE;
     searchMoves.incListId();
     searchMoves.generateCapturesMoves();//TODO return false?
     _Tmove *move = searchMoves.getNextMove();
-
-    u64 oldKey =searchMoves.chessboard[ZOBRISTKEY_IDX];
+    u64 oldKey = searchMoves.chessboard[ZOBRISTKEY_IDX];
 
     searchPool[idThread1]->makemove(move, true, false);
 
-    int score = PVSplit(idThread1,depth - 1, beta);
-    releaseThread(idThread1);
+
+    int score = 1;//-PVSplit(....);
+
+    if (score > bestScore) bestScore = score;
+    if (score > PVSalpha) PVSalpha = score;
+    takeback(move, oldKey, true);
+    searchMoves.decListId();
     if (score > beta) {
-        takeback(move, oldKey, true);
-        searchMoves.decListId();
-
-        return beta;
+        return;
     }
-    if (score > PVSalpha) {
-        PVSalpha = score;
-    }
-
-    //idThread = getNextThread();
-    // Begin parallel loop
     while ((move = searchMoves.getNextMove())) {
         cout << "fuori" << endl;
         idThread1 = getNextThread();
         cout << "dentro" << endl;
         //  _Tmove *move = searchMoves.getNextMove();
         searchPool[idThread1]->makemove(move, true, false);
-        searchPool[idThread1]->setPVSplit(depth, beta);
+        //   searchPool[idThread1]->setPVSplit(depth, -alpha, -beta);
         searchPool[idThread1]->start();
     }
-//    // End parallel loop
-    searchMoves.decListId();
-    return PVSalpha;
 }
 
 
@@ -74,7 +61,7 @@ void SearchManager::parallelSearch(int mply) {
 //        while (1) {
 //            int i = getNextThread();
 //            cout << time(0) << " start thread " << i << endl;
-//            searchPool[i]->setPVSplit(2,2);
+//            searchPool[i]->setPVSplit(6,2);
 //            searchPool[i]->start();
 //        }
 //    }
@@ -84,35 +71,31 @@ void SearchManager::parallelSearch(int mply) {
     setMainPly(mply);
 //  if (mply < 5) {
     if (mply == 1) {
-        startThread<3>(mply);
+        startThread(3, mply);
         join(3);
         valWindow = getValue(3);
 
-    }
-    else {
+    } else {
 //  Parallel Aspiration
 
         ASSERT(getRunning(0));
-        startThread<0>(mply);
+        startThread(0, mply);
 
         ASSERT(getRunning(1));
-        startThread<1>(mply);
+        startThread(1, mply);
 
         ASSERT(getRunning(2));
-        startThread<2>(mply);
+        startThread(2, mply);
         joinAll();
-
     }
-
 
     if (threadWin == -1) {
-        //    mply=6;
-        ThreadPool::init();
+        ThreadPool:
+        init();
         searchMoves.clone(searchPool[0]);
         PVSalpha = -_INFINITE;
-        PVSplit( getNextThread(),mply, _INFINITE);
+        PVSplit(getNextThread(), mply, _INFINITE);
     }
-
 }
 
 SearchManager::~SearchManager() {
@@ -120,7 +103,6 @@ SearchManager::~SearchManager() {
         delete s;
         s = nullptr;
     }
-
 }
 
 int SearchManager::loadFen(string fen) {
@@ -156,8 +138,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
     return true;
 }
 
-template<int threadID>
-void SearchManager::getWindowRange(const int V, int *from, int *to) {
+void SearchManager::getWindowRange(int threadID, const int V, int *from, int *to) {
     switch (threadID) {
         case 0:
             *from = V - VAL_WINDOW;
@@ -180,8 +161,21 @@ void SearchManager::getWindowRange(const int V, int *from, int *to) {
     }
 }
 
-template<int threadID>
-void SearchManager::receiveObserverSearch() {
+void SearchManager::receiveObserverPVSplit(int threadID, int value) {
+  //  assert(0);
+//    if (score > PVSbeta) {
+//
+//        1return PVSbeta;
+//    }
+//    if (score > SearchManager::PVSalpha) {
+//        SearchManager::PVSalpha = score;
+//    }
+//
+//    1return SearchManager::PVSalpha;
+    releaseThread(threadID);
+}
+
+void SearchManager::receiveObserverSearch(int threadID) {
     if (getRunning(threadID)) {
         mutex mutexSearch;
         lock_guard<mutex> lock(mutexSearch);
@@ -189,7 +183,7 @@ void SearchManager::receiveObserverSearch() {
             int t = searchPool[threadID]->getValue();
             int from, to;
 
-            getWindowRange<threadID>(valWindow, &from, &to);
+            getWindowRange(threadID, valWindow, &from, &to);
             if (t > from && t < to) {
                 valWindow = t;
                 threadWin = threadID;
@@ -203,40 +197,15 @@ void SearchManager::receiveObserverSearch() {
 }
 
 SearchManager::SearchManager() {
-
-    searchPool[0]->registerObserversSearch([this]() {
-        receiveObserverSearch<0>();
-    });
-    searchPool[1]->registerObserversSearch([this]() {
-        receiveObserverSearch<1>();
-    });
-    searchPool[2]->registerObserversSearch([this]() {
-        receiveObserverSearch<2>();
-    });
-    searchPool[3]->registerObserversSearch([this]() {
-        receiveObserverSearch<3>();
-    });
-
-    searchPool[0]->registerObserversPVS([this]() {
-        observerPVS<0>();
-    });
-    searchPool[1]->registerObserversPVS([this]() {
-        observerPVS<1>();
-    });
-    searchPool[2]->registerObserversPVS([this]() {
-        observerPVS<2>();
-    });
-    searchPool[3]->registerObserversPVS([this]() {
-        observerPVS<3>();
-    });
-
+    for (Search *s:searchPool) {
+        s->registerObserver(this);
+    }
 }
 
 
-template<int threadID>
-void SearchManager::startThread(int depth) {
+void SearchManager::startThread(int threadID, int depth) {
     int alpha, beta;
-    getWindowRange<threadID>(valWindow, &alpha, &beta);
+    getWindowRange(threadID, valWindow, &alpha, &beta);
     searchPool[threadID]->search(depth, alpha, beta);
     searchPool[threadID]->start();
 }

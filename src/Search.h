@@ -25,19 +25,18 @@
 #include <climits>
 #include "Tablebase.h"
 #include "util/Thread.h"
+#include "util/ObserverSearch.h"
 
 
-class Search : public Eval, public Thread {
+class Search : public Eval, public Thread, public Subject {
 
 public:
 
-    Search();
+    Search(int threadId);
 
     void clone(const Search *);
 
     virtual ~Search();
-
-    int PVSplit();
 
     void setRunning(int);
 
@@ -69,15 +68,6 @@ public:
         ASSERT(threadValue != INT_MAX);
         return threadValue;
     }
-
-    void registerObserversSearch(function<void(void)> f) {
-        observerSearch = f;
-    }
-
-    void registerObserversPVS(function<void(void)> f) {
-        observerPVS = f;
-    }
-
 
     virtual void run();
 
@@ -158,22 +148,12 @@ private:
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
-    function<void(void)> observerSearch;
-
-    function<void(void)> observerPVS;
-
-    void notifyObserversSearch(void) {
-        observerSearch();
-    }
-
-    void notifyObserversPVS(void) {
-        observerPVS();
-    }
 
     int mainMateIn;
     bool pvsMode = false;
     int PVSdepth;
     int PVSbeta;
+    int threadID;
 };
 
 

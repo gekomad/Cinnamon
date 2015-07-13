@@ -185,9 +185,9 @@ void IterativeDeeping::run() {
         cout << "info string tot moves: " << totMoves << "\n";
         unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
         cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
-        ASSERT(totStoreHash <= cumulativeMovesCount);
+        // ASSERT(totStoreHash <= cumulativeMovesCount);
         cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
-        ASSERT(totCutHash <= cumulativeMovesCount);
+        //ASSERT(totCutHash <= cumulativeMovesCount);
         u64 nps = 0;
         if (timeTaken) {
             nps = totMoves * 1000 / timeTaken;
