@@ -97,12 +97,15 @@ private:
             }
             return -1;
         };
-        for (int i = 0; i < pow(2, MAX_THREAD); i++) {
+        for (int i = 0; i < (int) POW2[MAX_THREAD]; i++) {
             bitMap[i] = lambda(i);
         }
     }
 
     void allocThread() {
+        for (int i = 0; i < searchPool.size(); i++) {
+            delete searchPool[i];
+        }
         searchPool.clear();
         for (int i = 0; i < nThread; i++) {
             searchPool.push_back(new T(i));

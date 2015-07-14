@@ -82,6 +82,7 @@ void SearchManager::parallelSearch(int mply) {
         startThread(*searchPool[3], mply);
         join(3);
         valWindow = getValue(3);
+        searchPool[3]->setRunning(1);
     } else {
 //  Parallel Aspiration
         for (Search *s:searchPool) {
@@ -90,14 +91,14 @@ void SearchManager::parallelSearch(int mply) {
         }
 
         joinAll();
-
-        if (threadWin == -1) {
-            ThreadPool:
-            init();
-            //  searchMoves.clone(searchPool[0]);
-            //PVSalpha = -_INFINITE;
-            PVSplit(getNextThread(), mply, -_INFINITE, _INFINITE);
-        }
+        ASSERT(threadWin != -1);
+//        if (threadWin == -1) {
+//            ThreadPool:
+//            init();
+//            //  searchMoves.clone(searchPool[0]);
+//            //PVSalpha = -_INFINITE;
+//            PVSplit(getNextThread(), mply, -_INFINITE, _INFINITE);
+//        }
     }
 }
 
@@ -106,6 +107,10 @@ SearchManager::~SearchManager() {
         delete s;
         s = nullptr;
     }
+    for (int i = 0; i < rollbackValue.size(); i++) {
+        delete rollbackValue[i];
+    }
+    rollbackValue.clear();
 }
 
 int SearchManager::loadFen(string fen) {
@@ -147,8 +152,8 @@ void SearchManager::getWindowRange(int threadID, const int val, int *from, int *
         *from = -_INFINITE;
         *to = _INFINITE;
     } else {
-        *from = val - VAL_WINDOW * pow(2, threadID);
-        *to = val + VAL_WINDOW * pow(2, threadID);
+        *from = val - VAL_WINDOW * (int) POW2[threadID];
+        *to = val + VAL_WINDOW * (int) POW2[threadID];
     }
 }
 
@@ -440,6 +445,10 @@ bool SearchManager::setThread(int thread) {
 }
 
 void SearchManager::registerThreads() {
+    for (int i = 0; i < rollbackValue.size(); i++) {
+        delete rollbackValue[i];
+    }
+    rollbackValue.clear();
     for (Search *s:searchPool) {
         s->registerObserver(this);
         rollbackValue.push_back(new _RollbackValue);
