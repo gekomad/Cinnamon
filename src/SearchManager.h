@@ -123,6 +123,7 @@ public:
     void receiveObserverSearch(int threadID);
 
     bool setThread(int);
+
 #ifdef DEBUG_MODE
 
     unsigned getCumulativeMovesCount() {
@@ -200,14 +201,14 @@ private:
 
     int valWindow;
     int threadWin;
+    mutex mutexSearch;
 
+//    mutex mutex1;
     void joinAll();
 
     void setMainPly(int r);
 
-    //Search searchMoves{(100)};
-
-    void startThread(Search& thread, int depth);
+    void startThread(Search &thread, int depth);
 
     typedef struct {
         u64 oldKey;

@@ -111,7 +111,8 @@ private:
     private:
         virtual void run();
 
-        //void setDump();
+        static mutex mutexDump;
+
         template<int side, bool useHash>
         u64 search(const int depth);
 

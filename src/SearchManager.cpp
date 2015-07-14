@@ -79,10 +79,10 @@ void SearchManager::parallelSearch(int mply) {
     setMainPly(mply);
 //  if (mply < 5) {
     if (mply == 1) {
-        startThread(*searchPool[3], mply);
-        join(3);
-        valWindow = getValue(3);
-        searchPool[3]->setRunning(1);
+        int last = getNthread() - 1;
+        startThread(*searchPool[last], mply);
+        join(last);
+        valWindow = getValue(last);
     } else {
 //  Parallel Aspiration
         for (Search *s:searchPool) {
@@ -91,7 +91,7 @@ void SearchManager::parallelSearch(int mply) {
         }
 
         joinAll();
-        ASSERT(threadWin != -1);
+
 //        if (threadWin == -1) {
 //            ThreadPool:
 //            init();
@@ -171,7 +171,7 @@ void SearchManager::updateAB(int depth, int side, int score) {
 
 void SearchManager::receiveObserverPVSplit(int threadID, int score) {
     assert(0);
-//    mutex mutex1;
+
 //    lock_guard<mutex> lock1(mutex1);
 //    updateAB(depth,side,score);
 //    if (score > alphaValue[depth]) alphaValue[depth] = score;
@@ -186,7 +186,6 @@ void SearchManager::receiveObserverPVSplit(int threadID, int score) {
 
 void SearchManager::receiveObserverSearch(int threadID) {
     if (getRunning(threadID)) {
-        mutex mutexSearch;
         lock_guard<mutex> lock(mutexSearch);
         if (threadWin == -1) {
             int t = searchPool[threadID]->getValue();
@@ -289,7 +288,6 @@ int SearchManager::getForceCheck() {
 u64 SearchManager::getZobristKey() {
     return searchPool[0]->getZobristKey();
 }
-
 
 void SearchManager::setForceCheck(bool a) {
     for (Search *s:searchPool) {

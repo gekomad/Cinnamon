@@ -18,6 +18,8 @@
 
 #include "Perft.h"
 
+mutex updateHash;
+
 Perft::PerftThread::PerftThread() { }
 
 Perft::PerftThread::PerftThread(int cpuID1, string fen1, int from1, int to1, Perft *perft1) : GenMoves() {
@@ -33,8 +35,7 @@ void Perft::dump() {
     if (dumpFile.empty() || !hash) {
         return;
     }
-    static mutex m;
-    lock_guard<mutex> lock(m);
+
     cout << endl << "Dump hash table in " << dumpFile << " file..." << flush;
     ofstream f;
     string tmpFile = dumpFile + ".tmp";

@@ -35,6 +35,7 @@ public:
 
 private:
     Uci();
+
     Perft *perft = nullptr;
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     IterativeDeeping *iterativeDeeping;

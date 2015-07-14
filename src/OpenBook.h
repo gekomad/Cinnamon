@@ -39,6 +39,7 @@ public:
 
 private:
     OpenBook();
+
     typedef struct {
         u64 key;
         unsigned short move;

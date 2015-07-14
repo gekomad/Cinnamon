@@ -39,7 +39,7 @@ public:
 
     int getNextThread() {
         cout << "getthread prima" << endl;
-        mutex mx;
+
         lock_guard<mutex> lock1(mx);
         cout << "getthread dentro" << endl;
         mutex mtx1;
@@ -57,7 +57,6 @@ public:
     }
 
     void releaseThread(int threadID) {
-        mutex mx1;
         lock_guard<mutex> lock1(mx1);
         threadsBits &= ~POW2[threadID];
         cv.notify_all();
@@ -81,7 +80,8 @@ protected:
     vector<T *> searchPool;
 
 private:
-
+    mutex mx;
+    mutex mx1;
     int threadsBits;
     int nThread = 4;
     condition_variable cv;
