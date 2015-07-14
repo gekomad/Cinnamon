@@ -79,30 +79,25 @@ void SearchManager::parallelSearch(int mply) {
     setMainPly(mply);
 //  if (mply < 5) {
     if (mply == 1) {
-        startThread(3, mply);
+        startThread(*searchPool[3], mply);
         join(3);
         valWindow = getValue(3);
-
     } else {
 //  Parallel Aspiration
+        for (Search *s:searchPool) {
+            ASSERT(s->getRunning());
+            startThread(*s, mply);
+        }
 
-        ASSERT(getRunning(0));
-        startThread(0, mply);
-
-        ASSERT(getRunning(1));
-        startThread(1, mply);
-
-        ASSERT(getRunning(2));
-        startThread(2, mply);
         joinAll();
-    }
 
-    if (threadWin == -1) {
-        ThreadPool:
-        init();
-        //  searchMoves.clone(searchPool[0]);
-        //PVSalpha = -_INFINITE;
-        PVSplit(getNextThread(), mply, -_INFINITE, _INFINITE);
+        if (threadWin == -1) {
+            ThreadPool:
+            init();
+            //  searchMoves.clone(searchPool[0]);
+            //PVSalpha = -_INFINITE;
+            PVSplit(getNextThread(), mply, -_INFINITE, _INFINITE);
+        }
     }
 }
 
@@ -146,28 +141,17 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
     return true;
 }
 
-void SearchManager::getWindowRange(int threadID, const int V, int *from, int *to) {
-    switch (threadID) {
-        case 0:
-            *from = V - VAL_WINDOW;
-            *to = V + VAL_WINDOW;
-            break;
-        case 1:
-            *from = V - VAL_WINDOW * 2;
-            *to = V + VAL_WINDOW * 2;
-            break;
-        case 2:
-            *from = V - VAL_WINDOW * 4;
-            *to = V + VAL_WINDOW * 4;
-            break;
-        case 3:
-            *from = -_INFINITE;
-            *to = _INFINITE;
-            break;
-        default:
-        assert(0);
+void SearchManager::getWindowRange(int threadID, const int val, int *from, int *to) {
+    if (threadID == getNthread() - 1) {
+        //last
+        *from = -_INFINITE;
+        *to = _INFINITE;
+    } else {
+        *from = val - VAL_WINDOW * pow(2, threadID);
+        *to = val + VAL_WINDOW * pow(2, threadID);
     }
 }
+
 
 void SearchManager::updateAB(int depth, int side, int score) {
     if (side > 0) {
@@ -224,11 +208,11 @@ SearchManager::SearchManager() {
 }
 
 
-void SearchManager::startThread(int threadID, int depth) {
+void SearchManager::startThread(Search &thread, int depth) {
     int alpha, beta;
-    getWindowRange(threadID, valWindow, &alpha, &beta);
-    searchPool[threadID]->search(depth, alpha, beta);
-    searchPool[threadID]->start();
+    getWindowRange(thread.getId(), valWindow, &alpha, &beta);
+    thread.search(depth, alpha, beta);
+    thread.start();
 }
 
 void SearchManager::joinAll() {
@@ -451,7 +435,7 @@ void SearchManager::deleteGtb() {
 
 bool SearchManager::setThread(int thread) {
     if (thread > 0 && thread <= 128) {
-        ThreadPool::setSize(thread);
+        ThreadPool::setNthread(thread);
         return true;
     }
     return false;

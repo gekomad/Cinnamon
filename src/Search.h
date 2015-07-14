@@ -36,6 +36,10 @@ public:
 
     void clone(const Search *);
 
+    int getId() const {
+        return threadID;
+    }
+
     virtual ~Search();
 
     void setRunning(int);

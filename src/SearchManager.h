@@ -207,7 +207,7 @@ private:
 
     //Search searchMoves{(100)};
 
-    void startThread(int threadID, int depth);
+    void startThread(Search& thread, int depth);
 
     typedef struct {
         u64 oldKey;

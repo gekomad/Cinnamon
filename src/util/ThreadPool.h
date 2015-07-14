@@ -67,11 +67,11 @@ public:
         threadsBits = 0;
     }
 
-    int getSize() {
+    int getNthread() {
         return nThread;
     }
 
-    void setSize(int t) {
+    void setNthread(int t) {
         nThread = t;
     }
 
