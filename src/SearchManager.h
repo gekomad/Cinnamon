@@ -122,6 +122,7 @@ public:
 
     void receiveObserverSearch(int threadID);
 
+    bool setThread(int);
 #ifdef DEBUG_MODE
 
     unsigned getCumulativeMovesCount() {

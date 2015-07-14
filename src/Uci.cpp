@@ -145,20 +145,21 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
             uciMode = true;
             cout << "id name " << NAME << "\n";
-            cout << "id author Giuseppe Cannella" << "\n";
-            cout << "option name Hash type spin default 64 min 1 max 32768" << "\n";
-            cout << "option name Clear Hash type button" << "\n";
-            cout << "option name Nullmove type check default true" << "\n";
-            cout << "option name Book File type string default cinnamon.bin" << "\n";
+            cout << "id author Giuseppe Cannella\n";
+            cout << "option name Hash type spin default 64 min 1 max 32768\n";
+            cout << "option name Clear Hash type button\n";
+            cout << "option name Nullmove type check default true\n";
+            cout << "option name Book File type string default cinnamon.bin\n";
             cout << "option name OwnBook type check default " << BOOLEAN[it->getUseBook()] << "\n";
             cout << "option name Ponder type check default " << BOOLEAN[it->getPonderEnabled()] << "\n";
-            cout << "option name TB Endgame type combo default none var Gaviota var none" << "\n";
-            cout << "option name GaviotaTbPath type string default gtb/gtb4" << "\n";
-            cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024" << "\n";
-            cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4" << "\n";
-            cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << "\n";
-            cout << "option name TB probing depth type spin default 0 min 0 max 5" << "\n";
-            cout << "option name TB Restart type button" << "\n";
+            cout << "option name Threads type spin default 1 min 1 max 128\n";
+            cout << "option name TB Endgame type combo default none var Gaviota var none\n";
+            cout << "option name GaviotaTbPath type string default gtb/gtb4\n";
+            cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024\n";
+            cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4\n";
+            cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5\n";
+            cout << "option name TB probing depth type spin default 0 min 0 max 5\n";
+            cout << "option name TB Restart type button\n";
             cout << "uciok\n";
         } else if (token == "score") {
             int side = searchManager.getSide();
@@ -201,7 +202,15 @@ void Uci::listner(IterativeDeeping *it) {
                             knowCommand = true;
                         };
                     }
-                } else if (token == "gaviotatbscheme") {
+                } else if (token == "threads") {
+                    getToken(uip, token);
+                    if (token == "value") {
+                        getToken(uip, token);
+                        if (searchManager.setThread(stoi(token))) {
+                            knowCommand = true;
+                        };
+                    }
+                }else if (token == "gaviotatbscheme") {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);

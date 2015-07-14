@@ -28,7 +28,7 @@ public:
 
     ThreadPool() {
         generateBitMap();
-        for (int i = 0; i < N_THREAD; i++) {
+        for (int i = 0; i < nThread; i++) {
             searchPool.push_back(new T(i));
         }
     }
@@ -45,8 +45,8 @@ public:
         mutex mtx1;
         std::unique_lock<std::mutex> lck(mtx1);
 
-        ASSERT(Bits::bitCount(threadsBits) <= N_THREAD);
-        if (Bits::bitCount(threadsBits) == N_THREAD) {
+        ASSERT(Bits::bitCount(threadsBits) <= nThread);
+        if (Bits::bitCount(threadsBits) == nThread) {
             cv.wait(lck);
         }
 
@@ -68,7 +68,11 @@ public:
     }
 
     int getSize() {
-        return N_THREAD;
+        return nThread;
+    }
+
+    void setSize(int t) {
+        nThread = t;
     }
 
 protected:
@@ -77,15 +81,15 @@ protected:
 private:
 
     int threadsBits;
-    int N_THREAD = 4;
+    int nThread = 4;
     condition_variable cv;
     int bitMap[16];
 
 
     void generateBitMap() {
         auto lambda = [this](int threadsBits1) {
-            ASSERT(N_THREAD == 4);
-            for (int i = 0; i < N_THREAD; ++i) {
+            ASSERT(nThread == 4);
+            for (int i = 0; i < nThread; ++i) {
                 if ((threadsBits1 & 1) == 0) {
                     return i;
                 }
@@ -93,7 +97,7 @@ private:
             }
             return -1;
         };
-        for (int i = 0; i < pow(2, N_THREAD); i++) {
+        for (int i = 0; i < pow(2, nThread); i++) {
             bitMap[i] = lambda(i);
         }
     }

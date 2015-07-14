@@ -181,17 +181,18 @@ void SearchManager::updateAB(int depth, int side, int score) {
 }
 
 void SearchManager::receiveObserverPVSplit(int threadID, int score) {
-    mutex mutex1;
-    lock_guard<mutex> lock1(mutex1);
-    updateAB(depth,side,score);
-    if (score > alphaValue[depth]) alphaValue[depth] = score;
-    if (score > betaValue[depth]) {
-        searchPool[threadID]->takeback(rollbackValue[threadID]->move, rollbackValue[threadID]->oldKey, true);
-        searchPool[threadID]->decListId();
-        releaseThread(threadID);
-        //PVSbeta = score;
-    }
-    releaseThread(threadID);
+    assert(0);
+//    mutex mutex1;
+//    lock_guard<mutex> lock1(mutex1);
+//    updateAB(depth,side,score);
+//    if (score > alphaValue[depth]) alphaValue[depth] = score;
+//    if (score > betaValue[depth]) {
+//        searchPool[threadID]->takeback(rollbackValue[threadID]->move, rollbackValue[threadID]->oldKey, true);
+//        searchPool[threadID]->decListId();
+//        releaseThread(threadID);
+//        //PVSbeta = score;
+//    }
+//    releaseThread(threadID);
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
@@ -448,3 +449,10 @@ void SearchManager::deleteGtb() {
     }
 }
 
+bool SearchManager::setThread(int thread) {
+    if (thread > 0 && thread <= 128) {
+        ThreadPool::setSize(thread);
+        return true;
+    }
+    return false;
+}
