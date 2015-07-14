@@ -201,10 +201,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
 }
 
 SearchManager::SearchManager() {
-    for (Search *s:searchPool) {
-        s->registerObserver(this);
-        rollbackValue.push_back(new _RollbackValue);
-    }
+    registerThreads();
 }
 
 
@@ -434,9 +431,17 @@ void SearchManager::deleteGtb() {
 }
 
 bool SearchManager::setThread(int thread) {
-    if (thread > 0 && thread <= 128) {
+    if (thread > 0 && thread <= ThreadPool::MAX_THREAD) {
         ThreadPool::setNthread(thread);
+        registerThreads();
         return true;
     }
     return false;
+}
+
+void SearchManager::registerThreads() {
+    for (Search *s:searchPool) {
+        s->registerObserver(this);
+        rollbackValue.push_back(new _RollbackValue);
+    }
 }

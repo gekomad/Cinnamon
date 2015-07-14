@@ -152,7 +152,7 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name Book File type string default cinnamon.bin\n";
             cout << "option name OwnBook type check default " << BOOLEAN[it->getUseBook()] << "\n";
             cout << "option name Ponder type check default " << BOOLEAN[it->getPonderEnabled()] << "\n";
-            cout << "option name Threads type spin default 1 min 1 max 128\n";
+            cout << "option name Threads type spin default 1 min 1 max " << ThreadPool<void>::MAX_THREAD << "\n";
             cout << "option name TB Endgame type combo default none var Gaviota var none\n";
             cout << "option name GaviotaTbPath type string default gtb/gtb4\n";
             cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024\n";
@@ -210,7 +210,7 @@ void Uci::listner(IterativeDeeping *it) {
                             knowCommand = true;
                         };
                     }
-                }else if (token == "gaviotatbscheme") {
+                } else if (token == "gaviotatbscheme") {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);

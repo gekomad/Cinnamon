@@ -218,5 +218,6 @@ private:
     int alphaValue[MAX_PLY];
     int betaValue[MAX_PLY];
 
+    void registerThreads();
 };
 

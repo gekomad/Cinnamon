@@ -25,12 +25,12 @@ template<class T>
 class ThreadPool {
 
 public:
+    const static int MAX_THREAD = 8;
 
     ThreadPool() {
+        ASSERT(pow(2, MAX_THREAD) == sizeof(bitMap) / sizeof(int));
         generateBitMap();
-        for (int i = 0; i < nThread; i++) {
-            searchPool.push_back(new T(i));
-        }
+        allocThread();
     }
 
     int getFirstBit(int threadsBits1) {
@@ -73,7 +73,9 @@ public:
 
     void setNthread(int t) {
         nThread = t;
+        allocThread();
     }
+
 
 protected:
     vector<T *> searchPool;
@@ -83,12 +85,10 @@ private:
     int threadsBits;
     int nThread = 4;
     condition_variable cv;
-    int bitMap[16];
-
+    int bitMap[256];
 
     void generateBitMap() {
         auto lambda = [this](int threadsBits1) {
-            ASSERT(nThread == 4);
             for (int i = 0; i < nThread; ++i) {
                 if ((threadsBits1 & 1) == 0) {
                     return i;
@@ -97,8 +97,15 @@ private:
             }
             return -1;
         };
-        for (int i = 0; i < pow(2, nThread); i++) {
+        for (int i = 0; i < pow(2, MAX_THREAD); i++) {
             bitMap[i] = lambda(i);
+        }
+    }
+
+    void allocThread() {
+        searchPool.clear();
+        for (int i = 0; i < nThread; i++) {
+            searchPool.push_back(new T(i));
         }
     }
 
