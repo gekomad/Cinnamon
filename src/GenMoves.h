@@ -172,7 +172,7 @@ public:
         killerHeuristic[from][to] += value;
     }
 
-    void setRunningThread(int t) {
+    void setRunningThread(bool t) {
         runningThread = t;
     }
 
@@ -271,7 +271,7 @@ protected:
 
 private:
     int running;
-    int runningThread;
+    bool runningThread;
     bool forceCheck = false;
     static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;

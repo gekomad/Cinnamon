@@ -185,8 +185,9 @@ void SearchManager::receiveObserverPVSplit(int threadID, int score) {
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
+    lock_guard<mutex> lock(mutexSearch);
     if (getRunning(threadID)) {
-        lock_guard<mutex> lock(mutexSearch);
+
         if (threadWin == -1) {
             int t = searchPool[threadID]->getValue();
             int from, to;
@@ -197,7 +198,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
                 threadWin = threadID;
                 ASSERT(searchPool[threadWin]->getPvLine().cmove);
                 for (Search *s:searchPool) {
-                    s->setRunningThread(threadID);
+                    s->setRunningThread(true);
                 }
             }
         }
