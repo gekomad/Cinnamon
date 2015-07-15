@@ -62,25 +62,20 @@ bool Hash::setHashSize(int mb) {
     return true;
 }
 
-bool Hash::readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, const int depth, _ThashMini &hash) {
-    lock_guard<mutex> lock(mutexRecordHash);//TODO 2 letture ok
-//    shared_lock <shared_mutex> lock(mutexRecordHash);
-    phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
+bool Hash::readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, const int depth, _ThashMini &hashMini) {
+//    lock_guard<mutex> lock(mutexRecordHash);//TODO 2 letture ok
+    shared_lock<std::shared_timed_mutex> rhs(mutexRecordHash);
+    _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
 
-    if (phashe[type]->key == zobristKeyR && phashe[type]->depth >= depth && phashe[type]->from != phashe[type]->to) {
-        readHash(phashe[type], hash);
+    if (hash->key == zobristKeyR && hash->depth >= depth && hash->from != hash->to) {
+
+        hashMini.flags = hash->flags;
+        hashMini.from = hash->from;
+        hashMini.to = hash->to;
+        hashMini.score = hash->score;
         return true;
     }
     return false;
-}
-
-void Hash::readHash(const _Thash *phashe, _ThashMini &hash) {
-
-    hash.flags = phashe->flags;
-    hash.from = phashe->from;
-    hash.to = phashe->to;
-    hash.score = phashe->score;
-
 }
 
 void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
@@ -90,7 +85,8 @@ void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_alway
     if (!running) {
         return;
     }
-    lock_guard<mutex> lock(mutexRecordHash);
+    unique_lock<std::shared_timed_mutex> lock(mutexRecordHash);
+
     ASSERT(abs(score) <= 32200);
     _Thash *phashe = phashe_greater;
     phashe->key = key;

@@ -23,7 +23,7 @@
 #include "namespaces.h"
 #include "util/Singleton.h"
 #include <mutex>
-
+#include <shared_mutex>
 using namespace _board;
 
 class Hash : public Singleton<Hash> {
@@ -85,7 +85,7 @@ private:
 
     void dispose();
 
-    mutex mutexRecordHash;
+    shared_timed_mutex mutexRecordHash;
 
     void readHash(const _Thash *phashe, _ThashMini &hash);
 };
