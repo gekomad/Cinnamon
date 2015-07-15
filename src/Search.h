@@ -145,7 +145,7 @@ private:
 
     bool checkInsufficientMaterial(int);
 
-    void sortHashMoves(int listId, Hash::_Thash *);
+    void sortHashMoves(int listId, Hash::_ThashMini &);
 
     template<int side>
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);

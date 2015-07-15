@@ -197,7 +197,8 @@ void IterativeDeeping::run() {
         int LazyEvalCuts = searchManager.getLazyEvalCuts();
         int nCutFp = searchManager.getNCutFp();
         int nCutRazor = searchManager.getNCutRazor();
-        int nNullMoveCut = searchManager.getNNullMoveCut();
+        int nHashCutFailed = searchManager.getNCutRazor();
+        int nNullMoveCut = hash.cutFailed;
         unsigned totGen = searchManager.getTotGen();
         if (nCutAB) {
             cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%\n";
@@ -209,6 +210,7 @@ void IterativeDeeping::run() {
         cout << "info string futility pruning cut: " << nCutFp << "\n";
         cout << "info string razor cut: " << nCutRazor << "\n";
         cout << "info string null move cut: " << nNullMoveCut << "\n";
+        cout << "info string hash cut failed : " << nHashCutFailed << "\n";
 #endif
         ///is valid move?
         bool print = true;
