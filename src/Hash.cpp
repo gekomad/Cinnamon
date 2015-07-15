@@ -63,7 +63,6 @@ bool Hash::setHashSize(int mb) {
 }
 
 bool Hash::readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, const int depth, _ThashMini &hashMini) {
-//    lock_guard<mutex> lock(mutexRecordHash);//TODO 2 letture ok
     shared_lock<std::shared_timed_mutex> rhs(mutexRecordHash);
     _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
 
