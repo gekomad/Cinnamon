@@ -390,7 +390,8 @@ void Search::run() {
         notifyPVSplit(threadID, score);
     } else {
         threadValue = searchNOparall(threadDepth, PVSalpha, PVSbeta);
-        if (pvLine.cmove) {
+        //if (pvLine.cmove)
+        {
             ASSERT(threadValue != INT_MAX);
             notifySearch(threadID);
         }
