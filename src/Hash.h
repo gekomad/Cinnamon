@@ -46,7 +46,6 @@ public:
         uchar flags:2;
     } _Thash;
 
-
 #pragma pack(pop)
     enum : char {
         hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2

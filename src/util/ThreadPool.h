@@ -31,6 +31,7 @@ public:
         ASSERT(pow(2, MAX_THREAD) == sizeof(bitMap) / sizeof(int));
         generateBitMap();
         allocThread();
+        cout <<"Active threads: "<<getNthread()<<endl;
     }
 
     int getFirstBit(int threadsBits1) {
@@ -83,7 +84,7 @@ private:
     mutex mx;
     mutex mx1;
     int threadsBits;
-    int nThread = 4;
+    int nThread = 2;
     condition_variable cv;
     int bitMap[256];
 

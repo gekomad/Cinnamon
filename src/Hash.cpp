@@ -82,26 +82,27 @@ void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Th
         return;
     }
     ASSERT(abs(score) <= 32200);
-    _Thash *phashe = phashe_greater;
+    _Thash tmp;
+
+    tmp.key = key;
+    tmp.score = score;
+    tmp.flags = flags;
+    tmp.depth = depth;
+    if (bestMove && bestMove->from != bestMove->to) {
+        tmp.from = bestMove->from;
+        tmp.to = bestMove->to;
+    } else {
+        tmp.from = phashe_greater->to = 0;
+    }
     int keyMutex = zobristKeyR % N_MUTEX_BUCKET;
     MUTEX_BUCKET[HASH_GREATER][keyMutex].lock();
-
-    phashe->key = key;
-    phashe->score = score;
-    phashe->flags = flags;
-    phashe->depth = depth;
-    if (bestMove && bestMove->from != bestMove->to) {
-        phashe->from = bestMove->from;
-        phashe->to = bestMove->to;
-    } else {
-        phashe->from = phashe->to = 0;
-    }
+    memcpy(phashe_greater, &tmp, sizeof(_Thash));
     MUTEX_BUCKET[HASH_GREATER][keyMutex].unlock();
-    phashe = phashe_always;
-    MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
-    if (phashe->key && phashe->depth >= depth && phashe->entryAge) {
+
+    //////////////
+   
+    if (phashe_always->key && phashe_always->depth >= depth && phashe_always->entryAge) {//TODO dovrebbe essere greater
         INC(collisions);
-        MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
         return;
     }
 #ifdef DEBUG_MODE
@@ -113,17 +114,19 @@ void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Th
         nRecordHashE++;
     }
 #endif
-    phashe->key = key;
-    phashe->score = score;
-    phashe->flags = flags;
-    phashe->depth = depth;
-    phashe->entryAge = 1;
+    tmp.key = key;
+    tmp.score = score;
+    tmp.flags = flags;
+    tmp.depth = depth;
+    tmp.entryAge = 1;
     if (bestMove && bestMove->from != bestMove->to) {
-        phashe->from = bestMove->from;
-        phashe->to = bestMove->to;
+        tmp.from = bestMove->from;
+        tmp.to = bestMove->to;
     } else {
-        phashe->from = phashe->to = 0;
+        tmp.from = phashe_always->to = 0;
     }
+    MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
+    memcpy(phashe_always, &tmp, sizeof(_Thash));
     MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
 }
 
