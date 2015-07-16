@@ -31,7 +31,10 @@ public:
         ASSERT(pow(2, MAX_THREAD) == sizeof(bitMap) / sizeof(int));
         generateBitMap();
         allocThread();
-        cout <<"Active threads: "<<getNthread()<<endl;
+        if (getNthread() > thread::hardware_concurrency()) {
+            //TODO verificare su windows
+            cout << "WARNING active threads (" << getNthread() << ") > physical cores (" << thread::hardware_concurrency() << ")" << endl;
+        }
     }
 
     int getFirstBit(int threadsBits1) {
