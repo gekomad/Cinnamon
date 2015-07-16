@@ -52,6 +52,7 @@ bool Hash::setHashSize(int mb) {
         return false;
     }
     dispose();
+//    double a=sizeof(mutexBucket)/1024.0/1024.0;
     if (mb) {
         HASH_SIZE = mb * 1024 * 1000 / (sizeof(_Thash) * 2);
         hashArray[HASH_GREATER] = (_Thash *) calloc(HASH_SIZE, sizeof(_Thash));
@@ -62,32 +63,29 @@ bool Hash::setHashSize(int mb) {
     return true;
 }
 
-bool Hash::readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, const int depth, _ThashMini &hashMini) {
-    shared_lock<std::shared_timed_mutex> rhs(mutexRecordHash);
+bool Hash::readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, const int depth, _Thash &hashMini) {
     _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
-
+    MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].lock_shared();
+    memcpy(&hashMini, hash, sizeof(_Thash));
+    MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].unlock_shared();
     if (hash->key == zobristKeyR && hash->depth >= depth && hash->from != hash->to) {
-
-        hashMini.flags = hash->flags;
-        hashMini.from = hash->from;
-        hashMini.to = hash->to;
-        hashMini.score = hash->score;
         return true;
     }
     return false;
 }
 
-void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
+void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
     ASSERT(key);
     ASSERT(phashe_greater);
     ASSERT(phashe_always);
     if (!running) {
         return;
     }
-    unique_lock<std::shared_timed_mutex> lock(mutexRecordHash);
-
     ASSERT(abs(score) <= 32200);
     _Thash *phashe = phashe_greater;
+    int keyMutex = zobristKeyR % N_MUTEX_BUCKET;
+    MUTEX_BUCKET[HASH_GREATER][keyMutex].lock();
+
     phashe->key = key;
     phashe->score = score;
     phashe->flags = flags;
@@ -98,9 +96,12 @@ void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_alway
     } else {
         phashe->from = phashe->to = 0;
     }
+    MUTEX_BUCKET[HASH_GREATER][keyMutex].unlock();
     phashe = phashe_always;
+    MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
     if (phashe->key && phashe->depth >= depth && phashe->entryAge) {
         INC(collisions);
+        MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
         return;
     }
 #ifdef DEBUG_MODE
@@ -123,6 +124,7 @@ void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_alway
     } else {
         phashe->from = phashe->to = 0;
     }
+    MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
 }
 
 void Hash::dispose() {

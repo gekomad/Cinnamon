@@ -24,6 +24,7 @@
 #include "util/Singleton.h"
 #include <mutex>
 #include <shared_mutex>
+
 using namespace _board;
 
 class Hash : public Singleton<Hash> {
@@ -45,18 +46,11 @@ public:
         uchar flags:2;
     } _Thash;
 
-    typedef struct {
-        short score;
-        uchar from:6;
-        uchar to:6;
-        uchar flags:2;
-    } _ThashMini;
+
 #pragma pack(pop)
     enum : char {
         hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2
     };
-    //TODO private
-    _Thash *hashArray[2];
 
     int HASH_SIZE;
 #ifdef DEBUG_MODE
@@ -75,16 +69,18 @@ public:
 
     void clearAge();
 
-    void recordHash(bool running, Hash::_Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
+    void recordHash(u64, bool running, Hash::_Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
 
-    bool readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, const int depth, _ThashMini &hash);
+    bool readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, const int depth, _Thash &hash);
 
 private:
     Hash();
 
     void dispose();
 
-    shared_timed_mutex mutexRecordHash;
+    _Thash *hashArray[2];
+    static const int N_MUTEX_BUCKET = 128;
+    shared_timed_mutex MUTEX_BUCKET[2][N_MUTEX_BUCKET];
 
 };
 
