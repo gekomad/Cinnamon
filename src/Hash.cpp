@@ -100,11 +100,7 @@ void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Th
     MUTEX_BUCKET[HASH_GREATER][keyMutex].unlock();
 
     //////////////
-   
-    if (phashe_always->key && phashe_always->depth >= depth && phashe_always->entryAge) {//TODO dovrebbe essere greater
-        INC(collisions);
-        return;
-    }
+
 #ifdef DEBUG_MODE
     if (flags == hashfALPHA) {
         nRecordHashA++;
@@ -126,6 +122,10 @@ void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Th
         tmp.from = phashe_always->to = 0;
     }
     MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
+    if (phashe_always->key && phashe_always->depth >= depth && phashe_always->entryAge) {//TODO dovrebbe essere greater
+        INC(collisions);
+        return;
+    }
     memcpy(phashe_always, &tmp, sizeof(_Thash));
     MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
 }
