@@ -31,7 +31,6 @@ class Hash : public Singleton<Hash> {
 
 public:
 
-
     static const int HASH_GREATER = 0;
     static const int HASH_ALWAYS = 1;
 #pragma pack(push)
@@ -87,6 +86,5 @@ private:
 
     shared_timed_mutex mutexRecordHash;
 
-    void readHash(const _Thash *phashe, _ThashMini &hash);
 };
 
