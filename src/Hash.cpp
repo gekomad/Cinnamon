@@ -124,6 +124,7 @@ void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Th
     MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
     if (phashe_always->key && phashe_always->depth >= depth && phashe_always->entryAge) {//TODO dovrebbe essere greater
         INC(collisions);
+        MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
         return;
     }
     memcpy(phashe_always, &tmp, sizeof(_Thash));
