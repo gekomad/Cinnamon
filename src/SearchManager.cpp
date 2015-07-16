@@ -347,12 +347,22 @@ void SearchManager::setPonder(bool i) {
 }
 
 int SearchManager::getSide() {
-    ASSERT(searchPool[0]->getSide() == searchPool[1]->getSide() == searchPool[2]->getSide() == searchPool[3]->getSide());
+#ifdef DEBUG_MODE
+    int t = searchPool[0]->getSide();
+    for (Search *s:searchPool) {
+        ASSERT(s->getSide() == t);
+    }
+#endif
     return searchPool[0]->getSide();
 }
 
 int SearchManager::getScore(int side) {
-    ASSERT(searchPool[0]->getScore(side) == searchPool[1]->getScore(side) == searchPool[2]->getScore(side) == searchPool[3]->getScore(side));
+#ifdef DEBUG_MODE
+    int t = searchPool[0]->getScore(side);
+    for (Search *s:searchPool) {
+        ASSERT(s->getScore(side) == t);
+    }
+#endif
     return searchPool[0]->getScore(side);
 }
 
@@ -395,13 +405,18 @@ bool SearchManager::getGtbAvailable() {
 }
 
 int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
-    ASSERT(searchPool[0]->getMoveFromSan(string, ptr) == searchPool[1]->getMoveFromSan(string, ptr) == searchPool[2]->getMoveFromSan(string, ptr) == searchPool[3]->getMoveFromSan(string, ptr));
+#ifdef DEBUG_MODE
+    int t = searchPool[0]->getMoveFromSan(string, ptr);
+    for (Search *s:searchPool) {
+        ASSERT(s->getMoveFromSan(string, ptr) == t);
+    }
+#endif
     return searchPool[0]->getMoveFromSan(string, ptr);
 }
 
 int SearchManager::printDtm() {
     return searchPool[0]->printDtm();
-}
+}F
 
 
 void SearchManager::setGtb(Tablebase &tablebase) {
