@@ -416,8 +416,7 @@ int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
 
 int SearchManager::printDtm() {
     return searchPool[0]->printDtm();
-}F
-
+}
 
 void SearchManager::setGtb(Tablebase &tablebase) {
     for (Search *s:searchPool) {
