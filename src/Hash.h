@@ -78,7 +78,7 @@ private:
     void dispose();
 
     _Thash *hashArray[2];
-    static const int N_MUTEX_BUCKET = 128;
+    static const int N_MUTEX_BUCKET = 4096;
     shared_timed_mutex MUTEX_BUCKET[2][N_MUTEX_BUCKET];
 
 };

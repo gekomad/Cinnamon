@@ -52,7 +52,7 @@ bool Hash::setHashSize(int mb) {
         return false;
     }
     dispose();
-//    double a=sizeof(mutexBucket)/1024.0/1024.0;
+    double a=sizeof(MUTEX_BUCKET)/1024.0/1024.0;
     if (mb) {
         HASH_SIZE = mb * 1024 * 1000 / (sizeof(_Thash) * 2);
         hashArray[HASH_GREATER] = (_Thash *) calloc(HASH_SIZE, sizeof(_Thash));
