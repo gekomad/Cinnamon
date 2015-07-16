@@ -79,15 +79,18 @@ void SearchManager::parallelSearch(int mply) {
     setMainPly(mply);
 //  if (mply < 5) {
     if (mply == 1) {
-        int last = getNthread() - 1;
-        startThread(*searchPool[last], mply);
-        join(last);
-        valWindow = getValue(last);
+        int i = getNextThread();
+        startThread(*searchPool[i], mply, -_INFINITE, _INFINITE);
+        join(i);
+        valWindow = getValue(i);
     } else {
 //  Parallel Aspiration
-        for (Search *s:searchPool) {
-            ASSERT(s->getRunning());
-            startThread(*s, mply);
+        for (int ii = 0; ii < ThreadPool::getNthread(); ii++) {
+            int idThread1 = getNextThread();
+            int alpha, beta;
+            getWindowRange(ii, valWindow, &alpha, &beta);
+            searchPool[idThread1]->setRunning(1);
+            startThread(*searchPool[idThread1], mply, alpha, beta);
         }
 
         joinAll();
@@ -146,14 +149,14 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
     return true;
 }
 
-void SearchManager::getWindowRange(int threadID, const int val, int *from, int *to) {
-    if (threadID == getNthread() - 1) {
+void SearchManager::getWindowRange(int prog, const int val, int *from, int *to) {
+    if (prog == 0) {
         //last
         *from = -_INFINITE;
         *to = _INFINITE;
     } else {
-        *from = val - VAL_WINDOW * (int) POW2[threadID];
-        *to = val + VAL_WINDOW * (int) POW2[threadID];
+        *from = val - VAL_WINDOW * (int) POW2[prog];
+        *to = val + VAL_WINDOW * (int) POW2[prog];
     }
 }
 
@@ -190,10 +193,9 @@ void SearchManager::receiveObserverSearch(int threadID) {
 
         if (threadWin == -1) {
             int t = searchPool[threadID]->getValue();
-            int from, to;
-
-            getWindowRange(threadID, valWindow, &from, &to);
-            if (t > from && t < to) {
+//            int from, to;
+//            getWindowRange(threadID, valWindow, &from, &to);
+            if (t > searchPool[threadID]->getPVSalpha() && t < searchPool[threadID]->getPVSbeta()) {
                 valWindow = t;
                 threadWin = threadID;
                 ASSERT(searchPool[threadWin]->getPvLine().cmove);
@@ -203,6 +205,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
             }
         }
     }
+    releaseThread(threadID);
 }
 
 SearchManager::SearchManager() {
@@ -210,9 +213,9 @@ SearchManager::SearchManager() {
 }
 
 
-void SearchManager::startThread(Search &thread, int depth) {
-    int alpha, beta;
-    getWindowRange(thread.getId(), valWindow, &alpha, &beta);
+void SearchManager::startThread(Search &thread, int depth, int alpha, int beta) {
+    //int alpha, beta;
+//    getWindowRange(thread.getId(), valWindow, &alpha, &beta);
     thread.search(depth, alpha, beta);
     thread.start();
 }

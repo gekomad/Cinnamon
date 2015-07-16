@@ -76,7 +76,7 @@ public:
             execRunnable = this->_runnable;
         }
         join();
-        theThread = new thread(__run, execRunnable);
+        theThread = new thread(__run, execRunnable);//TODO statico senza new
     }
 
     void join() {

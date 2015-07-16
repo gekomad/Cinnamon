@@ -116,6 +116,22 @@ public:
 
     void setGtb(Tablebase &tablebase);
 
+    int getPVSbeta() const {
+        return PVSbeta;
+    }
+
+    void setPVSbeta(int PVSbeta) {
+        Search::PVSbeta = PVSbeta;
+    }
+
+    int getPVSalpha() const {
+        return PVSalpha;
+    }
+
+    void setPVSalpha(int PVSalpha) {
+        Search::PVSalpha = PVSalpha;
+    }
+
 #ifdef DEBUG_MODE
     unsigned cumulativeMovesCount;
     unsigned totGen;
@@ -129,8 +145,6 @@ private:
     int threadDepth;
     int threadValue = INT_MAX;
 
-    int threadAlpha;
-    int threadBeta;
 
     int checkTime();
 
@@ -157,8 +171,10 @@ private:
     bool pvsMode = false;
     int PVSdepth;
     int PVSbeta, PVSalpha;
+    //TODO cambiare nome
     int threadID;
     u64 oldKeyPVS;
+
 
 };
 

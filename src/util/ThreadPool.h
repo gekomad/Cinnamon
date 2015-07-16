@@ -41,12 +41,10 @@ public:
         return bitMap[threadsBits1];
     }
 
-    int getNextThread() {
-        cout << "getthread prima" << endl;
+    int getNextThread() {//TODO eliminare e creare un metodo start
 
         lock_guard<mutex> lock1(mx);
-        cout << "getthread dentro" << endl;
-        mutex mtx1;
+
         std::unique_lock<std::mutex> lck(mtx1);
 
         ASSERT(Bits::bitCount(threadsBits) <= nThread);
@@ -56,11 +54,11 @@ public:
 
         int i = getFirstBit(threadsBits);
         threadsBits |= POW2[i];
-        cout << "getthread dopo" << endl;
+
         return i;
     }
 
-    void releaseThread(int threadID) {
+    void releaseThread(int threadID) {//TODO eliminare e automatizzare
         lock_guard<mutex> lock1(mx1);
         threadsBits &= ~POW2[threadID];
         cv.notify_all();
@@ -86,8 +84,9 @@ protected:
 private:
     mutex mx;
     mutex mx1;
+    mutex mtx1;
     int threadsBits;
-    int nThread = 2;
+    int nThread = 8;
     condition_variable cv;
     int bitMap[256];
 

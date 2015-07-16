@@ -389,7 +389,7 @@ void Search::run() {
         int score = searchNOparall(PVSdepth, PVSalpha, PVSbeta);
         notifyPVSplit(threadID, score);
     } else {
-        threadValue = searchNOparall(threadDepth, threadAlpha, threadBeta);
+        threadValue = searchNOparall(threadDepth, PVSalpha, PVSbeta);
         if (pvLine.cmove) {
             ASSERT(threadValue != INT_MAX);
             notifySearch(threadID);
@@ -401,8 +401,8 @@ void Search::search(int depth, int alpha, int beta) {
     pvsMode = false;
     memset(&pvLine, 0, sizeof(_TpvLine));
     threadDepth = depth;
-    threadAlpha = alpha;
-    threadBeta = beta;
+    PVSalpha = alpha;
+    PVSbeta = beta;
 }
 
 

@@ -208,7 +208,7 @@ private:
 
     void setMainPly(int r);
 
-    void startThread(Search &thread, int depth);
+    void startThread(Search &thread, int depth, int, int);
 
     typedef struct {
         u64 oldKey;
