@@ -218,7 +218,6 @@ void Perft::run() {
     }
     for (auto it:threadList) {
         it->join();
-        it->stop();
     }
     ftime(&end1);
     int t = _time::diffTime(end1, start1) / 1000;

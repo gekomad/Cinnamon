@@ -115,7 +115,6 @@ void Uci::listner(IterativeDeeping *it) {
                 //cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << " dumpFile '" << dumpFile << "'\n";
                 perft = new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile);
                 perft->registerObservers([this]() {
-                    perft->stop();
                     delete perft;
                     perft = nullptr;
                 });
@@ -401,7 +400,6 @@ void Uci::listner(IterativeDeeping *it) {
             if (!uciMode) {
                 searchManager.display();
             }
-            it->stop();
             it->start();
             knowCommand = true;
         }

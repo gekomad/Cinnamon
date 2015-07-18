@@ -36,7 +36,7 @@ private:
     bool running = true;
 
     condition_variable cv;
-    thread *theThread;
+    thread theThread;
     Runnable *_runnable;
     Runnable *execRunnable;
 
@@ -47,16 +47,11 @@ private:
 
 public:
     Thread() : _runnable(nullptr) {
-        theThread = nullptr;
         execRunnable = this;
     }
 
     virtual ~Thread() {
-        if (theThread) {
-            theThread->detach();
-            delete theThread;
-            theThread = nullptr;
-        }
+
     }
 
     void checkWait() {
@@ -76,31 +71,29 @@ public:
             execRunnable = this->_runnable;
         }
         join();
-        theThread = new thread(__run, execRunnable);//TODO statico senza new
+        theThread = thread(__run, execRunnable);//TODO statico senza new
     }
 
     void join() {
-        if (theThread) {
-            ASSERT(isJoinable());
-            theThread->join();
-            delete theThread;
-            theThread = nullptr;
+        if (theThread.joinable()) {
+            theThread.join();
+
         }
     }
 
-    bool isJoinable() {
-        return theThread->joinable();
-    }
+//    bool isJoinable() {
+//        return  theThread.joinable();
+//    }
 
     void sleep(bool b) {
         running = !b;
     }
 
-    void stop() {
-        if (theThread) {
-            theThread->detach();
-            delete theThread;
-            theThread = nullptr;
-        }
-    }
+//    void stop() {
+//        if (theThread) {
+//             theThread.detach();
+//            delete theThread;
+//            theThread = nullptr;
+//        }
+//    }
 };
