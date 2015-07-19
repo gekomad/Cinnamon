@@ -142,7 +142,7 @@ private:
     static Hash *hash;
     static Tablebase *gtb;
     bool ponder;
-    int threadDepth;
+
     int threadValue = INT_MAX;
 
 

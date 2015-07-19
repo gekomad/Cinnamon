@@ -24,6 +24,7 @@
 #include "util/ThreadPool.h"
 #include "util/ObserverSearch.h"
 #include "util/String.h"
+//#include "util/Cout.h"
 
 class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch {
     friend class Singleton<SearchManager>;

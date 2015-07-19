@@ -25,18 +25,19 @@ Tablebase *Search::gtb;
 
 
 void Search::run() {
-    if (!getRunning()) {//TODO eliminare?
-        cout <<"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"<<endl;
-        return;
+//    if (!getRunning()) {//TODO eliminare?
+//        cout << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << endl;
+//        return;
+//    }
+    if (getRunning()) {
+        threadValue = searchNOparall(PVSdepth, PVSalpha, PVSbeta);
     }
     if (pvsMode) {
-        int score = searchNOparall(PVSdepth, PVSalpha, PVSbeta);
-        notifyPVSplit(threadID, score);
+        notifyPVSplit(threadID, threadValue);
     } else {
-        threadValue = searchNOparall(threadDepth, PVSalpha, PVSbeta);
         //if (pvLine.cmove)
         {
-            ASSERT(threadValue != INT_MAX);
+            ASSERT(getRunning() && threadValue != INT_MAX || !getRunning());
             notifySearch(threadID);
         }
     }
@@ -46,7 +47,7 @@ void Search::search(int depth, int alpha, int beta) {
     pvsMode = false;
     cout << time(0) << "dddddddddd azzera _TpvLine " << threadID << endl;
     memset(&pvLine, 0, sizeof(_TpvLine));
-    threadDepth = depth;
+    PVSdepth = depth;
     PVSalpha = alpha;
     PVSbeta = beta;
 }

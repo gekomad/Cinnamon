@@ -47,8 +47,9 @@ void SearchManager::parallelSearch(int mply) {
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
-    cout << time(0) << " receiveObserverSearch "<<threadID<<endl;
+
     lock_guard<mutex> lock(mutexSearch);
+    cout << time(0) << " receiveObserverSearch "<<threadID<<endl;
     if (getRunning(threadID)) {
 
         if (threadWin == -1) {
@@ -56,10 +57,10 @@ void SearchManager::receiveObserverSearch(int threadID) {
             if (t > searchPool[threadID]->getPVSalpha() && t < searchPool[threadID]->getPVSbeta()) {
                 ASSERT(threadWin == -1);
                 threadWin = threadID;
-                cout << time(0) << " bbbbbbbbbbbbbbbbbbb " << threadWin << " " << searchPool[threadWin]->getPvLine().cmove << endl;
+                //cout << time(0) << " bbbbbbbbbbbbbbbbbbb " << threadWin << " " << searchPool[threadWin]->getPvLine().cmove << endl;
                 ASSERT(searchPool[threadWin]->getPvLine().cmove);
                 for (Search *s:searchPool) {
-                    s->setRunningThread(true);//TODO false
+                    s->setRunningThread(false);//TODO false
                 }
             }
         }

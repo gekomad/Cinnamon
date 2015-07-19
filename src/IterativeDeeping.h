@@ -61,6 +61,7 @@ public:
 private:
 
 #ifdef DEBUG_MODE
+    //for staistics
     Hash &hash = Hash::getInstance();
 #endif
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
