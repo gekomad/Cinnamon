@@ -23,6 +23,34 @@
 Hash *Search::hash;
 Tablebase *Search::gtb;
 
+
+void Search::run() {
+    if (!getRunning()) {
+        return;
+    }
+    if (pvsMode) {
+        // int alpha = SearchManager::PVSalpha;
+        int score = searchNOparall(PVSdepth, PVSalpha, PVSbeta);
+        notifyPVSplit(threadID, score);
+    } else {
+        threadValue = searchNOparall(threadDepth, PVSalpha, PVSbeta);
+        //if (pvLine.cmove)
+        {
+            ASSERT(threadValue != INT_MAX);
+            notifySearch(threadID);
+        }
+    }
+}
+
+void Search::search(int depth, int alpha, int beta) {
+    pvsMode = false;
+    memset(&pvLine, 0, sizeof(_TpvLine));
+    threadDepth = depth;
+    PVSalpha = alpha;
+    PVSbeta = beta;
+}
+
+
 Search::Search(int threadID) : ponder(false), nullSearch(false) {
 #ifdef DEBUG_MODE
     lazyEvalCuts = cumulativeMovesCount = totGen = 0;
@@ -373,37 +401,6 @@ void Search::setPVSplit(const int depth, const int alpha, const int beta, const 
 
 int Search::searchNOparall(int depth, int alpha, int beta) {
     return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
-}
-
-void Search::run() {
-//    int iSecret = rand() % (1000000 * 5);
-//    cout << "start thread sleep " <<iSecret<< endl;
-//    usleep(iSecret);
-//    cout << "end thread: " << endl;
-//    notifyObservers();
-    if (!getRunning()) {
-        return;
-    }
-    if (pvsMode) {
-        // int alpha = SearchManager::PVSalpha;
-        int score = searchNOparall(PVSdepth, PVSalpha, PVSbeta);
-        notifyPVSplit(threadID, score);
-    } else {
-        threadValue = searchNOparall(threadDepth, PVSalpha, PVSbeta);
-        //if (pvLine.cmove)
-        {
-            ASSERT(threadValue != INT_MAX);
-            notifySearch(threadID);
-        }
-    }
-}
-
-void Search::search(int depth, int alpha, int beta) {
-    pvsMode = false;
-    memset(&pvLine, 0, sizeof(_TpvLine));
-    threadDepth = depth;
-    PVSalpha = alpha;
-    PVSbeta = beta;
 }
 
 

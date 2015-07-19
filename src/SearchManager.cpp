@@ -22,21 +22,9 @@
 
 
 void SearchManager::parallelSearch(int mply) {
-//    {
-//        srand(time(NULL));
-//
-//        while (1) {
-//            int i = getNextThread();
-//            cout << time(0) << " start thread " << i << endl;
-//            searchPool[i]->setPVSplit(6,2);
-//            searchPool[i]->start();
-//        }
-//    }
-
     threadWin = -1;
 
     setMainPly(mply);
-//  if (mply < 5) {
     if (mply == 1) {
         int i = getNextThread();
         startThread(*searchPool[i], mply, -_INFINITE, _INFINITE);
@@ -54,13 +42,6 @@ void SearchManager::parallelSearch(int mply) {
 
         joinAll();
 
-//        if (threadWin == -1) {
-//            ThreadPool:
-//            init();
-//            //  searchMoves.clone(searchPool[0]);
-//            //PVSalpha = -_INFINITE;
-//            PVSplit(getNextThread(), mply, -_INFINITE, _INFINITE);
-//        }
     }
 }
 
