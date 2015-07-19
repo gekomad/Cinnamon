@@ -21,7 +21,7 @@
 #include <mutex>
 #include <unistd.h>
 
-template<class T>
+template<typename T>
 class ThreadPool {
 
 public:

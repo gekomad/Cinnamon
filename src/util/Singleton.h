@@ -20,7 +20,7 @@
 
 #include <mutex>
 
-template<class T>
+template<typename T>
 class Singleton {
 public:
 
@@ -34,4 +34,4 @@ private:
     static mutex singletonMutex;
 };
 
-template<class T> mutex Singleton<T>::singletonMutex;
+template<typename T> mutex Singleton<T>::singletonMutex;

@@ -221,5 +221,6 @@ private:
     int betaValue[MAX_PLY];
 
     void registerThreads();
+//    CoutSync output;
 };
 
