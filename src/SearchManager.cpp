@@ -299,7 +299,7 @@ void SearchManager::setForceCheck(bool a) {
     }
 }
 
-void SearchManager::setRunningAllThread(int r) {
+void SearchManager::setRunningAllThread(bool r) {
     for (Search *s:searchPool) {
         s->setRunningThread(r);
     }

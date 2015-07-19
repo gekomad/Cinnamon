@@ -112,7 +112,7 @@ void IterativeDeeping::run() {
 
     int timeTaken = 0;
     searchManager.setRunningAll(2);
-    searchManager.setRunningAllThread(2);
+    searchManager.setRunningAllThread(true);
     int mply = 0;
     if (useBook) {
         ASSERT(openBook);
