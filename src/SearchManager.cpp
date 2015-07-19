@@ -21,7 +21,6 @@
 #include "namespaces.h"
 
 
-
 void SearchManager::parallelSearch(int mply) {
 //    {
 //        srand(time(NULL));
@@ -75,6 +74,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
 //            getWindowRange(threadID, valWindow, &from, &to);
             if (t > searchPool[threadID]->getPVSalpha() && t < searchPool[threadID]->getPVSbeta()) {
 //                valWindow = t;
+                ASSERT(threadWin == -1);
                 threadWin = threadID;
                 ASSERT(searchPool[threadWin]->getPvLine().cmove);
                 for (Search *s:searchPool) {
@@ -86,6 +86,29 @@ void SearchManager::receiveObserverSearch(int threadID) {
     releaseThread(threadID);
 }
 
+bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
+    if (threadWin == -1) {
+        return false;
+    }
+    pvv.clear();
+    string pvvTmp;
+    _TpvLine &line1 = searchPool[threadWin]->getPvLine();
+    ASSERT(line1.cmove);
+    for (int t = 0; t < line1.cmove; t++) {
+        pvvTmp.clear();
+        pvvTmp += Search::decodeBoardinv(line1.argmove[t].type, line1.argmove[t].from, searchPool[threadWin]->getSide());
+        if (pvvTmp.length() != 4) {
+            pvvTmp += Search::decodeBoardinv(line1.argmove[t].type, line1.argmove[t].to, searchPool[threadWin]->getSide());
+        }
+        pvv.append(pvvTmp);
+        if (t == 1) {
+            ponderMove.assign(pvvTmp);
+        }
+        pvv.append(" ");
+    };
+    memcpy(&resultMove, line1.argmove, sizeof(_Tmove));
+    return true;
+}
 
 int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) {
 
@@ -148,29 +171,6 @@ int SearchManager::loadFen(string fen) {
     return res;
 }
 
-bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
-    if (threadWin == -1) {
-        return false;
-    }
-    pvv.clear();
-    string pvvTmp;
-    _TpvLine &line1 = searchPool[threadWin]->getPvLine();
-    ASSERT(line1.cmove);
-    for (int t = 0; t < line1.cmove; t++) {
-        pvvTmp.clear();
-        pvvTmp += Search::decodeBoardinv(line1.argmove[t].type, line1.argmove[t].from, searchPool[threadWin]->getSide());
-        if (pvvTmp.length() != 4) {
-            pvvTmp += Search::decodeBoardinv(line1.argmove[t].type, line1.argmove[t].to, searchPool[threadWin]->getSide());
-        }
-        pvv.append(pvvTmp);
-        if (t == 1) {
-            ponderMove.assign(pvvTmp);
-        }
-        pvv.append(" ");
-    };
-    memcpy(&resultMove, line1.argmove, sizeof(_Tmove));
-    return true;
-}
 
 void SearchManager::getWindowRange(int prog, const int val, int *from, int *to) {
     if (prog == 0) {
@@ -209,7 +209,6 @@ void SearchManager::receiveObserverPVSplit(int threadID, int score) {
 //    }
 //    releaseThread(threadID);
 }
-
 
 
 SearchManager::SearchManager() {
