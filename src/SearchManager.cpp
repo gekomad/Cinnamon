@@ -31,6 +31,7 @@ void SearchManager::parallelSearch(int mply) {
         int last = getNthread() - 1;
         startThread(*searchPool[last], mply);
         join(last);
+        ASSERT(searchPool[last]->getThreadAlpha() == -_INFINITE && searchPool[last]->getThreadBeta() == _INFINITE);
         valWindow = getValue(last);
     } else {
 //  Parallel Aspiration
@@ -287,7 +288,7 @@ void SearchManager::setForceCheck(bool a) {
     }
 }
 
-void SearchManager::setRunningAllThread(int r) {
+void SearchManager::setRunningAllThread(bool r) {
     for (Search *s:searchPool) {
         s->setRunningThread(r);
     }
