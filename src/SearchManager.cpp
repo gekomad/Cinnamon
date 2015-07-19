@@ -190,7 +190,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
                 threadWin = threadID;
                 ASSERT(searchPool[threadWin]->getPvLine().cmove);
                 for (Search *s:searchPool) {
-                    s->setRunningThread(true);
+                    s->setRunningThread(true); 
                 }
             }
         }
