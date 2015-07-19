@@ -31,6 +31,9 @@ class Hash : public Singleton<Hash> {
 
 public:
 
+    static const int HASH_GREATER = 0;
+    static const int HASH_ALWAYS = 1;
+
 #pragma pack(push)
 #pragma pack(1)
     typedef struct {
@@ -42,13 +45,15 @@ public:
         uchar entryAge:1;
         uchar flags:2;
     } _Thash;
+
+    //TODO private
+    _Thash *hashArray[2];
+
 #pragma pack(pop)
     enum : char {
         hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2
     };
-    //TODO private
-    _Thash *hash_array_greater;
-    _Thash *hash_array_always;
+
     int HASH_SIZE;
 #ifdef DEBUG_MODE
     unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions;
@@ -69,6 +74,7 @@ public:
     void recordHash(bool running, Hash::_Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
 
 private:
+
     Hash();
 
     void dispose();

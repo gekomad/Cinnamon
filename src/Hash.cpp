@@ -21,7 +21,7 @@
 
 Hash::Hash() {
     HASH_SIZE = 0;
-    hash_array_greater = hash_array_always = nullptr;
+    hashArray[HASH_GREATER] = hashArray[HASH_ALWAYS] = nullptr;
 #ifdef DEBUG_MODE
     n_cut_hashA = n_cut_hashE = n_cut_hashB = cutFailed = probeHash = 0;
     nRecordHashA = nRecordHashB = nRecordHashE = collisions = 0;
@@ -31,7 +31,7 @@ Hash::Hash() {
 
 void Hash::clearAge() {
     for (int i = 0; i < HASH_SIZE; i++) {
-        hash_array_greater[i].entryAge = 0;
+        hashArray[HASH_GREATER][i].entryAge = 0;
     }
 }
 
@@ -39,8 +39,8 @@ void Hash::clearHash() {
     if (!HASH_SIZE) {
         return;
     }
-    memset(hash_array_greater, 0, sizeof(_Thash) * HASH_SIZE);
-    memset(hash_array_always, 0, sizeof(_Thash) * HASH_SIZE);
+    memset(hashArray[HASH_ALWAYS], 0, sizeof(_Thash) * HASH_SIZE);
+    memset(hashArray[HASH_GREATER], 0, sizeof(_Thash) * HASH_SIZE);
 }
 
 int Hash::getHashSize() {
@@ -54,10 +54,10 @@ bool Hash::setHashSize(int mb) {
     dispose();
     if (mb) {
         HASH_SIZE = mb * 1024 * 1000 / (sizeof(_Thash) * 2);
-        hash_array_greater = (_Thash *) calloc(HASH_SIZE, sizeof(_Thash));
-        assert(hash_array_greater);
-        hash_array_always = (_Thash *) calloc(HASH_SIZE, sizeof(_Thash));
-        assert(hash_array_always);
+        hashArray[HASH_GREATER] = (_Thash *) calloc(HASH_SIZE, sizeof(_Thash));
+        assert(hashArray[HASH_GREATER]);
+        hashArray[HASH_ALWAYS] = (_Thash *) calloc(HASH_SIZE, sizeof(_Thash));
+        assert(hashArray[HASH_ALWAYS]);
     }
     return true;
 }
@@ -108,13 +108,13 @@ void Hash::recordHash(bool running, _Thash *phashe_greater, _Thash *phashe_alway
 }
 
 void Hash::dispose() {
-    if (hash_array_greater) {
-        free(hash_array_greater);
+    if (hashArray[HASH_GREATER]) {
+        free(hashArray[HASH_GREATER]);
     }
-    if (hash_array_always) {
-        free(hash_array_always);
+    if (hashArray[HASH_ALWAYS]) {
+        free(hashArray[HASH_ALWAYS]);
     }
-    hash_array_greater = hash_array_always = nullptr;
+    hashArray[HASH_GREATER] = hashArray[HASH_ALWAYS] = nullptr;
     HASH_SIZE = 0;
 }
 

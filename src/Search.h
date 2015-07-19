@@ -91,19 +91,19 @@ public:
     STATIC_CONST int NULLMOVES_R4 = 2;
 
     void clearAge() {
-        hash->clearAge();
+        hashTable->clearAge();
     }
 
     int getHashSize() {
-        return hash->getHashSize();
+        return hashTable->getHashSize();
     }
 
     bool setHashSize(int i) {
-        return hash->setHashSize(i);
+        return hashTable->setHashSize(i);
     }
 
     void clearHash() {
-        hash->clearHash();
+        hashTable->clearHash();
     }
 
     void setChessboard(_Tchessboard &);
@@ -116,6 +116,14 @@ public:
 
     void setGtb(Tablebase &tablebase);
 
+    int getThreadAlpha() const {
+        return threadAlpha;
+    }
+
+    int getThreadBeta() const {
+        return threadBeta;
+    }
+
 #ifdef DEBUG_MODE
     unsigned cumulativeMovesCount;
     unsigned totGen;
@@ -123,7 +131,7 @@ public:
 private:
 
     _TpvLine pvLine;
-    static Hash *hash;
+    static Hash *hashTable;
     static Tablebase *gtb;
     bool ponder;
     int threadDepth;
@@ -155,8 +163,7 @@ private:
 
     int mainMateIn;
     bool pvsMode = false;
-    int PVSdepth;
-    int PVSbeta, PVSalpha;
+
     int threadID;
     u64 oldKeyPVS;
 
