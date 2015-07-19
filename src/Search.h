@@ -172,7 +172,7 @@ private:
     int PVSdepth;
     int PVSbeta, PVSalpha;
     //TODO cambiare nome
-    int threadID;
+
     u64 oldKeyPVS;
 
 

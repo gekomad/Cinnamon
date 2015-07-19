@@ -46,6 +46,8 @@ private:
     }
 
 public:
+    int threadID;
+
     Thread() : _runnable(nullptr) {
         execRunnable = this;
     }
@@ -76,6 +78,7 @@ public:
 
     void join() {
         if (theThread.joinable()) {
+            cout << "join: " << threadID << endl;
             theThread.join();
 
         }

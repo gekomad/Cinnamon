@@ -25,11 +25,11 @@ Tablebase *Search::gtb;
 
 
 void Search::run() {
-    if (!getRunning()) {
+    if (!getRunning()) {//TODO eliminare?
+        cout <<"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"<<endl;
         return;
     }
     if (pvsMode) {
-        // int alpha = SearchManager::PVSalpha;
         int score = searchNOparall(PVSdepth, PVSalpha, PVSbeta);
         notifyPVSplit(threadID, score);
     } else {
@@ -44,6 +44,7 @@ void Search::run() {
 
 void Search::search(int depth, int alpha, int beta) {
     pvsMode = false;
+    cout << time(0) << "dddddddddd azzera _TpvLine " << threadID << endl;
     memset(&pvLine, 0, sizeof(_TpvLine));
     threadDepth = depth;
     PVSalpha = alpha;

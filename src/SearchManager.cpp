@@ -32,6 +32,7 @@ void SearchManager::parallelSearch(int mply) {
         valWindow = getValue(i);
     } else {
 //  Parallel Aspiration
+        cout << time(0) << " eeeeee start loop "  << endl;
         for (int ii = 0; ii < ThreadPool::getNthread(); ii++) {
             int idThread1 = getNextThread();
             int alpha, beta;
@@ -46,20 +47,19 @@ void SearchManager::parallelSearch(int mply) {
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
+    cout << time(0) << " receiveObserverSearch "<<threadID<<endl;
     lock_guard<mutex> lock(mutexSearch);
     if (getRunning(threadID)) {
 
         if (threadWin == -1) {
             int t = searchPool[threadID]->getValue();
-//            int from, to;
-//            getWindowRange(threadID, valWindow, &from, &to);
             if (t > searchPool[threadID]->getPVSalpha() && t < searchPool[threadID]->getPVSbeta()) {
-//                valWindow = t;
                 ASSERT(threadWin == -1);
                 threadWin = threadID;
+                cout << time(0) << " bbbbbbbbbbbbbbbbbbb " << threadWin << " " << searchPool[threadWin]->getPvLine().cmove << endl;
                 ASSERT(searchPool[threadWin]->getPvLine().cmove);
                 for (Search *s:searchPool) {
-                    s->setRunningThread(true);
+                    s->setRunningThread(true);//TODO false
                 }
             }
         }
@@ -74,6 +74,8 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
     pvv.clear();
     string pvvTmp;
     _TpvLine &line1 = searchPool[threadWin]->getPvLine();
+    if (!line1.cmove)
+        cout << time(0) << " cccccccc errore cmove == 0 " << threadWin << endl;
     ASSERT(line1.cmove);
     for (int t = 0; t < line1.cmove; t++) {
         pvvTmp.clear();
