@@ -23,12 +23,12 @@
 Hash *Search::hashTable;
 Tablebase *Search::gtb;
 
-Search::Search(int threadID) : ponder(false), nullSearch(false) {
+Search::Search(int threadID1) : ponder(false), nullSearch(false) {
 #ifdef DEBUG_MODE
     lazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
     gtb = nullptr;
-    this->threadID = threadID;
+    this->threadID = threadID1;
     hashTable = &Hash::getInstance();
 }
 

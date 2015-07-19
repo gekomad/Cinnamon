@@ -28,7 +28,7 @@ public:
     const static int MAX_THREAD = 8;
 
     ThreadPool() {
-        ASSERT(pow(2, MAX_THREAD) == sizeof(bitMap) / sizeof(int));
+        ASSERT((int)(pow(2, MAX_THREAD)) == (int)(sizeof(bitMap) / sizeof(int)));
         generateBitMap();
         allocThread();
     }
@@ -103,7 +103,7 @@ private:
     }
 
     void allocThread() {
-        for (int i = 0; i < searchPool.size(); i++) {
+        for (unsigned i = 0; i < searchPool.size(); i++) {
             delete searchPool[i];
         }
         searchPool.clear();

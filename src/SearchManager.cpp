@@ -79,16 +79,16 @@ int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) 
         cout << "fuori" << endl;
         idThread1 = getNextThread();
         cout << "dentro" << endl;
-        u64 oldKey = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
+        u64 oldKey1 = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
 
-        rollbackValue[idThread1]->oldKey = oldKey;
+        rollbackValue[idThread1]->oldKey = oldKey1;
         rollbackValue[idThread1]->move = move;
 
         searchPool[idThread1]->makemove(move, true, false);
-        searchPool[idThread1]->setPVSplit(depth, alpha, beta, oldKey);
+        searchPool[idThread1]->setPVSplit(depth, alpha, beta, oldKey1);
         searchPool[idThread1]->start();
     }
-
+    return 0;
 }
 
 SearchManager::~SearchManager() {
@@ -96,7 +96,7 @@ SearchManager::~SearchManager() {
         delete s;
         s = nullptr;
     }
-    for (int i = 0; i < rollbackValue.size(); i++) {
+    for (unsigned i = 0; i < rollbackValue.size(); i++) {
         delete rollbackValue[i];
     }
     rollbackValue.clear();
@@ -435,7 +435,7 @@ bool SearchManager::setThread(int thread) {
 }
 
 void SearchManager::registerThreads() {
-    for (int i = 0; i < rollbackValue.size(); i++) {
+    for (unsigned i = 0; i < rollbackValue.size(); i++) {
         delete rollbackValue[i];
     }
     rollbackValue.clear();
