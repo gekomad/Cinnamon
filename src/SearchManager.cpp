@@ -214,8 +214,9 @@ SearchManager::SearchManager() {
 
 
 void SearchManager::startThread(Search &thread, int depth, int alpha, int beta) {
-    //int alpha, beta;
-//    getWindowRange(thread.getId(), valWindow, &alpha, &beta);
+#ifdef DEBUG_MODE
+    CoutSync() << " startThread "<<thread.getId()<< " alpha: "<<alpha<<" beta: "<<beta;
+#endif
     thread.search(depth, alpha, beta);
     thread.start();
 }
