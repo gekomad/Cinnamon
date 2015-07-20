@@ -91,7 +91,7 @@ void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Th
         tmp.from = bestMove->from;
         tmp.to = bestMove->to;
     } else {
-        tmp.from = phashe_greater->to = 0;
+        tmp.from = tmp.to = 0;
     }
     int keyMutex = zobristKeyR % N_MUTEX_BUCKET;
     MUTEX_BUCKET[HASH_GREATER][keyMutex].lock();
@@ -118,7 +118,7 @@ void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Th
         tmp.from = bestMove->from;
         tmp.to = bestMove->to;
     } else {
-        tmp.from = phashe_always->to = 0;
+        tmp.from = tmp.to = 0;
     }
     MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
     if (phashe_always->key && phashe_always->depth >= depth && phashe_always->entryAge) {//TODO dovrebbe essere greater
