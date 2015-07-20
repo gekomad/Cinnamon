@@ -39,7 +39,7 @@ void SearchManager::parallelSearch(int mply) {
         CoutSync() << " start loop2 ----------------------------------------------------- ";
 #endif
         for (int ii = 0; ii < ThreadPool::getNthread(); ii++) {
-            int idThread1 = getNextThread();
+            int idThread1 =ii;//getNextThread();
             int alpha, beta;
             getWindowRange(ii, valWindow, &alpha, &beta);
             searchPool[idThread1]->setRunning(1);
