@@ -45,7 +45,7 @@ void Search::run() {
 
 void Search::search(int depth, int alpha, int beta) {
     pvsMode = false;
-    CoutSync() << "dddddddddd azzera _TpvLine " << threadID;
+    CoutSync() << "aaaaaaaa azzera _TpvLine " << threadID;
     memset(&pvLine, 0, sizeof(_TpvLine));
     PVSdepth = depth;
     PVSalpha = alpha;

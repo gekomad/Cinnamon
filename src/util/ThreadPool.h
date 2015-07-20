@@ -86,7 +86,7 @@ private:
     mutex mx1;
     mutex mtx1;
     int threadsBits;
-    int nThread = 2;
+    int nThread = 4;
     condition_variable cv;
     int bitMap[256];
 

@@ -32,7 +32,7 @@ void SearchManager::parallelSearch(int mply) {
         valWindow = getValue(i);
     } else {
 //  Parallel Aspiration
-        CoutSync() << " eeeeee start loop ";
+        CoutSync() << " aaaaaa start loop ----------------------------------------------------- ";
         for (int ii = 0; ii < ThreadPool::getNthread(); ii++) {
             int idThread1 = getNextThread();
             int alpha, beta;

@@ -34,7 +34,6 @@ namespace _board {
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     typedef unsigned char uchar;
-
     typedef long long unsigned u64;
     typedef u64 _Tchessboard[16];
 
