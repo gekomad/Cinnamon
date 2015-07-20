@@ -74,12 +74,14 @@ public:
             execRunnable = this->_runnable;
         }
         join();
-        theThread = thread(__run, execRunnable);//TODO statico senza new
+        theThread = thread(__run, execRunnable);
     }
 
     void join() {
         if (theThread.joinable()) {
+#ifdef DEBUG_MODE
             CoutSync() << "join: " << threadID;
+#endif
             theThread.join();
         }
     }

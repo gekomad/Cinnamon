@@ -32,7 +32,9 @@ void SearchManager::parallelSearch(int mply) {
         valWindow = getValue(i);
     } else {
 //  Parallel Aspiration
+#ifdef DEBUG_MODE
         CoutSync() << " aaaaaa start loop ----------------------------------------------------- ";
+#endif
         for (int ii = 0; ii < ThreadPool::getNthread(); ii++) {
             int idThread1 = getNextThread();
             int alpha, beta;
@@ -49,7 +51,9 @@ void SearchManager::parallelSearch(int mply) {
 void SearchManager::receiveObserverSearch(int threadID) {
 
     lock_guard<mutex> lock(mutexSearch);
+#ifdef DEBUG_MODE
     CoutSync() << " receiveObserverSearch " << threadID;
+#endif
     if (getRunning(threadID)) {
 
         if (threadWin == -1) {
@@ -75,9 +79,11 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
     pvv.clear();
     string pvvTmp;
     _TpvLine &line1 = searchPool[threadWin]->getPvLine();
+#ifdef DEBUG_MODE
     if (!line1.cmove) {
-        CoutSync() << " cccccccc errore cmove == 0 " << threadWin;
+        CoutSync() << " aaaaaaaaa errore cmove == 0 " << threadWin;
     }
+#endif
     ASSERT(line1.cmove);
     for (int t = 0; t < line1.cmove; t++) {
         pvvTmp.clear();
@@ -120,9 +126,13 @@ int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) 
         return beta;
     }
     while ((move = searchPool[idThread1]->getNextMove())) {
+#ifdef DEBUG_MODE
         CoutSync() << "fuori";
+#endif
         idThread1 = getNextThread();
+#ifdef DEBUG_MODE
         CoutSync() << "dentro";
+#endif
         u64 oldKey = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
 
         rollbackValue[idThread1]->oldKey = oldKey;

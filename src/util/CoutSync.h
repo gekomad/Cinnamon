@@ -1,5 +1,5 @@
 #pragma once
-
+#ifdef DEBUG_MODE
 #include <iostream>
 
 using namespace std;
@@ -21,3 +21,4 @@ struct CoutSync {
         cout << "TIME:" << ms.count() << " " << s.str() << "\n";
     }
 };
+#endif
