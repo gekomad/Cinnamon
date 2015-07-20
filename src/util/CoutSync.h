@@ -10,7 +10,6 @@ struct CoutSync {
 
     template<typename T>
     CoutSync &operator<<(const T &x) {
-        lock_guard<mutex> lock1(_CoutSyncMutex);
         s << x;
         return *this;
     }
