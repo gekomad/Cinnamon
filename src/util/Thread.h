@@ -73,7 +73,7 @@ public:
         if (this->_runnable != nullptr) {
             execRunnable = this->_runnable;
         }
-        join();
+        ASSERT(!theThread.joinable());
         theThread = thread(__run, execRunnable);
     }
 
@@ -89,6 +89,10 @@ public:
 //    bool isJoinable() {
 //        return  theThread.joinable();
 //    }
+
+    void detach() {
+        theThread.detach();
+    }
 
     void sleep(bool b) {
         running = !b;

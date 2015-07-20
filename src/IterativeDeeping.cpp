@@ -268,6 +268,7 @@ void IterativeDeeping::run() {
         cout << " ponder " << ponderMove;
     }
     cout << "\n" << flush;
+
 }
 
 bool IterativeDeeping::setParameter(String param, int value) {
