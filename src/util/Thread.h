@@ -47,7 +47,7 @@ private:
     }
 
 public:
-    int threadID;
+    int threadID = -1;
 
     Thread() : _runnable(nullptr) {
         execRunnable = this;
