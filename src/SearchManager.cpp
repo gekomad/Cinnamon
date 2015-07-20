@@ -33,7 +33,7 @@ void SearchManager::parallelSearch(int mply) {
     } else {
 //  Parallel Aspiration
 #ifdef DEBUG_MODE
-        CoutSync() << " aaaaaa start loop ----------------------------------------------------- ";
+        CoutSync() << " start loop ----------------------------------------------------- ";
 #endif
         for (int ii = 0; ii < ThreadPool::getNthread(); ii++) {
             int idThread1 = getNextThread();
@@ -61,7 +61,6 @@ void SearchManager::receiveObserverSearch(int threadID) {
             if (t > searchPool[threadID]->getPVSalpha() && t < searchPool[threadID]->getPVSbeta()) {
                 ASSERT(threadWin == -1);
                 threadWin = threadID;
-                //cout << time(0) << " bbbbbbbbbbbbbbbbbbb " << threadWin << " " << searchPool[threadWin]->getPvLine().cmove << endl;
                 ASSERT(searchPool[threadWin]->getPvLine().cmove);
                 for (Search *s:searchPool) {
                     s->setRunningThread(false);
@@ -81,7 +80,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
     _TpvLine &line1 = searchPool[threadWin]->getPvLine();
 #ifdef DEBUG_MODE
     if (!line1.cmove) {
-        CoutSync() << " aaaaaaaaa errore cmove == 0 " << threadWin;
+        CoutSync() << " error cmove == 0 " << threadWin;
     }
 #endif
     ASSERT(line1.cmove);
