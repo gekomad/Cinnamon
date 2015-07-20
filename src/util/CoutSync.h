@@ -16,6 +16,6 @@ struct CoutSync {
 
     ~CoutSync() {
         lock_guard<mutex> lock1(_CoutSyncMutex);
-        cout << "time:" << time(0) << " " << s.str() << endl;
+        cout << "time:" << time(0) << " " << s.str() << "\n";
     }
 };

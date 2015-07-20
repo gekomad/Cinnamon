@@ -63,7 +63,7 @@ class Perft : public Thread {
 public:
 
 
-    Perft(string fen, int depth, int nCpu, u64 mbSize, string dumpFile);
+    Perft(string fen, int depth, int nCpu, int mbSize, string dumpFile);
 
     ~Perft();
 
@@ -111,7 +111,7 @@ private:
     private:
         virtual void run();
 
-        static mutex mutexDump;
+//        static mutex mutexDump;
 
         template<int side, bool useHash>
         u64 search(const int depth);
@@ -121,8 +121,6 @@ private:
     };
 
     const static int secondsToDump = 60 * 60 * 24;
-
-    void getToken(istringstream &uip, String &token);
 
     virtual void run();
 

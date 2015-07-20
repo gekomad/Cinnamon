@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
                 getline(inData, fen);
                 n = 0;
                 for (unsigned i = 0; i < fen.size(); i++) {
-                    char c = tolower(fen[i]);
+                    int c = tolower(fen[i]);
                     if (c == ' ') {
                         break;
                     }

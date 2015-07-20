@@ -148,7 +148,7 @@ void Perft::alloc() {
     }
 }
 
-Perft::Perft(string fen1, int depth1, int nCpu2, u64 mbSize1, string dumpFile1) {
+Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) {
     mbSize = mbSize1;
     depth = depth1;
     fen = fen1;
