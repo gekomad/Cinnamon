@@ -27,8 +27,8 @@
 #endif
 
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
-
     setUseBook(false);
+    threadID = -2;
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
     if (!_file::fileExists(parameterFile)) {

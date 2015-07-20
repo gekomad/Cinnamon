@@ -24,6 +24,7 @@ class Timer : public Thread {
 public:
 
     Timer(int seconds1) {
+        threadID = -6;
         seconds = seconds1;
     }
 

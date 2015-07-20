@@ -27,13 +27,16 @@ void SearchManager::parallelSearch(int mply) {
     setMainPly(mply);
     if (mply == 1) {
         int i = getNextThread();
+#ifdef DEBUG_MODE
+        CoutSync() << " start loop1 ---run thread --------------------------- " << i;
+#endif
         startThread(*searchPool[i], mply, -_INFINITE, _INFINITE);
         join(i);
         valWindow = getValue(i);
     } else {
 //  Parallel Aspiration
 #ifdef DEBUG_MODE
-        CoutSync() << " start loop ----------------------------------------------------- ";
+        CoutSync() << " start loop2 ----------------------------------------------------- ";
 #endif
         for (int ii = 0; ii < ThreadPool::getNthread(); ii++) {
             int idThread1 = getNextThread();

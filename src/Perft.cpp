@@ -155,6 +155,7 @@ Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) 
     nCpu = nCpu2;
     dumpFile = dumpFile1;
     totMoves = 0;
+    threadID = -3;
 }
 
 void Perft::run() {
