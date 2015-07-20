@@ -43,9 +43,9 @@ public:
     unsigned lazyEvalCuts;
 #endif
 protected:
-    STATIC_CONST int FUTIL_MARGIN = 154;        //CLOP 147
+    STATIC_CONST int FUTIL_MARGIN = 154;        //CLOP 144
     STATIC_CONST int EXT_FUTILY_MARGIN = 392;    //CLOP 405
-    STATIC_CONST int RAZOR_MARGIN = 1071;        //CLOP 1074
+    STATIC_CONST int RAZOR_MARGIN = 1071;        //CLOP 1070
     STATIC_CONST int ATTACK_KING = 30;
     STATIC_CONST int BISHOP_ON_QUEEN = 2;
     STATIC_CONST int BACKWARD_PAWN = 2;
