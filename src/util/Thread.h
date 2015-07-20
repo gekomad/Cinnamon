@@ -22,6 +22,7 @@
 #include <mutex>
 #include <condition_variable>
 #include "../namespaces.h"
+#include "CoutSync.h"
 
 using namespace std;
 
@@ -78,9 +79,8 @@ public:
 
     void join() {
         if (theThread.joinable()) {
-            cout << "join: " << threadID << endl;
+            CoutSync() << "join: " << threadID;
             theThread.join();
-
         }
     }
 

@@ -24,6 +24,7 @@
 #include "util/ThreadPool.h"
 #include "util/ObserverSearch.h"
 #include "util/String.h"
+#include "util/CoutSync.h"
 //#include "util/Cout.h"
 
 class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch {
@@ -204,7 +205,6 @@ private:
     int threadWin;
     mutex mutexSearch;
 
-//    mutex mutex1;
     void joinAll();
 
     void setMainPly(int r);
@@ -221,6 +221,6 @@ private:
     int betaValue[MAX_PLY];
 
     void registerThreads();
-//    CoutSync output;
+
 };
 
