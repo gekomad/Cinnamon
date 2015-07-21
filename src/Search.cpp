@@ -152,30 +152,32 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     Hash::_Thash phasheGreater;
     bool hashGreater = false;
     if (hash->readHash(rootHash, Hash::HASH_GREATER, zobristKeyR, depth, phasheGreater)) {
-        ASSERT(phasheGreater.from != phasheGreater.to);
-        if (phasheGreater.flags & 0x3) {    // hashfEXACT or hashfBETA
+        if (phasheGreater.from != phasheGreater.to && phasheGreater.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashGreater = true;
         }
-        INC(hash->probeHash);
-        if (!currentPly) {
-            if (phasheGreater.flags == Hash::hashfBETA) {
-                incKillerHeuristic(phasheGreater.from, phasheGreater.to, 1);
-            }
-        } else {
-            if (phasheGreater.flags == Hash::hashfALPHA) {
-                if (phasheGreater.score <= alpha) {
-                    INC(hash->n_cut_hashA);
-                    return alpha;
+        if (phasheGreater.depth >= depth) {
+            INC(hash->probeHash);
+            if (!currentPly) {
+                if (phasheGreater.flags == Hash::hashfBETA) {
+                    incKillerHeuristic(phasheGreater.from, phasheGreater.to, 1);
                 }
             } else {
-                ASSERT(phasheGreater.flags == Hash::hashfEXACT || phasheGreater.flags == Hash::hashfBETA);
-                if (phasheGreater.score >= beta) {
-                    INC(hash->n_cut_hashB);
-                    return beta;
+                if (phasheGreater.flags == Hash::hashfALPHA) {
+                    if (phasheGreater.score <= alpha) {
+                        INC(hash->n_cut_hashA);
+                        return alpha;
+                    }
+                } else {
+                    ASSERT(phasheGreater.flags == Hash::hashfEXACT || phasheGreater.flags == Hash::hashfBETA);
+                    if (phasheGreater.score >= beta) {
+                        INC(hash->n_cut_hashB);
+                        return beta;
+                    }
                 }
             }
         }
         INC(hash->cutFailed);
+
     }
 
 //////////////////////////////////////////always
@@ -184,26 +186,27 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     bool hashAlways = false;
 
     if (hash->readHash(rootHash, Hash::HASH_ALWAYS, zobristKeyR, depth, phasheAlways)) {
-        ASSERT(phasheAlways.from != phasheAlways.to);
-        if (phasheAlways.flags & 0x3) {    // hashfEXACT or hashfBETA
+        if (phasheAlways.from != phasheAlways.to && phasheAlways.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashAlways = true;
         }
-        INC(hash->probeHash);
-        if (!currentPly) {
-            if (phasheAlways.flags == Hash::hashfBETA) {
-                incKillerHeuristic(phasheAlways.from, phasheAlways.to, 1);
-            }
-        } else {
-            if (phasheAlways.flags == Hash::hashfALPHA) {
-                if (phasheAlways.score <= alpha) {
-                    INC(hash->n_cut_hashA);
-                    return alpha;
+        if (phasheAlways.depth >= depth) {
+            INC(hash->probeHash);
+            if (!currentPly) {
+                if (phasheAlways.flags == Hash::hashfBETA) {
+                    incKillerHeuristic(phasheAlways.from, phasheAlways.to, 1);
                 }
             } else {
-                ASSERT(phasheAlways.flags == Hash::hashfEXACT || phasheAlways.flags == Hash::hashfBETA);
-                if (phasheAlways.score >= beta) {
-                    INC(hash->n_cut_hashB);
-                    return beta;
+                if (phasheAlways.flags == Hash::hashfALPHA) {
+                    if (phasheAlways.score <= alpha) {
+                        INC(hash->n_cut_hashA);
+                        return alpha;
+                    }
+                } else {
+                    ASSERT(phasheAlways.flags == Hash::hashfEXACT || phasheAlways.flags == Hash::hashfBETA);
+                    if (phasheAlways.score >= beta) {
+                        INC(hash->n_cut_hashB);
+                        return beta;
+                    }
                 }
             }
         }
@@ -461,26 +464,27 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     bool hashGreater = false;
 
     if (hash->readHash(rootHash, Hash::HASH_GREATER, zobristKeyR, depth, phasheGreater)) {
-        ASSERT(phasheGreater.from != phasheGreater.to);
-        if (phasheGreater.flags & 0x3) {    // hashfEXACT or hashfBETA
+        if (phasheGreater.from != phasheGreater.to && phasheGreater.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashGreater = true;
         }
-        INC(hash->probeHash);
-        if (!currentPly) {
-            if (phasheGreater.flags == Hash::hashfBETA) {
-                incKillerHeuristic(phasheGreater.from, phasheGreater.to, 1);
-            }
-        } else {
-            if (phasheGreater.flags == Hash::hashfALPHA) {
-                if (phasheGreater.score <= alpha) {
-                    INC(hash->n_cut_hashA);
-                    return alpha;
+        if (phasheGreater.depth >= depth) {
+            INC(hash->probeHash);
+            if (!currentPly) {
+                if (phasheGreater.flags == Hash::hashfBETA) {
+                    incKillerHeuristic(phasheGreater.from, phasheGreater.to, 1);
                 }
             } else {
-                ASSERT(phasheGreater.flags == Hash::hashfEXACT || phasheGreater.flags == Hash::hashfBETA);
-                if (phasheGreater.score >= beta) {
-                    INC(hash->n_cut_hashB);
-                    return beta;
+                if (phasheGreater.flags == Hash::hashfALPHA) {
+                    if (phasheGreater.score <= alpha) {
+                        INC(hash->n_cut_hashA);
+                        return alpha;
+                    }
+                } else {
+                    ASSERT(phasheGreater.flags == Hash::hashfEXACT || phasheGreater.flags == Hash::hashfBETA);
+                    if (phasheGreater.score >= beta) {
+                        INC(hash->n_cut_hashB);
+                        return beta;
+                    }
                 }
             }
         }
@@ -493,26 +497,27 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
 
 
     if (hash->readHash(rootHash, Hash::HASH_ALWAYS, zobristKeyR, depth, phasheAlways)) {
-        ASSERT(phasheAlways.from != phasheAlways.to);
-        if (phasheAlways.flags & 0x3) {    // hashfEXACT or hashfBETA
+        if (phasheAlways.from != phasheAlways.to && phasheAlways.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashAlways = true;
         }
-        INC(hash->probeHash);
-        if (!currentPly) {
-            if (phasheAlways.flags == Hash::hashfBETA) {
-                incKillerHeuristic(phasheAlways.from, phasheAlways.to, 1);
-            }
-        } else {
-            if (phasheAlways.flags == Hash::hashfALPHA) {
-                if (phasheAlways.score <= alpha) {
-                    INC(hash->n_cut_hashA);
-                    return alpha;
+        if (phasheAlways.depth >= depth) {
+            INC(hash->probeHash);
+            if (!currentPly) {
+                if (phasheAlways.flags == Hash::hashfBETA) {
+                    incKillerHeuristic(phasheAlways.from, phasheAlways.to, 1);
                 }
             } else {
-                ASSERT(phasheAlways.flags == Hash::hashfEXACT || phasheAlways.flags == Hash::hashfBETA);
-                if (phasheAlways.score >= beta) {
-                    INC(hash->n_cut_hashB);
-                    return beta;
+                if (phasheAlways.flags == Hash::hashfALPHA) {
+                    if (phasheAlways.score <= alpha) {
+                        INC(hash->n_cut_hashA);
+                        return alpha;
+                    }
+                } else {
+                    ASSERT(phasheAlways.flags == Hash::hashfEXACT || phasheAlways.flags == Hash::hashfBETA);
+                    if (phasheAlways.score >= beta) {
+                        INC(hash->n_cut_hashB);
+                        return beta;
+                    }
                 }
             }
         }

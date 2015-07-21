@@ -66,7 +66,7 @@ bool Hash::readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, co
     bool b = false;
     _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
     MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].lock_shared();
-    if (hash->key == zobristKeyR && hash->depth >= depth && hash->from != hash->to) {
+    if (hash->key == zobristKeyR) {
         b = true;
         memcpy(&hashMini, hash, sizeof(_Thash));
     }
