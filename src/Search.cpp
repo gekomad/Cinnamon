@@ -38,9 +38,6 @@ void Search::run() {
 
 void Search::search(int depth, int alpha, int beta) {
     pvsMode = false;
-#ifdef DEBUG_MODE
-    CoutSync() << " azzera _TpvLine " << threadID;
-#endif
     memset(&pvLine, 0, sizeof(_TpvLine));
     PVSdepth = depth;
     PVSalpha = alpha;
