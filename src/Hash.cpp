@@ -62,7 +62,7 @@ bool Hash::setHashSize(int mb) {
     return true;
 }
 
-bool Hash::readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, const int depth, _Thash &hashMini) {
+bool Hash::readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, _Thash &hashMini) {
     bool b = false;
     _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
     MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].lock_shared();

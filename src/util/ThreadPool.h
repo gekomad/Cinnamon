@@ -67,7 +67,7 @@ public:
         threadsBits = 0;
     }
 
-    int getNthread() {
+    unsigned getNthread() {
         return nThread;
     }
 
@@ -93,7 +93,7 @@ private:
         auto lambda = [this](int threadsBits1) {
             for (int i = 0; i < nThread; ++i) {
                 if ((threadsBits1 & 1) == 0) {
-                    return i;
+                    return (int) i;
                 }
                 threadsBits1 >>= 1;
             }
@@ -105,7 +105,7 @@ private:
     }
 
     void allocThread() {
-        for (int i = 0; i < searchPool.size(); i++) {
+        for (unsigned i = 0; i < searchPool.size(); i++) {
             delete searchPool[i];
         }
         searchPool.clear();

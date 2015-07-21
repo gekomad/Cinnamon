@@ -70,7 +70,7 @@ public:
 
     void recordHash(u64, bool running, Hash::_Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
 
-    bool readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, const int depth, _Thash &hash);
+    bool readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, _Thash &hash);
 
 private:
     Hash();

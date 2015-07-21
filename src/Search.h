@@ -125,16 +125,16 @@ public:
         return PVSbeta;
     }
 
-    void setPVSbeta(int PVSbeta) {
-        Search::PVSbeta = PVSbeta;
+    void setPVSbeta(int PVSbeta1) {
+        PVSbeta = PVSbeta1;
     }
 
     int getPVSalpha() const {
         return PVSalpha;
     }
 
-    void setPVSalpha(int PVSalpha) {
-        Search::PVSalpha = PVSalpha;
+    void setPVSalpha(int PVSalpha1) {
+        PVSalpha = PVSalpha1;
     }
 
 #ifdef DEBUG_MODE

@@ -151,7 +151,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     /////////////////////greater
     Hash::_Thash phasheGreater;
     bool hashGreater = false;
-    if (hash->readHash(rootHash, Hash::HASH_GREATER, zobristKeyR, depth, phasheGreater)) {
+    if (hash->readHash(rootHash, Hash::HASH_GREATER, zobristKeyR, phasheGreater)) {
         if (phasheGreater.from != phasheGreater.to && phasheGreater.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashGreater = true;
         }
@@ -185,7 +185,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     Hash::_Thash phasheAlways;
     bool hashAlways = false;
 
-    if (hash->readHash(rootHash, Hash::HASH_ALWAYS, zobristKeyR, depth, phasheAlways)) {
+    if (hash->readHash(rootHash, Hash::HASH_ALWAYS, zobristKeyR, phasheAlways)) {
         if (phasheAlways.from != phasheAlways.to && phasheAlways.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashAlways = true;
         }
@@ -463,7 +463,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
 
     bool hashGreater = false;
 
-    if (hash->readHash(rootHash, Hash::HASH_GREATER, zobristKeyR, depth, phasheGreater)) {
+    if (hash->readHash(rootHash, Hash::HASH_GREATER, zobristKeyR, phasheGreater)) {
         if (phasheGreater.from != phasheGreater.to && phasheGreater.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashGreater = true;
         }
@@ -496,7 +496,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     bool hashAlways = false;
 
 
-    if (hash->readHash(rootHash, Hash::HASH_ALWAYS, zobristKeyR, depth, phasheAlways)) {
+    if (hash->readHash(rootHash, Hash::HASH_ALWAYS, zobristKeyR, phasheAlways)) {
         if (phasheAlways.from != phasheAlways.to && phasheAlways.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashAlways = true;
         }

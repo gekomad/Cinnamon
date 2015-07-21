@@ -38,7 +38,7 @@ void SearchManager::parallelSearch(int mply) {
 #ifdef DEBUG_MODE
         CoutSync() << " start loop2 ----------------------------------------------------- ";
 #endif
-        for (int ii = 0; ii < ThreadPool::getNthread(); ii++) {
+        for (unsigned ii = 0; ii < ThreadPool::getNthread(); ii++) {
             int idThread1 = ii;//getNextThread();
             int alpha, beta;
             getWindowRange(ii, valWindow, &alpha, &beta);
@@ -143,16 +143,16 @@ int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) 
 #ifdef DEBUG_MODE
         CoutSync() << "dentro";
 #endif
-        u64 oldKey = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
+        u64 oldKey1 = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
 
-        rollbackValue[idThread1]->oldKey = oldKey;
+        rollbackValue[idThread1]->oldKey = oldKey1;
         rollbackValue[idThread1]->move = move;
 
         searchPool[idThread1]->makemove(move, true, false);
-        searchPool[idThread1]->setPVSplit(depth, alpha, beta, oldKey);
+        searchPool[idThread1]->setPVSplit(depth, alpha, beta, oldKey1);
         searchPool[idThread1]->start();
     }
-
+    return 0;
 }
 
 
@@ -161,7 +161,7 @@ SearchManager::~SearchManager() {
         delete s;
         s = nullptr;
     }
-    for (int i = 0; i < rollbackValue.size(); i++) {
+    for (unsigned i = 0; i < rollbackValue.size(); i++) {
         delete rollbackValue[i];
     }
     rollbackValue.clear();
@@ -470,7 +470,7 @@ bool SearchManager::setThread(int thread) {
 }
 
 void SearchManager::registerThreads() {
-    for (int i = 0; i < rollbackValue.size(); i++) {
+    for (unsigned i = 0; i < rollbackValue.size(); i++) {
         delete rollbackValue[i];
     }
     rollbackValue.clear();
