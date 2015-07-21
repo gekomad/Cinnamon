@@ -23,6 +23,7 @@
 Hash *Search::hash;
 Tablebase *Search::gtb;
 
+bool Search::runningThread;
 
 void Search::run() {
     if (getRunning()) {
@@ -291,6 +292,7 @@ void Search::setRunning(int r) {
 }
 
 int Search::getRunning() {
+    if (!runningThread)return 0;
     return GenMoves::getRunning();
 
 }

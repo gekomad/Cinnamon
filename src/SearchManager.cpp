@@ -68,9 +68,9 @@ void SearchManager::receiveObserverSearch(int threadID) {
                 ASSERT(threadWin == -1);
                 threadWin = threadID;
                 ASSERT(searchPool[threadWin]->getPvLine().cmove);
-                for (Search *s:searchPool) {
-                    s->setRunningThread(false);
-                }
+//                for (Search *s:searchPool) {
+                searchPool[0]->setRunningThread(false);//è static
+//                }
             }
         }
     }

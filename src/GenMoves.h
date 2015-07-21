@@ -172,10 +172,6 @@ public:
         killerHeuristic[from][to] += value;
     }
 
-    void setRunningThread(bool t) {
-        runningThread = t;
-    }
-
     _Tmove *getNextMove();
 
 #ifdef DEBUG_MODE
@@ -246,7 +242,7 @@ protected:
     }
 
     int getRunning() {
-        return !runningThread ? 0 : running;
+        return running;
     }
 
     template<int side>
@@ -271,7 +267,8 @@ protected:
 
 private:
     int running;
-    bool runningThread;
+
+    //TODO in search.h
     bool forceCheck = false;
     static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;

@@ -107,6 +107,10 @@ public:
         hash->clearHash();
     }
 
+    void setRunningThread(bool t) {
+        runningThread = t;
+    }
+
     void setChessboard(_Tchessboard &);
 
     _Tchessboard &getChessboard();
@@ -138,7 +142,7 @@ public:
     unsigned totGen;
 #endif
 private:
-
+    static bool runningThread;
     _TpvLine pvLine;
     static Hash *hash;
     static Tablebase *gtb;
