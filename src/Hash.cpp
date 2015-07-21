@@ -63,14 +63,15 @@ bool Hash::setHashSize(int mb) {
 }
 
 bool Hash::readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, const int depth, _Thash &hashMini) {
+    bool b = false;
     _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
     MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].lock_shared();
-    memcpy(&hashMini, hash, sizeof(_Thash));
-    MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].unlock_shared();
-    if (hashMini.key == zobristKeyR && hashMini.depth >= depth && hashMini.from != hashMini.to) {
-        return true;
+    if (hash->key == zobristKeyR && hash->depth >= depth && hash->from != hash->to) {
+        b = true;
+        memcpy(&hashMini, hash, sizeof(_Thash));
     }
-    return false;
+    MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].unlock_shared();
+    return b;
 }
 
 void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
