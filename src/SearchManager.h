@@ -202,8 +202,7 @@ private:
     void getWindowRange(int, const int val, int *from, int *to);
 
     int valWindow;
-
-    _TpvLine lineWin;
+    int threadWin;
     mutex mutexSearch;
 
     void joinAll();
@@ -222,8 +221,6 @@ private:
     int betaValue[MAX_PLY];
 
     void registerThreads();
-    int nJoined;
-    condition_variable cv;
-    int activeThread;
+
 };
 
