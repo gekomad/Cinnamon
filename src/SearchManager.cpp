@@ -43,6 +43,7 @@ void SearchManager::parallelSearch(int mply) {
             int alpha, beta;
             getWindowRange(ii, valWindow, &alpha, &beta);
             searchPool[idThread1]->setRunning(1);
+         //   cout <<valWindow<< " ";
             startThread(*searchPool[idThread1], mply, alpha, beta);
         }
 
@@ -51,6 +52,9 @@ void SearchManager::parallelSearch(int mply) {
 //        cv.wait(lck);
 
         joinAll();
+        if(threadWin!=-1) {
+            valWindow = getValue(threadWin);
+        }
     }
 }
 
@@ -106,6 +110,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
         pvv.append(" ");
     };
     memcpy(&resultMove, line1.argmove, sizeof(_Tmove));
+
     return true;
 }
 
@@ -220,6 +225,7 @@ SearchManager::SearchManager() {
 
 
 void SearchManager::startThread(Search &thread, int depth, int alpha, int beta) {
+    //cout <<valWindow<<" "<<depth <<" " <<alpha<<" "<<beta<<"\n";
 #ifdef DEBUG_MODE
     CoutSync() << " startThread " << thread.getId() << " alpha: " << alpha << " beta: " << beta;
 #endif
