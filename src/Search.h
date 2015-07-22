@@ -111,6 +111,10 @@ public:
         runningThread = t;
     }
 
+    bool getRunningThread() {
+        return runningThread;
+    }
+
     void setChessboard(_Tchessboard &);
 
     _Tchessboard &getChessboard();

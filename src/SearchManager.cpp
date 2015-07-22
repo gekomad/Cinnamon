@@ -44,13 +44,17 @@ void SearchManager::parallelSearch(int mply) {
             getWindowRange(ii, valWindow, &alpha, &beta);
             searchPool[idThread1]->setRunning(1);
             startThread(*searchPool[idThread1], mply, alpha, beta);
+            join(idThread1);
+            if(! searchPool[0]->getRunningThread()){
+                break;
+            }
         }
 
 //        mutex mtx;
 //        unique_lock<mutex> lck(mtx);
 //        cv.wait(lck);
 
-        joinAll();
+//        joinAll();
         if(threadWin!=-1) {
             valWindow = getValue(threadWin);
         }
@@ -180,7 +184,7 @@ int SearchManager::loadFen(string fen) {
 
 
 void SearchManager::getWindowRange(int prog, const int val, int *from, int *to) {
-    if (prog == 0) {
+    if (prog == ThreadPool::getNthread()-1) {
         //last
         *from = -_INFINITE;
         *to = _INFINITE;
@@ -249,11 +253,12 @@ int SearchManager::getPieceAt(int side, u64 i) {
 }
 
 u64 SearchManager::getTotMoves() {
-    u64 i = 0;
-    for (Search *s:searchPool) {
-        i += s->getTotMoves();
-    }
-    return i;
+    return searchPool[threadWin]->getTotMoves();
+//    u64 i = 0;
+//    for (Search *s:searchPool) {
+//        i += s->getTotMoves();
+//    }
+//    return i;
 }
 
 void SearchManager::incKillerHeuristic(int from, int to, int value) {
