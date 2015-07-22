@@ -57,8 +57,6 @@ public:
 
 #ifdef HAS_BSF
 #if UINTPTR_MAX == 0xffffffffffffffff
-verificare
-e inline
     static int BITScanForward(u64 bits) {
         return __builtin_ffsll(bits) - 1;
     }
