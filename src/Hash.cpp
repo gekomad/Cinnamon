@@ -74,10 +74,10 @@ bool Hash::readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, _T
     return b;
 }
 
-void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
+void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *rootHash[2], const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
     ASSERT(key);
-    ASSERT(phashe_greater);
-    ASSERT(phashe_always);
+    ASSERT(rootHash[HASH_GREATER]);
+    ASSERT(rootHash[HASH_ALWAYS]);
     if (!running) {
         return;
     }
@@ -96,7 +96,7 @@ void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Th
     }
     int keyMutex = zobristKeyR % N_MUTEX_BUCKET;
     MUTEX_BUCKET[HASH_GREATER][keyMutex].lock();
-    memcpy(phashe_greater, &tmp, sizeof(_Thash));
+    memcpy(rootHash[HASH_GREATER], &tmp, sizeof(_Thash));
     MUTEX_BUCKET[HASH_GREATER][keyMutex].unlock();
 
     //////////////
@@ -126,12 +126,12 @@ void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Th
     }
 #endif
     MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
-    if (phashe_always->key && phashe_always->depth >= depth && phashe_always->entryAge) {//TODO dovrebbe essere greater
+    if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {//TODO dovrebbe essere greater
         INC(collisions);
         MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
         return;
     }
-    memcpy(phashe_always, &tmp, sizeof(_Thash));
+    memcpy(rootHash[HASH_ALWAYS], &tmp, sizeof(_Thash));
     MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
 }
 

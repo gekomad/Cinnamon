@@ -68,7 +68,7 @@ public:
 
     void clearAge();
 
-    void recordHash(u64, bool running, Hash::_Thash *phashe_greater, _Thash *phashe_always, const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
+    void recordHash(u64, bool running, _Thash *rootHash[2], const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
 
     bool readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, _Thash &hash);
 
