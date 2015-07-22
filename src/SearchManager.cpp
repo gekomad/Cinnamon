@@ -68,9 +68,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
                 ASSERT(threadWin == -1);
                 threadWin = threadID;
                 ASSERT(searchPool[threadWin]->getPvLine().cmove);
-//                for (Search *s:searchPool) {
-                searchPool[0]->setRunningThread(false);//è static
-//                }
+                stopAllThread();
             }
         }
     }
@@ -478,4 +476,8 @@ void SearchManager::registerThreads() {
         s->registerObserver(this);
         rollbackValue.push_back(new _RollbackValue);
     }
+}
+
+void SearchManager::stopAllThread() {
+    searchPool[0]->setRunningThread(false);//is static
 }

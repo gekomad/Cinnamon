@@ -222,5 +222,6 @@ private:
 
     void registerThreads();
 
+    void stopAllThread();
 };
 
