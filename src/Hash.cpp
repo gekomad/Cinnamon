@@ -110,17 +110,21 @@ void Hash::recordHash(u64 zobristKeyR, bool running, _Thash *phashe_greater, _Th
         nRecordHashE++;
     }
 #endif
-    tmp.key = key;
-    tmp.score = score;
-    tmp.flags = flags;
-    tmp.depth = depth;
     tmp.entryAge = 1;
+#ifdef DEBUG_MODE
+    //TODO cancellare blocco
+    ASSERT(tmp.key == key);
+    ASSERT(tmp.score == score);
+    ASSERT(tmp.flags == flags);
+    ASSERT(tmp.depth == depth);
     if (bestMove && bestMove->from != bestMove->to) {
-        tmp.from = bestMove->from;
-        tmp.to = bestMove->to;
+        ASSERT(tmp.from == bestMove->from);
+        ASSERT(tmp.to == bestMove->to);
     } else {
-        tmp.from = tmp.to = 0;
+        ASSERT(tmp.from == 0);
+        ASSERT(tmp.to == 0);
     }
+#endif
     MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
     if (phashe_always->key && phashe_always->depth >= depth && phashe_always->entryAge) {//TODO dovrebbe essere greater
         INC(collisions);
