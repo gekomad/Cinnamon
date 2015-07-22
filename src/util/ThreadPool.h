@@ -28,12 +28,17 @@ public:
     const static int MAX_THREAD = 8;
 
     ThreadPool() {
-        ASSERT(pow(2, MAX_THREAD) == sizeof(bitMap) / sizeof(int));
+        ASSERT(POW2[MAX_THREAD] == sizeof(bitMap) / sizeof(int));
         generateBitMap();
         allocThread();
         if (thread::hardware_concurrency() && getNthread() > thread::hardware_concurrency()) {
             cout << "WARNING active threads (" << getNthread() << ") > physical cores (" << thread::hardware_concurrency() << ")" << endl;
         }
+#ifdef DEBUG_MODE
+        else {
+            cout << "Active threads: " << getNthread() << "\n";
+        }
+#endif
     }
 
     int getFirstBit(int threadsBits1) {
@@ -85,7 +90,7 @@ private:
     mutex mx1;
     mutex mtx1;
     int threadsBits;
-    int nThread = 4;
+    int nThread = 2;
     condition_variable cv;
     int bitMap[256];
 
