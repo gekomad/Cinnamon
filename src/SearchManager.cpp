@@ -43,7 +43,6 @@ void SearchManager::parallelSearch(int mply) {
             int alpha, beta;
             getWindowRange(ii, valWindow, &alpha, &beta);
             searchPool[idThread1]->setRunning(1);
-         //   cout <<valWindow<< " ";
             startThread(*searchPool[idThread1], mply, alpha, beta);
         }
 
