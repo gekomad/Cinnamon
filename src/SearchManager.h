@@ -223,7 +223,7 @@ private:
     int betaValue[MAX_PLY];
 
     void registerThreads();
-
+    bool waiting;
     void stopAllThread();
 };
 

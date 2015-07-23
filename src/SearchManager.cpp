@@ -41,10 +41,10 @@ void SearchManager::parallelSearch(int mply) {
 #ifdef DEBUG_MODE
         CoutSync() << " start loop2 ----------------------------------------------------- ";
 #endif
-
-        activeThread = ThreadPool::getNthread();
-//        for (unsigned ii = 0; ii < std::max(4,activeThread); ii++) {
+        waiting = false;
+        activeThread = std::max(4, activeThread);
         for (unsigned ii = 0; ii < activeThread; ii++) {
+//        for (unsigned ii = 0; ii < activeThread; ii++) {
             nJoined = 0;
             Search &idThread1 = getNextThread();
             int alpha, beta;
@@ -60,9 +60,10 @@ void SearchManager::parallelSearch(int mply) {
 #ifdef DEBUG_MODE
         CoutSync() << " fine ----------------------------------------------------- ";
 #endif
-
+        waiting = true;
         mutex mtx;
         unique_lock<mutex> lck(mtx);
+
         cv1.wait(lck);
 
         //joinAll();
@@ -94,14 +95,15 @@ void SearchManager::receiveObserverSearch(int threadID) {
     releaseThread(threadID);
     //searchPool[threadID]->join();
     ++nJoined;
-    //cout << "aaaaaaaaaaaaaaaaaaaaaaa " << nJoined << " " << activeThread << endl;
+
     if (nJoined == activeThread) {
         nJoined = 0;
 #ifdef DEBUG_MODE
         CoutSync() << " notify ----------------------------------------------------- ";
 #endif
-      //  while (!cv1.native_handle()->__data.__lock);
-        cv1.notify_one();
+
+        while (!waiting) { usleep(1000); }
+        cv1.notify_all();
     }
 
 
