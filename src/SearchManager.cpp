@@ -44,17 +44,17 @@ void SearchManager::parallelSearch(int mply) {
             getWindowRange(ii, valWindow, &alpha, &beta);
             searchPool[idThread1]->setRunning(1);
             startThread(*searchPool[idThread1], mply, alpha, beta);
-            join(idThread1);
-            if(! searchPool[0]->getRunningThread()){
-                break;
-            }
+//            join(idThread1);
+//            if(! searchPool[0]->getRunningThread()){
+//                break;
+//            }
         }
 
 //        mutex mtx;
 //        unique_lock<mutex> lck(mtx);
 //        cv.wait(lck);
 
-//        joinAll();
+        joinAll();
         if(threadWin!=-1) {
             valWindow = getValue(threadWin);
         }
@@ -184,7 +184,7 @@ int SearchManager::loadFen(string fen) {
 
 
 void SearchManager::getWindowRange(int prog, const int val, int *from, int *to) {
-    if (prog == ThreadPool::getNthread()-1) {
+    if (prog == 0/* ThreadPool::getNthread()-1*/) {
         //last
         *from = -_INFINITE;
         *to = _INFINITE;
