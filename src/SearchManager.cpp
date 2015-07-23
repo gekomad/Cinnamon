@@ -34,8 +34,8 @@ void SearchManager::parallelSearch(int mply) {
         CoutSync() << " start loop1 ---run thread --------------------------- " << i.getId();
 #endif
         startThread(i, mply, -_INFINITE, _INFINITE);
-        i.join();
-        valWindow = i.getValue();
+//        i.join();
+//        valWindow = i.getValue();
     } else {
 //  Parallel Aspiration
 #ifdef DEBUG_MODE
@@ -60,17 +60,18 @@ void SearchManager::parallelSearch(int mply) {
 #ifdef DEBUG_MODE
         CoutSync() << " fine ----------------------------------------------------- ";
 #endif
-        waiting = true;
-        mutex mtx;
-        unique_lock<mutex> lck(mtx);
+    }
+    waiting = true;
+    mutex mtx;
+    unique_lock<mutex> lck(mtx);
 
-        cv1.wait(lck);
+    cv1.wait(lck);
 
-        //joinAll();
+    //joinAll();
 //        if (lineWin.cmove != -1) {
 //            valWindow = getValue(threadWin);
 //        }
-    }
+
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
