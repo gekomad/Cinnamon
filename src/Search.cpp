@@ -474,17 +474,28 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                     incKillerHeuristic(phasheGreater.from, phasheGreater.to, 1);
                 }
             } else {
-                if (phasheGreater.flags == Hash::hashfALPHA) {
-                    if (phasheGreater.score <= alpha) {
-                        INC(hash->n_cut_hashA);
-                        return alpha;
-                    }
-                } else {
-                    ASSERT(phasheGreater.flags == Hash::hashfEXACT || phasheGreater.flags == Hash::hashfBETA);
-                    if (phasheGreater.score >= beta) {
-                        INC(hash->n_cut_hashB);
-                        return beta;
-                    }
+                switch (phasheGreater.flags) {
+                    case Hash::hashfEXACT:
+                        INC(n_cut_hashE);
+                        if (phasheGreater.score >= beta) {
+                            return beta;
+                        }
+                        break;
+                    case Hash::hashfBETA:
+                        incKillerHeuristic(phasheGreater.from, phasheGreater.to, 1);
+                        if (phasheGreater.score >= beta) {
+                            INC(n_cut_hashB);
+                            return beta;
+                        }
+                        break;
+                    case Hash::hashfALPHA:
+                        if (phasheGreater.score <= alpha) {
+                            INC(n_cut_hashA);
+                            return alpha;
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -507,18 +518,30 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                     incKillerHeuristic(phasheAlways.from, phasheAlways.to, 1);
                 }
             } else {
-                if (phasheAlways.flags == Hash::hashfALPHA) {
-                    if (phasheAlways.score <= alpha) {
-                        INC(hash->n_cut_hashA);
-                        return alpha;
-                    }
-                } else {
-                    ASSERT(phasheAlways.flags == Hash::hashfEXACT || phasheAlways.flags == Hash::hashfBETA);
-                    if (phasheAlways.score >= beta) {
-                        INC(hash->n_cut_hashB);
-                        return beta;
-                    }
+                switch (phasheAlways.flags) {
+                    case  Hash::hashfEXACT:
+                        INC(n_cut_hashE);
+                        if (phasheAlways.score >= beta) {
+                            return beta;
+                        }
+                        break;
+                    case  Hash::hashfBETA:
+                        incKillerHeuristic(phasheAlways.from, phasheAlways.to, 1);
+                        if (phasheAlways.score >= beta) {
+                            INC(n_cut_hashB);
+                            return beta;
+                        }
+                        break;
+                    case  Hash::hashfALPHA:
+                        if (phasheAlways.score <= alpha) {
+                            INC(n_cut_hashA);
+                            return alpha;
+                        }
+                        break;
+                    default:
+                        break;
                 }
+                INC(cutFailed);
             }
         }
         INC(hash->cutFailed);
