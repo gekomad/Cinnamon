@@ -17,47 +17,58 @@
 */
 
 #include <future>
+#include <bits/pthreadtypes.h>
 #include "SearchManager.h"
 #include "namespaces.h"
 
 
 void SearchManager::parallelSearch(int mply) {
-    threadWin = -1;
+    lineWin.cmove = -1;
 
     setMainPly(mply);
-    if (mply == 1) {
-        int i = getNextThread();
+    if (mply == 1666) {
+        nJoined = 0;
+        activeThread = 1;
+        Search &i = getNextThread();
 #ifdef DEBUG_MODE
-        CoutSync() << " start loop1 ---run thread --------------------------- " << i;
+        CoutSync() << " start loop1 ---run thread --------------------------- " << i.getId();
 #endif
-        startThread(*searchPool[i], mply, -_INFINITE, _INFINITE);
-        join(i);
-        valWindow = getValue(i);
+        startThread(i, mply, -_INFINITE, _INFINITE);
+        i.join();
+        valWindow = i.getValue();
     } else {
 //  Parallel Aspiration
 #ifdef DEBUG_MODE
         CoutSync() << " start loop2 ----------------------------------------------------- ";
 #endif
-        for (unsigned ii = 0; ii < ThreadPool::getNthread(); ii++) {
-            int idThread1 = ii;//getNextThread();
+
+        activeThread = ThreadPool::getNthread();
+//        for (unsigned ii = 0; ii < std::max(4,activeThread); ii++) {
+        for (unsigned ii = 0; ii < activeThread; ii++) {
+            nJoined = 0;
+            Search &idThread1 = getNextThread();
             int alpha, beta;
             getWindowRange(ii, valWindow, &alpha, &beta);
-            searchPool[idThread1]->setRunning(1);
-            startThread(*searchPool[idThread1], mply, alpha, beta);
+            idThread1.setRunning(1);
+
+            startThread(idThread1, mply, alpha, beta);
 //            join(idThread1);
 //            if(! searchPool[0]->getRunningThread()){
 //                break;
 //            }
         }
+#ifdef DEBUG_MODE
+        CoutSync() << " fine ----------------------------------------------------- ";
+#endif
 
-//        mutex mtx;
-//        unique_lock<mutex> lck(mtx);
-//        cv.wait(lck);
+        mutex mtx;
+        unique_lock<mutex> lck(mtx);
+        cv1.wait(lck);
 
-        joinAll();
-        if(threadWin!=-1) {
-            valWindow = getValue(threadWin);
-        }
+        //joinAll();
+//        if (lineWin.cmove != -1) {
+//            valWindow = getValue(threadWin);
+//        }
     }
 }
 
@@ -69,42 +80,46 @@ void SearchManager::receiveObserverSearch(int threadID) {
 #endif
     if (getRunning(threadID)) {
 
-        if (threadWin == -1) {
+        if (lineWin.cmove == -1) {
             int t = searchPool[threadID]->getValue();
             if (t > searchPool[threadID]->getPVSalpha() && t < searchPool[threadID]->getPVSbeta()) {
-                ASSERT(threadWin == -1);
-                threadWin = threadID;
-                ASSERT(searchPool[threadWin]->getPvLine().cmove);
+
+                memcpy(&lineWin, &searchPool[threadID]->getPvLine(), sizeof(_TpvLine));
+                valWindow = getValue(threadID);
+                ASSERT(lineWin.cmove);
                 stopAllThread();
             }
         }
     }
-
-//    if (++nJoined == activeThread) {
-//        cv.notify_one();
-//    }
-
     releaseThread(threadID);
+    //searchPool[threadID]->join();
+    ++nJoined;
+    //cout << "aaaaaaaaaaaaaaaaaaaaaaa " << nJoined << " " << activeThread << endl;
+    if (nJoined == activeThread) {
+        nJoined = 0;
+#ifdef DEBUG_MODE
+        CoutSync() << " notify ----------------------------------------------------- ";
+#endif
+      //  while (!cv1.native_handle()->__data.__lock);
+        cv1.notify_one();
+    }
+
+
 }
 
 bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
-    if (threadWin == -1) {
+    if (lineWin.cmove == -1) {
         return false;
     }
     pvv.clear();
     string pvvTmp;
-    _TpvLine &line1 = searchPool[threadWin]->getPvLine();
-#ifdef DEBUG_MODE
-    if (!line1.cmove) {
-        CoutSync() << " error cmove == 0 " << threadWin;
-    }
-#endif
-    ASSERT(line1.cmove);
-    for (int t = 0; t < line1.cmove; t++) {
+
+    ASSERT(lineWin.cmove);
+    for (int t = 0; t < lineWin.cmove; t++) {
         pvvTmp.clear();
-        pvvTmp += Search::decodeBoardinv(line1.argmove[t].type, line1.argmove[t].from, searchPool[threadWin]->getSide());
+        pvvTmp += Search::decodeBoardinv(lineWin.argmove[t].type, lineWin.argmove[t].from, searchPool[0]->getSide());
         if (pvvTmp.length() != 4) {
-            pvvTmp += Search::decodeBoardinv(line1.argmove[t].type, line1.argmove[t].to, searchPool[threadWin]->getSide());
+            pvvTmp += Search::decodeBoardinv(lineWin.argmove[t].type, lineWin.argmove[t].to, searchPool[0]->getSide());
         }
         pvv.append(pvvTmp);
         if (t == 1) {
@@ -112,7 +127,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
         }
         pvv.append(" ");
     };
-    memcpy(&resultMove, line1.argmove, sizeof(_Tmove));
+    memcpy(&resultMove, lineWin.argmove, sizeof(_Tmove));
 
     return true;
 }
@@ -145,7 +160,7 @@ int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) 
 #ifdef DEBUG_MODE
         CoutSync() << "fuori";
 #endif
-        idThread1 = getNextThread();
+        idThread1 = getNextThread().getId();
 #ifdef DEBUG_MODE
         CoutSync() << "dentro";
 #endif
@@ -253,12 +268,11 @@ int SearchManager::getPieceAt(int side, u64 i) {
 }
 
 u64 SearchManager::getTotMoves() {
-    return searchPool[threadWin]->getTotMoves();
-//    u64 i = 0;
-//    for (Search *s:searchPool) {
-//        i += s->getTotMoves();
-//    }
-//    return i;
+    u64 i = 0;
+    for (Search *s:searchPool) {
+        i += s->getTotMoves();
+    }
+    return i;
 }
 
 void SearchManager::incKillerHeuristic(int from, int to, int value) {
@@ -276,7 +290,8 @@ int SearchManager::getValue(int i) {
 }
 
 int SearchManager::getMateIn() {
-    return searchPool[threadWin]->getMateIn();
+    assert(0);
+    //return searchPool[threadWin]->getMateIn();
 }
 
 

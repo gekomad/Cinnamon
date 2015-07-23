@@ -227,7 +227,7 @@ void IterativeDeeping::run() {
             searchManager.setForceCheck(b);
         }
         if (print) {
-            mateIn = searchManager.getMateIn();
+//            mateIn = searchManager.getMateIn();
 
             resultMove.capturedPiece = searchManager.getPieceAt(resultMove.side ^ 1, POW2[resultMove.to]);
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);

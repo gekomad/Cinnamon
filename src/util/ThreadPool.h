@@ -45,21 +45,24 @@ public:
         return bitMap[threadsBits1];
     }
 
-    int getNextThread() {//TODO eliminare e creare un metodo start
+    T &getNextThread() {//TODO eliminare e creare un metodo start
 
         lock_guard<mutex> lock1(mx);
 
         std::unique_lock<std::mutex> lck(mtx1);
 
         ASSERT(Bits::bitCount(threadsBits) <= nThread);
-        if (Bits::bitCount(threadsBits) == nThread) {
+        if (Bits::bitCount(threadsBits) == nThread) {  //TODO al posto di bitcount mettere  POW2[nThread]
+            //cout <<threadsBits << " "<< POW2[nThread]-1<<endl;
+           // ASSERT(threadsBits == POW2[nThread]-1);
+
             cv.wait(lck);
         }
 
         int i = getFirstBit(threadsBits);
         threadsBits |= POW2[i];
 
-        return i;
+        return *searchPool[i];
     }
 
     void releaseThread(int threadID) {//TODO eliminare e automatizzare

@@ -25,7 +25,7 @@
 #include "util/ObserverSearch.h"
 #include "util/String.h"
 #include "util/CoutSync.h"
-//#include "util/Cout.h"
+#include <algorithm>
 
 class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch {
     friend class Singleton<SearchManager>;
@@ -200,9 +200,11 @@ private:
     void updateAB(int depth, int side, int bound);
 
     void getWindowRange(int, const int val, int *from, int *to);
-
+    condition_variable cv1;
+    int nJoined;
+    int activeThread;
     int valWindow;
-    int threadWin;
+    _TpvLine lineWin;
     mutex mutexSearch;
 
     void joinAll();

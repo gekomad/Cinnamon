@@ -73,7 +73,9 @@ public:
         if (this->_runnable != nullptr) {
             execRunnable = this->_runnable;
         }
-        ASSERT(!theThread.joinable());
+
+        join();
+        //ASSERT(!theThread.joinable());
         theThread = thread(__run, execRunnable);
     }
 
