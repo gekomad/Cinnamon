@@ -26,7 +26,7 @@ void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
 
     setMainPly(mply);
-    if (mply == 1666) {
+    if (mply == 1) {
         nJoined = 0;
         activeThread = 1;
         Search &i = getNextThread();
