@@ -19,7 +19,7 @@ struct CoutSync {
     ~CoutSync() {
         nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
         lock_guard<mutex> lock1(_CoutSyncMutex);
-        cout << "info string TIME:" << ms.count() << " " << s.str() << "\n";
+        cout << "info string TIME: " << ms.count() << " " << s.str() << "\n";
     }
 };
 
