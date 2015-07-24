@@ -70,10 +70,6 @@ public:
         cv.notify_all();
     }
 
-    void init() {
-        threadsBits = 0;
-    }
-
     unsigned getNthread() const {
         return nThread;
     }
@@ -91,7 +87,7 @@ private:
     mutex mx;
     mutex mx1;
 
-    int threadsBits;
+    int threadsBits = 0;
     int nThread = 2;
     ConditionVariable cv;
     int bitMap[256];
@@ -100,7 +96,7 @@ private:
         auto lambda = [this](int threadsBits1) {
             for (int i = 0; i < nThread; ++i) {
                 if ((threadsBits1 & 1) == 0) {
-                    return (int) i;
+                    return i;
                 }
                 threadsBits1 >>= 1;
             }
