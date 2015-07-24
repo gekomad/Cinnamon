@@ -1,4 +1,4 @@
-#    Cinnamon is a UCI chess engine - Makefile for cross-compile
+#    Cinnamon UCI chess engine - Makefile for cross-compile
 #    Copyright (C) Giuseppe Cannella
 #
 #    This program is free software: you can redistribute it and/or modify
