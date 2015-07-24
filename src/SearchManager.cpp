@@ -45,31 +45,18 @@ void SearchManager::parallelSearch(int mply) {
         activeThread = std::max(4, activeThread);
         nJoined = 0;
         for (unsigned ii = 0; ii < activeThread; ii++) {
-//        for (unsigned ii = 0; ii < activeThread; ii++) {
-
             Search &idThread1 = getNextThread();
             int alpha, beta;
             getWindowRange(ii, valWindow, &alpha, &beta);
             idThread1.setRunning(1);
-
             startThread(idThread1, mply, alpha, beta);
-//            join(idThread1);
-//            if(! searchPool[0]->getRunningThread()){
-//                break;
-//            }
+
         }
 #ifdef DEBUG_MODE
         CoutSync() << " fine loop----------------------------------------------------- ";
 #endif
     }
-
     cv1.wait();
-
-    //joinAll();
-//        if (lineWin.cmove != -1) {
-//            valWindow = getValue(threadWin);
-//        }
-
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
@@ -252,6 +239,7 @@ void SearchManager::startThread(Search &thread, int depth, int alpha, int beta) 
 #ifdef DEBUG_MODE
     CoutSync() << " startThread " << thread.getId() << " alpha: " << alpha << " beta: " << beta;
 #endif
+    ASSERT(alpha >= -_INFINITE);
     thread.search(depth, alpha, beta);
     thread.start();
 }
