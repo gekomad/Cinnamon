@@ -170,11 +170,12 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
         } else if (token == "stop") {
 #ifdef DEBUG_MODE
-            cout << "stop";
+            CoutSync() << "stop ";
 #endif
             knowCommand = true;
             searchManager.setPonder(false);
             searchManager.setRunning(0);
+            searchManager.setRunningThread(false);
         } else if (token == "ucinewgame") {
             searchManager.loadFen();
             searchManager.clearHash();
@@ -344,7 +345,7 @@ void Uci::listner(IterativeDeeping *it) {
             }
         } else if (token == "go") {
 #ifdef DEBUG_MODE
-            cout << "go";
+            CoutSync() << "go ";
 #endif
             it->setMaxDepth(MAX_PLY);
             int wtime = 200000; //5 min

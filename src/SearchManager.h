@@ -67,7 +67,7 @@ public:
 
     void setForceCheck(bool a);
 
-    void setRunningAllThread(bool r);
+    void setRunningThread(bool r);
 
     void parallelSearch(int mply);
 

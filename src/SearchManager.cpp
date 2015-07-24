@@ -336,7 +336,7 @@ void SearchManager::setForceCheck(bool a) {
     }
 }
 
-void SearchManager::setRunningAllThread(bool r) {
+void SearchManager::setRunningThread(bool r) {
     searchPool[0]->setRunningThread(r);// is static
 }
 
