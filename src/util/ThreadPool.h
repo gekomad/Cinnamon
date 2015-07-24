@@ -49,14 +49,13 @@ public:
 
         lock_guard<mutex> lock1(mx);
 
-        std::unique_lock<std::mutex> lck(mtx1);
 
         ASSERT(Bits::bitCount(threadsBits) <= nThread);
         if (Bits::bitCount(threadsBits) == nThread) {  //TODO al posto di bitcount mettere  POW2[nThread]
             //cout <<threadsBits << " "<< POW2[nThread]-1<<endl;
-           // ASSERT(threadsBits == POW2[nThread]-1);
+            // ASSERT(threadsBits == POW2[nThread]-1);
 
-            cv.wait(lck);
+            cv.wait();
         }
 
         int i = getFirstBit(threadsBits);
@@ -91,10 +90,10 @@ protected:
 private:
     mutex mx;
     mutex mx1;
-    mutex mtx1;
+
     int threadsBits;
     int nThread = 4;
-    condition_variable cv;
+    ConditionVariable cv;
     int bitMap[256];
 
     void generateBitMap() {

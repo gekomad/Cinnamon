@@ -41,7 +41,7 @@ void SearchManager::parallelSearch(int mply) {
 #ifdef DEBUG_MODE
         CoutSync() << " start loop2 ----------------------------------------------------- ";
 #endif
-        waiting = false;
+
         activeThread = std::max(4, activeThread);
         nJoined = 0;
         for (unsigned ii = 0; ii < activeThread; ii++) {
@@ -62,11 +62,8 @@ void SearchManager::parallelSearch(int mply) {
         CoutSync() << " fine loop----------------------------------------------------- ";
 #endif
     }
-    waiting = true;
-    mutex mtx;
-    unique_lock<mutex> lck(mtx);
 
-    cv1.wait(lck);
+    cv1.wait();
 
     //joinAll();
 //        if (lineWin.cmove != -1) {
@@ -109,8 +106,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
         CoutSync() << " notify  " << threadID;
 #endif
 
-        while (!waiting) { usleep(1000); }
-        cv1.notify_all();
+        cv1.notifyOne();
     }
 
 

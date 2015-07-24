@@ -20,9 +20,9 @@
 
 #include <thread>
 #include <mutex>
-#include <condition_variable>
 #include "../namespaces.h"
 #include "CoutSync.h"
+#include "ConditionVariable.h"
 
 using namespace std;
 
@@ -36,7 +36,7 @@ class Thread : virtual public Runnable {
 private:
     bool running = true;
 
-    condition_variable cv;
+    ConditionVariable cv;
     thread theThread;
     Runnable *_runnable;
     Runnable *execRunnable;
@@ -59,9 +59,7 @@ public:
 
     void checkWait() {
         while (!running) {
-            mutex mtx;
-            unique_lock<mutex> lck(mtx);
-            cv.wait(lck);
+            cv.wait();
         }
     }
 

@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include "Search.h"
 #include "util/ThreadPool.h"
+#include "util/ConditionVariable.h"
 #include "util/ObserverSearch.h"
 #include "util/String.h"
 #include "util/CoutSync.h"
@@ -200,7 +201,8 @@ private:
     void updateAB(int depth, int side, int bound);
 
     void getWindowRange(int, const int val, int *from, int *to);
-    condition_variable cv1;
+
+    ConditionVariable cv1;
     int nJoined;
     int activeThread;
     int valWindow;
@@ -223,7 +225,7 @@ private:
     int betaValue[MAX_PLY];
 
     void registerThreads();
-    bool waiting;
+
     void stopAllThread();
 };
 
