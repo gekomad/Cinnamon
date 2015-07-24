@@ -1,6 +1,6 @@
 project(cinnamon)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -DDEBUG_MODE -DHAS_BSF")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -DHAS_POPCNT -mpopcnt -msse -DHAS_BSF -DDEBUG_MODE")
 
 set(SOURCE_FILES
     gtb/gtb-probe.h
