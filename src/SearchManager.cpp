@@ -98,7 +98,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
 
     ++nJoined;
 #ifdef DEBUG_MODE
-    CoutSync() << " check:  " << nJoined << activeThread;
+    CoutSync() << " check:  " << nJoined << " " << activeThread;
 #endif
     if (nJoined == activeThread) {
         nJoined = 0;
@@ -337,9 +337,7 @@ void SearchManager::setForceCheck(bool a) {
 }
 
 void SearchManager::setRunningAllThread(bool r) {
-    for (Search *s:searchPool) {
-        s->setRunningThread(r);
-    }
+    searchPool[0]->setRunningThread(r);// is static
 }
 
 void SearchManager::setRunningAll(int r) {
