@@ -1,5 +1,5 @@
 /*
-    Cinnamon is a UCI chess engine
+    Cinnamon UCI chess engine
     Copyright (C) Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
@@ -41,7 +41,7 @@ public:
 #endif
     }
 
-    int getFirstBit(int threadsBits1) {
+    int getFirstBit(int threadsBits1) const{
         return bitMap[threadsBits1];
     }
 
@@ -74,7 +74,7 @@ public:
         threadsBits = 0;
     }
 
-    unsigned getNthread() {
+    unsigned getNthread() const {
         return nThread;
     }
 

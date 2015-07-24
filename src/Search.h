@@ -1,5 +1,5 @@
 /*
-    Cinnamon is a UCI chess engine
+    Cinnamon UCI chess engine
     Copyright (C) Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
@@ -69,7 +69,7 @@ public:
 
     int searchNOparall(int depth, int alpha, int beta);
 
-    int getValue() {
+    int getValue() const {
         ASSERT(threadValue != INT_MAX);
         return threadValue;
     }
@@ -95,11 +95,11 @@ public:
         hash->clearAge();
     }
 
-    int getHashSize() {
+    int getHashSize() const {
         return hash->getHashSize();
     }
 
-    bool setHashSize(int i) {
+    bool setHashSize(int i) const {
         return hash->setHashSize(i);
     }
 
@@ -111,7 +111,7 @@ public:
         runningThread = t;
     }
 
-    bool getRunningThread() {
+    bool getRunningThread() const {
         return runningThread;
     }
 
@@ -182,7 +182,6 @@ private:
     int mainDepth;
     int mainBeta;
     int mainAlpha;
-    //TODO cambiare nome
 
     u64 oldKeyPVS;
 
