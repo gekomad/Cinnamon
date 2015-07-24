@@ -43,9 +43,10 @@ void SearchManager::parallelSearch(int mply) {
 #endif
         waiting = false;
         activeThread = std::max(4, activeThread);
+        nJoined = 0;
         for (unsigned ii = 0; ii < activeThread; ii++) {
 //        for (unsigned ii = 0; ii < activeThread; ii++) {
-            nJoined = 0;
+
             Search &idThread1 = getNextThread();
             int alpha, beta;
             getWindowRange(ii, valWindow, &alpha, &beta);
@@ -58,7 +59,7 @@ void SearchManager::parallelSearch(int mply) {
 //            }
         }
 #ifdef DEBUG_MODE
-        CoutSync() << " fine ----------------------------------------------------- ";
+        CoutSync() << " fine loop----------------------------------------------------- ";
 #endif
     }
     waiting = true;
@@ -88,19 +89,24 @@ void SearchManager::receiveObserverSearch(int threadID) {
 
                 memcpy(&lineWin, &searchPool[threadID]->getPvLine(), sizeof(_TpvLine));
                 valWindow = getValue(threadID);
+#ifdef DEBUG_MODE
+                CoutSync() << " win " << threadID;
+#endif
                 ASSERT(lineWin.cmove);
                 stopAllThread();
             }
         }
     }
     releaseThread(threadID);
-    //searchPool[threadID]->join();
-    ++nJoined;
 
+    ++nJoined;
+#ifdef DEBUG_MODE
+    CoutSync() << " check:  " << nJoined << activeThread;
+#endif
     if (nJoined == activeThread) {
         nJoined = 0;
 #ifdef DEBUG_MODE
-        CoutSync() << " notify ----------------------------------------------------- ";
+        CoutSync() << " notify  " << threadID;
 #endif
 
         while (!waiting) { usleep(1000); }
