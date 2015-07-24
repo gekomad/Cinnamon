@@ -45,7 +45,7 @@ public:
         return bitMap[threadsBits1];
     }
 
-    T &getNextThread() {//TODO eliminare e creare un metodo start
+    T &getNextThread() {
 
         lock_guard<mutex> lock1(mx);
 

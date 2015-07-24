@@ -31,8 +31,6 @@
 class IterativeDeeping : public Thread {
 
 public:
-    //TODO private
-    mutex mutexIT;//TODO eliminare?
 
     virtual ~ IterativeDeeping();
 

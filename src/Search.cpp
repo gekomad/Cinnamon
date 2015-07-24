@@ -27,7 +27,7 @@ bool Search::runningThread;
 
 void Search::run() {
     if (getRunning()) {
-        threadValue = searchNOparall(PVSdepth, PVSalpha, PVSbeta);
+        threadValue = searchNOparall(mainDepth, mainAlpha, mainBeta);
     }
     if (pvsMode) {
         notifyPVSplit(threadID, threadValue);
@@ -40,9 +40,9 @@ void Search::run() {
 void Search::search(int depth, int alpha, int beta) {
     pvsMode = false;
     memset(&pvLine, 0, sizeof(_TpvLine));
-    PVSdepth = depth;
-    PVSalpha = alpha;
-    PVSbeta = beta;
+    mainDepth = depth;
+    mainAlpha = alpha;
+    mainBeta = beta;
 }
 
 
@@ -384,9 +384,9 @@ void Search::deleteGtb() {
 
 void Search::setPVSplit(const int depth, const int alpha, const int beta, const u64 oldKey) {
     pvsMode = true;
-    PVSdepth = depth;
-    PVSbeta = beta;
-    PVSalpha = alpha;
+    mainDepth = depth;
+    mainBeta = beta;
+    mainAlpha = alpha;
     oldKeyPVS = oldKey;
 }
 

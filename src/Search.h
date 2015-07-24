@@ -115,6 +115,23 @@ public:
         return runningThread;
     }
 
+
+    int getMainBeta() const {
+        return mainBeta;
+    }
+
+    void setMainBeta(int mainBeta) {
+        Search::mainBeta = mainBeta;
+    }
+
+    int getMainAlpha() const {
+        return mainAlpha;
+    }
+
+    void setMainAlpha(int mainAlpha) {
+        Search::mainAlpha = mainAlpha;
+    }
+
     void setChessboard(_Tchessboard &);
 
     _Tchessboard &getChessboard();
@@ -124,22 +141,6 @@ public:
     int getMateIn();
 
     void setGtb(Tablebase &tablebase);
-
-    int getPVSbeta() const {
-        return PVSbeta;
-    }
-
-    void setPVSbeta(int PVSbeta1) {
-        PVSbeta = PVSbeta1;
-    }
-
-    int getPVSalpha() const {
-        return PVSalpha;
-    }
-
-    void setPVSalpha(int PVSalpha1) {
-        PVSalpha = PVSalpha1;
-    }
 
 #ifdef DEBUG_MODE
     unsigned cumulativeMovesCount;
@@ -157,7 +158,7 @@ private:
 
     int checkTime();
 
-    int mainDepth, maxTimeMillsec;
+    int maxTimeMillsec;
     bool nullSearch;
     struct timeb startTime;
 
@@ -178,8 +179,9 @@ private:
 
     int mainMateIn;
     bool pvsMode = false;
-    int PVSdepth;
-    int PVSbeta, PVSalpha;
+    int mainDepth;
+    int mainBeta;
+    int mainAlpha;
     //TODO cambiare nome
 
     u64 oldKeyPVS;

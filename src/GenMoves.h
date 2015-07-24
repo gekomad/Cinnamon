@@ -267,8 +267,6 @@ protected:
 
 private:
     int running;
-
-    //TODO in search.h
     bool forceCheck = false;
     static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;

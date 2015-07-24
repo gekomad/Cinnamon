@@ -82,7 +82,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
 
         if (lineWin.cmove == -1) {
             int t = searchPool[threadID]->getValue();
-            if (t > searchPool[threadID]->getPVSalpha() && t < searchPool[threadID]->getPVSbeta()) {
+            if (t > searchPool[threadID]->getMainAlpha() && t < searchPool[threadID]->getMainBeta()) {
 
                 memcpy(&lineWin, &searchPool[threadID]->getPvLine(), sizeof(_TpvLine));
                 valWindow = getValue(threadID);

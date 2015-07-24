@@ -105,7 +105,6 @@ void IterativeDeeping::setUseBook(bool b) {
 }
 
 void IterativeDeeping::run() {
-    lock_guard<mutex> lock1(mutexIT);
 
     struct timeb start1;
     struct timeb end1;
