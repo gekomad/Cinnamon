@@ -45,7 +45,7 @@ private:
     void checkLock() {
         while (!waiting) {
 #ifdef DEBUG_MODE
-            CoutSync() << "notifyOne waiting:  ";
+            CoutSync() << "ConditionVariable::checkLock waiting==true  ";
 #endif
             ;
         }
