@@ -21,7 +21,7 @@
 #include <mutex>
 #include <unistd.h>
 
-template<typename T>
+template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, T>::value, T>::type>
 class ThreadPool {
 
 public:
@@ -67,7 +67,7 @@ public:
     void releaseThread(int threadID) {//TODO eliminare e automatizzare
         lock_guard<mutex> lock1(mx1);
         threadsBits &= ~POW2[threadID];
-        cv.notify_all();
+        cv.notifyAll();
     }
 
     unsigned getNthread() const {
