@@ -474,9 +474,9 @@ void SearchManager::deleteGtb() {
     }
 }
 
-bool SearchManager::setThread(int thread) {
-    if (thread > 0 && thread <= ThreadPool::MAX_THREAD) {
-        ThreadPool::setNthread(thread);
+bool SearchManager::setThread(int nthread) {
+    if (nthread > 0 && nthread <= ThreadPool::MAX_THREAD) {
+        ThreadPool::setNthread(nthread);
         registerThreads();
         return true;
     }

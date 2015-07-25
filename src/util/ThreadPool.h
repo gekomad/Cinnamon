@@ -41,7 +41,7 @@ public:
 #endif
     }
 
-    int getFirstBit(int threadsBits1) const{
+    int getFirstBit(int threadsBits1) const {
         return bitMap[threadsBits1];
     }
 
@@ -79,6 +79,9 @@ public:
         allocThread();
     }
 
+    ~ThreadPool() {
+        destroy();
+    }
 
 protected:
     vector<T *> searchPool;
@@ -108,14 +111,17 @@ private:
     }
 
     void allocThread() {
-        for (unsigned i = 0; i < searchPool.size(); i++) {
-            delete searchPool[i];
-        }
-        searchPool.clear();
+        destroy();
         for (int i = 0; i < nThread; i++) {
             searchPool.push_back(new T(i));
         }
     }
 
+    void destroy() {
+        for (unsigned i = 0; i < searchPool.size(); i++) {
+            delete searchPool[i];
+        }
+        searchPool.clear();
+    }
 };
 
