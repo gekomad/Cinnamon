@@ -46,7 +46,12 @@ public:
 
 private:
     void checkLock() const {
-        while (waiting);
+        while (waiting) {
+#ifdef DEBUG_MODE
+            CoutSync() << " info score ";
+#endif
+            ;
+        }
     }
 
     mutex mtx;
