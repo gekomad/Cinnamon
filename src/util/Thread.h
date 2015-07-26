@@ -20,6 +20,7 @@
 
 #include <thread>
 #include <mutex>
+#include "ObserverThread.h"
 #include "../namespaces.h"
 #include "CoutSync.h"
 #include "ConditionVariable.h"
@@ -35,22 +36,34 @@ class Thread : virtual public Runnable {
 
 private:
     bool running = true;
-
+    int threadID = -1;
+    ObserverThread *observer = nullptr;
     ConditionVariable cv;
     thread theThread;
-    Runnable *_runnable;
+
     Runnable *execRunnable;
 
     static void *__run(void *cthis) {
         static_cast<Runnable *>(cthis)->run();
+        static_cast<Thread *>(cthis)->notifyEndThread((static_cast<Thread *>(cthis))->getId());
+
         return nullptr;
     }
 
 public:
-    int threadID = -1;
 
-    Thread() : _runnable(nullptr) {
+    Thread() {
         execRunnable = this;
+    }
+
+    void registerObserverThread(ObserverThread *obs) {
+        observer = obs;
+    }
+
+    void notifyEndThread(int threadID) {
+        if (observer != nullptr) {
+            observer->observerEndThread(threadID);
+        }
     }
 
     virtual ~Thread() {
@@ -68,12 +81,7 @@ public:
     }
 
     void start() {
-        if (this->_runnable != nullptr) {
-            execRunnable = this->_runnable;
-        }
-
         join();
-        //ASSERT(!theThread.joinable());
         theThread = thread(__run, execRunnable);
     }
 
@@ -92,6 +100,14 @@ public:
 
     void detach() {
         theThread.detach();
+    }
+
+    int getId() const {
+        return threadID;
+    }
+
+    void setId(int threadID) {
+        Thread::threadID = threadID;
     }
 
     void sleep(bool b) {

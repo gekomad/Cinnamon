@@ -28,7 +28,7 @@
 #include "util/CoutSync.h"
 #include <algorithm>
 
-class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch {
+class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch, public ObserverThread {
     friend class Singleton<SearchManager>;
 
 public:
@@ -126,6 +126,8 @@ public:
     void receiveObserverSearch(int threadID);
 
     bool setThread(int);
+
+    void observerEndThread(int threadID);
 
 #ifdef DEBUG_MODE
 

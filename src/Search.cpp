@@ -29,11 +29,11 @@ void Search::run() {
     if (getRunning()) {
         threadValue = searchNOparall(mainDepth, mainAlpha, mainBeta);
     }
-    if (pvsMode) {
-        notifyPVSplit(threadID, threadValue);
+    if (pvsMode) {//TODO togliere il blocco e implementare Thread::endThread
+        notifyPVSplit(getId(), threadValue);
     } else {
         ASSERT(getRunning() && threadValue != INT_MAX || !getRunning());
-        notifySearch(threadID);
+        notifySearch(getId());
     }
 }
 
@@ -51,7 +51,7 @@ Search::Search(int threadID) : ponder(false), nullSearch(false) {
     lazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
     gtb = nullptr;
-    this->threadID = threadID;
+    setId(threadID);
     hash = &Hash::getInstance();
 }
 

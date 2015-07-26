@@ -18,8 +18,12 @@
 
 #pragma once
 
+#include "Thread.h"
 #include <mutex>
 #include <unistd.h>
+#include "ObserverThread.h"
+#include "ConditionVariable.h"
+
 
 template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, T>::value, T>::type>
 class ThreadPool {
@@ -64,13 +68,7 @@ public:
         return *searchPool[i];
     }
 
-    void releaseThread(int threadID) {//TODO eliminare e automatizzare
-        lock_guard<mutex> lock1(mx1);
-        threadsBits &= ~POW2[threadID];
-        cv.notifyAll();
-    }
-
-    unsigned getNthread() const {
+    int getNthread() const {
         return nThread;
     }
 
@@ -84,14 +82,21 @@ public:
     }
 
 protected:
+    //TODO private
     vector<T *> searchPool;
+
+    void releaseThread(int threadID) {
+        lock_guard<mutex> lock1(mx1);
+        threadsBits &= ~POW2[threadID];
+        cv.notifyAll();
+    }
 
 private:
     mutex mx;
     mutex mx1;
 
     int threadsBits = 0;
-    int nThread = 2;
+    int nThread = 8;
     ConditionVariable cv;
     int bitMap[256];
 
@@ -123,5 +128,7 @@ private:
         }
         searchPool.clear();
     }
+
+
 };
 

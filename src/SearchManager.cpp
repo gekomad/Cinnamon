@@ -17,7 +17,6 @@
 */
 
 #include <future>
-#include <bits/pthreadtypes.h>
 #include "SearchManager.h"
 #include "namespaces.h"
 
@@ -34,15 +33,13 @@ void SearchManager::parallelSearch(int mply) {
         CoutSync() << " start loop1 ---run thread --------------------------- " << i.getId();
 #endif
         startThread(i, mply, -_INFINITE, _INFINITE);
-//        i.join();
-//        valWindow = i.getValue();
     } else {
 //  Parallel Aspiration
 #ifdef DEBUG_MODE
         CoutSync() << " start loop2 ----------------------------------------------------- ";
 #endif
 
-        activeThread = std::max(4, activeThread);
+        activeThread = std::max(4, getNthread());
         nJoined = 0;
         for (unsigned ii = 0; ii < activeThread; ii++) {
             Search &idThread1 = getNextThread();
@@ -81,8 +78,6 @@ void SearchManager::receiveObserverSearch(int threadID) {
             }
         }
     }
-    releaseThread(threadID);
-
     ++nJoined;
 #ifdef DEBUG_MODE
     CoutSync() << " check:  " << nJoined << " " << activeThread;
@@ -142,7 +137,6 @@ int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) 
     searchPool[idThread1]->takeback(move, oldKey, true);
     if (score > alpha) alpha = score;
     searchPool[idThread1]->decListId();
-    releaseThread(idThread1);
 
     if (score > beta) {
         beta = score;
@@ -490,10 +484,15 @@ void SearchManager::registerThreads() {
     rollbackValue.clear();
     for (Search *s:searchPool) {
         s->registerObserver(this);
+        s->registerObserverThread(this);
         rollbackValue.push_back(new _RollbackValue);
     }
 }
 
 void SearchManager::stopAllThread() {
     searchPool[0]->setRunningThread(false);//is static
+}
+
+void SearchManager::observerEndThread(int threadID) {
+    releaseThread(threadID);
 }

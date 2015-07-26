@@ -1,5 +1,4 @@
 /*
-    Cinnamon UCI chess engine
     Copyright (C) Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
@@ -18,6 +17,8 @@
 
 #pragma once
 
+#include <condition_variable>
+
 using namespace std;
 
 class ConditionVariable : public condition_variable {
@@ -30,25 +31,22 @@ public:
     }
 
     void notifyOne() {
+        waiting = false;
         checkLock();
         condition_variable::notify_one();
-        waiting = false;
+
     }
 
     void notifyAll() {
+        waiting = false;
         checkLock();
         condition_variable::notify_all();
-        waiting = false;
+
     }
 
 private:
     void checkLock() const {
-        while (!waiting) {
-#ifdef DEBUG_MODE
-            CoutSync() << "ConditionVariable::checkLock waiting==true  ";
-#endif
-            ;
-        }
+        while (waiting);
     }
 
     mutex mtx;
