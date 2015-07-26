@@ -35,7 +35,7 @@ void Search::endRun() {
     if (pvsMode) {
         notifyPVSplit(getId(), threadValue);
     } else {
-        ASSERT(getRunning() && threadValue != INT_MAX || !getRunning());
+        ASSERT(getRunning() && ((threadValue != INT_MAX) || !getRunning()));
         notifySearch(getId());
     }
 }
@@ -49,12 +49,12 @@ void Search::search(int depth, int alpha, int beta) {
 }
 
 
-Search::Search(int threadID) : ponder(false), nullSearch(false) {
+Search::Search(int id) : ponder(false), nullSearch(false) {
 #ifdef DEBUG_MODE
     lazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
     gtb = nullptr;
-    setId(threadID);
+    setId(id);
     hash = &Hash::getInstance();
 }
 

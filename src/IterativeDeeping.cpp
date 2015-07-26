@@ -137,16 +137,16 @@ void IterativeDeeping::run() {
 
     ftime(&start1);
 
-    bool inMate = false;
+//    bool inMate = false;
     int extension = 0;
     string bestmove;
     string ponderMove;
     searchManager.init();
-    int mateIn = INT_MAX;
+//    int mateIn = INT_MAX;
     string pvv;
     _Tmove resultMove;
     while (searchManager.getRunning(0) &&/* mateIn == INT_MAX &&*/ mply < maxDepth) {
-        mateIn = INT_MAX;
+//        mateIn = INT_MAX;
         totMoves = 0;
         ++mply;
         searchManager.init();
@@ -260,9 +260,9 @@ void IterativeDeeping::run() {
 //            break;
 //        }
 
-        if (abs(sc) > _INFINITE - MAX_PLY) {
-            inMate = true;
-        }
+//        if (abs(sc) > _INFINITE - MAX_PLY) {
+//            inMate = true;
+//        }
     }
 
     cout << "bestmove " << bestmove;

@@ -1,6 +1,7 @@
 project(cinnamon)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wall -Wcast-qual -Wextra -Wshadow -pthread -DHAS_POPCNT -mpopcnt -msse -DHAS_BSF -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -DHAS_POPCNT -mpopcnt -msse -DHAS_BSF -DDEBUG_MODE")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -DDEBUG_MODE")
 
 set(SOURCE_FILES
     gtb/gtb-probe.h

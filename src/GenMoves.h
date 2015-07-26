@@ -179,6 +179,7 @@ public:
     double betaEfficiency;
 #endif
 protected:
+    bool perftMode;
     int listId;
     _TmoveP *gen_list;
     static const u64 RANK_1 = 0xff00ULL;
@@ -194,7 +195,7 @@ protected:
 
     u64 *repetitionMap;
     int currentPly;
-    bool perftMode;
+
     u64 numMoves = 0;
     u64 numMovesq = 0;
 

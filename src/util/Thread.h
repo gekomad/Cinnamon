@@ -63,9 +63,9 @@ public:
         observer = obs;
     }
 
-    void notifyEndThread(int threadID) {
+    void notifyEndThread(int i) {
         if (observer != nullptr) {
-            observer->observerEndThread(threadID);
+            observer->observerEndThread(i);
         }
     }
 
@@ -97,10 +97,6 @@ public:
         }
     }
 
-//    bool isJoinable() {
-//        return  theThread.joinable();
-//    }
-
     void detach() {
         theThread.detach();
     }
@@ -109,8 +105,8 @@ public:
         return threadID;
     }
 
-    void setId(int threadID) {
-        Thread::threadID = threadID;
+    void setId(int i) {
+        Thread::threadID = i;
     }
 
     void sleep(bool b) {

@@ -118,16 +118,16 @@ public:
         return mainBeta;
     }
 
-    void setMainBeta(int mainBeta) {
-        Search::mainBeta = mainBeta;
+    void setMainBeta(int b) {
+        Search::mainBeta = b;
     }
 
     int getMainAlpha() const {
         return mainAlpha;
     }
 
-    void setMainAlpha(int mainAlpha) {
-        Search::mainAlpha = mainAlpha;
+    void setMainAlpha(int a) {
+        Search::mainAlpha = a;
     }
 
     void setChessboard(_Tchessboard &);
