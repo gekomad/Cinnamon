@@ -42,8 +42,8 @@ void SearchManager::parallelSearch(int mply) {
         activeThread = std::max(4, getNthread());
         nJoined = 0;
         for (int ii = 0; ii < activeThread; ii++) {
-            Search &idThread1 = getNextThread();
-//            Search &idThread1 = *searchPool[ii];
+//            Search &idThread1 = getNextThread();
+            Search &idThread1 = *searchPool[ii];
             int alpha, beta;
             getWindowRange(ii, valWindow, &alpha, &beta);
             idThread1.setRunning(1);
