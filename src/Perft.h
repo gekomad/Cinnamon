@@ -111,6 +111,7 @@ private:
     private:
         virtual void run();
 
+        void endRun() { };
 //        static mutex mutexDump;
 
         template<int side, bool useHash>
@@ -123,6 +124,8 @@ private:
     const static int secondsToDump = 60 * 60 * 24;
 
     virtual void run();
+
+    void endRun() { };
 
     void notifyObservers(void);
 

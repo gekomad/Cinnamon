@@ -72,6 +72,8 @@ public:
 
     virtual void run();
 
+    virtual void endRun();
+
     int printDtm();
 
     Tablebase &getGtb() const;

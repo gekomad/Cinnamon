@@ -36,6 +36,8 @@ public:
 
     virtual void run();
 
+    void endRun() { };
+
     bool getPonderEnabled();
 
     bool getGtbAvailable();

@@ -78,6 +78,7 @@ public:
     }
 
     ~ThreadPool() {
+
         destroy();
     }
 
@@ -96,7 +97,7 @@ private:
     mutex mx1;
 
     int threadsBits = 0;
-    int nThread = 8;
+    int nThread = 4;
     ConditionVariable cv;
     int bitMap[256];
 

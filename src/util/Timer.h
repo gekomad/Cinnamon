@@ -28,6 +28,8 @@ public:
         seconds = seconds1;
     }
 
+    void endRun() { }
+
     void run() {
         while (1) {
             this_thread::sleep_for(chrono::seconds(seconds));

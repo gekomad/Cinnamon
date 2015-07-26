@@ -29,7 +29,10 @@ void Search::run() {
     if (getRunning()) {
         threadValue = searchNOparall(mainDepth, mainAlpha, mainBeta);
     }
-    if (pvsMode) {//TODO togliere il blocco e implementare Thread::endThread
+}
+
+void Search::endRun() {
+    if (pvsMode) {
         notifyPVSplit(getId(), threadValue);
     } else {
         ASSERT(getRunning() && threadValue != INT_MAX || !getRunning());

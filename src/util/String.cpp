@@ -18,7 +18,7 @@
 
 #include "String.h"
 
-String::String()  {
+String::String() {
 }
 
 String::String(int d) {

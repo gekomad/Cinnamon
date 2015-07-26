@@ -204,7 +204,7 @@ protected:
         chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];
     }
 
-    int getPieceAt(int side, u64 bitmapPos) ;
+    int getPieceAt(int side, u64 bitmapPos);
 
 #else
 #define updateZobristKey(piece, position) (chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position])

@@ -30,6 +30,8 @@ using namespace std;
 class Runnable {
 public:
     virtual void run() = 0;
+
+    virtual void endRun() = 0;
 };
 
 class Thread : virtual public Runnable {
@@ -45,6 +47,7 @@ private:
 
     static void *__run(void *cthis) {
         static_cast<Runnable *>(cthis)->run();
+        static_cast<Runnable *>(cthis)->endRun();
         static_cast<Thread *>(cthis)->notifyEndThread((static_cast<Thread *>(cthis))->getId());
 
         return nullptr;
