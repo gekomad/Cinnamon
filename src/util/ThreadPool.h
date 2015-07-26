@@ -124,9 +124,9 @@ private:
     }
 
     void destroy() {
-        for (unsigned i = 0; i < searchPool.size(); i++) {
-            delete searchPool[i];
-        }
+//        for (unsigned i = 0; i < searchPool.size(); i++) {SIGSEV
+//            delete searchPool[i];
+//        }
         searchPool.clear();
     }
 
