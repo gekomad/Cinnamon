@@ -35,7 +35,7 @@ public:
         ASSERT(POW2[MAX_THREAD] == sizeof(bitMap) / sizeof(int));
         generateBitMap();
         allocThread();
-        if (thread::hardware_concurrency() && (unsigned)getNthread() > thread::hardware_concurrency()) {
+        if (thread::hardware_concurrency() && (unsigned) getNthread() > thread::hardware_concurrency()) {
             cout << "WARNING active threads (" << getNthread() << ") > physical cores (" << thread::hardware_concurrency() << ")" << endl;
         }
 #ifdef DEBUG_MODE
@@ -97,7 +97,7 @@ private:
     mutex mx1;
 
     int threadsBits = 0;
-    int nThread = 4;
+    int nThread = 2;
     ConditionVariable cv;
     int bitMap[256];
 
