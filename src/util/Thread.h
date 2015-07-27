@@ -90,9 +90,6 @@ public:
 
     void join() {
         if (theThread.joinable()) {
-#ifdef DEBUG_MODE
-            CoutSync() << "join: " << threadID;
-#endif
             theThread.join();
         }
     }
