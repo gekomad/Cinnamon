@@ -125,6 +125,7 @@ int Search::checkTime() {
 }
 
 Search::~Search() {
+    join();
     if (gtb) {
         delete gtb;
     }
