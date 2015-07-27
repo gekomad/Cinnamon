@@ -26,6 +26,7 @@ void SearchManager::parallelSearch(int mply) {
 
     setMainPly(mply);
     if (mply == 1) {
+        endLoop= false;
         nJoined = 0;
         activeThread = 1;
         Search &i = getNextThread();
@@ -41,6 +42,7 @@ void SearchManager::parallelSearch(int mply) {
 
         activeThread = std::max(4, getNthread());
         nJoined = 0;
+        endLoop= false;
         for (int ii = 0; ii < activeThread; ii++) {
 //            Search &idThread1 = getNextThread();
             Search &idThread1 = *searchPool[ii];
@@ -54,7 +56,9 @@ void SearchManager::parallelSearch(int mply) {
         CoutSync() << " fine loop----------------------------------------------------- ";
 #endif
     }
-    cv1.wait();
+    if(!endLoop) {
+        cv1.wait();
+    }
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
@@ -88,7 +92,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
 #ifdef DEBUG_MODE
         CoutSync() << " notify  " << threadID;
 #endif
-
+        endLoop=true;
         cv1.notifyOne();
     }
 

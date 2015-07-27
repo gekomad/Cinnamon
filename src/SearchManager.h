@@ -227,7 +227,7 @@ private:
     int betaValue[MAX_PLY];
 
     void registerThreads();
-
+    atomic<bool> endLoop;
     void stopAllThread();
 };
 
