@@ -204,7 +204,7 @@ private:
 
     void getWindowRange(int, const int val, int *from, int *to);
 
-    ConditionVariable cv1;
+//    ConditionVariable cv1;
     int nJoined;
     int activeThread;
     int valWindow;
@@ -228,7 +228,7 @@ private:
 
     void registerThreads();
 
-    atomic<bool> endLoop;
+    mutex endLoop;
 
     void stopAllThread();
 };

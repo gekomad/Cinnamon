@@ -25,8 +25,9 @@ void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
 
     setMainPly(mply);
+    endLoop.unlock();
     if (mply == 1) {
-        endLoop = false;
+
         nJoined = 0;
         activeThread = 1;
         Search &i = getNextThread();
@@ -42,7 +43,7 @@ void SearchManager::parallelSearch(int mply) {
 
         activeThread = std::max(4, getNthread());
         nJoined = 0;
-        endLoop = false;
+
         for (int ii = 0; ii < activeThread; ii++) {
             Search &idThread1 = getNextThread();
 //            Search &idThread1 = *searchPool[ii];
@@ -56,9 +57,22 @@ void SearchManager::parallelSearch(int mply) {
         CoutSync() << " fine loop----------------------------------------------------- ";
 #endif
     }
-    if (!endLoop) {
-        cv1.wait();
+    if (endLoop.try_lock()) {
+
+#ifdef DEBUG_MODE
+        CoutSync() << " lock parallelSearch ";
+#endif
+        endLoop.lock();
+
+
+    } else {
+#ifdef DEBUG_MODE
+        CoutSync() << " unlock parallelSearch ";
+#endif
+        endLoop.unlock();
+
     }
+
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
@@ -92,11 +106,20 @@ void SearchManager::receiveObserverSearch(int threadID) {
 #ifdef DEBUG_MODE
         CoutSync() << " notify  " << threadID;
 #endif
-        endLoop = true;
-        cv1.notifyOne();
+
+        if (endLoop.try_lock()) {
+#ifdef DEBUG_MODE
+            CoutSync() << " lock receiveObserverSearch ";
+#endif
+            endLoop.lock();
+
+        } else {
+#ifdef DEBUG_MODE
+            CoutSync() << " unlock receiveObserverSearch ";
+#endif
+            endLoop.unlock();
+        }
     }
-
-
 }
 
 bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
