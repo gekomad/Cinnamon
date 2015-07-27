@@ -1,7 +1,12 @@
 project(cinnamon)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wall -Wcast-qual -Wextra -Wshadow -pthread -DHAS_POPCNT -mpopcnt -msse -DHAS_BSF -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -DDEBUG_MODE")
+set(DR_MEMORY "YESx")
+
+if(DR_MEMORY STREQUAL "YES" )
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread  -m32 -g -fno-inline -fno-omit-frame-pointer -std=c++1y -DDEBUG_MODE")
+else()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpthread -std=c++1y -DDEBUG_MODE")
+endif()
 
 set(SOURCE_FILES
     gtb/gtb-probe.h
@@ -41,4 +46,8 @@ set(SOURCE_FILES
     Uci.h)
 
 add_executable(cinnamon ${SOURCE_FILES} )
+if(DR_MEMORY STREQUAL "YES" )
+target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/32/libgtb.a)
+else()
 target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/64/libgtb.a)
+endif()

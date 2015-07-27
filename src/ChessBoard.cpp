@@ -111,35 +111,28 @@ void ChessBoard::display() {
 
 string ChessBoard::boardToFen() {
     string fen;
-    int x, y, l = 0, i = 0, sq;
-    char row[8];
-    int q;
-    for (y = 0; y < 8; y++) {
-        i = l = 0;
-        strcpy(row, "");
-        for (x = 0; x < 8; x++) {
-            sq = (y * 8) + x;
-            q = getPieceAt<BLACK>(POW2[63 - sq]);
+    for (int y = 0; y < 8; y++) {
+        int l = 0;
+        string row;
+        for (int x = 0; x < 8; x++) {
+            int q = getPieceAt<BLACK>(POW2[63 - ((y * 8) + x)]);
             if (q == SQUARE_FREE) {
-                q = getPieceAt<WHITE>(POW2[63 - sq]);
+                q = getPieceAt<WHITE>(POW2[63 - ((y * 8) + x)]);
             }
             if (q == SQUARE_FREE) {
                 l++;
             } else {
                 if (l > 0) {
-                    row[i] = (char) (l + 48);
-                    i++;
+                    row.append(1, (char) (l + 48));
                 }
                 l = 0;
-                row[i] = FEN_PIECE[q];
-                i++;
+                row.append(1, FEN_PIECE[q]);
             }
         }
         if (l > 0) {
-            row[i] = (char) (l + 48);
-            i++;
+            row.append(1, (char) (l + 48));
         }
-        fen.append(row, i);
+        fen.append(row.c_str());
         if (y < 7) {
             fen.append("/");
         }
