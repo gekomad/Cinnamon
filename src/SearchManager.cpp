@@ -25,7 +25,7 @@ void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
 
     setMainPly(mply);
-
+    finish = false;
     if (mply == 1) {
 
         nJoined = 0;
@@ -51,20 +51,8 @@ void SearchManager::parallelSearch(int mply) {
         }
         debug("end loop2 -----------------------------------------------------");
     }
-    if (endLoop.try_lock()) {
-
-        debug("lock parallelSearch");
-
-        waitMutex.lock();
-        ASSERT(lineWin.cmove);
-        debug("exit lock parallelSearch");
-
-    } else {
-        debug("unlock parallelSearch");
-        endLoop.unlock();
-        waitMutex.unlock();
-        ASSERT(lineWin.cmove);
-    }
+    std::unique_lock<std::mutex> lk(cv_m);
+    cv.wait(lk, [this] { return finish == true; });
 
 }
 
@@ -95,17 +83,8 @@ void SearchManager::receiveObserverSearch(int threadID) {
         ASSERT(lineWin.cmove);
         nJoined = 0;
         debug("notify: ", threadID);
-
-        if (endLoop.try_lock()) {
-
-            debug("lock receiveObserverSearch");
-            waitMutex.lock();
-            cout << "";
-        } else {
-            debug("unlock receiveObserverSearch");
-            endLoop.unlock();
-            waitMutex.unlock();
-        }
+        finish = true;
+        cv.notify_one();
     }
 }
 

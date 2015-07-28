@@ -230,7 +230,9 @@ private:
 
     mutex endLoop;
     mutex waitMutex;
-
+    std::condition_variable cv;
+    std::mutex cv_m;
+ bool finish;
     void stopAllThread();
 };
 
