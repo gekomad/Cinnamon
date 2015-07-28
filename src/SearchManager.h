@@ -229,7 +229,7 @@ private:
     void registerThreads();
 
     mutex endLoop;
-
+    mutex waitMutex;
     void stopAllThread();
 };
 

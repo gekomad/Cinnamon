@@ -25,7 +25,7 @@ void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
 
     setMainPly(mply);
-    endLoop.unlock();
+
     if (mply == 1) {
 
         nJoined = 0;
@@ -62,15 +62,19 @@ void SearchManager::parallelSearch(int mply) {
 #ifdef DEBUG_MODE
         CoutSync() << " lock parallelSearch ";
 #endif
-        endLoop.lock();
-
+        waitMutex.lock();
+        ASSERT(lineWin.cmove);
+#ifdef DEBUG_MODE
+        CoutSync() << " exit lock parallelSearch ";
+#endif
 
     } else {
 #ifdef DEBUG_MODE
         CoutSync() << " unlock parallelSearch ";
 #endif
         endLoop.unlock();
-
+        waitMutex.unlock();
+        ASSERT(lineWin.cmove);
     }
 
 }
@@ -102,6 +106,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
     CoutSync() << " check:  " << nJoined << " " << activeThread;
 #endif
     if (nJoined == activeThread) {
+        ASSERT(lineWin.cmove);
         nJoined = 0;
 #ifdef DEBUG_MODE
         CoutSync() << " notify  " << threadID;
@@ -111,13 +116,15 @@ void SearchManager::receiveObserverSearch(int threadID) {
 #ifdef DEBUG_MODE
             CoutSync() << " lock receiveObserverSearch ";
 #endif
-            endLoop.lock();
-
+            waitMutex.lock();
+cout <<"";
         } else {
 #ifdef DEBUG_MODE
             CoutSync() << " unlock receiveObserverSearch ";
 #endif
+
             endLoop.unlock();
+            waitMutex.unlock();
         }
     }
 }
