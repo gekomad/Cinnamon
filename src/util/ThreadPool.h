@@ -34,7 +34,9 @@ public:
     ThreadPool() {
         ASSERT(POW2[MAX_THREAD] == sizeof(bitMap) / sizeof(int));
         generateBitMap();
-        allocThread();
+        for (int i = 0; i < MAX_THREAD; i++) {
+            searchPool.push_back(new T(i));
+        }
         if (thread::hardware_concurrency() && (unsigned) getNthread() > thread::hardware_concurrency()) {
             cout << "WARNING active threads (" << getNthread() << ") > physical cores (" << thread::hardware_concurrency() << ")" << endl;
         }
@@ -74,12 +76,11 @@ public:
 
     void setNthread(int t) {
         nThread = t;
-        allocThread();
+
     }
 
     ~ThreadPool() {
-
-        destroy();
+        searchPool.clear();
     }
 
 protected:
@@ -103,7 +104,7 @@ private:
 
     void generateBitMap() {
         auto lambda = [this](int threadsBits1) {
-            for (int i = 0; i < nThread; ++i) {
+            for (int i = 0; i < MAX_THREAD; ++i) {
                 if ((threadsBits1 & 1) == 0) {
                     return i;
                 }
@@ -115,21 +116,6 @@ private:
             bitMap[i] = lambda(i);
         }
     }
-
-    void allocThread() {
-        destroy();
-        for (int i = 0; i < nThread; i++) {
-            searchPool.push_back(new T(i));
-        }
-    }
-
-    void destroy() {
-//        for (unsigned i = 0; i < searchPool.size(); i++) {SIGSEV
-//            delete searchPool[i];
-//        }
-        searchPool.clear();
-    }
-
 
 };
 
