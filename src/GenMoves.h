@@ -219,7 +219,7 @@ protected:
 
     void pushRepetition(u64);
 
-    int killerHeuristic[64][64];
+    static atomic<int> killerHeuristic[64][64];
 
     template<int side>
     bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
