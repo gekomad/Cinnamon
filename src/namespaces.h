@@ -57,6 +57,7 @@ namespace _board {
 #define INC(a) (a++)
 #define ADD(a, b) (a+=(b))
 
+namespace _ns_debug {
     template<typename T>
     void _debug(T t) {
         cout << " " << t;
@@ -80,7 +81,7 @@ namespace _board {
         _debug(t, args...);
         cout << "\n";
     }
-
+}
 
 #else
 
