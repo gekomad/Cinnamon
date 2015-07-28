@@ -26,8 +26,6 @@
 #include "Tablebase.h"
 #include "util/Thread.h"
 #include "util/ObserverSearch.h"
-#include "util/CoutSync.h"
-
 
 class Search : public Eval, public Thread, public Subject {
 

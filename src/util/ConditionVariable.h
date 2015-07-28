@@ -47,10 +47,7 @@ public:
 private:
     void checkLock() const {
         while (waiting) {
-#ifdef DEBUG_MODE
-            CoutSync() << " info score ";
-#endif
-            ;
+            debug("waiting");
         }
     }
 

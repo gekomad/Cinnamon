@@ -159,9 +159,7 @@ void IterativeDeeping::run() {
         }
 
         if (!searchManager.getRes(resultMove, ponderMove, pvv)) {
-#ifdef DEBUG_MODE
-            CoutSync() << " IterativeDeeping cmove == 0, exit";
-#endif
+            debug("IterativeDeeping cmove == 0, exit");
             break;
         }
         searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
@@ -239,9 +237,7 @@ void IterativeDeeping::run() {
                     bestmove += tolower(FEN_PIECE[(uchar) resultMove.promotionPiece]);
                 }
             }
-#ifdef DEBUG_MODE
-            CoutSync() << " info score ";
-#endif
+
             if (abs(sc) > _INFINITE - MAX_PLY) {
                 cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << timeTaken << " pv " << pvv << endl;
             } else {

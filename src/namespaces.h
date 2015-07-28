@@ -25,9 +25,16 @@
 #include <sstream>
 #include <climits>
 #include <fstream>
+#include <iostream>
 #include "util/stacktrace.h"
+#include <iostream>
+#include <chrono>
+#include <mutex>
+
+using namespace std::chrono;
 
 using namespace std;
+
 namespace _board {
 
     static const string NAME = "Cinnamon 1.2c-smp.x";
@@ -50,12 +57,38 @@ namespace _board {
 #define INC(a) (a++)
 #define ADD(a, b) (a+=(b))
 
+    template<typename T>
+    void _debug(T t) {
+        cout << " " << t;
+    }
+
+    template<typename T, typename... Args>
+    void _debug(T t, Args... args) {
+        cout << t;
+        _debug(args...);
+    }
+
+    static mutex _CoutSyncMutex;
+
+    template<typename T, typename... Args>
+    void debug(T t, Args... args) {
+        lock_guard<mutex> lock1(_CoutSyncMutex);
+        nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
+
+        cout << "info string TIME: " << ms.count() << " ";
+
+        _debug(t, args...);
+        cout << "\n";
+    }
+
+
 #else
 
 #define ASSERT(a)
 #define ASSERT_RANGE(value, from, to)
 #define INC(a)
 #define ADD(a, b)
+#define debug(...)
 #endif
     static const int MAX_PLY = 96;
 #if defined(CLOP)

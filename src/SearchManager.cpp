@@ -31,15 +31,11 @@ void SearchManager::parallelSearch(int mply) {
         nJoined = 0;
         activeThread = 1;
         Search &i = getNextThread();
-#ifdef DEBUG_MODE
-        CoutSync() << " start loop1 ---run thread --------------------------- " << i.getId();
-#endif
+        debug("start loop1 ---run thread ---------------------------", i.getId());
         startThread(i, mply, -_INFINITE, _INFINITE);
     } else {
 //  Parallel Aspiration
-#ifdef DEBUG_MODE
-        CoutSync() << " start loop2 ----------------------------------------------------- ";
-#endif
+        debug("start loop2 -----------------------------------------------------");
 
         activeThread = std::max(4, getNthread());
         nJoined = 0;
@@ -53,25 +49,18 @@ void SearchManager::parallelSearch(int mply) {
             startThread(idThread1, mply, alpha, beta);
 
         }
-#ifdef DEBUG_MODE
-        CoutSync() << " fine loop----------------------------------------------------- ";
-#endif
+        debug("end loop2 -----------------------------------------------------");
     }
     if (endLoop.try_lock()) {
 
-#ifdef DEBUG_MODE
-        CoutSync() << " lock parallelSearch ";
-#endif
+        debug("lock parallelSearch");
+
         waitMutex.lock();
         ASSERT(lineWin.cmove);
-#ifdef DEBUG_MODE
-        CoutSync() << " exit lock parallelSearch ";
-#endif
+        debug("exit lock parallelSearch");
 
     } else {
-#ifdef DEBUG_MODE
-        CoutSync() << " unlock parallelSearch ";
-#endif
+        debug("unlock parallelSearch");
         endLoop.unlock();
         waitMutex.unlock();
         ASSERT(lineWin.cmove);
@@ -82,9 +71,8 @@ void SearchManager::parallelSearch(int mply) {
 void SearchManager::receiveObserverSearch(int threadID) {
 
     lock_guard<mutex> lock(mutexSearch);
-#ifdef DEBUG_MODE
-    CoutSync() << " receiveObserverSearch " << threadID;
-#endif
+
+    debug("receiveObserverSearch");
     if (getRunning(threadID)) {
 
         if (lineWin.cmove == -1) {
@@ -93,36 +81,28 @@ void SearchManager::receiveObserverSearch(int threadID) {
 
                 memcpy(&lineWin, &searchPool[threadID]->getPvLine(), sizeof(_TpvLine));
                 valWindow = getValue(threadID);
-#ifdef DEBUG_MODE
-                CoutSync() << " win " << threadID;
-#endif
+
+                debug("win", threadID);
                 ASSERT(lineWin.cmove);
                 stopAllThread();
             }
         }
     }
     ++nJoined;
-#ifdef DEBUG_MODE
-    CoutSync() << " check:  " << nJoined << " " << activeThread;
-#endif
+
+    debug("check: ", nJoined, activeThread);
     if (nJoined == activeThread) {
         ASSERT(lineWin.cmove);
         nJoined = 0;
-#ifdef DEBUG_MODE
-        CoutSync() << " notify  " << threadID;
-#endif
+        debug("notify: ", threadID);
 
         if (endLoop.try_lock()) {
-#ifdef DEBUG_MODE
-            CoutSync() << " lock receiveObserverSearch ";
-#endif
-            waitMutex.lock();
-cout <<"";
-        } else {
-#ifdef DEBUG_MODE
-            CoutSync() << " unlock receiveObserverSearch ";
-#endif
 
+            debug("lock receiveObserverSearch");
+            waitMutex.lock();
+            cout << "";
+        } else {
+            debug("unlock receiveObserverSearch");
             endLoop.unlock();
             waitMutex.unlock();
         }
@@ -178,13 +158,9 @@ int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) 
         return beta;
     }
     while ((move = searchPool[idThread1]->getNextMove())) {
-#ifdef DEBUG_MODE
-        CoutSync() << "fuori";
-#endif
+        debug("fuori");
         idThread1 = getNextThread().getId();
-#ifdef DEBUG_MODE
-        CoutSync() << "dentro";
-#endif
+        debug("dentro");
         u64 oldKey1 = searchPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
 
         rollbackValue[idThread1]->oldKey = oldKey1;
@@ -264,10 +240,8 @@ SearchManager::SearchManager() {
 
 
 void SearchManager::startThread(Search &thread, int depth, int alpha, int beta) {
-    //cout <<valWindow<<" "<<depth <<" " <<alpha<<" "<<beta<<"\n";
-#ifdef DEBUG_MODE
-    CoutSync() << " startThread " << thread.getId() << " alpha: " << alpha << " beta: " << beta;
-#endif
+
+    debug("startThread ", thread.getId(), " alpha ", alpha, " eta ", beta);
     ASSERT(alpha >= -_INFINITE);
     thread.search(depth, alpha, beta);
     thread.start();

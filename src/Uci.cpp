@@ -169,9 +169,7 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "Score: " << t << "\n";
             knowCommand = true;
         } else if (token == "stop") {
-#ifdef DEBUG_MODE
-            CoutSync() << "stop ";
-#endif
+            debug("stop");
             knowCommand = true;
             searchManager.setPonder(false);
             searchManager.setRunning(0);
@@ -344,9 +342,7 @@ void Uci::listner(IterativeDeeping *it) {
                 }
             }
         } else if (token == "go") {
-#ifdef DEBUG_MODE
-            CoutSync() << "go ";
-#endif
+            debug("go ");
             it->setMaxDepth(MAX_PLY);
             int wtime = 200000; //5 min
             int btime = 200000;

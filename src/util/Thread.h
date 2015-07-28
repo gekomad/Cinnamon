@@ -22,7 +22,6 @@
 #include <mutex>
 #include "ObserverThread.h"
 #include "../namespaces.h"
-#include "CoutSync.h"
 #include "ConditionVariable.h"
 
 using namespace std;

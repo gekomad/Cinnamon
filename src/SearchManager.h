@@ -25,7 +25,6 @@
 #include "util/ConditionVariable.h"
 #include "util/ObserverSearch.h"
 #include "util/String.h"
-#include "util/CoutSync.h"
 #include <algorithm>
 
 class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch, public ObserverThread {
@@ -131,6 +130,7 @@ public:
 
 #ifdef DEBUG_MODE
 
+
     unsigned getCumulativeMovesCount() {
         unsigned i = 0;
         for (Search *s:searchPool) {
@@ -230,6 +230,7 @@ private:
 
     mutex endLoop;
     mutex waitMutex;
+
     void stopAllThread();
 };
 
