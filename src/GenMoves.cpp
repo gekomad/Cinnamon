@@ -18,7 +18,6 @@
 
 #include "GenMoves.h"
 
-atomic<int> GenMoves::killerHeuristic[64][64];
 GenMoves::GenMoves() : perftMode(false), listId(-1) {
     currentPly = 0;
     gen_list = (_TmoveP *) calloc(MAX_PLY, sizeof(_TmoveP));
