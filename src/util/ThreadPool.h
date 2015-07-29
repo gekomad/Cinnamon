@@ -24,14 +24,13 @@
 #include "ObserverThread.h"
 #include "ConditionVariable.h"
 
-
 template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, T>::value, T>::type>
 class ThreadPool {
 
 public:
     const static int MAX_THREAD = 8;
 
-    ThreadPool() {
+    ThreadPool() : threadsBits(0) {
         ASSERT(POW2[MAX_THREAD] == sizeof(bitMap) / sizeof(int));
         generateBitMap();
         for (int i = 0; i < MAX_THREAD; i++) {
@@ -52,15 +51,9 @@ public:
     }
 
     T &getNextThread() {
-
         lock_guard<mutex> lock1(mx);
-
-
         ASSERT(Bits::bitCount(threadsBits) <= nThread);
         if (Bits::bitCount(threadsBits) == nThread) {  //TODO al posto di bitcount mettere  POW2[nThread]
-            //cout <<threadsBits << " "<< POW2[nThread]-1<<endl;
-            // ASSERT(threadsBits == POW2[nThread]-1);
-
             cv.wait();
         }
 
@@ -76,7 +69,13 @@ public:
 
     void setNthread(int t) {
         nThread = t;
+        threadsBits = 0;
+    }
 
+    void joinAll() {
+        for (Search *s:searchPool) {
+            s->join();
+        }
     }
 
     ~ThreadPool() {
@@ -97,8 +96,8 @@ private:
     mutex mx;
     mutex mx1;
 
-    int threadsBits = 0;
-    int nThread =2;
+    int threadsBits;
+    int nThread = 2;
     ConditionVariable cv;
     int bitMap[256];
 
