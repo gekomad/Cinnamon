@@ -125,7 +125,7 @@ void IterativeDeeping::run() {
         }
     }
     int sc = 0;
-    u64 totMoves = 0;
+    u64 totMoves;
 
     mply = 0;
 

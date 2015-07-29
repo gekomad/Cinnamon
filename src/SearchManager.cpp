@@ -31,6 +31,7 @@ void SearchManager::parallelSearch(int mply) {
         nJoined = 0;
         activeThread = 1;
         Search &i = getNextThread();
+        i.init();
 //        Search &i = *searchPool[0];
         debug("start loop1 ------------------------------ run threadid: ", i.getId());
         debug("val: ", valWindow);
@@ -44,6 +45,7 @@ void SearchManager::parallelSearch(int mply) {
 
         for (int ii = 0; ii < activeThread; ii++) {
             Search &idThread1 = getNextThread();
+            idThread1.init();
 //            Search &idThread1 = *searchPool[0];
             int alpha, beta;
             getWindowRange(ii, valWindow, &alpha, &beta);
@@ -73,6 +75,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
             if (t > searchPool[threadID]->getMainAlpha() && t < searchPool[threadID]->getMainBeta()) {
 
                 memcpy(&lineWin, &searchPool[threadID]->getPvLine(), sizeof(_TpvLine));
+                totCountWin += searchPool[threadID]->getTotMoves();
                 valWindow = getValue(threadID);
 
                 debug("win", threadID);
@@ -227,6 +230,7 @@ void SearchManager::startThread(Search &thread, int depth, int alpha, int beta) 
 
     debug("startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
     ASSERT(alpha >= -_INFINITE);
+
     thread.search(depth, alpha, beta);
     thread.start();
 }
@@ -242,11 +246,12 @@ int SearchManager::getPieceAt(int side, u64 i) {
 }
 
 u64 SearchManager::getTotMoves() {
-    u64 i = 0;
-    for (Search *s:searchPool) {
-        i += s->getTotMoves();
-    }
-    return i;
+//    u64 i = 0;
+//    for (Search *s:searchPool) {
+//        i += s->getTotMoves();
+//    }
+//    return i;
+    return totCountWin;
 }
 
 void SearchManager::incKillerHeuristic(int from, int to, int value) {
@@ -438,6 +443,7 @@ void SearchManager::pushStackMove() {
 }
 
 void SearchManager::init() {
+    totCountWin = 0;
     for (Search *s:searchPool) {
         s->init();
     }

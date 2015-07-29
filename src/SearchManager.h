@@ -208,6 +208,7 @@ private:
     int activeThread;
     int valWindow;
     _TpvLine lineWin;
+    u64 totCountWin;
     mutex mutexSearch;
 
     void setMainPly(int r);
