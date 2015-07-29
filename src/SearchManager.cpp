@@ -31,7 +31,9 @@ void SearchManager::parallelSearch(int mply) {
         nJoined = 0;
         activeThread = 1;
         Search &i = getNextThread();
-        debug("start loop1 ---run thread ---------------------------", i.getId());
+//        Search &i = *searchPool[0];
+        debug("start loop1 ------------------------------ run threadid: ", i.getId());
+        debug("val: ", valWindow);
         startThread(i, mply, -_INFINITE, _INFINITE);
     } else {
 //  Parallel Aspiration
@@ -42,10 +44,11 @@ void SearchManager::parallelSearch(int mply) {
 
         for (int ii = 0; ii < activeThread; ii++) {
             Search &idThread1 = getNextThread();
-//            Search &idThread1 = *searchPool[ii];
+//            Search &idThread1 = *searchPool[0];
             int alpha, beta;
             getWindowRange(ii, valWindow, &alpha, &beta);
             idThread1.setRunning(1);
+            debug("val: ", valWindow);
             startThread(idThread1, mply, alpha, beta);
 
         }
@@ -180,8 +183,8 @@ void SearchManager::getWindowRange(int prog, const int val, int *from, int *to) 
         *from = -_INFINITE;
         *to = _INFINITE;
     } else {
-        *from = val - VAL_WINDOW * (int) POW2[prog];
-        *to = val + VAL_WINDOW * (int) POW2[prog];
+        *from = val - VAL_WINDOW * (int) POW2[prog - 1];
+        *to = val + VAL_WINDOW * (int) POW2[prog - 1];
     }
 }
 
@@ -220,7 +223,7 @@ SearchManager::SearchManager() {
 
 void SearchManager::startThread(Search &thread, int depth, int alpha, int beta) {
 
-    debug("startThread ", thread.getId(), " alpha ", alpha, " eta ", beta);
+    debug("startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
     ASSERT(alpha >= -_INFINITE);
     thread.search(depth, alpha, beta);
     thread.start();
