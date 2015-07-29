@@ -31,7 +31,7 @@ public:
     const static int MAX_THREAD = 8;
 
     ThreadPool() : threadsBits(0) {
-//        ASSERT(POW2[MAX_THREAD] == sizeof(bitMap));
+
         generateBitMap();
         for (int i = 0; i < MAX_THREAD; i++) {
             searchPool.push_back(new T(i));
@@ -46,10 +46,6 @@ public:
 #endif
     }
 
-    int getFirstBit(int threadsBits1) const {
-        return bitMap[threadsBits1].bits;
-    }
-
     T &getNextThread() {
 
         lock_guard<mutex> lock1(mxGet);
@@ -57,7 +53,8 @@ public:
             cv.wait();
         }
 
-        int i = getFirstBit(threadsBits);
+        //get first bit == 0
+        int i = bitMap[threadsBits].firstUnsetBit;
         threadsBits |= POW2[i];
 
         return *searchPool[i];
@@ -84,7 +81,7 @@ public:
     }
 
 protected:
-    //TODO private
+
     vector<T *> searchPool;
 
     void releaseThread(int threadID) {
@@ -95,15 +92,16 @@ protected:
 
 private:
     typedef struct {
-        uchar bits;
+        uchar firstUnsetBit;
         uchar count;
     } _Tslot;
 
-    int threadsBits;
+    atomic_int threadsBits;
     int nThread = 2;
     ConditionVariable cv;
     mutex mxRelease;
     mutex mxGet;
+    mutex mxBit;
     _Tslot bitMap[256];
 
     void generateBitMap() {
@@ -112,7 +110,7 @@ private:
             bitMap[idx].count = Bits::bitCount(idx);
             for (int i = 0; i < MAX_THREAD; ++i) {
                 if ((threadsBits1 & 1) == 0) {
-                    bitMap[idx].bits = i;
+                    bitMap[idx].firstUnsetBit = i;
                     break;
                 }
                 threadsBits1 >>= 1;

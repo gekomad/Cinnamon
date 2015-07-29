@@ -204,14 +204,11 @@ private:
 
     void getWindowRange(int, const int val, int *from, int *to);
 
-//    ConditionVariable cv1;
     int nJoined;
     int activeThread;
     int valWindow;
     _TpvLine lineWin;
     mutex mutexSearch;
-
-    void joinAll();
 
     void setMainPly(int r);
 
@@ -228,11 +225,10 @@ private:
 
     void registerThreads();
 
-    mutex endLoop;
-    mutex waitMutex;
     std::condition_variable cv;
     std::mutex cv_m;
- bool finish;
+    atomic_bool finish;
+
     void stopAllThread();
 };
 

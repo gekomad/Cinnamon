@@ -23,6 +23,7 @@ using namespace std;
 #ifdef DEBUG_MODE
 using namespace _ns_debug;
 #endif
+
 class ConditionVariable : public condition_variable {
 public:
 

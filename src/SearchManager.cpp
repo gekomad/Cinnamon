@@ -38,7 +38,7 @@ void SearchManager::parallelSearch(int mply) {
     } else {
 //  Parallel Aspiration
         debug("start loop2 -----------------------------------------------------");
-
+        //setNthread(mply < 6 ? 1 : 2);
         activeThread = std::max(4, getNthread());
         nJoined = 0;
 
@@ -55,7 +55,9 @@ void SearchManager::parallelSearch(int mply) {
         debug("end loop2 -----------------------------------------------------");
     }
     std::unique_lock<std::mutex> lk(cv_m);
+    debug("go in wait");
     cv.wait(lk, [this] { return finish == true; });
+    debug("weak up");
 
 }
 
@@ -227,12 +229,6 @@ void SearchManager::startThread(Search &thread, int depth, int alpha, int beta) 
     ASSERT(alpha >= -_INFINITE);
     thread.search(depth, alpha, beta);
     thread.start();
-}
-
-void SearchManager::joinAll() {
-    for (Search *s:searchPool) {
-        s->join();
-    }
 }
 
 void SearchManager::setMainPly(int r) {
