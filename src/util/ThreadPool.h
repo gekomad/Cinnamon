@@ -31,7 +31,7 @@ public:
     const static int MAX_THREAD = 8;
 
     ThreadPool() : threadsBits(0) {
-        ASSERT(POW2[MAX_THREAD] == sizeof(bitMap) / sizeof(int));
+//        ASSERT(POW2[MAX_THREAD] == sizeof(bitMap));
         generateBitMap();
         for (int i = 0; i < MAX_THREAD; i++) {
             searchPool.push_back(new T(i));
@@ -47,13 +47,13 @@ public:
     }
 
     int getFirstBit(int threadsBits1) const {
-        return bitMap[threadsBits1];
+        return bitMap[threadsBits1].bits;
     }
 
     T &getNextThread() {
-        lock_guard<mutex> lock1(mx);
-        ASSERT(Bits::bitCount(threadsBits) <= nThread);
-        if (Bits::bitCount(threadsBits) == nThread) {  //TODO al posto di bitcount mettere  POW2[nThread]
+
+        lock_guard<mutex> lock1(mxGet);
+        if (bitMap[threadsBits].count == nThread) {
             cv.wait();
         }
 
@@ -64,6 +64,7 @@ public:
     }
 
     int getNthread() const {
+
         return nThread;
     }
 
@@ -87,34 +88,37 @@ protected:
     vector<T *> searchPool;
 
     void releaseThread(int threadID) {
-        lock_guard<mutex> lock1(mx1);
+        lock_guard<mutex> lock1(mxRelease);
         threadsBits &= ~POW2[threadID];
         cv.notifyAll();
     }
 
 private:
-    mutex mx;
-    mutex mx1;
+    typedef struct {
+        uchar bits;
+        uchar count;
+    } _Tslot;
 
     int threadsBits;
     int nThread = 2;
     ConditionVariable cv;
-    int bitMap[256];
+    mutex mxRelease;
+    mutex mxGet;
+    _Tslot bitMap[256];
 
     void generateBitMap() {
-        auto lambda = [this](int threadsBits1) {
+        for (int idx = 0; idx < (int) POW2[MAX_THREAD]; idx++) {
+            int threadsBits1 = idx;
+            bitMap[idx].count = Bits::bitCount(idx);
             for (int i = 0; i < MAX_THREAD; ++i) {
                 if ((threadsBits1 & 1) == 0) {
-                    return i;
+                    bitMap[idx].bits = i;
+                    break;
                 }
                 threadsBits1 >>= 1;
             }
-            return -1;
         };
-        for (int i = 0; i < (int) POW2[MAX_THREAD]; i++) {
-            bitMap[i] = lambda(i);
-        }
     }
-
 };
+
 
