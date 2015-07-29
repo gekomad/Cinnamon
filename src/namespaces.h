@@ -57,31 +57,28 @@ namespace _board {
 #define INC(a) (a++)
 #define ADD(a, b) (a+=(b))
 
-namespace _ns_debug {
-    template<typename T>
-    void _debug(T t) {
-        cout << " " << t;
+    namespace _ns_debug {
+        template<typename T>
+        void _debug(T) { }
+
+        template<typename T, typename... Args>
+        void _debug(T t, Args... args) {
+            cout << t;
+            _debug(args...);
+        }
+
+        static mutex _CoutSyncMutex;
+
+        template<typename T, typename... Args>
+        void debug(T t, Args... args) {
+            lock_guard<mutex> lock1(_CoutSyncMutex);
+            nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
+            cout << "info string TIME: " << ms.count() << " ";
+
+            _debug(t, args...);
+            cout << "\n";
+        }
     }
-
-    template<typename T, typename... Args>
-    void _debug(T t, Args... args) {
-        cout << t;
-        _debug(args...);
-    }
-
-    static mutex _CoutSyncMutex;
-
-    template<typename T, typename... Args>
-    void debug(T t, Args... args) {
-        lock_guard<mutex> lock1(_CoutSyncMutex);
-        nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
-
-        cout << "info string TIME: " << ms.count() << " ";
-
-        _debug(t, args...);
-        cout << "\n";
-    }
-}
 
 #else
 
