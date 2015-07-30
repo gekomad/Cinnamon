@@ -202,7 +202,7 @@ private:
 
     void updateAB(int depth, int side, int bound);
 
-    void getWindowRange(int, const int val, int *from, int *to);
+//    void getWindowRange(int, const int val, int *from, int *to);
 
     int nJoined;
     int activeThread;
@@ -229,7 +229,7 @@ private:
     std::condition_variable cv;
     std::mutex cv_m;
     atomic_bool finish;
-
+    int nThreads;
     void stopAllThread();
 };
 

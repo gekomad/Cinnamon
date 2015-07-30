@@ -27,37 +27,43 @@ void SearchManager::parallelSearch(int mply) {
     setMainPly(mply);
 
     if (mply == 1) {
-        debug("start loop1 ------------------------------ run threadid: ", i.getId());
+
         nJoined = 0;
         finish = false;
         activeThread = 1;
         Search &i = getNextThread();
+        debug("start loop1 ------------------------------ run threadid: ", i.getId());
         i.init();
 //        Search &i = *searchPool[0];
 
         debug("val: ", valWindow);
         startThread(i, mply, -_INFINITE, _INFINITE);
-
+        std::unique_lock<std::mutex> lk(cv_m);
+        cv.wait(lk, [this] { return finish == true; });
     } else {
 //  Parallel Aspiration
         debug("start loop2 -----------------------------------------------------");
-        //setNthread(mply < 6 ? 1 : 2);
+        ASSERT(nThreads);
+        setNthread(mply < 6 ? 1 : nThreads);
         nJoined = 0;
         finish = false;
         activeThread = std::max(3, getNthread());
-        for (int ii = 1; ii <= activeThread; ii++) {
+        for (int ii = 0; ii < activeThread; ii++) {
             Search &idThread1 = getNextThread();
             idThread1.init();
 //            Search &idThread1 = *searchPool[0];
-            int alpha, beta;
-            getWindowRange(ii, valWindow, &alpha, &beta);
+
+            int alpha = valWindow - VAL_WINDOW * (int) POW2[ii];
+            int beta = valWindow + VAL_WINDOW * (int) POW2[ii];
+
             idThread1.setRunning(1);
             debug("val: ", valWindow);
             startThread(idThread1, mply, alpha, beta);
 
         }
         debug("end loop2 -----------------------------------------------------");
-
+        std::unique_lock<std::mutex> lk(cv_m);
+        cv.wait(lk, [this] { return finish == true; });
         if (!lineWin.cmove) {
             debug("start loop3 -----------------------------------------------------");
             nJoined = 0;
@@ -68,13 +74,12 @@ void SearchManager::parallelSearch(int mply) {
             idThread1.setRunning(1);
             debug("val: ", valWindow);
             startThread(idThread1, mply, -_INFINITE, _INFINITE);//PVS
+            std::unique_lock<std::mutex> lk(cv_m);
+            cv.wait(lk, [this] { return finish == true; });
         }
         debug("end loop3 -----------------------------------------------------");
     }
-    std::unique_lock<std::mutex> lk(cv_m);
-    debug("go in wait");
-    cv.wait(lk, [this] { return finish == true; });
-    debug("weak up");
+
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
@@ -196,16 +201,16 @@ int SearchManager::loadFen(string fen) {
 }
 
 
-void SearchManager::getWindowRange(int prog, const int val, int *from, int *to) {
-    if (prog == 0/* ThreadPool::getNthread()-1*/) {
-        //last
-        *from = -_INFINITE;
-        *to = _INFINITE;
-    } else {
-        *from = val - VAL_WINDOW * (int) POW2[prog - 1];
-        *to = val + VAL_WINDOW * (int) POW2[prog - 1];
-    }
-}
+//void SearchManager::getWindowRange(int prog, const int val, int *from, int *to) {
+//    if (prog == 0/* ThreadPool::getNthread()-1*/) {
+//        //last
+//        *from = -_INFINITE;
+//        *to = _INFINITE;
+//    } else {
+//        *from = val - VAL_WINDOW * (int) POW2[prog - 1];
+//        *to = val + VAL_WINDOW * (int) POW2[prog - 1];
+//    }
+//}
 
 
 void SearchManager::updateAB(int depth, int side, int score) {
@@ -236,6 +241,7 @@ void SearchManager::receiveObserverPVSplit(int threadID, int score) {
 
 
 SearchManager::SearchManager() {
+    nThreads = getNthread();
     registerThreads();
 }
 
@@ -478,6 +484,7 @@ void SearchManager::deleteGtb() {
 bool SearchManager::setThread(int nthread) {
     if (nthread > 0 && nthread <= ThreadPool::MAX_THREAD) {
         ThreadPool::setNthread(nthread);
+        nThreads = nthread;
         registerThreads();
         return true;
     }
