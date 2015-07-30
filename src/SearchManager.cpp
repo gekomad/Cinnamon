@@ -25,25 +25,27 @@ void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
 
     setMainPly(mply);
-    finish = false;
-    if (mply == 1) {
 
+    if (mply == 1) {
+        debug("start loop1 ------------------------------ run threadid: ", i.getId());
         nJoined = 0;
+        finish = false;
         activeThread = 1;
         Search &i = getNextThread();
         i.init();
 //        Search &i = *searchPool[0];
-        debug("start loop1 ------------------------------ run threadid: ", i.getId());
+
         debug("val: ", valWindow);
         startThread(i, mply, -_INFINITE, _INFINITE);
+
     } else {
 //  Parallel Aspiration
         debug("start loop2 -----------------------------------------------------");
         //setNthread(mply < 6 ? 1 : 2);
-        activeThread = std::max(4, getNthread());
         nJoined = 0;
-
-        for (int ii = 0; ii < activeThread; ii++) {
+        finish = false;
+        activeThread = std::max(3, getNthread());
+        for (int ii = 1; ii <= activeThread; ii++) {
             Search &idThread1 = getNextThread();
             idThread1.init();
 //            Search &idThread1 = *searchPool[0];
@@ -55,12 +57,24 @@ void SearchManager::parallelSearch(int mply) {
 
         }
         debug("end loop2 -----------------------------------------------------");
+
+        if (!lineWin.cmove) {
+            debug("start loop3 -----------------------------------------------------");
+            nJoined = 0;
+            finish = false;
+            activeThread = 1;
+            Search &idThread1 = getNextThread();
+            idThread1.init();
+            idThread1.setRunning(1);
+            debug("val: ", valWindow);
+            startThread(idThread1, mply, -_INFINITE, _INFINITE);//PVS
+        }
+        debug("end loop3 -----------------------------------------------------");
     }
     std::unique_lock<std::mutex> lk(cv_m);
     debug("go in wait");
     cv.wait(lk, [this] { return finish == true; });
     debug("weak up");
-
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
