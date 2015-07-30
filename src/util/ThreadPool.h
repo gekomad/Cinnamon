@@ -25,7 +25,7 @@
 #include "ConditionVariable.h"
 
 template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, T>::value, T>::type>
-class ThreadPool {
+class ThreadPool : public ObserverThread {
 
 public:
     const static int MAX_THREAD = 8;
@@ -34,7 +34,7 @@ public:
 
         generateBitMap();
         for (int i = 0; i < MAX_THREAD; i++) {
-            searchPool.push_back(new T(i));
+            threadPool.push_back(new T(i));
         }
         if (thread::hardware_concurrency() && (unsigned) getNthread() > thread::hardware_concurrency()) {
             cout << "WARNING active threads (" << getNthread() << ") > physical cores (" << thread::hardware_concurrency() << ")" << endl;
@@ -47,7 +47,7 @@ public:
     }
 
     T &getNextThread() {
-
+        debug("........................getNextThread ");
         lock_guard<mutex> lock1(mxGet);
         if (bitMap[threadsBits].count == nThread) {
             cv.wait();
@@ -55,9 +55,10 @@ public:
 
         //get first bit == 0
         int i = bitMap[threadsBits].firstUnsetBit;
+        ASSERT(!(threadsBits & POW2[i]));
         threadsBits |= POW2[i];
 
-        return *searchPool[i];
+        return *threadPool[i];
     }
 
     int getNthread() const {
@@ -67,28 +68,35 @@ public:
 
     void setNthread(int t) {
         nThread = t;
-        threadsBits = 0;
+
+//        ASSERT(threadsBits == 0);
+//        threadsBits = 0;
     }
 
     void joinAll() {
-        for (Search *s:searchPool) {
+        for (Search *s:threadPool) {
             s->join();
         }
     }
 
     ~ThreadPool() {
-        searchPool.clear();
+        threadPool.clear();
     }
 
 protected:
 
-    vector<T *> searchPool;
+    vector<T *> threadPool;
 
-    void releaseThread(int threadID) {
-        lock_guard<mutex> lock1(mxRelease);
-        threadsBits &= ~POW2[threadID];
-        cv.notifyAll();
+    void observerEndThread(int threadID) {
+        releaseThread(threadID);
     }
+
+    void registerThreads() {
+        for (T *s:threadPool) {
+            s->registerObserverThread(this);
+        }
+    }
+
 
 private:
     typedef struct {
@@ -101,8 +109,17 @@ private:
     ConditionVariable cv;
     mutex mxRelease;
     mutex mxGet;
-    mutex mxBit;
+
     _Tslot bitMap[256];
+
+    void releaseThread(int threadID) {
+        debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 releaseThread ");
+        lock_guard<mutex> lock1(mxRelease);
+
+        ASSERT(threadsBits & POW2[threadID]);
+        threadsBits &= ~POW2[threadID];
+        cv.notifyAll();
+    }
 
     void generateBitMap() {
         for (int idx = 0; idx < (int) POW2[MAX_THREAD]; idx++) {
@@ -117,6 +134,8 @@ private:
             }
         };
     }
+
+
 };
 
 

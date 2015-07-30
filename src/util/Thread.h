@@ -109,11 +109,4 @@ public:
         running = !b;
     }
 
-//    void stop() {
-//        if (theThread) {
-//             theThread.detach();
-//            delete theThread;
-//            theThread = nullptr;
-//        }
-//    }
 };

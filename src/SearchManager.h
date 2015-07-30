@@ -27,7 +27,7 @@
 #include "util/String.h"
 #include <algorithm>
 
-class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch, public ObserverThread {
+class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch {
     friend class Singleton<SearchManager>;
 
 public:
@@ -126,14 +126,12 @@ public:
 
     bool setThread(int);
 
-    void observerEndThread(int threadID);
-
 #ifdef DEBUG_MODE
 
 
     unsigned getCumulativeMovesCount() {
         unsigned i = 0;
-        for (Search *s:searchPool) {
+        for (Search *s:threadPool) {
             i += s->cumulativeMovesCount;
         }
         return i;
@@ -141,7 +139,7 @@ public:
 
     unsigned getNCutAB() {
         unsigned i = 0;
-        for (Search *s:searchPool) {
+        for (Search *s:threadPool) {
             i += s->nCutAB;
         }
         return i;
@@ -149,7 +147,7 @@ public:
 
     double getBetaEfficiency() {
         double i = 0;
-        for (Search *s:searchPool) {
+        for (Search *s:threadPool) {
             i += s->betaEfficiency;
         }
         return i;
@@ -157,7 +155,7 @@ public:
 
     unsigned getLazyEvalCuts() {
         unsigned i = 0;
-        for (Search *s:searchPool) {
+        for (Search *s:threadPool) {
             i += s->lazyEvalCuts;
         }
         return i;
@@ -165,7 +163,7 @@ public:
 
     unsigned getNCutFp() {
         unsigned i = 0;
-        for (Search *s:searchPool) {
+        for (Search *s:threadPool) {
             i += s->nCutFp;
         }
         return i;
@@ -173,7 +171,7 @@ public:
 
     unsigned getNCutRazor() {
         unsigned i = 0;
-        for (Search *s:searchPool) {
+        for (Search *s:threadPool) {
             i += s->nCutRazor;
         }
         return i;
@@ -181,7 +179,7 @@ public:
 
     unsigned getNNullMoveCut() {
         unsigned i = 0;
-        for (Search *s:searchPool) {
+        for (Search *s:threadPool) {
             i += s->nNullMoveCut;
         }
         return i;
@@ -189,7 +187,7 @@ public:
 
     unsigned getTotGen() {
         unsigned i = 0;
-        for (Search *s:searchPool) {
+        for (Search *s:threadPool) {
             i += s->totGen;
         }
         return i;
@@ -224,12 +222,11 @@ private:
     int alphaValue[MAX_PLY];
     int betaValue[MAX_PLY];
 
-    void registerThreads();
-
     std::condition_variable cv;
-    std::mutex cv_m;
+
     atomic_bool finish;
     int nThreads;
+
     void stopAllThread();
 };
 
