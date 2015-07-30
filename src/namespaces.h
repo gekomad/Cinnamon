@@ -59,7 +59,9 @@ namespace _board {
 
     namespace _ns_debug {
         template<typename T>
-        void _debug(T) { }
+        void _debug(T a) {
+            cout << a;
+        }
 
         template<typename T, typename... Args>
         void _debug(T t, Args... args) {
