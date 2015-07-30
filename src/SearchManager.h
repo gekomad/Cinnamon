@@ -76,8 +76,6 @@ public:
 
     int getRunning(int i);
 
-    void join(int i);
-
     void display();
 
     string getFen();

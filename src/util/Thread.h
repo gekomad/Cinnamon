@@ -69,7 +69,7 @@ public:
     }
 
     virtual ~Thread() {
-
+        join();
     }
 
     void checkWait() {
@@ -83,7 +83,7 @@ public:
     }
 
     void start() {
-        join();
+        ASSERT(!isJoinable());
         theThread = thread(__run, execRunnable);
     }
 
@@ -107,6 +107,10 @@ public:
 
     void sleep(bool b) {
         running = !b;
+    }
+
+    bool isJoinable() {
+        return theThread.joinable();
     }
 
 };

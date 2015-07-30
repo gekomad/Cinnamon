@@ -32,19 +32,21 @@ void SearchManager::parallelSearch(int mply) {
         nJoined = 0;
         finish = false;
         activeThread = 1;
-        Search &i = getNextThread();
-        debug("start loop1 ------------------------------ run threadid: ", i.getId());
-        i.init();
+        Search &idThread1 = getNextThread();
+        debug("start loop1 ------------------------------ run threadid: ", idThread1.getId());
+        idThread1.init();
 //        Search &i = *threadPool[0];
 
         debug("val: ", valWindow);
-        startThread(i, mply, -_INFINITE, _INFINITE);
+        startThread(idThread1, mply, -_INFINITE, _INFINITE);
 
         cv.wait(lk, [this] { return finish == true; });
+//        idThread1.join();
     } else {
 //  Parallel Aspiration
         debug("start loop2 -----------------------------------------------------");
         ASSERT(nThreads);
+
         setNthread(mply < 6 ? 1 : nThreads);
         nJoined = 0;
         finish = false;
@@ -65,6 +67,7 @@ void SearchManager::parallelSearch(int mply) {
         debug("end loop2 -----------------------------------------------------");
 
         cv.wait(lk, [this] { return finish == true; });
+//        joinAll();
         if (!lineWin.cmove) {
             debug("start loop3 -----------------------------------------------------");
             nJoined = 0;
@@ -75,8 +78,9 @@ void SearchManager::parallelSearch(int mply) {
             idThread1.setRunning(1);
             debug("val: ", valWindow);
             startThread(idThread1, mply, -_INFINITE, _INFINITE);//PVS
-
             cv.wait(lk, [this] { return finish == true; });
+//            idThread1.join();
+
         }
         debug("end loop3 -----------------------------------------------------");
     }
@@ -344,10 +348,6 @@ void SearchManager::setRunning(int i) {
 
 int SearchManager::getRunning(int i) {
     return threadPool[i]->getRunning();
-}
-
-void SearchManager::join(int i) {
-    threadPool[i]->join();
 }
 
 void SearchManager::display() {

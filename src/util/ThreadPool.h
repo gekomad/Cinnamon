@@ -53,11 +53,10 @@ public:
             cv.wait();
         }
 
-        //get first bit == 0
         int i = bitMap[threadsBits].firstUnsetBit;
+        threadPool[i]->join();
         ASSERT(!(threadsBits & POW2[i]));
         threadsBits |= POW2[i];
-
         return *threadPool[i];
     }
 
@@ -67,9 +66,15 @@ public:
     }
 
     void setNthread(int t) {
+        joinAll();
+//#ifdef DEBUG_MODE
+//        for (Search *s:threadPool) {
+//            ASSERT(!s->isJoinable());
+//        }
+//#endif
         nThread = t;
 
-//        ASSERT(threadsBits == 0);
+        ASSERT(threadsBits == 0);
 //        threadsBits = 0;
     }
 
@@ -80,6 +85,7 @@ public:
     }
 
     ~ThreadPool() {
+        joinAll();
         threadPool.clear();
     }
 
@@ -96,7 +102,6 @@ protected:
             s->registerObserverThread(this);
         }
     }
-
 
 private:
     typedef struct {
@@ -118,19 +123,20 @@ private:
 
         ASSERT(threadsBits & POW2[threadID]);
         threadsBits &= ~POW2[threadID];
+//        threadPool[threadID]->join();
         cv.notifyAll();
     }
 
     void generateBitMap() {
         for (int idx = 0; idx < (int) POW2[MAX_THREAD]; idx++) {
-            int threadsBits1 = idx;
+            int g = idx;
             bitMap[idx].count = Bits::bitCount(idx);
             for (int i = 0; i < MAX_THREAD; ++i) {
-                if ((threadsBits1 & 1) == 0) {
+                if ((g & 1) == 0) {
                     bitMap[idx].firstUnsetBit = i;
                     break;
                 }
-                threadsBits1 >>= 1;
+                g >>= 1;
             }
         };
     }
