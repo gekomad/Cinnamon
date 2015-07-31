@@ -36,7 +36,7 @@ using namespace std::chrono;
 using namespace std;
 
 #ifdef DEBUG_MODE
-namespace _ns_debug {
+
     template<typename T>
     void _debug(T a) {
         cout << a << " ";
@@ -59,7 +59,11 @@ namespace _ns_debug {
         _debug(t, args...);
         cout << endl;
     }
-}
+
+#else
+
+#define debug(...)
+
 #endif
 namespace _board {
 
@@ -88,7 +92,7 @@ namespace _board {
 #define ASSERT_RANGE(value, from, to)
 #define INC(a)
 #define ADD(a, b)
-#define debug(...)
+
 #endif
     static const int MAX_PLY = 96;
 #if defined(CLOP)

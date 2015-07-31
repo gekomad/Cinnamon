@@ -50,18 +50,18 @@ public:
     T &getNextThread() {
         lock_guard<mutex> lock1(mxGet);
         unique_lock<mutex> lck(mtx);
-        _ns_debug::debug("ThreadPool::getNextThread count", getBitCount());
+        debug("ThreadPool::getNextThread count", getBitCount());
         if (bitMap[threadsBits].count == nThread) {
-            _ns_debug::debug("ThreadPool::getNextThread go wait count:", getBitCount());
+            debug("ThreadPool::getNextThread go wait count:", getBitCount());
             cv.wait(lck);
-            _ns_debug::debug("ThreadPool::getNextThread exit wait count:", getBitCount());
+            debug("ThreadPool::getNextThread exit wait count:", getBitCount());
         }
 
         int i = bitMap[threadsBits].firstUnsetBit;
         threadPool[i]->join();
         ASSERT(!(threadsBits & POW2[i]));
         threadsBits |= POW2[i];
-        _ns_debug::debug("ThreadPool::getNextThread inc bit count:", getBitCount());
+        debug("ThreadPool::getNextThread inc bit count:", getBitCount());
         return *threadPool[i];
     }
 
@@ -130,8 +130,9 @@ private:
         ASSERT(threadsBits & POW2[threadID]);
         int count = bitMap[threadsBits].count;
         threadsBits &= ~POW2[threadID];
-        _ns_debug::debug("ThreadPool::releaseThread notify threadID:", threadID, "count:", getBitCount());
+        debug("ThreadPool::releaseThread threadID:", threadID, "count:", getBitCount());
         if (count == nThread) {
+            debug("ThreadPool::releaseThread NOTIFY threadID:", threadID, "count:", getBitCount());
             cv.notify_one();
         }
     }
