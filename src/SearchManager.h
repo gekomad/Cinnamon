@@ -202,7 +202,7 @@ private:
 
 //    void getWindowRange(int, const int val, int *from, int *to);
 
-    int nJoined;
+    atomic_int nJoined,countTot;
 //    int activeThread;
     int valWindow;
     _TpvLine lineWin;

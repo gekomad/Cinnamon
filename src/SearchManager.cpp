@@ -37,7 +37,7 @@ void SearchManager::parallelSearch(int mply) {
 
         debug("val: ", valWindow);
         startThread(idThread1, mply, -_INFINITE, _INFINITE);
-
+        countTot=1;
         exitLoop.wait(lk, [this] { return finish == true; });
         idThread1.join();
     } else {
@@ -45,12 +45,15 @@ void SearchManager::parallelSearch(int mply) {
         debug("start loop2 --------------------------count:", getBitCount());
         ASSERT(nThreads);
         ASSERT(!getBitCount());
-        setNthread(nThreads);
+        //setNthread(nThreads);
         //setNthread(mply < 6 ? 1 : nThreads);
         nJoined = 0;
         finish = false;
+        countTot=-1;
+        int count=0;
 //        activeThread = std::max(3, getNthread());
         for (int ii = 0; ii < std::max(3, getNthread()); ii++) {
+            count++;
             Search &idThread1 = getNextThread();
             idThread1.init();
 //            Search &idThread1 = *threadPool[0];
@@ -64,7 +67,7 @@ void SearchManager::parallelSearch(int mply) {
 
         }
         debug("end loop2 ---------------------------count:", getBitCount());
-
+        countTot=count;
         exitLoop.wait(lk, [this] { return finish == true; });
         joinAll();
         ASSERT(!getBitCount());
@@ -78,6 +81,7 @@ void SearchManager::parallelSearch(int mply) {
             idThread1.setRunning(1);
             //debug("val: ", valWindow);
             startThread(idThread1, mply, -_INFINITE, _INFINITE);//PVS
+            countTot=1;
             exitLoop.wait(lk, [this] { return finish == true; });
             idThread1.join();
             debug("end loop3 -------------------------------count:", getBitCount());
@@ -110,10 +114,11 @@ void SearchManager::receiveObserverSearch(int threadID) {
     }
     ++nJoined;
 
-    debug("SearchManager::receiveObserverSearch nJoined:", nJoined, "activeThread:", getNthread(), "count:", getBitCount());
-    if (nJoined == getNthread()) {
+    debug("SearchManager::receiveObserverSearch nJoined:",(int) nJoined, "activeThread:", getNthread(), "count:", getBitCount());
+    if ( nJoined == countTot) {
         ASSERT(lineWin.cmove);
         nJoined = 0;
+        countTot=-1;
         finish = true;
         debug("SearchManager::receiveObserverSearch notify_one: ", threadID, "count:", getBitCount());
         exitLoop.notify_one();
