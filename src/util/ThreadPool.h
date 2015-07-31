@@ -109,7 +109,7 @@ private:
         uchar count;
     } _Tslot;
 
-    atomic_int threadsBits;
+    int threadsBits;
     int nThread = 2;
     ConditionVariable cv;
     mutex mxRelease;

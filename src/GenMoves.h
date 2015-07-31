@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <atomic>
 #include "ChessBoard.h"
 
 using namespace _eval;
@@ -27,12 +26,9 @@ class GenMoves : public virtual ChessBoard {
 
 public:
 
-
     GenMoves();
 
-
     virtual ~GenMoves();
-
 
     void setPerft(const bool b);
 

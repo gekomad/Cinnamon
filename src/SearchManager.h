@@ -222,7 +222,7 @@ private:
 
     std::condition_variable cv;
 
-    atomic_bool finish;
+    bool finish;
     int nThreads;
 
     void stopAllThread();
