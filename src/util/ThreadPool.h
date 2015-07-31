@@ -19,6 +19,7 @@
 #pragma once
 
 #include "Thread.h"
+#include <atomic>
 #include <mutex>
 #include <unistd.h>
 #include "ObserverThread.h"
@@ -47,39 +48,43 @@ public:
     }
 
     T &getNextThread() {
-        debug("........................getNextThread ");
         lock_guard<mutex> lock1(mxGet);
+        unique_lock<mutex> lck(mtx);
+        debug("ThreadPool::getNextThread count", getBitCount());
         if (bitMap[threadsBits].count == nThread) {
-            cv.wait();
+            debug("ThreadPool::getNextThread go wait count:", getBitCount());
+            cv.wait(lck);
+            debug("ThreadPool::getNextThread exit wait count:", getBitCount());
         }
 
         int i = bitMap[threadsBits].firstUnsetBit;
         threadPool[i]->join();
         ASSERT(!(threadsBits & POW2[i]));
         threadsBits |= POW2[i];
+        debug("ThreadPool::getNextThread inc bit count:", getBitCount());
         return *threadPool[i];
     }
 
     int getNthread() const {
-
         return nThread;
     }
 
-    void setNthread(int t) {
-        joinAll();
-//#ifdef DEBUG_MODE
-//        for (Search *s:threadPool) {
-//            ASSERT(!s->isJoinable());
-//        }
-//#endif
-        nThread = t;
+#ifdef DEBUG_MODE
 
+    int getBitCount() const {
+        return bitMap[threadsBits].count;
+    }
+
+#endif
+
+    void setNthread(const int t) {
+        joinAll();
+        nThread = t;
         ASSERT(threadsBits == 0);
-//        threadsBits = 0;
     }
 
     void joinAll() {
-        for (Search *s:threadPool) {
+        for (T *s:threadPool) {
             s->join();
         }
     }
@@ -108,23 +113,27 @@ private:
         uchar firstUnsetBit;
         uchar count;
     } _Tslot;
-
-    int threadsBits;
+    mutex mtx;
+    atomic_int threadsBits;
+    //TODO togliere atomic
     int nThread = 2;
-    ConditionVariable cv;
+    condition_variable cv;
     mutex mxRelease;
     mutex mxGet;
 
     _Tslot bitMap[256];
 
-    void releaseThread(int threadID) {
-        debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 releaseThread ");
+    void releaseThread(const int threadID) {
+        ASSERT(threadsBits);
         lock_guard<mutex> lock1(mxRelease);
 
         ASSERT(threadsBits & POW2[threadID]);
+        int count = bitMap[threadsBits].count;
         threadsBits &= ~POW2[threadID];
-//        threadPool[threadID]->join();
-        cv.notifyAll();
+        debug("ThreadPool::releaseThread notify threadID:", threadID, "count:", getBitCount());
+        if (count == nThread) {
+            cv.notify_one();
+        }
     }
 
     void generateBitMap() {

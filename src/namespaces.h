@@ -60,12 +60,12 @@ namespace _board {
     namespace _ns_debug {
         template<typename T>
         void _debug(T a) {
-            cout << a<<" ";
+            cout << a << " ";
         }
 
         template<typename T, typename... Args>
         void _debug(T t, Args... args) {
-            cout << t<< " ";
+            cout << t << " ";
             _debug(args...);
         }
 
@@ -78,7 +78,7 @@ namespace _board {
             cout << "info string TIME: " << ms.count() << " ";
 
             _debug(t, args...);
-            cout << "\n";
+            cout << endl;
         }
     }
 

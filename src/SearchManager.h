@@ -201,7 +201,7 @@ private:
 //    void getWindowRange(int, const int val, int *from, int *to);
 
     int nJoined;
-    int activeThread;
+//    int activeThread;
     int valWindow;
     _TpvLine lineWin;
     u64 totCountWin;
@@ -220,7 +220,7 @@ private:
     int alphaValue[MAX_PLY];
     int betaValue[MAX_PLY];
 
-    std::condition_variable cv;
+    std::condition_variable exitLoop;
 
     bool finish;
     int nThreads;
