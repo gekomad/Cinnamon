@@ -22,7 +22,7 @@
 #include <mutex>
 #include "ObserverThread.h"
 #include "../namespaces.h"
-#include "ConditionVariable.h"
+#include <condition_variable>
 
 using namespace std;
 
@@ -39,9 +39,9 @@ private:
     bool running = true;
     int threadID = -1;
     ObserverThread *observer = nullptr;
-    ConditionVariable cv;
+    condition_variable cv;
     thread theThread;
-
+    mutex checkWaitMutex;
     Runnable *execRunnable;
 
     static void *__run(void *cthis) {
@@ -73,8 +73,9 @@ public:
     }
 
     void checkWait() {
+        unique_lock<mutex> lck(checkWaitMutex);
         while (!running) {
-            cv.wait();
+            cv.wait(lck);
         }
     }
 

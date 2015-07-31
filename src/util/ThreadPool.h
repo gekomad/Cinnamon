@@ -23,7 +23,7 @@
 #include <mutex>
 #include <unistd.h>
 #include "ObserverThread.h"
-#include "ConditionVariable.h"
+#include <condition_variable>
 
 template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, T>::value, T>::type>
 class ThreadPool : public ObserverThread {
@@ -50,18 +50,18 @@ public:
     T &getNextThread() {
         lock_guard<mutex> lock1(mxGet);
         unique_lock<mutex> lck(mtx);
-        debug("ThreadPool::getNextThread count", getBitCount());
+        _ns_debug::debug("ThreadPool::getNextThread count", getBitCount());
         if (bitMap[threadsBits].count == nThread) {
-            debug("ThreadPool::getNextThread go wait count:", getBitCount());
+            _ns_debug::debug("ThreadPool::getNextThread go wait count:", getBitCount());
             cv.wait(lck);
-            debug("ThreadPool::getNextThread exit wait count:", getBitCount());
+            _ns_debug::debug("ThreadPool::getNextThread exit wait count:", getBitCount());
         }
 
         int i = bitMap[threadsBits].firstUnsetBit;
         threadPool[i]->join();
         ASSERT(!(threadsBits & POW2[i]));
         threadsBits |= POW2[i];
-        debug("ThreadPool::getNextThread inc bit count:", getBitCount());
+        _ns_debug::debug("ThreadPool::getNextThread inc bit count:", getBitCount());
         return *threadPool[i];
     }
 
@@ -130,7 +130,7 @@ private:
         ASSERT(threadsBits & POW2[threadID]);
         int count = bitMap[threadsBits].count;
         threadsBits &= ~POW2[threadID];
-        debug("ThreadPool::releaseThread notify threadID:", threadID, "count:", getBitCount());
+        _ns_debug::debug("ThreadPool::releaseThread notify threadID:", threadID, "count:", getBitCount());
         if (count == nThread) {
             cv.notify_one();
         }

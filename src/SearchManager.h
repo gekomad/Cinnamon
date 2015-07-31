@@ -22,10 +22,14 @@
 #include <unistd.h>
 #include "Search.h"
 #include "util/ThreadPool.h"
-#include "util/ConditionVariable.h"
+#include <condition_variable>
 #include "util/ObserverSearch.h"
 #include "util/String.h"
 #include <algorithm>
+#include <future>
+#include "namespaces.h"
+
+using namespace _ns_debug;
 
 class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch {
     friend class Singleton<SearchManager>;

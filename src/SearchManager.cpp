@@ -16,10 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <future>
 #include "SearchManager.h"
-#include "namespaces.h"
-
 
 void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;

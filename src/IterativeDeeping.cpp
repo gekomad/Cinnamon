@@ -158,7 +158,7 @@ void IterativeDeeping::run() {
         }
 
         if (!searchManager.getRes(resultMove, ponderMove, pvv)) {
-            debug("IterativeDeeping cmove == 0, exit");
+            _ns_debug::debug("IterativeDeeping cmove == 0, exit");
             break;
         }
         searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
