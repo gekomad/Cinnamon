@@ -116,7 +116,7 @@ private:
     mutex mtx;
     atomic_int threadsBits;
     //TODO togliere atomic
-    int nThread = 4;
+    int nThread = 6;
     condition_variable cv;
     mutex mxRelease;
     mutex mxGet;

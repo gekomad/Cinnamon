@@ -222,7 +222,7 @@ private:
     int alphaValue[MAX_PLY];
     int betaValue[MAX_PLY];
 
-    std::condition_variable exitLoop;
+//    std::condition_variable exitLoop;
 
 //    bool finish;
     int nThreads;
