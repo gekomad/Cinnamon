@@ -202,7 +202,7 @@ private:
 
 //    void getWindowRange(int, const int val, int *from, int *to);
 
-    atomic_int nJoined,countTot;
+//    atomic_int nJoined,countTot;
 //    int activeThread;
     int valWindow;
     _TpvLine lineWin;
@@ -224,7 +224,7 @@ private:
 
     std::condition_variable exitLoop;
 
-    bool finish;
+//    bool finish;
     int nThreads;
 
     void stopAllThread();
