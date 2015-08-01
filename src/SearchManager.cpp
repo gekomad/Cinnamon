@@ -92,17 +92,6 @@ void SearchManager::receiveObserverSearch(int threadID) {
             }
         }
     }
-//    ++nJoined;
-
-//    debug("SearchManager::receiveObserverSearch nJoined:",(int) nJoined, "activeThread:", getNthread(), "count:", getBitCount());
-//    if ( nJoined == countTot) {
-//        ASSERT(lineWin.cmove);
-//        nJoined = 0;
-//        countTot=-1;
-//        finish = true;
-//        debug("SearchManager::receiveObserverSearch notify_one: ", threadID, "count:", getBitCount());
-//        exitLoop.notify_one();
-//    }
 }
 
 bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {

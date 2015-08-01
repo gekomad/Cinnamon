@@ -200,10 +200,6 @@ private:
 
     void updateAB(int depth, int side, int bound);
 
-//    void getWindowRange(int, const int val, int *from, int *to);
-
-//    atomic_int nJoined,countTot;
-//    int activeThread;
     int valWindow;
     _TpvLine lineWin;
     u64 totCountWin;
@@ -222,9 +218,6 @@ private:
     int alphaValue[MAX_PLY];
     int betaValue[MAX_PLY];
 
-//    std::condition_variable exitLoop;
-
-//    bool finish;
     int nThreads;
 
     void stopAllThread();

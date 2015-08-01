@@ -35,7 +35,7 @@ void Search::endRun() {
     if (pvsMode) {
         notifyPVSplit(getId(), threadValue);
     } else {
-        ASSERT((getRunning() && (threadValue != INT_MAX) || !getRunning()));
+        ASSERT((getRunning() && (threadValue != INT_MAX)) || !getRunning());
         notifySearch(getId());
     }
 }

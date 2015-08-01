@@ -114,18 +114,16 @@ private:
         uchar count;
     } _Tslot;
     mutex mtx;
-    atomic_int threadsBits;
-    //TODO togliere atomic
-    int nThread = 6;
+    int threadsBits;
+    int nThread = 4;
     condition_variable cv;
-    mutex mxRelease;
     mutex mxGet;
 
     _Tslot bitMap[256];
 
     void releaseThread(const int threadID) {
-        ASSERT(threadsBits);
-        lock_guard<mutex> lock1(mxRelease);
+
+        lock_guard<mutex> lock1(mxGet);
 
         ASSERT(threadsBits & POW2[threadID]);
         int count = bitMap[threadsBits].count;
