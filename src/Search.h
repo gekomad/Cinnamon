@@ -59,6 +59,8 @@ public:
         return pvLine;
     }
 
+    void run(int depth, int alpha, int beta);
+
     void search(int depth, int alpha, int beta);
 
     int searchNOparall(int depth, int alpha, int beta);

@@ -25,6 +25,7 @@ Tablebase *Search::gtb;
 
 bool Search::runningThread;
 
+
 void Search::run() {
     if (getRunning()) {
         threadValue = searchNOparall(mainDepth, mainAlpha, mainBeta);
@@ -39,6 +40,13 @@ void Search::endRun() {
         notifySearch(getId());
     }
 }
+
+void Search::run(int depth, int alpha, int beta) {
+    search(depth, alpha, beta);
+    setRunning(1);
+    run();
+}
+
 
 void Search::search(int depth, int alpha, int beta) {
     pvsMode = false;

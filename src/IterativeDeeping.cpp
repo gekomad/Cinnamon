@@ -150,7 +150,8 @@ void IterativeDeeping::run() {
         ++mply;
         searchManager.init();
 
-        searchManager.parallelSearch(mply);
+        searchManager.search(mply);
+
         searchManager.setRunningThread(1);
         searchManager.setRunning(1);
         if (mply == 2) {

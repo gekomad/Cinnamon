@@ -70,7 +70,7 @@ public:
 
     void setRunningThread(bool r);
 
-    void parallelSearch(int mply);
+    void search(int mply);
 
     void setRunningAll(int r);
 
@@ -197,6 +197,10 @@ public:
 
 private:
     SearchManager();
+
+    void parallelSearch(int mply);
+
+    void singleSearch(int mply);
 
     void updateAB(int depth, int side, int bound);
 

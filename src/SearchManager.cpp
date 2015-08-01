@@ -17,8 +17,59 @@
 */
 
 #include "SearchManager.h"
+#include "namespaces.h"
+
+void SearchManager::search(int mply) {
+    if (nThreads > 1 && mply > 5) {
+        parallelSearch(mply);
+    } else {
+        singleSearch(mply);
+    }
+}
+
+void SearchManager::singleSearch(int mply) {
+    lineWin.cmove = -1;
+    setMainPly(mply);
+    ASSERT(!getBitCount());
+    if (mply == 1) {
+        threadPool[0]->init();
+        debug("val: ", valWindow);
+        threadPool[0]->run(mply, -_INFINITE, _INFINITE);
+        valWindow = threadPool[0]->getValue();
+        if (threadPool[0]->getRunning()) {
+            memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
+        }
+    } else {
+
+
+        threadPool[0]->init();
+
+        threadPool[0]->run(mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
+        int tmp = threadPool[0]->getValue();
+        if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
+            threadPool[0]->run(mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW * 2);
+            tmp = threadPool[0]->getValue();
+            if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
+                threadPool[0]->run(mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW * 4);
+                tmp = threadPool[0]->getValue();
+                if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
+                    threadPool[0]->run(mply, -_INFINITE, _INFINITE);
+                    tmp = threadPool[0]->getValue();
+                }
+            }
+        }
+
+        if (threadPool[0]->getRunning()) {
+            valWindow = tmp;
+            totCountWin += threadPool[0]->getTotMoves();
+            memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
+        }
+    }
+}
+
 
 void SearchManager::parallelSearch(int mply) {
+    assert(0);
     lineWin.cmove = -1;
 
     setMainPly(mply);
@@ -95,7 +146,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
 }
 
 bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
-    if (lineWin.cmove == -1) {
+    if (lineWin.cmove < 1) {
         return false;
     }
     pvv.clear();
