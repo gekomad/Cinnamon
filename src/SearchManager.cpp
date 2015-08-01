@@ -69,7 +69,6 @@ void SearchManager::singleSearch(int mply) {
 
 
 void SearchManager::parallelSearch(int mply) {
-    assert(0);
     lineWin.cmove = -1;
 
     setMainPly(mply);

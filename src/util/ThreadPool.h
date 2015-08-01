@@ -115,7 +115,7 @@ private:
     } _Tslot;
     mutex mtx;
     int threadsBits;
-    int nThread = 1;
+    int nThread = 4;
     condition_variable cv;
     mutex mxGet;
 
