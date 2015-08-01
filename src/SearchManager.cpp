@@ -40,10 +40,8 @@ void SearchManager::singleSearch(int mply) {
             memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
         }
     } else {
-
-
         threadPool[0]->init();
-
+        //Aspiration Windows
         threadPool[0]->run(mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
         int tmp = threadPool[0]->getValue();
         if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
@@ -70,22 +68,17 @@ void SearchManager::singleSearch(int mply) {
 
 void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
-
     setMainPly(mply);
-
     ASSERT(!getBitCount());
     if (mply == 1) {
-
         Search &idThread1 = getNextThread();
         debug("start loop1 ------------------------------ run threadid: ", idThread1.getId(), "count:", getBitCount());
         idThread1.init();
-//        Search &i = *threadPool[0];
-
         debug("val: ", valWindow);
         startThread(idThread1, mply, -_INFINITE, _INFINITE);
         idThread1.join();
     } else {
-//  Parallel Aspiration
+//  Parallel Aspiration Windows
         debug("start loop2 --------------------------count:", getBitCount());
         ASSERT(nThreads);
         ASSERT(!getBitCount());
@@ -97,11 +90,8 @@ void SearchManager::parallelSearch(int mply) {
             int beta = valWindow + VAL_WINDOW * (int) POW2[ii];
 
             idThread1.setRunning(1);
-            // debug("val: ", valWindow);
+            debug("val: ", valWindow);
             startThread(idThread1, mply, alpha, beta);
-//            if (mply < 6) {
-//                idThread1.join();
-//            }
         }
         debug("end loop2 ---------------------------count:", getBitCount());
         joinAll();
@@ -117,25 +107,18 @@ void SearchManager::parallelSearch(int mply) {
             debug("end loop3 -------------------------------count:", getBitCount());
         }
         ASSERT(!getBitCount());
-
     }
-
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
-
     lock_guard<mutex> lock(mutexSearch);
-
     if (getRunning(threadID)) {
-
         if (lineWin.cmove == -1) {
             int t = threadPool[threadID]->getValue();
             if (t > threadPool[threadID]->getMainAlpha() && t < threadPool[threadID]->getMainBeta()) {
-
                 memcpy(&lineWin, &threadPool[threadID]->getPvLine(), sizeof(_TpvLine));
                 totCountWin += threadPool[threadID]->getTotMoves();
                 valWindow = getValue(threadID);
-
                 debug("win", threadID);
                 ASSERT(lineWin.cmove);
                 stopAllThread();
