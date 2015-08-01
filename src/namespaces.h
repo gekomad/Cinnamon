@@ -67,7 +67,7 @@ using namespace std;
 #endif
 namespace _board {
 
-    static const string NAME = "Cinnamon 1.2c-smp.6";
+    static const string NAME = "Cinnamon 1.2c-smp.x";
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     typedef unsigned char uchar;
