@@ -318,9 +318,7 @@ void SearchManager::clearKillerHeuristic() {
 }
 
 void SearchManager::clearAge() {
-    for (Search *s:threadPool) {
-        s->clearAge();
-    }
+    threadPool[0]->clearAge();
 }
 
 int SearchManager::getForceCheck() {
