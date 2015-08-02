@@ -82,13 +82,16 @@ void SearchManager::parallelSearch(int mply) {
         debug("start loop2 --------------------------count:", getBitCount());
         ASSERT(nThreads);
         ASSERT(!getBitCount());
-        for (int ii = 0; ii < std::max(3, getNthread()); ii++) {
+        for (int ii = 0; ii < std::max(4, getNthread()); ii++) {
             Search &idThread1 = getNextThread();
             idThread1.init();
 
-            int alpha = valWindow - VAL_WINDOW * (int) POW2[ii];
-            int beta = valWindow + VAL_WINDOW * (int) POW2[ii];
-
+            int alpha = -_INFINITE;
+            int beta = _INFINITE;
+            if (ii) {
+                alpha = valWindow - VAL_WINDOW * (int) POW2[ii];
+                beta = valWindow + VAL_WINDOW * (int) POW2[ii];
+            }
             idThread1.setRunning(1);
             debug("val: ", valWindow);
             startThread(idThread1, mply, alpha, beta);
@@ -96,7 +99,7 @@ void SearchManager::parallelSearch(int mply) {
         debug("end loop2 ---------------------------count:", getBitCount());
         joinAll();
         ASSERT(!getBitCount());
-        if (!lineWin.cmove) {
+       /* if (!lineWin.cmove) {
             debug("start loop3 -------------------------------count:", getBitCount());
             Search &idThread1 = getNextThread();
             idThread1.init();
@@ -106,7 +109,7 @@ void SearchManager::parallelSearch(int mply) {
             idThread1.join();
             debug("end loop3 -------------------------------count:", getBitCount());
         }
-        ASSERT(!getBitCount());
+        ASSERT(!getBitCount());*/
     }
 }
 
