@@ -20,7 +20,7 @@
 #include "namespaces.h"
 
 void SearchManager::search(int mply) {
-    if (nThreads > 1 && mply > 5) {
+    if (nThreads > 1 && mply > 1) {
         parallelSearch(mply);
     } else {
         singleSearch(mply);
@@ -34,23 +34,28 @@ void SearchManager::singleSearch(int mply) {
     if (mply == 1) {
         threadPool[0]->init();
         debug("val: ", valWindow);
+        mateIn = INT_MAX;
         threadPool[0]->run(mply, -_INFINITE, _INFINITE);
         valWindow = threadPool[0]->getValue();
-        if (threadPool[0]->getRunning()) {
+        //if (threadPool[0]->getRunning()) {
             memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
-        }
+        //}
     } else {
         threadPool[0]->init();
+        mateIn = INT_MAX;
         //Aspiration Windows
         threadPool[0]->run(mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
         int tmp = threadPool[0]->getValue();
         if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
+            mateIn = INT_MAX;
             threadPool[0]->run(mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW * 2);
             tmp = threadPool[0]->getValue();
             if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
+                mateIn = INT_MAX;
                 threadPool[0]->run(mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW * 4);
                 tmp = threadPool[0]->getValue();
                 if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
+                    mateIn = INT_MAX;
                     threadPool[0]->run(mply, -_INFINITE, _INFINITE);
                     tmp = threadPool[0]->getValue();
                 }
@@ -99,17 +104,17 @@ void SearchManager::parallelSearch(int mply) {
         debug("end loop2 ---------------------------count:", getBitCount());
         joinAll();
         ASSERT(!getBitCount());
-       /* if (!lineWin.cmove) {
-            debug("start loop3 -------------------------------count:", getBitCount());
-            Search &idThread1 = getNextThread();
-            idThread1.init();
-            idThread1.setRunning(1);
-            debug("val: ", valWindow);
-            startThread(idThread1, mply, -_INFINITE, _INFINITE);//PVS
-            idThread1.join();
-            debug("end loop3 -------------------------------count:", getBitCount());
-        }
-        ASSERT(!getBitCount());*/
+        /* if (!lineWin.cmove) {
+             debug("start loop3 -------------------------------count:", getBitCount());
+             Search &idThread1 = getNextThread();
+             idThread1.init();
+             idThread1.setRunning(1);
+             debug("val: ", valWindow);
+             startThread(idThread1, mply, -_INFINITE, _INFINITE);//PVS
+             idThread1.join();
+             debug("end loop3 -------------------------------count:", getBitCount());
+         }
+         ASSERT(!getBitCount());*/
     }
 }
 
@@ -120,6 +125,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
             int t = threadPool[threadID]->getValue();
             if (t > threadPool[threadID]->getMainAlpha() && t < threadPool[threadID]->getMainBeta()) {
                 memcpy(&lineWin, &threadPool[threadID]->getPvLine(), sizeof(_TpvLine));
+                mateIn = threadPool[threadID]->getMateIn();
                 totCountWin += threadPool[threadID]->getTotMoves();
                 valWindow = getValue(threadID);
                 debug("win", threadID);
@@ -130,10 +136,11 @@ void SearchManager::receiveObserverSearch(int threadID) {
     }
 }
 
-bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
+bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn1) {
     if (lineWin.cmove < 1) {
         return false;
     }
+    *mateIn1 = mateIn;
     pvv.clear();
     string pvvTmp;
 
@@ -340,12 +347,6 @@ void SearchManager::setForceCheck(bool a) {
 
 void SearchManager::setRunningThread(bool r) {
     threadPool[0]->setRunningThread(r);// is static
-}
-
-void SearchManager::setRunningAll(int r) {
-    for (Search *s:threadPool) {
-        s->setRunning(r);
-    }
 }
 
 void SearchManager::setRunning(int i) {

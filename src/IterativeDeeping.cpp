@@ -109,7 +109,7 @@ void IterativeDeeping::run() {
     struct timeb end1;
 
     int timeTaken = 0;
-    searchManager.setRunningAll(2);
+    searchManager.setRunning(2);
     searchManager.setRunningThread(true);
     int mply = 0;
     if (useBook) {
@@ -132,20 +132,18 @@ void IterativeDeeping::run() {
     searchManager.clearKillerHeuristic();
     searchManager.clearAge();
     searchManager.setForceCheck(false);
-    searchManager.setRunning(2);
 
     ftime(&start1);
-
-//    bool inMate = false;
+    bool inMate = false;
     int extension = 0;
     string bestmove;
     string ponderMove;
     searchManager.init();
-//    int mateIn = INT_MAX;
+    int mateIn = INT_MAX;
     string pvv;
     _Tmove resultMove;
-    while (searchManager.getRunning(0) &&/* mateIn == INT_MAX &&*/ mply < maxDepth) {
-//        mateIn = INT_MAX;
+    while (searchManager.getRunning(0) && mateIn == INT_MAX /*&& mply < maxDepth*/) {
+        mateIn = INT_MAX;
         totMoves = 0;
         ++mply;
         searchManager.init();
@@ -154,11 +152,11 @@ void IterativeDeeping::run() {
 
         searchManager.setRunningThread(1);
         searchManager.setRunning(1);
-        if (mply == 2) {
-            searchManager.setRunningAll(1);
-        }
+//        if (mply == 2) {
+//            searchManager.setRunningAll(1);
+//        }
 
-        if (!searchManager.getRes(resultMove, ponderMove, pvv)) {
+        if (!searchManager.getRes(resultMove, ponderMove, pvv,&mateIn)) {
             debug("IterativeDeeping cmove == 0, exit");
             break;
         }
@@ -254,14 +252,13 @@ void IterativeDeeping::run() {
             searchManager.setRunning(2);
 
         }
-//        if (mply >= maxDepth + extension && (searchManager.getRunning(0) != 2 || inMate)) {
-//            ASSERT(0);
-//            break;
-//        }
+        if (mply >= maxDepth + extension && (searchManager.getRunning(0) != 2 || inMate)) {
+            break;
+        }
 
-//        if (abs(sc) > _INFINITE - MAX_PLY) {
-//            inMate = true;
-//        }
+        if (abs(sc) > _INFINITE - MAX_PLY) {
+            inMate = true;
+        }
     }
 
     cout << "bestmove " << bestmove;

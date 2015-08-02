@@ -29,7 +29,7 @@ template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, 
 class ThreadPool : public ObserverThread {
 
 public:
-    const static int MAX_THREAD = 8;
+    const static int MAX_THREAD = 1;
 
     ThreadPool() : threadsBits(0) {
 
@@ -115,7 +115,7 @@ private:
     } _Tslot;
     mutex mtx;
     int threadsBits;
-    int nThread = 4;
+    int nThread = 1;
     condition_variable cv;
     mutex mxGet;
 

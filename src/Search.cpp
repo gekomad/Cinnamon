@@ -43,7 +43,7 @@ void Search::endRun() {
 
 void Search::run(int depth, int alpha, int beta) {
     search(depth, alpha, beta);
-    setRunning(1);
+    //setRunning(1);
     run();
 }
 
