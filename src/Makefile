@@ -91,15 +91,19 @@ help:
 	@echo ""
 
 build:
-ifeq ($(COMP),g++)
+ifeq ($(OS),ARM)
+	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fsigned-char all
+else
+	ifeq ($(COMP),g++)
 		$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
 		@echo "optimize..."
 		$(PA)$(EXE) -b >bench.tmp
 		$(RM) *.o bench.tmp
 		@echo "build..."
 		$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)$(PROFILE_USE_THREAD)  all
-else
+	else
 		$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC) all
+	endif
 endif
 	$(STRIP) $(EXE)
 
