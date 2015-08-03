@@ -38,7 +38,7 @@ void SearchManager::singleSearch(int mply) {
         threadPool[0]->run(mply, -_INFINITE, _INFINITE);
         valWindow = threadPool[0]->getValue();
         //if (threadPool[0]->getRunning()) {
-            memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
+        memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
         //}
     } else {
         threadPool[0]->init();
@@ -203,10 +203,6 @@ int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) 
 
 
 SearchManager::~SearchManager() {
-    for (Search *s:threadPool) {
-        delete s;
-        s = nullptr;
-    }
     for (unsigned i = 0; i < rollbackValue.size(); i++) {
         delete rollbackValue[i];
     }

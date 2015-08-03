@@ -91,6 +91,10 @@ public:
 
     ~ThreadPool() {
         joinAll();
+        for (Search *s:threadPool) {
+            delete s;
+            s = nullptr;
+        }
         threadPool.clear();
     }
 

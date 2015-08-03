@@ -136,8 +136,8 @@ Search::~Search() {
     join();
     if (gtb) {
         delete gtb;
+        gtb = nullptr;
     }
-    gtb = nullptr;
 }
 
 template<int side>
