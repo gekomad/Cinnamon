@@ -20,7 +20,7 @@
 #include "namespaces.h"
 
 void SearchManager::search(int mply) {
-    if (nThreads > 1 && mply > 1) {
+    if (nThreads > 1 && mply > 1111) {
         parallelSearch(mply);
     } else {
         singleSearch(mply);
