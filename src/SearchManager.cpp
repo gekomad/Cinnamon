@@ -309,7 +309,7 @@ int SearchManager::getMateIn() {
 
 void SearchManager::startClock() {
     for (Search *s:threadPool) {
-        s->startClock();
+        s->startClock();//TODO static
     }
 }
 
