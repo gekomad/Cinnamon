@@ -73,8 +73,9 @@ public:
     }
 
     void checkWait() {
-        unique_lock<mutex> lck(checkWaitMutex);
         while (!running) {
+            mutex mtx;
+            unique_lock<mutex> lck(mtx);
             cv.wait(lck);
         }
     }
