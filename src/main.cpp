@@ -67,8 +67,8 @@ gullydeckel-64_1982   0  0  0  0  0  0  0  0  0  0  0  0 49
 
 tc="0/0:15+0.05"
 Rank Name                     Elo    +    - games score oppo. draws
-   1 Cinnamon 1.2c              7    4    4 14431   52%    -7   42%
-   2 Cinnamon 1.2b             -7    4    4 14431   48%     7   42%
+   1 Cinnamon 1.2c-SNAPSHOT    13    4    4  6358   54%   -13   40%
+   2 Cinnamon 1.2c-smp.x      -13    4    4  6358   46%    13   40%
 
  */
 
