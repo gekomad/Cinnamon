@@ -45,7 +45,7 @@ void Perft::dump() {
         return;
     }
     for (auto it:threadList) {
-        it->sleep(true);
+        it->threadSleep(true);
     }
     f << fen;
     f.put(10);
@@ -59,7 +59,7 @@ void Perft::dump() {
     rename(tmpFile.c_str(), dumpFile.c_str());
     cout << "ok" << endl;
     for (auto it:threadList) {
-        it->sleep(false);
+        it->threadSleep(false);
         it->notify();
     }
 }

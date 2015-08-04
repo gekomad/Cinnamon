@@ -104,11 +104,7 @@ public:
         return threadID;
     }
 
-//    void setId(int i) {
-//        Thread::threadID = i;
-//    }
-
-    void sleep(bool b) {
+    void threadSleep(bool b) {
         running = !b;
     }
 
