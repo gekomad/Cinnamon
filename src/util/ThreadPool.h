@@ -39,12 +39,12 @@ public:
         }
 
         registerThreads();
-        nThread = 6;//thread::hardware_concurrency();
+        nThread = 4;//thread::hardware_concurrency();
         if (nThread > 8) {
             nThread = 8;
         }
 #ifdef DEBUG_MODE
-        cout << "ThreadPool count: " << getNthread() << "\n";
+        cout << "ThreadPool size: " << getNthread() << "\n";
 #endif
     }
 
@@ -114,7 +114,7 @@ private:
 //    atomic_bool lock;
     mutex mtx;
     atomic_int threadsBits;
-    int nThread = 6;
+    int nThread;
     condition_variable cv;
     mutex mxGet;
 //    mutex mxRel;
