@@ -30,24 +30,21 @@ template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, 
 class ThreadPool : public ObserverThread {
 
 public:
-    const static int MAX_THREAD = 8;
 
     ThreadPool() : threadsBits(0)/*, lock(false)*/ {
 
         generateBitMap();
-        for (int i = 0; i < MAX_THREAD; i++) {
+        for (int i = 0; i < 8; i++) {
             threadPool.push_back(new T(i));
         }
 
         registerThreads();
-
-        if (thread::hardware_concurrency() && (unsigned) getNthread() > thread::hardware_concurrency()) {
-            cout << "WARNING active threads (" << getNthread() << ") > physical cores (" << thread::hardware_concurrency() << ")" << endl;
+        nThread = thread::hardware_concurrency();
+        if (nThread > 8) {
+            nThread = 8;
         }
 #ifdef DEBUG_MODE
-        else {
-            cout << "Active threads: " << getNthread() << "\n";
-        }
+        cout << "ThreadPool count: " << getNthread() << "\n";
 #endif
     }
 
@@ -84,7 +81,7 @@ public:
 
     void setNthread(const int t) {
         joinAll();
-        nThread = t;
+        nThread = std::min(8, t);
         ASSERT(threadsBits == 0);
     }
 
