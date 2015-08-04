@@ -92,7 +92,7 @@ help:
 
 build:
 ifeq ($(OS),ARM)
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fsigned-char all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fsigned-char all
 else
 ifeq ($(COMP),g++)
 	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
