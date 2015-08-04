@@ -165,7 +165,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, 
 int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) {
 
 //    if (depth < 5) {
-//        return threadPool[idThread1]->searchNOparall(depth, alpha, beta);
+//        return threadPool[idThread1]->search(true,depth, alpha, beta);
 //    }
 //
 //    threadPool[idThread1]->incListId();

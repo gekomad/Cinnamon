@@ -63,7 +63,7 @@ public:
 
     void setMainParam(bool smp,int depth, int alpha, int beta);
 
-    int searchNOparall(bool,int depth, int alpha, int beta);
+    int search(bool,int depth, int alpha, int beta);
 
     int getValue() const {
         ASSERT(threadValue != INT_MAX);

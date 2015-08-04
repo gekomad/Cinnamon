@@ -28,7 +28,7 @@ bool Search::runningThread;
 
 void Search::run() {
     if (getRunning()) {
-        threadValue = searchNOparall(mainSmp, mainDepth, mainAlpha, mainBeta);
+        threadValue = search(mainSmp, mainDepth, mainAlpha, mainBeta);
     }
 }
 
@@ -403,7 +403,7 @@ void Search::setPVSplit(const int depth, const int alpha, const int beta, const 
 }
 
 
-int Search::searchNOparall(bool smp, int depth, int alpha, int beta) {
+int Search::search(bool smp, int depth, int alpha, int beta) {
     if (smp) {
         return getSide() ? search<WHITE, true>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK, true>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
     } else {
