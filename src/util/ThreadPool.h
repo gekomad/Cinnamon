@@ -39,7 +39,7 @@ public:
         }
 
         registerThreads();
-        nThread = thread::hardware_concurrency();
+        nThread = 6;//thread::hardware_concurrency();
         if (nThread > 8) {
             nThread = 8;
         }
