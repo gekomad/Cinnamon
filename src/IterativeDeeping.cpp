@@ -141,8 +141,8 @@ void IterativeDeeping::run() {
     int mateIn = INT_MAX;
     string pvv;
     _Tmove resultMove;
-    while (searchManager.getRunning(0) && mateIn == INT_MAX /*&& mply < maxDepth*/) {
-        mateIn = INT_MAX;
+    while (searchManager.getRunning(0) /*&& mateIn == INT_MAX /*&& mply < maxDepth*/) {
+//        mateIn = INT_MAX;
         totMoves = 0;
         ++mply;
         searchManager.init();
@@ -159,6 +159,7 @@ void IterativeDeeping::run() {
             debug("IterativeDeeping cmove == 0, exit");
             break;
         }
+
         searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
 
         ftime(&end1);
@@ -224,7 +225,6 @@ void IterativeDeeping::run() {
             searchManager.setForceCheck(b);
         }
         if (print) {
-//            mateIn = searchManager.getMateIn();
 
             resultMove.capturedPiece = searchManager.getPieceAt(resultMove.side ^ 1, POW2[resultMove.to]);
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);

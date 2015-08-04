@@ -20,7 +20,7 @@
 #include "namespaces.h"
 
 void SearchManager::search(int mply) {
-    if (nThreads > 1 && mply > 5) {
+    if (nThreads > 1 && mply > 5) {//TODO
         parallelSearch(mply);
     } else {
         singleSearch(mply);
@@ -34,7 +34,7 @@ void SearchManager::singleSearch(int mply) {
     if (mply == 1) {
         threadPool[0]->init();
         debug("val: ", valWindow);
-        mateIn = INT_MAX;
+
         threadPool[0]->run(false, mply, -_INFINITE, _INFINITE);
         valWindow = threadPool[0]->getValue();
         //if (threadPool[0]->getRunning()) {
@@ -42,20 +42,20 @@ void SearchManager::singleSearch(int mply) {
         //}
     } else {
         threadPool[0]->init();
-        mateIn = INT_MAX;
+
         //Aspiration Windows
         threadPool[0]->run(false, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
         int tmp = threadPool[0]->getValue();
         if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
-            mateIn = INT_MAX;
+
             threadPool[0]->run(false, mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW * 2);
             tmp = threadPool[0]->getValue();
             if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
-                mateIn = INT_MAX;
+
                 threadPool[0]->run(false, mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW * 4);
                 tmp = threadPool[0]->getValue();
                 if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
-                    mateIn = INT_MAX;
+
                     threadPool[0]->run(false, mply, -_INFINITE, _INFINITE);
                     tmp = threadPool[0]->getValue();
                 }
@@ -74,6 +74,7 @@ void SearchManager::singleSearch(int mply) {
 void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
     setMainPly(mply);
+
     ASSERT(!getBitCount());
     if (mply == 1) {
         Search &idThread1 = getNextThread();
@@ -126,6 +127,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
             if (t > threadPool[threadID]->getMainAlpha() && t < threadPool[threadID]->getMainBeta()) {
                 memcpy(&lineWin, &threadPool[threadID]->getPvLine(), sizeof(_TpvLine));
                 mateIn = threadPool[threadID]->getMateIn();
+                ASSERT(mateIn == INT_MAX);
                 totCountWin += threadPool[threadID]->getTotMoves();
                 valWindow = getValue(threadID);
                 debug("win", threadID);
@@ -140,6 +142,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, 
     if (lineWin.cmove < 1) {
         return false;
     }
+
     *mateIn1 = mateIn;
     pvv.clear();
     string pvvTmp;

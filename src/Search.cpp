@@ -414,6 +414,7 @@ int Search::search(bool smp, int depth, int alpha, int beta) {
 template<int side, bool smp>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
     INC(cumulativeMovesCount);
+    *mateIn = INT_MAX;
     ASSERT_RANGE(side, 0, 1);
     if (!getRunning()) {
         return 0;
