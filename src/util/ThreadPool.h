@@ -126,25 +126,26 @@ private:
     void releaseThread(const int threadID) {
         if (lock) {
             lock_guard<mutex> lock1(mxRel);
-            int count = bitMap[threadsBits].count;
+            // int count = bitMap[threadsBits].count;
             threadsBits &= ~POW2[threadID];
             debug("ThreadPool::releaseThread threadID:", threadID);
-            ASSERT (count == nThread);
+            //ASSERT (count == nThread);
             debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
             lock = false;
             cv.notify_one();
+
         } else {
             cout << "lock" << endl;
             lock_guard<mutex> lock1(mxGet);
             cout << "unlock" << endl;
             ASSERT(threadsBits & POW2[threadID]);
-            int count = bitMap[threadsBits].count;
+            //int count = bitMap[threadsBits].count;
             threadsBits &= ~POW2[threadID];
             debug("ThreadPool::releaseThread threadID:", threadID);
-            if (count == nThread) {
-                debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
-                cv.notify_one();
-            }
+//            if (count == nThread) {
+//                debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
+//                cv.notify_one();
+//            }
         }
     }
 
