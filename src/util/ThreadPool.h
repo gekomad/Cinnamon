@@ -32,7 +32,7 @@ class ThreadPool : public ObserverThread {
 public:
     const static int MAX_THREAD = 8;
 
-    ThreadPool() : threadsBits(0), lock(false) {
+    ThreadPool() : threadsBits(0)/*, lock(false)*/ {
 
         generateBitMap();
         for (int i = 0; i < MAX_THREAD; i++) {
@@ -57,7 +57,7 @@ public:
         debug("ThreadPool::getNextThread count", getBitCount());
         if (bitMap[threadsBits].count == nThread) {
             debug("ThreadPool::getNextThread go wait count:", getBitCount());
-            lock = true;
+//            lock = true;
             cv.wait(lck);
             debug("ThreadPool::getNextThread exit wait count:", getBitCount());
         }
@@ -114,36 +114,36 @@ private:
         uchar count;
     } _Tslot;
 
-    atomic_bool lock;
+//    atomic_bool lock;
     mutex mtx;
-    int threadsBits;
+    atomic_int threadsBits;
     int nThread = 6;
     condition_variable cv;
     mutex mxGet;
-    mutex mxRel;
+//    mutex mxRel;
     _Tslot bitMap[256];
 
     void releaseThread(const int threadID) {
-        if (lock) {
-            lock_guard<mutex> lock1(mxRel);
-            // int count = bitMap[threadsBits].count;
-            threadsBits &= ~POW2[threadID];
-            debug("ThreadPool::releaseThread threadID:", threadID);
-            //ASSERT (count == nThread);
-            debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
-            lock = false;
-            cv.notify_one();
-        } else {
-            lock_guard<mutex> lock1(mxGet);
-            ASSERT(threadsBits & POW2[threadID]);
-            //int count = bitMap[threadsBits].count;
-            threadsBits &= ~POW2[threadID];
-            debug("ThreadPool::releaseThread threadID:", threadID);
-//            if (count == nThread) {
-//                debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
-//                cv.notify_one();
-//            }
-        }
+//        if (lock) {
+//            lock_guard<mutex> lock1(mxRel);
+        // int count = bitMap[threadsBits].count;
+        ASSERT(threadsBits & POW2[threadID]);
+        threadsBits &= ~POW2[threadID];
+        //ASSERT (count == nThread);
+        debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
+//            lock = false;
+        cv.notify_one();
+//        } else {
+//            lock_guard<mutex> lock1(mxGet);
+//            ASSERT(threadsBits & POW2[threadID]);
+//            //int count = bitMap[threadsBits].count;
+//            threadsBits &= ~POW2[threadID];
+//            debug("ThreadPool::releaseThread threadID:", threadID);
+////            if (count == nThread) {
+////                debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
+////                cv.notify_one();
+////            }
+//        }
     }
 
     void observerEndThread(int threadID) {
