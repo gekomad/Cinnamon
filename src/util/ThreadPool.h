@@ -133,11 +133,8 @@ private:
             debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
             lock = false;
             cv.notify_one();
-
         } else {
-            cout << "lock" << endl;
             lock_guard<mutex> lock1(mxGet);
-            cout << "unlock" << endl;
             ASSERT(threadsBits & POW2[threadID]);
             //int count = bitMap[threadsBits].count;
             threadsBits &= ~POW2[threadID];
