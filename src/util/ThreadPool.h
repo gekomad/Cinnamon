@@ -37,6 +37,9 @@ public:
         for (int i = 0; i < MAX_THREAD; i++) {
             threadPool.push_back(new T(i));
         }
+
+        registerThreads();
+
         if (thread::hardware_concurrency() && (unsigned) getNthread() > thread::hardware_concurrency()) {
             cout << "WARNING active threads (" << getNthread() << ") > physical cores (" << thread::hardware_concurrency() << ")" << endl;
         }
@@ -106,12 +109,6 @@ protected:
         releaseThread(threadID);
     }
 
-    void registerThreads() {
-        for (T *s:threadPool) {
-            s->registerObserverThread(this);
-        }
-    }
-
 private:
     typedef struct {
         uchar firstUnsetBit;
@@ -136,6 +133,12 @@ private:
         if (count == nThread) {
             debug("ThreadPool::releaseThread NOTIFY threadID:", threadID, "count:", getBitCount());
             cv.notify_one();
+        }
+    }
+
+    void registerThreads() {
+        for (T *s:threadPool) {
+            s->registerObserverThread(this);
         }
     }
 

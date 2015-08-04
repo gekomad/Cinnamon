@@ -255,7 +255,6 @@ SearchManager::SearchManager() {
         s->registerObserver(this);
         rollbackValue.push_back(new _RollbackValue);
     }
-    registerThreads();
 }
 
 
@@ -486,7 +485,6 @@ bool SearchManager::setThread(int nthread) {
     if (nthread > 0 && nthread <= ThreadPool::MAX_THREAD) {
         ThreadPool::setNthread(nthread);
         nThreads = nthread;
-        registerThreads();
         return true;
     }
     return false;
