@@ -105,9 +105,7 @@ protected:
 
     vector<T *> threadPool;
 
-    void observerEndThread(int threadID) {
-        releaseThread(threadID);
-    }
+
 
 private:
     typedef struct {
@@ -134,6 +132,10 @@ private:
             debug("ThreadPool::releaseThread NOTIFY threadID:", threadID, "count:", getBitCount());
             cv.notify_one();
         }
+    }
+
+    void observerEndThread(int threadID) {
+        releaseThread(threadID);
     }
 
     void registerThreads() {
