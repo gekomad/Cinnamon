@@ -94,7 +94,7 @@ public:
 
     ~ThreadPool() {
         joinAll();
-        for (Search *s:threadPool) {
+        for (T *s:threadPool) {
             delete s;
             s = nullptr;
         }
