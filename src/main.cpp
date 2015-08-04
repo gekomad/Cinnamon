@@ -65,10 +65,10 @@ jabba-64_2041         0  0  0  0  0  0  0  0  0  0  0  0    50
 gullydeckel-64_1982   0  0  0  0  0  0  0  0  0  0  0  0 49
 
 
-tc="0/0:15+0.05"
+tc="0/0:15+0.05" single thread
 Rank Name                     Elo    +    - games score oppo. draws
-   1 Cinnamon 1.2c-SNAPSHOT    13    4    4  6358   54%   -13   40%
-   2 Cinnamon 1.2c-smp.x      -13    4    4  6358   46%    13   40%
+   1 Cinnamon 1.2c-smp.x        2    5    5  4927   51%    -2   41%
+   2 Cinnamon 1.2c-SNAPSHOT    -2    5    5  4927   49%     2   41%
 
  */
 
