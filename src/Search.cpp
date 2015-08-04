@@ -57,12 +57,11 @@ void Search::setMainParam(bool smp, int depth, int alpha, int beta) {
 }
 
 
-Search::Search(int id) : ponder(false), nullSearch(false) {
+Search::Search(int id) : ponder(false), nullSearch(false), Thread(id) {
 #ifdef DEBUG_MODE
     lazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
     gtb = nullptr;
-    setId(id);
     hash = &Hash::getInstance();
 }
 

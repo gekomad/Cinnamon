@@ -36,7 +36,7 @@ public:
 
     int PVSplit(int PVSplit, const int depth, int alpha, int beta);
 
-    bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv,int* mateIn);
+    bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn);
 
     ~SearchManager();
 
@@ -202,6 +202,7 @@ private:
     void singleSearch(int mply);
 
     void updateAB(int depth, int side, int bound);
+
     int mateIn;
     int valWindow;
     _TpvLine lineWin;

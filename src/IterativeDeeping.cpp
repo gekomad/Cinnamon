@@ -25,9 +25,8 @@
 
 #endif
 
-IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
+IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false), Thread(-2) {
     setUseBook(false);
-    setId(-2);
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
     if (!_file::fileExists(parameterFile)) {
@@ -156,7 +155,7 @@ void IterativeDeeping::run() {
 //            searchManager.setRunningAll(1);
 //        }
 
-        if (!searchManager.getRes(resultMove, ponderMove, pvv,&mateIn)) {
+        if (!searchManager.getRes(resultMove, ponderMove, pvv, &mateIn)) {
             debug("IterativeDeeping cmove == 0, exit");
             break;
         }

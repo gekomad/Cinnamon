@@ -37,11 +37,11 @@ class Thread : virtual public Runnable {
 
 private:
     bool running = true;
-    int threadID = -1;
+    int threadID;
     ObserverThread *observer = nullptr;
     condition_variable cv;
     thread theThread;
-    mutex checkWaitMutex;
+//    mutex checkWaitMutex;
     Runnable *execRunnable;
 
     static void *__run(void *cthis) {
@@ -54,7 +54,8 @@ private:
 
 public:
 
-    Thread() {
+    Thread(int id) {
+        threadID = id;
         execRunnable = this;
     }
 
@@ -103,9 +104,9 @@ public:
         return threadID;
     }
 
-    void setId(int i) {
-        Thread::threadID = i;
-    }
+//    void setId(int i) {
+//        Thread::threadID = i;
+//    }
 
     void sleep(bool b) {
         running = !b;

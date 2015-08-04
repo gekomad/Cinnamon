@@ -23,8 +23,7 @@
 class Timer : public Thread {
 public:
 
-    Timer(int seconds1) {
-        setId(-6);
+    Timer(int seconds1) : Thread(-6) {
         seconds = seconds1;
     }
 

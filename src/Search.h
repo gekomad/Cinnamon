@@ -31,7 +31,7 @@ class Search : public Eval, public Thread, public Subject {
 
 public:
 
-    Search(int threadId);
+    Search(int);
 
     void clone(const Search *);
 
@@ -59,11 +59,11 @@ public:
         return pvLine;
     }
 
-    void run(bool smp,int depth, int alpha, int beta);
+    void run(bool smp, int depth, int alpha, int beta);
 
-    void setMainParam(bool smp,int depth, int alpha, int beta);
+    void setMainParam(bool smp, int depth, int alpha, int beta);
 
-    int search(bool,int depth, int alpha, int beta);
+    int search(bool, int depth, int alpha, int beta);
 
     int getValue() const {
         ASSERT(threadValue != INT_MAX);
@@ -162,14 +162,14 @@ private:
 
     bool checkDraw(u64);
 
-    template<int side,bool smp>
+    template<int side, bool smp>
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
 
     bool checkInsufficientMaterial(int);
 
     void sortHashMoves(int listId, Hash::_Thash &);
 
-    template<int side,bool smp>
+    template<int side, bool smp>
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
