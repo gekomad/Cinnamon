@@ -57,6 +57,7 @@ public:
         debug("ThreadPool::getNextThread count", getBitCount());
         if (bitMap[threadsBits].count == nThread) {
             debug("ThreadPool::getNextThread go wait count:", getBitCount());
+            lock = true;
             cv.wait(lck);
             debug("ThreadPool::getNextThread exit wait count:", getBitCount());
         }
@@ -128,10 +129,10 @@ private:
             int count = bitMap[threadsBits].count;
             threadsBits &= ~POW2[threadID];
             debug("ThreadPool::releaseThread threadID:", threadID);
-            if (count == nThread) {
-                debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
-                cv.notify_one();
-            }
+            ASSERT (count == nThread);
+            debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
+            lock = false;
+            cv.notify_one();
         } else {
             cout << "lock" << endl;
             lock_guard<mutex> lock1(mxGet);
