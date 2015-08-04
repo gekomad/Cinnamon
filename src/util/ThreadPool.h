@@ -23,6 +23,7 @@
 #include <mutex>
 #include <unistd.h>
 #include "ObserverThread.h"
+#include "../namespaces.h"
 #include <condition_variable>
 
 template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, T>::value, T>::type>
@@ -106,7 +107,6 @@ protected:
     vector<T *> threadPool;
 
 
-
 private:
     typedef struct {
         uchar firstUnsetBit;
@@ -122,7 +122,7 @@ private:
 
     void releaseThread(const int threadID) {
 
-        lock_guard<mutex> lock1(mxGet);
+        // lock_guard<mutex> lock1(mxGet);
 
         ASSERT(threadsBits & POW2[threadID]);
         int count = bitMap[threadsBits].count;
@@ -145,10 +145,17 @@ private:
     }
 
     void generateBitMap() {
-        for (int idx = 0; idx < (int) POW2[MAX_THREAD]; idx++) {
+        for (int idx = 0; idx < 256; idx++) {
             int g = idx;
-            bitMap[idx].count = Bits::bitCount(idx);
-            for (int i = 0; i < MAX_THREAD; ++i) {
+            bitMap[idx].firstUnsetBit = 0;
+            for (int i = 0; i < 8; ++i) {
+                if (g & 1) {
+                    bitMap[idx].count++;
+                }
+                g >>= 1;
+            }
+            g = idx;
+            for (int i = 0; i < 8; ++i) {
                 if ((g & 1) == 0) {
                     bitMap[idx].firstUnsetBit = i;
                     break;
