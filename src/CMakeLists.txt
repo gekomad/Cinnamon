@@ -2,7 +2,7 @@ project(cinnamon)
 
 set(DR_MEMORY "YESx")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++1y -DDEBUG_MODE2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++1y -Wno-reorder -DDEBUG_MODE")
 
 if(DR_MEMORY STREQUAL "YES" )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -g -fno-inline -fno-omit-frame-pointer")
