@@ -140,7 +140,7 @@ Search::~Search() {
     }
 }
 
-template<int side>
+template<int side,bool smp>
 int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIECE, int depth) {
     if (!getRunning()) {
         return 0;
@@ -160,7 +160,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     /////////////////////greater
     Hash::_Thash phasheGreater;
     bool hashGreater = false;
-    if (hash->readHash(rootHash, Hash::HASH_GREATER, zobristKeyR, phasheGreater)) {
+    if (hash->readHash<smp>(rootHash, Hash::HASH_GREATER, zobristKeyR, phasheGreater)) {
         if (phasheGreater.from != phasheGreater.to && phasheGreater.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashGreater = true;
         }
@@ -194,7 +194,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     Hash::_Thash phasheAlways;
     bool hashAlways = false;
 
-    if (hash->readHash(rootHash, Hash::HASH_ALWAYS, zobristKeyR, phasheAlways)) {
+    if (hash->readHash<smp>(rootHash, Hash::HASH_ALWAYS, zobristKeyR, phasheAlways)) {
         if (phasheAlways.from != phasheAlways.to && phasheAlways.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashAlways = true;
         }
@@ -267,7 +267,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
             continue;
         }
 /************ end Delta Pruning *************/
-        int val = -quiescence<side ^ 1>(-beta, -alpha, move->promotionPiece, N_PIECE - 1, depth - 1);
+        int val = -quiescence<side ^ 1,smp>(-beta, -alpha, move->promotionPiece, N_PIECE - 1, depth - 1);
         score = max(score, val);
         takeback(move, oldKey, false);
         if (score > alpha) {
@@ -275,7 +275,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
                 decListId();
                 ASSERT(rootHash[Hash::HASH_GREATER]);
                 ASSERT(rootHash[Hash::HASH_ALWAYS]);
-                hash->recordHash(zobristKeyR, getRunning(), rootHash, depth, Hash::hashfBETA, zobristKeyR, score, move);
+                hash->recordHash<smp>(zobristKeyR, getRunning(), rootHash, depth, Hash::hashfBETA, zobristKeyR, score, move);
                 return beta;
             }
             best = move;
@@ -285,7 +285,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     }
     ASSERT(rootHash[Hash::HASH_GREATER]);
     ASSERT(rootHash[Hash::HASH_ALWAYS]);
-    hash->recordHash(zobristKeyR, getRunning(), rootHash, depth, hashf, zobristKeyR, score, best);
+    hash->recordHash<smp>(zobristKeyR, getRunning(), rootHash, depth, hashf, zobristKeyR, score, best);
 
     decListId();
 
@@ -404,11 +404,11 @@ void Search::setPVSplit(const int depth, const int alpha, const int beta, const 
 
 
 int Search::searchNOparall(int depth, int alpha, int beta) {
-    return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
+    return getSide() ? search<WHITE,cc>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK,ccc>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
 }
 
 
-template<int side>
+template<int side,bool smp>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
     INC(cumulativeMovesCount);
     ASSERT_RANGE(side, 0, 1);
@@ -461,7 +461,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     depth += extension;
     if (depth == 0) {
-        return quiescence<side>(alpha, beta, -1, N_PIECE, 0);
+        return quiescence<side,smp>(alpha, beta, -1, N_PIECE, 0);
     }
     //************* hash ****************
     u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^RANDSIDE[side];
@@ -472,7 +472,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
 
     bool hashGreater = false;
 
-    if (hash->readHash(rootHash, Hash::HASH_GREATER, zobristKeyR, phasheGreater)) {
+    if (hash->readHash<smp>(rootHash, Hash::HASH_GREATER, zobristKeyR, phasheGreater)) {
         if (phasheGreater.from != phasheGreater.to && phasheGreater.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashGreater = true;
         }
@@ -516,7 +516,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     bool hashAlways = false;
 
 
-    if (hash->readHash(rootHash, Hash::HASH_ALWAYS, zobristKeyR, phasheAlways)) {
+    if (hash->readHash<smp>(rootHash, Hash::HASH_ALWAYS, zobristKeyR, phasheAlways)) {
         if (phasheAlways.from != phasheAlways.to && phasheAlways.flags & 0x3) {    // hashfEXACT or hashfBETA
             hashAlways = true;
         }
@@ -567,7 +567,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     line.cmove = 0;
     if (!is_incheck_side && !nullSearch && depth >= NULLMOVE_DEPTH && (n_pieces_side = getNpiecesNoPawnNoKing<side>()) >= NULLMOVES_MIN_PIECE) {
         nullSearch = true;
-        int nullScore = -search<side ^ 1>(depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (n_pieces_side < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) - 1, -beta, -beta + 1, &line, N_PIECE, mateIn);
+        int nullScore = -search<side ^ 1,smp>(depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (n_pieces_side < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) - 1, -beta, -beta + 1, &line, N_PIECE, mateIn);
         nullSearch = false;
         if (nullScore >= beta) {
             INC(nNullMoveCut);
@@ -647,7 +647,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         int val = INT_MAX;
         if (countMove > 4 && !is_incheck_side && depth >= 3 && move->capturedPiece == SQUARE_FREE && move->promotionPiece == NO_PROMOTION) {
             currentPly++;
-            val = -search<side ^ 1>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn);
+            val = -search<side ^ 1,smp>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
         }
@@ -656,12 +656,12 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             int lwb = max(alpha, score);
             int upb = (doMws ? (lwb + 1) : beta);
             currentPly++;
-            val = -search<side ^ 1>(depth - 1, -upb, -lwb, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
+            val = -search<side ^ 1,smp>(depth - 1, -upb, -lwb, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
             if (doMws && (lwb < val) && (val < beta)) {
                 currentPly++;
-                val = -search<side ^ 1>(depth - 1, -beta, -val + 1, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
+                val = -search<side ^ 1,smp>(depth - 1, -beta, -val + 1, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
                 currentPly--;
             }
         }
@@ -676,7 +676,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                 ADD(betaEfficiency, betaEfficiencyCount / (double) listcount * 100.0);
                 ASSERT(rootHash[Hash::HASH_GREATER]);
                 ASSERT(rootHash[Hash::HASH_ALWAYS]);
-                hash->recordHash(zobristKeyR, getRunning(), rootHash, depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
+                hash->recordHash<smp>(zobristKeyR, getRunning(), rootHash, depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
                 setKillerHeuristic(move->from, move->to, 0x400);
                 return score;
             }
@@ -689,7 +689,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     ASSERT(rootHash[Hash::HASH_GREATER]);
     ASSERT(rootHash[Hash::HASH_ALWAYS]);
-    hash->recordHash(zobristKeyR, getRunning(), rootHash, depth - extension, hashf, zobristKeyR, score, best);
+    hash->recordHash<smp>(zobristKeyR, getRunning(), rootHash, depth - extension, hashf, zobristKeyR, score, best);
     decListId();
     return score;
 }
