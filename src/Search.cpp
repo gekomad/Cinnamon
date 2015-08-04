@@ -28,7 +28,7 @@ bool Search::runningThread;
 
 void Search::run() {
     if (getRunning()) {
-        threadValue = searchNOparall(mainDepth, mainAlpha, mainBeta);
+        threadValue = searchNOparall(mainSmp, mainDepth, mainAlpha, mainBeta);
     }
 }
 
@@ -41,18 +41,18 @@ void Search::endRun() {
     }
 }
 
-void Search::run(int depth, int alpha, int beta) {
-    search(depth, alpha, beta);
-    //setRunning(1);
+void Search::run(bool smp, int depth, int alpha, int beta) {
+    setMainParam(smp, depth, alpha, beta);
     run();
 }
 
 
-void Search::search(int depth, int alpha, int beta) {
+void Search::setMainParam(bool smp, int depth, int alpha, int beta) {
     pvsMode = false;
     memset(&pvLine, 0, sizeof(_TpvLine));
     mainDepth = depth;
     mainAlpha = alpha;
+    mainSmp = smp;
     mainBeta = beta;
 }
 
@@ -140,7 +140,7 @@ Search::~Search() {
     }
 }
 
-template<int side,bool smp>
+template<int side, bool smp>
 int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIECE, int depth) {
     if (!getRunning()) {
         return 0;
@@ -267,7 +267,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
             continue;
         }
 /************ end Delta Pruning *************/
-        int val = -quiescence<side ^ 1,smp>(-beta, -alpha, move->promotionPiece, N_PIECE - 1, depth - 1);
+        int val = -quiescence<side ^ 1, smp>(-beta, -alpha, move->promotionPiece, N_PIECE - 1, depth - 1);
         score = max(score, val);
         takeback(move, oldKey, false);
         if (score > alpha) {
@@ -403,12 +403,16 @@ void Search::setPVSplit(const int depth, const int alpha, const int beta, const 
 }
 
 
-int Search::searchNOparall(int depth, int alpha, int beta) {
-    return getSide() ? search<WHITE,cc>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK,ccc>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
+int Search::searchNOparall(bool smp, int depth, int alpha, int beta) {
+    if (smp) {
+        return getSide() ? search<WHITE, true>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK, true>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
+    } else {
+        return getSide() ? search<WHITE, false>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK, false>(depth, alpha, beta, &pvLine, Bits::bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
+    }
 }
 
 
-template<int side,bool smp>
+template<int side, bool smp>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
     INC(cumulativeMovesCount);
     ASSERT_RANGE(side, 0, 1);
@@ -461,7 +465,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     depth += extension;
     if (depth == 0) {
-        return quiescence<side,smp>(alpha, beta, -1, N_PIECE, 0);
+        return quiescence<side, smp>(alpha, beta, -1, N_PIECE, 0);
     }
     //************* hash ****************
     u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^RANDSIDE[side];
@@ -567,7 +571,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     line.cmove = 0;
     if (!is_incheck_side && !nullSearch && depth >= NULLMOVE_DEPTH && (n_pieces_side = getNpiecesNoPawnNoKing<side>()) >= NULLMOVES_MIN_PIECE) {
         nullSearch = true;
-        int nullScore = -search<side ^ 1,smp>(depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (n_pieces_side < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) - 1, -beta, -beta + 1, &line, N_PIECE, mateIn);
+        int nullScore = -search<side ^ 1, smp>(depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (n_pieces_side < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) - 1, -beta, -beta + 1, &line, N_PIECE, mateIn);
         nullSearch = false;
         if (nullScore >= beta) {
             INC(nNullMoveCut);
@@ -647,7 +651,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         int val = INT_MAX;
         if (countMove > 4 && !is_incheck_side && depth >= 3 && move->capturedPiece == SQUARE_FREE && move->promotionPiece == NO_PROMOTION) {
             currentPly++;
-            val = -search<side ^ 1,smp>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn);
+            val = -search<side ^ 1, smp>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
         }
@@ -656,12 +660,12 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             int lwb = max(alpha, score);
             int upb = (doMws ? (lwb + 1) : beta);
             currentPly++;
-            val = -search<side ^ 1,smp>(depth - 1, -upb, -lwb, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
+            val = -search<side ^ 1, smp>(depth - 1, -upb, -lwb, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
             if (doMws && (lwb < val) && (val < beta)) {
                 currentPly++;
-                val = -search<side ^ 1,smp>(depth - 1, -beta, -val + 1, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
+                val = -search<side ^ 1, smp>(depth - 1, -beta, -val + 1, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
                 currentPly--;
             }
         }

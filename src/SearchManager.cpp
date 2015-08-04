@@ -35,7 +35,7 @@ void SearchManager::singleSearch(int mply) {
         threadPool[0]->init();
         debug("val: ", valWindow);
         mateIn = INT_MAX;
-        threadPool[0]->run(mply, -_INFINITE, _INFINITE);
+        threadPool[0]->run(false, mply, -_INFINITE, _INFINITE);
         valWindow = threadPool[0]->getValue();
         //if (threadPool[0]->getRunning()) {
         memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
@@ -44,19 +44,19 @@ void SearchManager::singleSearch(int mply) {
         threadPool[0]->init();
         mateIn = INT_MAX;
         //Aspiration Windows
-        threadPool[0]->run(mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
+        threadPool[0]->run(false, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
         int tmp = threadPool[0]->getValue();
         if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
             mateIn = INT_MAX;
-            threadPool[0]->run(mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW * 2);
+            threadPool[0]->run(false, mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW * 2);
             tmp = threadPool[0]->getValue();
             if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
                 mateIn = INT_MAX;
-                threadPool[0]->run(mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW * 4);
+                threadPool[0]->run(false, mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW * 4);
                 tmp = threadPool[0]->getValue();
                 if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
                     mateIn = INT_MAX;
-                    threadPool[0]->run(mply, -_INFINITE, _INFINITE);
+                    threadPool[0]->run(false, mply, -_INFINITE, _INFINITE);
                     tmp = threadPool[0]->getValue();
                 }
             }
@@ -164,40 +164,40 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, 
 
 int SearchManager::PVSplit(int idThread1, const int depth, int alpha, int beta) {
 
-    if (depth < 5) {
-        return threadPool[idThread1]->searchNOparall(depth, alpha, beta);
-    }
-
-    threadPool[idThread1]->incListId();
-    threadPool[idThread1]->generateCapturesMoves();//TODO return false?
-    u64 oldKey = threadPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
-    _Tmove *move = threadPool[idThread1]->getNextMove();
-
-    threadPool[idThread1]->makemove(move, true, false);
-
-
-    int score = -PVSplit(idThread1, depth - 1, -beta, -alpha);
-    threadPool[idThread1]->takeback(move, oldKey, true);
-    if (score > alpha) alpha = score;
-    threadPool[idThread1]->decListId();
-
-    if (score > beta) {
-        beta = score;
-        return beta;
-    }
-    while ((move = threadPool[idThread1]->getNextMove())) {
-        debug("fuori");
-        idThread1 = getNextThread().getId();
-        debug("dentro");
-        u64 oldKey1 = threadPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
-
-        rollbackValue[idThread1]->oldKey = oldKey1;
-        rollbackValue[idThread1]->move = move;
-
-        threadPool[idThread1]->makemove(move, true, false);
-        threadPool[idThread1]->setPVSplit(depth, alpha, beta, oldKey1);
-        threadPool[idThread1]->start();
-    }
+//    if (depth < 5) {
+//        return threadPool[idThread1]->searchNOparall(depth, alpha, beta);
+//    }
+//
+//    threadPool[idThread1]->incListId();
+//    threadPool[idThread1]->generateCapturesMoves();//TODO return false?
+//    u64 oldKey = threadPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
+//    _Tmove *move = threadPool[idThread1]->getNextMove();
+//
+//    threadPool[idThread1]->makemove(move, true, false);
+//
+//
+//    int score = -PVSplit(idThread1, depth - 1, -beta, -alpha);
+//    threadPool[idThread1]->takeback(move, oldKey, true);
+//    if (score > alpha) alpha = score;
+//    threadPool[idThread1]->decListId();
+//
+//    if (score > beta) {
+//        beta = score;
+//        return beta;
+//    }
+//    while ((move = threadPool[idThread1]->getNextMove())) {
+//        debug("fuori");
+//        idThread1 = getNextThread().getId();
+//        debug("dentro");
+//        u64 oldKey1 = threadPool[idThread1]->chessboard[ZOBRISTKEY_IDX];
+//
+//        rollbackValue[idThread1]->oldKey = oldKey1;
+//        rollbackValue[idThread1]->move = move;
+//
+//        threadPool[idThread1]->makemove(move, true, false);
+//        threadPool[idThread1]->setPVSplit(depth, alpha, beta, oldKey1);
+//        threadPool[idThread1]->start();
+//    }
     return 0;
 }
 
@@ -264,7 +264,7 @@ void SearchManager::startThread(Search &thread, int depth, int alpha, int beta) 
     debug("startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
     ASSERT(alpha >= -_INFINITE);
 
-    thread.search(depth, alpha, beta);
+    thread.setMainParam(true, depth, alpha, beta);
     thread.start();
 }
 

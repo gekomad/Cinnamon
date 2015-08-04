@@ -59,11 +59,11 @@ public:
         return pvLine;
     }
 
-    void run(int depth, int alpha, int beta);
+    void run(bool smp,int depth, int alpha, int beta);
 
-    void search(int depth, int alpha, int beta);
+    void setMainParam(bool smp,int depth, int alpha, int beta);
 
-    int searchNOparall(int depth, int alpha, int beta);
+    int searchNOparall(bool,int depth, int alpha, int beta);
 
     int getValue() const {
         ASSERT(threadValue != INT_MAX);
@@ -178,6 +178,7 @@ private:
     int mainMateIn;
     bool pvsMode = false;
     int mainDepth;
+    bool mainSmp;
     int mainBeta;
     int mainAlpha;
 
