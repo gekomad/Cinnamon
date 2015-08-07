@@ -37,28 +37,28 @@ using namespace std;
 
 #ifdef DEBUG_MODE
 
-    template<typename T>
-    void _debug(T a) {
-        cout << a << " ";
-    }
+template<typename T>
+void _debug(T a) {
+    cout << a << " ";
+}
 
-    template<typename T, typename... Args>
-    void _debug(T t, Args... args) {
-        cout << t << " ";
-        _debug(args...);
-    }
+template<typename T, typename... Args>
+void _debug(T t, Args... args) {
+    cout << t << " ";
+    _debug(args...);
+}
 
-    static mutex _CoutSyncMutex;
+static mutex _CoutSyncMutex;
 
-    template<typename T, typename... Args>
-    void debug(T t, Args... args) {
-        lock_guard<mutex> lock1(_CoutSyncMutex);
-        nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
-        cout << "info string TIME: " << ms.count() << " ";
+template<typename T, typename... Args>
+void debug(T t, Args... args) {
+    lock_guard<mutex> lock1(_CoutSyncMutex);
+    nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
+    cout << "info string TIME: " << ms.count() << " ";
 
-        _debug(t, args...);
-        cout << endl;
-    }
+    _debug(t, args...);
+    cout << endl;
+}
 
 #else
 

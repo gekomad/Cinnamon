@@ -20,9 +20,9 @@
 
 mutex updateHash;
 
-Perft::PerftThread::PerftThread() : Thread(-9) { }
+Perft::PerftThread::PerftThread() { }
 
-Perft::PerftThread::PerftThread(int cpuID1, string fen1, int from1, int to1, Perft *perft1) : GenMoves(), Thread(-9) {
+Perft::PerftThread::PerftThread(int cpuID1, string fen1, int from1, int to1, Perft *perft1) : GenMoves() {
     perftMode = true;
     loadFen(fen1);
     this->cpuID = cpuID1;
@@ -148,7 +148,7 @@ void Perft::alloc() {
     }
 }
 
-Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) : Thread(-3) {
+Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) {
     mbSize = mbSize1;
     depth = depth1;
     fen = fen1;

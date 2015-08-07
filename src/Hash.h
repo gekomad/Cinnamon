@@ -110,28 +110,28 @@ public:
         //////////////
 
 #ifdef DEBUG_MODE
-    if (flags == hashfALPHA) {
-        nRecordHashA++;
-    } else if (flags == hashfBETA) {
-        nRecordHashB++;
-    } else {
-        nRecordHashE++;
-    }
+        if (flags == hashfALPHA) {
+            nRecordHashA++;
+        } else if (flags == hashfBETA) {
+            nRecordHashB++;
+        } else {
+            nRecordHashE++;
+        }
 #endif
         tmp.entryAge = 1;
 #ifdef DEBUG_MODE
-    //TODO cancellare blocco
-    ASSERT(tmp.key == key);
-    ASSERT(tmp.score == score);
-    ASSERT(tmp.flags == flags);
-    ASSERT(tmp.depth == depth);
-    if (bestMove && bestMove->from != bestMove->to) {
-        ASSERT(tmp.from == bestMove->from);
-        ASSERT(tmp.to == bestMove->to);
-    } else {
-        ASSERT(tmp.from == 0);
-        ASSERT(tmp.to == 0);
-    }
+        //TODO cancellare blocco
+        ASSERT(tmp.key == key);
+        ASSERT(tmp.score == score);
+        ASSERT(tmp.flags == flags);
+        ASSERT(tmp.depth == depth);
+        if (bestMove && bestMove->from != bestMove->to) {
+            ASSERT(tmp.from == bestMove->from);
+            ASSERT(tmp.to == bestMove->to);
+        } else {
+            ASSERT(tmp.from == 0);
+            ASSERT(tmp.to == 0);
+        }
 #endif
         if (smp)MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
         if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {//TODO dovrebbe essere greater

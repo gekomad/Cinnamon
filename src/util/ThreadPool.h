@@ -35,11 +35,17 @@ public:
 
         generateBitMap();
         for (int i = 0; i < 8; i++) {
-            threadPool.push_back(new T(i));
+            T *x = new T();
+            x->setId(i);
+            threadPool.push_back(x);
         }
 
         registerThreads();
         nThread = thread::hardware_concurrency();
+        if (nThread == 0) {
+            nThread = 1;
+            cout << "ThreadPool size: " << getNthread() << "\n";
+        }
         if (nThread > 8) {
             nThread = 8;
         }

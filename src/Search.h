@@ -31,7 +31,7 @@ class Search : public Eval, public Thread, public Subject {
 
 public:
 
-    Search(int);
+    Search();
 
     void clone(const Search *);
 

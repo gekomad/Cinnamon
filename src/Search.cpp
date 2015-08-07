@@ -57,7 +57,7 @@ void Search::setMainParam(bool smp, int depth, int alpha, int beta) {
 }
 
 
-Search::Search(int id) : ponder(false), nullSearch(false), Thread(id) {
+Search::Search() : ponder(false), nullSearch(false) {
 #ifdef DEBUG_MODE
     lazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
