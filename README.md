@@ -20,7 +20,7 @@ Features
 - Available for both Unix, Windows, Mac, Android, Raspberry Pi and Javascript
 - UCI protocol
 - GPL 3 License
-- C++11 source
+- C++14 source
 - Rotated bitboards
 - Null moves
 - Futility pruning
