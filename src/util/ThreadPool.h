@@ -44,14 +44,12 @@ public:
         nThread = thread::hardware_concurrency();
         if (nThread == 0) {
             nThread = 1;
-            cout << "ThreadPool size: " << getNthread() << "\n";
-        }
-        if (nThread > 8) {
+        } else if (nThread > 8) {
             nThread = 8;
         }
-#ifdef DEBUG_MODE
+
         cout << "ThreadPool size: " << getNthread() << "\n";
-#endif
+
     }
 
     T &getNextThread() {

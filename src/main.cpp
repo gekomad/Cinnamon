@@ -72,8 +72,8 @@ Rank Name                     Elo    +    - games score oppo. draws
 
 tc="0/0:15+0.05" 6 thread
 Rank Name                     Elo    +    - games score oppo. draws
-   1 Cinnamon 1.2c-smp.x       21   14   14   409   57%   -21   46%
-   2 Cinnamon 1.2c-SNAPSHOT   -21   14   14   409   43%    21   46%
+   1 Cinnamon 1.2c-smp.x       23   11   11   699   57%   -23   43%
+   2 Cinnamon 1.2c-SNAPSHOT   -23   11   11   699   43%    23   43%
 
  */
 
