@@ -103,34 +103,37 @@ void SearchManager::parallelSearch(int mply) {
         debug("end loop2 ---------------------------count:", getBitCount());
         joinAll();
         ASSERT(!getBitCount());
-        //LAZY SMP
-        debug("start loop3 -------------------------------count:", getBitCount());
-        //master
-        Search &master = getNextThread();
+        if(!lineWin.cmove) {
+            //LAZY SMP
+            debug("start loop3 -------------------------------count:", getBitCount());
+            //master
+            Search &master = getNextThread();
 
-        master.init();
-        master.setRunning(1);
-        startThread(false, master, mply, -_INFINITE, _INFINITE);
+            master.init();
+            master.setRunning(1);
+            startThread(false, master, mply, -_INFINITE, _INFINITE);
 
 
-        for (int i = 1; i < getNthread(); i++) {
-            //helper
-            Search &idThread1 = getNextThread();
-            idThread1.init();
-            idThread1.setRunning(2);
+            for (int i = 1; i < getNthread(); i++) {
+                //helper
+                Search &idThread1 = getNextThread();
+                idThread1.init();
+                idThread1.setRunning(2);
 //            set  time infinite
-            if ((i % 2) == 0) {
-                startThread(false, idThread1, mply, -_INFINITE, _INFINITE);
-            } else {
-                startThread(false, idThread1, mply + 1, -_INFINITE, _INFINITE);
-            }
+                if ((i % 2) == 0) {
+                    startThread(false, idThread1, mply, -_INFINITE, _INFINITE);
+                } else {
+                    startThread(false, idThread1, mply + 1, -_INFINITE, _INFINITE);
+                }
 
-            debug("end loop3 -------------------------------count:", getBitCount());
+                debug("end loop3 -------------------------------count:", getBitCount());
+            }
+           
+            master.join();
+            stopAllThread();
+            joinAll();
+            ASSERT(!getBitCount());
         }
-        master.join();
-        stopAllThread();
-        joinAll();
-        ASSERT(!getBitCount());
     }
 }
 
