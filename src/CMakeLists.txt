@@ -10,8 +10,22 @@ endif()
 
 set(SOURCE_FILES
     gtb/gtb-probe.h
+    perft/_TPerftRes.h
+    perft/Perft.cpp
+    perft/Perft.h
+    perft/PerftThread.cpp
+    perft/PerftThread.h
     util/Bits.cpp
     util/Bits.h
+    util/ObserverSearch.h
+    util/ObserverThread.h
+    util/Singleton.h
+    util/stacktrace.h
+    util/String.cpp
+    util/String.h
+    util/Thread.h
+    util/ThreadPool.h
+    util/Timer.h
     ChessBoard.cpp
     ChessBoard.h
     Eval.cpp
@@ -27,22 +41,13 @@ set(SOURCE_FILES
     namespaces.h
     OpenBook.cpp
     OpenBook.h
-    Perft.cpp
-    Perft.h
     Search.cpp
     Search.h
     SearchManager.cpp
     SearchManager.h
-    util/stacktrace.h
-    util/String.cpp
-    util/String.h
     Tablebase.cpp
     Tablebase.h
-    util/Thread.h
-    util/ThreadPool.h
-    util/Timer.h
     Uci.cpp
-    util/Singleton.h
     Uci.h)
 
 add_executable(cinnamon ${SOURCE_FILES} )
