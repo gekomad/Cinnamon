@@ -234,7 +234,7 @@ protected:
     template<uchar type>
     bool pushmove(const int from, const int to, const int side, int promotionPiece, int pieceFrom);
 
-    _Tmove *getMove(int i) {
+    _Tmove *getMove(int i) const {
         return &gen_list[listId].moveList[i];
     }
 
@@ -242,7 +242,7 @@ protected:
         running = t;
     }
 
-    int getRunning() {
+    int getRunning() const {
         return running;
     }
 

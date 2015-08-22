@@ -230,5 +230,7 @@ private:
     mutex mutexPvs;
 
     void stopAllThread();
+
+    int forceMainThread;
 };
 

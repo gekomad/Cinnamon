@@ -20,7 +20,7 @@
 #include "namespaces.h"
 
 void SearchManager::search(int mply) {
-    if (nThreads > 1 && mply > 1) {//TODO
+    if (nThreads > 1 && mply > 3) {//TODO
 //        initAB(mply);
         parallelSearch(mply);
     } else {
@@ -75,7 +75,7 @@ void SearchManager::singleSearch(int mply) {
 void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
     setMainPly(mply);
-
+    forceMainThread = -1;
     ASSERT(!getBitCount());
     if (mply == 1) {
         Search &idThread1 = getNextThread();
@@ -103,35 +103,33 @@ void SearchManager::parallelSearch(int mply) {
         debug("end loop2 ---------------------------count:", getBitCount());
         joinAll();
         ASSERT(!getBitCount());
-        if(!lineWin.cmove) {
+        if (!lineWin.cmove) {
             //LAZY SMP
+            cout << "-------------------------\n";
             debug("start loop3 -------------------------------count:", getBitCount());
             //master
             Search &master = getNextThread();
-
+            forceMainThread = master.getId();
             master.init();
             master.setRunning(1);
             startThread(false, master, mply, -_INFINITE, _INFINITE);
-
-
             for (int i = 1; i < getNthread(); i++) {
                 //helper
                 Search &idThread1 = getNextThread();
                 idThread1.init();
                 idThread1.setRunning(2);
-//            set  time infinite
                 if ((i % 2) == 0) {
                     startThread(false, idThread1, mply, -_INFINITE, _INFINITE);
                 } else {
                     startThread(false, idThread1, mply + 1, -_INFINITE, _INFINITE);
                 }
-
-                debug("end loop3 -------------------------------count:", getBitCount());
             }
-           
+            debug("end loop3 -------------------------------count:", getBitCount());
+
             master.join();
             stopAllThread();
             joinAll();
+            cout << "-----------------s--------\n";
             ASSERT(!getBitCount());
         }
     }
@@ -228,7 +226,11 @@ void SearchManager::parallelSearch(int mply) {
 //}
 
 void SearchManager::receiveObserverSearch(int threadID) {
+
     lock_guard<mutex> lock(mutexSearch);
+    if (forceMainThread != -1 && forceMainThread != threadID) {
+        return;
+    }
     if (threadPool[threadID]->getMainSmp()) {
 //        updateAB(threadPool[threadID]->getMainDepth(), getSide(), threadPool[threadID]->getValue());
     } else {
