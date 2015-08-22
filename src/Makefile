@@ -83,7 +83,8 @@ help:
 	@echo "make cinnamon32-modern           > 32-bit with sse support"
 	@echo "make cinnamon32-generic          > Unspecified 32-bit"
 	@echo ""
-	@echo "make cinnamon-native             > Optimized for native cpu (also Raspberry Pi)"
+	@echo "make cinnamon-native             > Optimized for native cpu"
+	@echo "make cinnamon-ARM                > Optimized for arm cpu (also Raspberry Pi)"
 	@echo "make cinnamon-CLOP               > Enable CLOP parameter tuning"
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
@@ -116,8 +117,11 @@ cinnamon32-modern:
 cinnamon-CLOP:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -DCLOP -march=native" build
 
+cinnamon-ARM:
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -mcpu=arm7 -w" build
+
 cinnamon-native:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -w" build
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
 
 cinnamon64-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
@@ -131,8 +135,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o
-	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o ${LIBS}
+all: namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o ${LIBS}
 
 default:
 	help
@@ -155,8 +159,11 @@ IterativeDeeping.o: IterativeDeeping.cpp
 main.o: main.cpp
 	$(COMP) -c main.cpp ${CFLAGS} ${ARC}
 
-Perft.o: Perft.cpp
-	$(COMP) -c Perft.cpp ${CFLAGS} ${ARC}
+Perft.o: perft/Perft.cpp
+	$(COMP) -c perft/Perft.cpp ${CFLAGS} ${ARC}
+
+PerftThread.o: perft/PerftThread.cpp
+	$(COMP) -c perft/PerftThread.cpp ${CFLAGS} ${ARC}
 
 Search.o: Search.cpp
 	$(COMP) -c Search.cpp ${CFLAGS} ${ARC}
