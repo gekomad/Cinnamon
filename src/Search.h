@@ -33,13 +33,15 @@ public:
 
     Search();
 
+    Search(const Search *s) { clone(s); }
+
     void clone(const Search *);
 
     virtual ~Search();
 
     void setRunning(int);
 
-    void setPVSplit(const int depth, const int alpha, const int beta, const u64 oldKey);
+    void setPVSplit(const int depth, const int alpha, const int beta, _Tmove *move);
 
     void setPonder(bool);
 
@@ -59,11 +61,11 @@ public:
         return pvLine;
     }
 
-    void run(bool smp, int depth, int alpha, int beta);
+    void run(bool pvsplit, bool smp, int depth, int alpha, int beta);
 
-    void setMainParam(bool smp, int depth, int alpha, int beta);
+    void setMainParam(bool pvsplit, bool smp, int depth, int alpha, int beta);
 
-    int search(bool, int depth, int alpha, int beta);
+    int search(bool smp, int depth, int alpha, int beta);
 
     int getValue() const {
         ASSERT(threadValue != INT_MAX);
@@ -181,9 +183,21 @@ private:
     bool mainSmp;
     int mainBeta;
     int mainAlpha;
-
+    _Tmove mainMove;
     u64 oldKeyPVS;
 
+public:
+    bool getPvsMode() const {
+        return pvsMode;
+    }
+
+    int getMainDepth() const {
+        return mainDepth;
+    }
+
+    bool getMainSmp() const {
+        return mainSmp;
+    }
 };
 
 

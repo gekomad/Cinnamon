@@ -182,9 +182,11 @@ void IterativeDeeping::run() {
         cout << "\ninfo string ply: " << mply << "\n";
         cout << "info string tot moves: " << totMoves << "\n";
         unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
-        cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
+        cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" <<
+        percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
         // ASSERT(totStoreHash <= cumulativeMovesCount);
-        cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
+        cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) <<
+        "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
         //ASSERT(totCutHash <= cumulativeMovesCount);
         u64 nps = 0;
         if (timeTaken) {
@@ -236,9 +238,11 @@ void IterativeDeeping::run() {
             }
 
             if (abs(sc) > _INFINITE - MAX_PLY) {
-                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << timeTaken << " pv " << pvv << endl;
+                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << timeTaken <<
+                " pv " << pvv << endl;
             } else {
-                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << timeTaken << " pv " << pvv << endl;
+                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " <<
+                timeTaken << " pv " << pvv << endl;
             }
         }
 

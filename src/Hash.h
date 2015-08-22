@@ -82,7 +82,8 @@ public:
     }
 
     template<bool smp>
-    void recordHash(u64 zobristKeyR, bool running, _Thash *rootHash[2], const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
+    void recordHash(u64 zobristKeyR, bool running, _Thash *rootHash[2], const char depth, const char flags,
+                    const u64 key, const int score, _Tmove *bestMove) {
         ASSERT(key);
         ASSERT(rootHash[HASH_GREATER]);
         ASSERT(rootHash[HASH_ALWAYS]);
@@ -134,7 +135,8 @@ public:
         }
 #endif
         if (smp)MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
-        if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {//TODO dovrebbe essere greater
+        if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth &&
+            rootHash[HASH_ALWAYS]->entryAge) {//TODO dovrebbe essere greater
             INC(collisions);
             if (smp) MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
             return;

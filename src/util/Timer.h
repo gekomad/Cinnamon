@@ -30,9 +30,12 @@ public:
     void endRun() { }
 
     void run() {
-        while (1) {
-            this_thread::sleep_for(chrono::seconds(seconds));
-            notifyObservers();
+        unique_lock<mutex> lck(mtx);
+        while (seconds) {
+            cv.wait_for(lck, chrono::seconds(seconds));
+            if (seconds) {
+                notifyObservers();
+            }
         }
     }
 
@@ -46,11 +49,15 @@ public:
         }
     }
 
-    virtual ~Timer() { }
-
+    virtual ~Timer() {
+        seconds = 0;
+        cv.notify_all();
+    }
 
 private:
     int seconds;
+    condition_variable cv;
+    mutex mtx;
     vector<function<void(void)>> observers;
 };
 

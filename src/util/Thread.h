@@ -41,7 +41,6 @@ private:
     ObserverThread *observer = nullptr;
     condition_variable cv;
     thread theThread;
-//    mutex checkWaitMutex;
     Runnable *execRunnable;
 
     static void *__run(void *cthis) {
@@ -114,6 +113,10 @@ public:
 
     bool isJoinable() {
         return theThread.joinable();
+    }
+
+    void sleep(bool b) {
+        running = !b;
     }
 
 };

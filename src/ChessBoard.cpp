@@ -92,7 +92,8 @@ void ChessBoard::display() {
             cout << "\n   ----+---+---+---+---+---+---+----\n";
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
-        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(POW2[63 - t])]) == '-' ? ' ' : x;
+        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(
+                POW2[63 - t])]) == '-' ? ' ' : x;
         x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     };
@@ -166,7 +167,8 @@ string ChessBoard::boardToFen() {
         fen.append(" -");
     } else {
         fen.append(" ");
-        chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(BOARD[chessboard[ENPASSANT_IDX] - 8]);
+        chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(
+                BOARD[chessboard[ENPASSANT_IDX] - 8]);
     }
     return fen;
 }

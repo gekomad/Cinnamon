@@ -252,7 +252,7 @@ int main(int argc, char **argv) {
             int nCpu = 0;
             int perftDepth = 0;
             string fen;
-            int PERFT_HASH_SIZE = 0;
+            int perftHashSize = 0;
             string dumpFile;
             while ((opt = getopt(argc, argv, "d:f:h:f:c:F:")) != -1) {
                 if (opt == 'd') {    //depth
@@ -266,14 +266,14 @@ int main(int argc, char **argv) {
                 } else if (opt == 'c') {  //N cpu
                     nCpu = atoi(optarg);
                 } else if (opt == 'h') {  //hash
-                    PERFT_HASH_SIZE = atoi(optarg);
+                    perftHashSize = atoi(optarg);
                 } else if (opt == 'f') {  //fen
                     fen = optarg;
                 }
             }
-            Perft *p(new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile));
+            Perft *p = new Perft(fen, perftDepth, nCpu, perftHashSize, dumpFile);
             p->start();
-            unique_ptr<Uci> u(new Uci(p));
+            p->join();
             delete(p);
             return 0;
         }

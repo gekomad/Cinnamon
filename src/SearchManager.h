@@ -34,7 +34,8 @@ class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>
 
 public:
 
-    int PVSplit(int PVSplit, const int depth, int alpha, int beta);
+//    static const bool SMP_MODE_NO = false;//TODO enum
+//    static const bool SMP_MODE_YES = true;
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn);
 
@@ -119,8 +120,6 @@ public:
 
     void deleteGtb();
 
-    void receiveObserverPVSplit(int threadID, int value);
-
     void receiveObserverSearch(int threadID);
 
     bool setThread(int);
@@ -197,32 +196,38 @@ public:
 private:
     SearchManager();
 
+
     void parallelSearch(int mply);
 
     void singleSearch(int mply);
 
-    void updateAB(int depth, int side, int bound);
+//    void updateAB(int depth, bool side, int bound);
 
     int mateIn;
     int valWindow;
     _TpvLine lineWin;
     u64 totCountWin;
     mutex mutexSearch;
+    mutex mutexTreeSplit;
 
     void setMainPly(int r);
 
-    void startThread(Search &thread, int depth, int, int);
+//    void initAB(int);
 
-    typedef struct {
-        u64 oldKey;
-        _Tmove *move;
-    } _RollbackValue;
-    vector<_RollbackValue *> rollbackValue;
+    void startThread(bool smpMode, Search &thread, int depth, int, int);
+//    int PVSplit(Search &idThread1, const int depth);
+//    void treeSplit(Search &idThread1, int alpha, const int beta, const int depth, _Tmove *move1);
+//    typedef struct {
+//        u64 oldKey;
+//        _Tmove *move;
+//    } _RollbackValue;
+//    vector<_RollbackValue *> rollbackValue;
 
     int alphaValue[MAX_PLY];
     int betaValue[MAX_PLY];
 
     int nThreads;
+    mutex mutexPvs;
 
     void stopAllThread();
 };

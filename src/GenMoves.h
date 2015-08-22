@@ -25,6 +25,7 @@ using namespace _eval;
 class GenMoves : public virtual ChessBoard {
 
 public:
+    static const int MAX_MOVE = 130;
 
     GenMoves();
 
@@ -37,6 +38,8 @@ public:
     bool generateCapturesMoves();
 
     void generateMoves(const int side, const u64);
+
+    void generateMoves(const int side);
 
     template<int side>
     void generateMoves(const u64 allpieces) {
@@ -218,7 +221,8 @@ protected:
     int killerHeuristic[64][64];
 
     template<int side>
-    bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
+    bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo,
+                 int promotionPiece);
 
     void performCastle(const int side, const uchar type);
 
@@ -265,7 +269,6 @@ protected:
 private:
     int running;
     bool forceCheck = false;
-    static const int MAX_MOVE = 130;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
     static const u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;

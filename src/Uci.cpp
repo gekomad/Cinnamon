@@ -20,9 +20,6 @@
 
 Uci::Uci(Perft *perft1) {
     perft = perft1;
-    perft->registerObservers([this]() {
-        exit(0);//workaround
-    });
     startListner();
 }
 
@@ -114,10 +111,10 @@ void Uci::listner(IterativeDeeping *it) {
                 searchManager.setHashSize(hashDepth);
                 //cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << " dumpFile '" << dumpFile << "'\n";
                 perft = new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile);
-                perft->registerObservers([this]() {
-                    delete perft;
-                    perft = nullptr;
-                });
+//                perft->registerObservers([this]() {
+//                    delete perft;
+//                    perft = nullptr;
+//                });
                 perft->start();
             } else {
                 cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string] [dumpFile file_name]\n";
@@ -389,13 +386,17 @@ void Uci::listner(IterativeDeeping *it) {
                     winc -= (int) (winc * 0.1);
                     searchManager.setMaxTimeMillsec(winc + wtime / 40);
                     if (btime > wtime) {
-                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() - (int) (searchManager.getMaxTimeMillsec() * ((135.0 - wtime * 100.0 / btime) / 100.0)));
+                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
+                                                        (int) (searchManager.getMaxTimeMillsec() *
+                                                               ((135.0 - wtime * 100.0 / btime) / 100.0)));
                     }
                 } else {
                     binc -= (int) (binc * 0.1);
                     searchManager.setMaxTimeMillsec(binc + btime / 40);
                     if (wtime > btime) {
-                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() - (int) (searchManager.getMaxTimeMillsec() * ((135.0 - btime * 100.0 / wtime) / 100.0)));
+                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
+                                                        (int) (searchManager.getMaxTimeMillsec() *
+                                                               ((135.0 - btime * 100.0 / wtime) / 100.0)));
                     }
                 }
                 lastTime = searchManager.getMaxTimeMillsec();
