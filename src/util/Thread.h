@@ -103,7 +103,6 @@ public:
     }
 
     void setId(int id) {
-        ASSERT_RANGE(id, 0, 7);
         threadID = id;
     }
 
@@ -115,7 +114,7 @@ public:
         return theThread.joinable();
     }
 
-    void sleep(bool b) {
+    void setSleep(bool b) {
         running = !b;
     }
 
