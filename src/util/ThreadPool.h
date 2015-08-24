@@ -82,7 +82,7 @@ public:
 
     void sleepAll(bool b) {
         for (int i = 0; i < nThread; i++) {
-            threadPool[i]->sleep(b);
+            threadPool[i]->setSleep(b);
             if (!b) {
                 threadPool[i]->notify();
             }
