@@ -118,7 +118,7 @@ cinnamon-CLOP:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -DCLOP -march=native" build
 
 cinnamon-ARM:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -mcpu=arm7 -w" build
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -fno-gcse -w" build
 
 cinnamon-native:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
