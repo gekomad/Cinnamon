@@ -38,7 +38,6 @@ public:
 
     T &getNextThread() {
         lock_guard<mutex> lock1(mxRel);
-        debug("ThreadPool::getNextThread");
         unique_lock<mutex> lck(mtx);
         cv.wait(lck, [this] { return Bits::bitCount(threadsBits) != nThread; });
         return getThread();
@@ -116,7 +115,6 @@ private:
         threadPool[i]->join();
         ASSERT(!(threadsBits & POW2[i]));
         threadsBits |= POW2[i];
-        debug("ThreadPool::getNextThread inc bit");
         return *threadPool[i];
     }
 
@@ -126,7 +124,7 @@ private:
         ASSERT(threadsBits & POW2[threadID]);
         threadsBits &= ~POW2[threadID];
         cv.notify_all();
-        debug("ThreadPool::releaseThread NOTIFY threadID:", threadID);
+        debug("ThreadPool::releaseThread #", threadID);
     }
 
     void observerEndThread(int threadID) {
