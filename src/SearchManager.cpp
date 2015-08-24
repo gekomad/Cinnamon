@@ -113,7 +113,7 @@ void SearchManager::parallelSearch(int mply) {
             master.init();
             master.setRunning(1);
             startThread(false, master, mply, -_INFINITE, _INFINITE);
-            for (int i = 1; i < getNthread(); i++) {
+            for (int i = 1; i < getNthread() - 1; i++) {
                 //helper
                 Search &idThread1 = getNextThread();
                 idThread1.init();
