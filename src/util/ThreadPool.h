@@ -31,6 +31,9 @@ template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, 
 class ThreadPool : public ObserverThread {
 
 public:
+    ThreadPool(int t) {
+        setNthread(t);
+    }
 
     ThreadPool() : threadsBits(0) {
         setNthread(thread::hardware_concurrency());

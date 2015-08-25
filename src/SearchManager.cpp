@@ -323,7 +323,7 @@ int SearchManager::loadFen(string fen) {
 //    }
 //}
 
-SearchManager::SearchManager() {
+SearchManager::SearchManager() : ThreadPool() {//TODO 1
     nThreads = getNthread();
 //    for (unsigned i = 0; i < rollbackValue.size(); i++) {
 //        delete rollbackValue[i];
