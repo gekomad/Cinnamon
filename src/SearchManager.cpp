@@ -77,6 +77,7 @@ void SearchManager::parallelSearch(int mply) {
     setMainPly(mply);
     forceMainThread = -1;
     ASSERT(!getBitCount());
+
     if (mply == 1) {
         Search &idThread1 = getNextThread();
         debug("start loop1 ------------------------------ run threadid: ", idThread1.getId(), "count:", getBitCount());
@@ -89,12 +90,16 @@ void SearchManager::parallelSearch(int mply) {
         debug("start loop2 --------------------------count:", getBitCount());
         ASSERT(nThreads);
         ASSERT(!getBitCount());
+        ASSERT(lineWin.cmove == 0);
         for (int ii = 0; ii < std::max(3, getNthread()); ii++) {
             Search &idThread1 = getNextThread();
             idThread1.init();
 
-            int alpha = valWindow - VAL_WINDOW * (int) POW2[ii];
-            int beta = valWindow + VAL_WINDOW * (int) POW2[ii];
+            int alpha = valWindow - VAL_WINDOW* (int) POW2[ii];
+            int beta = valWindow + VAL_WINDOW* (int) POW2[ii];
+
+//            int alpha = valWindow - VAL_WINDOW* ii;
+//            int beta = valWindow + VAL_WINDOW* ii;
 
             idThread1.setRunning(1);
             debug("val: ", valWindow);
@@ -103,18 +108,19 @@ void SearchManager::parallelSearch(int mply) {
         debug("end loop2 ---------------------------count:", getBitCount());
         joinAll();
         ASSERT(!getBitCount());
-        if (!lineWin.cmove) {
-            //LAZY SMP
-            cout << "-------------------------\n";
+        //LAZY SMP
+        if (lineWin.cmove <= 0) {
+//            cout << "info string LAZY SMP\n";
+
             debug("start loop3 -------------------------------count:", getBitCount());
             //master
             Search &master = getNextThread();
             forceMainThread = master.getId();
             master.init();
             master.setRunning(1);
-            startThread(false, master, mply, -_INFINITE, _INFINITE);
+
+            //helper
             for (int i = 1; i < getNthread() - 1; i++) {
-                //helper
                 Search &idThread1 = getNextThread();
                 idThread1.init();
                 idThread1.setRunning(2);
@@ -124,12 +130,12 @@ void SearchManager::parallelSearch(int mply) {
                     startThread(false, idThread1, mply + 1, -_INFINITE, _INFINITE);
                 }
             }
+            startThread(false, master, mply, -_INFINITE, _INFINITE);
             debug("end loop3 -------------------------------count:", getBitCount());
 
             master.join();
             stopAllThread();
             joinAll();
-            cout << "-----------------s--------\n";
             ASSERT(!getBitCount());
         }
     }
@@ -231,24 +237,24 @@ void SearchManager::receiveObserverSearch(int threadID) {
     if (forceMainThread != -1 && forceMainThread != threadID) {
         return;
     }
-    if (threadPool[threadID]->getMainSmp()) {
-//        updateAB(threadPool[threadID]->getMainDepth(), getSide(), threadPool[threadID]->getValue());
-    } else {
-        if (getRunning(threadID)) {
-            if (lineWin.cmove == -1) {
-                int t = threadPool[threadID]->getValue();
-                if (t > threadPool[threadID]->getMainAlpha() && t < threadPool[threadID]->getMainBeta()) {
-                    memcpy(&lineWin, &threadPool[threadID]->getPvLine(), sizeof(_TpvLine));
-                    mateIn = threadPool[threadID]->getMateIn();
-                    ASSERT(mateIn == INT_MAX);
-                    totCountWin += threadPool[threadID]->getTotMoves();
-                    valWindow = getValue(threadID);
-                    debug("win", threadID);
-                    ASSERT(lineWin.cmove);
-                    stopAllThread();
-                }
+//    if (threadPool[threadID]->getMainSmp()) {
+////        updateAB(threadPool[threadID]->getMainDepth(), getSide(), threadPool[threadID]->getValue());
+//    } else {
+    if (getRunning(threadID)) {
+        if (lineWin.cmove == -1) {
+            int t = threadPool[threadID]->getValue();
+            if (t > threadPool[threadID]->getMainAlpha() && t < threadPool[threadID]->getMainBeta()) {
+                memcpy(&lineWin, &threadPool[threadID]->getPvLine(), sizeof(_TpvLine));
+                mateIn = threadPool[threadID]->getMateIn();
+                ASSERT(mateIn == INT_MAX);
+                totCountWin += threadPool[threadID]->getTotMoves();
+                valWindow = getValue(threadID);
+                debug("win", threadID);
+                ASSERT(lineWin.cmove);
+                stopAllThread();
             }
         }
+//        }
     }
 }
 
