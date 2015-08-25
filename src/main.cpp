@@ -274,7 +274,7 @@ int main(int argc, char **argv) {
             Perft *p = new Perft(fen, perftDepth, nCpu, perftHashSize, dumpFile);
             p->start();
             p->join();
-            delete(p);
+            delete (p);
             return 0;
         }
     }

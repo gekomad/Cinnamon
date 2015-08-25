@@ -189,7 +189,7 @@ void Perft::run() {
     p->generateCaptures(side, enemies, friends);
     p->generateMoves(side, friends | enemies);
     int listcount = p->getListSize();
-    delete(p);
+    delete (p);
     p = nullptr;
     ASSERT(perftRes.nCpu > 0);
     int block = listcount / perftRes.nCpu;

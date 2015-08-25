@@ -49,6 +49,8 @@ public:
 
     void setMaxTimeMillsec(int);
 
+    bool setParameter(String param, int value);
+
     int getMaxTimeMillsec();
 
     void startClock();
@@ -178,7 +180,8 @@ private:
 
 
     int mainMateIn;
-    bool pvsMode = false;//TODO eliminare
+    bool pvsMode = false;
+    //TODO eliminare
     int mainDepth;
     bool mainSmp;
     int mainBeta;

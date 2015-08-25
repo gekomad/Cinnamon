@@ -166,7 +166,6 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "Score: " << t << "\n";
             knowCommand = true;
         } else if (token == "stop") {
-            debug("stop");
             knowCommand = true;
             searchManager.setPonder(false);
             searchManager.setRunning(0);
@@ -179,7 +178,7 @@ void Uci::listner(IterativeDeeping *it) {
             getToken(uip, token);
             String value;
             getToken(uip, value);
-            knowCommand = it->setParameter(token, stoi(value));
+            knowCommand = searchManager.setParameter(token, stoi(value));
         } else if (token == "setoption") {
             getToken(uip, token);
             if (token == "name") {

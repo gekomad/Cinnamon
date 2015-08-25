@@ -57,6 +57,8 @@ public:
 
     string boardToFen();
 
+    bool setParameter(String param, int value);
+
     void clearKillerHeuristic();
 
     void clearAge();

@@ -19,6 +19,7 @@
 #include "Eval.h"
 
 Eval::Eval() {
+
 }
 
 Eval::~Eval() {
@@ -602,3 +603,4 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
 #endif
     return side ? -result : result;
 }
+

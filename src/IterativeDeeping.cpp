@@ -171,46 +171,46 @@ void IterativeDeeping::run() {
             sc = 0x7fffffff;
         }
 #ifdef DEBUG_MODE
-        int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
-        int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
-        int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
-        int percStoreHashE = hash.nRecordHashE * 100 / totStoreHash;
-        int totCutHash = hash.n_cut_hashA + hash.n_cut_hashB + hash.n_cut_hashE + 1;
-        int percCutHashA = hash.n_cut_hashA * 100 / totCutHash;
-        int percCutHashB = hash.n_cut_hashB * 100 / totCutHash;
-        int percCutHashE = hash.n_cut_hashE * 100 / totCutHash;
-        cout << "\ninfo string ply: " << mply << "\n";
-        cout << "info string tot moves: " << totMoves << "\n";
-        unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
-        cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" <<
-        percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
-        // ASSERT(totStoreHash <= cumulativeMovesCount);
-        cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) <<
-        "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
-        //ASSERT(totCutHash <= cumulativeMovesCount);
-        u64 nps = 0;
-        if (timeTaken) {
-            nps = totMoves * 1000 / timeTaken;
-        }
-        int nCutAB = searchManager.getNCutAB();
-        double betaEfficiency = searchManager.getBetaEfficiency();
-        int LazyEvalCuts = searchManager.getLazyEvalCuts();
-        int nCutFp = searchManager.getNCutFp();
-        int nCutRazor = searchManager.getNCutRazor();
-        int nHashCutFailed = searchManager.getNCutRazor();
-        int nNullMoveCut = hash.cutFailed;
-        unsigned totGen = searchManager.getTotGen();
-        if (nCutAB) {
-            cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%\n";
-            betaEfficiency = totGen = 0.0;
-        }
-        cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds) \n";
-        cout << "info string alphaBeta cut: " << nCutAB << "\n";
-        cout << "info string lazy eval cut: " << LazyEvalCuts << "\n";
-        cout << "info string futility pruning cut: " << nCutFp << "\n";
-        cout << "info string razor cut: " << nCutRazor << "\n";
-        cout << "info string null move cut: " << nNullMoveCut << "\n";
-        cout << "info string hash cut failed : " << nHashCutFailed << "\n";
+            int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
+            int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
+            int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
+            int percStoreHashE = hash.nRecordHashE * 100 / totStoreHash;
+            int totCutHash = hash.n_cut_hashA + hash.n_cut_hashB + hash.n_cut_hashE + 1;
+            int percCutHashA = hash.n_cut_hashA * 100 / totCutHash;
+            int percCutHashB = hash.n_cut_hashB * 100 / totCutHash;
+            int percCutHashE = hash.n_cut_hashE * 100 / totCutHash;
+            cout << "\ninfo string ply: " << mply << "\n";
+            cout << "info string tot moves: " << totMoves << "\n";
+            unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
+            cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" <<
+            percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
+            // ASSERT(totStoreHash <= cumulativeMovesCount);
+            cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) <<
+            "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
+            //ASSERT(totCutHash <= cumulativeMovesCount);
+            u64 nps = 0;
+            if (timeTaken) {
+                nps = totMoves * 1000 / timeTaken;
+            }
+            int nCutAB = searchManager.getNCutAB();
+            double betaEfficiency = searchManager.getBetaEfficiency();
+            int LazyEvalCuts = searchManager.getLazyEvalCuts();
+            int nCutFp = searchManager.getNCutFp();
+            int nCutRazor = searchManager.getNCutRazor();
+            int nHashCutFailed = searchManager.getNCutRazor();
+            int nNullMoveCut = hash.cutFailed;
+            unsigned totGen = searchManager.getTotGen();
+            if (nCutAB) {
+                cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%\n";
+                betaEfficiency = totGen = 0.0;
+            }
+            cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds) \n";
+            cout << "info string alphaBeta cut: " << nCutAB << "\n";
+            cout << "info string lazy eval cut: " << LazyEvalCuts << "\n";
+            cout << "info string futility pruning cut: " << nCutFp << "\n";
+            cout << "info string razor cut: " << nCutRazor << "\n";
+            cout << "info string null move cut: " << nNullMoveCut << "\n";
+            cout << "info string hash cut failed : " << nHashCutFailed << "\n";
 #endif
         ///is valid move?
         bool print = true;
@@ -270,98 +270,6 @@ void IterativeDeeping::run() {
     }
     cout << "\n" << flush;
 
-}
-
-bool IterativeDeeping::setParameter(String param, int value) {
-#if defined(CLOP) || defined(DEBUG_MODEkk)
-    param.toUpper();
-    bool res = true;
-    if (param == "FUTIL_MARGIN") {
-        FUTIL_MARGIN = value;
-    } else if (param == "EXT_FUTILY_MARGIN") {
-        EXT_FUTILY_MARGIN = value;
-    } else if (param == "RAZOR_MARGIN") {
-        RAZOR_MARGIN = value;
-    } else if (param == "ATTACK_KING") {
-        ATTACK_KING = value;
-    } else if (param == "BACKWARD_PAWN") {
-        BACKWARD_PAWN = value;
-    } else if (param == "BISHOP_ON_QUEEN") {
-        BISHOP_ON_QUEEN = value;
-    } else if (param == "NO_PAWNS") {
-        NO_PAWNS = value;
-    } else if (param == "BONUS2BISHOP") {
-        BONUS2BISHOP = value;
-    } else if (param == "CONNECTED_ROOKS") {
-        CONNECTED_ROOKS = value;
-    } else if (param == "DOUBLED_ISOLATED_PAWNS") {
-        DOUBLED_ISOLATED_PAWNS = value;
-    } else if (param == "DOUBLED_PAWNS") {
-        DOUBLED_PAWNS = value;
-    } else if (param == "END_OPENING") {
-        END_OPENING = value;
-    } else if (param == "ENEMY_NEAR_KING") {
-        ENEMY_NEAR_KING = value;
-    } else if (param == "FRIEND_NEAR_KING") {
-        FRIEND_NEAR_KING = value;
-    } else if (param == "BISHOP_NEAR_KING") {
-        BISHOP_NEAR_KING = value;
-    } else if (param == "HALF_OPEN_FILE_Q") {
-        HALF_OPEN_FILE_Q = value;
-    } else if (param == "KNIGHT_TRAPPED") {
-        KNIGHT_TRAPPED = value;
-    } else if (param == "OPEN_FILE") {
-        OPEN_FILE = value;
-    } else if (param == "OPEN_FILE_Q") {
-        OPEN_FILE_Q = value;
-    } else if (param == "PAWN_7H") {
-        PAWN_7H = value;
-    } else if (param == "PAWN_CENTER") {
-        PAWN_CENTER = value;
-    } else if (param == "PAWN_IN_RACE") {
-        PAWN_IN_RACE = value;
-    } else if (param == "PAWN_ISOLATED") {
-        PAWN_ISOLATED = value;
-    } else if (param == "PAWN_NEAR_KING") {
-        PAWN_NEAR_KING = value;
-    } else if (param == "PAWN_BLOCKED") {
-        PAWN_BLOCKED = value;
-    } else if (param == "ROOK_7TH_RANK") {
-        ROOK_7TH_RANK = value;
-    } else if (param == "ROOK_BLOCKED") {
-        ROOK_BLOCKED = value;
-    } else if (param == "ROOK_TRAPPED") {
-        ROOK_TRAPPED = value;
-    } else if (param == "UNDEVELOPED") {
-        UNDEVELOPED = value;
-    } else if (param == "UNDEVELOPED_BISHOP") {
-        UNDEVELOPED_BISHOP = value;
-    } else if (param == "VAL_WINDOW") {
-        VAL_WINDOW = value;
-    } else if (param == "UNPROTECTED_PAWNS") {
-        UNPROTECTED_PAWNS = value;
-    } else if (param == "ENEMIES_PAWNS_ALL") {
-        ENEMIES_PAWNS_ALL = value;
-    } else if (param == "NULLMOVE_DEPTH") {
-        NULLMOVE_DEPTH = value;
-    } else if (param == "NULLMOVES_MIN_PIECE") {
-        NULLMOVES_MIN_PIECE = value;
-    } else if (param == "NULLMOVES_R1") {
-        NULLMOVES_R1 = value;
-    } else if (param == "NULLMOVES_R2") {
-        NULLMOVES_R2 = value;
-    } else if (param == "NULLMOVES_R3") {
-        NULLMOVES_R3 = value;
-    } else if (param == "NULLMOVES_R4") {
-        NULLMOVES_R4 = value;
-    } else {
-        res = false;
-    }
-    return res;
-#else
-    cout << param << value;
-    assert(0);
-#endif
 }
 
 void IterativeDeeping::createGtb() {

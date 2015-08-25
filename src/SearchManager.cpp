@@ -90,16 +90,14 @@ void SearchManager::parallelSearch(int mply) {
         debug("start loop2 --------------------------count:", getBitCount());
         ASSERT(nThreads);
         ASSERT(!getBitCount());
-        ASSERT(lineWin.cmove <=0);
+        ASSERT(lineWin.cmove <= 0);
         for (int ii = 0; ii < std::max(3, getNthread()); ii++) {
+//        for (int ii = 0; ii < 3; ii++) {
             Search &idThread1 = getNextThread();
             idThread1.init();
 
             int alpha = valWindow - VAL_WINDOW * (int) POW2[ii];
             int beta = valWindow + VAL_WINDOW * (int) POW2[ii];
-
-//            int alpha = valWindow - VAL_WINDOW* ii;
-//            int beta = valWindow + VAL_WINDOW* ii;
 
             idThread1.setRunning(1);
             debug("val: ", valWindow);
@@ -571,8 +569,12 @@ bool SearchManager::setThread(int nthread) {
     return false;
 }
 
-
 void SearchManager::stopAllThread() {
     threadPool[0]->setRunningThread(false);//is static
 }
 
+bool SearchManager::setParameter(String param, int value) {
+    for (Search *s:threadPool) {
+        s->setParameter(param, value);
+    }
+}
