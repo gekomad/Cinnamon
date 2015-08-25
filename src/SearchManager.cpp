@@ -90,7 +90,7 @@ void SearchManager::parallelSearch(int mply) {
         debug("start loop2 --------------------------count:", getBitCount());
         ASSERT(nThreads);
         ASSERT(!getBitCount());
-        ASSERT(lineWin.cmove == 0);
+        ASSERT(lineWin.cmove <=0);
         for (int ii = 0; ii < std::max(3, getNthread()); ii++) {
             Search &idThread1 = getNextThread();
             idThread1.init();
