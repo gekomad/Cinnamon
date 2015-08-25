@@ -33,6 +33,7 @@ void Search::run() {
 }
 
 void Search::endRun() {
+    ASSERT(pvsMode == false);
     if (pvsMode) {
         takeback(&mainMove, oldKeyPVS, true);
     }
@@ -388,7 +389,8 @@ void Search::deleteGtb() {
 }
 
 void Search::setMainParam(bool pvsplit, bool smp, int depth, int alpha, int beta) {
-    pvsMode = pvsplit;
+    ASSERT(pvsMode == false);
+    pvsMode = pvsplit;//TODO eliminare
     memset(&pvLine, 0, sizeof(_TpvLine));
     mainDepth = depth;
     mainAlpha = alpha;
@@ -397,7 +399,7 @@ void Search::setMainParam(bool pvsplit, bool smp, int depth, int alpha, int beta
 
 }
 
-void Search::setPVSplit(const int depth, const int alpha, const int beta, _Tmove *move) {
+void Search::setPVSplit(const int depth, const int alpha, const int beta, _Tmove *move) {//TODO eliminare
     setMainParam(true, true, depth, alpha, beta);
     oldKeyPVS = chessboard[ZOBRISTKEY_IDX];
     memcpy(&mainMove, move, sizeof(_Tmove));

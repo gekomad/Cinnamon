@@ -138,7 +138,6 @@ Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) 
     mbSize = mbSize1;
     perftRes.depth = depth1;
     fen = fen1;
-//    nCpu = nCpu2;
     dumpFile = dumpFile1;
     perftRes.totMoves = 0;
     perftRes.nCpu = nCpu2;

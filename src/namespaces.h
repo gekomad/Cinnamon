@@ -101,7 +101,7 @@ namespace _board {
 #else
 #define STATIC_CONST static const
 #endif
-    STATIC_CONST int VAL_WINDOW = 1;
+    STATIC_CONST int VAL_WINDOW = 50;
     typedef struct {
         char promotionPiece;
         char pieceFrom;
@@ -125,6 +125,8 @@ namespace _board {
     } _TpvLine;
 
 
+    static const bool SMP_YES = true;
+    static const bool SMP_NO = false;
     static const int BLACK = 0;
     static const int WHITE = 1;
     static const int _INFINITE = 32000;

@@ -178,7 +178,7 @@ private:
 
 
     int mainMateIn;
-    bool pvsMode = false;
+    bool pvsMode = false;//TODO eliminare
     int mainDepth;
     bool mainSmp;
     int mainBeta;
