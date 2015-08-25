@@ -33,9 +33,7 @@ class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>
     friend class Singleton<SearchManager>;
 
 public:
-
-//    static const bool SMP_MODE_NO = false;//TODO enum
-//    static const bool SMP_MODE_YES = true;
+    STATIC_CONST int VAL_WINDOW = 2;
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn);
 
