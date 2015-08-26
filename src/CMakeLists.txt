@@ -17,7 +17,7 @@ set(SOURCE_FILES
         perft/PerftThread.h
         util/Bits.cpp
         util/Bits.h
-        util/ObserverSearch.h
+        ObserverSearch.h
         threadPool/ObserverThread.h
         util/Singleton.h
         util/stacktrace.h
