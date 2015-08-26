@@ -18,7 +18,6 @@
 
 #include "PerftThread.h"
 
-//const int PerftThread::N_MUTEX_BUCKET = 4096;
 shared_timed_mutex PerftThread::MUTEX_BUCKET[N_MUTEX_BUCKET];
 mutex PerftThread::mutexPrint;
 

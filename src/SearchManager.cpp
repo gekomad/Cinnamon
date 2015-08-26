@@ -49,14 +49,21 @@ void SearchManager::singleSearch(int mply) {
         int tmp = threadPool[0]->getValue();
         if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
 
-            threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW * 2);
+            if (tmp <= threadPool[0]->getMainAlpha()) {
+                threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW);
+            } else {
+                threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 2);
+            }
             tmp = threadPool[0]->getValue();
             if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
 
-                threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW * 4);
+                if (tmp <= threadPool[0]->getMainAlpha()) {
+                    threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW);
+                } else {
+                    threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 4);
+                }
                 tmp = threadPool[0]->getValue();
                 if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
-
                     threadPool[0]->run(false, SMP_NO, mply, -_INFINITE, _INFINITE);
                     tmp = threadPool[0]->getValue();
                 }

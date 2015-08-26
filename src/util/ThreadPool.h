@@ -106,7 +106,7 @@ protected:
 private:
 
     mutex mtx;
-    atomic <u64> threadsBits;
+    atomic<u64> threadsBits;
     int nThread;
     condition_variable cv;
     mutex mxGet;

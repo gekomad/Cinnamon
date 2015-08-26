@@ -42,7 +42,7 @@ public:
     virtual void endRun();
 
 private:
-//    static mutex updateHash;
+
     static const int N_MUTEX_BUCKET = 4096;
     static shared_timed_mutex MUTEX_BUCKET[N_MUTEX_BUCKET];
 

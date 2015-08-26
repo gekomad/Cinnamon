@@ -37,7 +37,6 @@ set(SOURCE_FILES
     IterativeDeeping.cpp
     IterativeDeeping.h
     main.cpp
-    namespaces.cpp
     namespaces.h
     OpenBook.cpp
     OpenBook.h

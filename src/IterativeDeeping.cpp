@@ -82,9 +82,6 @@ void IterativeDeeping::setUseBook(bool b) {
 
 void IterativeDeeping::run() {
 
-    struct timeb start1;
-    struct timeb end1;
-
     int timeTaken = 0;
     searchManager.setRunning(2);
     searchManager.setRunningThread(true);
@@ -110,7 +107,7 @@ void IterativeDeeping::run() {
     searchManager.clearAge();
     searchManager.setForceCheck(false);
 
-    ftime(&start1);
+    auto start1 = std::chrono::high_resolution_clock::now();
     bool inMate = false;
     int extension = 0;
     string bestmove;
@@ -140,7 +137,7 @@ void IterativeDeeping::run() {
 
         searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
 
-        ftime(&end1);
+        auto end1 = std::chrono::high_resolution_clock::now();
         timeTaken = _time::diffTime(end1, start1);
         totMoves += searchManager.getTotMoves();
 

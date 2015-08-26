@@ -75,7 +75,7 @@ public:
 
 private:
     _TPerftRes perftRes;
-    struct timeb start1, end1;
+    high_resolution_clock::time_point start1;
     Timer *timer = nullptr;
     string fen;
     string dumpFile;

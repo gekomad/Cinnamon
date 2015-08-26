@@ -133,7 +133,7 @@ void Perft::alloc() {
     }
 }
 
-Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) {
+Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) : ThreadPool(1) {
     memset(&perftRes, 0, sizeof(_TPerftRes));
     mbSize = mbSize1;
     perftRes.depth = depth1;
@@ -182,7 +182,7 @@ void Perft::run() {
     cout << "dump file:\t\t" << dumpFile << "\n";
     cout << "\nstart...\n";
 
-    ftime(&start1);
+    start1 = std::chrono::high_resolution_clock::now();
     p->incListId();
     u64 friends = side ? p->getBitBoard<WHITE>() : p->getBitBoard<BLACK>();
     u64 enemies = side ? p->getBitBoard<BLACK>() : p->getBitBoard<WHITE>();
@@ -196,10 +196,12 @@ void Perft::run() {
     int i, s = 0;
     setNthread(perftRes.nCpu);
     for (i = 0; i < perftRes.nCpu - 1; i++) {
-        threadPool[i]->setParam(fen, s, s + block, &perftRes);
+        PerftThread &perftThread = getNextThread();
+        perftThread.setParam(fen, s, s + block, &perftRes);
         s += block;
     }
-    threadPool[i]->setParam(fen, s, listcount, &perftRes);
+    PerftThread &perftThread = getNextThread();
+    perftThread.setParam(fen, s, listcount, &perftRes);
     startAll();
 
     joinAll();
@@ -207,7 +209,7 @@ void Perft::run() {
 }
 
 void Perft::endRun() {
-    ftime(&end1);
+    auto end1 = std::chrono::high_resolution_clock::now();
     int t = _time::diffTime(end1, start1) / 1000;
     int days = t / 60 / 60 / 24;
     int hours = (t / 60 / 60) % 24;
@@ -227,8 +229,7 @@ void Perft::endRun() {
         cout << seconds << " seconds";
     }
     if (t) {
-        cout << " (" << (perftRes.totMoves / t) / 1000 - ((perftRes.totMoves / t) / 1000) % 1000 <<
-        "k nodes per seconds" << ")";
+        cout << " (" << (perftRes.totMoves / t) / 1000 - ((perftRes.totMoves / t) / 1000) % 1000 << "k nodes per seconds" << ")";
     }
     cout << endl;
     dump();
