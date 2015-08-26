@@ -19,6 +19,42 @@
 #include "SearchManager.h"
 #include "namespaces.h"
 
+SearchManager::SearchManager() : ThreadPool() {//TODO 1
+    nThreads = getNthread();
+//    for (unsigned i = 0; i < rollbackValue.size(); i++) {
+//        delete rollbackValue[i];
+//    }
+//    rollbackValue.clear();
+    for (Search *s:threadPool) {
+        s->registerObserver(this);
+//        rollbackValue.push_back(new _RollbackValue);
+    }
+
+#if defined(DEBUG_MODE)
+    string parameterFile = "parameter.txt";
+    if (!_file::fileExists(parameterFile)) {
+        cout << "warning file not found  " << parameterFile << endl;
+        return;
+    }
+    ifstream inData;
+    string svalue, line;
+    String param;
+    int value;
+    inData.open(parameterFile);
+    while (!inData.eof()) {
+        getline(inData, line);
+        stringstream ss(line);
+        ss >> param;
+        ss >> svalue;
+        value = stoi(svalue);
+        if (!setParameter(param, value)) {
+            cout << "error parameter " << param << " not defined\n";
+        };
+    }
+    inData.close();
+#endif
+}
+
 void SearchManager::search(int mply) {
     if (nThreads > 1 && mply > 3) {//TODO
 //        initAB(mply);
@@ -82,13 +118,12 @@ void SearchManager::singleSearch(int mply) {
 void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
     setMainPly(mply);
-    forceMainThread = -1;
+    forceMainThread = -1;//TODO eliminare e mettere setRunning(1) dentro startThread
     ASSERT(!getBitCount());
 
     if (mply == 1) {
         Search &idThread1 = getNextThread();
         debug("start loop1 ------------------------------ run threadid: ", idThread1.getId(), "count:", getBitCount());
-        idThread1.init();
         debug("val: ", valWindow);
         startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
         idThread1.join();
@@ -98,50 +133,82 @@ void SearchManager::parallelSearch(int mply) {
         ASSERT(nThreads);
         ASSERT(!getBitCount());
         ASSERT(lineWin.cmove <= 0);
-        for (int ii = 0; ii < std::max(3, getNthread()); ii++) {
-            Search &idThread1 = getNextThread();
-            idThread1.init();
-
+//        if (getNthread() >= 4) {
+//
+//            for (int ii = 0; ii < getNthread() - 2; ii++) {
+//                int alpha = valWindow - VAL_WINDOW * (int) POW2[ii];
+//                int beta = valWindow + VAL_WINDOW * (int) POW2[ii];
+//
+//                if (alpha <= -_INFINITE || beta >= _INFINITE) {
+//                    break;
+//                }
+//                Search &idThread1 = getNextThread();
+//                idThread1.setRunning(1);
+//                debug("val: ", valWindow);
+//                startThread(SMP_YES, idThread1, mply, alpha, beta);
+//            }
+//
+//            //LAZY SMP
+//            Search &idThread1 = getNextThread();
+//            idThread1.setRunning(1);
+//            startThread(SMP_YES, idThread1, mply, -_INFINITE, _INFINITE);
+//
+//            Search &idThread2 = getNextThread();
+//            idThread2.setRunning(1);
+//            startThread(SMP_YES, idThread2, mply + 1, -_INFINITE, _INFINITE);
+//
+//
+//            debug("end loop2 ---------------------------count:", getBitCount());
+//            joinAll();
+//            ASSERT(!getBitCount());
+//        } else {
+        Search &master = getNextThread();
+        master.setRunning(1);
+        startThread(SMP_YES, master, mply, -_INFINITE, _INFINITE);
+        int ii = 0;
+        while (threadPool[0]->getRunningThread()) {
             int alpha = valWindow - VAL_WINDOW * (int) POW2[ii];
             int beta = valWindow + VAL_WINDOW * (int) POW2[ii];
-
+            if (alpha <= -_INFINITE || beta >= _INFINITE) {
+                break;
+            }
+            Search &idThread1 = getNextThread();
             idThread1.setRunning(1);
             debug("val: ", valWindow);
             startThread(SMP_YES, idThread1, mply, alpha, beta);
+            ii++;
         }
-        debug("end loop2 ---------------------------count:", getBitCount());
         joinAll();
-        ASSERT(!getBitCount());
+
         //LAZY SMP
-        if (lineWin.cmove <= 0) {
-            cout << "info string aaaaaaaaaaaaaaaaaaLAZY SMP\n";
-
-            debug("start loop3 -------------------------------count:", getBitCount());
-            //master
-            Search &master = getNextThread();
-            forceMainThread = master.getId();
-            master.init();
-            master.setRunning(1);
-
-            //helper
-            for (int i = 1; i < getNthread() - 1; i++) {
-                Search &idThread1 = getNextThread();
-                idThread1.init();
-                idThread1.setRunning(2);
-                if ((i % 2) == 0) {
-                    startThread(SMP_YES, idThread1, mply, -_INFINITE, _INFINITE);
-                } else {
-                    startThread(SMP_YES, idThread1, mply + 1, -_INFINITE, _INFINITE);
-                }
-            }
-            startThread(SMP_YES, master, mply, -_INFINITE, _INFINITE);
-            debug("end loop3 -------------------------------count:", getBitCount());
-
-            master.join();
-            stopAllThread();
-            joinAll();
-            ASSERT(!getBitCount());
-        }
+//            if (lineWin.cmove <= 0) {
+//                cout << "info string aaaaaaaaaaaaaaaaaaLAZY SMP\n";
+//
+//                debug("start loop3 -------------------------------count:", getBitCount());
+//                //master
+//                Search &master = getNextThread();
+//                forceMainThread = master.getId();
+//                master.setRunning(1);
+//
+//                //helper
+//                for (int i = 1; i < getNthread() - 1; i++) {
+//                    Search &idThread1 = getNextThread();
+//                    idThread1.setRunning(2);
+//                    if ((i % 2) == 0) {
+//                        startThread(SMP_YES, idThread1, mply, -_INFINITE, _INFINITE);
+//                    } else {
+//                        startThread(SMP_YES, idThread1, mply + 1, -_INFINITE, _INFINITE);
+//                    }
+//                }
+//                startThread(SMP_YES, master, mply, -_INFINITE, _INFINITE);
+//                debug("end loop3 -------------------------------count:", getBitCount());
+//
+//                master.join();
+//                stopAllThread();
+//                joinAll();
+//                ASSERT(!getBitCount());
+//            }
+//        }
     }
 }
 
@@ -329,49 +396,13 @@ int SearchManager::loadFen(string fen) {
 //    }
 //}
 
-SearchManager::SearchManager() : ThreadPool() {//TODO 1
-    nThreads = getNthread();
-//    for (unsigned i = 0; i < rollbackValue.size(); i++) {
-//        delete rollbackValue[i];
-//    }
-//    rollbackValue.clear();
-    for (Search *s:threadPool) {
-        s->registerObserver(this);
-//        rollbackValue.push_back(new _RollbackValue);
-    }
-
-#if defined(DEBUG_MODE)
-    string parameterFile = "parameter.txt";
-    if (!_file::fileExists(parameterFile)) {
-        cout << "warning file not found  " << parameterFile << endl;
-        return;
-    }
-    ifstream inData;
-    string svalue, line;
-    String param;
-    int value;
-    inData.open(parameterFile);
-    while (!inData.eof()) {
-        getline(inData, line);
-        stringstream ss(line);
-        ss >> param;
-        ss >> svalue;
-        value = stoi(svalue);
-        if (!setParameter(param, value)) {
-            cout << "error parameter " << param << " not defined\n";
-        };
-    }
-    inData.close();
-#endif
-}
-
-
 void SearchManager::startThread(bool smpMode, Search &thread, int depth, int alpha, int beta) {
 
     debug("startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
     ASSERT(alpha >= -_INFINITE);
 
     thread.setMainParam(false, smpMode, depth, alpha, beta);
+    thread.init();
     thread.start();
 }
 
