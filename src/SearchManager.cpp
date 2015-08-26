@@ -114,11 +114,10 @@ void SearchManager::singleSearch(int mply) {
     }
 }
 
-
 void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
     setMainPly(mply);
-    forceMainThread = -1;//TODO eliminare e mettere setRunning(1) dentro startThread
+    forceMainThread = -1;
     ASSERT(!getBitCount());
 
     if (mply == 1) {
@@ -133,82 +132,51 @@ void SearchManager::parallelSearch(int mply) {
         ASSERT(nThreads);
         ASSERT(!getBitCount());
         ASSERT(lineWin.cmove <= 0);
-//        if (getNthread() >= 4) {
-//
-//            for (int ii = 0; ii < getNthread() - 2; ii++) {
-//                int alpha = valWindow - VAL_WINDOW * (int) POW2[ii];
-//                int beta = valWindow + VAL_WINDOW * (int) POW2[ii];
-//
-//                if (alpha <= -_INFINITE || beta >= _INFINITE) {
-//                    break;
-//                }
-//                Search &idThread1 = getNextThread();
-//                idThread1.setRunning(1);
-//                debug("val: ", valWindow);
-//                startThread(SMP_YES, idThread1, mply, alpha, beta);
-//            }
-//
-//            //LAZY SMP
-//            Search &idThread1 = getNextThread();
-//            idThread1.setRunning(1);
-//            startThread(SMP_YES, idThread1, mply, -_INFINITE, _INFINITE);
-//
-//            Search &idThread2 = getNextThread();
-//            idThread2.setRunning(1);
-//            startThread(SMP_YES, idThread2, mply + 1, -_INFINITE, _INFINITE);
-//
-//
-//            debug("end loop2 ---------------------------count:", getBitCount());
-//            joinAll();
-//            ASSERT(!getBitCount());
-//        } else {
-        Search &master = getNextThread();
-        master.setRunning(1);
-        startThread(SMP_YES, master, mply, -_INFINITE, _INFINITE);
-        int ii = 0;
-        while (threadPool[0]->getRunningThread()) {
+        for (int ii = 0; ii < std::max(3, getNthread()); ii++) {
+
             int alpha = valWindow - VAL_WINDOW * (int) POW2[ii];
             int beta = valWindow + VAL_WINDOW * (int) POW2[ii];
+
             if (alpha <= -_INFINITE || beta >= _INFINITE) {
                 break;
             }
+
             Search &idThread1 = getNextThread();
             idThread1.setRunning(1);
             debug("val: ", valWindow);
             startThread(SMP_YES, idThread1, mply, alpha, beta);
-            ii++;
         }
+        debug("end loop2 ---------------------------count:", getBitCount());
         joinAll();
-
+        ASSERT(!getBitCount());
         //LAZY SMP
-//            if (lineWin.cmove <= 0) {
-//                cout << "info string aaaaaaaaaaaaaaaaaaLAZY SMP\n";
-//
-//                debug("start loop3 -------------------------------count:", getBitCount());
-//                //master
-//                Search &master = getNextThread();
-//                forceMainThread = master.getId();
-//                master.setRunning(1);
-//
-//                //helper
-//                for (int i = 1; i < getNthread() - 1; i++) {
-//                    Search &idThread1 = getNextThread();
-//                    idThread1.setRunning(2);
-//                    if ((i % 2) == 0) {
-//                        startThread(SMP_YES, idThread1, mply, -_INFINITE, _INFINITE);
-//                    } else {
-//                        startThread(SMP_YES, idThread1, mply + 1, -_INFINITE, _INFINITE);
-//                    }
-//                }
-//                startThread(SMP_YES, master, mply, -_INFINITE, _INFINITE);
-//                debug("end loop3 -------------------------------count:", getBitCount());
-//
-//                master.join();
-//                stopAllThread();
-//                joinAll();
-//                ASSERT(!getBitCount());
-//            }
-//        }
+        if (lineWin.cmove <= 0) {
+            cout << "info string aaaaaaaaaaaaaaaaaaLAZY SMP\n";
+
+            debug("start loop3 -------------------------------count:", getBitCount());
+            //master
+            Search &master = getNextThread();
+            forceMainThread = master.getId();
+            master.setRunning(1);
+
+            //helper
+            for (int i = 1; i < getNthread() - 1; i++) {
+                Search &idThread1 = getNextThread();
+                idThread1.setRunning(2);
+                if ((i % 2) == 0) {
+                    startThread(SMP_YES, idThread1, mply, -_INFINITE, _INFINITE);
+                } else {
+                    startThread(SMP_YES, idThread1, mply + 1, -_INFINITE, _INFINITE);
+                }
+            }
+            startThread(SMP_YES, master, mply, -_INFINITE, _INFINITE);
+            debug("end loop3 -------------------------------count:", getBitCount());
+
+            master.join();
+            stopAllThread();
+            joinAll();
+            ASSERT(!getBitCount());
+        }
     }
 }
 
