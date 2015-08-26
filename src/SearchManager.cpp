@@ -211,7 +211,7 @@ void SearchManager::parallelSearch(int mply) {
 //    }
 //
 //    idThread1.incListId();
-//    idThread1.generateCapturesMoves();//TODO return false?
+//    idThread1.generateCapturesMoves();
 //    u64 oldKey = idThread1.chessboard[ZOBRISTKEY_IDX];
 //    _Tmove *move = idThread1.getNextMove();
 //
@@ -329,7 +329,7 @@ int SearchManager::loadFen(string fen) {
 //    }
 //}
 
-SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
+SearchManager::SearchManager() : ThreadPool() {//TODO 1
     nThreads = getNthread();
 //    for (unsigned i = 0; i < rollbackValue.size(); i++) {
 //        delete rollbackValue[i];
