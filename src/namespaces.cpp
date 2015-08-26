@@ -24,6 +24,7 @@
 namespace _time {
 
     int diffTime(struct timeb t1, struct timeb t2) {
+        //TODO usare std::chrono::duration<double, std::milli> elapsed = end-start;
         return 1000 * (t1.time - t2.time) + t1.millitm - t2.millitm;
     }
 
