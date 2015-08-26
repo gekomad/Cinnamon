@@ -44,7 +44,7 @@ void SearchManager::singleSearch(int mply) {
     } else {
         threadPool[0]->init();
 
-        //Aspiration Windows TODO provare solo a destra o sinistra
+        //Aspiration Windows
         threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
         int tmp = threadPool[0]->getValue();
         if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
