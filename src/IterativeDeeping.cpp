@@ -27,28 +27,6 @@
 
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
     setUseBook(false);
-#if defined(DEBUG_MODE)
-    string parameterFile = "parameter.txt";
-    if (!_file::fileExists(parameterFile)) {
-        cout << "warning file not found  " << parameterFile << endl;
-        return;
-    }
-    ifstream inData;
-    string svalue, line;
-    String param;
-    int value;
-    inData.open(parameterFile);
-    while (!inData.eof()) {
-        getline(inData, line);
-        stringstream ss(line);
-        ss >> param;
-        ss >> svalue;
-        value = stoi(svalue);
-        setParameter(param, value);
-    }
-    inData.close();
-#endif
-
 }
 
 void IterativeDeeping::setMaxDepth(int d) {

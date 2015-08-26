@@ -753,7 +753,7 @@ void Search::setGtb(Tablebase &tablebase) {
 }
 
 bool Search::setParameter(String param, int value) {
-#if defined(CLOP)
+#if defined(CLOP) || defined(DEBUG_MODE)
     param.toUpper();
     bool res = true;
     if (param == "FUTIL_MARGIN") {

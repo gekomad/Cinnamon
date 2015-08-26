@@ -333,13 +333,36 @@ SearchManager::SearchManager() : ThreadPool() {//TODO 1
         s->registerObserver(this);
 //        rollbackValue.push_back(new _RollbackValue);
     }
+
+#if defined(DEBUG_MODE)
+    string parameterFile = "parameter.txt";
+    if (!_file::fileExists(parameterFile)) {
+        cout << "warning file not found  " << parameterFile << endl;
+        return;
+    }
+    ifstream inData;
+    string svalue, line;
+    String param;
+    int value;
+    inData.open(parameterFile);
+    while (!inData.eof()) {
+        getline(inData, line);
+        stringstream ss(line);
+        ss >> param;
+        ss >> svalue;
+        value = stoi(svalue);
+        if (!setParameter(param, value)) {
+            cout << "error parameter " << param << " not defined\n";
+        };
+    }
+    inData.close();
+#endif
 }
 
 
 void SearchManager::startThread(bool smpMode, Search &thread, int depth, int alpha, int beta) {
 
-    debug("startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ",
-          getRunning(thread.getId()));
+    debug("startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
     ASSERT(alpha >= -_INFINITE);
 
     thread.setMainParam(false, smpMode, depth, alpha, beta);

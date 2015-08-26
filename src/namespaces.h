@@ -96,7 +96,7 @@ namespace _board {
 
 #endif
     static const int MAX_PLY = 96;
-#if defined(CLOP)
+#if defined(CLOP) || defined(DEBUG_MODE)
 #define STATIC_CONST
 #else
 #define STATIC_CONST static const
