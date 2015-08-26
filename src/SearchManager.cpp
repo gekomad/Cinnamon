@@ -45,19 +45,19 @@ void SearchManager::singleSearch(int mply) {
         threadPool[0]->init();
 
         //Aspiration Windows TODO provare solo a destra o sinistra
-        threadPool[0]->run(false, false, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
+        threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
         int tmp = threadPool[0]->getValue();
         if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
 
-            threadPool[0]->run(false, false, mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW * 2);
+            threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW * 2);
             tmp = threadPool[0]->getValue();
             if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
 
-                threadPool[0]->run(false, false, mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW * 4);
+                threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW * 4);
                 tmp = threadPool[0]->getValue();
                 if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
 
-                    threadPool[0]->run(false, false, mply, -_INFINITE, _INFINITE);
+                    threadPool[0]->run(false, SMP_NO, mply, -_INFINITE, _INFINITE);
                     tmp = threadPool[0]->getValue();
                 }
             }
@@ -322,7 +322,7 @@ int SearchManager::loadFen(string fen) {
 //    }
 //}
 
-SearchManager::SearchManager() : ThreadPool() {//TODO 1
+SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
     nThreads = getNthread();
 //    for (unsigned i = 0; i < rollbackValue.size(); i++) {
 //        delete rollbackValue[i];
