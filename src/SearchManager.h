@@ -21,9 +21,9 @@
 #include <mutex>
 #include <unistd.h>
 #include "Search.h"
-#include "util/ThreadPool.h"
+#include "threadPool/ThreadPool.h"
 #include <condition_variable>
-#include "util/ObserverSearch.h"
+#include "ObserverSearch.h"
 #include "util/String.h"
 #include <algorithm>
 #include <future>

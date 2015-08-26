@@ -18,13 +18,13 @@ set(SOURCE_FILES
     util/Bits.cpp
     util/Bits.h
     util/ObserverSearch.h
-    util/ObserverThread.h
+        util/ObserverThread.h
     util/Singleton.h
     util/stacktrace.h
     util/String.cpp
     util/String.h
-    util/Thread.h
-    util/ThreadPool.h
+        util/Thread.h
+        util/ThreadPool.h
     util/Timer.h
     ChessBoard.cpp
     ChessBoard.h

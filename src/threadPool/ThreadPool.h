@@ -24,7 +24,7 @@
 #include <unistd.h>
 #include "ObserverThread.h"
 #include "../namespaces.h"
-#include "Bits.h"
+#include "../util/Bits.h"
 #include <condition_variable>
 
 template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, T>::value, T>::type>

@@ -112,7 +112,6 @@ public:
 #endif
 
     u64 MASK_BIT_SET_NOBOUND[64][64];
-    //uchar DISTANCE[64][64];
     char MASK_BIT_SET_COUNT[64][64];
     char MASK_BIT_SET_NOBOUND_COUNT[64][64];
 
