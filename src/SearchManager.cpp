@@ -163,11 +163,9 @@ void SearchManager::parallelSearch(int mply) {
             for (int i = 1; i < getNthread() - 1; i++) {
                 Search &idThread1 = getNextThread();
                 idThread1.setRunning(2);
-                if ((i % 2) == 0) {
-                    startThread(SMP_YES, idThread1, mply, -_INFINITE, _INFINITE);
-                } else {
-                    startThread(SMP_YES, idThread1, mply + 1, -_INFINITE, _INFINITE);
-                }
+
+                startThread(SMP_YES, idThread1, mply + (i & 1), -_INFINITE, _INFINITE);
+
             }
             startThread(SMP_YES, master, mply, -_INFINITE, _INFINITE);
             debug("end loop3 -------------------------------count:", getBitCount());
