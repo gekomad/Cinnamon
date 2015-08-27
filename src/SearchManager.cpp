@@ -17,17 +17,11 @@
 */
 
 #include "SearchManager.h"
-#include "namespaces.h"
 
 SearchManager::SearchManager() : ThreadPool() {//TODO 1
     nThreads = getNthread();
-//    for (unsigned i = 0; i < rollbackValue.size(); i++) {
-//        delete rollbackValue[i];
-//    }
-//    rollbackValue.clear();
     for (Search *s:threadPool) {
         s->registerObserver(this);
-//        rollbackValue.push_back(new _RollbackValue);
     }
 
 #if defined(DEBUG_MODE)
@@ -170,9 +164,6 @@ void SearchManager::receiveObserverSearch(int threadID) {
     if (forceMainThread != -1 && forceMainThread != threadID) {
         return;
     }
-//    if (threadPool[threadID]->getMainSmp()) {
-////        updateAB(threadPool[threadID]->getMainDepth(), getSide(), threadPool[threadID]->getValue());
-//    } else {
     if (getRunning(threadID)) {
         if (lineWin.cmove == -1) {
             int t = threadPool[threadID]->getValue();
@@ -187,7 +178,6 @@ void SearchManager::receiveObserverSearch(int threadID) {
                 stopAllThread();
             }
         }
-//        }
     }
 }
 
@@ -219,10 +209,6 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, 
 }
 
 SearchManager::~SearchManager() {
-//    for (unsigned i = 0; i < rollbackValue.size(); i++) {
-//        delete rollbackValue[i];
-//    }
-//    rollbackValue.clear();
 }
 
 int SearchManager::loadFen(string fen) {
@@ -233,30 +219,6 @@ int SearchManager::loadFen(string fen) {
     }
     return res;
 }
-
-//void SearchManager::initAB(int depth) {
-//    for (int i = 0; i <= depth; i++) {
-//        alphaValue[i] = -_INFINITE;
-//        betaValue[i] = _INFINITE;
-//    }
-//}
-
-//void SearchManager::updateAB(int depth, bool side, int score) {
-//    lock_guard<mutex> lock1(mutexPvs);
-//    while (depth) {
-//        if (side == BLACK) {
-//            alphaValue[depth] = max(alphaValue[depth], score);
-//        } else {
-//            betaValue[depth] = min(betaValue[depth], score);
-//        }
-////        if (depth <= 0)break;
-////        updateAB(depth - 1, side ^ 1, -score);
-//        depth--;
-//        side ^= 1;
-//        score--;
-//
-//    }
-//}
 
 void SearchManager::startThread(bool smpMode, Search &thread, int depth, int alpha, int beta) {
 
