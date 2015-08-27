@@ -18,6 +18,8 @@
 
 #include "GenMoves.h"
 
+bool GenMoves::forceCheck = false;
+
 GenMoves::GenMoves() : perftMode(false), listId(-1) {
     currentPly = 0;
     gen_list = (_TmoveP *) calloc(MAX_PLY, sizeof(_TmoveP));

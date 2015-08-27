@@ -189,7 +189,7 @@ void IterativeDeeping::run() {
         bool print = true;
         if (abs(sc) > _INFINITE - MAX_PLY) {
             bool b = searchManager.getForceCheck();
-            u64 oldKey = searchManager.getZobristKey();
+            u64 oldKey = searchManager.getZobristKey(0);
             searchManager.setForceCheck(true);
             bool valid = searchManager.makemove(&resultMove);
             if (!valid) {

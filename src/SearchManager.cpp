@@ -270,7 +270,7 @@ int SearchManager::getMateIn() {
 
 
 void SearchManager::startClock() {
-    threadPool[0]->startClock();// static
+    threadPool[0]->startClock();// static variable
 }
 
 string SearchManager::boardToFen() {
@@ -288,21 +288,19 @@ void SearchManager::clearAge() {
 }
 
 int SearchManager::getForceCheck() {
-    return threadPool[0]->getForceCheck();
+    return threadPool[0]->getForceCheck();// static variable
 }
 
-u64 SearchManager::getZobristKey() {
-    return threadPool[0]->getZobristKey();
+u64 SearchManager::getZobristKey(int id) {
+    return threadPool[id]->getZobristKey();
 }
 
 void SearchManager::setForceCheck(bool a) {
-    for (Search *s:threadPool) {
-        s->setForceCheck(a);
-    }
+    threadPool[0]->setForceCheck(a);    // static variable
 }
 
 void SearchManager::setRunningThread(bool r) {
-    threadPool[0]->setRunningThread(r);// is static
+    threadPool[0]->setRunningThread(r);// static variable
 }
 
 void SearchManager::setRunning(int i) {

@@ -65,7 +65,7 @@ public:
 
     int getForceCheck();
 
-    u64 getZobristKey();
+    u64 getZobristKey(int id);
 
     void setForceCheck(bool a);
 

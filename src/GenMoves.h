@@ -267,7 +267,7 @@ protected:
 
 private:
     int running;
-    bool forceCheck = false;
+    static bool forceCheck;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
     static const u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;
