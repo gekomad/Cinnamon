@@ -120,7 +120,7 @@ public:
 #endif
         tmp.entryAge = 1;
         if (smp)MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
-        if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {//TODO dovrebbe essere greater
+        if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {
             INC(collisions);
             if (smp) MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
             return;
