@@ -24,7 +24,7 @@ Hash *Search::hash;
 Tablebase *Search::gtb;
 
 bool Search::runningThread;
-
+high_resolution_clock::time_point Search::startTime;
 
 void Search::run() {
     if (getRunning()) {

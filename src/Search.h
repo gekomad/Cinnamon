@@ -160,7 +160,7 @@ private:
 
     int maxTimeMillsec;
     bool nullSearch;
-    high_resolution_clock::time_point startTime;
+    static high_resolution_clock::time_point startTime;
 
     bool checkDraw(u64);
 

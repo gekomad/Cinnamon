@@ -264,15 +264,13 @@ int SearchManager::getValue(int i) {
 }
 
 int SearchManager::getMateIn() {
-    assert(0);
+    assert(0);//TODO
     //return threadPool[threadWin]->getMateIn();
 }
 
 
 void SearchManager::startClock() {
-    for (Search *s:threadPool) {
-        s->startClock();//TODO static
-    }
+    threadPool[0]->startClock();// static
 }
 
 string SearchManager::boardToFen() {
