@@ -133,8 +133,7 @@ void PerftThread::run() {
 
         takeback(move, keyold, false);
         char y;
-        char x = FEN_PIECE[chessboard[SIDETOMOVE_IDX] ? getPieceAt<WHITE>(POW2[move->from]) : getPieceAt<BLACK>(
-                POW2[move->from])];
+        char x = FEN_PIECE[chessboard[SIDETOMOVE_IDX] ? getPieceAt<WHITE>(POW2[move->from]) : getPieceAt<BLACK>(POW2[move->from])];
         if (x == 'p' || x == 'P') {
             x = ' ';
         }
@@ -147,11 +146,9 @@ void PerftThread::run() {
             lock_guard<mutex> lock(mutexPrint);
             cout << endl << "#" << ii + 1 << " cpuID# " << getId();
             if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
-                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft <<
-                " ";
+                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft << " ";
             } else {
-                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y <<
-                decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft << " ";
+                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft << " ";
             }
         }
         cout << flush;

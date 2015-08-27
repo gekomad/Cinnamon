@@ -33,15 +33,11 @@ void Search::run() {
 }
 
 void Search::endRun() {
-    ASSERT(pvsMode == false);
-    if (pvsMode) {
-        takeback(&mainMove, oldKeyPVS, true);
-    }
     notifySearch(getId());
 }
 
-void Search::run(bool pvsplit, bool smp, int depth, int alpha, int beta) {
-    setMainParam(pvsplit, smp, depth, alpha, beta);
+void Search::run(bool smp, int depth, int alpha, int beta) {
+    setMainParam(smp, depth, alpha, beta);
     run();
 }
 
@@ -380,9 +376,7 @@ void Search::deleteGtb() {
     gtb = nullptr;
 }
 
-void Search::setMainParam(bool pvsplit, bool smp, int depth, int alpha, int beta) {
-    ASSERT(pvsMode == false);
-    pvsMode = pvsplit;//TODO eliminare
+void Search::setMainParam(bool smp, int depth, int alpha, int beta) {
     memset(&pvLine, 0, sizeof(_TpvLine));
     mainDepth = depth;
     mainAlpha = alpha;
@@ -390,14 +384,6 @@ void Search::setMainParam(bool pvsplit, bool smp, int depth, int alpha, int beta
     mainBeta = beta;
 
 }
-
-void Search::setPVSplit(const int depth, const int alpha, const int beta, _Tmove *move) {//TODO eliminare
-    setMainParam(true, true, depth, alpha, beta);
-    oldKeyPVS = chessboard[ZOBRISTKEY_IDX];
-    memcpy(&mainMove, move, sizeof(_Tmove));
-    makemove(move, true, false);
-}
-
 
 int Search::search(bool smp, int depth, int alpha, int beta) {
     ASSERT_RANGE(depth, 0, MAX_PLY);

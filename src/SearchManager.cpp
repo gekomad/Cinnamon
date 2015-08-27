@@ -66,7 +66,7 @@ void SearchManager::singleSearch(int mply) {
         threadPool[0]->init();
         debug("val: ", valWindow);
 
-        threadPool[0]->run(false, false, mply, -_INFINITE, _INFINITE);
+        threadPool[0]->run(SMP_NO, mply, -_INFINITE, _INFINITE);
         valWindow = threadPool[0]->getValue();
         //if (threadPool[0]->getRunning()) {
         memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
@@ -75,26 +75,26 @@ void SearchManager::singleSearch(int mply) {
         threadPool[0]->init();
 
         //Aspiration Windows
-        threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
+        threadPool[0]->run(SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
         int tmp = threadPool[0]->getValue();
         if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
 
             if (tmp <= threadPool[0]->getMainAlpha()) {
-                threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW);
+                threadPool[0]->run(SMP_NO, mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW);
             } else {
-                threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 2);
+                threadPool[0]->run(SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 2);
             }
             tmp = threadPool[0]->getValue();
             if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
 
                 if (tmp <= threadPool[0]->getMainAlpha()) {
-                    threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW);
+                    threadPool[0]->run(SMP_NO, mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW);
                 } else {
-                    threadPool[0]->run(false, SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 4);
+                    threadPool[0]->run(SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 4);
                 }
                 tmp = threadPool[0]->getValue();
                 if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
-                    threadPool[0]->run(false, SMP_NO, mply, -_INFINITE, _INFINITE);
+                    threadPool[0]->run(SMP_NO, mply, -_INFINITE, _INFINITE);
                     tmp = threadPool[0]->getValue();
                 }
             }
@@ -225,7 +225,7 @@ void SearchManager::startThread(bool smpMode, Search &thread, int depth, int alp
     debug("startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
     ASSERT(alpha >= -_INFINITE);
 
-    thread.setMainParam(false, smpMode, depth, alpha, beta);
+    thread.setMainParam(smpMode, depth, alpha, beta);
     thread.init();
     thread.start();
 }

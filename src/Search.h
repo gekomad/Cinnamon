@@ -41,8 +41,6 @@ public:
 
     void setRunning(int);
 
-    void setPVSplit(const int depth, const int alpha, const int beta, _Tmove *move);
-
     void setPonder(bool);
 
     void setNullMove(bool);
@@ -63,9 +61,9 @@ public:
         return pvLine;
     }
 
-    void run(bool pvsplit, bool smp, int depth, int alpha, int beta);
+    void run(bool smp, int depth, int alpha, int beta);
 
-    void setMainParam(bool pvsplit, bool smp, int depth, int alpha, int beta);
+    void setMainParam(bool smp, int depth, int alpha, int beta);
 
     int search(bool smp, int depth, int alpha, int beta);
 
@@ -180,8 +178,6 @@ private:
 
 
     int mainMateIn;
-    bool pvsMode = false;
-    //TODO eliminare
     int mainDepth;
     bool mainSmp;
     int mainBeta;
@@ -190,10 +186,6 @@ private:
     u64 oldKeyPVS;
 
 public:
-    bool getPvsMode() const {
-        return pvsMode;
-    }
-
     int getMainDepth() const {
         return mainDepth;
     }

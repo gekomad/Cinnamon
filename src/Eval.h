@@ -156,11 +156,7 @@ private:
 
     template<int side>
     int lazyEvalSide() {
-        return Bits::bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN +
-               Bits::bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK +
-               Bits::bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP +
-               Bits::bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT +
-               Bits::bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
+        return Bits::bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN + Bits::bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK + Bits::bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP + Bits::bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT + Bits::bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
     }
 };
 

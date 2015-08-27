@@ -146,46 +146,44 @@ void IterativeDeeping::run() {
             sc = 0x7fffffff;
         }
 #ifdef DEBUG_MODE
-            int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
-            int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
-            int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
-            int percStoreHashE = hash.nRecordHashE * 100 / totStoreHash;
-            int totCutHash = hash.n_cut_hashA + hash.n_cut_hashB + hash.n_cut_hashE + 1;
-            int percCutHashA = hash.n_cut_hashA * 100 / totCutHash;
-            int percCutHashB = hash.n_cut_hashB * 100 / totCutHash;
-            int percCutHashE = hash.n_cut_hashE * 100 / totCutHash;
-            cout << "\ninfo string ply: " << mply << "\n";
-            cout << "info string tot moves: " << totMoves << "\n";
-            unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
-            cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" <<
-            percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
-            // ASSERT(totStoreHash <= cumulativeMovesCount);
-            cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) <<
-            "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
-            //ASSERT(totCutHash <= cumulativeMovesCount);
-            u64 nps = 0;
-            if (timeTaken) {
-                nps = totMoves * 1000 / timeTaken;
-            }
-            int nCutAB = searchManager.getNCutAB();
-            double betaEfficiency = searchManager.getBetaEfficiency();
-            int LazyEvalCuts = searchManager.getLazyEvalCuts();
-            int nCutFp = searchManager.getNCutFp();
-            int nCutRazor = searchManager.getNCutRazor();
-            int nHashCutFailed = searchManager.getNCutRazor();
-            int nNullMoveCut = hash.cutFailed;
-            unsigned totGen = searchManager.getTotGen();
-            if (nCutAB) {
-                cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%\n";
-                betaEfficiency = totGen = 0.0;
-            }
-            cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds) \n";
-            cout << "info string alphaBeta cut: " << nCutAB << "\n";
-            cout << "info string lazy eval cut: " << LazyEvalCuts << "\n";
-            cout << "info string futility pruning cut: " << nCutFp << "\n";
-            cout << "info string razor cut: " << nCutRazor << "\n";
-            cout << "info string null move cut: " << nNullMoveCut << "\n";
-            cout << "info string hash cut failed : " << nHashCutFailed << "\n";
+        int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
+        int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
+        int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
+        int percStoreHashE = hash.nRecordHashE * 100 / totStoreHash;
+        int totCutHash = hash.n_cut_hashA + hash.n_cut_hashB + hash.n_cut_hashE + 1;
+        int percCutHashA = hash.n_cut_hashA * 100 / totCutHash;
+        int percCutHashB = hash.n_cut_hashB * 100 / totCutHash;
+        int percCutHashE = hash.n_cut_hashE * 100 / totCutHash;
+        cout << "\ninfo string ply: " << mply << "\n";
+        cout << "info string tot moves: " << totMoves << "\n";
+        unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
+        cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
+        // ASSERT(totStoreHash <= cumulativeMovesCount);
+        cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
+        //ASSERT(totCutHash <= cumulativeMovesCount);
+        u64 nps = 0;
+        if (timeTaken) {
+            nps = totMoves * 1000 / timeTaken;
+        }
+        int nCutAB = searchManager.getNCutAB();
+        double betaEfficiency = searchManager.getBetaEfficiency();
+        int LazyEvalCuts = searchManager.getLazyEvalCuts();
+        int nCutFp = searchManager.getNCutFp();
+        int nCutRazor = searchManager.getNCutRazor();
+        int nHashCutFailed = searchManager.getNCutRazor();
+        int nNullMoveCut = hash.cutFailed;
+        unsigned totGen = searchManager.getTotGen();
+        if (nCutAB) {
+            cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%\n";
+            betaEfficiency = totGen = 0.0;
+        }
+        cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds) \n";
+        cout << "info string alphaBeta cut: " << nCutAB << "\n";
+        cout << "info string lazy eval cut: " << LazyEvalCuts << "\n";
+        cout << "info string futility pruning cut: " << nCutFp << "\n";
+        cout << "info string razor cut: " << nCutRazor << "\n";
+        cout << "info string null move cut: " << nNullMoveCut << "\n";
+        cout << "info string hash cut failed : " << nHashCutFailed << "\n";
 #endif
         ///is valid move?
         bool print = true;
@@ -213,11 +211,9 @@ void IterativeDeeping::run() {
             }
 
             if (abs(sc) > _INFINITE - MAX_PLY) {
-                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << timeTaken <<
-                " pv " << pvv << endl;
+                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << timeTaken << " pv " << pvv << endl;
             } else {
-                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " <<
-                timeTaken << " pv " << pvv << endl;
+                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << timeTaken << " pv " << pvv << endl;
             }
         }
 

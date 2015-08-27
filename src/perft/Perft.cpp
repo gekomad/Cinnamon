@@ -19,7 +19,6 @@
 #include "Perft.h"
 #include "_TPerftRes.h"
 
-
 void Perft::dump() {
     if (dumpFile.empty() || !perftRes.hash) {
         return;

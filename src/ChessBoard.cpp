@@ -34,7 +34,7 @@ u64 ChessBoard::getBitBoard(int side) {
 }
 
 int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
-    return side ? getPieceAt<WHITE>(bitmapPos) : getPieceAt<BLACK>(bitmapPos);
+    return side ? getPieceAt < WHITE > (bitmapPos) : getPieceAt < BLACK > (bitmapPos);
 }
 
 #endif
@@ -92,8 +92,7 @@ void ChessBoard::display() {
             cout << "\n   ----+---+---+---+---+---+---+----\n";
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
-        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(
-                POW2[63 - t])]) == '-' ? ' ' : x;
+        x = (x = (x = FEN_PIECE[getPieceAt < WHITE > (POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt < BLACK > (POW2[63 - t])]) == '-' ? ' ' : x;
         x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     };
@@ -116,9 +115,9 @@ string ChessBoard::boardToFen() {
         int l = 0;
         string row;
         for (int x = 0; x < 8; x++) {
-            int q = getPieceAt<BLACK>(POW2[63 - ((y * 8) + x)]);
+            int q = getPieceAt < BLACK > (POW2[63 - ((y * 8) + x)]);
             if (q == SQUARE_FREE) {
-                q = getPieceAt<WHITE>(POW2[63 - ((y * 8) + x)]);
+                q = getPieceAt < WHITE > (POW2[63 - ((y * 8) + x)]);
             }
             if (q == SQUARE_FREE) {
                 l++;
@@ -167,8 +166,7 @@ string ChessBoard::boardToFen() {
         fen.append(" -");
     } else {
         fen.append(" ");
-        chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(
-                BOARD[chessboard[ENPASSANT_IDX] - 8]);
+        chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(BOARD[chessboard[ENPASSANT_IDX] - 8]);
     }
     return fen;
 }

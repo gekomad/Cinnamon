@@ -221,8 +221,7 @@ protected:
     int killerHeuristic[64][64];
 
     template<int side>
-    bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo,
-                 int promotionPiece);
+    bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
 
     void performCastle(const int side, const uchar type);
 
