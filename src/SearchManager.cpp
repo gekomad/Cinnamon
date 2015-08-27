@@ -117,7 +117,7 @@ void SearchManager::singleSearch(int mply) {
 void SearchManager::parallelSearch(int mply) {
     lineWin.cmove = -1;
     setMainPly(mply);
-    forceMainThread = -1;
+    forceMainThread = -1;//TODO eliminare e mettere setRunning(1); dentro startThread
     ASSERT(!getBitCount());
 
     if (mply == 1) {
@@ -149,124 +149,20 @@ void SearchManager::parallelSearch(int mply) {
         debug("end loop2 ---------------------------count:", getBitCount());
         joinAll();
         ASSERT(!getBitCount());
-        //LAZY SMP
         if (lineWin.cmove <= 0) {
-            cout << "info string aaaaaaaaaaaaaaaaaaLAZY SMP\n";
-
+            cout << "aaaaaaaaaaaaLAZY SMP\n";
             debug("start loop3 -------------------------------count:", getBitCount());
-            //master
-            Search &master = getNextThread();
-            forceMainThread = master.getId();
-            master.setRunning(1);
-
-            //helper
-            for (int i = 1; i < getNthread() - 1; i++) {
+            for (int i = 0; i < getNthread(); i++) {
                 Search &idThread1 = getNextThread();
-                idThread1.setRunning(2);
-
+                idThread1.setRunning(1);
                 startThread(SMP_YES, idThread1, mply + (i & 1), -_INFINITE, _INFINITE);
-
             }
-            startThread(SMP_YES, master, mply, -_INFINITE, _INFINITE);
+            joinAll();
             debug("end loop3 -------------------------------count:", getBitCount());
 
-            master.join();
-            stopAllThread();
-            joinAll();
-            ASSERT(!getBitCount());
         }
     }
 }
-
-//void SearchManager::treeSplit(Search &idThread1, int alpha, const int beta, const int depth, _Tmove *move1) {
-//
-//    int value[GenMoves::MAX_MOVE];
-//    if (depth < 5) {
-//        idThread1.display();
-////        startThread(idThread1, depth,alphaValue[depth], betaValue[depth]);
-//        idThread1.setRunning(1);
-//        idThread1.setRunningThread(true);
-//        idThread1.search(false, depth, alphaValue[depth], betaValue[depth]);
-////        int t = idThread1.getValue();
-//
-//        memcpy(&lineWin, &idThread1.getPvLine(), sizeof(_TpvLine));
-//        mateIn = idThread1.getMateIn();
-//        ASSERT(mateIn == INT_MAX);
-//        totCountWin += idThread1.getTotMoves();
-////        valWindow = getValue(threadID);
-////        debug("win", threadID);
-//        ASSERT(lineWin.cmove);
-//        stopAllThread();
-////        idThread1.join();
-//        return;
-//    }
-//    idThread1.incListId();
-//idThread1.generateCapturesMoves();
-//    int i = 0;
-//    _Tmove *move;
-//    while ((move = idThread1.getNextMove())) {
-//        Search &search = getNextThread();
-////        value[i] = -treeSplit(search, -beta, -alpha, depth - 1, move);
-//        {
-//            lock_guard<mutex> lock(mutexTreeSplit);
-//            if (value[i] > alpha) {
-//                alpha = value[i];
-//            }
-//        }
-//        if (alpha > beta) {
-//            stopAllThread();
-//            joinAll();
-//            return;
-//        }
-//
-//    }
-//}
-
-//int SearchManager::PVSplit(Search &idThread1, const int depth) {
-//    ASSERT_RANGE(depth, 0, MAX_PLY);
-//    if (depth < 5) {
-//        idThread1.display();
-////        startThread(idThread1, depth,alphaValue[depth], betaValue[depth]);
-//        idThread1.setRunning(1);
-//        idThread1.setRunningThread(true);
-//        idThread1.search(false, depth, alphaValue[depth], betaValue[depth]);
-////        int t = idThread1.getValue();
-//
-//        memcpy(&lineWin, &idThread1.getPvLine(), sizeof(_TpvLine));
-//        mateIn = idThread1.getMateIn();
-//        ASSERT(mateIn == INT_MAX);
-//        totCountWin += idThread1.getTotMoves();
-////        valWindow = getValue(threadID);
-////        debug("win", threadID);
-//        ASSERT(lineWin.cmove);
-//        stopAllThread();
-////        idThread1.join();
-//    }
-//
-//    idThread1.incListId();
-//    idThread1.generateCapturesMoves();
-//    u64 oldKey = idThread1.chessboard[ZOBRISTKEY_IDX];
-//    _Tmove *move = idThread1.getNextMove();
-//
-//    idThread1.makemove(move, true, false);
-//
-//
-//    int score = -PVSplit(idThread1, depth - 1);
-//    idThread1.takeback(move, oldKey, true);
-////    if (score > alphaValue[depth]) updateAB(depth, idThread1.getSide(), score);
-//    idThread1.decListId();
-//
-//    if (score > betaValue[depth]) {
-////        updateAB(depth, idThread1.getSide(), score);
-//        return score;
-//    }
-//    while ((move = idThread1.getNextMove())) {
-//        Search &idThread2 = getNextThread();
-//        idThread2.setPVSplit(depth, alphaValue[depth], betaValue[depth], move);
-//        idThread2.start();
-//    }
-//    return 0;
-//}
 
 void SearchManager::receiveObserverSearch(int threadID) {
 
