@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
             ///////////////////
             ifstream inData;
             string fen;
-            if (!_file::fileExists(epdfile)) {
+            if (!_file::File::fileExists(epdfile)) {
                 cout << "error file not found  " << epdfile << endl;
                 return 1;
             }
@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
             int n = 0;
             ostringstream os;
 
-            os << "[Date \"" << _time::getYear() << "." << _time::getMonth() << "." << _time::getDay() << "\"]";
+            os << "[Date \"" << Time::getYear() << "." << Time::getMonth() << "." << Time::getDay() << "\"]";
             string date = os.str();
             while (!inData.eof()) {
                 getline(inData, fen);

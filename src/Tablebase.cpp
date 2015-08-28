@@ -30,7 +30,7 @@ Tablebase::~Tablebase() {
 
 void Tablebase::load() {
     memset(installedPieces, 0, sizeof(installedPieces));
-    if (!_file::fileExists(path)) {
+    if (!_file::File::fileExists(path)) {
         return;
     }
     tbstats_reset();

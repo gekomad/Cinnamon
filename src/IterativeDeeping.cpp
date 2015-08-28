@@ -138,7 +138,7 @@ void IterativeDeeping::run() {
         searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
 
         auto end1 = std::chrono::high_resolution_clock::now();
-        timeTaken = _time::diffTime(end1, start1);
+        timeTaken = Time::diffTime(end1, start1);
         totMoves += searchManager.getTotMoves();
 
         sc = resultMove.score;

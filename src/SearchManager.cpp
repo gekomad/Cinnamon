@@ -26,7 +26,7 @@ SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
 
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
-    if (!_file::fileExists(parameterFile)) {
+    if (!_file::File::fileExists(parameterFile)) {
         cout << "warning file not found  " << parameterFile << endl;
         return;
     }
@@ -458,7 +458,12 @@ void SearchManager::stopAllThread() {
 }
 
 bool SearchManager::setParameter(String param, int value) {
+    bool b = false;
     for (Search *s:threadPool) {
-        s->setParameter(param, value);
+        b = s->setParameter(param, value);
+        if (!b) {
+            break;
+        }
     }
+    return b;
 }
