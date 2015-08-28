@@ -147,6 +147,20 @@ public:
     unsigned totGen;
 #endif
 private:
+
+    typedef struct {
+        int res;
+
+        bool hashGreater;
+        bool hashAlways;
+
+        Hash::_Thash phasheGreater;
+        Hash::_Thash phasheAlways;
+
+        Hash::_Thash *rootHash[2];
+    } _TcheckHash;
+
+
     static bool runningThread;
     _TpvLine pvLine;
     static Hash *hash;
@@ -167,6 +181,9 @@ private:
     template<int side, bool smp>
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
 
+    template<bool smp>
+    bool checkHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct);
+
     bool checkInsufficientMaterial(int);
 
     void sortHashMoves(int listId, Hash::_Thash &);
@@ -182,10 +199,11 @@ private:
     bool mainSmp;
     int mainBeta;
     int mainAlpha;
-    _Tmove mainMove;
-    u64 oldKeyPVS;
+//    _Tmove mainMove;
+//    u64 oldKeyPVS;
 
 public:
+
     int getMainDepth() const {
         return mainDepth;
     }
@@ -193,6 +211,7 @@ public:
     bool getMainSmp() const {
         return mainSmp;
     }
+
 };
 
 

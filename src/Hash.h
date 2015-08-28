@@ -48,7 +48,7 @@ public:
 
 #pragma pack(pop)
     enum : char {
-        hashfEXACT = 1, hashfALPHA = 0, hashfBETA = 2
+        hashfALPHA = 0, hashfEXACT = 1, hashfBETA = 2
     };
 
     int HASH_SIZE;
@@ -69,13 +69,13 @@ public:
     void clearAge();
 
     template<bool smp>
-    bool readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, _Thash &hashMini) {
+    bool readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, _Thash *hashMini) {
         bool b = false;
         _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
         if (smp) MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].lock_shared();
         if (hash->key == zobristKeyR) {
             b = true;
-            memcpy(&hashMini, hash, sizeof(_Thash));
+            memcpy(hashMini, hash, sizeof(_Thash));
         }
         if (smp)MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].unlock_shared();
         return b;
