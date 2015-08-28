@@ -18,7 +18,7 @@
 
 #include "SearchManager.h"
 
-SearchManager::SearchManager() : ThreadPool() {//TODO 1
+SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
     nThreads = getNthread();
     for (Search *s:threadPool) {
         s->registerObserver(this);
@@ -68,9 +68,9 @@ void SearchManager::singleSearch(int mply) {
 
         threadPool[0]->run(SMP_NO, mply, -_INFINITE, _INFINITE);
         valWindow = threadPool[0]->getValue();
-        //if (threadPool[0]->getRunning()) {
+        totCountWin += threadPool[0]->getTotMoves();
         memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
-        //}
+
     } else {
         threadPool[0]->init();
 
