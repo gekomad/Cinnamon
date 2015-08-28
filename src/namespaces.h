@@ -80,7 +80,7 @@ namespace _board {
     static const int SIDETOMOVE_IDX = 14;
     static const int ZOBRISTKEY_IDX = 15;
 
-#define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<_time::getLocalTime()<<" ********************************** assert error in "<<_file::extractFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;exit(1);};
+#define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<_time::getLocalTime()<<" ********************************** assert error in "<<_file::getFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;exit(1);};
 
 #ifdef DEBUG_MODE
 #define ASSERT(a) assert(a)
@@ -331,24 +331,6 @@ namespace _time {
         time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
         return ctime(&current);
     }
-
-    static int getYear() {
-        time_t t = time(NULL);
-        tm *timePtr = localtime(&t);
-        return 1900 + timePtr->tm_year;
-    }
-
-    static int getMonth() {
-        time_t t = time(NULL);
-        tm *timePtr = localtime(&t);
-        return 1 + timePtr->tm_mon;
-    }
-
-    static int getDay() {
-        time_t t = time(NULL);
-        tm *timePtr = localtime(&t);
-        return timePtr->tm_mday;
-    }
 }
 
 namespace _file {
@@ -370,7 +352,7 @@ namespace _file {
         return -1;
     }
 
-    static string extractFileName(string path) {
+    static string getFileName(string path) {
         replace(path.begin(), path.end(), ':', '/');
         replace(path.begin(), path.end(), '\\', '/');
         istringstream iss(path);

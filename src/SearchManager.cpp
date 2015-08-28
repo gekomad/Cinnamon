@@ -145,13 +145,18 @@ void SearchManager::parallelSearch(int mply) {
         ASSERT(!getBitCount());
         if (lineWin.cmove <= 0) {
             debug("start loop3 -------------------------------count:", getBitCount());
-//            for (int i = 0; i < getNthread(); i++) {
+
             Search &idThread1 = getNextThread();
             idThread1.setRunning(1);
-//                startThread(SMP_YES, idThread1, mply + (i & 1), -_INFINITE, _INFINITE);//TODO ripristinare LAZY SMP
             startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
+
+            //LAZY SMP ripristinare TODO
+//            for (int i = 0; i < getNthread(); i++) {
+//                Search &idThread1 = getNextThread();
+//                idThread1.setRunning(1);
+//                startThread(SMP_YES, idThread1, mply + (i & 1), -_INFINITE, _INFINITE);
 //            }
-            idThread1.join();
+//            joinAll();
             debug("end loop3 -------------------------------count:", getBitCount());
         }
     }
