@@ -137,12 +137,75 @@ int main(int argc, char **argv) {
     }
     int opt;
 
-    while ((opt = getopt(argc, argv, "hd:bp:f:")) != -1) {
+    while ((opt = getopt(argc, argv, "e:hd:bp:f:")) != -1) {
         if (opt == 'h') {
             help(argv);
             return 0;
         }
+        if (opt == 'e') {
+            if (string(optarg) != "pd2pgn") {
+                cout << "use: " << argv[0] << " " << EPD2PGN_HELP << endl;
+                return 1;
+            };
+            string epdfile;
+            int m = 64;
+            while ((opt = getopt(argc, argv, "f:m:")) != -1) {
+                if (opt == 'f') {    //file
+                    epdfile = optarg;
+                }
+                if (opt == 'm') {    //n' pieces
+                    string h = optarg;
+                    m = stoi(h);
+                }
+            }
+            ///////////////////
+            ifstream inData;
+            string fen;
+            if (!_file::fileExists(epdfile)) {
+                cout << "error file not found  " << epdfile << endl;
+                return 1;
+            }
+            inData.open(epdfile);
+            int count = 0;
+            int n = 0;
+            ostringstream os;
 
+            os << "[Date \"" << _time::getYear() << "." << _time::getMonth() << "." << _time::getDay() << "\"]";
+            string date = os.str();
+            while (!inData.eof()) {
+                getline(inData, fen);
+                n = 0;
+                for (unsigned i = 0; i < fen.size(); i++) {
+                    int c = tolower(fen[i]);
+                    if (c == ' ') {
+                        break;
+                    }
+                    if (c == 'b' || c == 'k' || c == 'r' || c == 'q' || c == 'p' || c == 'n') {
+                        n++;
+                    }
+                }
+                if (n > 0 && n <= m) {
+                    count++;
+                    cout << "[Site \"" << count << " (" << n << " pieces)\"]\n";
+                    cout << date << "\n";
+                    cout << "[Result \"*\"]\n";
+                    string fenClean, token;
+                    istringstream uip(fen, ios::in);
+                    uip >> token;
+                    fenClean += token + " ";
+                    uip >> token;
+                    fenClean += token + " ";
+                    uip >> token;
+                    fenClean += token + " ";
+                    uip >> token;
+                    fenClean += token;
+                    cout << "[FEN \"" << fenClean << "\"]\n";
+                    cout << "*" << "\n";
+                }
+            }
+            cout << endl;
+            return 0;
+        }
         if (opt == 'b') {
             unique_ptr<IterativeDeeping> it(new IterativeDeeping());
             it->setUseBook(false);
@@ -161,17 +224,17 @@ int main(int argc, char **argv) {
                     fen = optarg;
                 } else if (opt == 'p') { //path
                     token = optarg;
-                    //   it.getGtb().setPath(token);TODO
+                    //   it.getGtb().setPath(token);
                 } else if (opt == 's') { //scheme
                     token = optarg;
 //                    if (!it.getGtb().setScheme(token)) {
-//                        cout << "set scheme error" << endl;TODO
+//                        cout << "set scheme error" << endl;
 //                        return 1;
 //                    }
                 } else if (opt == 'i') {
                     token = optarg;
 //                    if (!it.getGtb().setInstalledPieces(stoi(token))) {
-//                        cout << "set installed pieces error" << endl;TODO
+//                        cout << "set installed pieces error" << endl;
 //                        return 1;
 //                    }
                 }

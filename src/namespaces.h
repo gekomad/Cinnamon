@@ -331,6 +331,24 @@ namespace _time {
         time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
         return ctime(&current);
     }
+
+    static int getYear() {
+        time_t t = time(NULL);
+        tm *timePtr = localtime(&t);
+        return 1900 + timePtr->tm_year;
+    }
+
+    static int getMonth() {
+        time_t t = time(NULL);
+        tm *timePtr = localtime(&t);
+        return 1 + timePtr->tm_mon;
+    }
+
+    static int getDay() {
+        time_t t = time(NULL);
+        tm *timePtr = localtime(&t);
+        return timePtr->tm_mday;
+    }
 }
 
 namespace _file {
