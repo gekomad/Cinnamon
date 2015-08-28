@@ -124,9 +124,12 @@ namespace _board {
         _Tmove argmove[MAX_PLY];
     } _TpvLine;
 
+    static const bool USE_HASH_YES = true;
+    static const bool USE_HASH_NO = false;
 
     static const bool SMP_YES = true;
     static const bool SMP_NO = false;
+
     static const int BLACK = 0;
     static const int WHITE = 1;
     static const int _INFINITE = 32000;

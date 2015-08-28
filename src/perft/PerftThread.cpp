@@ -112,22 +112,22 @@ void PerftThread::run() {
         if (fhash) {
             if (side == WHITE) {
                 if (smp) {
-                    n_perft = search<WHITE, true, SMP_YES>(tPerftRes->depth - 1);
+                    n_perft = search<WHITE, USE_HASH_YES, SMP_YES>(tPerftRes->depth - 1);
                 } else {//smp == false
-                    n_perft = search<WHITE, true, SMP_NO>(tPerftRes->depth - 1);
+                    n_perft = search<WHITE, USE_HASH_YES, SMP_NO>(tPerftRes->depth - 1);
                 }
             } else {
                 if (smp) {
-                    n_perft = search<BLACK, true, SMP_YES>(tPerftRes->depth - 1);
+                    n_perft = search<BLACK, USE_HASH_YES, SMP_YES>(tPerftRes->depth - 1);
                 } else {//smp == false
-                    n_perft = search<BLACK, true, SMP_NO>(tPerftRes->depth - 1);
+                    n_perft = search<BLACK, USE_HASH_YES, SMP_NO>(tPerftRes->depth - 1);
                 }
             }
         } else {//no hash
             if (side == WHITE) {
-                n_perft = search<WHITE, false, SMP_NO>(tPerftRes->depth - 1);
+                n_perft = search<WHITE, USE_HASH_NO, SMP_NO>(tPerftRes->depth - 1);
             } else {
-                n_perft = search<BLACK, false, SMP_NO>(tPerftRes->depth - 1);
+                n_perft = search<BLACK, USE_HASH_NO, SMP_NO>(tPerftRes->depth - 1);
             }
         }
 
