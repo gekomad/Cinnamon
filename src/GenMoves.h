@@ -146,6 +146,7 @@ public:
     }
 
     void decListId() {
+        ASSERT(listId>0);
         gen_list[listId--].size = 0;
     }
 
