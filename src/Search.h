@@ -225,8 +225,8 @@ private:
                 } else {
                     switch (phashe->flags) {
                         case Hash::hashfEXACT:
-                            INC(hash->n_cut_hashE);
                             if (phashe->score >= beta) {
+                                INC(hash->n_cut_hashB);
                                 checkHashStruct.res = beta;
                                 return true;
                             }
