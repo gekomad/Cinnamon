@@ -187,4 +187,4 @@ Bits.o: util/Bits.cpp
 	$(COMP) -c util/Bits.cpp ${CFLAGS} ${ARC}
 
 clean:
-	$(RM) util/*.o *.o $(EXE) *.gcda
+	$(RM) *.o $(EXE) *.gcda
