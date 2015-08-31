@@ -242,7 +242,8 @@ void IterativeDeeping::run() {
 
 }
 
-void IterativeDeeping::createGtb() {
+Tablebase* IterativeDeeping::createGtb() {
     tablebase = &Tablebase::getInstance();
     searchManager.setGtb(*tablebase);
+    return tablebase;
 }

@@ -54,7 +54,7 @@ public:
 
     bool setParameter(String param, int value);
 
-    void createGtb();
+    Tablebase* createGtb();
 
     IterativeDeeping();
 
