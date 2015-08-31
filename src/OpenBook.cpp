@@ -131,7 +131,7 @@ u64 OpenBook::createKey(string fen1) {
 
 bool OpenBook::load(string fileName) {
     dispose();
-    if (!_file::File::fileExists(fileName)) {
+    if (!_file::fileExists(fileName)) {
         cout << fileName << " not found" << endl;
         return false;
     }

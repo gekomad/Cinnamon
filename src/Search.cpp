@@ -111,7 +111,7 @@ int Search::checkTime() {
         return 1;
     }
     auto t_current = std::chrono::high_resolution_clock::now();
-    return Time::diffTime(t_current, startTime) >= maxTimeMillsec ? 0 : 1;
+    return _time::diffTime(t_current, startTime) >= maxTimeMillsec ? 0 : 1;
 }
 
 Search::~Search() {
@@ -120,61 +120,6 @@ Search::~Search() {
         delete gtb;
         gtb = nullptr;
     }
-}
-
-template<bool smp>
-bool Search::checkHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
-    checkHashStruct.hashGreater = checkHashStruct.hashAlways = false;
-    Hash::_Thash *phashe = &checkHashStruct.phasheGreater;
-    for (int type: {Hash::HASH_GREATER, Hash::HASH_ALWAYS}) {
-        if (hash->readHash<smp>(checkHashStruct.rootHash, type, zobristKeyR, phashe)) {
-            if (phashe->from != phashe->to && phashe->flags & 0x3) {    // hashfEXACT or hashfBETA
-                if (type == Hash::HASH_GREATER) {
-                    checkHashStruct.hashGreater = true;
-                } else {
-                    checkHashStruct.hashAlways = true;
-                }
-            }
-            if (phashe->depth >= depth) {
-                INC(hash->probeHash);
-                if (!currentPly) {
-                    if (phashe->flags == Hash::hashfBETA) {
-                        incKillerHeuristic(phashe->from, phashe->to, 1);
-                    }
-                } else {
-                    switch (phashe->flags) {
-                        case Hash::hashfEXACT:
-                            if (phashe->score >= beta) {
-                                INC(hash->n_cut_hashE);
-                                checkHashStruct.res = beta;
-                                return true;
-                            }
-                            break;
-                        case Hash::hashfBETA:
-                            incKillerHeuristic(phashe->from, phashe->to, 1);
-                            if (phashe->score >= beta) {
-                                INC(hash->n_cut_hashB);
-                                checkHashStruct.res = beta;
-                                return true;
-                            }
-                            break;
-                        case Hash::hashfALPHA:
-                            if (phashe->score <= alpha) {
-                                INC(hash->n_cut_hashA);
-                                checkHashStruct.res = alpha;
-                                return true;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            INC(hash->cutFailed);
-        }
-        phashe = &checkHashStruct.phasheAlways;
-    }
-    return false;
 }
 
 template<int side, bool smp>
@@ -196,10 +141,12 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
 
     _TcheckHash checkHashStruct;
 
-    if (checkHash<smp>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+    if (checkHash<Hash::HASH_GREATER, smp>(true, alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
     };
-
+    if (checkHash<Hash::HASH_ALWAYS, smp>(true, alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+        return checkHashStruct.res;
+    };
 
 ///********** end hash ***************
 /**************Delta Pruning ****************/
@@ -455,7 +402,10 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
 
     _TcheckHash checkHashStruct;
 
-    if (checkHash<smp>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+    if (checkHash<Hash::HASH_GREATER, smp>(false, alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+        return checkHashStruct.res;
+    };
+    if (checkHash<Hash::HASH_ALWAYS, smp>(false, alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
     };
     ///********** end hash ***************
@@ -714,7 +664,6 @@ bool Search::setParameter(String param, int value) {
     }
     return res;
 #else
-    cout << param << " " << value << endl;
     return false;
 #endif
 }

@@ -66,14 +66,9 @@ gullydeckel-64_1982   0  0  0  0  0  0  0  0  0  0  0  0 49
 
 
 tc="0/0:15+0.05" single thread
-Rank Name                     Elo    +    - games score oppo. draws
-   1 Cinnamon 1.2c-smp.x        2    5    5  4927   51%    -2   41%
-   2 Cinnamon 1.2c-SNAPSHOT    -2    5    5  4927   49%     2   41%
-
-tc="0/0:15+0.05" 6 thread
-Rank Name                     Elo    +    - games score oppo. draws
-   1 Cinnamon 1.2c-smp.x       23   11   11   699   57%   -23   43%
-   2 Cinnamon 1.2c-SNAPSHOT   -23   11   11   699   43%    23   43%
+Rank Name                                   Elo    +    - games score oppo. draws
+   1 Cinnamon 1.2c-smp.12-single-core-mod     3    5    5  5511   51%    -3   22%
+   2 Cinnamon 1.2c-SNAPSHOT                  -3    5    5  5511   49%     3   22%
 
  */
 
@@ -161,7 +156,7 @@ int main(int argc, char **argv) {
             ///////////////////
             ifstream inData;
             string fen;
-            if (!_file::File::fileExists(epdfile)) {
+            if (!_file::fileExists(epdfile)) {
                 cout << "error file not found  " << epdfile << endl;
                 return 1;
             }
@@ -169,8 +164,7 @@ int main(int argc, char **argv) {
             int count = 0;
             int n = 0;
             ostringstream os;
-
-            os << "[Date \"" << Time::getYear() << "." << Time::getMonth() << "." << Time::getDay() << "\"]";
+            os << "[Date \"" << _time::getYear() << "." << _time::getMonth() << "." << _time::getDay() << "\"]";
             string date = os.str();
             while (!inData.eof()) {
                 getline(inData, fen);

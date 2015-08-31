@@ -55,7 +55,7 @@ public:
 #ifdef DEBUG_MODE
     unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions;
 
-    int n_cut_hashA, n_cut_hashE, n_cut_hashB, cutFailed, probeHash;
+    int n_cut_hashA, n_cut_hashB, cutFailed, probeHash;
 #endif
 
     virtual ~Hash();

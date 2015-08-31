@@ -138,7 +138,7 @@ void IterativeDeeping::run() {
         searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
 
         auto end1 = std::chrono::high_resolution_clock::now();
-        timeTaken = Time::diffTime(end1, start1);
+        timeTaken = _time::diffTime(end1, start1);
         totMoves += searchManager.getTotMoves();
 
         sc = resultMove.score;
@@ -150,16 +150,15 @@ void IterativeDeeping::run() {
         int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
         int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
         int percStoreHashE = hash.nRecordHashE * 100 / totStoreHash;
-        int totCutHash = hash.n_cut_hashA + hash.n_cut_hashB + hash.n_cut_hashE + 1;
+        int totCutHash = hash.n_cut_hashA + hash.n_cut_hashB + 1;
         int percCutHashA = hash.n_cut_hashA * 100 / totCutHash;
         int percCutHashB = hash.n_cut_hashB * 100 / totCutHash;
-        int percCutHashE = hash.n_cut_hashE * 100 / totCutHash;
         cout << "\ninfo string ply: " << mply << "\n";
         cout << "info string tot moves: " << totMoves << "\n";
         unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
         cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
         // ASSERT(totStoreHash <= cumulativeMovesCount);
-        cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "% exact=" << percCutHashE << "%)" << endl;
+        cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "%)" << endl;
         //ASSERT(totCutHash <= cumulativeMovesCount);
         u64 nps = 0;
         if (timeTaken) {

@@ -109,7 +109,12 @@ void Uci::listner(IterativeDeeping *it) {
                     fen = searchManager.getFen();
                 }
                 searchManager.setHashSize(hashDepth);
+                //cout << "perft depth " << perftDepth << " nCpu " << nCpu << " hash_size " << PERFT_HASH_SIZE << " fen " << fen << " dumpFile '" << dumpFile << "'\n";
                 perft = new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile);
+//                perft->registerObservers([this]() {
+//                    delete perft;
+//                    perft = nullptr;
+//                });
                 perft->start();
             } else {
                 cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string] [dumpFile file_name]\n";
@@ -232,11 +237,11 @@ void Uci::listner(IterativeDeeping *it) {
                                 searchManager.deleteGtb();
                                 knowCommand = true;
                             } else if (token == "gaviota") {
-                                //it->getGtb();TODO
+                                //it->getGtb();
                                 knowCommand = true;
                             }
 //                            else {
-//                                knowCommand = false;TODO
+//                                knowCommand = false;
 //                            }
                         }
                     } else if (token == "restart") {

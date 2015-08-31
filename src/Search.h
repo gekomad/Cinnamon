@@ -181,9 +181,6 @@ private:
     template<int side, bool smp>
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
 
-    template<bool smp>
-    bool checkHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct);
-
     bool checkInsufficientMaterial(int);
 
     void sortHashMoves(int listId, Hash::_Thash &);
@@ -199,18 +196,68 @@ private:
     bool mainSmp;
     int mainBeta;
     int mainAlpha;
-//    _Tmove mainMove;
-//    u64 oldKeyPVS;
+
+    template<bool type, bool smp>
+    __always_inline bool checkHash(const bool quies, const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
+        Hash::_Thash *phashe;
+        if (type == Hash::HASH_GREATER) {
+            checkHashStruct.hashGreater = false;
+            phashe = &checkHashStruct.phasheGreater;
+        } else {
+            checkHashStruct.hashAlways = false;
+            phashe = &checkHashStruct.phasheAlways;
+        }
+
+        if (hash->readHash<smp>(checkHashStruct.rootHash, type, zobristKeyR, phashe)) {
+            if (phashe->from != phashe->to && phashe->flags & 0x3) {    // hashfEXACT or hashfBETA
+                if (type == Hash::HASH_GREATER) {
+                    checkHashStruct.hashGreater = true;
+                } else {
+                    checkHashStruct.hashAlways = true;
+                }
+            }
+            if (phashe->depth >= depth) {
+                INC(hash->probeHash);
+                if (!currentPly) {
+                    if (phashe->flags == Hash::hashfBETA) {
+                        incKillerHeuristic(phashe->from, phashe->to, 1);
+                    }
+                } else {
+                    switch (phashe->flags) {
+                        case Hash::hashfEXACT:
+                            INC(hash->n_cut_hashE);
+                            if (phashe->score >= beta) {
+                                checkHashStruct.res = beta;
+                                return true;
+                            }
+                            break;
+                        case Hash::hashfBETA:
+                            if (!quies)incKillerHeuristic(phashe->from, phashe->to, 1);//TODO
+                            if (phashe->score >= beta) {
+                                INC(hash->n_cut_hashB);
+                                checkHashStruct.res = beta;
+                                return true;
+                            }
+                            break;
+                        case Hash::hashfALPHA:
+                            if (phashe->score <= alpha) {
+                                INC(hash->n_cut_hashA);
+                                checkHashStruct.res = alpha;
+                                return true;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    INC(hash->cutFailed);
+                }
+            }
+            INC(hash->cutFailed);
+        }
+        return false;
+    }
 
 public:
-
-    int getMainDepth() const {
-        return mainDepth;
-    }
-
-    bool getMainSmp() const {
-        return mainSmp;
-    }
 
 };
 

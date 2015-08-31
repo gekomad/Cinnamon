@@ -26,7 +26,7 @@ SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
 
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
-    if (!_file::File::fileExists(parameterFile)) {
+    if (!_file::fileExists(parameterFile)) {
         cout << "warning file not found  " << parameterFile << endl;
         return;
     }
@@ -145,18 +145,13 @@ void SearchManager::parallelSearch(int mply) {
         ASSERT(!getBitCount());
         if (lineWin.cmove <= 0) {
             debug("start loop3 -------------------------------count:", getBitCount());
-
+//            for (int i = 0; i < getNthread(); i++) {
             Search &idThread1 = getNextThread();
             idThread1.setRunning(1);
+//                startThread(SMP_YES, idThread1, mply + (i & 1), -_INFINITE, _INFINITE);//TODO ripristinare LAZY SMP
             startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
-
-            //LAZY SMP ripristinare TODO
-//            for (int i = 0; i < getNthread(); i++) {
-//                Search &idThread1 = getNextThread();
-//                idThread1.setRunning(1);
-//                startThread(SMP_YES, idThread1, mply + (i & 1), -_INFINITE, _INFINITE);
 //            }
-//            joinAll();
+            idThread1.join();
             debug("end loop3 -------------------------------count:", getBitCount());
         }
     }
@@ -458,12 +453,7 @@ void SearchManager::stopAllThread() {
 }
 
 bool SearchManager::setParameter(String param, int value) {
-    bool b = false;
     for (Search *s:threadPool) {
-        b = s->setParameter(param, value);
-        if (!b) {
-            break;
-        }
+        s->setParameter(param, value);
     }
-    return b;
 }

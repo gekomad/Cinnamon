@@ -56,7 +56,7 @@ bool Perft::load() {
     string fen1;
     int nCpuHash, depthHash;
     u64 mbSizeHash;
-    if (!_file::File::fileExists(dumpFile)) {
+    if (!_file::fileExists(dumpFile)) {
         return false;
     }
     f.open(dumpFile, ios_base::in | ios_base::binary);
@@ -209,7 +209,7 @@ void Perft::run() {
 
 void Perft::endRun() {
     auto end1 = std::chrono::high_resolution_clock::now();
-    int t = Time::diffTime(end1, start1) / 1000;
+    int t = _time::diffTime(end1, start1) / 1000;
     int days = t / 60 / 60 / 24;
     int hours = (t / 60 / 60) % 24;
     int minutes = (t / 60) % 60;
@@ -232,4 +232,4 @@ void Perft::endRun() {
     }
     cout << endl;
     dump();
-}
+};

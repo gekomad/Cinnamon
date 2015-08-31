@@ -23,7 +23,7 @@ Hash::Hash() {
     HASH_SIZE = 0;
     hashArray[HASH_GREATER] = hashArray[HASH_ALWAYS] = nullptr;
 #ifdef DEBUG_MODE
-    n_cut_hashA = n_cut_hashE = n_cut_hashB = cutFailed = probeHash = 0;
+    n_cut_hashA = n_cut_hashB = cutFailed = probeHash = 0;
     nRecordHashA = nRecordHashB = nRecordHashE = collisions = 0;
 #endif
     setHashSize(64);
