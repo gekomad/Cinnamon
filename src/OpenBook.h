@@ -30,10 +30,9 @@ class OpenBook : public Singleton<OpenBook> {
 
 public:
 
-
     virtual ~OpenBook();
 
-    bool load(string fileName);
+    bool load(string fileName = "cinnamon.bin");
 
     string search(string fen);
 
