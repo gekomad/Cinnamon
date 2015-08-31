@@ -365,7 +365,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             }
             ASSERT_RANGE(res, -_INFINITE, _INFINITE);
             ASSERT(mainDepth >= depth);
-            cout << side << " " << (*mateIn) << " " << res << "\n";
+//            cout << side << " " << (*mateIn) << " " << res << "\n";
             return res;
         }
     }
