@@ -33,7 +33,7 @@ class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>
     friend class Singleton<SearchManager>;
 
 public:
-    STATIC_CONST int VAL_WINDOW = 50;
+    STATIC_CONST int VAL_WINDOW = 30;
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn);
 
