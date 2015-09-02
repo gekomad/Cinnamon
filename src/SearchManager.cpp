@@ -19,6 +19,7 @@
 #include "SearchManager.h"
 
 Hash *SearchManager::hash;
+
 SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
     nThreads = getNthread();
     hash = &Hash::getInstance();
@@ -440,15 +441,12 @@ void SearchManager::deleteGtb() {
 }
 
 bool SearchManager::setThread(int nthread) {
-    if (nthread > 0 && nthread <= 8) {
-        ThreadPool::setNthread(nthread);
+    if (ThreadPool::setNthread(nthread)) {
         nThreads = nthread;
-
         hash->setSMP(nThreads);
         for (Search *s:threadPool) {
             s->registerObserver(this);
         }
-
         return true;
     }
     return false;
