@@ -394,8 +394,8 @@ void Uci::listner(IterativeDeeping *it) {
             if (!uciMode) {
                 searchManager.display();
             }
+            it->join();
             it->start();
-            it->detach();
             knowCommand = true;
         }
         if (!knowCommand) {
