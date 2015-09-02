@@ -190,7 +190,7 @@ int ChessBoard::loadFen(string fen) {
     if (fen.empty()) {
         return loadFen();
     }
-    memset(chessboard, 0, sizeof(chessboard));
+    memset(chessboard, 0, sizeof(_Tchessboard));
     istringstream iss(fen);
     string pos, castle, enpassant, side;
     iss >> pos;
