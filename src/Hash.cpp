@@ -29,6 +29,22 @@ Hash::Hash() {
     setHashSize(64);
 }
 
+void Hash::setSMP(int smp) {
+    if (smp > 1) {
+        MUTEX_BUCKET = (shared_timed_mutex **) malloc(sizeof(shared_timed_mutex) * 2);
+        MUTEX_BUCKET[0] = (shared_timed_mutex *) malloc(sizeof(shared_timed_mutex) * N_MUTEX_BUCKET);
+        MUTEX_BUCKET[1] = (shared_timed_mutex *) malloc(sizeof(shared_timed_mutex) * N_MUTEX_BUCKET);
+    }
+    else {
+        if (MUTEX_BUCKET) {
+            free(MUTEX_BUCKET[0]);
+            free(MUTEX_BUCKET[1]);
+            free(MUTEX_BUCKET);
+            MUTEX_BUCKET = nullptr;
+        }
+    }
+}
+
 void Hash::clearAge() {
     for (int i = 0; i < HASH_SIZE; i++) {
         hashArray[HASH_GREATER][i].entryAge = 0;

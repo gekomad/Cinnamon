@@ -91,22 +91,6 @@ public:
     STATIC_CONST int NULLMOVES_R3 = 2;
     STATIC_CONST int NULLMOVES_R4 = 2;
 
-    void clearAge() {
-        hash->clearAge();
-    }
-
-    int getHashSize() const {
-        return hash->getHashSize();
-    }
-
-    bool setHashSize(int i) const {
-        return hash->setHashSize(i);
-    }
-
-    void clearHash() {
-        hash->clearHash();
-    }
-
     void setRunningThread(bool t) {
         runningThread = t;
     }

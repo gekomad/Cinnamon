@@ -194,6 +194,8 @@ public:
 #endif
 
 private:
+    static Hash *hash;
+
     SearchManager();
 
     void parallelSearch(int mply);

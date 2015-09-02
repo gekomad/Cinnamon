@@ -18,11 +18,11 @@
 
 #include "SearchManager.h"
 
+Hash *SearchManager::hash;
 SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
     nThreads = getNthread();
-    for (Search *s:threadPool) {
-        s->registerObserver(this);
-    }
+    hash = &Hash::getInstance();
+    setThread(nThreads);
 
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
@@ -255,7 +255,7 @@ void SearchManager::incKillerHeuristic(int from, int to, int value) {
 }
 
 int SearchManager::getHashSize() {
-    return threadPool[0]->getHashSize();
+    return hash->getHashSize();
 }
 
 int SearchManager::getValue(int i) {
@@ -283,7 +283,7 @@ void SearchManager::clearKillerHeuristic() {
 }
 
 void SearchManager::clearAge() {
-    threadPool[0]->clearAge();
+    hash->clearAge();
 }
 
 int SearchManager::getForceCheck() {
@@ -321,7 +321,7 @@ string SearchManager::getFen() {
 }
 
 bool SearchManager::setHashSize(int s) {
-    return threadPool[0]->setHashSize(s);
+    return hash->setHashSize(s);
 }
 
 void SearchManager::setMaxTimeMillsec(int i) {
@@ -357,7 +357,7 @@ int SearchManager::getScore(int side) {
 }
 
 void SearchManager::clearHash() {
-    threadPool[0]->clearHash();
+    hash->clearHash();
 }
 
 int SearchManager::getMaxTimeMillsec() {
@@ -443,6 +443,12 @@ bool SearchManager::setThread(int nthread) {
     if (nthread > 0 && nthread <= 8) {
         ThreadPool::setNthread(nthread);
         nThreads = nthread;
+
+        hash->setSMP(nThreads);
+        for (Search *s:threadPool) {
+            s->registerObserver(this);
+        }
+
         return true;
     }
     return false;
