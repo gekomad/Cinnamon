@@ -58,14 +58,13 @@ public:
 
 #endif
 
-    void setNthread(const int t) {
-        int n = std::max(1, std::min(64, t));
-        if (n == nThread) {
-            return;
+    bool setNthread(const int t) {
+        if (t < 1 || t > 64 || t == nThread) {
+            return false;
         }
         joinAll();
         removeAllThread();
-        nThread = n;
+        nThread = t;
         ASSERT(threadsBits == 0);
         for (int i = 0; i < nThread; i++) {
             T *x = new T();
@@ -74,6 +73,7 @@ public:
         }
         registerThreads();
         cout << "ThreadPool size: " << getNthread() << "\n";
+        return true;
     }
 
     void joinAll() {
@@ -106,7 +106,7 @@ protected:
 private:
 
     mutex mtx;
-    atomic<u64> threadsBits;
+    atomic <u64> threadsBits;
     int nThread;
     condition_variable cv;
     mutex mxGet;
