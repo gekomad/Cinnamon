@@ -75,7 +75,7 @@ public:
         if (smp) MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].lock_shared();
         if (hash->key == zobristKeyR) {
             b = true;
-            memcpy(hashMini, hash, sizeof(_Thash));
+            memcpy(hashMini, hash, sizeof(_Thash));//TODO con 1 thread usare il puntatore
         }
         if (smp)MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].unlock_shared();
         return b;
