@@ -79,7 +79,7 @@ void IterativeDeeping::setUseBook(bool b) {
 }
 
 void IterativeDeeping::run() {
-
+    lock_guard<mutex> lock(ponderMutex);
     int timeTaken = 0;
     searchManager.setRunning(2);
     searchManager.setRunningThread(true);

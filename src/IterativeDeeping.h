@@ -31,7 +31,7 @@
 class IterativeDeeping : public Thread {
 
 public:
-
+    mutex ponderMutex;
     virtual ~ IterativeDeeping();
 
     virtual void run();
@@ -54,7 +54,7 @@ public:
 
     bool setParameter(String param, int value);
 
-    Tablebase* createGtb();
+    Tablebase *createGtb();
 
     IterativeDeeping();
 

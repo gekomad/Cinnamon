@@ -302,7 +302,7 @@ void Uci::listner(IterativeDeeping *it) {
                 }
             }
         } else if (token == "position") {
-
+            lock_guard<mutex> lock(it->ponderMutex);
             knowCommand = true;
             searchManager.setRepetitionMapCount(0);
             getToken(uip, token);
