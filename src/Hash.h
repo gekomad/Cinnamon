@@ -23,7 +23,7 @@
 #include "namespaces.h"
 #include "util/Singleton.h"
 #include <mutex>
-#include <shared_mutex>
+#include "./util/SharedMutex.h"
 
 using namespace _board;
 
@@ -136,7 +136,7 @@ private:
 
     _Thash *hashArray[2];
     static const int N_MUTEX_BUCKET = 4096;
-    shared_timed_mutex** MUTEX_BUCKET= nullptr;
+    SharedMutex** MUTEX_BUCKET= nullptr;
 
 };
 

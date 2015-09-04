@@ -18,42 +18,23 @@
 
 #pragma once
 
-#include "_TPerftRes.h"
-#include "../Search.h"
-#include "../threadPool/Thread.h"
-#include <iomanip>
-#include <atomic>
-#include <fstream>
-#include <unistd.h>
-#include "../util/Timer.h"
+#ifdef ARM_ARCH
+
 #include <mutex>
 
-class PerftThread : public Thread, public GenMoves {
+class SharedMutex : public mutex {
 public:
+    void lock_shared() { this->lock(); }
 
-    void setParam(string fen, int from, int to, _TPerftRes *);
-
-    PerftThread();
-
-    virtual ~PerftThread();
-
-    virtual void run();
-
-    virtual void endRun();
-
-private:
-
-    static const int N_MUTEX_BUCKET = 4096;
-    static SharedMutex MUTEX_BUCKET[N_MUTEX_BUCKET];
-
-    static mutex mutexPrint;
-    u64 tot = 0;
-
-    template<int side, bool useHash, bool smp>
-    u64 search(const int depth);
-
-    int from, to;
-    _TPerftRes *tPerftRes;
+    void unlock_shared() { this->unlock(); }
 };
 
+#else
 
+#include <shared_mutex>
+
+class SharedMutex : public shared_timed_mutex {
+
+};
+
+#endif

@@ -20,7 +20,7 @@
 
 Hash *SearchManager::hash;
 
-SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
+SearchManager::SearchManager() : ThreadPool() {//TODO 1
     nThreads = getNthread();
     hash = &Hash::getInstance();
     setThread(nThreads);

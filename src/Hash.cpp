@@ -31,9 +31,9 @@ Hash::Hash() {
 
 void Hash::setSMP(int smp) {
     if (smp > 1) {
-        MUTEX_BUCKET = (shared_timed_mutex **) malloc(sizeof(shared_timed_mutex) * 2);
-        MUTEX_BUCKET[0] = (shared_timed_mutex *) malloc(sizeof(shared_timed_mutex) * N_MUTEX_BUCKET);
-        MUTEX_BUCKET[1] = (shared_timed_mutex *) malloc(sizeof(shared_timed_mutex) * N_MUTEX_BUCKET);
+        MUTEX_BUCKET = (SharedMutex **) malloc(sizeof(SharedMutex) * 2);
+        MUTEX_BUCKET[0] = (SharedMutex *) malloc(sizeof(SharedMutex) * N_MUTEX_BUCKET);
+        MUTEX_BUCKET[1] = (SharedMutex *) malloc(sizeof(SharedMutex) * N_MUTEX_BUCKET);
     }
     else {
         if (MUTEX_BUCKET) {

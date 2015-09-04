@@ -18,7 +18,7 @@
 
 #include "PerftThread.h"
 
-shared_timed_mutex PerftThread::MUTEX_BUCKET[N_MUTEX_BUCKET];
+SharedMutex PerftThread::MUTEX_BUCKET[N_MUTEX_BUCKET];
 mutex PerftThread::mutexPrint;
 
 PerftThread::PerftThread() { }
