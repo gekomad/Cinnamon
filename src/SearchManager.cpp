@@ -441,15 +441,12 @@ void SearchManager::deleteGtb() {
 }
 
 bool SearchManager::setThread(int nthread) {
-    if (ThreadPool::setNthread(nthread)) {
-        nThreads = nthread;
-        hash->setSMP(nThreads);
-        for (Search *s:threadPool) {
-            s->registerObserver(this);
-        }
-        return true;
+    nThreads = nthread;
+    hash->setSMP(nThreads);
+    for (Search *s:threadPool) {
+        s->registerObserver(this);
     }
-    return false;
+    return true;
 }
 
 void SearchManager::stopAllThread() {
