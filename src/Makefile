@@ -114,7 +114,7 @@ cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse" cinnamon32-generic
 
 cinnamon-ARM:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -fno-gcse -w" build
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -DARM_ARCH -fno-gcse -w" build
 
 cinnamon-native:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
