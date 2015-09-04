@@ -85,7 +85,6 @@ help:
 	@echo ""
 	@echo "make cinnamon-native             > Optimized for native cpu"
 	@echo "make cinnamon-ARM                > Optimized for arm cpu (also Raspberry Pi)"
-	@echo "make cinnamon-CLOP               > Enable CLOP parameter tuning"
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
 	@echo " example: make cinnamon64-modern-INTEL COMP=clang++"
@@ -113,9 +112,6 @@ cinnamon32-generic:
 
 cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse" cinnamon32-generic
-
-cinnamon-CLOP:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -DCLOP -march=native" build
 
 cinnamon-ARM:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -fno-gcse -w" build
