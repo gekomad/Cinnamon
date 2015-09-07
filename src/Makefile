@@ -84,7 +84,7 @@ help:
 	@echo "make cinnamon32-generic          > Unspecified 32-bit"
 	@echo ""
 	@echo "make cinnamon-native             > Optimized for native cpu"
-	@echo "make cinnamon-ARM                > Optimized for arm cpu (also Raspberry Pi)"
+	@echo "make cinnamon-ARM                > Optimized for arm cpu"
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
 	@echo " example: make cinnamon64-modern-INTEL COMP=clang++"

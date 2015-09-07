@@ -216,6 +216,5 @@ private:
 
     void stopAllThread();
 
-    int forceMainThread;
 };
 
