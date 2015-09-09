@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
                 ///////////////////
                 ifstream inData;
                 string fen;
-                if (!_file::fileExists(epdfile)) {
+                if (!FileUtil::fileExists(epdfile)) {
                     cout << "error file not found  " << epdfile << endl;
                     return 1;
                 }

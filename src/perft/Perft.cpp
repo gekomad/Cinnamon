@@ -56,7 +56,7 @@ bool Perft::load() {
     string fen1;
     int nCpuHash, depthHash;
     u64 mbSizeHash;
-    if (!_file::fileExists(dumpFile)) {
+    if (!FileUtil::fileExists(dumpFile)) {
         return false;
     }
     f.open(dumpFile, ios_base::in | ios_base::binary);

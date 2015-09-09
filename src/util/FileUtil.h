@@ -23,31 +23,31 @@
 
 using namespace std;
 
-namespace _file {
-    class File {
-    public:
-        static bool fileExists(string filename) {
-            ifstream inData;
-            inData.open(filename);
-            if (!inData) {
-                return false;
-            }
-            inData.close();
-            return true;
-        }
 
-        static int fileSize(const string &filename) {
-            std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
-            return in.tellg();
+class FileUtil {
+public:
+    static bool fileExists(string filename) {
+        ifstream inData;
+        inData.open(filename);
+        if (!inData) {
+            return false;
         }
+        inData.close();
+        return true;
+    }
 
-        static string getFileName(string path) {
-            replace(path.begin(), path.end(), ':', '/');
-            replace(path.begin(), path.end(), '\\', '/');
-            istringstream iss(path);
-            string token;
-            while (getline(iss, token, '/'));
-            return token;
-        }
-    };
-}
+    static int fileSize(const string &filename) {
+        std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
+        return in.tellg();
+    }
+
+    static string getFileName(string path) {
+        replace(path.begin(), path.end(), ':', '/');
+        replace(path.begin(), path.end(), '\\', '/');
+        istringstream iss(path);
+        string token;
+        while (getline(iss, token, '/'));
+        return token;
+    }
+};
+

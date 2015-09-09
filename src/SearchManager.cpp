@@ -27,7 +27,7 @@ SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
 
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
-    if (!_file::fileExists(parameterFile)) {
+    if (!FileUtil::fileExists(parameterFile)) {
         cout << "warning file not found  " << parameterFile << endl;
         return;
     }

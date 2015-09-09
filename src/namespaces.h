@@ -28,6 +28,7 @@
 #include <fstream>
 #include <iostream>
 #include "util/stacktrace.h"
+#include "util/FileUtil.h"
 #include <iostream>
 #include <chrono>
 #include <mutex>
@@ -80,7 +81,7 @@ namespace _board {
     static const int SIDETOMOVE_IDX = 14;
     static const int ZOBRISTKEY_IDX = 15;
 
-#define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<_time::getLocalTime()<<" ********************************** assert error in "<<_file::extractFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;exit(1);};
+#define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<_time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;exit(1);};
 
 #ifdef DEBUG_MODE
 #define ASSERT(a) assert(a)
@@ -357,35 +358,6 @@ namespace _time {
         time_t t = time(NULL);
         tm *timePtr = localtime(&t);
         return timePtr->tm_mday;
-    }
-}
-
-namespace _file {
-    static bool fileExists(string filename) {
-        ifstream inData;
-        inData.open(filename);
-        if (!inData) {
-            return false;
-        }
-        inData.close();
-        return true;
-    }
-
-    static int fileSize(const string &FileName) {
-        struct stat file;
-        if (!stat(FileName.c_str(), &file)) {
-            return file.st_size;
-        }
-        return -1;
-    }
-
-    static string extractFileName(string path) {
-        replace(path.begin(), path.end(), ':', '/');
-        replace(path.begin(), path.end(), '\\', '/');
-        istringstream iss(path);
-        string token;
-        while (getline(iss, token, '/'));
-        return token;
     }
 }
 
