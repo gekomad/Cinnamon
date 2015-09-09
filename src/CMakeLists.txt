@@ -2,7 +2,7 @@ project(cinnamon)
 
 set(DR_MEMORY "NO")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++1y -Wno-reorder -DDEBUG_MODEn")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++1y -Wno-reorder -DDEBUG_MODE")
 
 if (DR_MEMORY STREQUAL "YES")
     set(CMAKE_CXX_FLAGS "-DDEBUG_MODE -pthread -std=c++1y -m32 -g -fno-inline -fno-omit-frame-pointer -Wno-reorder")
@@ -18,13 +18,13 @@ set(SOURCE_FILES
         util/Bits.cpp
         util/Bits.h
         ObserverSearch.h
-        threadPool/ObserverThread.h
         util/Singleton.h
         util/stacktrace.h
         util/String.cpp
         util/String.h
-        threadPool/Thread.h
-        threadPool/ThreadPool.h
+        blockingThreadPool/Thread.h
+        blockingThreadPool/ThreadPool.h
+        blockingThreadPool/ObserverThread.h
         util/Timer.h
         ChessBoard.cpp
         ChessBoard.h
