@@ -139,7 +139,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     char hashf = Hash::hashfALPHA;
     u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^RANDSIDE[side];
 
-    _TcheckHash checkHashStruct;
+    _TcheckHash checkHashStruct;//TODO provare elimnare da quies la ricerca in TT
 
     if (checkHash<Hash::HASH_GREATER, smp>(true, alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
@@ -418,6 +418,8 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     int n_pieces_side;
     _TpvLine line;
     line.cmove = 0;
+
+//   TODO provare char R = 2;    if ( depth > 6 ) R = 3;    val = -Search( depth - R - 1, ply, -beta, -beta+1, NO_NULL, NO_PV );
     if (!is_incheck_side && !nullSearch && depth >= NULLMOVE_DEPTH && (n_pieces_side = getNpiecesNoPawnNoKing<side>()) >= NULLMOVES_MIN_PIECE) {
         nullSearch = true;
         int nullScore = -search<side ^ 1, smp>(depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (n_pieces_side < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) - 1, -beta, -beta + 1, &line, N_PIECE, mateIn);
@@ -531,6 +533,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                 ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
                 hash->recordHash<smp>(zobristKeyR, getRunning(), checkHashStruct.rootHash, depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
                 setKillerHeuristic(move->from, move->to, 0x400);
+                //TODO rivedere killer e history
                 return score;
             }
             alpha = score;

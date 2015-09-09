@@ -18,19 +18,16 @@
 
 #include "Eval.h"
 
-Eval::Eval() {
+Eval::Eval() { }
 
-}
-
-Eval::~Eval() {
-}
+Eval::~Eval() { }
 
 void Eval::openColumn(int side) {
     u64 side_rooks = structure.rooks[side];
     structure.openColumn = 0;
     structure.semiOpenColumn[side] = 0;
     while (side_rooks) {
-        int o = Bits::Bits::BITScanForward(side_rooks);
+        int o = Bits::BITScanForward(side_rooks);
         if (!(FILE_[o] & (structure.pawns[WHITE] | structure.pawns[BLACK]))) {
             structure.openColumn |= FILE_[o];
         } else if (FILE_[o] & structure.pawns[side ^ 1]) {
@@ -382,6 +379,11 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
         INC(lazyEvalCuts);
         return lazyscore;
     }
+//    int endGameValue = getEndgameValue(N_PIECE, side);
+//    if (abs(endGameValue) != INT_MAX) {
+//        return endGameValue;
+//    }
+
 #ifdef DEBUG_MODE
     evaluationCount[WHITE] = evaluationCount[BLACK] = 0;
     memset(&SCORE_DEBUG, 0, sizeof(_TSCORE_DEBUG));

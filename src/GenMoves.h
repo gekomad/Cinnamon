@@ -146,7 +146,7 @@ public:
     }
 
     void decListId() {
-        ASSERT(listId>0);
+        ASSERT(listId > 0);
         gen_list[listId--].size = 0;
     }
 
@@ -161,6 +161,8 @@ public:
     void resetList() {
         gen_list[listId].size = 0;
     }
+
+    void generatePuzzle(string type);
 
     void incKillerHeuristic(const int from, const int to, const int value) {
         if (!getRunning()) {
@@ -272,6 +274,8 @@ private:
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
     static const u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;
+
+    void writeFen(vector<int>);
 
     template<int side>
     void checkJumpPawn(u64 x, const u64 xallpieces);

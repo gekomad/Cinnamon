@@ -92,7 +92,7 @@ void ChessBoard::display() {
             cout << "\n   ----+---+---+---+---+---+---+----\n";
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
-        x = (x = (x = FEN_PIECE[getPieceAt < WHITE > (POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt < BLACK > (POW2[63 - t])]) == '-' ? ' ' : x;
+        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(POW2[63 - t])]) == '-' ? ' ' : x;
         x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     };
@@ -115,9 +115,9 @@ string ChessBoard::boardToFen() {
         int l = 0;
         string row;
         for (int x = 0; x < 8; x++) {
-            int q = getPieceAt < BLACK > (POW2[63 - ((y * 8) + x)]);
+            int q = getPieceAt<BLACK>(POW2[63 - ((y * 8) + x)]);
             if (q == SQUARE_FREE) {
-                q = getPieceAt < WHITE > (POW2[63 - ((y * 8) + x)]);
+                q = getPieceAt<WHITE>(POW2[63 - ((y * 8) + x)]);
             }
             if (q == SQUARE_FREE) {
                 l++;
@@ -266,5 +266,19 @@ int ChessBoard::loadFen(string fen) {
         }
     }
     makeZobristKey();
+    assert(Bits::bitCount(chessboard[KING_BLACK]) == 1);
+    assert(Bits::bitCount(chessboard[KING_WHITE]) == 1);
     return chessboard[SIDETOMOVE_IDX];
 }
+
+#ifdef DEBUG_MODE
+
+bool ChessBoard::checkNPieces(std::map<int, int> pieces) {
+    int a = 0;
+    for (int i = 0; i < 13; i++) {
+        a += Bits::bitCount(chessboard[i]) == pieces[i];
+    }
+    return a == 13;
+}
+
+#endif

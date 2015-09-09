@@ -73,14 +73,16 @@ Rank Name                                   Elo    +    - games score oppo. draw
  */
 
 using namespace _board;
-const string EPD2PGN_HELP = "-epd2pgn -f file_epd [-m max_pieces]";
+const string EPD2PGN_HELP = "-epd2pgn -f epd_file [-m max_pieces]";
 const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb)] [-f \"fen position\"] [-F dump file]";
 const string DTM_HELP = "-dtm -f \"fen position\" [-p path] [-s scheme] [-i installed pieces]";
+const string ENDGAME_HELP = "-endgame_epd -t KRKP | KQKP | KBBKN | KQKR | KRKB | KRKN";
 
 void help(char **argv) {
     cout << "Perft test: " << argv[0] << " " << PERFT_HELP << "\n";
     cout << "Distance to mate: " << argv[0] << " " << DTM_HELP << "\n";
     cout << "Create .pgn from .epd: " << argv[0] << " " << EPD2PGN_HELP << endl;
+    cout << "Create endgame epd file: " << argv[0] << " " << ENDGAME_HELP << endl;
 }
 
 int main(int argc, char **argv) {
@@ -138,67 +140,77 @@ int main(int argc, char **argv) {
             return 0;
         }
         if (opt == 'e') {
-            if (string(optarg) != "pd2pgn") {
-                cout << "use: " << argv[0] << " " << EPD2PGN_HELP << endl;
-                return 1;
-            };
-            string epdfile;
-            int m = 64;
-            while ((opt = getopt(argc, argv, "f:m:")) != -1) {
-                if (opt == 'f') {    //file
-                    epdfile = optarg;
-                }
-                if (opt == 'm') {    //n' pieces
-                    string h = optarg;
-                    m = stoi(h);
-                }
-            }
-            ///////////////////
-            ifstream inData;
-            string fen;
-            if (!_file::fileExists(epdfile)) {
-                cout << "error file not found  " << epdfile << endl;
-                return 1;
-            }
-            inData.open(epdfile);
-            int count = 0;
-            int n = 0;
-            ostringstream os;
-            os << "[Date \"" << _time::getYear() << "." << _time::getMonth() << "." << _time::getDay() << "\"]";
-            string date = os.str();
-            while (!inData.eof()) {
-                getline(inData, fen);
-                n = 0;
-                for (unsigned i = 0; i < fen.size(); i++) {
-                    int c = tolower(fen[i]);
-                    if (c == ' ') {
-                        break;
+            if (string(optarg) == "pd2pgn") {
+
+                string epdfile;
+                int m = 64;
+                while ((opt = getopt(argc, argv, "f:m:")) != -1) {
+                    if (opt == 'f') {    //file
+                        epdfile = optarg;
                     }
-                    if (c == 'b' || c == 'k' || c == 'r' || c == 'q' || c == 'p' || c == 'n') {
-                        n++;
+                    if (opt == 'm') {    //n' pieces
+                        string h = optarg;
+                        m = stoi(h);
                     }
                 }
-                if (n > 0 && n <= m) {
-                    count++;
-                    cout << "[Site \"" << count << " (" << n << " pieces)\"]\n";
-                    cout << date << "\n";
-                    cout << "[Result \"*\"]\n";
-                    string fenClean, token;
-                    istringstream uip(fen, ios::in);
-                    uip >> token;
-                    fenClean += token + " ";
-                    uip >> token;
-                    fenClean += token + " ";
-                    uip >> token;
-                    fenClean += token + " ";
-                    uip >> token;
-                    fenClean += token;
-                    cout << "[FEN \"" << fenClean << "\"]\n";
-                    cout << "*" << "\n";
+                ///////////////////
+                ifstream inData;
+                string fen;
+                if (!_file::fileExists(epdfile)) {
+                    cout << "error file not found  " << epdfile << endl;
+                    return 1;
                 }
+                inData.open(epdfile);
+                int count = 0;
+                int n = 0;
+                ostringstream os;
+                os << "[Date \"" << _time::getYear() << "." << _time::getMonth() << "." << _time::getDay() << "\"]";
+                string date = os.str();
+                while (!inData.eof()) {
+                    getline(inData, fen);
+                    n = 0;
+                    for (unsigned i = 0; i < fen.size(); i++) {
+                        int c = tolower(fen[i]);
+                        if (c == ' ') {
+                            break;
+                        }
+                        if (c == 'b' || c == 'k' || c == 'r' || c == 'q' || c == 'p' || c == 'n') {
+                            n++;
+                        }
+                    }
+                    if (n > 0 && n <= m) {
+                        count++;
+                        cout << "[Site \"" << count << " (" << n << " pieces)\"]\n";
+                        cout << date << "\n";
+                        cout << "[Result \"*\"]\n";
+                        string fenClean, token;
+                        istringstream uip(fen, ios::in);
+                        uip >> token;
+                        fenClean += token + " ";
+                        uip >> token;
+                        fenClean += token + " ";
+                        uip >> token;
+                        fenClean += token + " ";
+                        uip >> token;
+                        fenClean += token;
+                        cout << "[FEN \"" << fenClean << "\"]\n";
+                        cout << "*" << "\n";
+                    }
+                }
+                cout << endl;
+                return 0;
+            } else if (string(optarg) == "ndgame_epd") {
+                while ((opt = getopt(argc, argv, "t:")) != -1) {
+                    if (opt == 't') {    //file
+                        Search a;
+                        a.generatePuzzle(optarg);
+                        return 0;
+                    }
+                }
+            } else {
+                help(argv);
             }
-            cout << endl;
-            return 0;
+
         }
         if (opt == 'b') {
             unique_ptr<IterativeDeeping> it(new IterativeDeeping());

@@ -24,21 +24,31 @@
 #include "util/String.h"
 #include "util/Bits.h"
 #include "namespaces.h"
+#include <map>
 
 using namespace _board;
 
 class ChessBoard {
 public:
 
+#define PAWN_BLACK 0
+#define PAWN_WHITE 1
+#define ROOK_BLACK 2
+#define ROOK_WHITE 3
+#define BISHOP_BLACK 4
+#define BISHOP_WHITE 5
+#define KNIGHT_BLACK 6
+#define KNIGHT_WHITE 7
+#define KING_BLACK 8
+#define KING_WHITE 9
+#define QUEEN_BLACK 10
+#define QUEEN_WHITE 11
+
     ChessBoard();
 
     _Tchessboard chessboard;
 
     virtual ~ChessBoard();
-
-    // uchar rightCastle;
-    //u64 zobristKey;
-
 
     static string decodeBoardinv(const uchar type, const int a, const int side) {
         if (type & QUEEN_SIDE_CASTLE_MOVE_MASK && side == WHITE) {
@@ -68,18 +78,7 @@ public:
     static const u64 BIG_DIAG_LEFT = 0x102040810204080ULL;
     static const u64 BIG_DIAG_RIGHT = 0x8040201008040201ULL;
     static const int SQUARE_FREE = 12;
-    static const int PAWN_BLACK = 0;
-    static const int PAWN_WHITE = 1;
-    static const int ROOK_BLACK = 2;
-    static const int ROOK_WHITE = 3;
-    static const int BISHOP_BLACK = 4;
-    static const int BISHOP_WHITE = 5;
-    static const int KNIGHT_BLACK = 6;
-    static const int KNIGHT_WHITE = 7;
-    static const int KING_BLACK = 8;
-    static const int KING_WHITE = 9;
-    static const int QUEEN_BLACK = 10;
-    static const int QUEEN_WHITE = 11;
+
     static const int NO_ENPASSANT = INT_MAX;
     static const uchar KING_SIDE_CASTLE_MOVE_MASK = 0x4;
     static const uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0x8;
@@ -99,6 +98,8 @@ public:
 #ifdef DEBUG_MODE
 
     u64 getBitBoard(int side);
+
+    bool checkNPieces(std::map<int, int>);
 
 #endif
 

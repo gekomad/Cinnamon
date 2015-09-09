@@ -20,7 +20,7 @@
 
 Hash *SearchManager::hash;
 
-SearchManager::SearchManager() : ThreadPool() {//TODO 1
+SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
     nThreads = getNthread();
     hash = &Hash::getInstance();
     setThread(nThreads);
@@ -208,6 +208,7 @@ SearchManager::~SearchManager() {
 
 int SearchManager::loadFen(string fen) {
     int res = threadPool[0]->loadFen(fen);
+
     ASSERT_RANGE(res, 0, 1);
     for (uchar i = 1; i < threadPool.size(); i++) {
         threadPool[i]->setChessboard(threadPool[0]->getChessboard());
@@ -343,6 +344,12 @@ int SearchManager::getSide() {
 }
 
 int SearchManager::getScore(int side) {
+    //int N_PIECE;
+    //if (side == WHITE) {
+    //    N_PIECE = threadPool[0]->getScore(Bits::bitCount(threadPool[0]->getBitBoard<WHITE>()), side);
+    //} else {
+    //    N_PIECE = threadPool[0]->getScore(Bits::bitCount(threadPool[0]->getBitBoard<BLACK>()), side);
+    //}
 #ifdef DEBUG_MODE
     int t = threadPool[0]->getScore(side);
     for (Search *s:threadPool) {

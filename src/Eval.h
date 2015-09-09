@@ -19,13 +19,14 @@
 #pragma once
 
 #include "GenMoves.h"
+#include "Endgame.h"
 #include <fstream>
 #include <string.h>
 
 using namespace _board;
 using namespace _eval;
 
-class Eval : public GenMoves {
+class Eval : public GenMoves, public Endgame {
 
 public:
     Eval();

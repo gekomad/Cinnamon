@@ -155,6 +155,7 @@ void Uci::listner(IterativeDeeping *it) {
         } else if (token == "score") {
             int side = searchManager.getSide();
             int t = searchManager.getScore(side);
+
             if (!searchManager.getSide()) {
                 t = -t;
             }

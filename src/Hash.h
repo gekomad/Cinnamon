@@ -65,7 +65,9 @@ public:
     int getHashSize();
 
     void clearHash();
+
     void setSMP(int smp);
+
     void clearAge();
 
     template<bool smp>
@@ -136,7 +138,6 @@ private:
 
     _Thash *hashArray[2];
     static const int N_MUTEX_BUCKET = 4096;
-    SharedMutex** MUTEX_BUCKET= nullptr;
-
+    SharedMutex **MUTEX_BUCKET = nullptr;
 };
 

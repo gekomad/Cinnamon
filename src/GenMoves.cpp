@@ -1292,3 +1292,66 @@ int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
     }
     return move->side;
 }
+
+
+void GenMoves::writeFen(vector<int> t) {
+    while (1) {
+        memset(chessboard, 0, sizeof(_Tchessboard));
+        chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
+        chessboard[SIDETOMOVE_IDX] = rand() % 2;
+        chessboard[KING_BLACK] = POW2[rand() % 64];
+        chessboard[KING_WHITE] = POW2[rand() % 64];
+        u64 check = chessboard[KING_BLACK] | chessboard[KING_WHITE];
+        for (unsigned long i = 0; i < t.size(); i++) {
+            chessboard[t[i]] |= POW2[rand() % 64];
+            check |= chessboard[t[i]];
+        }
+
+
+        if (Bits::bitCount(check) == (2 + (int) t.size()) && !inCheck<WHITE>() && !inCheck<BLACK>()) {
+            cout << boardToFen() << "\n";
+            loadFen(boardToFen());
+            return;
+        }
+    }
+}
+
+void GenMoves::generatePuzzle(string type) {
+    const int TOT = 5000;
+    vector<int> pieces;
+
+    for (int k = 0; k < TOT; k++) {
+        pieces.clear();
+        if (type == "KRKP") {
+            pieces.push_back(ROOK_BLACK);
+            pieces.push_back(PAWN_WHITE);
+        } else if (type == "KQKP") {
+            pieces.push_back(QUEEN_BLACK);
+            pieces.push_back(PAWN_WHITE);
+
+        } else if (type == "KBBKN") {
+            pieces.push_back(BISHOP_BLACK);
+            pieces.push_back(BISHOP_BLACK);
+            pieces.push_back(KNIGHT_WHITE);
+
+        } else if (type == "KQKR") {
+            pieces.push_back(QUEEN_BLACK);
+            pieces.push_back(ROOK_WHITE);
+
+        } else if (type == "KRKB") {
+            pieces.push_back(ROOK_BLACK);
+            pieces.push_back(BISHOP_WHITE);
+
+        } else if (type == "KRKN") {
+            pieces.push_back(ROOK_BLACK);
+            pieces.push_back(KNIGHT_WHITE);
+
+        } else {
+            cout << "error type";
+            return;
+        }
+        writeFen(pieces);
+    }
+
+}
+
