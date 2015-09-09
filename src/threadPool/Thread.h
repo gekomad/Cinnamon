@@ -1,5 +1,5 @@
 /*
-    https://github.com/gekomad/ThreadPool
+    https://github.com/gekomad/BlockingThreadPool
     Copyright (C) Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
