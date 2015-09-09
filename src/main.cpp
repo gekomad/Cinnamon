@@ -164,7 +164,7 @@ int main(int argc, char **argv) {
                 int count = 0;
                 int n = 0;
                 ostringstream os;
-                os << "[Date \"" << _time::getYear() << "." << _time::getMonth() << "." << _time::getDay() << "\"]";
+                os << "[Date \"" << Time::getYear() << "." << Time::getMonth() << "." << Time::getDay() << "\"]";
                 string date = os.str();
                 while (!inData.eof()) {
                     getline(inData, fen);

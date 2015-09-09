@@ -111,7 +111,7 @@ int Search::checkTime() {
         return 1;
     }
     auto t_current = std::chrono::high_resolution_clock::now();
-    return _time::diffTime(t_current, startTime) >= maxTimeMillsec ? 0 : 1;
+    return Time::diffTime(t_current, startTime) >= maxTimeMillsec ? 0 : 1;
 }
 
 Search::~Search() {

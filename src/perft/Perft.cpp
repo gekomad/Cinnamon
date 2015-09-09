@@ -209,7 +209,7 @@ void Perft::run() {
 
 void Perft::endRun() {
     auto end1 = std::chrono::high_resolution_clock::now();
-    int t = _time::diffTime(end1, start1) / 1000;
+    int t = Time::diffTime(end1, start1) / 1000;
     int days = t / 60 / 60 / 24;
     int hours = (t / 60 / 60) % 24;
     int minutes = (t / 60) % 60;

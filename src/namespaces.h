@@ -29,6 +29,7 @@
 #include <iostream>
 #include "util/stacktrace.h"
 #include "util/FileUtil.h"
+#include "util/Time.h"
 #include <iostream>
 #include <chrono>
 #include <mutex>
@@ -81,7 +82,7 @@ namespace _board {
     static const int SIDETOMOVE_IDX = 14;
     static const int ZOBRISTKEY_IDX = 15;
 
-#define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<_time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;exit(1);};
+#define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;exit(1);};
 
 #ifdef DEBUG_MODE
 #define ASSERT(a) assert(a)
@@ -330,36 +331,6 @@ namespace _board {
 }
 
 using namespace _board;
-
-namespace _time {
-    static int diffTime(high_resolution_clock::time_point t1, high_resolution_clock::time_point t2) {
-        std::chrono::duration<double, std::milli> elapsed = t1 - t2;
-        return elapsed.count();
-    }
-
-    static string getLocalTime() {
-        time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
-        return ctime(&current);
-    }
-
-    static int getYear() {
-        time_t t = time(NULL);
-        tm *timePtr = localtime(&t);
-        return 1900 + timePtr->tm_year;
-    }
-
-    static int getMonth() {
-        time_t t = time(NULL);
-        tm *timePtr = localtime(&t);
-        return 1 + timePtr->tm_mon;
-    }
-
-    static int getDay() {
-        time_t t = time(NULL);
-        tm *timePtr = localtime(&t);
-        return timePtr->tm_mday;
-    }
-}
 
 namespace _random {
     static const u64 RANDOM_KEY[15][64] = {
