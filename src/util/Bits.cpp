@@ -18,6 +18,8 @@
 
 #include "Bits.h"
 
+uchar Bits::DISTANCE[64][64];
+
 Bits::Bits() {
     //LINK_ROOKS
     LINK_ROOKS = (u64 **) malloc(64 * sizeof(u64 *));
@@ -48,11 +50,11 @@ Bits::Bits() {
         }
     }
     //DISTANCE
-//    for (int i = 0; i < 64; i++) {
-//        for (int j = 0; j < 64; j++) {
-//            DISTANCE[i][j] = max(abs(RANK_AT[i] - FILE_AT[j]), abs(RANK_AT[j] - FILE_AT[i]));
-//        }
-//    }
+    for (int i = 0; i < 64; i++) {
+        for (int j = 0; j < 64; j++) {
+            DISTANCE[i][j] = max(abs(RANK_AT[i] - FILE_AT[j]), abs(RANK_AT[j] - FILE_AT[i]));
+        }
+    }
     ///
     u64 MASK_BIT_SET[64][64];
     memset(MASK_BIT_SET, 0, sizeof(MASK_BIT_SET));
