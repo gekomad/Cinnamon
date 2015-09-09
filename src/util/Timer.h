@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "../threadPool/Thread.h"
+#include "../blockingThreadPool/Thread.h"
 
 class Timer : public Thread {
 public:

@@ -22,7 +22,7 @@
 #include <string.h>
 #include "util/String.h"
 #include "SearchManager.h"
-#include "threadPool/Thread.h"
+#include "blockingThreadPool/Thread.h"
 #include "OpenBook.h"
 #include <stdio.h>
 #include <stdlib.h>

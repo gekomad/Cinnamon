@@ -26,7 +26,7 @@
 #include "../util/Timer.h"
 #include <mutex>
 #include "PerftThread.h"
-#include "../threadPool/ThreadPool.h"
+#include "../blockingThreadPool/ThreadPool.h"
 #include "_TPerftRes.h"
 
 /*

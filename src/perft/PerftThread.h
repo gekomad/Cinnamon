@@ -20,7 +20,7 @@
 
 #include "_TPerftRes.h"
 #include "../Search.h"
-#include "../threadPool/Thread.h"
+#include "../blockingThreadPool/Thread.h"
 #include <iomanip>
 #include <atomic>
 #include <fstream>
