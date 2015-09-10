@@ -94,8 +94,8 @@ void Uci::listner(IterativeDeeping *it) {
                 } else if (token == "fen") {
                     uip >> token;
                     do {
-                        fen += token;
-                        fen += ' ';
+                        fen.append(token);
+                        fen.append(" ");
                         uip >> token;
                     } while (token != "ncpu" && token != "hash_size" && token != "depth" && !uip.eof());
                 } else {
@@ -305,6 +305,7 @@ void Uci::listner(IterativeDeeping *it) {
         } else if (token == "position") {
             lock_guard<mutex> lock(it->ponderMutex);
             knowCommand = true;
+
             searchManager.setRepetitionMapCount(0);
             getToken(uip, token);
             _Tmove move;
@@ -317,8 +318,8 @@ void Uci::listner(IterativeDeeping *it) {
                 string fen;
                 while (token != "moves" && !uip.eof()) {
                     uip >> token;
-                    fen += token;
-                    fen += ' ';
+                    fen.append(token);
+                    fen.append(" ");
                 }
                 searchManager.init();
                 int x = searchManager.loadFen(fen);
