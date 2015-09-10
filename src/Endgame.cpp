@@ -46,6 +46,7 @@ Endgame::Endgame() {
 }
 
 int Endgame::getEndgameValue(const int N_PIECE, const int side) {
+    assert(0);
     ASSERT_RANGE(side, 0, 1);
     ASSERT_RANGE(N_PIECE, 2, 32);
     int result = INT_MAX;
