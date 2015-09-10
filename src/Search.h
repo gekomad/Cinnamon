@@ -134,13 +134,8 @@ private:
 
     typedef struct {
         int res;
-
-        bool hashGreater;
-        bool hashAlways;
-
-        Hash::_Thash phasheGreater;
-        Hash::_Thash phasheAlways;
-
+        bool hashFlag[2];
+        Hash::_Thash phasheType[2];
         Hash::_Thash *rootHash[2];
     } _TcheckHash;
 
@@ -184,21 +179,14 @@ private:
     template<bool type, bool smp>
     __always_inline bool checkHash(const bool quies, const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
         Hash::_Thash *phashe;
-        if (type == Hash::HASH_GREATER) {
-            checkHashStruct.hashGreater = false;
-            phashe = &checkHashStruct.phasheGreater;
-        } else {
-            checkHashStruct.hashAlways = false;
-            phashe = &checkHashStruct.phasheAlways;
-        }
+
+        checkHashStruct.hashFlag[type] = false;
+        phashe = &checkHashStruct.phasheType[type];
+
 
         if (hash->readHash<smp>(checkHashStruct.rootHash, type, zobristKeyR, phashe)) {
             if (phashe->from != phashe->to && phashe->flags & 0x3) {    // hashfEXACT or hashfBETA
-                if (type == Hash::HASH_GREATER) {
-                    checkHashStruct.hashGreater = true;
-                } else {
-                    checkHashStruct.hashAlways = true;
-                }
+                checkHashStruct.hashFlag[type] = true;
             }
             if (phashe->depth >= depth) {
                 INC(hash->probeHash);

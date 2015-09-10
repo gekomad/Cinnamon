@@ -176,10 +176,10 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     _Tmove *move;
     _Tmove *best = nullptr;
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
-    if (checkHashStruct.hashGreater) {
-        sortHashMoves(listId, checkHashStruct.phasheGreater);
-    } else if (checkHashStruct.hashAlways) {
-        sortHashMoves(listId, checkHashStruct.phasheAlways);
+    if (checkHashStruct.hashFlag[Hash::HASH_GREATER]) {
+        sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_GREATER]);
+    } else if (checkHashStruct.hashFlag[Hash::HASH_ALWAYS]) {
+        sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_ALWAYS]);
     }
     while ((move = getNextMove(&gen_list[listId]))) {
         if (!makemove(move, false, true)) {
@@ -475,10 +475,10 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         }
     }
     _Tmove *best = nullptr;
-    if (checkHashStruct.hashGreater) {
-        sortHashMoves(listId, checkHashStruct.phasheGreater);
-    } else if (checkHashStruct.hashAlways) {
-        sortHashMoves(listId, checkHashStruct.phasheAlways);
+    if (checkHashStruct.hashFlag[Hash::HASH_GREATER]) {
+        sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_GREATER]);
+    } else if (checkHashStruct.hashFlag[Hash::HASH_ALWAYS]) {
+        sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_ALWAYS]);
     }
     INC(totGen);
     _Tmove *move;
@@ -667,6 +667,7 @@ bool Search::setParameter(String param, int value) {
     }
     return res;
 #else
+    cout <<param<<" "<<value<<"\n";
     return false;
 #endif
 }
