@@ -230,16 +230,16 @@ int main(int argc, char **argv) {
                     fen = optarg;
                 } else if (opt == 'p') { //path
                     token = optarg;
-                    //   it.getGtb().setPath(token);
+                    //   it.getGtb().setPath(token);//TODO
                 } else if (opt == 's') { //scheme
                     token = optarg;
-//                    if (!it.getGtb().setScheme(token)) {
+//                    if (!it.getGtb().setScheme(token)) {//TODO
 //                        cout << "set scheme error" << endl;
 //                        return 1;
 //                    }
                 } else if (opt == 'i') {
                     token = optarg;
-//                    if (!it.getGtb().setInstalledPieces(stoi(token))) {
+//                    if (!it.getGtb().setInstalledPieces(stoi(token))) {//TODO
 //                        cout << "set installed pieces error" << endl;
 //                        return 1;
 //                    }
