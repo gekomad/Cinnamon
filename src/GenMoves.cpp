@@ -355,8 +355,8 @@ void GenMoves::generateMoves(const int side, const u64 allpieces) {
 bool GenMoves::generateCapturesMoves() {
     u64 w = getBitBoard<WHITE>();// getBitBoardNoPawns<WHITE>() | chessboard[PAWN_WHITE];
     u64 b = getBitBoard<BLACK>();// getBitBoardNoPawns<BLACK>() | chessboard[PAWN_BLACK];
-    ASSERT(w == getBitBoardNoPawns<WHITE>() | chessboard[PAWN_WHITE]);
-    ASSERT(b == getBitBoardNoPawns<BLACK>() | chessboard[PAWN_BLACK]);
+    ASSERT(w == (getBitBoardNoPawns<WHITE>() | chessboard[PAWN_WHITE]));
+    ASSERT(b == (getBitBoardNoPawns<BLACK>() | chessboard[PAWN_BLACK]));
     int side = getSide();
     if (side == WHITE) {
         if (generateCaptures(side, b, w))return true;
