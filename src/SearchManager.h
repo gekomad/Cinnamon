@@ -55,8 +55,6 @@ public:
 
     int getValue(int i);
 
-    int getMateIn();
-
     void startClock();
 
     string boardToFen();
@@ -219,7 +217,6 @@ private:
     int nThreads;
 
     void stopAllThread();
-
 
 };
 

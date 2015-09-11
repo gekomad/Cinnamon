@@ -72,7 +72,7 @@ public:
             threadPool.push_back(x);
         }
         registerThreads();
-        cout << "ThreadPool size: " << getNthread() << "\n";
+//        cout << "ThreadPool size: " << getNthread() << "\n";
         return true;
     }
 

@@ -258,12 +258,6 @@ int SearchManager::getValue(int i) {
     return threadPool[i]->getValue();
 }
 
-int SearchManager::getMateIn() {
-    assert(0);//TODO
-    //return threadPool[threadWin]->getMateIn();
-}
-
-
 void SearchManager::startClock() {
     threadPool[0]->startClock();// static variable
 }
