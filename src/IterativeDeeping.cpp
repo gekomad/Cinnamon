@@ -239,9 +239,3 @@ void IterativeDeeping::run() {
     cout << "\n" << flush;
 
 }
-
-Tablebase *IterativeDeeping::createGtb() {
-    tablebase = &Tablebase::getInstance();
-    searchManager.setGtb(*tablebase);
-    return tablebase;
-}

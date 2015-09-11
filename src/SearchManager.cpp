@@ -407,6 +407,10 @@ int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
     return threadPool[0]->getMoveFromSan(string, ptr);
 }
 
+Tablebase &SearchManager::getGtb() {
+    return threadPool[0]->getGtb();
+}
+
 int SearchManager::printDtm() {
     return threadPool[0]->printDtm();
 }
@@ -458,7 +462,14 @@ void SearchManager::stopAllThread() {
 bool SearchManager::setParameter(String param, int value) {
     bool b;
     for (Search *s:threadPool) {
-        b=s->setParameter(param, value);
+        b = s->setParameter(param, value);
     }
     return b;
+}
+
+
+Tablebase &SearchManager::createGtb() {
+    Tablebase &gtb = Tablebase::getInstance();
+    setGtb(gtb);
+    return gtb;
 }

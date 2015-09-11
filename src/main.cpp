@@ -223,6 +223,7 @@ int main(int argc, char **argv) {
                 cout << "use: " << argv[0] << " " << DTM_HELP << endl;
                 return 1;
             };
+            searchManager.createGtb();
             string fen, token;
             IterativeDeeping it;
             while ((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
@@ -230,19 +231,19 @@ int main(int argc, char **argv) {
                     fen = optarg;
                 } else if (opt == 'p') { //path
                     token = optarg;
-                    //   it.getGtb().setPath(token);//TODO
+                    searchManager.getGtb().setPath(token);
                 } else if (opt == 's') { //scheme
                     token = optarg;
-//                    if (!it.getGtb().setScheme(token)) {//TODO
-//                        cout << "set scheme error" << endl;
-//                        return 1;
-//                    }
+                    if (!searchManager.getGtb().setScheme(token)) {
+                        cout << "set scheme error" << endl;
+                        return 1;
+                    }
                 } else if (opt == 'i') {
                     token = optarg;
-//                    if (!it.getGtb().setInstalledPieces(stoi(token))) {//TODO
-//                        cout << "set installed pieces error" << endl;
-//                        return 1;
-//                    }
+                    if (!searchManager.getGtb().setInstalledPieces(stoi(token))) {
+                        cout << "set installed pieces error" << endl;
+                        return 1;
+                    }
                 }
             }
             if (!it.getGtbAvailable()) {

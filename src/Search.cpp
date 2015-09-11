@@ -116,10 +116,7 @@ int Search::checkTime() {
 
 Search::~Search() {
     join();
-    if (gtb) {
-        delete gtb;
-        gtb = nullptr;
-    }
+    deleteGtb();
 }
 
 template<int side, bool smp>
@@ -314,9 +311,6 @@ Tablebase &Search::getGtb() const {
 }
 
 void Search::deleteGtb() {
-    if (gtb) {
-        delete gtb;
-    }
     gtb = nullptr;
 }
 

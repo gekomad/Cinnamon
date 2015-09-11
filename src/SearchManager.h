@@ -39,6 +39,10 @@ public:
 
     ~SearchManager();
 
+    Tablebase &getGtb();
+
+    Tablebase &createGtb();
+
     int loadFen(string fen = "");
 
     int getPieceAt(int side, u64 i);
@@ -215,6 +219,7 @@ private:
     int nThreads;
 
     void stopAllThread();
+
 
 };
 

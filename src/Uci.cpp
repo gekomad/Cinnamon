@@ -184,7 +184,7 @@ void Uci::listner(IterativeDeeping *it) {
                     if (token == "value") {
                         getToken(uip, token);
                         knowCommand = true;
-                        tablebase = it->createGtb();
+                        tablebase = &searchManager.createGtb();
                         tablebase->setPath(token);
                     }
                 } else if (token == "gaviotatbcache") {

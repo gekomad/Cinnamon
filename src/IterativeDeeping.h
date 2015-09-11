@@ -55,8 +55,6 @@ public:
 
     bool setParameter(String param, int value);
 
-    Tablebase *createGtb();
-
     IterativeDeeping();
 
 private:
