@@ -20,7 +20,6 @@
 
 #include "ChessBoard.h"
 
-using namespace _eval;
 
 class GenMoves : public virtual ChessBoard {
 

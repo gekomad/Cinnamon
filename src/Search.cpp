@@ -128,6 +128,12 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     if (!(numMovesq++ & 1023)) {
         setRunning(checkTime());
     }
+//    int is_incheck_side = inCheck<side>();
+//    if (!is_incheck_side) {
+//        int score = lazyEval<side>();
+//        if (alpha >= score)
+//            return score;
+//    }
     int score = getScore(side, alpha, beta);
     if (score >= beta) {
         return beta;

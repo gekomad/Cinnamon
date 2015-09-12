@@ -17,7 +17,7 @@
 */
 
 #include "Eval.h"
-
+constexpr int Eval::PIECES_VALUE[13] ;
 Eval::Eval() { }
 
 Eval::~Eval() { }
@@ -37,7 +37,7 @@ void Eval::openColumn(int side) {
     }
 }
 
-template<int side, _Tstatus status>
+template<int side, Eval::_Tstatus status>
 int Eval::evaluatePawn() {
     INC(evaluationCount[side]);
     u64 ped_friends = structure.pawns[side];
@@ -114,7 +114,7 @@ int Eval::evaluatePawn() {
     return result;
 }
 
-template<int side, _Tstatus status>
+template<int side, Eval::_Tstatus status>
 int Eval::evaluateBishop(u64 enemies, u64 friends) {
     INC(evaluationCount[side]);
     u64 x = chessboard[BISHOP_BLACK + side];
@@ -166,7 +166,7 @@ int Eval::evaluateBishop(u64 enemies, u64 friends) {
     return result;
 }
 
-template<_Tstatus status>
+template<Eval::_Tstatus status>
 int Eval::evaluateQueen(int side, u64 enemies, u64 friends) {
     INC(evaluationCount[side]);
     int result = 0;
@@ -199,7 +199,7 @@ int Eval::evaluateQueen(int side, u64 enemies, u64 friends) {
     return result;
 }
 
-template<int side, _Tstatus status>
+template<int side, Eval::_Tstatus status>
 int Eval::evaluateKnight(const u64 enemiesPawns, const u64 squares) {
     INC(evaluationCount[side]);
     int result = 0;
@@ -260,7 +260,7 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 squares) {
     return result;
 }
 
-template<int side, _Tstatus status>
+template<int side, Eval::_Tstatus status>
 int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
     INC(evaluationCount[side]);
     int o, result = 0;
@@ -332,7 +332,7 @@ int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
     return result;
 }
 
-template<_Tstatus status>
+template<Eval::_Tstatus status>
 int Eval::evaluateKing(int side, u64 squares) {
     ASSERT(evaluationCount[side] == 5);
     int result = 0;

@@ -453,7 +453,7 @@ void SearchManager::stopAllThread() {
 }
 
 bool SearchManager::setParameter(String param, int value) {
-    bool b;
+    bool b = false;
     for (Search *s:threadPool) {
         b = s->setParameter(param, value);
     }

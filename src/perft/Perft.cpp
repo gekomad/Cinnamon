@@ -232,4 +232,4 @@ void Perft::endRun() {
     }
     cout << endl;
     dump();
-};
+}
