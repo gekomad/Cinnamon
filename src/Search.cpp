@@ -131,7 +131,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
 //    int is_incheck_side = inCheck<side>();
 //    if (!is_incheck_side) {
 //        int score = lazyEval<side>();
-//        if (alpha >= score)
+//        if (score + FUTIL_MARGIN < alpha)
 //            return score;
 //    }
     int score = getScore(side, alpha, beta);
