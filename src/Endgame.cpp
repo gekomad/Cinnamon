@@ -97,7 +97,6 @@ int Endgame::getEndgameValue(const int N_PIECE, const int side) {
             break;
         default:
             assert(0);
-            break;
     }
 
     return winnerSide == side ? result : -result;
