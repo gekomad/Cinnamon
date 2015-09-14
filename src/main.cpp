@@ -127,14 +127,50 @@ int main(int argc, char **argv) {
     cout << "DEBUG_MODE\n";
 #endif
     cout << flush;
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+
     if (argc == 2 && !strcmp(argv[1], "--help")) {
         help(argv);
         return 1;
     }
     int opt;
 
-    while ((opt = getopt(argc, argv, "e:hd:bp:f:")) != -1) {
+    while ((opt = getopt(argc, argv, "p:")) != -1) {
+
+        if (opt == 'p') {  // perft test
+            if (string(optarg) != "erft") {
+                continue;
+            };
+            int nCpu = 0;
+            int perftDepth = 0;
+            string fen;
+            int perftHashSize = 0;
+            string dumpFile;
+            while ((opt = getopt(argc, argv, "d:f:h:f:c:F:")) != -1) {
+                if (opt == 'd') {    //depth
+                    perftDepth = atoi(optarg);
+                } else if (opt == 'F') { //use dump
+                    dumpFile = optarg;
+                    if (dumpFile.empty()) {
+                        cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
+                        return 1;
+                    }
+                } else if (opt == 'c') {  //N cpu
+                    nCpu = atoi(optarg);
+                } else if (opt == 'h') {  //hash
+                    perftHashSize = atoi(optarg);
+                } else if (opt == 'f') {  //fen
+                    fen = optarg;
+                }
+            }
+            Perft *p = new Perft(fen, perftDepth, nCpu, perftHashSize, dumpFile);
+            p->start();
+            p->join();
+            delete (p);
+            return 0;
+        }
+    }
+    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+    while ((opt = getopt(argc, argv, "e:hd:bf:")) != -1) {
         if (opt == 'h') {
             help(argv);
             return 0;
@@ -252,37 +288,6 @@ int main(int argc, char **argv) {
             }
             searchManager.loadFen(fen);
             searchManager.printDtm();
-            return 0;
-        } else if (opt == 'p') {  // perft test
-            if (string(optarg) != "erft") {
-                continue;
-            };
-            int nCpu = 0;
-            int perftDepth = 0;
-            string fen;
-            int perftHashSize = 0;
-            string dumpFile;
-            while ((opt = getopt(argc, argv, "d:f:h:f:c:F:")) != -1) {
-                if (opt == 'd') {    //depth
-                    perftDepth = atoi(optarg);
-                } else if (opt == 'F') { //use dump
-                    dumpFile = optarg;
-                    if (dumpFile.empty()) {
-                        cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
-                        return 1;
-                    }
-                } else if (opt == 'c') {  //N cpu
-                    nCpu = atoi(optarg);
-                } else if (opt == 'h') {  //hash
-                    perftHashSize = atoi(optarg);
-                } else if (opt == 'f') {  //fen
-                    fen = optarg;
-                }
-            }
-            Perft *p = new Perft(fen, perftDepth, nCpu, perftHashSize, dumpFile);
-            p->start();
-            p->join();
-            delete (p);
             return 0;
         }
     }
