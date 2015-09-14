@@ -79,7 +79,9 @@ bool GenMoves::pushmove(const int from, const int to, const int side, int promot
                 ASSERT_RANGE(from, 0, 63);
                 mos->score = killerHeuristic[from][to];
                 mos->score += (Eval::PIECES_VALUE[piece_captured] >= Eval::PIECES_VALUE[pieceFrom]) ? (Eval::PIECES_VALUE[piece_captured] - Eval::PIECES_VALUE[pieceFrom]) * 2 : Eval::PIECES_VALUE[piece_captured];
+
                 mos->score += (MOV_ORD[pieceFrom][to] - MOV_ORD[pieceFrom][from]);
+
 
             }
         }
