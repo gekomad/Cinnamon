@@ -152,7 +152,7 @@ void Perft::run() {
     }
     if (perftRes.hash && !dumpFile.empty()) {
         timer = new Timer(secondsToDump);
-        cout << "dump hash table in file every " << (secondsToDump / 60) << " minutes or type 'flush'" << endl;
+        cout << "dump hash table in file every " << (secondsToDump / 60) << " minutes" << endl;
         timer->registerObservers([this]() {
             dump();
         });

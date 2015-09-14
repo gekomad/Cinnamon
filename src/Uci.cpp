@@ -56,12 +56,7 @@ void Uci::listner(IterativeDeeping *it) {
         istringstream uip(command, ios::in);
         getToken(uip, token);
         knowCommand = false;
-        if (token == "flush") {
-            if (perft) {
-                perft->dump();
-            }
-            knowCommand = true;
-        } else if (token == "perft") {
+        if (token == "perft") {
             int perftDepth = -1;
             int nCpu = 1;
             string dumpFile;
