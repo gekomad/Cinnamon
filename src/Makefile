@@ -61,15 +61,7 @@ else
 	endif
 endif
 
-ifeq ($(COMP),g++)
-	PARAM="-std=c++1y -O3 -s -Wno-reorder -pipe -finline-functions -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wall -Wcast-qual -Wextra -Wshadow "
-else
-ifeq ($(COMP),clang++)
-	PARAM="-std=c++1y -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long  -Wcast-qual -Wextra -Wshadow "
-else
-	PARAM="-std=c++1y -O3 -DNDEBUG "
-endif
-endif
+PARAM="-std=c++1y -Wno-reorder -Wall -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long  -Wcast-qual -Wextra -Wshadow "
 
 help:
 
