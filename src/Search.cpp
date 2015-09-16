@@ -142,7 +142,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     char hashf = Hash::hashfALPHA;
     u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^RANDSIDE[side];
 
-    _TcheckHash checkHashStruct;//TODO provare elimnare da quies la ricerca in TT
+    _TcheckHash checkHashStruct;
 
     if (checkHash<Hash::HASH_GREATER, smp>(true, alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;

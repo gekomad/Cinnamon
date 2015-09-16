@@ -68,7 +68,7 @@ public:
         unsigned char wp[17];    /* what white pieces are on those squares */
         unsigned char bp[17];    /* what black pieces are on those squares */
         unsigned info = tb_UNKNOWN;    /* default, no tbvalue */
-        unsigned pliestomate;
+        unsigned pliestomate = 0;
         int count = 0;
         //white
         for (int piece = 1; piece < 12; piece += 2) {
