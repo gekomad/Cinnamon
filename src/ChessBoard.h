@@ -46,8 +46,6 @@ public:
 
     ChessBoard();
 
-    _Tchessboard chessboard;
-
     virtual ~ChessBoard();
 
     static string decodeBoardinv(const uchar type, const int a, const int side) {
@@ -128,6 +126,8 @@ public:
 
 protected:
 
+    _Tchessboard chessboard;
+    
     typedef struct {
         u64 allPieces;
         u64 kingAttackers[2];
