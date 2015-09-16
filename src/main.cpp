@@ -134,8 +134,11 @@ int main(int argc, char **argv) {
     }
     int opt;
 
-    while ((opt = getopt(argc, argv, "p:")) != -1) {
-
+    while ((opt = getopt(argc, argv, "p:e:hd:bf:")) != -1) {
+        if (opt == 'h') {
+            help(argv);
+            return 0;
+        }
         if (opt == 'p') {  // perft test
             if (string(optarg) != "erft") {
                 continue;
@@ -167,128 +170,123 @@ int main(int argc, char **argv) {
             p->join();
             delete (p);
             return 0;
-        }
-    }
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    while ((opt = getopt(argc, argv, "e:hd:bf:")) != -1) {
-        if (opt == 'h') {
-            help(argv);
-            return 0;
-        }
-        if (opt == 'e') {
-            if (string(optarg) == "pd2pgn") {
+        }else {//end perft
+            SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+            if (opt == 'e') {
+                if (string(optarg) == "pd2pgn") {
 
-                string epdfile;
-                int m = 64;
-                while ((opt = getopt(argc, argv, "f:m:")) != -1) {
-                    if (opt == 'f') {    //file
-                        epdfile = optarg;
+                    string epdfile;
+                    int m = 64;
+                    while ((opt = getopt(argc, argv, "f:m:")) != -1) {
+                        if (opt == 'f') {    //file
+                            epdfile = optarg;
+                        }
+                        if (opt == 'm') {    //n' pieces
+                            string h = optarg;
+                            m = stoi(h);
+                        }
                     }
-                    if (opt == 'm') {    //n' pieces
-                        string h = optarg;
-                        m = stoi(h);
+                    ///////////////////
+                    ifstream inData;
+                    string fen;
+                    if (!FileUtil::fileExists(epdfile)) {
+                        cout << "error file not found  " << epdfile << endl;
+                        return 1;
+                    }
+                    inData.open(epdfile);
+                    int count = 0;
+                    int n = 0;
+                    ostringstream os;
+                    os << "[Date \"" << Time::getYear() << "." << Time::getMonth() << "." << Time::getDay() << "\"]";
+                    string date = os.str();
+                    while (!inData.eof()) {
+                        getline(inData, fen);
+                        n = 0;
+                        for (unsigned i = 0; i < fen.size(); i++) {
+                            int c = tolower(fen[i]);
+                            if (c == ' ') {
+                                break;
+                            }
+                            if (c == 'b' || c == 'k' || c == 'r' || c == 'q' || c == 'p' || c == 'n') {
+                                n++;
+                            }
+                        }
+                        if (n > 0 && n <= m) {
+                            count++;
+                            cout << "[Site \"" << count << " (" << n << " pieces)\"]\n";
+                            cout << date << "\n";
+                            cout << "[Result \"*\"]\n";
+                            string fenClean, token;
+                            istringstream uip(fen, ios::in);
+                            uip >> token;
+                            fenClean += token + " ";
+                            uip >> token;
+                            fenClean += token + " ";
+                            uip >> token;
+                            fenClean += token + " ";
+                            uip >> token;
+                            fenClean += token;
+                            cout << "[FEN \"" << fenClean << "\"]\n";
+                            cout << "*" << "\n";
+                        }
+                    }
+                    cout << endl;
+                    return 0;
+                } else if (string(optarg) == "ndgame_epd") {
+                    while ((opt = getopt(argc, argv, "t:")) != -1) {
+                        if (opt == 't') {    //file
+                            Search a;
+                            a.generatePuzzle(optarg);
+                            return 0;
+                        }
+                    }
+                } else {
+                    help(argv);
+                }
+
+            }
+            if (opt == 'b') {
+                unique_ptr<IterativeDeeping> it(new IterativeDeeping());
+                it->setUseBook(false);
+                searchManager.setMaxTimeMillsec(10000);
+                it->run();
+                return 0;
+            } else if (opt == 'd') {  // gtb dtm
+                if (string(optarg) != "tm") {
+                    cout << "use: " << argv[0] << " " << DTM_HELP << endl;
+                    return 1;
+                };
+                searchManager.createGtb();
+                string fen, token;
+                IterativeDeeping it;
+                while ((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
+                    if (opt == 'f') {    //fen
+                        fen = optarg;
+                    } else if (opt == 'p') { //path
+                        token = optarg;
+                        searchManager.getGtb().setPath(token);
+                    } else if (opt == 's') { //scheme
+                        token = optarg;
+                        if (!searchManager.getGtb().setScheme(token)) {
+                            cout << "set scheme error" << endl;
+                            return 1;
+                        }
+                    } else if (opt == 'i') {
+                        token = optarg;
+                        if (!searchManager.getGtb().setInstalledPieces(stoi(token))) {
+                            cout << "set installed pieces error" << endl;
+                            return 1;
+                        }
                     }
                 }
-                ///////////////////
-                ifstream inData;
-                string fen;
-                if (!FileUtil::fileExists(epdfile)) {
-                    cout << "error file not found  " << epdfile << endl;
+                if (!it.getGtbAvailable()) {
+                    cout << "error TB not found" << endl;
                     return 1;
                 }
-                inData.open(epdfile);
-                int count = 0;
-                int n = 0;
-                ostringstream os;
-                os << "[Date \"" << Time::getYear() << "." << Time::getMonth() << "." << Time::getDay() << "\"]";
-                string date = os.str();
-                while (!inData.eof()) {
-                    getline(inData, fen);
-                    n = 0;
-                    for (unsigned i = 0; i < fen.size(); i++) {
-                        int c = tolower(fen[i]);
-                        if (c == ' ') {
-                            break;
-                        }
-                        if (c == 'b' || c == 'k' || c == 'r' || c == 'q' || c == 'p' || c == 'n') {
-                            n++;
-                        }
-                    }
-                    if (n > 0 && n <= m) {
-                        count++;
-                        cout << "[Site \"" << count << " (" << n << " pieces)\"]\n";
-                        cout << date << "\n";
-                        cout << "[Result \"*\"]\n";
-                        string fenClean, token;
-                        istringstream uip(fen, ios::in);
-                        uip >> token;
-                        fenClean += token + " ";
-                        uip >> token;
-                        fenClean += token + " ";
-                        uip >> token;
-                        fenClean += token + " ";
-                        uip >> token;
-                        fenClean += token;
-                        cout << "[FEN \"" << fenClean << "\"]\n";
-                        cout << "*" << "\n";
-                    }
-                }
-                cout << endl;
+                searchManager.loadFen(fen);
+                searchManager.printDtm();
                 return 0;
-            } else if (string(optarg) == "ndgame_epd") {
-                while ((opt = getopt(argc, argv, "t:")) != -1) {
-                    if (opt == 't') {    //file
-                        Search a;
-                        a.generatePuzzle(optarg);
-                        return 0;
-                    }
-                }
-            } else {
-                help(argv);
             }
-
-        }
-        if (opt == 'b') {
-            unique_ptr<IterativeDeeping> it(new IterativeDeeping());
-            it->setUseBook(false);
-            searchManager.setMaxTimeMillsec(10000);
-            it->run();
-            return 0;
-        } else if (opt == 'd') {  // gtb dtm
-            if (string(optarg) != "tm") {
-                cout << "use: " << argv[0] << " " << DTM_HELP << endl;
-                return 1;
-            };
-            searchManager.createGtb();
-            string fen, token;
-            IterativeDeeping it;
-            while ((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
-                if (opt == 'f') {    //fen
-                    fen = optarg;
-                } else if (opt == 'p') { //path
-                    token = optarg;
-                    searchManager.getGtb().setPath(token);
-                } else if (opt == 's') { //scheme
-                    token = optarg;
-                    if (!searchManager.getGtb().setScheme(token)) {
-                        cout << "set scheme error" << endl;
-                        return 1;
-                    }
-                } else if (opt == 'i') {
-                    token = optarg;
-                    if (!searchManager.getGtb().setInstalledPieces(stoi(token))) {
-                        cout << "set installed pieces error" << endl;
-                        return 1;
-                    }
-                }
-            }
-            if (!it.getGtbAvailable()) {
-                cout << "error TB not found" << endl;
-                return 1;
-            }
-            searchManager.loadFen(fen);
-            searchManager.printDtm();
-            return 0;
         }
     }
     Uci::getInstance();
