@@ -30,7 +30,7 @@ ifndef SystemRoot
 		OS=Linux
 	endif
 
- 	ifneq ($(shell grep "model name" /proc/cpuinfo |grep "ARM" -c),0)
+ 	ifneq ($(shell grep "Processor" /proc/cpuinfo |grep "ARM" -c),0)
         	OS=ARM
     endif
 
