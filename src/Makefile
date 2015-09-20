@@ -28,22 +28,25 @@ ifndef SystemRoot
 		PROFILE_USE_THREAD=" -fprofile-correction -fprofile-use "
 		STATIC="-static "
 		OS=Linux
-	endif
+	endif	
 
- 	ifneq ($(shell grep "Processor" /proc/cpuinfo |grep "ARM" -c),0)
-        	OS=ARM
-    endif
+	ifneq (,$(findstring arm,$(COMP)))
+    	OS="ARM"
+		NATIVE_ARCH="32"
+	else
+		UNAME_P := $(shell uname -p)
+		ifeq ($(UNAME_P),x86_64)
+			NATIVE_ARCH="64"
+		else
+			NATIVE_ARCH="32"
+		endif
+	endif
 
 	RM=rm -f
 	PA="./"
 	EXE="cinnamon"
 	STRIP=strip
-	UNAME_P := $(shell uname -p)
-	ifeq ($(UNAME_P),x86_64)
-		NATIVE_ARCH="64"
-	else
-		NATIVE_ARCH="32"
-	endif
+	
 else
 	# Windows
 	ARC="-mno-ms-bitfields"
@@ -97,7 +100,10 @@ else
 	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC) all
 endif
 endif
+
+ifneq ($(OS),"ARM")
 	$(STRIP) $(EXE)
+endif	
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
