@@ -7,6 +7,7 @@ mkdir -p /tmp/deploy/$UUID
 cp -r ../src /tmp/deploy/$UUID
 cd /tmp/deploy
 tar -czf $UUID.tar.gz $UUID
+./cinnamon -b
 echo "send to servers ? y/n"
 read send
 if [ "$send" != "y" ]; then
