@@ -28,25 +28,22 @@ ifndef SystemRoot
 		PROFILE_USE_THREAD=" -fprofile-correction -fprofile-use "
 		STATIC="-static "
 		OS=Linux
-	endif	
-
-	ifneq (,$(findstring arm,$(COMP)))
-    	OS="ARM"
-		NATIVE_ARCH="32"
-	else
-		UNAME_P := $(shell uname -p)
-		ifeq ($(UNAME_P),x86_64)
-			NATIVE_ARCH="64"
-		else
-			NATIVE_ARCH="32"
-		endif
 	endif
+
+ 	ifneq ($(shell grep "Processor" /proc/cpuinfo |grep "ARM" -c),0)
+        	OS=ARM
+    endif
 
 	RM=rm -f
 	PA="./"
 	EXE="cinnamon"
 	STRIP=strip
-	
+	UNAME_P := $(shell uname -p)
+	ifeq ($(UNAME_P),x86_64)
+		NATIVE_ARCH="64"
+	else
+		NATIVE_ARCH="32"
+	endif
 else
 	# Windows
 	ARC="-mno-ms-bitfields"
@@ -64,7 +61,15 @@ else
 	endif
 endif
 
-PARAM="-std=c++1y -Wno-reorder -Wall -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long  -Wcast-qual -Wextra -Wshadow "
+ifeq ($(COMP),g++)
+	PARAM="-std=c++1y -O3 -s -Wno-reorder -pipe -finline-functions -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wall -Wcast-qual -Wextra -Wshadow "
+else
+ifeq ($(COMP),clang++)
+	PARAM="-std=c++1y -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long  -Wcast-qual -Wextra -Wshadow "
+else
+	PARAM="-std=c++1y -O3 -DNDEBUG "
+endif
+endif
 
 help:
 
@@ -100,10 +105,7 @@ else
 	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC) all
 endif
 endif
-
-ifneq ($(OS),"ARM")
 	$(STRIP) $(EXE)
-endif	
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
