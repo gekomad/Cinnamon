@@ -32,12 +32,11 @@ class ThreadPool : public ObserverThread {
 
 public:
     ThreadPool(int t) {
+        threadsBits = 0;
         setNthread(t);
     }
 
-    ThreadPool() : threadsBits(0) {
-        setNthread(thread::hardware_concurrency());
-    }
+    ThreadPool() : ThreadPool(thread::hardware_concurrency()) { }
 
     T &getNextThread() {
         lock_guard<mutex> lock1(mxRel);
@@ -106,8 +105,8 @@ protected:
 private:
 
     mutex mtx;
-    atomic <u64> threadsBits;
-    int nThread;
+    atomic<u64> threadsBits;
+    int nThread = 0;
     condition_variable cv;
     mutex mxGet;
     mutex mxRel;
