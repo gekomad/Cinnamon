@@ -117,11 +117,123 @@ public:
 
     bool performRankFileCapture(const int piece, const u64 enemies, const int side, const u64 allpieces);
 
-    template<int side>
-    bool performPawnCapture(const u64 enemies);
 
     template<int side>
-    void performPawnShift(const u64 xallpieces);
+    bool performPawnCapture(const u64 enemies) {
+        if (!chessboard[side]) {
+            if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
+                updateZobristKey(13, chessboard[ENPASSANT_IDX]);
+            }
+            chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
+            return false;
+        }
+        int GG;
+        u64 x;
+        if (side) {
+            x = (chessboard[side] << 7) & TABCAPTUREPAWN_LEFT & enemies;
+            GG = -7;
+        } else {
+            x = (chessboard[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies;
+            GG = 7;
+        };
+        while (x) {
+            int o = Bits::BITScanForward(x);
+            if ((side && o > 55) || (!side && o < 8)) {//PROMOTION
+                if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, QUEEN_BLACK + side, side)) {
+                    return true;        //queen
+                }
+                if (perftMode) {
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, KNIGHT_BLACK + side, side)) {
+                        return true;        //knight
+                    }
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, ROOK_BLACK + side, side)) {
+                        return true;        //rock
+                    }
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, BISHOP_BLACK + side, side)) {
+                        return true;        //bishop
+                    }
+                }
+            } else if (pushmove<STANDARD_MOVE_MASK>(o + GG, o, side, NO_PROMOTION, side)) {
+                return true;
+            }
+            x &= NOTPOW2[o];
+        };
+        if (side) {
+            GG = -9;
+            x = (chessboard[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies;
+        } else {
+            GG = 9;
+            x = (chessboard[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies;
+        };
+        while (x) {
+            int o = Bits::BITScanForward(x);
+            if ((side && o > 55) || (!side && o < 8)) {    //PROMOTION
+                if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, QUEEN_BLACK + side, side)) {
+                    return true;        //queen
+                }
+                if (perftMode) {
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, KNIGHT_BLACK + side, side)) {
+                        return true;        //knight
+                    }
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, BISHOP_BLACK + side, side)) {
+                        return true;        //bishop
+                    }
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, ROOK_BLACK + side, side)) {
+                        return true;        //rock
+                    }
+                }
+            } else if (pushmove<STANDARD_MOVE_MASK>(o + GG, o, side, NO_PROMOTION, side)) {
+                return true;
+            }
+            x &= NOTPOW2[o];
+        };
+        //ENPASSANT
+        if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
+            x = ENPASSANT_MASK[side ^ 1][chessboard[ENPASSANT_IDX]] & chessboard[side];
+            while (x) {
+                int o = Bits::BITScanForward(x);
+                pushmove<ENPASSANT_MOVE_MASK>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8), side, NO_PROMOTION, side);
+                x &= NOTPOW2[o];
+            }
+            updateZobristKey(13, chessboard[ENPASSANT_IDX]);
+            chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
+        }
+        return false;
+    }
+
+
+    template<int side>
+    void performPawnShift(const u64 xallpieces) {
+        int tt;
+        u64 x = chessboard[side];
+        if (x & PAWNS_JUMP[side]) {
+            checkJumpPawn<side>(x, xallpieces);
+        }
+        if (side) {
+            x <<= 8;
+            tt = -8;
+        } else {
+            tt = 8;
+            x >>= 8;
+        };
+        x &= xallpieces;
+        while (x) {
+            int o = Bits::BITScanForward(x);
+            ASSERT(getPieceAt(side, POW2[o + tt]) != SQUARE_FREE);
+            ASSERT(getBitBoard(side) & POW2[o + tt]);
+            if (o > 55 || o < 8) {
+                pushmove<PROMOTION_MOVE_MASK>(o + tt, o, side, QUEEN_BLACK + side, side);
+                if (perftMode) {
+                    pushmove<PROMOTION_MOVE_MASK>(o + tt, o, side, KNIGHT_BLACK + side, side);
+                    pushmove<PROMOTION_MOVE_MASK>(o + tt, o, side, BISHOP_BLACK + side, side);
+                    pushmove<PROMOTION_MOVE_MASK>(o + tt, o, side, ROOK_BLACK + side, side);
+                }
+            } else {
+                pushmove<STANDARD_MOVE_MASK>(o + tt, o, side, NO_PROMOTION, side);
+            }
+            x &= NOTPOW2[o];
+        };
+    }
 
     void clearKillerHeuristic();
 
@@ -277,7 +389,19 @@ private:
     void writeFen(vector<int>);
 
     template<int side>
-    void checkJumpPawn(u64 x, const u64 xallpieces);
+    void checkJumpPawn(u64 x, const u64 xallpieces) {
+        x &= TABJUMPPAWN;
+        if (side) {
+            x = (((x << 8) & xallpieces) << 8) & xallpieces;
+        } else {
+            x = (((x >> 8) & xallpieces) >> 8) & xallpieces;
+        };
+        while (x) {
+            int o = Bits::BITScanForward(x);
+            pushmove<STANDARD_MOVE_MASK>(o + (side ? -16 : 16), o, side, NO_PROMOTION, side);
+            x &= NOTPOW2[o];
+        };
+    }
 
     int performRankFileCaptureCount(const int, const u64 enemies, const u64 allpieces);
 
