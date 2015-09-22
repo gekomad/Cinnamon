@@ -16,6 +16,7 @@
 
 COMP=g++
 
+NATIVE_ARCH="32"
 ifndef SystemRoot
 	# *nix
 	ARC=
@@ -30,10 +31,6 @@ ifndef SystemRoot
 		OS=Linux
 	endif
 
- 	ifneq ($(shell grep "Processor" /proc/cpuinfo |grep "ARM" -c),0)
-        	OS=ARM
-    endif
-
 	RM=rm -f
 	PA="./"
 	EXE="cinnamon"
@@ -41,8 +38,6 @@ ifndef SystemRoot
 	UNAME_P := $(shell uname -p)
 	ifeq ($(UNAME_P),x86_64)
 		NATIVE_ARCH="64"
-	else
-		NATIVE_ARCH="32"
 	endif
 else
 	# Windows
@@ -56,20 +51,10 @@ else
 
 	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
 		NATIVE_ARCH="64"
-	else
-		NATIVE_ARCH="32"
 	endif
 endif
 
-ifeq ($(COMP),g++)
-	PARAM="-std=c++1y -O3 -s -Wno-reorder -pipe -finline-functions -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wall -Wcast-qual -Wextra -Wshadow "
-else
-ifeq ($(COMP),clang++)
-	PARAM="-std=c++1y -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long  -Wcast-qual -Wextra -Wshadow "
-else
-	PARAM="-std=c++1y -O3 -DNDEBUG "
-endif
-endif
+PARAM="-std=c++1y -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
 
 help:
 
@@ -91,7 +76,7 @@ help:
 	@echo ""
 
 build:
-ifeq ($(OS),ARM)
+ifeq ($(MAKECMDGOALS),cinnamon-ARM)
 	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fsigned-char all
 else
 ifeq ($(COMP),g++)
@@ -114,7 +99,7 @@ cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse" cinnamon32-generic
 
 cinnamon-ARM:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -DARM_ARCH -fno-gcse -w" build
+	$(MAKE) LIBS="$(LIBS) gtb/ARM/32/libgtb.a" ARC="$(ARC) -DARM_ARCH -fno-gcse -w" build
 
 cinnamon-native:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
