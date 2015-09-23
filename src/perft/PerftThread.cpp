@@ -18,6 +18,7 @@
 
 #include "PerftThread.h"
 #include "../namespaces.h"
+#include "_TPerftRes.h"
 
 SharedMutex PerftThread::MUTEX_BUCKET[N_MUTEX_BUCKET];
 mutex PerftThread::mutexPrint;
@@ -34,12 +35,12 @@ void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) 
 }
 
 template<int side, bool useHash, bool smp>
-void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCapture) {
+void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCapture, const int isEp) {
     checkWait();
-//    _TsubRes n_perft = {0, 0};
     if (depthx == 0) {
         n_perft.totMoves = 1;
         n_perft.totCapture = isCapture;
+        n_perft.totEp = isEp;
         return;
     }
     u64 zobristKeyR;
@@ -47,6 +48,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
     _ThashPerft *phashe = nullptr;
 
     if (useHash) {
+        assert(0);
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ RANDSIDE[side];
         if (smp) MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].lock_shared();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
@@ -66,6 +68,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
         decListId();
         n_perft.totMoves = 0;
         n_perft.totCapture = 0;
+        n_perft.totEp = 0;
         return;
     }
     generateMoves<side>(friends | enemies);
@@ -78,11 +81,16 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
         move = getMove(ii);
         u64 keyold = chessboard[ZOBRISTKEY_IDX];
         makemove(move, false, false);
-        _TsubRes x={0,0};
+        _TsubRes x = {0, 0};
         int isCapture = move->capturedPiece == SQUARE_FREE ? 0 : 1;
-        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture);
+        int isEp = 0;
+        if ((move->type & 0x3) == ENPASSANT_MOVE_MASK) {
+            isEp = 1;
+        }
+        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp);
         n_perft.totCapture += x.totCapture;
         n_perft.totMoves += x.totMoves;
+        n_perft.totEp += x.totEp;
         takeback(move, keyold, false);
     }
     decListId();
@@ -97,7 +105,8 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
 
 void  PerftThread::endRun() {
     tPerftRes->totMoves += tot1;
-    tPerftRes->totCapture += totCapture;
+    tPerftRes->totCapture += totCapture1;
+    tPerftRes->totEp += totEp;
 }
 
 void PerftThread::run() {
@@ -113,7 +122,7 @@ void PerftThread::run() {
     makeZobristKey();
     u64 keyold = chessboard[ZOBRISTKEY_IDX];
     for (int ii = to - 1; ii >= from; ii--) {
-        _TsubRes n_perft={0,0};
+        _TsubRes n_perft = {0, 0};
         move = getMove(ii);
         makemove(move, false, false);
         bool fhash = tPerftRes->hash != nullptr ? true : false;
@@ -123,22 +132,22 @@ void PerftThread::run() {
         if (fhash) {
             if (side == WHITE) {
                 if (smp) {
-                    search<WHITE, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0);
+                    search<WHITE, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0);
                 } else {//smp == false
-                    search<WHITE, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0);
+                    search<WHITE, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0);
                 }
             } else {
                 if (smp) {
-                    search<BLACK, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0);
+                    search<BLACK, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0);
                 } else {//smp == false
-                    search<BLACK, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0);
+                    search<BLACK, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0);
                 }
             }
         } else {//no hash
             if (side == WHITE) {
-                search<WHITE, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0);
+                search<WHITE, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0);
             } else {
-                search<BLACK, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0);
+                search<BLACK, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0);
             }
         }
 
@@ -157,14 +166,15 @@ void PerftThread::run() {
             lock_guard<mutex> lock(mutexPrint);
             cout << endl << "#" << ii + 1 << " cpuID# " << getId();
             if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
-                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " ";
+                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t tot: " << n_perft.totMoves << " cap: " << n_perft.totCapture << " ep: " << n_perft.totEp << " ";
             } else {
-                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" <<  n_perft.totMoves << " " << n_perft.totCapture << " ";
+                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " " << n_perft.totEp << " ";
             }
         }
         cout << flush;
         tot1 += n_perft.totMoves;
-        totCapture += n_perft.totCapture;
+        totCapture1 += n_perft.totCapture;
+        totEp += n_perft.totEp;
     }
     decListId();
 

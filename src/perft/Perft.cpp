@@ -83,6 +83,7 @@ bool Perft::load() {
     cout << " nCpu: " << perftRes.nCpu << "\n";
     perftRes.totMoves = 0;
     perftRes.totCapture = 0;
+    perftRes.totEp = 0;
     u64 kHash = 1024 * 1024 * mbSizeHash / POW2[depthHash];
     u64 sizeAtDepthHash[255];
     for (int i = 1; i <= depthHash; i++) {
@@ -141,6 +142,7 @@ Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) 
     dumpFile = dumpFile1;
     perftRes.totMoves = 0;
     perftRes.totCapture = 0;
+    perftRes.totEp = 0;
     perftRes.nCpu = nCpu2;
 }
 
@@ -214,7 +216,7 @@ void Perft::endRun() {
     int hours = (t / 60 / 60) % 24;
     int minutes = (t / 60) % 60;
     int seconds = t % 60;
-    cout << endl << endl << "Perft moves: " << perftRes.totMoves << " capture: " << perftRes.totCapture << " in ";
+    cout << endl << endl << "Perft moves: " << perftRes.totMoves << " capture: " << perftRes.totCapture <<  " en passant: " << perftRes.totEp << " in ";
 
     if (days) {
         cout << days << " days, ";

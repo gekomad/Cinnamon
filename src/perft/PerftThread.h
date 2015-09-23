@@ -46,6 +46,7 @@ private:
     typedef struct {
         u64 totMoves;
         u64 totCapture;
+        u64 totEp;
     } _TsubRes;
 
     static const int N_MUTEX_BUCKET = 4096;
@@ -53,9 +54,11 @@ private:
 
     static mutex mutexPrint;
     u64 tot1 = 0;
-    u64 totCapture = 0;
+    u64 totCapture1 = 0;
+    u64 totEp = 0;
+
     template<int side, bool useHash, bool smp>
-    void search(_TsubRes& n_perft,const int depth,const int isCapture);
+    void search(_TsubRes &n_perft, const int depth, const int isCapture, const int isEp);
 
     int from, to;
     _TPerftRes *tPerftRes;
