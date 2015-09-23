@@ -105,7 +105,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
         }
 
         int isCheck = 0;
-        if (enabledInCheck) {
+        if (enabledInCheck && !(move->type & 0xc)) {
             if (side == WHITE) {//TODO lento
                 if (inCheck<WHITE>(move->from, move->to, move->type, move->pieceFrom, move->capturedPiece, move->promotionPiece)) {
                     isCheck = 1;

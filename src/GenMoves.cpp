@@ -846,7 +846,7 @@ bool GenMoves::inCheck(const int from, const int to, const uchar type, const int
     ASSERT_RANGE(pieceFrom, 0, 12);
     ASSERT_RANGE(pieceTo, 0, 12);
     ASSERT(perftMode || forceCheck);
-    ASSERT(!(type & 0xC));
+    ASSERT(!(type & 0xc));
     bool result = 0;
     if ((type & 0x3) == STANDARD_MOVE_MASK) {
         u64 from1, to1 = -1;
