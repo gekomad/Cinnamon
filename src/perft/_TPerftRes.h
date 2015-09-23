@@ -35,6 +35,7 @@ typedef struct {
     atomic_ullong totEp;
     atomic_ullong totPromotion;
     atomic_ullong totCheck;
+    atomic_ullong totCastle;
 
     _ThashPerft **hash;
     u64 sizeAtDepth[255];

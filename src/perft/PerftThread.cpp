@@ -35,7 +35,7 @@ void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) 
 }
 
 template<int side, bool useHash, bool smp>
-void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCapture, const int isEp, const int isPromotion, const int isCheck) {
+void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCapture, const int isEp, const int isPromotion, const u64 isCheck, const u64 isCastle) {
     checkWait();
     if (depthx == 0) {
         n_perft.totMoves = 1;
@@ -68,14 +68,12 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
     u64 enemies = getBitBoard<side ^ 1>();
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
-        //memset(&n_perft, 0, sizeof(_TsubRes));
         return;
     }
     generateMoves<side>(friends | enemies);
     listcount = getListSize();
     if (!listcount) {
         decListId();
-//        n_perft.totEp=1000000;
         return;
     }
     for (int ii = 0; ii < listcount; ii++) {
@@ -84,6 +82,12 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
         makemove(move, false, false);
         _TsubRes x = {0, 0};
         int isCapture = move->capturedPiece == SQUARE_FREE ? 0 : 1;
+
+        int isCastle = 0;
+        if (move->type & 0xc) {
+            isCastle = 1;
+        }
+
         int isEp = 0;
         if ((move->type & 0x3) == ENPASSANT_MOVE_MASK) {
             isEp = 1;
@@ -104,12 +108,13 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
                 isCheck = 1;
             }
         }
-        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion, isCheck);
+        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion, isCheck,isCastle);
         n_perft.totCapture += x.totCapture;
         n_perft.totMoves += x.totMoves;
         n_perft.totEp += x.totEp;
         n_perft.totPromotion += x.totPromotion;
         n_perft.totCheck += x.totCheck;
+        n_perft.totCastle += x.totCastle;
         takeback(move, keyold, false);
     }
     decListId();
@@ -123,11 +128,12 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
 }
 
 void  PerftThread::endRun() {
-    tPerftRes->totMoves += tot1;
-    tPerftRes->totCapture += totCapture1;
+    tPerftRes->totMoves += tot;
+    tPerftRes->totCapture += totCapture;
     tPerftRes->totPromotion += totPromotion;
     tPerftRes->totEp += totEp;
     tPerftRes->totCheck += totCheck;
+    tPerftRes->totCastle += totCastle;
 }
 
 void PerftThread::run() {
@@ -153,22 +159,22 @@ void PerftThread::run() {
         if (fhash) {
             if (side == WHITE) {
                 if (smp) {
-                    search<WHITE, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
+                    search<WHITE, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
                 } else {//smp == false
-                    search<WHITE, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
+                    search<WHITE, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
                 }
             } else {
                 if (smp) {
-                    search<BLACK, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
+                    search<BLACK, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
                 } else {//smp == false
-                    search<BLACK, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
+                    search<BLACK, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
                 }
             }
         } else {//no hash
             if (side == WHITE) {
-                search<WHITE, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
+                search<WHITE, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
             } else {
-                search<BLACK, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
+                search<BLACK, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
             }
         }
 
@@ -187,17 +193,18 @@ void PerftThread::run() {
             lock_guard<mutex> lock(mutexPrint);
             cout << endl << "#" << ii + 1 << " cpuID# " << getId();
             if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
-                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t tot: " << n_perft.totMoves << " cap: " << n_perft.totCapture << " ep: " << n_perft.totEp << " promotion: " << n_perft.totPromotion << " check: " << n_perft.totCheck << " ";
+                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t tot: " << n_perft.totMoves << " cap: " << n_perft.totCapture << " ep: " << n_perft.totEp << " promotion: " << n_perft.totPromotion << " check: " << n_perft.totCheck << " castle: " << n_perft.totCastle<< " ";
             } else {
-                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " " << n_perft.totEp << " " << n_perft.totPromotion << " " << n_perft.totCheck << " ";
+                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " " << n_perft.totEp << " " << n_perft.totPromotion << " " << n_perft.totCheck << " " << n_perft.totCastle<< " ";
             }
         }
         cout << flush;
-        tot1 += n_perft.totMoves;
-        totCapture1 += n_perft.totCapture;
+        tot += n_perft.totMoves;
+        totCapture += n_perft.totCapture;
         totEp += n_perft.totEp;
         totPromotion += n_perft.totPromotion;
         totCheck += n_perft.totCheck;
+        totCastle += n_perft.totCastle;
     }
     decListId();
 

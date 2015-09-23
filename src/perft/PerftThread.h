@@ -46,22 +46,25 @@ private:
     typedef struct {
         u64 totMoves;
         u64 totCapture;
-        u64 totEp;
-        u64 totPromotion;
+        unsigned totEp;
+        unsigned totPromotion;
         u64 totCheck;
+        unsigned totCastle;
     } _TsubRes;
 
     static const int N_MUTEX_BUCKET = 4096;
     static SharedMutex MUTEX_BUCKET[N_MUTEX_BUCKET];
 
     static mutex mutexPrint;
-    u64 tot1 = 0;
-    u64 totCapture1 = 0;
-    u64 totEp = 0;
-    u64 totPromotion = 0;
+    u64 tot = 0;
+    u64 totCapture = 0;
+    unsigned totEp = 0;
+    unsigned totPromotion = 0;
     u64 totCheck = 0;
+    unsigned totCastle = 0;
+
     template<int side, bool useHash, bool smp>
-    void search(_TsubRes &n_perft, const int depth, const int isCapture, const int isEp,const int isPromotion,const int isCheck);
+    void search(_TsubRes &n_perft, const int depthx, const u64 isCapture, const int isEp, const int isPromotion, const u64 isCheck, const u64 isCastle);
 
     int from, to;
     _TPerftRes *tPerftRes;

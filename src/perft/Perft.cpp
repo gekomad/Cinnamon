@@ -214,7 +214,7 @@ void Perft::endRun() {
     int minutes = (t / 60) % 60;
     int seconds = t % 60;
     cout << endl << endl << "Perft moves: " << perftRes.totMoves << " capture: " << perftRes.totCapture << " en passant: "
-        << perftRes.totEp << " promotion: " << perftRes.totPromotion << " check: " << perftRes.totCheck<< " in ";
+        << perftRes.totEp << " promotion: " << perftRes.totPromotion << " check: " << perftRes.totCheck<< " castle: " << perftRes.totCastle<< " in ";
 
     if (days) {
         cout << days << " days, ";
