@@ -143,7 +143,7 @@ void SearchManager::parallelSearch(int mply) {
         joinAll();
         ASSERT(!getBitCount());
         if (lineWin.cmove <= 0) {
-            
+
             debug("start loop3 -------------------------------count:", getBitCount());
 //            for (int i = 0; i < getNthread(); i++) {
             Search &idThread1 = getNextThread();

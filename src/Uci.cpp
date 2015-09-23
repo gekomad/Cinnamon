@@ -104,7 +104,7 @@ void Uci::listner(IterativeDeeping *it) {
                     fen = searchManager.getFen();
                 }
                 searchManager.setHashSize(hashDepth);
-                perft = new Perft(true,fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile);
+                perft = new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile);
                 perft->start();
             } else {
                 cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string] [dumpFile file_name]\n";

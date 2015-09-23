@@ -135,14 +135,13 @@ void Perft::alloc() {
     }
 }
 
-Perft::Perft(bool printChecks1, string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) : ThreadPool(1) {
+Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) : ThreadPool(1) {
     memset(&perftRes, 0, sizeof(_TPerftRes));
     mbSize = mbSize1;
     perftRes.depth = depth1;
     fen = fen1;
     dumpFile = dumpFile1;
     perftRes.nCpu = nCpu2;
-    printChecks = printChecks1;
     count = 0;
 }
 
@@ -184,8 +183,11 @@ void Perft::run() {
     cout << "cache size:\t\t" << mbSize << "\n";
     cout << "dump file:\t\t" << dumpFile << "\n";
     cout << "\nstart...\n";
-
-    cout << "\n\n#\t\tmove\ttot\t\t\tcap\t\t\tep\t\tpromotion\t\tcheck\t\tcastle\n";
+    cout << "\n\n#\t\tmove\ttot\t\t\t";
+#ifndef PERFT_NOTDETAILED
+    cout << "cap\t\t\tep\t\tpromotion\t\tcheck\t\tcastle";
+#endif
+    cout << "\n";
     start1 = std::chrono::high_resolution_clock::now();
     p->incListId();
     u64 friends = side ? p->getBitBoard<WHITE>() : p->getBitBoard<BLACK>();
@@ -202,11 +204,11 @@ void Perft::run() {
     setNthread(perftRes.nCpu);
     for (i = 0; i < perftRes.nCpu - 1; i++) {
         PerftThread &perftThread = getNextThread();
-        perftThread.setParam(printChecks, fen, s, s + block, &perftRes);
+        perftThread.setParam(fen, s, s + block, &perftRes);
         s += block;
     }
     PerftThread &perftThread = getNextThread();
-    perftThread.setParam(printChecks, fen, s, listcount, &perftRes);
+    perftThread.setParam(fen, s, listcount, &perftRes);
     startAll();
     joinAll();
 }
@@ -219,10 +221,12 @@ void Perft::endRun() {
     int minutes = (t / 60) % 60;
     int seconds = t % 60;
 
-    cout << endl << endl << "Perft moves: " << perftRes.totMoves << " capture: " << perftRes.totCapture << " en passant: " << perftRes.totEp << " promotion: " << perftRes.totPromotion << " check: ";
-    if (!printChecks)cout << "disabled"; else cout << perftRes.totCheck;
-    cout << " castle: " << perftRes.totCastle << " in ";
-
+    cout << endl << endl << "Perft moves: " << perftRes.totMoves;
+#ifndef PERFT_NOTDETAILED
+    cout << " capture: " << perftRes.totCapture << " en passant: " << perftRes.totEp << " promotion: " << perftRes.totPromotion << " check: ";
+    cout << perftRes.totCheck << " castle: " << perftRes.totCastle;
+#endif
+    cout << " in ";
     if (days) {
         cout << days << " days, ";
     }

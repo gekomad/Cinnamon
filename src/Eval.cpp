@@ -17,7 +17,9 @@
 */
 
 #include "Eval.h"
-constexpr int Eval::PIECES_VALUE[13] ;
+
+constexpr int Eval::PIECES_VALUE[13];
+
 Eval::Eval() { }
 
 Eval::~Eval() { }

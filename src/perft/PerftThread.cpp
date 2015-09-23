@@ -19,33 +19,31 @@
 #include "PerftThread.h"
 #include "Perft.h"
 
-
 SharedMutex PerftThread::MUTEX_BUCKET[N_MUTEX_BUCKET];
 mutex PerftThread::mutexPrint;
 
-PerftThread::PerftThread() {
-    enabledInCheck = true;
-}
+PerftThread::PerftThread() { }
 
-void PerftThread::setParam(bool enabledInCheck, string fen1, int from1, int to1, _TPerftRes *perft1) {
+void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) {
     perftMode = true;
     loadFen(fen1);
-    PerftThread::enabledInCheck = enabledInCheck;
     this->tPerftRes = perft1;
     this->from = from1;
     this->to = to1;
 }
 
 template<int side, bool useHash, bool smp>
-void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCapture, const unsigned isEp, const unsigned isPromotion, const unsigned isCheck, const unsigned isCastle) {
+void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture, const unsigned nEp, const unsigned nPromotion, const unsigned nCheck, const unsigned nCastle) {
     checkWait();
     if (depthx == 0) {
         n_perft.totMoves = 1;
-        n_perft.totCapture = isCapture;
-        n_perft.totEp = isEp;
-        n_perft.totPromotion = isPromotion;
-        n_perft.totCheck = isCheck;
-        n_perft.totCastle = isCastle;
+#ifndef PERFT_NOTDETAILED
+        n_perft.totCapture = nCapture;
+        n_perft.totEp = nEp;
+        n_perft.totPromotion = nPromotion;
+        n_perft.totCheck = nCheck;
+        n_perft.totCastle = nCastle;
+#endif
         return;
     }
     u64 zobristKeyR;
@@ -58,11 +56,13 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
             n_perft.totMoves = phashe->nMoves;
+#ifndef PERFT_NOTDETAILED
             n_perft.totCapture = phashe->totCapture;
             n_perft.totEp = phashe->totEp;
             n_perft.totPromotion = phashe->totPromotion;
             n_perft.totCheck = phashe->totCheck;
             n_perft.totCastle = phashe->totCastle;
+#endif
             if (smp)MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].unlock_shared();
             return;
         }
@@ -88,8 +88,8 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
         u64 keyold = chessboard[ZOBRISTKEY_IDX];
         makemove(move, false, false);
         _TsubRes x = {0, 0};
+#ifndef PERFT_NOTDETAILED
         int isCapture = move->capturedPiece == SQUARE_FREE ? 0 : 1;
-
         int isCastle = 0;
         if (move->type & 0xc) {
             isCastle = 1;
@@ -106,7 +106,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
         }
 
         int isCheck = 0;
-        if (enabledInCheck && !(move->type & 0xc)) {
+        if (!(move->type & 0xc)) {
             if (side == WHITE) {//TODO lento
                 if (inCheck<WHITE>(move->from, move->to, move->type, move->pieceFrom, move->capturedPiece, move->promotionPiece)) {
                     isCheck = 1;
@@ -118,12 +118,18 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
             }
         }
         search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion, isCheck, isCastle);
-        n_perft.totCapture += x.totCapture;
+#else
+        search<side ^ 1, useHash, smp>(x, depthx - 1);
+#endif
+
         n_perft.totMoves += x.totMoves;
+#ifndef PERFT_NOTDETAILED
+        n_perft.totCapture += x.totCapture;
         n_perft.totEp += x.totEp;
         n_perft.totPromotion += x.totPromotion;
         n_perft.totCheck += x.totCheck;
         n_perft.totCastle += x.totCastle;
+#endif
         takeback(move, keyold, false);
     }
     decListId();
@@ -132,11 +138,13 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
         memcpy(phashe, &n_perft, sizeof(_TsubRes));
         phashe->key = zobristKeyR;
         phashe->nMoves = n_perft.totMoves;
+#ifndef PERFT_NOTDETAILED
         phashe->totCapture = n_perft.totCapture;
         phashe->totEp = n_perft.totEp;
         phashe->totPromotion = n_perft.totPromotion;
         phashe->totCheck = n_perft.totCheck;
         phashe->totCastle = n_perft.totCastle;
+#endif
         if (smp)MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].unlock();
     }
     return;
@@ -144,12 +152,15 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
 
 void  PerftThread::endRun() {
     tPerftRes->totMoves += tot;
+#ifndef PERFT_NOTDETAILED
     tPerftRes->totCapture += totCapture;
     tPerftRes->totPromotion += totPromotion;
     tPerftRes->totEp += totEp;
     tPerftRes->totCheck += totCheck;
     tPerftRes->totCastle += totCastle;
+#endif
 }
+
 
 void PerftThread::run() {
     init();
@@ -214,15 +225,20 @@ void PerftThread::run() {
             } else {
                 cout << "\t\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
             }
-            cout << "\t" << n_perft.totMoves << "\t\t" << n_perft.totCapture << "\t\t" << n_perft.totEp << "\t\t" << n_perft.totPromotion << "\t\t\t\t" << n_perft.totCheck << "\t\t\t" << n_perft.totCastle;
+            cout << "\t" << n_perft.totMoves << "\t\t";
+#ifndef PERFT_NOTDETAILED
+            cout << n_perft.totCapture << "\t\t" << n_perft.totEp << "\t\t" << n_perft.totPromotion << "\t\t\t\t" << n_perft.totCheck << "\t\t\t" << n_perft.totCastle;
+#endif
         }
         cout << flush;
         tot += n_perft.totMoves;
+#ifndef PERFT_NOTDETAILED
         totCapture += n_perft.totCapture;
         totEp += n_perft.totEp;
         totPromotion += n_perft.totPromotion;
         totCheck += n_perft.totCheck;
         totCastle += n_perft.totCastle;
+#endif
     }
     decListId();
 

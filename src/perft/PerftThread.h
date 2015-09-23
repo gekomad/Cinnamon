@@ -31,7 +31,7 @@
 class PerftThread : public Thread, public GenMoves {
 public:
 
-    void setParam(bool,string fen, int from, int to, _TPerftRes *);
+    void setParam(string fen, int from, int to, _TPerftRes *);
 
     PerftThread();
 
@@ -57,18 +57,19 @@ private:
 
     static mutex mutexPrint;
     u64 tot = 0;
+#ifndef PERFT_NOTDETAILED
     u64 totCapture = 0;
     unsigned totEp = 0;
     unsigned totPromotion = 0;
     u64 totCheck = 0;
     unsigned totCastle = 0;
+#endif
 
     template<int side, bool useHash, bool smp>
-    void search(_TsubRes &n_perft, const int depthx, const u64 isCapture, const unsigned isEp, const unsigned isPromotion, const unsigned isCheck, const unsigned isCastle);
+    void search(_TsubRes &n_perft, const int depthx, const u64 isCapture = 0, const unsigned isEp = 0, const unsigned isPromotion = 0, const unsigned isCheck = 0, const unsigned isCastle = 0);
 
     int from, to;
     _TPerftRes *tPerftRes;
-    bool enabledInCheck;
 
 };
 
