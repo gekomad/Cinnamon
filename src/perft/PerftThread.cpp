@@ -87,7 +87,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
         move = getMove(ii);
         u64 keyold = chessboard[ZOBRISTKEY_IDX];
         makemove(move, false, false);
-        _TsubRes x = {0, 0};
+        _TsubRes x = {};
 #ifndef PERFT_NOTDETAILED
         int isCapture = move->capturedPiece == SQUARE_FREE ? 0 : 1;
         int isCastle = 0;
@@ -175,7 +175,7 @@ void PerftThread::run() {
     makeZobristKey();
     u64 keyold = chessboard[ZOBRISTKEY_IDX];
     for (int ii = to - 1; ii >= from; ii--) {
-        _TsubRes n_perft = {0, 0};
+        _TsubRes n_perft = {};
         move = getMove(ii);
         makemove(move, false, false);
         bool fhash = tPerftRes->hash != nullptr ? true : false;
