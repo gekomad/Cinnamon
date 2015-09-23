@@ -206,12 +206,16 @@ void PerftThread::run() {
         }
         {
             lock_guard<mutex> lock(mutexPrint);
-            cout << endl << "#" << ii + 1 << " cpuID# " << getId();
+            cout << endl << ii + 1 <<"\t" << getId();
+
+
             if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
-                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t tot: " << n_perft.totMoves << " cap: " << n_perft.totCapture << " ep: " << n_perft.totEp << " promotion: " << n_perft.totPromotion << " check: " << n_perft.totCheck << " castle: " << n_perft.totCastle << " ";
+                //castle
+                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
             } else {
-                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " " << n_perft.totEp << " " << n_perft.totPromotion << " " << n_perft.totCheck << " " << n_perft.totCastle << " ";
+                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
             }
+            cout <<  "\t" << n_perft.totMoves << "\t\t" << n_perft.totCapture << "\t\t" << n_perft.totEp << "\t\t" << n_perft.totPromotion << "\t\t\t\t" << n_perft.totCheck << "\t\t\t" << n_perft.totCastle;
         }
         cout << flush;
         tot += n_perft.totMoves;

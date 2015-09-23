@@ -182,6 +182,7 @@ void Perft::run() {
     cout << "dump file:\t\t" << dumpFile << "\n";
     cout << "\nstart...\n";
 
+    cout << "\n\n#\tcpu\tmove\ttot\t\t\tcap\t\t\tep\t\tpromotion\t\tcheck\t\tcastle\n";
     start1 = std::chrono::high_resolution_clock::now();
     p->incListId();
     u64 friends = side ? p->getBitBoard<WHITE>() : p->getBitBoard<BLACK>();
