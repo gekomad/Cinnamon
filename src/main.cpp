@@ -74,7 +74,7 @@ Rank Name                                   Elo    +    - games score oppo. draw
 
 using namespace _board;
 const string EPD2PGN_HELP = "-epd2pgn -f epd_file [-m max_pieces]";
-const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb)] [-f \"fen position\"] [-F dump file] [-y disable print checks]";
+const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb)] [-f \"fen position\"] [-F dump file]";
 const string DTM_HELP = "-dtm -f \"fen position\" [-p path] [-s scheme] [-i installed pieces]";
 const string ENDGAME_HELP = "-endgame_epd -t KRKP | KQKP | KBBKN | KQKR | KRKB | KRKN";
 
