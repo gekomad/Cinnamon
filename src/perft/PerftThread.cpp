@@ -23,12 +23,14 @@
 SharedMutex PerftThread::MUTEX_BUCKET[N_MUTEX_BUCKET];
 mutex PerftThread::mutexPrint;
 
-PerftThread::PerftThread() { }
+PerftThread::PerftThread() {
+    enabledInCheck = true;
+}
 
-void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) {
+void PerftThread::setParam(bool enabledInCheck,string fen1, int from1, int to1, _TPerftRes *perft1) {
     perftMode = true;
     loadFen(fen1);
-
+    PerftThread::enabledInCheck = enabledInCheck;
     this->tPerftRes = perft1;
     this->from = from1;
     this->to = to1;
@@ -99,16 +101,18 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
         }
 
         int isCheck = 0;
-        if (side == WHITE) {//TODO lento
-            if (inCheck<WHITE>(move->from, move->to, move->type, move->pieceFrom, move->capturedPiece, move->promotionPiece)) {
-                isCheck = 1;
-            }
-        }else{
-            if (inCheck<WHITE>(move->from, move->to, move->type, move->pieceFrom, move->capturedPiece, move->promotionPiece)) {
-                isCheck = 1;
+        if (enabledInCheck) {
+            if (side == WHITE) {//TODO lento
+                if (inCheck<WHITE>(move->from, move->to, move->type, move->pieceFrom, move->capturedPiece, move->promotionPiece)) {
+                    isCheck = 1;
+                }
+            } else {
+                if (inCheck<WHITE>(move->from, move->to, move->type, move->pieceFrom, move->capturedPiece, move->promotionPiece)) {
+                    isCheck = 1;
+                }
             }
         }
-        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion, isCheck,isCastle);
+        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion, isCheck, isCastle);
         n_perft.totCapture += x.totCapture;
         n_perft.totMoves += x.totMoves;
         n_perft.totEp += x.totEp;
@@ -193,9 +197,9 @@ void PerftThread::run() {
             lock_guard<mutex> lock(mutexPrint);
             cout << endl << "#" << ii + 1 << " cpuID# " << getId();
             if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
-                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t tot: " << n_perft.totMoves << " cap: " << n_perft.totCapture << " ep: " << n_perft.totEp << " promotion: " << n_perft.totPromotion << " check: " << n_perft.totCheck << " castle: " << n_perft.totCastle<< " ";
+                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t tot: " << n_perft.totMoves << " cap: " << n_perft.totCapture << " ep: " << n_perft.totEp << " promotion: " << n_perft.totPromotion << " check: " << n_perft.totCheck << " castle: " << n_perft.totCastle << " ";
             } else {
-                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " " << n_perft.totEp << " " << n_perft.totPromotion << " " << n_perft.totCheck << " " << n_perft.totCastle<< " ";
+                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " " << n_perft.totEp << " " << n_perft.totPromotion << " " << n_perft.totCheck << " " << n_perft.totCastle << " ";
             }
         }
         cout << flush;

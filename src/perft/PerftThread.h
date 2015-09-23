@@ -31,7 +31,7 @@
 class PerftThread : public Thread, public GenMoves {
 public:
 
-    void setParam(string fen, int from, int to, _TPerftRes *);
+    void setParam(bool,string fen, int from, int to, _TPerftRes *);
 
     PerftThread();
 
@@ -68,6 +68,7 @@ private:
 
     int from, to;
     _TPerftRes *tPerftRes;
+    bool enabledInCheck;
 };
 
 

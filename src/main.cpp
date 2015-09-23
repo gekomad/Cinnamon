@@ -148,8 +148,11 @@ int main(int argc, char **argv) {
             string fen;
             int perftHashSize = 0;
             string dumpFile;
-            while ((opt = getopt(argc, argv, "d:f:h:f:c:F:")) != -1) {
-                if (opt == 'd') {    //depth
+            bool printCheck = false;
+            while ((opt = getopt(argc, argv, "d:f:h:f:c:F:y")) != -1) {
+                if (opt == 'y') {    //print #checks
+                    printCheck = true;
+                } else if (opt == 'd') {    //depth
                     perftDepth = atoi(optarg);
                 } else if (opt == 'F') { //use dump
                     dumpFile = optarg;
@@ -165,12 +168,12 @@ int main(int argc, char **argv) {
                     fen = optarg;
                 }
             }
-            Perft *p = new Perft(fen, perftDepth, nCpu, perftHashSize, dumpFile);
+            Perft *p = new Perft(printCheck, fen, perftDepth, nCpu, perftHashSize, dumpFile);
             p->start();
             p->join();
             delete (p);
             return 0;
-        }else {//end perft
+        } else {//end perft
             SearchManager &searchManager = Singleton<SearchManager>::getInstance();
             if (opt == 'e') {
                 if (string(optarg) == "pd2pgn") {

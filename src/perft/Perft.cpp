@@ -133,14 +133,14 @@ void Perft::alloc() {
     }
 }
 
-Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) : ThreadPool(1) {
+Perft::Perft(bool printChecks1, string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) : ThreadPool(1) {
     memset(&perftRes, 0, sizeof(_TPerftRes));
     mbSize = mbSize1;
     perftRes.depth = depth1;
     fen = fen1;
     dumpFile = dumpFile1;
-
     perftRes.nCpu = nCpu2;
+    printChecks = printChecks1;
 }
 
 void Perft::run() {
@@ -197,11 +197,11 @@ void Perft::run() {
     setNthread(perftRes.nCpu);
     for (i = 0; i < perftRes.nCpu - 1; i++) {
         PerftThread &perftThread = getNextThread();
-        perftThread.setParam(fen, s, s + block, &perftRes);
+        perftThread.setParam(printChecks, fen, s, s + block, &perftRes);
         s += block;
     }
     PerftThread &perftThread = getNextThread();
-    perftThread.setParam(fen, s, listcount, &perftRes);
+    perftThread.setParam(printChecks, fen, s, listcount, &perftRes);
     startAll();
     joinAll();
 }
@@ -213,8 +213,10 @@ void Perft::endRun() {
     int hours = (t / 60 / 60) % 24;
     int minutes = (t / 60) % 60;
     int seconds = t % 60;
-    cout << endl << endl << "Perft moves: " << perftRes.totMoves << " capture: " << perftRes.totCapture << " en passant: "
-        << perftRes.totEp << " promotion: " << perftRes.totPromotion << " check: " << perftRes.totCheck<< " castle: " << perftRes.totCastle<< " in ";
+
+    cout << endl << endl << "Perft moves: " << perftRes.totMoves << " capture: " << perftRes.totCapture << " en passant: " << perftRes.totEp << " promotion: " << perftRes.totPromotion << " check: ";
+    if (!printChecks)cout << "disabled"; else cout << perftRes.totCheck;
+    cout << " castle: " << perftRes.totCastle << " in ";
 
     if (days) {
         cout << days << " days, ";

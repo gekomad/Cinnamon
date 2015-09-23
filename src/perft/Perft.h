@@ -63,7 +63,7 @@ class Perft : public Thread, public ThreadPool<PerftThread> {
 
 public:
 
-    Perft(string fen, int depth, int nCpu, int mbSize, string dumpFile);
+    Perft(bool printChecks1,string fen, int depth, int nCpu, int mbSize, string dumpFile);
 
     ~Perft();
 
@@ -87,5 +87,6 @@ private:
 
     const static int secondsToDump = 60 * 60 * 24;
 
+    bool printChecks;
 };
 
