@@ -19,6 +19,8 @@
 #include "Perft.h"
 #include "_TPerftRes.h"
 
+int Perft::count;
+
 void Perft::dump() {
     if (dumpFile.empty() || !perftRes.hash) {
         return;
@@ -141,6 +143,7 @@ Perft::Perft(bool printChecks1, string fen1, int depth1, int nCpu2, int mbSize1,
     dumpFile = dumpFile1;
     perftRes.nCpu = nCpu2;
     printChecks = printChecks1;
+    count = 0;
 }
 
 void Perft::run() {
@@ -190,6 +193,7 @@ void Perft::run() {
     p->generateCaptures(side, enemies, friends);
     p->generateMoves(side, friends | enemies);
     int listcount = p->getListSize();
+    count = listcount;
     delete (p);
     p = nullptr;
     ASSERT(perftRes.nCpu > 0);

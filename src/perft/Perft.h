@@ -72,7 +72,7 @@ public:
     virtual void run();
 
     virtual void endRun();
-
+    static int count;
 private:
     _TPerftRes perftRes;
     high_resolution_clock::time_point start1;

@@ -69,6 +69,7 @@ private:
     int from, to;
     _TPerftRes *tPerftRes;
     bool enabledInCheck;
+
 };
 
 

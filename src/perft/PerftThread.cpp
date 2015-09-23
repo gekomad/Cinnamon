@@ -17,8 +17,8 @@
 */
 
 #include "PerftThread.h"
-#include "../namespaces.h"
-#include "_TPerftRes.h"
+#include "Perft.h"
+
 
 SharedMutex PerftThread::MUTEX_BUCKET[N_MUTEX_BUCKET];
 mutex PerftThread::mutexPrint;
@@ -206,8 +206,7 @@ void PerftThread::run() {
         }
         {
             lock_guard<mutex> lock(mutexPrint);
-            cout << endl << ii + 1 <<"\t" << getId();
-
+            cout << endl << (Perft::count--) << "\t" << getId();
 
             if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
                 //castle
@@ -215,7 +214,7 @@ void PerftThread::run() {
             } else {
                 cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
             }
-            cout <<  "\t" << n_perft.totMoves << "\t\t" << n_perft.totCapture << "\t\t" << n_perft.totEp << "\t\t" << n_perft.totPromotion << "\t\t\t\t" << n_perft.totCheck << "\t\t\t" << n_perft.totCastle;
+            cout << "\t" << n_perft.totMoves << "\t\t" << n_perft.totCapture << "\t\t" << n_perft.totEp << "\t\t" << n_perft.totPromotion << "\t\t\t\t" << n_perft.totCheck << "\t\t\t" << n_perft.totCastle;
         }
         cout << flush;
         tot += n_perft.totMoves;
