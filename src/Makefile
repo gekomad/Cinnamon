@@ -76,20 +76,18 @@ help:
 	@echo ""
 
 build:
-ifeq ($(MAKECMDGOALS),cinnamon-ARM)
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fsigned-char all
-else
+
 ifeq ($(COMP),g++)
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b >bench.tmp
 	$(RM) *.o bench.tmp
 	@echo "build..."
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)$(PROFILE_USE_THREAD)  all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)$(PROFILE_USE_THREAD)  all
 else
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC) all
 endif
-endif
+
 	$(STRIP) $(EXE)
 
 cinnamon32-generic:
@@ -99,7 +97,7 @@ cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse" cinnamon32-generic
 
 cinnamon-ARM:
-	$(MAKE) LIBS="$(LIBS) gtb/ARM/32/libgtb.a" ARC="$(ARC) -DARM_ARCH -fno-gcse -w" build
+	$(MAKE) LIBS="$(LIBS) gtb/ARM/32/libgtb.a" ARC="$(ARC) -DARM_ARCH -fno-gcse -w -fsigned-char" build
 
 cinnamon-native:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
