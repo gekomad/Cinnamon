@@ -35,12 +35,13 @@ void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) 
 }
 
 template<int side, bool useHash, bool smp>
-void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCapture, const int isEp) {
+void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCapture, const int isEp, const int isPromotion) {
     checkWait();
     if (depthx == 0) {
         n_perft.totMoves = 1;
         n_perft.totCapture = isCapture;
-        n_perft.totEp = isEp;
+        n_perft.totEp1 = isEp;
+        n_perft.totPromotion = isPromotion;
         return;
     }
     u64 zobristKeyR;
@@ -68,7 +69,8 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
         decListId();
         n_perft.totMoves = 0;
         n_perft.totCapture = 0;
-        n_perft.totEp = 0;
+        n_perft.totEp1 = 0;
+        n_perft.totPromotion = 0;
         return;
     }
     generateMoves<side>(friends | enemies);
@@ -87,10 +89,16 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
         if ((move->type & 0x3) == ENPASSANT_MOVE_MASK) {
             isEp = 1;
         }
-        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp);
+
+        int isPromotion = 0;
+        if ((move->type & 0x3) == PROMOTION_MOVE_MASK) {
+            isPromotion = 1;
+        }
+        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion);
         n_perft.totCapture += x.totCapture;
         n_perft.totMoves += x.totMoves;
-        n_perft.totEp += x.totEp;
+        n_perft.totEp1 += x.totEp1;
+        n_perft.totPromotion += x.totPromotion;
         takeback(move, keyold, false);
     }
     decListId();
@@ -106,7 +114,8 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
 void  PerftThread::endRun() {
     tPerftRes->totMoves += tot1;
     tPerftRes->totCapture += totCapture1;
-    tPerftRes->totEp += totEp;
+    tPerftRes->totPromotion += totPromotion;
+    tPerftRes->totEp1 += totEp;
 }
 
 void PerftThread::run() {
@@ -132,22 +141,22 @@ void PerftThread::run() {
         if (fhash) {
             if (side == WHITE) {
                 if (smp) {
-                    search<WHITE, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0);
+                    search<WHITE, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
                 } else {//smp == false
-                    search<WHITE, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0);
+                    search<WHITE, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
                 }
             } else {
                 if (smp) {
-                    search<BLACK, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0);
+                    search<BLACK, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
                 } else {//smp == false
-                    search<BLACK, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0);
+                    search<BLACK, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
                 }
             }
         } else {//no hash
             if (side == WHITE) {
-                search<WHITE, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0);
+                search<WHITE, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
             } else {
-                search<BLACK, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0);
+                search<BLACK, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
             }
         }
 
@@ -166,15 +175,16 @@ void PerftThread::run() {
             lock_guard<mutex> lock(mutexPrint);
             cout << endl << "#" << ii + 1 << " cpuID# " << getId();
             if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
-                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t tot: " << n_perft.totMoves << " cap: " << n_perft.totCapture << " ep: " << n_perft.totEp << " ";
+                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t tot: " << n_perft.totMoves << " cap: " << n_perft.totCapture << " ep: " << n_perft.totEp1 << " promotion: " << n_perft.totPromotion << " ";
             } else {
-                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " " << n_perft.totEp << " ";
+                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " " << n_perft.totEp1 << " "<< n_perft.totPromotion << " ";
             }
         }
         cout << flush;
         tot1 += n_perft.totMoves;
         totCapture1 += n_perft.totCapture;
-        totEp += n_perft.totEp;
+        totEp += n_perft.totEp1;
+        totPromotion += n_perft.totPromotion;
     }
     decListId();
 

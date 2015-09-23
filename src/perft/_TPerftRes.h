@@ -32,7 +32,9 @@ typedef struct {
 typedef struct {
     atomic_ullong totMoves;
     atomic_ullong totCapture;
-    atomic_ullong totEp;
+    atomic_ullong totEp1;
+    atomic_ullong totPromotion;
+
     _ThashPerft **hash;
     u64 sizeAtDepth[255];
     int depth;
