@@ -26,16 +26,21 @@
 typedef struct {
     u64 key;
     u64 nMoves;
+    u64 totCapture;
+    unsigned totEp;
+    unsigned totPromotion;
+    unsigned totCheck;
+    unsigned totCastle;
 } _ThashPerft;
 #pragma pack(pop)
 
 typedef struct {
     atomic_ullong totMoves;
     atomic_ullong totCapture;
-    atomic_ullong totEp;
-    atomic_ullong totPromotion;
-    atomic_ullong totCheck;
-    atomic_ullong totCastle;
+    atomic<unsigned> totEp;
+    atomic<unsigned> totPromotion;
+    atomic<unsigned> totCheck;
+    atomic<unsigned> totCastle;
 
     _ThashPerft **hash;
     u64 sizeAtDepth[255];

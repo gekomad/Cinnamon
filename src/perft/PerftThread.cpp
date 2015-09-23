@@ -27,7 +27,7 @@ PerftThread::PerftThread() {
     enabledInCheck = true;
 }
 
-void PerftThread::setParam(bool enabledInCheck,string fen1, int from1, int to1, _TPerftRes *perft1) {
+void PerftThread::setParam(bool enabledInCheck, string fen1, int from1, int to1, _TPerftRes *perft1) {
     perftMode = true;
     loadFen(fen1);
     PerftThread::enabledInCheck = enabledInCheck;
@@ -37,7 +37,7 @@ void PerftThread::setParam(bool enabledInCheck,string fen1, int from1, int to1, 
 }
 
 template<int side, bool useHash, bool smp>
-void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCapture, const int isEp, const int isPromotion, const u64 isCheck, const u64 isCastle) {
+void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCapture, const unsigned isEp, const unsigned isPromotion, const unsigned isCheck, const unsigned isCastle) {
     checkWait();
     if (depthx == 0) {
         n_perft.totMoves = 1;
@@ -52,12 +52,16 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
     _ThashPerft *phashe = nullptr;
 
     if (useHash) {
-        assert(0);
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ RANDSIDE[side];
         if (smp) MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].lock_shared();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
-            u64 res = phashe->nMoves;
+            n_perft.totMoves = phashe->nMoves;
+            n_perft.totCapture = phashe->totCapture;
+            n_perft.totEp = phashe->totEp;
+            n_perft.totPromotion = phashe->totPromotion;
+            n_perft.totCheck = phashe->totCheck;
+            n_perft.totCastle = phashe->totCastle;
             if (smp)MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].unlock_shared();
             return;
         }
@@ -124,8 +128,14 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
     decListId();
     if (useHash) {
         if (smp) MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].lock();
-//        phashe->nMoves = n_perft;
+        memcpy(phashe, &n_perft, sizeof(_TsubRes));
         phashe->key = zobristKeyR;
+        phashe->nMoves = n_perft.totMoves;
+        phashe->totCapture = n_perft.totCapture;
+        phashe->totEp = n_perft.totEp;
+        phashe->totPromotion = n_perft.totPromotion;
+        phashe->totCheck = n_perft.totCheck;
+        phashe->totCastle = n_perft.totCastle;
         if (smp)MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].unlock();
     }
     return;

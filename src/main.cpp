@@ -74,7 +74,7 @@ Rank Name                                   Elo    +    - games score oppo. draw
 
 using namespace _board;
 const string EPD2PGN_HELP = "-epd2pgn -f epd_file [-m max_pieces]";
-const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb)] [-f \"fen position\"] [-F dump file] [-y print checks]";
+const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb)] [-f \"fen position\"] [-F dump file] [-y disable print checks]";
 const string DTM_HELP = "-dtm -f \"fen position\" [-p path] [-s scheme] [-i installed pieces]";
 const string ENDGAME_HELP = "-endgame_epd -t KRKP | KQKP | KBBKN | KQKR | KRKB | KRKN";
 
@@ -148,10 +148,10 @@ int main(int argc, char **argv) {
             string fen;
             int perftHashSize = 0;
             string dumpFile;
-            bool printCheck = false;
+            bool printCheck = true;
             while ((opt = getopt(argc, argv, "d:f:h:f:c:F:y")) != -1) {
                 if (opt == 'y') {    //print #checks
-                    printCheck = true;
+                    printCheck = false;
                 } else if (opt == 'd') {    //depth
                     perftDepth = atoi(optarg);
                 } else if (opt == 'F') { //use dump

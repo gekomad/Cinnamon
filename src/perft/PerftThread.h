@@ -48,7 +48,7 @@ private:
         u64 totCapture;
         unsigned totEp;
         unsigned totPromotion;
-        u64 totCheck;
+        unsigned totCheck;
         unsigned totCastle;
     } _TsubRes;
 
@@ -64,7 +64,7 @@ private:
     unsigned totCastle = 0;
 
     template<int side, bool useHash, bool smp>
-    void search(_TsubRes &n_perft, const int depthx, const u64 isCapture, const int isEp, const int isPromotion, const u64 isCheck, const u64 isCastle);
+    void search(_TsubRes &n_perft, const int depthx, const u64 isCapture, const unsigned isEp, const unsigned isPromotion, const unsigned isCheck, const unsigned isCastle);
 
     int from, to;
     _TPerftRes *tPerftRes;
