@@ -45,6 +45,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 isCaptur
         n_perft.totEp = isEp;
         n_perft.totPromotion = isPromotion;
         n_perft.totCheck = isCheck;
+        n_perft.totCastle = isCastle;
         return;
     }
     u64 zobristKeyR;
