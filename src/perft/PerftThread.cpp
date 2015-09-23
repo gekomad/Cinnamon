@@ -35,13 +35,14 @@ void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) 
 }
 
 template<int side, bool useHash, bool smp>
-void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCapture, const int isEp, const int isPromotion) {
+void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCapture, const int isEp, const int isPromotion, const int isCheck) {
     checkWait();
     if (depthx == 0) {
         n_perft.totMoves = 1;
         n_perft.totCapture = isCapture;
-        n_perft.totEp1 = isEp;
+        n_perft.totEp = isEp;
         n_perft.totPromotion = isPromotion;
+        n_perft.totCheck = isCheck;
         return;
     }
     u64 zobristKeyR;
@@ -67,16 +68,14 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
     u64 enemies = getBitBoard<side ^ 1>();
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
-        n_perft.totMoves = 0;
-        n_perft.totCapture = 0;
-        n_perft.totEp1 = 0;
-        n_perft.totPromotion = 0;
+        //memset(&n_perft, 0, sizeof(_TsubRes));
         return;
     }
     generateMoves<side>(friends | enemies);
     listcount = getListSize();
     if (!listcount) {
         decListId();
+//        n_perft.totEp=1000000;
         return;
     }
     for (int ii = 0; ii < listcount; ii++) {
@@ -94,11 +93,23 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const int isCaptur
         if ((move->type & 0x3) == PROMOTION_MOVE_MASK) {
             isPromotion = 1;
         }
-        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion);
+
+        int isCheck = 0;
+        if (side == WHITE) {//TODO lento
+            if (inCheck<WHITE>(move->from, move->to, move->type, move->pieceFrom, move->capturedPiece, move->promotionPiece)) {
+                isCheck = 1;
+            }
+        }else{
+            if (inCheck<WHITE>(move->from, move->to, move->type, move->pieceFrom, move->capturedPiece, move->promotionPiece)) {
+                isCheck = 1;
+            }
+        }
+        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion, isCheck);
         n_perft.totCapture += x.totCapture;
         n_perft.totMoves += x.totMoves;
-        n_perft.totEp1 += x.totEp1;
+        n_perft.totEp += x.totEp;
         n_perft.totPromotion += x.totPromotion;
+        n_perft.totCheck += x.totCheck;
         takeback(move, keyold, false);
     }
     decListId();
@@ -115,7 +126,8 @@ void  PerftThread::endRun() {
     tPerftRes->totMoves += tot1;
     tPerftRes->totCapture += totCapture1;
     tPerftRes->totPromotion += totPromotion;
-    tPerftRes->totEp1 += totEp;
+    tPerftRes->totEp += totEp;
+    tPerftRes->totCheck += totCheck;
 }
 
 void PerftThread::run() {
@@ -141,22 +153,22 @@ void PerftThread::run() {
         if (fhash) {
             if (side == WHITE) {
                 if (smp) {
-                    search<WHITE, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
+                    search<WHITE, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
                 } else {//smp == false
-                    search<WHITE, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
+                    search<WHITE, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
                 }
             } else {
                 if (smp) {
-                    search<BLACK, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
+                    search<BLACK, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
                 } else {//smp == false
-                    search<BLACK, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
+                    search<BLACK, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
                 }
             }
         } else {//no hash
             if (side == WHITE) {
-                search<WHITE, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
+                search<WHITE, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
             } else {
-                search<BLACK, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0);
+                search<BLACK, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0);
             }
         }
 
@@ -175,16 +187,17 @@ void PerftThread::run() {
             lock_guard<mutex> lock(mutexPrint);
             cout << endl << "#" << ii + 1 << " cpuID# " << getId();
             if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
-                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t tot: " << n_perft.totMoves << " cap: " << n_perft.totCapture << " ep: " << n_perft.totEp1 << " promotion: " << n_perft.totPromotion << " ";
+                cout << "\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t tot: " << n_perft.totMoves << " cap: " << n_perft.totCapture << " ep: " << n_perft.totEp << " promotion: " << n_perft.totPromotion << " check: " << n_perft.totCheck << " ";
             } else {
-                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " " << n_perft.totEp1 << " "<< n_perft.totPromotion << " ";
+                cout << "\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]) << "\t" << n_perft.totMoves << " " << n_perft.totCapture << " " << n_perft.totEp << " " << n_perft.totPromotion << " " << n_perft.totCheck << " ";
             }
         }
         cout << flush;
         tot1 += n_perft.totMoves;
         totCapture1 += n_perft.totCapture;
-        totEp += n_perft.totEp1;
+        totEp += n_perft.totEp;
         totPromotion += n_perft.totPromotion;
+        totCheck += n_perft.totCheck;
     }
     decListId();
 
