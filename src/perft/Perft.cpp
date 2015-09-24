@@ -116,7 +116,7 @@ bool Perft::load() {
         sizeAtDepthHash[i] = kHash * POW2[i - 1] / sizeof(_ThashPerft);
     }
     for (int i = 1; i <= depthHash; i++) {
-            f.read(reinterpret_cast<char *>(perftRes.hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
+        f.read(reinterpret_cast<char *>(perftRes.hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
     }
     f.close();
     cout << "loaded" << endl;

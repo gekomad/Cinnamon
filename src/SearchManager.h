@@ -29,6 +29,8 @@
 #include <future>
 #include "namespaces.h"
 
+using namespace _debug;
+
 class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch {
     friend class Singleton<SearchManager>;
 

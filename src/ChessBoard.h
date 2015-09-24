@@ -44,6 +44,11 @@ public:
 #define QUEEN_BLACK 10
 #define QUEEN_WHITE 11
 
+#define RIGHT_CASTLE_IDX 12
+#define ENPASSANT_IDX 13
+#define SIDETOMOVE_IDX 14
+#define ZOBRISTKEY_IDX 15
+
     ChessBoard();
 
     virtual ~ChessBoard();

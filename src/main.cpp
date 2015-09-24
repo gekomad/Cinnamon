@@ -88,7 +88,6 @@ void help(char **argv) {
 int main(int argc, char **argv) {
 
 
-
     cout << NAME;
     cout << " UCI by Giuseppe Cannella\n";
 #if UINTPTR_MAX == 0xffffffffffffffff
@@ -104,7 +103,7 @@ int main(int argc, char **argv) {
 #endif
     cout << "compiled " << __DATE__ << " with ";
 #if defined(__clang__)
-    cout <<"Clang/LLVM "<<__clang_major__<<"."<<__clang_minor__<<"."<<__clang_patchlevel__;
+    cout << "Clang/LLVM " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
 #elif defined(__ICC) || defined(__INTEL_COMPILER)
     cout << "Intel ICC "<<__VERSION__;
 #elif defined(__GNUC__) || defined(__GNUG__)
@@ -250,7 +249,7 @@ int main(int argc, char **argv) {
 
             }
             if (opt == 'b') {
-                unique_ptr <IterativeDeeping> it(new IterativeDeeping());
+                unique_ptr<IterativeDeeping> it(new IterativeDeeping());
                 it->setUseBook(false);
                 searchManager.setMaxTimeMillsec(10000);
                 it->run();

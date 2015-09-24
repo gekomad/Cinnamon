@@ -39,30 +39,30 @@ using namespace std::chrono;
 using namespace std;
 
 #ifdef DEBUG_MODE
+namespace _debug {
+    template<typename T>
+    void __debug(T a) {
+        cout << a << " ";
+    }
 
-template<typename T>
-void _debug(T a) {
-    cout << a << " ";
+    template<typename T, typename... Args>
+    void __debug(T t, Args... args) {
+        cout << t << " ";
+        __debug(args...);
+    }
+
+    static mutex _CoutSyncMutex;
+
+    template<typename T, typename... Args>
+    void debug(T t, Args... args) {
+        lock_guard<mutex> lock1(_CoutSyncMutex);
+        nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
+        cout << "info string TIME: " << ms.count() << " ";
+
+        __debug(t, args...);
+        cout << "\n";
+    }
 }
-
-template<typename T, typename... Args>
-void _debug(T t, Args... args) {
-    cout << t << " ";
-    _debug(args...);
-}
-
-static mutex _CoutSyncMutex;
-
-template<typename T, typename... Args>
-void debug(T t, Args... args) {
-    lock_guard<mutex> lock1(_CoutSyncMutex);
-    nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
-    cout << "info string TIME: " << ms.count() << " ";
-
-    _debug(t, args...);
-    cout << "\n";
-}
-
 #else
 
 #define debug(...)
@@ -77,10 +77,6 @@ namespace _board {
     typedef long long unsigned u64;
     typedef u64 _Tchessboard[16];
 
-    static const int RIGHT_CASTLE_IDX = 12;
-    static const int ENPASSANT_IDX = 13;
-    static const int SIDETOMOVE_IDX = 14;
-    static const int ZOBRISTKEY_IDX = 15;
 
 #define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;exit(1);};
 

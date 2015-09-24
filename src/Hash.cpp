@@ -34,8 +34,7 @@ void Hash::setSMP(int smp) {
         MUTEX_BUCKET = (SharedMutex **) malloc(sizeof(SharedMutex) * 2);
         MUTEX_BUCKET[0] = (SharedMutex *) malloc(sizeof(SharedMutex) * N_MUTEX_BUCKET);
         MUTEX_BUCKET[1] = (SharedMutex *) malloc(sizeof(SharedMutex) * N_MUTEX_BUCKET);
-    }
-    else {
+    } else {
         if (MUTEX_BUCKET) {
             free(MUTEX_BUCKET[0]);
             free(MUTEX_BUCKET[1]);
