@@ -90,7 +90,6 @@ bool Perft::load() {
     u64 sizeAtDepthHash[255];
     for (int i = 1; i <= depthHash; i++) {
         sizeAtDepthHash[i] = kHash * POW2[i - 1] / sizeof(_ThashPerft);
-        //cout << sizeAtDepthHash[i] * sizeof(_ThashPerft) << "\n";
     }
     _ThashPerft *tmp = (_ThashPerft *) malloc(sizeAtDepthHash[depthHash] * sizeof(_ThashPerft));
     assert(tmp);
@@ -101,6 +100,13 @@ bool Perft::load() {
                 u64 rr = tmp[y].key % perftRes.sizeAtDepth[i];
                 perftRes.hash[i][rr].key = tmp[y].key;
                 perftRes.hash[i][rr].nMoves = tmp[y].nMoves;
+#ifndef PERFT_NOTDETAILED
+                perftRes.hash[i][rr].totCapture = tmp[y].totCapture;
+                perftRes.hash[i][rr].totEp = tmp[y].totEp;
+                perftRes.hash[i][rr].totPromotion = tmp[y].totPromotion;
+                perftRes.hash[i][rr].totCheck = tmp[y].totCheck;
+                perftRes.hash[i][rr].totCastle = tmp[y].totCastle;
+#endif
             }
         }
     }
