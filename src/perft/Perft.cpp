@@ -36,6 +36,12 @@ void Perft::dump() {
     }
 
     sleepAll(true);
+#ifndef PERFT_NOTDETAILED
+    f << "DETAILED";
+#else
+    f << "NOT_DETAILED";
+#endif
+    f.put(10);
     f << fen;
     f.put(10);
     f.write(reinterpret_cast<char *>(&perftRes.depth), sizeof(int));
@@ -63,6 +69,21 @@ bool Perft::load() {
     }
     f.open(dumpFile, ios_base::in | ios_base::binary);
     cout << endl << "load hash table from " << dumpFile << " file.." << endl;
+    string detailType;
+    getline(f, detailType);
+#ifndef PERFT_NOTDETAILED
+    if (detailType.compare("DETAILED")) {
+        cout << "error DETAILED type" << endl;
+        f.close();
+        exit(1);
+    }
+#else
+    if(detailType.compare("NOT_DETAILED")){
+    cout << "error DETAILED type" << endl;
+    f.close();
+    exit(1);
+    }
+#endif
     getline(f, fen1);
     f.read(reinterpret_cast<char *>(&depthHash), sizeof(int));
     if (depthHash > perftRes.depth) {
@@ -72,7 +93,7 @@ bool Perft::load() {
     };
     f.read(reinterpret_cast<char *>(&nCpuHash), sizeof(int));
     f.read(reinterpret_cast<char *>(&mbSizeHash), sizeof(u64));
-    //memset(&perftRes, 0, sizeof(_TPerftRes));
+
     alloc();
     if (fen.empty()) {
         fen = fen1;
