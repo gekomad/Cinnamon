@@ -110,32 +110,14 @@ bool Perft::load() {
     cout << " depth: " << perftRes.depth << "\n";
     cout << " nCpu: " << perftRes.nCpu << "\n";
 
-
     u64 kHash = 1024 * 1024 * mbSizeHash / POW2[depthHash];
     u64 sizeAtDepthHash[255];
     for (int i = 1; i <= depthHash; i++) {
         sizeAtDepthHash[i] = kHash * POW2[i - 1] / sizeof(_ThashPerft);
     }
-    _ThashPerft *tmp = (_ThashPerft *) malloc(sizeAtDepthHash[depthHash] * sizeof(_ThashPerft));
-    assert(tmp);
     for (int i = 1; i <= depthHash; i++) {
-        f.read(reinterpret_cast<char *>(tmp), sizeAtDepthHash[i] * sizeof(_ThashPerft));
-        for (unsigned y = 0; y < sizeAtDepthHash[i]; y++) {
-            if (tmp[y].key) {
-                u64 rr = tmp[y].key % perftRes.sizeAtDepth[i];
-                perftRes.hash[i][rr].key = tmp[y].key;
-                perftRes.hash[i][rr].nMoves = tmp[y].nMoves;
-#ifndef PERFT_NOTDETAILED
-                perftRes.hash[i][rr].totCapture = tmp[y].totCapture;
-                perftRes.hash[i][rr].totEp = tmp[y].totEp;
-                perftRes.hash[i][rr].totPromotion = tmp[y].totPromotion;
-                perftRes.hash[i][rr].totCheck = tmp[y].totCheck;
-                perftRes.hash[i][rr].totCastle = tmp[y].totCastle;
-#endif
-            }
-        }
+            f.read(reinterpret_cast<char *>(perftRes.hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
     }
-    free(tmp);
     f.close();
     cout << "loaded" << endl;
     return true;
