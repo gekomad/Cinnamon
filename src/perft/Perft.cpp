@@ -208,7 +208,7 @@ void Perft::run() {
     cout << "\nstart...\n";
 
     if (perftRes.hash && !dumpFile.empty()) {
-        signal (SIGINT,&Perft::my_handler);
+        signal (SIGINT,&Perft::ctrlChandler);
 
         timer = new Timer(minutesToDump * 60);
         cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;

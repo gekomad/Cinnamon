@@ -89,8 +89,7 @@ private:
 
     const static int minutesToDump = 60 * 24;
 
-    static void my_handler(int s){
-        printf("Caught signal %d\n",s);
+    static void ctrlChandler(int s){
         me->dump();
         exit(1);
     }
