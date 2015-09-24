@@ -92,7 +92,7 @@ private:
 
     static void ctrlChandler(int s) {
         if (dumping) {
-            cout << "damping hash... " << endl;
+            cout << "dumping hash... " << endl;
             return;
         }
 
