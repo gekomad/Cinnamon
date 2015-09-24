@@ -29,6 +29,7 @@
 #include "../blockingThreadPool/ThreadPool.h"
 #include "_TPerftRes.h"
 #include <signal.h>
+
 /*
 
 rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
@@ -75,7 +76,7 @@ public:
 
     static int count;
 private:
-    static Perft* me;
+    static Perft *me;
     _TPerftRes perftRes;
     high_resolution_clock::time_point start1;
     Timer *timer = nullptr;
@@ -89,10 +90,17 @@ private:
 
     const static int minutesToDump = 60 * 24;
 
-    static void ctrlChandler(int s){
+    static void ctrlChandler(int s) {
+        if (dumping) {
+            cout << "damping hash... " << endl;
+            return;
+        }
+
         me->dump();
         exit(1);
-        cout <<s;
+        cout << s;
     }
+
+    static bool dumping;
 };
 

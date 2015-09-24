@@ -21,10 +21,12 @@
 
 int Perft::count;
 Perft* Perft::me;
+bool Perft::dumping;
 void Perft::dump() {
-    if (dumpFile.empty() || !perftRes.hash) {
+    if (dumping || dumpFile.empty() || !perftRes.hash) {
         return;
     }
+    dumping=true;
 
     cout << endl << "Dump hash table in " << dumpFile << " file..." << flush;
     ofstream f;
@@ -54,6 +56,7 @@ void Perft::dump() {
     rename(tmpFile.c_str(), dumpFile.c_str());
     cout << "ok" << endl;
     sleepAll(false);
+    dumping=false;
 }
 
 bool Perft::load() {
@@ -173,6 +176,7 @@ Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) 
     perftRes.nCpu = nCpu2;
     count = 0;
     me=this;
+    dumping = false;
 }
 
 void Perft::run() {
