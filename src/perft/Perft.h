@@ -97,8 +97,9 @@ private:
         }
 
         me->dump();
+        if (s < 0)cout << s;
         exit(1);
-        cout << s;
+
     }
 
     static bool dumping;

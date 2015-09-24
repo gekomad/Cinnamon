@@ -39,30 +39,30 @@ using namespace std::chrono;
 using namespace std;
 
 #ifdef DEBUG_MODE
-namespace _debug {
-    template<typename T>
-    void __debug(T a) {
-        cout << a << " ";
-    }
 
-    template<typename T, typename... Args>
-    void __debug(T t, Args... args) {
-        cout << t << " ";
-        __debug(args...);
-    }
-
-    static mutex _CoutSyncMutex;
-
-    template<typename T, typename... Args>
-    void debug(T t, Args... args) {
-        lock_guard<mutex> lock1(_CoutSyncMutex);
-        nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
-        cout << "info string TIME: " << ms.count() << " ";
-
-        __debug(t, args...);
-        cout << "\n";
-    }
+template<typename T>
+void _debug(T a) {
+    cout << a << " ";
 }
+
+template<typename T, typename... Args>
+void _debug(T t, Args... args) {
+    cout << t << " ";
+    _debug(args...);
+}
+
+static mutex _CoutSyncMutex;
+
+template<typename T, typename... Args>
+void debug(T t, Args... args) {
+    lock_guard<mutex> lock1(_CoutSyncMutex);
+    nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
+    cout << "info string TIME: " << ms.count() << " ";
+
+    _debug(t, args...);
+    cout << "\n";
+}
+
 #else
 
 #define debug(...)
