@@ -217,17 +217,18 @@ void Perft::run() {
 
         timer = new Timer(minutesToDump * 60);
         cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;
-        cout << "type 'dump' to dump it now!" << endl;
+        cout << "type 'dump' to dump it now" << endl;
         timer->registerObservers([this]() {
             dump();
         });
         timer->start();
     }
 
-    cout << "\n\n"<<setw(2)<<"#" << setw(10) << "move" << setw(20) << "tot";
+    cout << "\n\n" << setw(6) << "move" << setw(20) << "tot";
 #ifndef PERFT_NOTDETAILED
     cout << setw(20) << "capture" << setw(20) << "en passant" << setw(20) << "promotion" << setw(20) << "check" << setw(20) << "castle";
 #endif
+    cout << setw(8) << "#";
     cout << "\n";
 
     start1 = std::chrono::high_resolution_clock::now();
