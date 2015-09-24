@@ -72,6 +72,7 @@ bool Perft::load() {
     };
     f.read(reinterpret_cast<char *>(&nCpuHash), sizeof(int));
     f.read(reinterpret_cast<char *>(&mbSizeHash), sizeof(u64));
+    //memset(&perftRes, 0, sizeof(_TPerftRes));
     alloc();
     if (fen.empty()) {
         fen = fen1;
@@ -83,13 +84,13 @@ bool Perft::load() {
     cout << " mbSize: " << mbSize << "\n";
     cout << " depth: " << perftRes.depth << "\n";
     cout << " nCpu: " << perftRes.nCpu << "\n";
-    memset(&perftRes, 0, sizeof(_TPerftRes));
+
 
     u64 kHash = 1024 * 1024 * mbSizeHash / POW2[depthHash];
     u64 sizeAtDepthHash[255];
     for (int i = 1; i <= depthHash; i++) {
         sizeAtDepthHash[i] = kHash * POW2[i - 1] / sizeof(_ThashPerft);
-        cout << sizeAtDepthHash[i] * sizeof(_ThashPerft) << "\n";
+        //cout << sizeAtDepthHash[i] * sizeof(_ThashPerft) << "\n";
     }
     _ThashPerft *tmp = (_ThashPerft *) malloc(sizeAtDepthHash[depthHash] * sizeof(_ThashPerft));
     assert(tmp);
@@ -128,10 +129,11 @@ void Perft::alloc() {
     for (int i = 1; i <= perftRes.depth; i++) {
         perftRes.sizeAtDepth[i] = k * POW2[i - 1] / sizeof(_ThashPerft);
         perftRes.hash[i] = (_ThashPerft *) calloc(perftRes.sizeAtDepth[i], sizeof(_ThashPerft));
+        assert(perftRes.hash[i]);
 #ifdef DEBUG_MODE
         cout << "alloc hash[" << i << "] " << perftRes.sizeAtDepth[i] * sizeof(_ThashPerft) << endl;
 #endif
-        assert(perftRes.hash[i]);
+
     }
 }
 
@@ -216,7 +218,6 @@ void Perft::run() {
     perftThread.setParam(fen, s, listcount, &perftRes);
     startAll();
     joinAll();
-    exit(0);//TODO
 }
 
 void Perft::endRun() {
@@ -250,4 +251,5 @@ void Perft::endRun() {
     }
     cout << endl;
     dump();
+    exit(0);//TODO
 }
