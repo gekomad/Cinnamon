@@ -86,6 +86,9 @@ void help(char **argv) {
 }
 
 int main(int argc, char **argv) {
+
+
+
     cout << NAME;
     cout << " UCI by Giuseppe Cannella\n";
 #if UINTPTR_MAX == 0xffffffffffffffff

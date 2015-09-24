@@ -28,7 +28,7 @@
 #include "PerftThread.h"
 #include "../blockingThreadPool/ThreadPool.h"
 #include "_TPerftRes.h"
-
+#include <signal.h>
 /*
 
 rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
@@ -75,6 +75,7 @@ public:
 
     static int count;
 private:
+    static Perft* me;
     _TPerftRes perftRes;
     high_resolution_clock::time_point start1;
     Timer *timer = nullptr;
@@ -88,5 +89,10 @@ private:
 
     const static int minutesToDump = 60 * 24;
 
+    static void my_handler(int s){
+        printf("Caught signal %d\n",s);
+        me->dump();
+        exit(1);
+    }
 };
 

@@ -20,7 +20,7 @@
 #include "_TPerftRes.h"
 
 int Perft::count;
-
+Perft* Perft::me;
 void Perft::dump() {
     if (dumpFile.empty() || !perftRes.hash) {
         return;
@@ -172,6 +172,7 @@ Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) 
     dumpFile = dumpFile1;
     perftRes.nCpu = nCpu2;
     count = 0;
+    me=this;
 }
 
 void Perft::run() {
@@ -207,6 +208,8 @@ void Perft::run() {
     cout << "\nstart...\n";
 
     if (perftRes.hash && !dumpFile.empty()) {
+        signal (SIGINT,&Perft::my_handler);
+
         timer = new Timer(minutesToDump * 60);
         cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;
         cout << "type 'dump' to dump it now!" << endl;
