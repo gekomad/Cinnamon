@@ -92,6 +92,7 @@ private:
     static void ctrlChandler(int s){
         me->dump();
         exit(1);
+        cout <<s;
     }
 };
 
