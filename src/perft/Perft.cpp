@@ -210,7 +210,7 @@ void Perft::run() {
     cout << "#cpu:\t\t\t" << perftRes.nCpu << "\n";
     cout << "cache size:\t\t" << mbSize << "\n";
     cout << "dump file:\t\t" << dumpFile << "\n";
-    cout << "\nstart...\n";
+    cout << "\nstart perft test...\n";
 
     if (perftRes.hash && !dumpFile.empty()) {
         signal(SIGINT, Perft::ctrlChandler);
