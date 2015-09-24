@@ -20,13 +20,14 @@
 #include "_TPerftRes.h"
 
 int Perft::count;
-Perft* Perft::me;
+Perft *Perft::me;
 bool Perft::dumping;
+
 void Perft::dump() {
     if (dumping || dumpFile.empty() || !perftRes.hash) {
         return;
     }
-    dumping=true;
+    dumping = true;
 
     cout << endl << "Dump hash table in " << dumpFile << " file..." << flush;
     ofstream f;
@@ -56,7 +57,7 @@ void Perft::dump() {
     rename(tmpFile.c_str(), dumpFile.c_str());
     cout << "ok" << endl;
     sleepAll(false);
-    dumping=false;
+    dumping = false;
 }
 
 bool Perft::load() {
@@ -175,7 +176,7 @@ Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) 
     dumpFile = dumpFile1;
     perftRes.nCpu = nCpu2;
     count = 0;
-    me=this;
+    me = this;
     dumping = false;
 }
 
@@ -212,7 +213,7 @@ void Perft::run() {
     cout << "\nstart...\n";
 
     if (perftRes.hash && !dumpFile.empty()) {
-        signal (SIGINT,Perft::ctrlChandler);
+        signal(SIGINT, Perft::ctrlChandler);
 
         timer = new Timer(minutesToDump * 60);
         cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;
@@ -223,9 +224,9 @@ void Perft::run() {
         timer->start();
     }
 
-    cout << "\n\n#\t\tmove\ttot\t\t\t";
+    cout << "\n\n"<<setw(2)<<"#" << setw(10) << "move" << setw(20) << "tot";
 #ifndef PERFT_NOTDETAILED
-    cout << "cap\t\t\tep\t\tpromotion\t\tcheck\t\tcastle";
+    cout << setw(20) << "capture" << setw(20) << "en passant" << setw(20) << "promotion" << setw(20) << "check" << setw(20) << "castle";
 #endif
     cout << "\n";
 

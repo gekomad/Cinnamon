@@ -218,18 +218,20 @@ void PerftThread::run() {
             y = '-';
         }
         {
-            lock_guard <mutex> lock(mutexPrint);
-            cout << endl << (Perft::count--);
-
+            lock_guard<mutex> lock(mutexPrint);
+            cout << endl << setw(2) << (Perft::count--);
+            string h;
             if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
                 //castle
-                cout << "\t\t" << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
+                h = decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
             } else {
-                cout << "\t\t" << x << decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) << y << decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
+                h = h + x + decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) + y + decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
             }
-            cout << "\t" << n_perft.totMoves << "\t\t";
+            cout << setw(10) << h;
+            cout << setw(20) << n_perft.totMoves;
+
 #ifndef PERFT_NOTDETAILED
-            cout << n_perft.totCapture << "\t\t" << n_perft.totEp << "\t\t" << n_perft.totPromotion << "\t\t\t\t" << n_perft.totCheck << "\t\t\t" << n_perft.totCastle;
+            cout << setw(20) << n_perft.totCapture << setw(20) << n_perft.totEp << setw(20) << n_perft.totPromotion << setw(20) << n_perft.totCheck << setw(20) << n_perft.totCastle;
 #endif
         }
         cout << flush;
