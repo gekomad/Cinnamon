@@ -18,8 +18,9 @@
 
 #include "Uci.h"
 
-Uci::Uci(Perft *perft1) {
-    perft = perft1;
+Uci::Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile) {
+    perft = new Perft(fen, perftDepth, nCpu, perftHashSize, dumpFile);
+    runPerft = true;
     startListner();
 }
 
@@ -52,6 +53,10 @@ void Uci::listner(IterativeDeeping *it) {
 
     static const string BOOLEAN[] = {"false", "true"};
     while (!stop) {
+        if (runPerft) {
+            runPerft = false;
+            perft->start();
+        }
         getline(cin, command);
         istringstream uip(command, ios::in);
         getToken(uip, token);
@@ -110,10 +115,13 @@ void Uci::listner(IterativeDeeping *it) {
                 cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string] [dumpFile file_name]\n";
             }
             knowCommand = true;
+        } else if (token == "dump") {
+            knowCommand = true;
+            if (perft)perft->dump();
+
         } else if (token == "quit") {
             knowCommand = true;
             searchManager.setRunning(false);
-            //it->join();
             stop = true;
         } else if (token == "ponderhit") {
             knowCommand = true;
@@ -298,7 +306,7 @@ void Uci::listner(IterativeDeeping *it) {
                 }
             }
         } else if (token == "position") {
-            lock_guard<mutex> lock(it->ponderMutex);
+            lock_guard <mutex> lock(it->ponderMutex);
             knowCommand = true;
             searchManager.setRepetitionMapCount(0);
             getToken(uip, token);

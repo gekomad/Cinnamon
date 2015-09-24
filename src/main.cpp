@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
             string fen;
             int perftHashSize = 0;
             string dumpFile;
-            while ((opt = getopt(argc, argv, "d:f:h:f:c:F")) != -1) {
+            while ((opt = getopt(argc, argv, "d:f:h:f:c:F:")) != -1) {
                 if (opt == 'd') {    //depth
                     perftDepth = atoi(optarg);
                 } else if (opt == 'F') { //use dump
@@ -165,10 +165,11 @@ int main(int argc, char **argv) {
                     fen = optarg;
                 }
             }
-            Perft *p = new Perft(fen, perftDepth, nCpu, perftHashSize, dumpFile);
-            p->start();
-            p->join();
-            delete (p);
+
+            new Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);
+//            p->start();
+//            p->join();
+//            delete (p);
             return 0;
         } else {//end perft
             SearchManager &searchManager = Singleton<SearchManager>::getInstance();
@@ -246,7 +247,7 @@ int main(int argc, char **argv) {
 
             }
             if (opt == 'b') {
-                unique_ptr<IterativeDeeping> it(new IterativeDeeping());
+                unique_ptr <IterativeDeeping> it(new IterativeDeeping());
                 it->setUseBook(false);
                 searchManager.setMaxTimeMillsec(10000);
                 it->run();

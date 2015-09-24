@@ -28,8 +28,7 @@ class Uci : public Singleton<Uci> {
 
 public:
 
-
-    Uci(Perft *);
+    Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile);
 
     virtual ~Uci();
 
@@ -47,5 +46,7 @@ private:
     void getToken(istringstream &uip, String &token);
 
     void startListner();
+
+    bool runPerft = false;
 };
 

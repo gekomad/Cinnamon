@@ -86,7 +86,7 @@ private:
 
     bool load();
 
-    const static int secondsToDump = 60 * 60 * 24;
+    const static int minutesToDump = 60 * 24;
 
 };
 

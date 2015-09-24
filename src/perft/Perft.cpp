@@ -153,14 +153,7 @@ void Perft::run() {
             alloc();
         }
     }
-    if (perftRes.hash && !dumpFile.empty()) {
-        timer = new Timer(secondsToDump);
-        cout << "dump hash table in file every " << (secondsToDump / 60) << " minutes" << endl;
-        timer->registerObservers([this]() {
-            dump();
-        });
-        timer->start();
-    }
+
     if (fen.empty()) {
         fen = STARTPOS;
     }
@@ -183,11 +176,23 @@ void Perft::run() {
     cout << "cache size:\t\t" << mbSize << "\n";
     cout << "dump file:\t\t" << dumpFile << "\n";
     cout << "\nstart...\n";
+
+    if (perftRes.hash && !dumpFile.empty()) {
+        timer = new Timer(minutesToDump * 60);
+        cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;
+        cout << "type 'dump' to dump it now!" << endl;
+        timer->registerObservers([this]() {
+            dump();
+        });
+        timer->start();
+    }
+
     cout << "\n\n#\t\tmove\ttot\t\t\t";
 #ifndef PERFT_NOTDETAILED
     cout << "cap\t\t\tep\t\tpromotion\t\tcheck\t\tcastle";
 #endif
     cout << "\n";
+
     start1 = std::chrono::high_resolution_clock::now();
     p->incListId();
     u64 friends = side ? p->getBitBoard<WHITE>() : p->getBitBoard<BLACK>();
@@ -211,6 +216,7 @@ void Perft::run() {
     perftThread.setParam(fen, s, listcount, &perftRes);
     startAll();
     joinAll();
+    exit(0);//TODO
 }
 
 void Perft::endRun() {
