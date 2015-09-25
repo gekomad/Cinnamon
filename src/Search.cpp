@@ -447,7 +447,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                 score = futilScore;
             } else
                 ///**************Futility Pruning at frontier*****
-            if (depth == 1 /*&& (futilScore = matBalance + FUTIL_MARGIN) <= alpha TODO*/) {
+            if (depth == 1) {
                 futilPrune = true;
                 score = futilScore;
             }
