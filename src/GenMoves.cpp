@@ -665,7 +665,7 @@ bool GenMoves::performKingShiftCapture(int side, const u64 enemies) {
     return false;
 }
 
-u64 GenMoves::getKingAttackers(const int xside, u64 allpieces, int position) {
+u64 GenMoves::getAttackers(const int xside, u64 allpieces, int position) {
     ASSERT_RANGE(position, 0, 63);
     ASSERT_RANGE(xside, 0, 1);
     int bound;

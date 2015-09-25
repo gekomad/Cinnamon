@@ -314,7 +314,7 @@ protected:
 
     _Tmove *getNextMove(decltype(gen_list));
 
-    u64 getKingAttackers(const int xside, u64, int);
+    u64 getAttackers(const int xside, u64, int);
 
     int getMobilityRook(const int position, const u64 enemies, const u64 friends);
 
