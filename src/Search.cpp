@@ -389,6 +389,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             return -lazyEval<side>() * 2;
         }
     }
+    //TODO White Pawns that reach the 7th rank and Black Pawns that reach the 2th rank are extended with one ply.
     if (is_incheck_side) {
         extension++;
     }
