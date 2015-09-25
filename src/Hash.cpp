@@ -63,8 +63,8 @@ int Hash::getHashSize() {
 }
 
 void Hash::setHashSize(int mb) {
-    if (mb < 1 || mb > 32768) {
-        cout << "info string error - mb > 32768 \n";
+    if (mb < 1) {
+        cout << "info string error\n";
         return;
     }
     dispose();

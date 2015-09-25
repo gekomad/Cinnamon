@@ -140,7 +140,7 @@ void Uci::listner(IterativeDeeping *it) {
             uciMode = true;
             cout << "id name " << NAME << "\n";
             cout << "id author Giuseppe Cannella\n";
-            cout << "option name Hash type spin default 64 min 1 max 32768\n";
+            cout << "option name Hash type spin default 64 min 1\n";
             cout << "option name Clear Hash type button\n";
             cout << "option name Nullmove type check default true\n";
             cout << "option name Book File type string default cinnamon.bin\n";
