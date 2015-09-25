@@ -88,23 +88,24 @@ int Eval::evaluatePawn() {
         };
         /// isolated
         if (!(ped_friends & PAWN_ISOLATED_MASK[o])) {
-            result -= PAWN_ISOLATED;
+            result -= PAWN_ISOLATED;//TODO valore in base alla posizione
             ADD(SCORE_DEBUG.PAWN_ISOLATED[side], -PAWN_ISOLATED);
             structure.isolated[side] |= pos;
         }
         /// doubled
         if (NOTPOW2[o] & FILE_[o] & ped_friends) {
-            result -= DOUBLED_PAWNS;
+            result -= DOUBLED_PAWNS; //TODO valore in base alla posizione
             ADD(SCORE_DEBUG.DOUBLED_PAWNS[side], -DOUBLED_PAWNS);
+            /// doubled and isolated
             if (!(structure.isolated[side] & pos)) {
                 ADD(SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[side], -DOUBLED_ISOLATED_PAWNS);
-                result -= DOUBLED_ISOLATED_PAWNS;
+                result -= DOUBLED_ISOLATED_PAWNS;//TODO valore in base alla posizione
             }
         };
         /// backward
         if (!(ped_friends & PAWN_BACKWARD_MASK[side][o])) {
             ADD(SCORE_DEBUG.BACKWARD_PAWN[side], -BACKWARD_PAWN);
-            result -= BACKWARD_PAWN;
+            result -= BACKWARD_PAWN;//TODO valore in base alla posizione
         }
         /// passed
         if (!(structure.pawns[side ^ 1] & PAWN_PASSED_MASK[side][o])) {
