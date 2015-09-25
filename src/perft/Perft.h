@@ -31,6 +31,7 @@
 #include <signal.h>
 
 /*
+http://www.10x8.net/chess/PerfT.html
 
 rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
  Depth  Perft

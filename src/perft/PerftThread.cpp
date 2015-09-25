@@ -109,7 +109,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
         int isCheck = 0;
         if (!(move->type & 0xc)) {
             if (side == WHITE) {
-                if (inCheck<WHITE>(move->from, move->to, move->type, move->pieceFrom, move->capturedPiece, move->promotionPiece)) {
+                if (inCheck<BLACK>(move->from, move->to, move->type, move->pieceFrom, move->capturedPiece, move->promotionPiece)) {
                     isCheck = 1;
                 }
             } else {
