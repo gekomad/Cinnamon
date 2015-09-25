@@ -60,7 +60,7 @@ public:
 
     virtual ~Hash();
 
-    bool setHashSize(int mb);
+    void setHashSize(int mb);
 
     int getHashSize();
 

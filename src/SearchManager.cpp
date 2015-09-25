@@ -311,8 +311,8 @@ string SearchManager::getFen() {
     return threadPool[0]->getFen();
 }
 
-bool SearchManager::setHashSize(int s) {
-    return hash->setHashSize(s);
+void SearchManager::setHashSize(int s) {
+    hash->setHashSize(s);
 }
 
 void SearchManager::setMaxTimeMillsec(int i) {

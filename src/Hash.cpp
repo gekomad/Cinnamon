@@ -62,19 +62,26 @@ int Hash::getHashSize() {
     return HASH_SIZE / (1024 * 1000 / (sizeof(_Thash) * 2));
 }
 
-bool Hash::setHashSize(int mb) {
+void Hash::setHashSize(int mb) {
     if (mb < 1 || mb > 32768) {
-        return false;
+        cout << "info string error - mb > 32768 \n";
+        return;
     }
     dispose();
     if (mb) {
-        HASH_SIZE = mb * 1024 * 1000 / (sizeof(_Thash) * 2);
-        hashArray[HASH_GREATER] = (_Thash *) calloc(HASH_SIZE, sizeof(_Thash));
-        assert(hashArray[HASH_GREATER]);
-        hashArray[HASH_ALWAYS] = (_Thash *) calloc(HASH_SIZE, sizeof(_Thash));
-        assert(hashArray[HASH_ALWAYS]);
+        int tmp = mb * 1024 * 1000 / (sizeof(_Thash) * 2);
+        hashArray[HASH_GREATER] = (_Thash *) calloc(tmp, sizeof(_Thash));
+        if (!hashArray[HASH_GREATER]) {
+            cout << "info string error - no memory\n";
+            return;
+        }
+        hashArray[HASH_ALWAYS] = (_Thash *) calloc(tmp, sizeof(_Thash));
+        if (!hashArray[HASH_ALWAYS]) {
+            cout << "info string error - no memory\n";
+            return;
+        }
+        HASH_SIZE = tmp;
     }
-    return true;
 }
 
 void Hash::dispose() {

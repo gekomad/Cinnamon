@@ -84,7 +84,7 @@ public:
 
     string getFen();
 
-    bool setHashSize(int s);
+    void setHashSize(int s);
 
     void setMaxTimeMillsec(int i);
 

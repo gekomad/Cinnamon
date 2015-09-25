@@ -262,9 +262,8 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        if (searchManager.setHashSize(stoi(token))) {
-                            knowCommand = true;
-                        };
+                        searchManager.setHashSize(stoi(token));
+                        knowCommand = true;
                     }
                 } else if (token == "nullmove") {
                     getToken(uip, token);
