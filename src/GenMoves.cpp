@@ -595,17 +595,17 @@ int GenMoves::getMobilityCastle(const int side, const u64 allpieces) {
     ASSERT_RANGE(side, 0, 1);
     int count = 0;
     if (side == WHITE) {
-        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x6ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_0 && !attackSquare<WHITE>(1, allpieces) && !attackSquare<WHITE>(2, allpieces) && !attackSquare<WHITE>(3, allpieces)) {
+        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x6ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_0 && !getAttackers<WHITE, true>(1, allpieces) && !getAttackers<WHITE, true>(2, allpieces) && !getAttackers<WHITE, true>(3, allpieces)) {
             count++;
         }
-        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x70ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_7 && !attackSquare<WHITE>(3, allpieces) && !attackSquare<WHITE>(4, allpieces) && !attackSquare<WHITE>(5, allpieces)) {
+        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x70ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_7 && !getAttackers<WHITE, true>(3, allpieces) && !getAttackers<WHITE, true>(4, allpieces) && !getAttackers<WHITE, true>(5, allpieces)) {
             count++;
         }
     } else {
-        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK && !(allpieces & 0x600000000000000ULL) && chessboard[ROOK_BLACK] & POW2_56 && !attackSquare<BLACK>(57, allpieces) && !attackSquare<BLACK>(58, allpieces) && !attackSquare<BLACK>(59, allpieces)) {
+        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK && !(allpieces & 0x600000000000000ULL) && chessboard[ROOK_BLACK] & POW2_56 && !getAttackers<BLACK, true>(57, allpieces) && !getAttackers<BLACK, true>(58, allpieces) && !getAttackers<BLACK, true>(59, allpieces)) {
             count++;
         }
-        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK && !(allpieces & 0x7000000000000000ULL) && chessboard[ROOK_BLACK] & POW2_63 && !attackSquare<BLACK>(59, allpieces) && !attackSquare<BLACK>(60, allpieces) && !attackSquare<BLACK>(61, allpieces)) {
+        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK && !(allpieces & 0x7000000000000000ULL) && chessboard[ROOK_BLACK] & POW2_63 && !getAttackers<BLACK, true>(59, allpieces) && !getAttackers<BLACK, true>(60, allpieces) && !getAttackers<BLACK, true>(61, allpieces)) {
             count++;
         }
     }
@@ -615,17 +615,17 @@ int GenMoves::getMobilityCastle(const int side, const u64 allpieces) {
 void GenMoves::tryAllCastle(const int side, const u64 allpieces) {
     ASSERT_RANGE(side, 0, 1);
     if (side == WHITE) {
-        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x6ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_0 && !attackSquare<WHITE>(1, allpieces) && !attackSquare<WHITE>(2, allpieces) && !attackSquare<WHITE>(3, allpieces)) {
+        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x6ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_0 && !getAttackers<WHITE, true>(1, allpieces) && !getAttackers<WHITE, true>(2, allpieces) && !getAttackers<WHITE, true>(3, allpieces)) {
             pushmove<KING_SIDE_CASTLE_MOVE_MASK>(-1, -1, WHITE, NO_PROMOTION, -1);
         }
-        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x70ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_7 && !attackSquare<WHITE>(3, allpieces) && !attackSquare<WHITE>(4, allpieces) && !attackSquare<WHITE>(5, allpieces)) {
+        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x70ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_7 && !getAttackers<WHITE, true>(3, allpieces) && !getAttackers<WHITE, true>(4, allpieces) && !getAttackers<WHITE, true>(5, allpieces)) {
             pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK>(-1, -1, WHITE, NO_PROMOTION, -1);
         }
     } else {
-        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK && !(allpieces & 0x600000000000000ULL) && chessboard[ROOK_BLACK] & POW2_56 && !attackSquare<BLACK>(57, allpieces) && !attackSquare<BLACK>(58, allpieces) && !attackSquare<BLACK>(59, allpieces)) {
+        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK && !(allpieces & 0x600000000000000ULL) && chessboard[ROOK_BLACK] & POW2_56 && !getAttackers<BLACK, true>(57, allpieces) && !getAttackers<BLACK, true>(58, allpieces) && !getAttackers<BLACK, true>(59, allpieces)) {
             pushmove<KING_SIDE_CASTLE_MOVE_MASK>(-1, -1, BLACK, NO_PROMOTION, -1);
         }
-        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK && !(allpieces & 0x7000000000000000ULL) && chessboard[ROOK_BLACK] & POW2_63 && !attackSquare<BLACK>(59, allpieces) && !attackSquare<BLACK>(60, allpieces) && !attackSquare<BLACK>(61, allpieces)) {
+        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK && !(allpieces & 0x7000000000000000ULL) && chessboard[ROOK_BLACK] & POW2_63 && !getAttackers<BLACK, true>(59, allpieces) && !getAttackers<BLACK, true>(60, allpieces) && !getAttackers<BLACK, true>(61, allpieces)) {
             pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK>(-1, -1, BLACK, NO_PROMOTION, -1);
         }
     }
@@ -665,153 +665,69 @@ bool GenMoves::performKingShiftCapture(int side, const u64 enemies) {
     return false;
 }
 
-u64 GenMoves::getAttackers(const int xside, u64 allpieces, int position) {
-    ASSERT_RANGE(position, 0, 63);
-    ASSERT_RANGE(xside, 0, 1);
-    int bound;
-    ///knight
-    u64 attackers = KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + xside];
-    ///king
-    attackers |= NEAR_MASK1[position] & chessboard[KING_BLACK + xside];
-    ///pawn
-    attackers |= PAWN_FORK_MASK[xside ^ 1][position] & chessboard[PAWN_BLACK + xside];
-    ///bishop queen
-    u64 enemies = chessboard[BISHOP_BLACK + xside] | chessboard[QUEEN_BLACK + xside];
-    if (LEFT_RIGHT_DIAG[position] & enemies) {
-        ///LEFT
-        u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
-        if (q) {
-            bound = Bits::BITScanReverse(q);
-            if (enemies & POW2[bound]) {
-                attackers |= POW2[bound];
-            }
-        }
-        q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
-        if (q) {
-            bound = Bits::BITScanForward(q);
-            if (enemies & POW2[bound]) {
-                attackers |= POW2[bound];
-            }
-        }
-        ///RIGHT
-        q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
-        if (q) {
-            bound = Bits::BITScanReverse(q);
-            if (enemies & POW2[bound]) {
-                attackers |= POW2[bound];
-            }
-        }
-        q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
-        if (q) {
-            bound = Bits::BITScanForward(q);
-            if (enemies & POW2[bound]) {
-                attackers |= POW2[bound];
-            }
-        }
-    }
-    enemies = chessboard[ROOK_BLACK + xside] | chessboard[QUEEN_BLACK + xside];
-    u64 q;
-    ///rook queen
-    u64 x = allpieces & FILE_[position];
-    if (x & enemies) {
-        q = x & MASK_BIT_UNSET_UP[position];
-        if (q) {
-            bound = Bits::BITScanReverse(q);
-            if (enemies & POW2[bound]) {
-                attackers |= POW2[bound];
-            }
-        }
-        q = x & MASK_BIT_UNSET_DOWN[position];
-        if (q) {
-            bound = Bits::BITScanForward(q);
-            if (enemies & POW2[bound]) {
-                attackers |= POW2[bound];
-            }
-        }
-    }
-    x = allpieces & RANK[position];
-    if (x & enemies) {
-        q = x & MASK_BIT_UNSET_RIGHT[position];
-        if (q) {
-            bound = Bits::BITScanForward(q);
-            if (enemies & POW2[bound]) {
-                attackers |= POW2[bound];
-            }
-        }
-        q = x & MASK_BIT_UNSET_LEFT[position];
-        if (q) {
-            bound = Bits::BITScanReverse(q);
-            if (enemies & POW2[bound]) {
-                attackers |= POW2[bound];
-            }
-        }
-    }
-    return attackers;
-}
 
-
-template<int side>
-bool GenMoves::attackSquare(const uchar position, u64 allpieces) {
-    ASSERT_RANGE(position, 0, 63);
-    ASSERT_RANGE(side, 0, 1);
-    if (KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + (side ^ 1)]) {
-        return true;
-    }
-    if (NEAR_MASK1[position] & chessboard[KING_BLACK + (side ^ 1)]) {
-        return true;
-    }
-    //enpassant
-    if (PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + (side ^ 1)]) {
-        return true;
-    }
-    allpieces |= POW2[position];
-    u64 enemies = chessboard[QUEEN_BLACK + (side ^ 1)] | chessboard[BISHOP_BLACK + (side ^ 1)];
-    if (LEFT_RIGHT_DIAG[position] & enemies) {
-        ///LEFT
-        u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
-        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
-            return true;
-        }
-        q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
-        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
-            return true;
-        }
-        ///RIGHT
-        q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
-        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
-            return true;
-        }
-        q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
-        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
-            return true;
-        }
-    }
-    ///
-    u64 x = allpieces & FILE_[position];
-    enemies = chessboard[QUEEN_BLACK + (side ^ 1)] | chessboard[ROOK_BLACK + (side ^ 1)];
-    if (x & enemies) {
-        u64 q = x & MASK_BIT_UNSET_UP[position];
-        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
-            return true;
-        }
-        q = x & MASK_BIT_UNSET_DOWN[position];
-        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
-            return true;
-        }
-    }
-    x = allpieces & RANK[position];
-    if (x & enemies) {
-        u64 q = x & MASK_BIT_UNSET_RIGHT[position];
-        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
-            return true;
-        }
-        q = x & MASK_BIT_UNSET_LEFT[position];
-        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
-            return true;
-        }
-    }
-    return false;
-}
+//template<int side>
+//bool GenMoves::attackSquare(const uchar position, u64 allpieces) {
+//    ASSERT_RANGE(position, 0, 63);
+//    ASSERT_RANGE(side, 0, 1);
+//    if (KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + (side ^ 1)]) {
+//        return true;
+//    }
+//    if (NEAR_MASK1[position] & chessboard[KING_BLACK + (side ^ 1)]) {
+//        return true;
+//    }
+//    //enpassant
+//    if (PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + (side ^ 1)]) {
+//        return true;
+//    }
+//    allpieces |= POW2[position];
+//    u64 enemies = chessboard[QUEEN_BLACK + (side ^ 1)] | chessboard[BISHOP_BLACK + (side ^ 1)];
+//    if (LEFT_RIGHT_DIAG[position] & enemies) {
+//        ///LEFT
+//        u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
+//        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
+//            return true;
+//        }
+//        q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
+//        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
+//            return true;
+//        }
+//        ///RIGHT
+//        q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
+//        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
+//            return true;
+//        }
+//        q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
+//        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
+//            return true;
+//        }
+//    }
+//    ///
+//    u64 x = allpieces & FILE_[position];
+//    enemies = chessboard[QUEEN_BLACK + (side ^ 1)] | chessboard[ROOK_BLACK + (side ^ 1)];
+//    if (x & enemies) {
+//        u64 q = x & MASK_BIT_UNSET_UP[position];
+//        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
+//            return true;
+//        }
+//        q = x & MASK_BIT_UNSET_DOWN[position];
+//        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
+//            return true;
+//        }
+//    }
+//    x = allpieces & RANK[position];
+//    if (x & enemies) {
+//        u64 q = x & MASK_BIT_UNSET_RIGHT[position];
+//        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
+//            return true;
+//        }
+//        q = x & MASK_BIT_UNSET_LEFT[position];
+//        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
+//            return true;
+//        }
+//    }
+//    return false;
+//}
 
 void GenMoves::unPerformCastle(const int side, const uchar type) {
     ASSERT_RANGE(side, 0, 1);
@@ -862,7 +778,8 @@ bool GenMoves::inCheck(const int from, const int to, const uchar type, const int
         chessboard[pieceFrom] |= POW2[to];
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
-        result = attackSquare<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]));
+
+        result = getAttackers<side, true>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
         chessboard[pieceFrom] = from1;
         if (pieceTo != SQUARE_FREE) {
             chessboard[pieceTo] = to1;
@@ -879,7 +796,7 @@ bool GenMoves::inCheck(const int from, const int to, const uchar type, const int
             chessboard[pieceTo] &= NOTPOW2[to];
         }
         chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
-        result = attackSquare<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]));
+        result = getAttackers<side, true>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
         if (pieceTo != SQUARE_FREE) {
             chessboard[pieceTo] = to1;
         }
@@ -895,7 +812,7 @@ bool GenMoves::inCheck(const int from, const int to, const uchar type, const int
         } else {
             chessboard[side ^ 1] &= NOTPOW2[to + 8];
         }
-        result = attackSquare<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]));
+        result = getAttackers<side, true>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
         chessboard[side ^ 1] = to1;
         chessboard[side] = from1;
     }

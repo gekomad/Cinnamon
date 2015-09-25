@@ -314,7 +314,103 @@ protected:
 
     _Tmove *getNextMove(decltype(gen_list));
 
-    u64 getAttackers(const int xside, u64, int);
+
+    template<int side, bool getFirst>
+    u64 getAttackers(int position, u64 allpieces) {
+        ASSERT_RANGE(position, 0, 63);
+        ASSERT_RANGE(side, 0, 1);
+        int bound;
+        ///knight
+        u64 attackers = KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + (side ^ 1)];
+        if (getFirst && attackers)return attackers;
+        ///king
+        attackers |= NEAR_MASK1[position] & chessboard[KING_BLACK + (side ^ 1)];
+        if (getFirst && attackers)return attackers;
+        ///pawn
+        attackers |= PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + (side ^ 1)];
+        if (getFirst && attackers)return attackers;
+        ///bishop queen
+        u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
+        if (LEFT_RIGHT_DIAG[position] & enemies) {
+            ///LEFT
+            u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
+            if (q) {
+                bound = Bits::BITScanReverse(q);
+                if (enemies & POW2[bound]) {
+                    attackers |= POW2[bound];
+                    if (getFirst && attackers)return attackers;
+                }
+            }
+            q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
+            if (q) {
+                bound = Bits::BITScanForward(q);
+                if (enemies & POW2[bound]) {
+                    attackers |= POW2[bound];
+                    if (getFirst && attackers)return attackers;
+                }
+            }
+            ///RIGHT
+            q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
+            if (q) {
+                bound = Bits::BITScanReverse(q);
+                if (enemies & POW2[bound]) {
+                    attackers |= POW2[bound];
+                    if (getFirst && attackers)return attackers;
+                }
+            }
+            q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
+            if (q) {
+                bound = Bits::BITScanForward(q);
+                if (enemies & POW2[bound]) {
+                    attackers |= POW2[bound];
+                    if (getFirst && attackers)return attackers;
+                }
+            }
+        }
+        enemies = chessboard[ROOK_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
+        u64 q;
+        ///rook queen
+        u64 x = allpieces & FILE_[position];
+        if (x & enemies) {
+            q = x & MASK_BIT_UNSET_UP[position];
+            if (q) {
+                bound = Bits::BITScanReverse(q);
+                if (enemies & POW2[bound]) {
+                    attackers |= POW2[bound];
+                    if (getFirst && attackers)return attackers;
+                }
+            }
+            q = x & MASK_BIT_UNSET_DOWN[position];
+            if (q) {
+                bound = Bits::BITScanForward(q);
+                if (enemies & POW2[bound]) {
+                    attackers |= POW2[bound];
+                    if (getFirst && attackers)return attackers;
+                }
+            }
+        }
+        x = allpieces & RANK[position];
+        if (x & enemies) {
+            q = x & MASK_BIT_UNSET_RIGHT[position];
+            if (q) {
+                bound = Bits::BITScanForward(q);
+                if (enemies & POW2[bound]) {
+                    attackers |= POW2[bound];
+                    if (getFirst && attackers)return attackers;
+                }
+            }
+            q = x & MASK_BIT_UNSET_LEFT[position];
+            if (q) {
+                bound = Bits::BITScanReverse(q);
+                if (enemies & POW2[bound]) {
+                    attackers |= POW2[bound];
+                    if (getFirst && attackers)return attackers;
+                }
+            }
+        }
+        return attackers;
+    }
+
 
     int getMobilityRook(const int position, const u64 enemies, const u64 friends);
 
@@ -324,8 +420,8 @@ protected:
 
     int getMobilityQueen(const int position, const u64 enemies, const u64 friends);
 
-    template<int side>
-    bool attackSquare(const uchar Position, u64);
+//    template<int side>
+//    bool attackSquare(const uchar Position, u64);
 
     void initKillerHeuristic();
 
@@ -361,13 +457,13 @@ protected:
 
     template<int side>
     bool inCheck() {
-        return attackSquare<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]));
+        return getAttackers<side, true>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
     }
 
-    template<int side>
-    bool attackSquare(const uchar position) {
-        return attackSquare<side>(position, getBitBoard<BLACK>() | getBitBoard<WHITE>());
-    }
+//    template<int side>
+//    bool attackSquare(const uchar position) {
+//        return attackSquare<side>(position, getBitBoard<BLACK>() | getBitBoard<WHITE>());
+//    }
 
     void setKillerHeuristic(const int from, const int to, const int value) {
         if (!getRunning()) {

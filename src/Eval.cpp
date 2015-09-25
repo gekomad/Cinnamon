@@ -408,8 +408,8 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
     structure.allPieces = structure.allPiecesSide[BLACK] | structure.allPiecesSide[WHITE];
     structure.posKing[BLACK] = (uchar) Bits::BITScanForward(chessboard[KING_BLACK]);
     structure.posKing[WHITE] = (uchar) Bits::BITScanForward(chessboard[KING_WHITE]);
-    structure.kingAttackers[WHITE] = getAttackers(BLACK, structure.allPieces, structure.posKing[WHITE]);
-    structure.kingAttackers[BLACK] = getAttackers(WHITE, structure.allPieces, structure.posKing[BLACK]);
+    structure.kingAttackers[WHITE] = getAttackers<WHITE, false>(structure.posKing[WHITE], structure.allPieces);
+    structure.kingAttackers[BLACK] = getAttackers<BLACK, false>(structure.posKing[BLACK], structure.allPieces);
     structure.pawns[BLACK] = chessboard[BLACK];
     structure.pawns[WHITE] = chessboard[WHITE];
     structure.rooks[BLACK] = chessboard[ROOK_BLACK];

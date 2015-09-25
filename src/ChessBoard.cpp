@@ -39,14 +39,6 @@ int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
 
 #endif
 
-uchar ChessBoard::getRightCastle() {
-    return (uchar) chessboard[RIGHT_CASTLE_IDX];
-}
-
-void ChessBoard::setRightCastle(uchar r) {
-    chessboard[RIGHT_CASTLE_IDX] = r;
-}
-
 void ChessBoard::makeZobristKey() {
     chessboard[ZOBRISTKEY_IDX] = 0;
     int i = 0;
