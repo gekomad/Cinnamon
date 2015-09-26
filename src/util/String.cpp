@@ -32,6 +32,8 @@ String::~String() { }
 String String::trimRight() {
     unsigned long pos = find_last_not_of(" ");
     erase(pos + 1);
+    pos = find_last_not_of("\n");
+    erase(pos + 1);
     return *this;
 }
 

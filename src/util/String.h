@@ -30,6 +30,7 @@ public:
     String();
 
     String(string s) : string(s) { };
+    String(char* s) : string(s) { };
 
     String(int);
 

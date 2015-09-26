@@ -20,7 +20,7 @@
 
 #include <chrono>
 #include <iostream>
-
+#include "String.h"
 using namespace std;
 using namespace chrono;
 
@@ -37,7 +37,8 @@ public:
 
     static string getLocalTime() {
         time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
-        return ctime(&current);
+        String gg(ctime(&current));
+        return gg.trimRight();
     }
 
     static int getYear() {
