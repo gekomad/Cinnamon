@@ -18,7 +18,6 @@
 
 #pragma once
 
-#ifdef ARM_ARCH
 
 #include <mutex>
 
@@ -29,12 +28,3 @@ public:
     void unlock_shared() { this->unlock(); }
 };
 
-#else
-
-#include <shared_mutex>
-
-class SharedMutex : public shared_timed_mutex {
-
-};
-
-#endif

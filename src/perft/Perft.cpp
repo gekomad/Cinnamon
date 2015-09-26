@@ -273,7 +273,11 @@ void Perft::endRun() {
 }
 
 void Perft::status() {
+    u64 tot = 0;
     for (PerftThread *s:threadPool) {
-        s->status();
+        u64 t = s->getPartial();
+        cout << "thread id: " << s->getId() << " partial moves: " << t << "\n";
+        tot += t;
     }
+    cout << "partial tot: " << tot << endl;
 }

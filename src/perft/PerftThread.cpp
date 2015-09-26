@@ -236,6 +236,7 @@ void PerftThread::run() {
             cout << setw(20) << n_perft.totCapture << setw(20) << n_perft.totEp << setw(20) << n_perft.totPromotion << setw(20) << n_perft.totCheck << setw(20) << n_perft.totCastle;
 #endif
             cout << setw(8) << (Perft::count--);
+
         }
         cout << flush;
         tot += n_perft.totMoves;
@@ -254,6 +255,6 @@ void PerftThread::run() {
 PerftThread::~PerftThread() {
 }
 
-void PerftThread::status() {
-    cout << "thread id: " << getId() << " partial moves: " << partialTot << endl;
+u64 PerftThread::getPartial() {
+    return partialTot;
 }

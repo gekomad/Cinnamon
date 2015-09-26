@@ -41,7 +41,7 @@ public:
 
     virtual void endRun();
 
-    void status();
+    u64 getPartial();
 
 private:
 
