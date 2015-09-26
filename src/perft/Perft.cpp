@@ -195,7 +195,7 @@ void Perft::run() {
     cout << "\nstart perft test...\n";
     cout << "type 'status' for partial moves" << endl;
 
-    timer = new Timer(1);
+    timer = new Timer(Time::HOUR_IN_SECONDS);
     timer->registerObservers([this]() {
         status();
     });
