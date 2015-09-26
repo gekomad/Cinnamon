@@ -41,6 +41,8 @@ public:
 
     virtual void endRun();
 
+    void status();
+
 private:
 
     typedef struct {
@@ -70,11 +72,7 @@ private:
 
     int from, to;
     _TPerftRes *tPerftRes;
-
-
-    void writePartialMoves();
-
-    u64 partialTot=0;
+    u64 partialTot = 0;
 };
 
 

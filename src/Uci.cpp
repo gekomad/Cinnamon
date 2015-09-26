@@ -118,7 +118,9 @@ void Uci::listner(IterativeDeeping *it) {
         } else if (token == "dump") {
             knowCommand = true;
             if (perft)perft->dump();
-
+        } else if (token == "status") {
+            knowCommand = true;
+            if (perft)perft->status();
         } else if (token == "quit") {
             knowCommand = true;
             searchManager.setRunning(false);

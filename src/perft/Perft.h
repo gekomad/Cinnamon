@@ -76,6 +76,9 @@ public:
     virtual void endRun();
 
     static int count;
+
+    void status();
+
 private:
     static Perft *me;
     _TPerftRes perftRes;

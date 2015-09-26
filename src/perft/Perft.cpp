@@ -193,7 +193,7 @@ void Perft::run() {
     cout << "cache size:\t\t" << mbSize << "\n";
     cout << "dump file:\t\t" << dumpFile << "\n";
     cout << "\nstart perft test...\n";
-
+    cout << "type 'status'" << endl;
     if (perftRes.hash && !dumpFile.empty()) {
         signal(SIGINT, Perft::ctrlChandler);
 
@@ -270,4 +270,10 @@ void Perft::endRun() {
     cout << endl;
     dump();
     exit(0);//TODO
+}
+
+void Perft::status() {
+    for (PerftThread *s:threadPool) {
+        s->status();
+    }
 }
