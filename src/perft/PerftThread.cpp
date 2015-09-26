@@ -177,7 +177,6 @@ void PerftThread::run() {
 
     makeZobristKey();
     u64 keyold = chessboard[ZOBRISTKEY_IDX];
-//    for (int ii = to - 1; ii >= from; ii--) {
     for (int ii = from; ii <= to - 1; ii++) {
         _TsubRes n_perft;
         memset(&n_perft, 0, sizeof(_TsubRes));
@@ -256,5 +255,5 @@ PerftThread::~PerftThread() {
 }
 
 void PerftThread::status() {
-    cout << "thread id: " << getId() << " partial tot: " << partialTot << endl;
+    cout << "thread id: " << getId() << " partial moves: " << partialTot << endl;
 }
