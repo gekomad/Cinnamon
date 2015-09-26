@@ -192,7 +192,7 @@ void Perft::run() {
     cout << "#cpu:\t\t\t" << perftRes.nCpu << "\n";
     cout << "cache size:\t\t" << mbSize << "\n";
     cout << "dump file:\t\t" << dumpFile << "\n";
-    cout << "\nstart perft test...\n";
+    cout << "\n" << Time::getLocalTime() << " start perft test...\n";
     cout << "type 'status' for partial moves" << endl;
 
     timer = new Timer(Time::HOUR_IN_SECONDS);
