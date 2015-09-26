@@ -38,6 +38,7 @@ template<int side, bool useHash, bool smp>
 void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture, const unsigned nEp, const unsigned nPromotion, const unsigned nCheck, const unsigned nCastle) {
     checkWait();
     if (depthx == 0) {
+        partialTot += 1;
         n_perft.totMoves = 1;
 #ifndef PERFT_NOTDETAILED
         n_perft.totCapture = nCapture;
@@ -124,7 +125,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
 #else
         search<side ^ 1, useHash, smp>(x, depthx - 1);
 #endif
-        partialTot += x.totMoves;
+
         n_perft.totMoves += x.totMoves;
 #ifndef PERFT_NOTDETAILED
         n_perft.totCapture += x.totCapture;
