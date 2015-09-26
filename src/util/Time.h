@@ -26,6 +26,10 @@ using namespace chrono;
 
 class Time {
 public:
+    static const int HOUR_IN_SECONDS = 60 * 60;
+    static const int HOUR_IN_MINUTES = 60;
+
+
     static int diffTime(high_resolution_clock::time_point t1, high_resolution_clock::time_point t2) {
         std::chrono::duration<double, std::milli> elapsed = t1 - t2;
         return elapsed.count();

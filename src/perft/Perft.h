@@ -89,7 +89,7 @@ private:
 
     bool load();
 
-    const static int minutesToDump = 60 * 24;
+    const static int minutesToDump = Time::HOUR_IN_MINUTES * 3;
 
     static void ctrlChandler(int s) {
         if (dumping) {

@@ -71,6 +71,10 @@ private:
     int from, to;
     _TPerftRes *tPerftRes;
 
+
+    void writePartialMoves();
+
+    u64 partialTot=0;
 };
 
 

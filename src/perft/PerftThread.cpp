@@ -22,7 +22,14 @@
 SharedMutex PerftThread::MUTEX_BUCKET[N_MUTEX_BUCKET];
 mutex PerftThread::mutexPrint;
 
-PerftThread::PerftThread() { }
+PerftThread::PerftThread() {
+
+    Timer *timer = new Timer(Time::HOUR_IN_SECONDS);
+    timer->registerObservers([this]() {
+        writePartialMoves();
+    });
+    timer->start();
+}
 
 void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) {
     perftMode = true;
@@ -122,7 +129,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
 #else
         search<side ^ 1, useHash, smp>(x, depthx - 1);
 #endif
-
+		partialTot+= x.totMoves;
         n_perft.totMoves += x.totMoves;
 #ifndef PERFT_NOTDETAILED
         n_perft.totCapture += x.totCapture;
@@ -253,3 +260,6 @@ void PerftThread::run() {
 PerftThread::~PerftThread() {
 }
 
+void PerftThread::writePartialMoves() {
+    if(partialTot!=0)cout << "partial tot: " << partialTot  <<endl;
+}
