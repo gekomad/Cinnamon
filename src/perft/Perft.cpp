@@ -20,7 +20,7 @@
 #include "_TPerftRes.h"
 
 int Perft::count;
-Perft *Perft::me;
+
 bool Perft::dumping;
 
 void Perft::dump() {
@@ -79,13 +79,13 @@ bool Perft::load() {
     if (detailType.compare("DETAILED")) {
         cout << "error DETAILED type" << endl;
         f.close();
-        exit(1);
+        std::_Exit(0);
     }
 #else
     if(detailType.compare("NOT_DETAILED")){
     cout << "error DETAILED type" << endl;
     f.close();
-    exit(1);
+    std::_Exit(0);
     }
 #endif
     getline(f, fen1);
@@ -93,7 +93,7 @@ bool Perft::load() {
     if (depthHash > perftRes.depth) {
         cout << "error depth < hash depth" << endl;
         f.close();
-        exit(1);
+        std::_Exit(0);
     };
     f.read(reinterpret_cast<char *>(&nCpuHash), sizeof(int));
     f.read(reinterpret_cast<char *>(&mbSizeHash), sizeof(u64));
@@ -124,15 +124,7 @@ bool Perft::load() {
 }
 
 Perft::~Perft() {
-    if (timer) {
-        delete timer;
-    }
-    if (perftRes.hash) {
-        for (int i = 1; i <= perftRes.depth; i++) {
-            free(perftRes.hash[i]);
-        }
-        free(perftRes.hash);
-    }
+    dispose();
 }
 
 void Perft::alloc() {
@@ -150,15 +142,15 @@ void Perft::alloc() {
     }
 }
 
-Perft::Perft(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) : ThreadPool(1) {
+void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) {
     memset(&perftRes, 0, sizeof(_TPerftRes));
+    if (depth1 <= 0)depth1 = 1;
     mbSize = mbSize1;
     perftRes.depth = depth1;
     fen = fen1;
     dumpFile = dumpFile1;
     perftRes.nCpu = nCpu2;
     count = 0;
-    me = this;
     dumping = false;
 }
 
@@ -276,7 +268,9 @@ void Perft::endRun() {
     }
     cout << endl;
     dump();
-    exit(0);//TODO
+    cout << Time::getLocalTime() << " end test" << flush;
+    cerr << flush;
+    std::_Exit(0);//TODO
 }
 
 void Perft::status() {
@@ -285,4 +279,18 @@ void Perft::status() {
         tot += s->getPartial();
     }
     cout << Time::getLocalTime() << " partial tot: " << tot << endl;
+}
+
+void Perft::dispose() {
+
+    if (timer) {
+        delete timer;
+    }
+    if (perftRes.hash) {
+        for (int i = 1; i <= perftRes.depth; i++) {
+            free(perftRes.hash[i]);
+        }
+        free(perftRes.hash);
+    }
+
 }

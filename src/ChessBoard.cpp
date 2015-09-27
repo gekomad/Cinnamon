@@ -202,13 +202,13 @@ int ChessBoard::loadFen(string fen) {
                 }
             } else {
                 cout << "Bad FEN position format (" << (char) ch << ") " << fen << endl;
-                exit(0);
+                std::_Exit(0);
             };
         }
     }
     if (ix != 64) {
         cout << "Bad FEN position format " << fen << endl;
-        exit(0);
+        std::_Exit(0);
     }
     if (side == "b") {
         chessboard[SIDETOMOVE_IDX] = BLACK;
@@ -216,7 +216,7 @@ int ChessBoard::loadFen(string fen) {
         chessboard[SIDETOMOVE_IDX] = WHITE;
     } else {
         cout << "Bad FEN position format " << fen << endl;
-        exit(0);
+        std::_Exit(0);
     }
 
     for (int i = 0; i < 64; i++) {

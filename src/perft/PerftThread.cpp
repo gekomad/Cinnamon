@@ -139,7 +139,6 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
     decListId();
     if (useHash) {
         if (smp) MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].lock();
-//        memcpy(phashe, &n_perft, sizeof(_TsubRes));
         phashe->key = zobristKeyR;
         phashe->nMoves = n_perft.totMoves;
 #ifndef PERFT_NOTDETAILED

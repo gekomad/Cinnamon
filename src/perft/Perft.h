@@ -61,11 +61,12 @@ Depth   Perft
 
 */
 
-class Perft : public Thread, public ThreadPool<PerftThread> {
+class Perft : public Thread, public ThreadPool<PerftThread>, public Singleton<Perft> {
+    friend class Singleton<Perft>;
 
 public:
 
-    Perft(string fen, int depth, int nCpu, int mbSize, string dumpFile);
+    void setParam(string fen, int depth, int nCpu, int mbSize, string dumpFile);
 
     ~Perft();
 
@@ -80,7 +81,8 @@ public:
     void status();
 
 private:
-    static Perft *me;
+    Perft() : ThreadPool(1) { };
+
     _TPerftRes perftRes;
     high_resolution_clock::time_point start1;
     Timer *timer = nullptr;
@@ -100,12 +102,14 @@ private:
             return;
         }
 
-        me->dump();
+        Perft::getInstance().dump();
         if (s < 0)cout << s;
         exit(1);
 
     }
 
     static bool dumping;
+
+    void dispose();
 };
 

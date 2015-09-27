@@ -19,7 +19,8 @@
 #include "Uci.h"
 
 Uci::Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile) {
-    perft = new Perft(fen, perftDepth, nCpu, perftHashSize, dumpFile);
+    perft = &Perft::getInstance();
+    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile);
     runPerft = true;
     startListner();
 }
@@ -109,7 +110,8 @@ void Uci::listner(IterativeDeeping *it) {
                     fen = searchManager.getFen();
                 }
                 searchManager.setHashSize(hashDepth);
-                perft = new Perft(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile);
+                perft = &Perft::getInstance();
+                perft->setParam(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile);
                 perft->start();
             } else {
                 cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string] [dumpFile file_name]\n";
@@ -238,12 +240,8 @@ void Uci::listner(IterativeDeeping *it) {
                                 searchManager.deleteGtb();
                                 knowCommand = true;
                             } else if (token == "gaviota") {
-                                //it->getGtb();
                                 knowCommand = true;
                             }
-//                            else {
-//                                knowCommand = false;
-//                            }
                         }
                     } else if (token == "restart") {
                         knowCommand = true;
