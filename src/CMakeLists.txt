@@ -2,7 +2,7 @@ project(cinnamon)
 
 set(DR_MEMORY "NO")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++1y -Wno-reorder -DPERFT_NOTDETAILEDx -DDEBUG_MODE2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++1y -Wno-reorder -DPERFT_NOTDETAILEDx -DDEBUG_MODE")
 
 if (DR_MEMORY STREQUAL "YES")
     set(CMAKE_CXX_FLAGS "-DDEBUG_MODE -pthread -std=c++1y -m32 -g -fno-inline -fno-omit-frame-pointer -Wno-reorder")
@@ -55,7 +55,7 @@ set(SOURCE_FILES
         Uci.cpp
         Uci.h)
 
-set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_COMPILER "g++")
 add_executable(cinnamon ${SOURCE_FILES})
 if (DR_MEMORY STREQUAL "YES")
     target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/32/libgtb.a)

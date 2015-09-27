@@ -124,7 +124,7 @@ bool Perft::load() {
 }
 
 Perft::~Perft() {
-    dispose();
+   dispose();
 }
 
 void Perft::alloc() {
@@ -142,7 +142,8 @@ void Perft::alloc() {
     }
 }
 
-void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) {
+void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1, bool forceExit) {
+    Perft::forceExit = forceExit;
     memset(&perftRes, 0, sizeof(_TPerftRes));
     if (depth1 <= 0)depth1 = 1;
     mbSize = mbSize1;
@@ -268,9 +269,12 @@ void Perft::endRun() {
     }
     cout << endl;
     dump();
-    cout << Time::getLocalTime() << " end test" << flush;
+    cout << Time::getLocalTime() << " end test" << endl;
     cerr << flush;
-    std::_Exit(0);//TODO
+    dispose();
+    if (forceExit) {
+        std::_Exit(0);
+    }
 }
 
 void Perft::status() {
@@ -282,15 +286,15 @@ void Perft::status() {
 }
 
 void Perft::dispose() {
-
     if (timer) {
         delete timer;
+        timer= nullptr;
     }
     if (perftRes.hash) {
         for (int i = 1; i <= perftRes.depth; i++) {
             free(perftRes.hash[i]);
         }
         free(perftRes.hash);
+        perftRes.hash= nullptr;
     }
-
 }

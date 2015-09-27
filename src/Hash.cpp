@@ -63,10 +63,10 @@ int Hash::getHashSize() {
 }
 
 void Hash::setHashSize(int mb) {
-    if (mb < 1) {
-        cout << "info string error\n";
-        return;
-    }
+//    if (mb < 1) {
+//        cout << "info string errorzzzz\n";
+//        return;
+//    }
     dispose();
     if (mb) {
         int tmp = mb * 1024 * 1000 / (sizeof(_Thash) * 2);
