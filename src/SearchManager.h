@@ -27,7 +27,7 @@
 #include "util/String.h"
 #include <algorithm>
 #include <future>
-#include "namespaces.h"
+#include "namespaces/def.h"
 
 class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch {
     friend class Singleton<SearchManager>;

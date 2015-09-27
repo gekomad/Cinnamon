@@ -26,7 +26,6 @@
 #include "OpenBook.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "namespaces.h"
 
 class IterativeDeeping : public Thread {
 

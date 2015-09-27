@@ -18,8 +18,12 @@
 
 #pragma once
 
-#include "../namespaces.h"
+#include "../namespaces/def.h"
+#include "../namespaces/board.h"
 #include "Singleton.h"
+
+using namespace _board;
+using namespace _def;
 
 class Bits : public Singleton<Bits> {
     friend class Singleton<Bits>;

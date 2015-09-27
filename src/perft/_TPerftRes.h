@@ -18,9 +18,11 @@
 
 #pragma once
 
-#include "../namespaces.h"
+#include "../namespaces/def.h"
 #include <atomic>
 
+using namespace _def;
+using namespace std;
 #pragma pack(push)
 #pragma pack(1)
 typedef struct {

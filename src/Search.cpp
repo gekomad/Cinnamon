@@ -668,7 +668,7 @@ bool Search::setParameter(String param, int value) {
     }
     return res;
 #else
-    cout <<param<<" "<<value<<"\n";
+    cout << param << " " << value << "\n";
     return false;
 #endif
 }

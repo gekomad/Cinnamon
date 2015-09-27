@@ -21,7 +21,7 @@
 #include <sys/timeb.h>
 #include "Hash.h"
 #include "Eval.h"
-#include "namespaces.h"
+#include "namespaces/def.h"
 #include <climits>
 #include "Tablebase.h"
 #include "blockingThreadPool/Thread.h"

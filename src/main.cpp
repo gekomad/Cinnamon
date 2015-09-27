@@ -86,8 +86,6 @@ void help(char **argv) {
 }
 
 int main(int argc, char **argv) {
-
-
     cout << NAME;
     cout << " UCI by Giuseppe Cannella\n";
 #if UINTPTR_MAX == 0xffffffffffffffff
@@ -169,9 +167,6 @@ int main(int argc, char **argv) {
             }
 
             new Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);
-//            p->start();
-//            p->join();
-//            delete (p);
             return 0;
         } else {//end perft
             SearchManager &searchManager = Singleton<SearchManager>::getInstance();

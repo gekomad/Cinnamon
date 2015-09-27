@@ -23,10 +23,13 @@
 #include <sstream>
 #include "util/String.h"
 #include "util/Bits.h"
-#include "namespaces.h"
+#include "namespaces/def.h"
 #include <map>
+#include "namespaces/random.h"
+#include <climits>
 
 using namespace _board;
+using namespace _def;
 
 class ChessBoard {
 public:
