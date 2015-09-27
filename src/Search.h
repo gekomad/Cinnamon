@@ -177,7 +177,7 @@ private:
     int mainAlpha;
 
     template<bool type, bool smp>
-    __always_inline bool checkHash(const bool quies, const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
+    FORCEINLINE bool checkHash(const bool quies, const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
         Hash::_Thash *phashe;
 
         checkHashStruct.hashFlag[type] = false;

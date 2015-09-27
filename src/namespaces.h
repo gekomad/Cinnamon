@@ -77,6 +77,11 @@ namespace _board {
     typedef long long unsigned u64;
     typedef u64 _Tchessboard[16];
 
+#if defined(_MSC_VER)
+#define FORCEINLINE __forceinline
+#else
+#define FORCEINLINE __always_inline
+#endif
 
 #define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;exit(1);};
 
