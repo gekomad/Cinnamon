@@ -54,6 +54,7 @@ else
 	endif
 endif
 
+# -DPERFT_NOTDETAILED for fast perft
 PARAM="-std=c++1y -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
 
 help:
@@ -73,11 +74,12 @@ help:
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
 	@echo " example: make cinnamon64-modern-INTEL COMP=clang++"
+	@echo "add PROFILE=yes for PGO build (g++ only)"
 	@echo ""
 
 build:
 
-ifeq ($(COMP),g++)
+ifeq ($(PROFILE),yes)
 	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b >bench.tmp
