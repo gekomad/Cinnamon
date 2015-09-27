@@ -36,7 +36,9 @@ namespace _def {
 #define STATIC_CONST static const
 #endif
 
-#if defined(__MINGW32__)
+#if defined(__APPLE__) || defined(__MACH__)
+#define FORCEINLINE __inline
+#elif defined(__MINGW32__)
 #define FORCEINLINE __forceinline
 #else
 #define FORCEINLINE __always_inline
