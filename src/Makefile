@@ -49,7 +49,7 @@ else
 	EXE="cinnamon.exe"
 	STRIP=strip.exe
 
-	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+	ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
 		NATIVE_ARCH="64"
 	endif
 endif
@@ -59,7 +59,7 @@ PARAM="-std=c++1y -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-poin
 
 help:
 
-	@echo "Makefile for cross-compile Linux/Windows/OSX/Raspberry"
+	@echo "Makefile for cross-compile Linux/Windows/OSX/ARM"
 	@echo ""
 	@echo "make cinnamon64-modern-INTEL     > 64-bit optimized for modern Intel cpu"
 	@echo "make cinnamon64-modern-AMD       > 64-bit optimized for modern Amd cpu"
