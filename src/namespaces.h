@@ -38,44 +38,17 @@ using namespace std::chrono;
 
 using namespace std;
 
-#ifdef DEBUG_MODE
-
-template<typename T>
-void _debug(T a) {
-    cout << a << " ";
-}
-
-template<typename T, typename... Args>
-void _debug(T t, Args... args) {
-    cout << t << " ";
-    _debug(args...);
-}
-
-static mutex _CoutSyncMutex;
-
-template<typename T, typename... Args>
-void debug(T t, Args... args) {
-    lock_guard<mutex> lock1(_CoutSyncMutex);
-    nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
-    cout << "info string TIME: " << ms.count() << " ";
-
-    _debug(t, args...);
-    cout << "\n";
-}
-
-#else
-
-#define debug(...)
-
-#endif
-namespace _board {
-
-    static const string NAME = "Cinnamon 1.2c-smp.x";
-    static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+namespace _def {
 
     typedef unsigned char uchar;
     typedef long long unsigned u64;
     typedef u64 _Tchessboard[16];
+
+#if defined(CLOP) || defined(DEBUG_MODE)
+#define STATIC_CONST
+#else
+#define STATIC_CONST static const
+#endif
 
 #if defined(_MSC_VER)
 #define FORCEINLINE __forceinline
@@ -98,12 +71,25 @@ namespace _board {
 #define ADD(a, b)
 
 #endif
-static const int MAX_PLY = 96;
-#if defined(CLOP) || defined(DEBUG_MODE)
-#define STATIC_CONST
-#else
-#define STATIC_CONST static const
-#endif
+}
+
+using namespace _def;
+namespace _board {
+
+    static const string NAME = "Cinnamon 1.2c-smp.x";
+    static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+    static const int MAX_PLY = 96;
+
+    static const bool USE_HASH_YES = true;
+    static const bool USE_HASH_NO = false;
+
+    static const bool SMP_YES = true;
+    static const bool SMP_NO = false;
+
+    static const int BLACK = 0;
+    static const int WHITE = 1;
+    static const int _INFINITE = 32000;
 
     typedef struct {
         char promotionPiece;
@@ -126,16 +112,6 @@ static const int MAX_PLY = 96;
         int cmove;
         _Tmove argmove[MAX_PLY];
     } _TpvLine;
-
-    static const bool USE_HASH_YES = true;
-    static const bool USE_HASH_NO = false;
-
-    static const bool SMP_YES = true;
-    static const bool SMP_NO = false;
-
-    static const int BLACK = 0;
-    static const int WHITE = 1;
-    static const int _INFINITE = 32000;
 
     static const u64 POW2_0 = 0x1ULL;
     static const u64 POW2_1 = 0x2ULL;
@@ -167,7 +143,6 @@ static const int MAX_PLY = 96;
     static const u64 NOTPOW2_60 = 0xefffffffffffffffULL;
     static const u64 NOTPOW2_61 = 0xdfffffffffffffffULL;
     static const u64 NOTPOW2_63 = 0x7fffffffffffffffULL;
-
 
     static const string BOARD[64] = {"h1", "g1", "f1", "e1", "d1", "c1", "b1", "a1", "h2", "g2", "f2", "e2", "d2", "c2", "b2", "a2", "h3", "g3", "f3", "e3", "d3", "c3", "b3", "a3", "h4", "g4", "f4", "e4", "d4", "c4", "b4", "a4", "h5", "g5", "f5", "e5", "d5", "c5", "b5", "a5", "h6", "g6", "f6", "e6", "d6", "c6", "b6", "a6", "h7", "g7", "f7", "e7", "d7", "c7", "b7", "a7", "h8", "g8", "f8", "e8", "d8", "c8", "b8", "a8"};
 
@@ -320,7 +295,7 @@ static const int MAX_PLY = 96;
     static const u64 ENPASSANT_MASK[2][64] = {{0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,         0ULL,         0ULL,         0ULL,          0ULL,          0ULL,          0ULL,          0ULL,          0x200000000ULL, 0x500000000ULL, 0xA00000000ULL, 0x1400000000ULL, 0x2800000000ULL, 0x5000000000ULL, 0xA000000000ULL, 0x4000000000ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0},
                                               {0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0x2000000ULL, 0x5000000ULL, 0xA000000ULL, 0x14000000ULL, 0x28000000ULL, 0x50000000ULL, 0xA0000000ULL, 0x40000000ULL, 0ULL,           0ULL,           0ULL,           0ULL,            0ULL,            0ULL,            0ULL,            0ULL,            0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0}};
 }
-namespace _eval{
+namespace _eval {
 
     static const int VALUE_KNOWN_WIN = 15000;    //TODO stockfish
     static const int penaltyKRKN[8] = {0, 10, 14, 20, 30, 42, 58, 80};    //TODO stockfish
@@ -342,4 +317,37 @@ namespace _random {
     static const u64 RANDOM_KEY[15][64] = {
 #include "random.inc"
     };
+}
+
+namespace _debug {
+#ifdef DEBUG_MODE
+
+    template<typename T>
+    void _debug(T a) {
+        cout << a << " ";
+    }
+
+    template<typename T, typename... Args>
+    void _debug(T t, Args... args) {
+        cout << t << " ";
+        _debug(args...);
+    }
+
+    static mutex _CoutSyncMutex;
+
+    template<typename T, typename... Args>
+    void debug(T t, Args... args) {
+        lock_guard<mutex> lock1(_CoutSyncMutex);
+        nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
+        cout << "info string TIME: " << ms.count() << " ";
+
+        _debug(t, args...);
+        cout << "\n";
+    }
+
+#else
+
+#define debug(...)
+
+#endif
 }
