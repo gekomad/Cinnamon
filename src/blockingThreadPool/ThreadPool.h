@@ -23,10 +23,13 @@
 #include <mutex>
 #include <unistd.h>
 #include "ObserverThread.h"
-#include "../namespaces.h"
+#include "../namespaces/def.h"
 #include "../util/Bits.h"
 #include <condition_variable>
+#include "../namespaces/debug.h"
+
 using namespace _debug;
+
 template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, T>::value, T>::type>
 class ThreadPool : public ObserverThread {
 
@@ -105,7 +108,7 @@ protected:
 private:
 
     mutex mtx;
-    atomic<u64> threadsBits;
+    atomic <u64> threadsBits;
     int nThread = 0;
     condition_variable cv;
     mutex mxGet;

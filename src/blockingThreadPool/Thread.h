@@ -21,7 +21,7 @@
 #include <thread>
 #include <mutex>
 #include "ObserverThread.h"
-#include "../namespaces.h"
+#include "../namespaces/def.h"
 #include <condition_variable>
 
 using namespace std;
