@@ -98,7 +98,7 @@ namespace _board {
 #define ADD(a, b)
 
 #endif
-    static const int MAX_PLY = 96;
+static const int MAX_PLY = 96;
 #if defined(CLOP) || defined(DEBUG_MODE)
 #define STATIC_CONST
 #else
@@ -168,18 +168,7 @@ namespace _board {
     static const u64 NOTPOW2_61 = 0xdfffffffffffffffULL;
     static const u64 NOTPOW2_63 = 0x7fffffffffffffffULL;
 
-    static const u64 RANDSIDE[2] = {0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL};
-    static const int VALUE_KNOWN_WIN = 15000;    //TODO stockfish
-    static const int penaltyKRKN[8] = {0, 10, 14, 20, 30, 42, 58, 80};    //TODO stockfish
-    static const int KBNKMateTable[64] = {    //TODO stockfish
-            200, 190, 180, 170, 170, 180, 190, 200, 190, 180, 170, 160, 160, 170, 180, 190, 180, 170, 155, 140, 140, 155, 170, 180, 170, 160, 140, 120, 120, 140, 160, 170, 170, 160, 140, 120, 120, 140, 160, 170, 180, 170, 155, 140, 140, 155, 170, 180, 190, 180, 170, 160, 160, 170, 180, 190, 200, 190, 180, 170, 170, 180, 190, 200};
 
-    static const int MateTable[64] = {    //TODO stockfish
-            100, 90, 80, 70, 70, 80, 90, 100, 90, 70, 60, 50, 50, 60, 70, 90, 80, 60, 40, 30, 30, 40, 60, 80, 70, 50, 30, 20, 20, 30, 50, 70, 70, 50, 30, 20, 20, 30, 50, 70, 80, 60, 40, 30, 30, 40, 60, 80, 90, 70, 60, 50, 50, 60, 70, 90, 100, 90, 80, 70, 70, 80, 90, 100,};
-
-#include "move_ordering.inc"
-
-    static const int DistanceBonus[8] = {0, 0, 100, 80, 60, 40, 20, 10};    //TODO stockfish
     static const string BOARD[64] = {"h1", "g1", "f1", "e1", "d1", "c1", "b1", "a1", "h2", "g2", "f2", "e2", "d2", "c2", "b2", "a2", "h3", "g3", "f3", "e3", "d3", "c3", "b3", "a3", "h4", "g4", "f4", "e4", "d4", "c4", "b4", "a4", "h5", "g5", "f5", "e5", "d5", "c5", "b5", "a5", "h6", "g6", "f6", "e6", "d6", "c6", "b6", "a6", "h7", "g7", "f7", "e7", "d7", "c7", "b7", "a7", "h8", "g8", "f8", "e8", "d8", "c8", "b8", "a8"};
 
     static const char FEN_PIECE[] = {'p', 'P', 'r', 'R', 'b', 'B', 'n', 'N', 'k', 'K', 'q', 'Q', '-'};
@@ -331,10 +320,25 @@ namespace _board {
     static const u64 ENPASSANT_MASK[2][64] = {{0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,         0ULL,         0ULL,         0ULL,          0ULL,          0ULL,          0ULL,          0ULL,          0x200000000ULL, 0x500000000ULL, 0xA00000000ULL, 0x1400000000ULL, 0x2800000000ULL, 0x5000000000ULL, 0xA000000000ULL, 0x4000000000ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0},
                                               {0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0x2000000ULL, 0x5000000ULL, 0xA000000ULL, 0x14000000ULL, 0x28000000ULL, 0x50000000ULL, 0xA0000000ULL, 0x40000000ULL, 0ULL,           0ULL,           0ULL,           0ULL,            0ULL,            0ULL,            0ULL,            0ULL,            0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0}};
 }
+namespace _eval{
+
+    static const int VALUE_KNOWN_WIN = 15000;    //TODO stockfish
+    static const int penaltyKRKN[8] = {0, 10, 14, 20, 30, 42, 58, 80};    //TODO stockfish
+    static const int KBNKMateTable[64] = {    //TODO stockfish
+            200, 190, 180, 170, 170, 180, 190, 200, 190, 180, 170, 160, 160, 170, 180, 190, 180, 170, 155, 140, 140, 155, 170, 180, 170, 160, 140, 120, 120, 140, 160, 170, 170, 160, 140, 120, 120, 140, 160, 170, 180, 170, 155, 140, 140, 155, 170, 180, 190, 180, 170, 160, 160, 170, 180, 190, 200, 190, 180, 170, 170, 180, 190, 200};
+
+    static const int MateTable[64] = {    //TODO stockfish
+            100, 90, 80, 70, 70, 80, 90, 100, 90, 70, 60, 50, 50, 60, 70, 90, 80, 60, 40, 30, 30, 40, 60, 80, 70, 50, 30, 20, 20, 30, 50, 70, 70, 50, 30, 20, 20, 30, 50, 70, 80, 60, 40, 30, 30, 40, 60, 80, 90, 70, 60, 50, 50, 60, 70, 90, 100, 90, 80, 70, 70, 80, 90, 100,};
+
+#include "move_ordering.inc"
+
+    static const int DistanceBonus[8] = {0, 0, 100, 80, 60, 40, 20, 10};    //TODO stockfish
+}
 
 using namespace _board;
 
 namespace _random {
+    static const u64 RANDSIDE[2] = {0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL};
     static const u64 RANDOM_KEY[15][64] = {
 #include "random.inc"
     };

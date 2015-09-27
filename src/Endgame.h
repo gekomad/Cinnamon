@@ -20,7 +20,7 @@
 
 #include "ChessBoard.h"
 #include <map>
-
+using namespace _eval;
 class Endgame : public virtual ChessBoard {
 
 public:

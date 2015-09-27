@@ -54,7 +54,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
     _ThashPerft *phashe = nullptr;
 
     if (useHash) {
-        zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ RANDSIDE[side];
+        zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
         if (smp) MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].lock_shared();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
