@@ -34,66 +34,6 @@ GenMoves::GenMoves() : perftMode(false), listId(-1) {
     repetitionMapCount = 0;
 }
 
-template<uchar type>
-bool GenMoves::pushmove(const int from, const int to, const int side, int promotionPiece, int pieceFrom) {
-    ASSERT(chessboard[KING_BLACK]);
-    ASSERT(chessboard[KING_WHITE]);
-    int piece_captured = SQUARE_FREE;
-    bool res = false;
-    if (((type & 0x3) != ENPASSANT_MOVE_MASK) && !(type & 0xc)) {
-        piece_captured = side ? getPieceAt<BLACK>(POW2[to]) : getPieceAt<WHITE>(POW2[to]);
-        if (piece_captured == KING_BLACK + (side ^ 1)) {
-            res = true;
-        }
-    } else if (!(type & 0xc)) {//no castle
-        piece_captured = side ^ 1;
-    }
-    if (!(type & 0xc) && (forceCheck || perftMode)) {//no castle
-        if (side == WHITE && inCheck<WHITE>(from, to, type, pieceFrom, piece_captured, promotionPiece)) {
-            return false;
-        }
-        if (side == BLACK && inCheck<BLACK>(from, to, type, pieceFrom, piece_captured, promotionPiece)) {
-            return false;
-        }
-    }
-    _Tmove *mos;
-    ASSERT_RANGE(listId, 0, MAX_PLY - 1);
-
-    ASSERT(getListSize() < MAX_MOVE);
-    mos = &gen_list[listId].moveList[getListSize()];
-    ++gen_list[listId].size;
-    mos->type = (uchar) chessboard[RIGHT_CASTLE_IDX] | type;
-    mos->side = (char) side;
-    mos->capturedPiece = piece_captured;
-    if (type & 0x3) {
-        mos->from = (uchar) from;
-        mos->to = (uchar) to;
-        mos->pieceFrom = pieceFrom;
-        mos->promotionPiece = (char) promotionPiece;
-        if (!perftMode) {
-            if (res == true) {
-                mos->score = _INFINITE;
-            } else {
-                ASSERT_RANGE(pieceFrom, 0, 11);
-                ASSERT_RANGE(to, 0, 63);
-                ASSERT_RANGE(from, 0, 63);
-                mos->score = killerHeuristic[from][to];
-                mos->score += (Eval::PIECES_VALUE[piece_captured] >= Eval::PIECES_VALUE[pieceFrom]) ? (Eval::PIECES_VALUE[piece_captured] - Eval::PIECES_VALUE[pieceFrom]) * 2 : Eval::PIECES_VALUE[piece_captured];
-
-                //mos->score += (MOV_ORD[pieceFrom][to] - MOV_ORD[pieceFrom][from]);
-
-
-            }
-        }
-    } else if (type & 0xc) {    //castle
-        ASSERT(chessboard[RIGHT_CASTLE_IDX]);
-        mos->score = 100;
-    }
-    mos->used = false;
-    ASSERT(getListSize() < MAX_MOVE);
-    return res;
-}
-
 bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {
     ASSERT_RANGE(piece, 0, 11);
     ASSERT_RANGE(side, 0, 1);

@@ -123,12 +123,12 @@ int Endgame::KRKP(int loserSide, int tempo, int winnerKingPos, int loserKingPos,
     int queeningSq = FILE_AT[pawnPos] | 0;
     // If the stronger side's king is in front of the pawn, it's a win
     if (winnerKingPos < pawnPos && FILE_AT[winnerKingPos] == FILE_AT[pawnPos]) {
-        return Eval::VALUEROOK - Bits::DISTANCE[winnerKingPos][pawnPos];
+        return _eval::VALUEROOK - Bits::DISTANCE[winnerKingPos][pawnPos];
     }
         // If the weaker side's king is too far from the pawn and the rook,
         // it's a win
     else if (Bits::DISTANCE[loserKingPos][pawnPos] - (tempo ^ 1) >= 3 && Bits::DISTANCE[loserKingPos][rookPos] >= 3) {
-        return Eval::VALUEROOK - Bits::DISTANCE[winnerKingPos][pawnPos];
+        return _eval::VALUEROOK - Bits::DISTANCE[winnerKingPos][pawnPos];
     }
         // If the pawn is far advanced and supported by the defending king,
         // the position is drawish
@@ -157,7 +157,7 @@ int Endgame::KQKP(int side, int winnerKingPos, int loserKingPos, int pawnPos) {
     ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
 #endif
 
-    int result = Eval::VALUEQUEEN - Eval::VALUEPAWN + DistanceBonus[Bits::DISTANCE[winnerKingPos][loserKingPos]];
+    int result = _eval::VALUEQUEEN - _eval::VALUEPAWN + DistanceBonus[Bits::DISTANCE[winnerKingPos][loserKingPos]];
     if (Bits::DISTANCE[loserKingPos][pawnPos] == 1 && RANK_AT[pawnPos] == (side == WHITE ? 6 : 3)) {
         int f = FILE_AT[pawnPos];
         if (f == 0 || f == 2 || f == 5 || f == 7) {
@@ -191,7 +191,7 @@ int Endgame::KBBKN(int winnerKingPos, int loserKingPos, int knightPos) {
     ASSERT_RANGE(knightPos, 0, 63);
     ASSERT_RANGE(loserKingPos, 0, 63);
 
-    return Eval::VALUEBISHOP + DistanceBonus[Bits::DISTANCE[winnerKingPos][loserKingPos]] + (Bits::DISTANCE[loserKingPos][knightPos]) * 32;
+    return _eval::VALUEBISHOP + DistanceBonus[Bits::DISTANCE[winnerKingPos][loserKingPos]] + (Bits::DISTANCE[loserKingPos][knightPos]) * 32;
     // Bonus for driving the defending king and knight apart
     // Bonus for restricting the knight's mobility
     //result += Value((8 - popcount<Max15>(pos.attacks_from<KNIGHT>(nsq))) * 8);
@@ -218,7 +218,7 @@ int Endgame::KQKR(int winnerKingPos, int loserKingPos) {
 
     ASSERT_RANGE(winnerKingPos, 0, 63);
     ASSERT_RANGE(loserKingPos, 0, 63);
-    return Eval::VALUEQUEEN - Eval::VALUEROOK + MateTable[loserKingPos] + DistanceBonus[Bits::DISTANCE[winnerKingPos][loserKingPos]];
+    return _eval::VALUEQUEEN - _eval::VALUEROOK + MateTable[loserKingPos] + DistanceBonus[Bits::DISTANCE[winnerKingPos][loserKingPos]];
 }
 
 int Endgame::KBNK(int winnerKingPos, int loserKingPos) {
