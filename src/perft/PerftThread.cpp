@@ -59,6 +59,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
             n_perft.totMoves = phashe->nMoves;
+            partialTot += phashe->nMoves;
 #ifndef PERFT_NOTDETAILED
             n_perft.totCapture = phashe->totCapture;
             n_perft.totEp = phashe->totEp;
