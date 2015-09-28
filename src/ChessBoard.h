@@ -85,7 +85,7 @@ public:
     static const u64 BIG_DIAG_RIGHT = 0x8040201008040201ULL;
     static const int SQUARE_FREE = 12;
 
-    static const int NO_ENPASSANT = INT_MAX;
+    static const u64 NO_ENPASSANT = 100;
     static const uchar KING_SIDE_CASTLE_MOVE_MASK = 0x4;
     static const uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0x8;
 
