@@ -124,7 +124,7 @@ bool Perft::load() {
 }
 
 Perft::~Perft() {
-   dispose();
+    dispose();
 }
 
 void Perft::alloc() {
@@ -282,19 +282,21 @@ void Perft::status() {
     for (PerftThread *s:threadPool) {
         tot += s->getPartial();
     }
-    cout << Time::getLocalTime() << " partial tot: " << tot << endl;
+    auto end1 = std::chrono::high_resolution_clock::now();
+    int sec = Time::diffTime(end1, start1) / 1000;
+    cout << Time::getLocalTime() << " partial tot: " << tot << " (" << ((tot/1000) / sec) << " k nodes per seconds)" << endl;
 }
 
 void Perft::dispose() {
     if (timer) {
         delete timer;
-        timer= nullptr;
+        timer = nullptr;
     }
     if (perftRes.hash) {
         for (int i = 1; i <= perftRes.depth; i++) {
             free(perftRes.hash[i]);
         }
         free(perftRes.hash);
-        perftRes.hash= nullptr;
+        perftRes.hash = nullptr;
     }
 }
