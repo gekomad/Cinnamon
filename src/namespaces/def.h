@@ -19,10 +19,11 @@
 
 #pragma once
 
-#include "../util/stacktrace.h"
 #include "../util/Time.h"
 #include "../util/FileUtil.h"
+#include "debug.h"
 
+using namespace _debug;
 namespace _def {
     using namespace std;
 
