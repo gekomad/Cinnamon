@@ -112,14 +112,8 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
 
         int isCheck = 0;
 
-        if (side == WHITE) {
-            if (inCheck<BLACK>()) {
-                isCheck = 1;
-            }
-        } else {
-            if (inCheck<WHITE>()) {
-                isCheck = 1;
-            }
+        if (inCheck<side ^ 1>()) {
+            isCheck = 1;
         }
 
         search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion, isCheck, isCastle);
