@@ -318,14 +318,14 @@ protected:
 
     template<int side>
     bool isAttacked(int position, u64 allpieces) {
-        u64 a = getAttackers1<side,true>(position,allpieces);//TODO ottimizzare
+        u64 a = getAttackers<side,true>(position,allpieces);//TODO ottimizzare
         if(a==0)return false;
         return true;
     }
 
     template<int side>
     u64 getAllAttackers(int position, u64 allpieces) {
-        return getAttackers1<side,false>(position,allpieces);
+        return getAttackers<side,false>(position,allpieces);
     }
 
     int getMobilityRook(const int position, const u64 enemies, const u64 friends);
@@ -481,7 +481,7 @@ private:
     }
 
     template<int side, bool getBoolean>
-    u64 getAttackers1(int position, u64 allpieces) {
+    u64 getAttackers(int position, u64 allpieces) {
         ASSERT_RANGE(position, 0, 63);
         ASSERT_RANGE(side, 0, 1);
         int bound;
