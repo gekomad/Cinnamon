@@ -316,9 +316,172 @@ protected:
 
     _Tmove *getNextMove(decltype(gen_list));
 
+    template<int side>
+    bool isAttacked(int position, u64 allpieces) {
+        u64 a = getAttackers1<side,true>(position,allpieces);//TODO ottimizzare
+        if(a==0)return false;
+        return true;
+    }
+
+    template<int side>
+    u64 getAllAttackers(int position, u64 allpieces) {
+        return getAttackers1<side,false>(position,allpieces);
+    }
+
+    int getMobilityRook(const int position, const u64 enemies, const u64 friends);
+
+    int getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces);
+
+    int getMobilityCastle(const int side, const u64 allpieces);
+
+    int getMobilityQueen(const int position, const u64 enemies, const u64 friends);
+
+    void initKillerHeuristic();
+
+    void pushRepetition(u64);
+
+    int killerHeuristic[64][64];
+
+    template<int side>
+    bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
+
+    void performCastle(const int side, const uchar type);
+
+    void unPerformCastle(const int side, const uchar type);
+
+    void tryAllCastle(const int side, const u64 allpieces);
+
+
+
+    template<uchar type>
+    bool pushmove(const int from, const int to, const int side, int promotionPiece, int pieceFrom) {
+        ASSERT(chessboard[KING_BLACK]);
+        ASSERT(chessboard[KING_WHITE]);
+        int piece_captured = SQUARE_FREE;
+        bool res = false;
+        if (((type & 0x3) != ENPASSANT_MOVE_MASK) && !(type & 0xc)) {
+            piece_captured = side ? getPieceAt<BLACK>(POW2[to]) : getPieceAt<WHITE>(POW2[to]);
+            if (piece_captured == KING_BLACK + (side ^ 1)) {
+                res = true;
+            }
+        } else if (!(type & 0xc)) {//no castle
+            piece_captured = side ^ 1;
+        }
+        if (!(type & 0xc) && (forceCheck || perftMode)) {//no castle
+            if (side == WHITE && inCheck<WHITE>(from, to, type, pieceFrom, piece_captured, promotionPiece)) {
+                return false;
+            }
+            if (side == BLACK && inCheck<BLACK>(from, to, type, pieceFrom, piece_captured, promotionPiece)) {
+                return false;
+            }
+        }
+        _Tmove *mos;
+        ASSERT_RANGE(listId, 0, MAX_PLY - 1);
+
+        ASSERT(getListSize() < MAX_MOVE);
+        mos = &gen_list[listId].moveList[getListSize()];
+        ++gen_list[listId].size;
+        mos->type = (uchar) chessboard[RIGHT_CASTLE_IDX] | type;
+        mos->side = (char) side;
+        mos->capturedPiece = piece_captured;
+        if (type & 0x3) {
+            mos->from = (uchar) from;
+            mos->to = (uchar) to;
+            mos->pieceFrom = pieceFrom;
+            mos->promotionPiece = (char) promotionPiece;
+            if (!perftMode) {
+                if (res == true) {
+                    mos->score = _INFINITE;
+                } else {
+                    ASSERT_RANGE(pieceFrom, 0, 11);
+                    ASSERT_RANGE(to, 0, 63);
+                    ASSERT_RANGE(from, 0, 63);
+                    mos->score = killerHeuristic[from][to];
+                    mos->score += (_eval::PIECES_VALUE[piece_captured] >= _eval::PIECES_VALUE[pieceFrom]) ? (_eval::PIECES_VALUE[piece_captured] - _eval::PIECES_VALUE[pieceFrom]) * 2 : _eval::PIECES_VALUE[piece_captured];
+
+                    //mos->score += (MOV_ORD[pieceFrom][to] - MOV_ORD[pieceFrom][from]);
+
+
+                }
+            }
+        } else if (type & 0xc) {    //castle
+            ASSERT(chessboard[RIGHT_CASTLE_IDX]);
+            mos->score = 100;
+        }
+        mos->used = false;
+        ASSERT(getListSize() < MAX_MOVE);
+        return res;
+    }
+
+    _Tmove *getMove(int i) const {
+        return &gen_list[listId].moveList[i];
+    }
+
+    void setRunning(int t) {
+        running = t;
+    }
+
+    int getRunning() const {
+        return running;
+    }
+
+    template<int side>
+    bool inCheck() {
+        return isAttacked<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+    }
+
+    void setKillerHeuristic(const int from, const int to, const int value) {
+        if (!getRunning()) {
+            return;
+        }
+        ASSERT_RANGE(from, 0, 63);
+        ASSERT_RANGE(to, 0, 63);
+        killerHeuristic[from][to] = value;
+    }
+
+
+private:
+    int running;
+    static bool forceCheck;
+    static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
+    static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
+    static const u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;
+
+    void writeFen(vector<int>);
+
+    template<int side>
+    void checkJumpPawn(u64 x, const u64 xallpieces) {
+        x &= TABJUMPPAWN;
+        if (side) {
+            x = (((x << 8) & xallpieces) << 8) & xallpieces;
+        } else {
+            x = (((x >> 8) & xallpieces) >> 8) & xallpieces;
+        };
+        while (x) {
+            int o = Bits::BITScanForward(x);
+            pushmove<STANDARD_MOVE_MASK>(o + (side ? -16 : 16), o, side, NO_PROMOTION, side);
+            x &= NOTPOW2[o];
+        };
+    }
+
+    int performRankFileCaptureCount(const int, const u64 enemies, const u64 allpieces);
+
+    int performRankFileShiftCount(const int piece, const u64 allpieces);
+
+    void popStackMove() {
+        ASSERT(repetitionMapCount > 0);
+        if (--repetitionMapCount && repetitionMap[repetitionMapCount - 1] == 0) {
+            repetitionMapCount--;
+        }
+    }
+
+    void pushStackMove(u64 key) {
+        ASSERT(repetitionMapCount < MAX_REP_COUNT - 1);
+        repetitionMap[repetitionMapCount++] = key;
+    }
 
     template<int side, bool getBoolean>
-    u64 getAttackers(int position, u64 allpieces) {
+    u64 getAttackers1(int position, u64 allpieces) {
         ASSERT_RANGE(position, 0, 63);
         ASSERT_RANGE(side, 0, 1);
         int bound;
@@ -410,169 +573,9 @@ protected:
                 }
             }
         }
+        if (getBoolean && attackers)return 1;
         return attackers;
     }
 
-
-    int getMobilityRook(const int position, const u64 enemies, const u64 friends);
-
-    int getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces);
-
-    int getMobilityCastle(const int side, const u64 allpieces);
-
-    int getMobilityQueen(const int position, const u64 enemies, const u64 friends);
-
-//    template<int side>
-//    bool attackSquare(const uchar Position, u64);
-
-    void initKillerHeuristic();
-
-
-    void pushRepetition(u64);
-
-    int killerHeuristic[64][64];
-
-    template<int side>
-    bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
-
-    void performCastle(const int side, const uchar type);
-
-    void unPerformCastle(const int side, const uchar type);
-
-    void tryAllCastle(const int side, const u64 allpieces);
-
-
-
-    template<uchar type>
-    bool pushmove(const int from, const int to, const int side, int promotionPiece, int pieceFrom) {
-        ASSERT(chessboard[KING_BLACK]);
-        ASSERT(chessboard[KING_WHITE]);
-        int piece_captured = SQUARE_FREE;
-        bool res = false;
-        if (((type & 0x3) != ENPASSANT_MOVE_MASK) && !(type & 0xc)) {
-            piece_captured = side ? getPieceAt<BLACK>(POW2[to]) : getPieceAt<WHITE>(POW2[to]);
-            if (piece_captured == KING_BLACK + (side ^ 1)) {
-                res = true;
-            }
-        } else if (!(type & 0xc)) {//no castle
-            piece_captured = side ^ 1;
-        }
-        if (!(type & 0xc) && (forceCheck || perftMode)) {//no castle
-            if (side == WHITE && inCheck<WHITE>(from, to, type, pieceFrom, piece_captured, promotionPiece)) {
-                return false;
-            }
-            if (side == BLACK && inCheck<BLACK>(from, to, type, pieceFrom, piece_captured, promotionPiece)) {
-                return false;
-            }
-        }
-        _Tmove *mos;
-        ASSERT_RANGE(listId, 0, MAX_PLY - 1);
-
-        ASSERT(getListSize() < MAX_MOVE);
-        mos = &gen_list[listId].moveList[getListSize()];
-        ++gen_list[listId].size;
-        mos->type = (uchar) chessboard[RIGHT_CASTLE_IDX] | type;
-        mos->side = (char) side;
-        mos->capturedPiece = piece_captured;
-        if (type & 0x3) {
-            mos->from = (uchar) from;
-            mos->to = (uchar) to;
-            mos->pieceFrom = pieceFrom;
-            mos->promotionPiece = (char) promotionPiece;
-            if (!perftMode) {
-                if (res == true) {
-                    mos->score = _INFINITE;
-                } else {
-                    ASSERT_RANGE(pieceFrom, 0, 11);
-                    ASSERT_RANGE(to, 0, 63);
-                    ASSERT_RANGE(from, 0, 63);
-                    mos->score = killerHeuristic[from][to];
-                    mos->score += (_eval::PIECES_VALUE[piece_captured] >= _eval::PIECES_VALUE[pieceFrom]) ? (_eval::PIECES_VALUE[piece_captured] - _eval::PIECES_VALUE[pieceFrom]) * 2 : _eval::PIECES_VALUE[piece_captured];
-
-                    //mos->score += (MOV_ORD[pieceFrom][to] - MOV_ORD[pieceFrom][from]);
-
-
-                }
-            }
-        } else if (type & 0xc) {    //castle
-            ASSERT(chessboard[RIGHT_CASTLE_IDX]);
-            mos->score = 100;
-        }
-        mos->used = false;
-        ASSERT(getListSize() < MAX_MOVE);
-        return res;
-    }
-
-    _Tmove *getMove(int i) const {
-        return &gen_list[listId].moveList[i];
-    }
-
-    void setRunning(int t) {
-        running = t;
-    }
-
-    int getRunning() const {
-        return running;
-    }
-
-    template<int side>
-    bool inCheck() {
-        return getAttackers<side, true>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
-    }
-
-//    template<int side>
-//    bool attackSquare(const uchar position) {
-//        return attackSquare<side>(position, getBitBoard<BLACK>() | getBitBoard<WHITE>());
-//    }
-
-    void setKillerHeuristic(const int from, const int to, const int value) {
-        if (!getRunning()) {
-            return;
-        }
-        ASSERT_RANGE(from, 0, 63);
-        ASSERT_RANGE(to, 0, 63);
-        killerHeuristic[from][to] = value;
-    }
-
-
-private:
-    int running;
-    static bool forceCheck;
-    static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
-    static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
-    static const u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;
-
-    void writeFen(vector<int>);
-
-    template<int side>
-    void checkJumpPawn(u64 x, const u64 xallpieces) {
-        x &= TABJUMPPAWN;
-        if (side) {
-            x = (((x << 8) & xallpieces) << 8) & xallpieces;
-        } else {
-            x = (((x >> 8) & xallpieces) >> 8) & xallpieces;
-        };
-        while (x) {
-            int o = Bits::BITScanForward(x);
-            pushmove<STANDARD_MOVE_MASK>(o + (side ? -16 : 16), o, side, NO_PROMOTION, side);
-            x &= NOTPOW2[o];
-        };
-    }
-
-    int performRankFileCaptureCount(const int, const u64 enemies, const u64 allpieces);
-
-    int performRankFileShiftCount(const int piece, const u64 allpieces);
-
-    void popStackMove() {
-        ASSERT(repetitionMapCount > 0);
-        if (--repetitionMapCount && repetitionMap[repetitionMapCount - 1] == 0) {
-            repetitionMapCount--;
-        }
-    }
-
-    void pushStackMove(u64 key) {
-        ASSERT(repetitionMapCount < MAX_REP_COUNT - 1);
-        repetitionMap[repetitionMapCount++] = key;
-    }
 };
 
