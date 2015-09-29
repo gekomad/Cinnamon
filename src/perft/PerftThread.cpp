@@ -35,7 +35,7 @@ void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) 
 }
 
 template<int side, bool useHash, bool smp>
-void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture, const unsigned nEp, const unsigned nPromotion, const unsigned nCheck, const unsigned nCastle) {
+void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture, const u64 nEp, const u64 nPromotion, const u64 nCheck, const u64 nCastle) {
     checkWait();
     if (depthx == 0) {
         partialTot += 1;

@@ -68,7 +68,7 @@ private:
 #endif
 
     template<int side, bool useHash, bool smp>
-    void search(_TsubRes &n_perft, const int depthx, const u64 isCapture = 0, const unsigned isEp = 0, const unsigned isPromotion = 0, const unsigned isCheck = 0, const unsigned isCastle = 0);
+    void search(_TsubRes &n_perft, const int depthx, const u64 isCapture = 0, const u64 isEp = 0, const u64 isPromotion = 0, const u64 isCheck = 0, const u64 isCastle = 0);
 
     int from, to;
     _TPerftRes *tPerftRes;
