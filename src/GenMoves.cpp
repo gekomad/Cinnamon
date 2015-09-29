@@ -1024,8 +1024,7 @@ int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
     return move->side;
 }
 
-
-void GenMoves::writeFen(vector<int> t) {
+void GenMoves::writeFen(const vector<int> pieces) {
     while (1) {
         memset(chessboard, 0, sizeof(_Tchessboard));
         chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
@@ -1033,13 +1032,12 @@ void GenMoves::writeFen(vector<int> t) {
         chessboard[KING_BLACK] = POW2[rand() % 64];
         chessboard[KING_WHITE] = POW2[rand() % 64];
         u64 check = chessboard[KING_BLACK] | chessboard[KING_WHITE];
-        for (unsigned long i = 0; i < t.size(); i++) {
-            chessboard[t[i]] |= POW2[rand() % 64];
-            check |= chessboard[t[i]];
+        for (unsigned long i = 0; i < pieces.size(); i++) {
+            chessboard[pieces[i]] |= POW2[rand() % 64];
+            check |= chessboard[pieces[i]];
         }
 
-
-        if (Bits::bitCount(check) == (2 + (int) t.size()) && !inCheck<WHITE>() && !inCheck<BLACK>()) {
+        if (Bits::bitCount(check) == (2 + (int) pieces.size()) && !inCheck<WHITE>() && !inCheck<BLACK>()) {
             cout << boardToFen() << "\n";
             loadFen(boardToFen());
             return;
@@ -1047,7 +1045,7 @@ void GenMoves::writeFen(vector<int> t) {
     }
 }
 
-void GenMoves::generatePuzzle(string type) {
+void GenMoves::generatePuzzle(const string type) {
     const int TOT = 5000;
     vector<int> pieces;
 

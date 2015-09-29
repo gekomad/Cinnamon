@@ -275,7 +275,7 @@ public:
         gen_list[listId].size = 0;
     }
 
-    void generatePuzzle(string type);
+    void generatePuzzle(const string type);
 
     void incKillerHeuristic(const int from, const int to, const int value) {
         if (!getRunning()) {
@@ -317,15 +317,15 @@ protected:
     _Tmove *getNextMove(decltype(gen_list));
 
     template<int side>
-    bool isAttacked(int position, u64 allpieces) {
-        u64 a = getAttackers<side,true>(position,allpieces);//TODO ottimizzare
-        if(a==0)return false;
+    bool isAttacked(const int position, const u64 allpieces) const {
+        u64 a = getAttackers<side, true>(position, allpieces);//TODO se modifica verificare ./cinnamon -perft -f"8/PPP4k/8/8/8/8/4Kppp/8 w - - 0 1" -h4000 -c2 -d8
+        if (a == 0)return false;
         return true;
     }
 
     template<int side>
-    u64 getAllAttackers(int position, u64 allpieces) {
-        return getAttackers<side,false>(position,allpieces);
+    u64 getAllAttackers(int position, u64 allpieces) const {
+        return getAttackers<side, false>(position, allpieces);
     }
 
     int getMobilityRook(const int position, const u64 enemies, const u64 friends);
@@ -350,7 +350,6 @@ protected:
     void unPerformCastle(const int side, const uchar type);
 
     void tryAllCastle(const int side, const u64 allpieces);
-
 
 
     template<uchar type>
@@ -447,7 +446,7 @@ private:
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
     static const u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;
 
-    void writeFen(vector<int>);
+    void writeFen(const vector<int>);
 
     template<int side>
     void checkJumpPawn(u64 x, const u64 xallpieces) {
@@ -481,7 +480,7 @@ private:
     }
 
     template<int side, bool getBoolean>
-    u64 getAttackers(int position, u64 allpieces) {
+    u64 getAttackers(const int position, const u64 allpieces) const {
         ASSERT_RANGE(position, 0, 63);
         ASSERT_RANGE(side, 0, 1);
         int bound;
