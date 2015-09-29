@@ -318,9 +318,10 @@ protected:
 
     template<int side>
     bool isAttacked(const int position, const u64 allpieces) const {
-        u64 a = getAttackers<side, true>(position, allpieces);//TODO se modifica verificare ./cinnamon -perft -f"8/PPP4k/8/8/8/8/4Kppp/8 w - - 0 1" -h4000 -c2 -d8
-        if (a == 0)return false;
-        return true;
+        return getAttackers<side, true>(position, allpieces);
+//        u64 a = getAttackers<side, true>(position, allpieces);//TODO se modifica verificare ./cinnamon -perft -f"8/PPP4k/8/8/8/8/4Kppp/8 w - - 0 1" -h4000 -c2 -d8
+//        if (a == 0)return false;
+//        return true;
     }
 
     template<int side>
@@ -342,8 +343,8 @@ protected:
 
     int killerHeuristic[64][64];
 
-    template<int side>
-    bool inCheck(const int from, const int to, const uchar type, const int pieceFrom, const int pieceTo, int promotionPiece);
+    template<int side, uchar type>
+    bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece);
 
     void performCastle(const int side, const uchar type);
 
@@ -367,10 +368,10 @@ protected:
             piece_captured = side ^ 1;
         }
         if (!(type & 0xc) && (forceCheck || perftMode)) {//no castle
-            if (side == WHITE && inCheck<WHITE>(from, to, type, pieceFrom, piece_captured, promotionPiece)) {
+            if (side == WHITE && inCheck<WHITE, type>(from, to, pieceFrom, piece_captured, promotionPiece)) {
                 return false;
             }
-            if (side == BLACK && inCheck<BLACK>(from, to, type, pieceFrom, piece_captured, promotionPiece)) {
+            if (side == BLACK && inCheck<BLACK, type>(from, to, pieceFrom, piece_captured, promotionPiece)) {
                 return false;
             }
         }
@@ -425,7 +426,7 @@ protected:
     }
 
     template<int side>
-    bool inCheck() const{
+    bool inCheck() const {
         return isAttacked<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
     }
 
