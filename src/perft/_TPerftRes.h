@@ -30,10 +30,10 @@ typedef struct {
     u64 nMoves;
 #ifndef PERFT_NOTDETAILED
     u64 totCapture;
+    u64 totCheck;
+    u64 totCastle;
     unsigned totEp;
     unsigned totPromotion;
-    unsigned totCheck;
-    unsigned totCastle;
 #endif
 } _ThashPerft;
 #pragma pack(pop)
@@ -44,8 +44,8 @@ typedef struct {
     atomic_ullong totCapture;
     atomic<unsigned> totEp;
     atomic<unsigned> totPromotion;
-    atomic<unsigned> totCheck;
-    atomic<unsigned> totCastle;
+    atomic_ullong totCheck;
+    atomic_ullong totCastle;
 #endif
     _ThashPerft **hash;
     u64 sizeAtDepth[255];

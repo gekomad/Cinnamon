@@ -50,8 +50,8 @@ private:
         u64 totCapture;
         unsigned totEp;
         unsigned totPromotion;
-        unsigned totCheck;
-        unsigned totCastle;
+        u64 totCheck;
+        u64 totCastle;
     } _TsubRes;
 
     static const int N_MUTEX_BUCKET = 4096;
@@ -64,7 +64,7 @@ private:
     unsigned totEp = 0;
     unsigned totPromotion = 0;
     u64 totCheck = 0;
-    unsigned totCastle = 0;
+    u64 totCastle = 0;
 #endif
 
     template<int side, bool useHash, bool smp>
