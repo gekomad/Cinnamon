@@ -84,8 +84,7 @@ public:
         return b;
     }
 
-    template<bool smp>
-    void recordHash(u64 zobristKeyR, bool running, _Thash *rootHash[2], const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
+    void recordHash(bool running, _Thash *rootHash[2], const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
         ASSERT(key);
         ASSERT(rootHash[HASH_GREATER]);
         ASSERT(rootHash[HASH_ALWAYS]);

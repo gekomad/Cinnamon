@@ -204,7 +204,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
                 decListId();
                 ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
                 ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
-                hash->recordHash<smp>(zobristKeyR, getRunning(), checkHashStruct.rootHash, depth, Hash::hashfBETA, zobristKeyR, score, move);
+                hash->recordHash(getRunning(), checkHashStruct.rootHash, depth, Hash::hashfBETA, zobristKeyR, score, move);
                 return beta;
             }
             best = move;
@@ -214,7 +214,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     }
     ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
     ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
-    hash->recordHash<smp>(zobristKeyR, getRunning(), checkHashStruct.rootHash, depth, hashf, zobristKeyR, score, best);
+    hash->recordHash(getRunning(), checkHashStruct.rootHash, depth, hashf, zobristKeyR, score, best);
 
     decListId();
 
@@ -532,7 +532,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                 ADD(betaEfficiency, betaEfficiencyCount / (double) listcount * 100.0);
                 ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
                 ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
-                hash->recordHash<smp>(zobristKeyR, getRunning(), checkHashStruct.rootHash, depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
+                hash->recordHash(getRunning(), checkHashStruct.rootHash, depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
                 setKillerHeuristic(move->from, move->to, 0x400);
                 //TODO rivedere killer e history
                 return score;
@@ -546,7 +546,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
     ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
-    hash->recordHash<smp>(zobristKeyR, getRunning(), checkHashStruct.rootHash, depth - extension, hashf, zobristKeyR, score, best);
+    hash->recordHash(getRunning(), checkHashStruct.rootHash, depth - extension, hashf, zobristKeyR, score, best);
     decListId();
     return score;
 }
