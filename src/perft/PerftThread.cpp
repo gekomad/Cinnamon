@@ -95,7 +95,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
         memset(&x, 0, sizeof(_TsubRes));
 #ifndef PERFT_NOTDETAILED
         int isCapture = move->capturedPiece != SQUARE_FREE;
-        int isCastle = (move->type & 0xc);
+        int isCastle = (move->type & 0xc) != 0;
         int isEp = ((move->type & 0x3) == ENPASSANT_MOVE_MASK);
         int isPromotion = ((move->type & 0x3) == PROMOTION_MOVE_MASK);
         int isCheck = (inCheck<side ^ 1>());
