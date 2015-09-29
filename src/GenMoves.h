@@ -425,7 +425,7 @@ protected:
     }
 
     template<int side>
-    bool inCheck() {
+    bool inCheck() const{
         return isAttacked<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
     }
 
