@@ -284,7 +284,7 @@ void Perft::status() {
     }
     auto end1 = std::chrono::high_resolution_clock::now();
     int sec = Time::diffTime(end1, start1) / 1000;
-    cout << Time::getLocalTime() << " partial tot: " << tot << " (" << ((tot/1000) / sec) << " k nodes per seconds)" << endl;
+    cout << Time::getLocalTime() << " partial tot: " << tot << " (" << ((tot / 1000) / sec) << " k nodes per seconds)" << endl;
 }
 
 void Perft::dispose() {

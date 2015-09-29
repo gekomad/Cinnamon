@@ -19,12 +19,10 @@
 #include "PerftThread.h"
 #include "Perft.h"
 
-SharedMutex PerftThread::MUTEX_BUCKET[N_MUTEX_BUCKET];
+mutex PerftThread::MUTEX_HASH;
 mutex PerftThread::mutexPrint;
 
-PerftThread::PerftThread() {
-
-}
+PerftThread::PerftThread() { }
 
 void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) {
     perftMode = true;
@@ -34,7 +32,7 @@ void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) 
     this->to = to1;
 }
 
-template<int side, bool useHash, bool smp>
+template<int side, bool useHash>
 void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture, const u64 nEp, const u64 nPromotion, const u64 nCheck, const u64 nCastle) {
     checkWait();
     if (depthx == 0) {
@@ -54,8 +52,8 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
     _ThashPerft *phashe = nullptr;
 
     if (useHash) {
+        lock_guard<mutex> lock(MUTEX_HASH);
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
-        if (smp) MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].lock_shared();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
             n_perft.totMoves = phashe->nMoves;
@@ -67,10 +65,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
             n_perft.totCheck = phashe->totCheck;
             n_perft.totCastle = phashe->totCastle;
 #endif
-            if (smp)MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].unlock_shared();
-            return;
         }
-        if (smp)MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].unlock_shared();
     }
     int listcount;
     _Tmove *move;
@@ -100,9 +95,9 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
         int isEp = ((move->type & 0x3) == ENPASSANT_MOVE_MASK);
         int isPromotion = ((move->type & 0x3) == PROMOTION_MOVE_MASK);
         int isCheck = inCheck<side ^ 1>();
-        search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion, isCheck, isCastle);
+        search<side ^ 1, useHash>(x, depthx - 1, isCapture, isEp, isPromotion, isCheck, isCastle);
 #else
-        search<side ^ 1, useHash, smp>(x, depthx - 1);
+        search<side ^ 1, useHash>(x, depthx - 1);
 #endif
 
         n_perft.totMoves += x.totMoves;
@@ -117,7 +112,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
     }
     decListId();
     if (useHash) {
-        if (smp) MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].lock();
+        lock_guard<mutex> lock(MUTEX_HASH);
         phashe->key = zobristKeyR;
         phashe->nMoves = n_perft.totMoves;
 #ifndef PERFT_NOTDETAILED
@@ -127,7 +122,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
         phashe->totCheck = n_perft.totCheck;
         phashe->totCastle = n_perft.totCastle;
 #endif
-        if (smp)MUTEX_BUCKET[zobristKeyR % N_MUTEX_BUCKET].unlock();
+
     }
     return;
 }
@@ -167,23 +162,19 @@ void PerftThread::run() {
 
         if (fhash) {
             if (side == WHITE) {
-                if (smp) {
-                    search<WHITE, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
-                } else {//smp == false
-                    search<WHITE, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
-                }
+
+                search<WHITE, USE_HASH_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
+
             } else {
-                if (smp) {
-                    search<BLACK, USE_HASH_YES, SMP_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
-                } else {//smp == false
-                    search<BLACK, USE_HASH_YES, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
-                }
+
+                search<BLACK, USE_HASH_YES>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
+
             }
         } else {//no hash
             if (side == WHITE) {
-                search<WHITE, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
+                search<WHITE, USE_HASH_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
             } else {
-                search<BLACK, USE_HASH_NO, SMP_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
+                search<BLACK, USE_HASH_NO>(n_perft, tPerftRes->depth - 1, 0, 0, 0, 0, 0);
             }
         }
 

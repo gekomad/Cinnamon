@@ -20,7 +20,7 @@
 
 Hash *SearchManager::hash;
 
-SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
+SearchManager::SearchManager() : ThreadPool(8) {//TODO 1
     nThreads = getNthread();
     hash = &Hash::getInstance();
     setThread(nThreads);
@@ -442,7 +442,6 @@ void SearchManager::deleteGtb() {
 
 bool SearchManager::setThread(int nthread) {
     nThreads = nthread;
-    hash->setSMP(nThreads);
     for (Search *s:threadPool) {
         s->registerObserver(this);
     }

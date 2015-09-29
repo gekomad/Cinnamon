@@ -5,7 +5,7 @@ set(DR_MEMORY "NO")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++1y -Wno-reorder -DPERFT_NOTDETAILEDx -DDEBUG_MODE")
 
 if (DR_MEMORY STREQUAL "YES")
-    set(CMAKE_CXX_FLAGS "-DDEBUG_MODE -pthread -std=c++1y -m32 -g -fno-inline -fno-omit-frame-pointer -Wno-reorder")
+    set(CMAKE_CXX_FLAGS "-DDEBUG_MODE -pthread -std=c++11 -m32 -g -fno-inline -fno-omit-frame-pointer -Wno-reorder")
 endif ()
 
 set(SOURCE_FILES

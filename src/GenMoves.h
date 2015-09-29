@@ -398,10 +398,7 @@ protected:
                     ASSERT_RANGE(from, 0, 63);
                     mos->score = killerHeuristic[from][to];
                     mos->score += (_eval::PIECES_VALUE[piece_captured] >= _eval::PIECES_VALUE[pieceFrom]) ? (_eval::PIECES_VALUE[piece_captured] - _eval::PIECES_VALUE[pieceFrom]) * 2 : _eval::PIECES_VALUE[piece_captured];
-
                     //mos->score += (MOV_ORD[pieceFrom][to] - MOV_ORD[pieceFrom][from]);
-
-
                 }
             }
         } else if (type & 0xc) {    //castle

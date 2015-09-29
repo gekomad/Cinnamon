@@ -101,7 +101,7 @@ void ChessBoard::display() {
 }
 
 
-string ChessBoard::boardToFen() const{
+string ChessBoard::boardToFen() const {
     string fen;
     for (int y = 0; y < 8; y++) {
         int l = 0;

@@ -54,8 +54,7 @@ private:
         u64 totCastle;
     } _TsubRes;
 
-    static const int N_MUTEX_BUCKET = 4096;
-    static SharedMutex MUTEX_BUCKET[N_MUTEX_BUCKET];
+    static mutex MUTEX_HASH;
 
     static mutex mutexPrint;
     u64 tot = 0;
@@ -67,7 +66,7 @@ private:
     u64 totCastle = 0;
 #endif
 
-    template<int side, bool useHash, bool smp>
+    template<int side, bool useHash>
     void search(_TsubRes &n_perft, const int depthx, const u64 isCapture = 0, const u64 isEp = 0, const u64 isPromotion = 0, const u64 isCheck = 0, const u64 isCastle = 0);
 
     int from, to;
