@@ -98,7 +98,7 @@ void PerftThread::search(_TsubRes &n_perft, const int depthx, const u64 nCapture
         int isCastle = (move->type & 0xc) != 0;
         int isEp = ((move->type & 0x3) == ENPASSANT_MOVE_MASK);
         int isPromotion = ((move->type & 0x3) == PROMOTION_MOVE_MASK);
-        int isCheck = (inCheck<side ^ 1>());
+        int isCheck = (inCheck<side ^ 1>() != 0);
         search<side ^ 1, useHash, smp>(x, depthx - 1, isCapture, isEp, isPromotion, isCheck, isCastle);
 #else
         search<side ^ 1, useHash, smp>(x, depthx - 1);
