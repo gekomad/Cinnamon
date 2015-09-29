@@ -48,8 +48,8 @@ private:
     typedef struct {
         u64 totMoves;
         u64 totCapture;
-        unsigned totEp;
-        unsigned totPromotion;
+        u64 totEp;
+        u64 totPromotion;
         u64 totCheck;
         u64 totCastle;
     } _TsubRes;
@@ -61,8 +61,8 @@ private:
     u64 tot = 0;
 #ifndef PERFT_NOTDETAILED
     u64 totCapture = 0;
-    unsigned totEp = 0;
-    unsigned totPromotion = 0;
+    u64 totEp = 0;
+    u64 totPromotion = 0;
     u64 totCheck = 0;
     u64 totCastle = 0;
 #endif
