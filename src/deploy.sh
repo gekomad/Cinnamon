@@ -16,10 +16,11 @@ tar -czf $UUID.tar.gz $UUID
 
 for ip in "${array[@]}"
 do	
-	echo $ip
+	ssh geko@$ip "mkdir test" >/dev/null
+	echo "scp /tmp/deploy/$UUID.tar.gz geko@$ip:test"
 	scp /tmp/deploy/$UUID.tar.gz geko@$ip:test
 done
 exit 0
-
+ 
 
 
