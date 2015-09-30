@@ -107,7 +107,13 @@ bool Perft::load() {
 }
 
 Perft::~Perft() {
-    dispose();
+    if (perftRes.hash) {
+        for (int i = 1; i <= perftRes.depth; i++) {
+            free(perftRes.hash[i]);
+        }
+        free(perftRes.hash);
+        perftRes.hash = nullptr;
+    }
 }
 
 void Perft::alloc() {
@@ -171,22 +177,22 @@ void Perft::run() {
     cout << "\n" << Time::getLocalTime() << " start perft test...\n";
     cout << "type 'status' for partial moves" << endl;
 
-    timer = new Timer(Time::HOUR_IN_SECONDS);
-    timer->registerObservers([this]() {
+    Timer *t1 = new Timer(Time::HOUR_IN_SECONDS);
+    t1->registerObservers([this]() {
         status();
     });
-    timer->start();
+    t1->start();
 
     if (perftRes.hash && !dumpFile.empty()) {
         signal(SIGINT, Perft::ctrlChandler);
 
-        timer = new Timer(minutesToDump * 60);
+        Timer *t2 = new Timer(minutesToDump * 60);
         cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;
         cout << "type 'dump' to dump it now" << endl;
-        timer->registerObservers([this]() {
+        t2->registerObservers([this]() {
             dump();
         });
-        timer->start();
+        t2->start();
     }
 
     cout << "\n\n" << setw(6) << "move" << setw(20) << "tot";
@@ -248,7 +254,7 @@ void Perft::endRun() {
     dump();
     cout << Time::getLocalTime() << " end test" << endl;
     cerr << flush;
-    dispose();
+
     if (forceExit) {
         std::_Exit(0);
     }
@@ -262,18 +268,4 @@ void Perft::status() {
     auto end1 = std::chrono::high_resolution_clock::now();
     int sec = Time::diffTime(end1, start1) / 1000;
     cout << Time::getLocalTime() << " partial tot: " << tot << " (" << ((tot / 1000) / sec) << " k nodes per seconds)" << endl;
-}
-
-void Perft::dispose() {
-    if (timer) {
-        delete timer;
-        timer = nullptr;
-    }
-    if (perftRes.hash) {
-        for (int i = 1; i <= perftRes.depth; i++) {
-            free(perftRes.hash[i]);
-        }
-        free(perftRes.hash);
-        perftRes.hash = nullptr;
-    }
 }
