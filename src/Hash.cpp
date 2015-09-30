@@ -84,4 +84,47 @@ Hash::~Hash() {
     dispose();
 }
 
+void Hash::recordHash(bool running, _Thash *rootHash[2], const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
+    ASSERT(key);
+    ASSERT(rootHash[HASH_GREATER]);
+    ASSERT(rootHash[HASH_ALWAYS]);
+    if (!running) {
+        return;
+    }
+    ASSERT(abs(score) <= 32200);
+    _Thash tmp;
 
+    tmp.key = key;
+    tmp.score = score;
+    tmp.flags = flags;
+    tmp.depth = depth;
+    if (bestMove && bestMove->from != bestMove->to) {
+        tmp.from = bestMove->from;
+        tmp.to = bestMove->to;
+    } else {
+        tmp.from = tmp.to = 0;
+    }
+    {
+        lock_guard<mutex> lock(MUTEX_HASH);
+        memcpy(rootHash[HASH_GREATER], &tmp, sizeof(_Thash));
+    }
+
+#ifdef DEBUG_MODE
+    if (flags == hashfALPHA) {
+        nRecordHashA++;
+    } else if (flags == hashfBETA) {
+        nRecordHashB++;
+    } else {
+        nRecordHashE++;
+    }
+#endif
+    tmp.entryAge = 1;
+    {
+        lock_guard<mutex> lock(MUTEX_HASH);
+        if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {
+            INC(collisions);
+            return;
+        }
+        memcpy(rootHash[HASH_ALWAYS], &tmp, sizeof(_Thash));
+    }
+}

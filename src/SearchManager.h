@@ -124,7 +124,7 @@ public:
 
     void receiveObserverSearch(int threadID);
 
-    bool setThread(int);
+    bool setNthread(int);
 
 #ifdef DEBUG_MODE
 

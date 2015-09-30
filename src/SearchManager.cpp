@@ -23,7 +23,7 @@ Hash *SearchManager::hash;
 SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
     nThreads = getNthread();
     hash = &Hash::getInstance();
-    setThread(nThreads);
+    setNthread(nThreads);
 
 #if defined(DEBUG_MODE)
     string parameterFile = "parameter.txt";
@@ -440,7 +440,8 @@ void SearchManager::deleteGtb() {
     }
 }
 
-bool SearchManager::setThread(int nthread) {
+bool SearchManager::setNthread(int nthread) {
+    ThreadPool::setNthread(nthread);
     nThreads = nthread;
     for (Search *s:threadPool) {
         s->registerObserver(this);

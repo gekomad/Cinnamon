@@ -207,7 +207,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        if (searchManager.setThread(stoi(token))) {
+                        if (searchManager.setNthread(stoi(token))) {
                             knowCommand = true;
                         };
                     }

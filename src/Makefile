@@ -73,12 +73,12 @@ help:
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
 	@echo " example: make cinnamon64-modern-INTEL COMP=clang++"
-	@echo "add PROFILE=yes for PGO build (g++ only)"
+	@echo "add PROFILE_GCC=yes for PGO build (gcc only)"
 	@echo ""
 
 build:
 
-ifeq ($(PROFILE),yes)
+ifeq ($(PROFILE_GCC),yes)
 	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b >bench.tmp
