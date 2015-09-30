@@ -39,11 +39,6 @@ void Perft::dump() {
     }
 
     sleepAll(true);
-#ifndef PERFT_NOTDETAILED
-    f << "DETAILED";
-#else
-    f << "NOT_DETAILED";
-#endif
     f.put(10);
     f << fen;
     f.put(10);
@@ -75,19 +70,7 @@ bool Perft::load() {
     cout << endl << "load hash table from " << dumpFile << " file.." << endl;
     string detailType;
     getline(f, detailType);
-#ifndef PERFT_NOTDETAILED
-    if (detailType.compare("DETAILED")) {
-        cout << "error DETAILED type" << endl;
-        f.close();
-        std::_Exit(0);
-    }
-#else
-    if(detailType.compare("NOT_DETAILED")){
-    cout << "error DETAILED type" << endl;
-    f.close();
-    std::_Exit(0);
-    }
-#endif
+
     getline(f, fen1);
     f.read(reinterpret_cast<char *>(&depthHash), sizeof(int));
     if (depthHash > perftRes.depth) {
@@ -207,9 +190,6 @@ void Perft::run() {
     }
 
     cout << "\n\n" << setw(6) << "move" << setw(20) << "tot";
-#ifndef PERFT_NOTDETAILED
-    cout << setw(20) << "capture" << setw(20) << "en passant" << setw(20) << "promotion" << setw(20) << "check" << setw(20) << "castle";
-#endif
     cout << setw(8) << "#";
     cout << "\n";
 
@@ -247,10 +227,7 @@ void Perft::endRun() {
     int seconds = t % 60;
 
     cout << endl << endl << "Perft moves: " << perftRes.totMoves;
-#ifndef PERFT_NOTDETAILED
-    cout << " capture: " << perftRes.totCapture << " en passant: " << perftRes.totEp << " promotion: " << perftRes.totPromotion << " check: ";
-    cout << perftRes.totCheck << " castle: " << perftRes.totCastle;
-#endif
+
     cout << " in ";
     if (days) {
         cout << days << " days, ";

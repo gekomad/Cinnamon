@@ -343,8 +343,88 @@ protected:
 
     int killerHeuristic[64][64];
 
+
     template<int side, uchar type>
-    bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece);
+    bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
+#ifdef DEBUG_MODE
+        _Tchessboard a;
+        memcpy(&a, chessboard, sizeof(_Tchessboard));
+#endif
+        ASSERT_RANGE(from, 0, 63);
+        ASSERT_RANGE(to, 0, 63);
+        ASSERT_RANGE(side, 0, 1);
+        ASSERT_RANGE(pieceFrom, 0, 12);
+        ASSERT_RANGE(pieceTo, 0, 12);
+        ASSERT(perftMode || forceCheck);
+        ASSERT(!(type & 0xc));
+        bool result = 0;
+        switch (type & 0x3) {
+            case STANDARD_MOVE_MASK: {
+                u64 from1, to1 = -1;
+                ASSERT(pieceFrom != SQUARE_FREE);
+                ASSERT(pieceTo != KING_BLACK);
+                ASSERT(pieceTo != KING_WHITE);
+                from1 = chessboard[pieceFrom];
+                if (pieceTo != SQUARE_FREE) {
+                    to1 = chessboard[pieceTo];
+                    chessboard[pieceTo] &= NOTPOW2[to];
+                };
+                chessboard[pieceFrom] &= NOTPOW2[from];
+                chessboard[pieceFrom] |= POW2[to];
+                ASSERT(chessboard[KING_BLACK]);
+                ASSERT(chessboard[KING_WHITE]);
+
+                result = isAttacked<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+                chessboard[pieceFrom] = from1;
+                if (pieceTo != SQUARE_FREE) {
+                    chessboard[pieceTo] = to1;
+                };
+                break;
+            }
+            case PROMOTION_MOVE_MASK: {
+                u64 to1 = 0;
+                if (pieceTo != SQUARE_FREE) {
+                    to1 = chessboard[pieceTo];
+                }
+                u64 from1 = chessboard[pieceFrom];
+                u64 p1 = chessboard[promotionPiece];
+                chessboard[pieceFrom] &= NOTPOW2[from];
+                if (pieceTo != SQUARE_FREE) {
+                    chessboard[pieceTo] &= NOTPOW2[to];
+                }
+                chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
+                result = isAttacked<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+                if (pieceTo != SQUARE_FREE) {
+                    chessboard[pieceTo] = to1;
+                }
+                chessboard[pieceFrom] = from1;
+                chessboard[promotionPiece] = p1;
+                break;
+            }
+            case ENPASSANT_MOVE_MASK: {
+                u64 to1 = chessboard[side ^ 1];
+                u64 from1 = chessboard[side];
+                chessboard[side] &= NOTPOW2[from];
+                chessboard[side] |= POW2[to];
+                if (side) {
+                    chessboard[side ^ 1] &= NOTPOW2[to - 8];
+                } else {
+                    chessboard[side ^ 1] &= NOTPOW2[to + 8];
+                }
+                result = isAttacked<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+                chessboard[side ^ 1] = to1;
+                chessboard[side] = from1;;
+                break;
+            }
+            default:
+            assert(0);
+        }
+
+#ifdef DEBUG_MODE
+        ASSERT(!memcmp(&a, chessboard, sizeof(_Tchessboard)));
+#endif
+        return result;
+    }
 
     void performCastle(const int side, const uchar type);
 

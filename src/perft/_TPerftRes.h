@@ -28,25 +28,11 @@ using namespace std;
 typedef struct {
     u64 key;
     u64 nMoves;
-#ifndef PERFT_NOTDETAILED
-    u64 totCapture;
-    u64 totCheck;
-    u64 totCastle;
-    u64 totEp;
-    u64 totPromotion;
-#endif
 } _ThashPerft;
 #pragma pack(pop)
 
 typedef struct {
     atomic_ullong totMoves;
-#ifndef PERFT_NOTDETAILED
-    atomic_ullong totCapture;
-    atomic_ullong totEp;
-    atomic_ullong totPromotion;
-    atomic_ullong totCheck;
-    atomic_ullong totCastle;
-#endif
     _ThashPerft **hash;
     u64 sizeAtDepth[255];
     int depth;

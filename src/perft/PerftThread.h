@@ -45,29 +45,13 @@ public:
 
 private:
 
-    typedef struct {
-        u64 totMoves;
-        u64 totCapture;
-        u64 totEp;
-        u64 totPromotion;
-        u64 totCheck;
-        u64 totCastle;
-    } _TsubRes;
-
     static mutex MUTEX_HASH;
 
     static mutex mutexPrint;
     u64 tot = 0;
-#ifndef PERFT_NOTDETAILED
-    u64 totCapture = 0;
-    u64 totEp = 0;
-    u64 totPromotion = 0;
-    u64 totCheck = 0;
-    u64 totCastle = 0;
-#endif
 
     template<int side, bool useHash>
-    void search(_TsubRes &n_perft, const int depthx, const u64 isCapture = 0, const u64 isEp = 0, const u64 isPromotion = 0, const u64 isCheck = 0, const u64 isCastle = 0);
+    u64 search(const int depthx);
 
     int from, to;
     _TPerftRes *tPerftRes;
