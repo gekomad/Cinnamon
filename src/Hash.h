@@ -74,12 +74,10 @@ public:
         _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
         {
             lock_guard<mutex> lock(MUTEX_HASH);
-//        if (smp) MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].lock_shared();
             if (hash->key == zobristKeyR) {
                 b = true;
                 memcpy(hashMini, hash, sizeof(_Thash));
             }
-//        if (smp)MUTEX_BUCKET[type][zobristKeyR % N_MUTEX_BUCKET].unlock_shared();
         }
         return b;
     }
@@ -104,14 +102,10 @@ public:
         } else {
             tmp.from = tmp.to = 0;
         }
-//        int keyMutex = zobristKeyR % N_MUTEX_BUCKET;
-//        if (smp) MUTEX_BUCKET[HASH_GREATER][keyMutex].lock();
         {
             lock_guard<mutex> lock(MUTEX_HASH);
             memcpy(rootHash[HASH_GREATER], &tmp, sizeof(_Thash));
-//            if (smp)MUTEX_BUCKET[HASH_GREATER][keyMutex].unlock();
         }
-        //////////////
 
 #ifdef DEBUG_MODE
         if (flags == hashfALPHA) {
@@ -123,16 +117,13 @@ public:
         }
 #endif
         tmp.entryAge = 1;
-//        if (smp)MUTEX_BUCKET[HASH_ALWAYS][keyMutex].lock();
         {
             lock_guard<mutex> lock(MUTEX_HASH);
             if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {
                 INC(collisions);
-//                if (smp) MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
                 return;
             }
             memcpy(rootHash[HASH_ALWAYS], &tmp, sizeof(_Thash));
-//            if (smp) MUTEX_BUCKET[HASH_ALWAYS][keyMutex].unlock();
         }
     }
 

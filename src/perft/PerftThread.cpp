@@ -36,6 +36,7 @@ template<int side, bool useHash>
 u64 PerftThread::search(const int depthx) {
     checkWait();
     if (depthx == 0) {
+        partialTot++;
         return 1;
     }
     u64 zobristKeyR;
@@ -47,6 +48,7 @@ u64 PerftThread::search(const int depthx) {
         lock_guard<mutex> lock(MUTEX_HASH);
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
+            partialTot += phashe->nMoves;
             return phashe->nMoves;
         }
     }
@@ -108,13 +110,9 @@ void PerftThread::run() {
 
         if (fhash) {
             if (side == WHITE) {
-
                 n_perft = search<WHITE, USE_HASH_YES>(tPerftRes->depth - 1);
-
             } else {
-
                 n_perft = search<BLACK, USE_HASH_YES>(tPerftRes->depth - 1);
-
             }
         } else {//no hash
             if (side == WHITE) {
@@ -147,10 +145,7 @@ void PerftThread::run() {
             }
             cout << setw(6) << h;
             cout << setw(20) << n_perft;
-
-
             cout << setw(8) << (Perft::count--);
-
         }
         cout << flush;
         tot += n_perft;
