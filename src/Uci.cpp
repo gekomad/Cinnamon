@@ -176,7 +176,7 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.setRunningThread(false);
         } else if (token == "ucinewgame") {
             searchManager.loadFen();
-            searchManager.clearHash();
+            searchManager.clearHash();//TODO commentare
             knowCommand = true;
         } else if (token == "setvalue") {
             getToken(uip, token);
@@ -337,7 +337,6 @@ void Uci::listner(IterativeDeeping *it) {
                 }
             }
         } else if (token == "go") {
-            debug("go ");
             it->setMaxDepth(MAX_PLY);
             int wtime = 200000; //5 min
             int btime = 200000;
