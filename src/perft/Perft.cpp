@@ -177,22 +177,22 @@ void Perft::run() {
     cout << "\n" << Time::getLocalTime() << " start perft test...\n";
     cout << "type 'status' for partial moves" << endl;
 
-    Timer *t1 = new Timer(Time::HOUR_IN_SECONDS);
-    t1->registerObservers([this]() {
+    Timer t1(Time::HOUR_IN_SECONDS);// = new Timer(Time::HOUR_IN_SECONDS);
+    t1.registerObservers([this]() {
         status();
     });
-    t1->start();
+    t1.start();
 
     if (perftRes.hash && !dumpFile.empty()) {
         signal(SIGINT, Perft::ctrlChandler);
 
-        Timer *t2 = new Timer(minutesToDump * 60);
+        Timer t2(minutesToDump * 60);
         cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;
         cout << "type 'dump' to dump it now" << endl;
-        t2->registerObservers([this]() {
+        t2.registerObservers([this]() {
             dump();
         });
-        t2->start();
+        t2.start();
     }
 
     cout << "\n\n" << setw(6) << "move" << setw(20) << "tot";

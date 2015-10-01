@@ -37,7 +37,7 @@ private:
 
     Perft *perft = nullptr;
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    IterativeDeeping *iterativeDeeping;
+
     bool uciMode;
     Tablebase *tablebase = nullptr;
 

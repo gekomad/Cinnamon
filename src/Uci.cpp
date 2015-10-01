@@ -26,17 +26,15 @@ Uci::Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFil
 }
 
 void Uci::startListner() {
-    iterativeDeeping = new IterativeDeeping();
-    listner(iterativeDeeping);
+    IterativeDeeping i;
+    listner(&i);
 }
 
 Uci::Uci() {
     startListner();
 }
 
-Uci::~Uci() {
-    delete iterativeDeeping;
-}
+Uci::~Uci() { }
 
 void Uci::getToken(istringstream &uip, String &token) {
     token.clear();
@@ -175,6 +173,7 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.setRunning(0);
             searchManager.setRunningThread(false);
         } else if (token == "ucinewgame") {
+            lock_guard<mutex> lock(it->commandMutex);
             searchManager.loadFen();
             searchManager.clearHash();//TODO commentare
             knowCommand = true;
@@ -306,7 +305,7 @@ void Uci::listner(IterativeDeeping *it) {
                 }
             }
         } else if (token == "position") {
-            lock_guard<mutex> lock(it->ponderMutex);
+            lock_guard<mutex> lock(it->commandMutex);
             knowCommand = true;
             searchManager.setRepetitionMapCount(0);
             getToken(uip, token);

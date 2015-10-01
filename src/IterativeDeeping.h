@@ -30,7 +30,7 @@
 class IterativeDeeping : public Thread {
 
 public:
-    mutex ponderMutex;
+    mutex commandMutex;
 
     virtual ~ IterativeDeeping();
 
