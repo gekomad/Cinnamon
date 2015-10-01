@@ -25,7 +25,7 @@
 
 using namespace _board;
 
-class Eval : public GenMoves, public Endgame {
+class Eval : public GenMoves {
 
 public:
 
