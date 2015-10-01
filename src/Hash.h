@@ -72,24 +72,69 @@ public:
     bool readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, _Thash *hashMini) {
         bool b = false;
         _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
-        {
-            lock_guard<mutex> lock(MUTEX_HASH);
-            if (hash->key == zobristKeyR) {
-                b = true;
-                memcpy(hashMini, hash, sizeof(_Thash));
-            }
+
+        if (smp)MUTEX_HASH.lock();
+        if (hash->key == zobristKeyR) {
+            b = true;
+            memcpy(hashMini, hash, sizeof(_Thash));
         }
+        if (smp)MUTEX_HASH.unlock();
+
         return b;
     }
 
-    void recordHash(bool running, _Thash *rootHash[2], const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove);
+    template<bool smp>
+    void recordHash(bool running, _Thash *rootHash[2], const char depth, const char flags, const u64 key, const int score, _Tmove *bestMove) {
+        ASSERT(key);
+        ASSERT(rootHash[HASH_GREATER]);
+        ASSERT(rootHash[HASH_ALWAYS]);
+        if (!running) {
+            return;
+        }
+        ASSERT(abs(score) <= 32200);
+        _Thash tmp;
 
+        tmp.key = key;
+        tmp.score = score;
+        tmp.flags = flags;
+        tmp.depth = depth;
+        if (bestMove && bestMove->from != bestMove->to) {
+            tmp.from = bestMove->from;
+            tmp.to = bestMove->to;
+        } else {
+            tmp.from = tmp.to = 0;
+        }
+
+        if (smp)MUTEX_HASH.lock();
+        memcpy(rootHash[HASH_GREATER], &tmp, sizeof(_Thash));
+        if (smp)MUTEX_HASH.unlock();
+
+
+#ifdef DEBUG_MODE
+        if (flags == hashfALPHA) {
+            nRecordHashA++;
+        } else if (flags == hashfBETA) {
+            nRecordHashB++;
+        } else {
+            nRecordHashE++;
+        }
+#endif
+        tmp.entryAge = 1;
+
+        if (smp)MUTEX_HASH.lock();
+        if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {
+            INC(collisions);
+            if (smp)MUTEX_HASH.unlock();
+            return;
+        }
+        memcpy(rootHash[HASH_ALWAYS], &tmp, sizeof(_Thash));
+        if (smp)MUTEX_HASH.unlock();
+
+    }
 
 private:
     Hash();
-
     void dispose();
-
     _Thash *hashArray[2];
     mutex MUTEX_HASH;
 };

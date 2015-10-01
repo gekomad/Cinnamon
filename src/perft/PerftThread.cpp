@@ -32,7 +32,7 @@ void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) 
     this->to = to1;
 }
 
-template<int side, bool useHash>
+template<int side, bool useHash, bool smp>
 u64 PerftThread::search(const int depthx) {
     checkWait();
     if (depthx == 0) {
@@ -45,12 +45,15 @@ u64 PerftThread::search(const int depthx) {
 
     if (useHash) {
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
-        lock_guard<mutex> lock(MUTEX_HASH);
+        if (smp)MUTEX_HASH.lock();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
             partialTot += phashe->nMoves;
-            return phashe->nMoves;
+            u64 r = phashe->nMoves;
+            if (smp)MUTEX_HASH.unlock();
+            return r;
         }
+        if (smp)MUTEX_HASH.unlock();
     }
     int listcount;
     _Tmove *move;
@@ -72,14 +75,15 @@ u64 PerftThread::search(const int depthx) {
         move = getMove(ii);
         u64 keyold = chessboard[ZOBRISTKEY_IDX];
         makemove(move, false, false);
-        n_perft += search<side ^ 1, useHash>(depthx - 1);
+        n_perft += search<side ^ 1, useHash, smp>(depthx - 1);
         takeback(move, keyold, false);
     }
     decListId();
     if (useHash) {
-        lock_guard<mutex> lock(MUTEX_HASH);
+        if (smp) MUTEX_HASH.lock();
         phashe->key = zobristKeyR;
         phashe->nMoves = n_perft;
+        if (smp) MUTEX_HASH.unlock();
     }
     return n_perft;
 }
@@ -110,15 +114,15 @@ void PerftThread::run() {
 
         if (fhash) {
             if (side == WHITE) {
-                n_perft = search<WHITE, USE_HASH_YES>(tPerftRes->depth - 1);
+                n_perft = smp ? search<WHITE, USE_HASH_YES, true>(tPerftRes->depth - 1) : search<WHITE, USE_HASH_YES, false>(tPerftRes->depth - 1);
             } else {
-                n_perft = search<BLACK, USE_HASH_YES>(tPerftRes->depth - 1);
+                n_perft = smp ? search<BLACK, USE_HASH_YES, true>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_YES, false>(tPerftRes->depth - 1);
             }
         } else {//no hash
             if (side == WHITE) {
-                n_perft = search<WHITE, USE_HASH_NO>(tPerftRes->depth - 1);
+                n_perft = smp ? search<WHITE, USE_HASH_NO, true>(tPerftRes->depth - 1) : search<WHITE, USE_HASH_NO, false>(tPerftRes->depth - 1);
             } else {
-                n_perft = search<BLACK, USE_HASH_NO>(tPerftRes->depth - 1);
+                n_perft = smp ? search<BLACK, USE_HASH_NO, true>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_NO, false>(tPerftRes->depth - 1);
             }
         }
 

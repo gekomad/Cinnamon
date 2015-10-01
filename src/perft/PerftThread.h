@@ -50,7 +50,7 @@ private:
     static mutex mutexPrint;
     u64 tot = 0;
 
-    template<int side, bool useHash>
+    template<int side, bool useHash, bool smp>
     u64 search(const int depthx);
 
     int from, to;
