@@ -45,7 +45,7 @@ public:
 
 private:
 
-    static mutex MUTEX_HASH;
+    static mutex mutexHash;
 
     static mutex mutexPrint;
     u64 tot = 0;

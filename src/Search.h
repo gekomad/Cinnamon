@@ -184,7 +184,7 @@ private:
         phashe = &checkHashStruct.phasheType[type];
 
 
-        if (hash->readHash<smp>(checkHashStruct.rootHash, type, zobristKeyR, phashe)) {
+        if (hash->readHash<smp,type>(checkHashStruct.rootHash, zobristKeyR, phashe)) {
             if (phashe->from != phashe->to && phashe->flags & 0x3) {    // hashfEXACT or hashfBETA
                 checkHashStruct.hashFlag[type] = true;
             }

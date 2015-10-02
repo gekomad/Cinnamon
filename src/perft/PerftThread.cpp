@@ -19,7 +19,7 @@
 #include "PerftThread.h"
 #include "Perft.h"
 
-mutex PerftThread::MUTEX_HASH;
+mutex PerftThread::mutexHash;
 mutex PerftThread::mutexPrint;
 
 PerftThread::PerftThread() { }
@@ -45,15 +45,15 @@ u64 PerftThread::search(const int depthx) {
 
     if (useHash) {
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
-        if (smp)MUTEX_HASH.lock();
+        if (smp)mutexHash.lock();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
             partialTot += phashe->nMoves;
             u64 r = phashe->nMoves;
-            if (smp)MUTEX_HASH.unlock();
+            if (smp)mutexHash.unlock();
             return r;
         }
-        if (smp)MUTEX_HASH.unlock();
+        if (smp)mutexHash.unlock();
     }
     int listcount;
     _Tmove *move;
@@ -80,10 +80,10 @@ u64 PerftThread::search(const int depthx) {
     }
     decListId();
     if (useHash) {
-        if (smp) MUTEX_HASH.lock();
+        if (smp) mutexHash.lock();
         phashe->key = zobristKeyR;
         phashe->nMoves = n_perft;
-        if (smp) MUTEX_HASH.unlock();
+        if (smp) mutexHash.unlock();
     }
     return n_perft;
 }
