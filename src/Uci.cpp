@@ -113,7 +113,7 @@ void Uci::listner(IterativeDeeping *it) {
                 perft->join();
                 perft->start();
             } else {
-                cout << "use: perft depth d [nCpu n] [hash_size mb] [fen fen_string] [dumpFile file_name]\n";
+                cout << "use: perft depth d [nCpu n] [hash_size mb [dumpFile file_name]] [fen fen_string]\n";
             }
             knowCommand = true;
         } else if (token == "dump") {
