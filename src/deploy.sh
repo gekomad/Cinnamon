@@ -19,6 +19,7 @@ do
 	ssh geko@$ip "mkdir test" >/dev/null
 	echo "scp /tmp/deploy/$UUID.tar.gz geko@$ip:test"
 	scp /tmp/deploy/$UUID.tar.gz geko@$ip:test
+	ssh geko@$ip "touch /home/geko/test/ok_ftp"
 done
 exit 0
  
