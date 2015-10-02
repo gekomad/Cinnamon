@@ -202,8 +202,6 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
         if (score > alpha) {
             if (score >= beta) {
                 decListId();
-                ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
-                ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
                 hash->recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth, Hash::hashfBETA, zobristKeyR, score, move);
                 return beta;
             }
@@ -212,8 +210,6 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
             hashf = Hash::hashfEXACT;
         }
     }
-    ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
-    ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
     hash->recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth, hashf, zobristKeyR, score, best);
 
     decListId();
@@ -235,7 +231,6 @@ void Search::setRunning(int r) {
 int Search::getRunning() {
     if (!runningThread)return 0;
     return GenMoves::getRunning();
-
 }
 
 void Search::setMaxTimeMillsec(int n) {
@@ -530,8 +525,6 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                 ASSERT(move->score == score);
                 INC(nCutAB);
                 ADD(betaEfficiency, betaEfficiencyCount / (double) listcount * 100.0);
-                ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
-                ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
                 hash->recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
                 setKillerHeuristic(move->from, move->to, 0x400);
                 //TODO rivedere killer e history
@@ -544,8 +537,6 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             updatePv(pline, &line, move);
         }
     }
-    ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
-    ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
     hash->recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth - extension, hashf, zobristKeyR, score, best);
     decListId();
     return score;

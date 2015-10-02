@@ -45,6 +45,23 @@ namespace _board {
     const string DTM_HELP = "-dtm -f \"fen position\" [-p path] [-s scheme] [-i installed pieces]";
     const string ENDGAME_HELP = "-endgame_epd -t KRKP | KQKP | KBBKN | KQKR | KRKB | KRKN";
 
+    static const int PAWN_BLACK = 0;
+    static const int PAWN_WHITE = 1;
+    static const int ROOK_BLACK = 2;
+    static const int ROOK_WHITE = 3;
+    static const int BISHOP_BLACK = 4;
+    static const int BISHOP_WHITE = 5;
+    static const int KNIGHT_BLACK = 6;
+    static const int KNIGHT_WHITE = 7;
+    static const int KING_BLACK = 8;
+    static const int KING_WHITE = 9;
+    static const int QUEEN_BLACK = 10;
+    static const int QUEEN_WHITE = 11;
+    static const int SQUARE_FREE = 12;
+
+    static const u64 CENTER_MASK = 0x1818000000ULL;
+    static const u64 BIG_DIAG_LEFT = 0x102040810204080ULL;
+    static const u64 BIG_DIAG_RIGHT = 0x8040201008040201ULL;
 
     typedef struct {
         char promotionPiece;

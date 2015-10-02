@@ -247,7 +247,6 @@ public:
 
     bool makemove(_Tmove *move, bool rep = true, bool = false);
 
-    //bool isPinned(const int side, const uchar Position, const uchar piece);
     void incListId() {
         listId++;
 #ifdef DEBUG_MODE
@@ -314,6 +313,8 @@ protected:
     u64 numMoves = 0;
     u64 numMovesq = 0;
 
+    int killerHeuristic[64][64];
+
     _Tmove *getNextMove(decltype(gen_list));
 
     template<int side>
@@ -337,9 +338,6 @@ protected:
     void initKillerHeuristic();
 
     void pushRepetition(u64);
-
-    int killerHeuristic[64][64];
-
 
     template<int side, uchar type>
     bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {

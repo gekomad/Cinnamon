@@ -21,6 +21,7 @@ set(SOURCE_FILES
         util/Singleton.h
         util/String.cpp
         util/String.h
+        util/GetOpt.h
         blockingThreadPool/Thread.h
         blockingThreadPool/ThreadPool.h
         blockingThreadPool/ObserverThread.h

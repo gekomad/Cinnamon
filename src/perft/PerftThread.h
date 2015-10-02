@@ -51,7 +51,7 @@ private:
     u64 tot = 0;
 
     template<int side, bool useHash, bool smp>
-    u64 search(const int depthx);
+    u64 search(const int depth);
 
     int from, to;
     _TPerftRes *tPerftRes;
