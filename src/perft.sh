@@ -1,4 +1,4 @@
-engine=./cinnamon
+engine=/home/geko/chess/engines/cinnamon12c_16
 dir_log=/home/geko/perft
 
 mkdir -p $dir_log
