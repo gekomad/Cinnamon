@@ -22,7 +22,6 @@
 #include <mutex>
 #include <stdio.h>
 #include <stdlib.h>
-#include <execinfo.h>
 #include <cxxabi.h>
 
 namespace _debug {
@@ -61,7 +60,7 @@ namespace _debug {
 #if defined(_WIN32) || !defined(DEBUG_MODE)
     static inline void print_stacktrace() { }
 #else
-
+#include <execinfo.h>
 /// (c) 2008, Timo Bingmann from http://idlebox.net/
 /// published under the WTFPL v2.0
 //Print a demangled stack backtrace of the caller function to FILE* out.
