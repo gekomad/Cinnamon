@@ -86,7 +86,7 @@ private:
 
     _TPerftRes perftRes;
     high_resolution_clock::time_point start1;
-
+    void runLocale() ;
     string fen;
     string dumpFile;
     u64 mbSize;

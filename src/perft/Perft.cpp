@@ -143,7 +143,7 @@ void Perft::setParam(string fen1, int depth1, string distributedNodes) {
     dumping = false;
     Perft::distributedNodes = distributedNodes;
 
-    IniFile iniFile("/home/geko/workspace/cinnamon/src/perft_distributed_nodes.ini");
+    IniFile iniFile(distributedNodes);
     string nodeIp;
     int nodeNcores;
     int nodeHash;
@@ -197,8 +197,7 @@ void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dum
     dumping = false;
 }
 
-void Perft::run() {
-
+void Perft::runLocale() {
     if (!load()) {
         perftRes.hash = nullptr;
         if (mbSize) {
@@ -274,6 +273,11 @@ void Perft::run() {
     perftThread.setParam(fen, s, listcount, &perftRes);
     startAll();
     joinAll();
+}
+
+void Perft::run() {
+    runLocale();
+//    runDistributed();
 }
 
 void Perft::endRun() {
