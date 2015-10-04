@@ -44,6 +44,8 @@ pair<string, string> *IniFile::get() {
         getline(inData, line2);
         if (line2.size() == 0)continue;
         String line(line2);
+        line.replace('\t',' ');
+        line.replace('=',' ');
         line.trim();
         if (line.at(0) == '#')continue;
         stringstream ss(line);

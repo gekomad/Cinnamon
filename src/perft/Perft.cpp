@@ -16,8 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <set>
 #include "Perft.h"
 #include "_TPerftRes.h"
+#include "../util/IniFile.h"
 
 int Perft::count;
 
@@ -128,6 +130,57 @@ void Perft::alloc() {
         cout << "alloc hash[" << i << "] " << perftRes.sizeAtDepth[i] * sizeof(_ThashPerft) << endl;
 #endif
 
+    }
+}
+
+void Perft::setParam(string fen1, int depth1, string distributedNodes) {
+    Perft::forceExit = true;
+
+    if (depth1 <= 0)depth1 = 1;
+    perftRes.depth = depth1;
+    fen = fen1;
+    count = 0;
+    dumping = false;
+    Perft::distributedNodes = distributedNodes;
+
+    IniFile iniFile("/home/geko/workspace/cinnamon/src/perft_distributed_nodes.ini");
+    string nodeIp;
+    int nodeNcores;
+    int nodeHash;
+    string nodeDumpfile;
+    std::set<tuple<string, int, int, string>> nodesSet;
+    bool newNode = false;
+    while (true) {
+        pair<string, string> *parameters = iniFile.get();
+        if (!parameters) {
+            break;
+        }
+        if (parameters->first == "[node]") {
+            if (newNode) {
+                nodesSet.insert(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
+            }
+            newNode = true;
+        } else if (parameters->first == "ip") {
+            nodeIp = parameters->second;
+            assert(nodeIp.size() > 0);
+        } else if (parameters->first == "core") {
+            nodeNcores = stoi(parameters->second);
+            assert(nodeNcores > 0);
+        } else if (parameters->first == "hash") {
+            nodeHash = 0;
+            if (parameters->second.size()) {
+                nodeHash = stoi(parameters->second);
+            }
+        }
+        else if (parameters->first == "dump_file") {
+            nodeDumpfile = parameters->second;
+
+        }
+
+    }
+    if (newNode) {
+        auto node = make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile);
+        nodesSet.insert(node);
     }
 }
 

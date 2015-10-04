@@ -20,6 +20,7 @@
 
 Uci::Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile) {
     perft = &Perft::getInstance();
+//    perft->setParam(fen, perftDepth,"");
     perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
     runPerft = true;
     startListner();
