@@ -43,6 +43,8 @@ private:
     char buffer[256];
     int portno;
     int sockfd = -1;
-
+    int socket_desc, client_sock, c, read_size;
+    struct sockaddr_in server, client;
+    char client_message[2000];
     void dispose();
 };

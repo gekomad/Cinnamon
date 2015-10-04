@@ -20,33 +20,39 @@
 #include "Server.h"
 
 void Server::run() {
-    while (true) {
-        struct sockaddr_in cli_addr;
 
-        listen(sockfd, 5);
-        socklen_t clilen = sizeof(cli_addr);
-        int newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-        if (newsockfd < 0) {
-            cout << "server ERROR on accept" << endl;
-            return;
+    while (1) {
+
+
+        //Listen
+        listen(socket_desc, 3);
+
+        //Accept and incoming connection
+        puts("Waiting for incoming connections...");
+        c = sizeof(struct sockaddr_in);
+
+        //accept connection from an incoming client
+        client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
+        if (client_sock < 0) {
+            perror("accept failed");
+            return ;
+        }
+        puts("Connection accepted");
+
+        //Receive a message from client
+        while ((read_size = recv(client_sock, client_message,  Server::MAX_MSG_SIZE, 0)) > 0) {
+            printf("read %s\n", client_message);
+            //Send the message back to client
+            write(client_sock, client_message, strlen(client_message));
         }
 
-        bzero(buffer, MAX_MSG_SIZE);
-        int n = read(newsockfd, buffer, MAX_MSG_SIZE-1);
-        if (n < 0) {
-            cout << "server ERROR reading from socket" << endl;
-            close(newsockfd);
-            return;
+        if (read_size == 0) {
+            puts("Client disconnected");
+            fflush(stdout);
         }
-        cout << "server - Here is the message: " << buffer << endl;
-
-        n = write(newsockfd, "I got your message", 18);
-        if (n < 0) {
-            cout << "server ERROR writing to socket" << endl;
-            close(newsockfd);
-            return;
+        else if (read_size == -1) {
+            perror("recv failed");
         }
-        close(newsockfd);
     }
 }
 
@@ -63,22 +69,33 @@ Server::~Server() {
 }
 
 Server::Server(int port) {
-    struct sockaddr_in serv_addr;
-    Server::portno = port;
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) {
-        cout << "server ERROR opening socket" << endl;
-        return;
-    }
-    bzero((char *) &serv_addr, sizeof(serv_addr));
+    portno = port;
 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(portno);
-    if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-        cout << "server ERROR on binding" << endl;
-        dispose();
-        exit(1);
+
+    //Create socket
+    socket_desc = socket(AF_INET, SOCK_STREAM, 0);
+    if (socket_desc == -1) {
+        printf("Could not create socket");
     }
+    puts("Socket created");
+
+    //Prepare the sockaddr_in structure
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons(portno);
+
+    int on = 1;
+    printf("setsockopt(SO_REUSEADDR)\n");
+    if (setsockopt(socket_desc, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0) {
+        perror("setsockopt(SO_REUSEADDR) failed");
+    }
+
+    //Bind
+    if (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) < 0) {
+        //print the error message
+        perror("bind failed. Error");
+        return ;
+    }
+    puts("bind done");
 
 }

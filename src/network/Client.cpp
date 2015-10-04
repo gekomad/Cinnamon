@@ -18,45 +18,44 @@
 
 
 #include "Client.h"
-#include "../namespaces/def.h"
+
 #include "Server.h"
 
-void Client::sendMsg(string msg) {
+void Client::sendMsg(string m) {
     assert(msg.size() < Server::MAX_MSG_SIZE)
-    int sockfd, n;
-    struct sockaddr_in serv_addr;
-    struct hostent *server;
+    msg = m;
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) {
-        cout << "client ERROR opening socket" << endl;
-        return;
-    }
-    server = gethostbyname(host.c_str());
+}
 
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy(server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
-    serv_addr.sin_port = htons(portno);
-    if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-        cout << "client ERROR connecting" << endl;
-        return;
-    }
+void Client::run() {
 
-    n = write(sockfd, msg.c_str(), strlen(msg.c_str()));
-    if (n < 0) {
-        cout << "client ERROR writing to socket" << endl;
-        return;
-    }
-    char buffer[256];
-    bzero(buffer, 256);
-    n = read(sockfd, buffer, 255);
-    if (n < 0) {
-        cout << "client ERROR reading from socket" << endl;
-        return;
-    }
 
-    cout << "client msg ricevuto: " << buffer << endl;
-    close(sockfd);
+    struct sockaddr_in server;
+    char server_reply[ Server::MAX_MSG_SIZE];
+
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    assert(sock != -1);
+
+    cout<<"Socket created\n";
+
+    server.sin_addr.s_addr = inet_addr(host.c_str());
+    server.sin_family = AF_INET;
+    server.sin_port = htons(portno);
+
+    assert(connect(sock, (struct sockaddr *) &server, sizeof(server)) >= 0);
+
+    cout<<"Connected\n";
+
+    assert (send(sock, msg.c_str(), strlen(msg.c_str()) + 1, 0) >=0);
+
+
+    assert(recv(sock, server_reply,  Server::MAX_MSG_SIZE, 0)  >=0);
+
+    cout<<"Server reply: "<<server_reply<<"\n";
+
+    close(sock);
+}
+
+void Client::endRun() {
 
 }

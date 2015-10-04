@@ -27,19 +27,27 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <iostream>
+#include "../blockingThreadPool/Thread.h"
+#include<stdio.h> //printf
+#include<string.h>    //strlen
+#include<sys/socket.h>    //socket
+#include<arpa/inet.h> //inet_addr
 
 using namespace std;
 
-class Client {
+class Client  : public Thread{
 public:
     Client(string host, int port) {
         Client::portno = port;
         Client::host = host;
     }
+    virtual void run();
 
+    virtual void endRun();
     void sendMsg(string msg);
 
 private:
     int portno;
     string host;
+    string msg;
 };
