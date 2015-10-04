@@ -29,11 +29,19 @@ String::String(int d) {
 
 String::~String() { }
 
+String String::trim() {
+    trimLeft();
+    trimRight();
+    return *this;
+}
+
+String String::trimLeft() {
+    this->erase(this->begin(), std::find_if(this->begin(), this->end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+    return *this;
+}
+
 String String::trimRight() {
-    unsigned long pos = find_last_not_of(" ");
-    erase(pos + 1);
-    pos = find_last_not_of("\n");
-    erase(pos + 1);
+    this->erase(std::find_if(this->rbegin(), this->rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), this->end());
     return *this;
 }
 

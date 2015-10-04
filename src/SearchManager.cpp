@@ -25,29 +25,35 @@ SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
     hash = &Hash::getInstance();
     setNthread(nThreads);
 
-#if defined(DEBUG_MODE)
-    string parameterFile = "parameter.txt";
+    string parameterFile = "cinnamon.ini";
     if (!FileUtil::fileExists(parameterFile)) {
+#if defined(CLOP) || defined(DEBUG_MODE)
         cout << "warning file not found  " << parameterFile << endl;
+#endif
         return;
     }
     ifstream inData;
-    string svalue, line;
-    String param;
+    string svalue, line2;
+    string param;
     int value;
     inData.open(parameterFile);
     while (!inData.eof()) {
-        getline(inData, line);
+        getline(inData, line2);
+        if (line2.size() == 0)continue;
+        String line(line2);
+        line.trim();
+        if (line.at(0) == '#')continue;
         stringstream ss(line);
         ss >> param;
         ss >> svalue;
         value = stoi(svalue);
-        if (!setParameter(param, value)) {
+        if (param == "threads") {
+            setNthread(value);
+        } else if (!setParameter(param, value)) {
             cout << "error parameter " << param << " not defined\n";
         };
     }
     inData.close();
-#endif
 }
 
 void SearchManager::search(int mply) {

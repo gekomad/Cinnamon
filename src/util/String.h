@@ -37,6 +37,10 @@ public:
 
     virtual ~ String();
 
+    String trim();
+
+    String trimLeft();
+
     String trimRight();
 
     String replace(string s1, string s2);
