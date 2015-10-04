@@ -53,7 +53,12 @@ set(SOURCE_FILES
         Endgame.cpp
         Endgame.h
         Uci.cpp
-        Uci.h)
+        Uci.h
+        network/Server.cpp
+        network/Server.h
+        network/Client.cpp
+        network/Client.h
+)
 
 set(CMAKE_CXX_COMPILER "clang++")
 add_executable(cinnamon ${SOURCE_FILES})
