@@ -123,13 +123,13 @@ void printHeader() {
 
 int main(int argc, char **argv) {
     int port =8089;
-    Server s(port);
-    s.start();
-
-    Client c("127.0.0.1",port);
-    c.sendMsg("aaaaaaaaa");
+//    Server s(port);
+//    s.start();
+//
+//    Client c("127.0.0.1",port);
+//    c.sendMsg("aaaaaaaaa");
     printHeader();
-    c.sendMsg("ccccc");
+
     GetOpt::parse(argc, argv);
     return 0;
 }

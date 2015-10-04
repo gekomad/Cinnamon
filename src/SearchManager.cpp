@@ -17,6 +17,7 @@
 */
 
 #include "SearchManager.h"
+#include "util/IniFile.h"
 
 Hash *SearchManager::hash;
 
@@ -24,36 +25,27 @@ SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
     nThreads = getNthread();
     hash = &Hash::getInstance();
     setNthread(nThreads);
+    IniFile iniFile("cinnamon.ini");
 
-    string parameterFile = "cinnamon.ini";
-    if (!FileUtil::fileExists(parameterFile)) {
-#if defined(CLOP) || defined(DEBUG_MODE)
-        cout << "warning file not found  " << parameterFile << endl;
-#endif
-        return;
-    }
-    ifstream inData;
-    string svalue, line2;
-    string param;
-    int value;
-    inData.open(parameterFile);
-    while (!inData.eof()) {
-        getline(inData, line2);
-        if (line2.size() == 0)continue;
-        String line(line2);
-        line.trim();
-        if (line.at(0) == '#')continue;
-        stringstream ss(line);
-        ss >> param;
-        ss >> svalue;
-        value = stoi(svalue);
+    while (true) {
+        pair<string, string> *parameters = iniFile.get();
+        if (!parameters) {
+            break;
+        }
+        string param = parameters->first;
+        int value = stoi(parameters->second);
+        cout <<param<<endl;
+        cout <<value<<endl;
+
         if (param == "threads") {
             setNthread(value);
-        } else if (!setParameter(param, value)) {
-            cout << "error parameter " << param << " not defined\n";
-        };
+        } else {
+            if (!setParameter(param, value)) {
+                cout << "error parameter " << param << " not defined\n";
+            };
+        }
     }
-    inData.close();
+
 }
 
 void SearchManager::search(int mply) {

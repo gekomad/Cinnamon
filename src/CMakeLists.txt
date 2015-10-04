@@ -22,6 +22,8 @@ set(SOURCE_FILES
         util/String.cpp
         util/String.h
         util/GetOpt.h
+        util/IniFile.h
+        util/IniFile.cpp
         blockingThreadPool/Thread.h
         blockingThreadPool/ThreadPool.h
         blockingThreadPool/ObserverThread.h
