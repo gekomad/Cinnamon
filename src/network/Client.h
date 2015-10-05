@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
+
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
@@ -28,10 +27,8 @@
 #include <netdb.h>
 #include <iostream>
 #include "../blockingThreadPool/Thread.h"
-#include<stdio.h> //printf
-#include<string.h>    //strlen
-#include<sys/socket.h>    //socket
-#include<arpa/inet.h> //inet_addr
+
+#include<arpa/inet.h>
 
 using namespace std;
 

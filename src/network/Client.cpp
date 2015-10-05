@@ -31,12 +31,10 @@ void Client::run() {
 
 
     struct sockaddr_in server;
-    char server_reply[ Server::MAX_MSG_SIZE];
+    char server_reply[Server::MAX_MSG_SIZE];
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     assert(sock != -1);
-
-    cout<<"Socket created\n";
 
     server.sin_addr.s_addr = inet_addr(host.c_str());
     server.sin_family = AF_INET;
@@ -44,14 +42,12 @@ void Client::run() {
 
     assert(connect(sock, (struct sockaddr *) &server, sizeof(server)) >= 0);
 
-    cout<<"Connected\n";
-
-    assert (send(sock, msg.c_str(), strlen(msg.c_str()) + 1, 0) >=0);
+    assert (send(sock, msg.c_str(), strlen(msg.c_str()) + 1, 0) >= 0);
 
 
-    assert(recv(sock, server_reply,  Server::MAX_MSG_SIZE, 0)  >=0);
+    assert(recv(sock, server_reply, Server::MAX_MSG_SIZE, 0) >= 0);
 
-    cout<<"Server reply: "<<server_reply<<"\n";
+    cout << "Client::reply from servers: " << server_reply << "\n";
 
     close(sock);
 }

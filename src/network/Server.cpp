@@ -23,36 +23,20 @@ void Server::run() {
 
     while (1) {
 
-
-        //Listen
         listen(socket_desc, 3);
 
-        //Accept and incoming connection
-        puts("Waiting for incoming connections...");
         c = sizeof(struct sockaddr_in);
 
-        //accept connection from an incoming client
         client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
-        if (client_sock < 0) {
-            perror("accept failed");
-            return ;
-        }
-        puts("Connection accepted");
+        assert (client_sock >= 0);
 
-        //Receive a message from client
-        while ((read_size = recv(client_sock, client_message,  Server::MAX_MSG_SIZE, 0)) > 0) {
-            printf("read %s\n", client_message);
-            //Send the message back to client
+        while ((read_size = recv(client_sock, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
+            strcat(client_message," FROM SERVER");
+            cout << "Server::read " << client_message << "\n";
             write(client_sock, client_message, strlen(client_message));
         }
 
-        if (read_size == 0) {
-            puts("Client disconnected");
-            fflush(stdout);
-        }
-        else if (read_size == -1) {
-            perror("recv failed");
-        }
+        assert(read_size != -1);
     }
 }
 
@@ -71,31 +55,17 @@ Server::~Server() {
 Server::Server(int port) {
     portno = port;
 
-
-    //Create socket
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_desc == -1) {
-        printf("Could not create socket");
-    }
-    puts("Socket created");
+    assert (socket_desc != -1);
 
-    //Prepare the sockaddr_in structure
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(portno);
 
     int on = 1;
-    printf("setsockopt(SO_REUSEADDR)\n");
-    if (setsockopt(socket_desc, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0) {
-        perror("setsockopt(SO_REUSEADDR) failed");
-    }
+    assert(setsockopt(socket_desc, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) >= 0);
 
-    //Bind
-    if (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) < 0) {
-        //print the error message
-        perror("bind failed. Error");
-        return ;
-    }
-    puts("bind done");
+    assert (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) >= 0)
+
 
 }

@@ -27,8 +27,10 @@
 #include <mutex>
 #include "PerftThread.h"
 #include "../blockingThreadPool/ThreadPool.h"
-#include "_TPerftRes.h"
 #include <signal.h>
+#include <set>
+#include "_TPerftRes.h"
+#include "../util/IniFile.h"
 
 /*
 cat perft.html   | sed -e "s/xxxxxxa/\<img src=/g" | sed -e "s/xxxxxxb/>/g" >perft2.html
@@ -66,8 +68,9 @@ class Perft : public Thread, public ThreadPool<PerftThread>, public Singleton<Pe
 
 public:
 
-    void setParam(string fen, int depth, int nCpu, int mbSize, string dumpFile, bool forceExit);
-    void setParam(string fen1, int depth1, string distributedNodes) ;
+    void runLocale(string fen, int depth, int nCpu, int mbSize, string dumpFile, bool forceExit);
+
+    void runDistributed(string fen1, int depth1, string distributedNodes);
 
     ~Perft();
 
@@ -86,7 +89,9 @@ private:
 
     _TPerftRes perftRes;
     high_resolution_clock::time_point start1;
-    void runLocale() ;
+
+    void runLocale();
+
     string fen;
     string dumpFile;
     u64 mbSize;
@@ -110,8 +115,10 @@ private:
     }
 
     static bool dumping;
-
+    std::set<tuple<string, int, int, string>> nodesSet;
     bool forceExit = false;
     string distributedNodes;
+
+    void addNode(string basic_string, int ncores, int hash, string basicString);
 };
 

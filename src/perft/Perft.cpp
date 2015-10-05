@@ -16,10 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <set>
+
 #include "Perft.h"
-#include "_TPerftRes.h"
-#include "../util/IniFile.h"
 
 int Perft::count;
 
@@ -133,7 +131,7 @@ void Perft::alloc() {
     }
 }
 
-void Perft::setParam(string fen1, int depth1, string distributedNodes) {
+void Perft::runDistributed(string fen1, int depth1, string distributedNodes) {
     Perft::forceExit = true;
 
     if (depth1 <= 0)depth1 = 1;
@@ -148,7 +146,7 @@ void Perft::setParam(string fen1, int depth1, string distributedNodes) {
     int nodeNcores;
     int nodeHash;
     string nodeDumpfile;
-    std::set<tuple<string, int, int, string>> nodesSet;
+
     bool newNode = false;
     while (true) {
         pair<string, string> *parameters = iniFile.get();
@@ -157,7 +155,7 @@ void Perft::setParam(string fen1, int depth1, string distributedNodes) {
         }
         if (parameters->first == "[node]") {
             if (newNode) {
-                nodesSet.insert(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
+                addNode(nodeIp, nodeNcores, nodeHash, nodeDumpfile);
             }
             newNode = true;
         } else if (parameters->first == "ip") {
@@ -171,20 +169,18 @@ void Perft::setParam(string fen1, int depth1, string distributedNodes) {
             if (parameters->second.size()) {
                 nodeHash = stoi(parameters->second);
             }
-        }
-        else if (parameters->first == "dump_file") {
+        } else if (parameters->first == "dump_file") {
             nodeDumpfile = parameters->second;
 
         }
 
     }
     if (newNode) {
-        auto node = make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile);
-        nodesSet.insert(node);
+        addNode(nodeIp, nodeNcores, nodeHash, nodeDumpfile);
     }
 }
 
-void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1, bool forceexit) {
+void Perft::runLocale(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1, bool forceexit) {
     Perft::forceExit = forceexit;
     memset(&perftRes, 0, sizeof(_TPerftRes));
     if (depth1 <= 0)depth1 = 1;
@@ -324,4 +320,13 @@ void Perft::status() {
     auto end1 = std::chrono::high_resolution_clock::now();
     int sec = Time::diffTime(end1, start1) / 1000;
     cout << Time::getLocalTime() << " partial tot: " << tot << " (" << ((tot / 1000) / sec) << " k nodes per seconds)" << endl;
+}
+
+void Perft::addNode(string nodeIp, int nodeNcores, int nodeHash, string nodeDumpfile) {
+    assert(nodeIp != "" && nodeNcores != -1 && nodeHash != -1 && nodeDumpfile != "*");
+    nodesSet.insert(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
+    nodeIp = "";
+    nodeNcores = -1;
+    nodeHash = -1;
+    nodeDumpfile = "*";
 }
