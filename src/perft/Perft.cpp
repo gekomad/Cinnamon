@@ -239,7 +239,7 @@ void Perft::runLocale() {
         signal(SIGINT, Perft::ctrlChandler);
         cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;
         cout << "type 'dump' to dump it now" << endl;
-        Timer t2(minutesToDump * 60);
+        Timer t2(minutesToDump);
         t2.registerObservers([this]() {
             dump();
         });
