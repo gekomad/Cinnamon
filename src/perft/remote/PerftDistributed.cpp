@@ -76,32 +76,30 @@ std::set<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(strin
 }
 
 void PerftDistributed::setParam(string fen1, int depth1, string distributedFile, int port1) {
-    PerftServer s(port1);
-    s.start();
-    usleep(10000);//wait complete startup
+
     if (fen1.empty()) {
         fen1 = STARTPOS;
     }
-
     depth = depth1;
     if (depth <= 0)depth = 1;
-//    perftRes.depth = depth1;
     fen = fen1;
-//    count = 0;
-//    dumping = false;
     port = port1;
+
     nodesSet = getRemoteNodes(distributedFile);
 
 }
 
 void PerftDistributed::run() {
+    PerftServer s(port);
+    s.start();
+    usleep(10000);//wait complete startup
     int tot = 20;// getNmoves();
     int from = 0;
-    ThreadPool<RemoteNode> threadPool(nodesSet.size());
+//    ThreadPool<RemoteNode> threadPool(nodesSet.size());
 
     Client c;
 
-    for (auto node:nodesSet) {
+    for (auto node: nodesSet) {
         string host = get<0>(node);
         int Ncpu = get<1>(node);
         int hashsize = get<2>(node);
