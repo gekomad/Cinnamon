@@ -203,19 +203,30 @@ void Perft::runDistributed(string fen1, int depth1, string distributedFile, int 
 }
 
 void Perft::runOnRemote(string fen1, int depth1, std::set<tuple<string, int, int, string>> nodesSets, int port) {
+    int tot = 20;// getNmoves();
+    int from = 0;
+    ThreadPool<RemoteNode> threadPool(nodesSets.size());
+
     Client c;
+
     for (auto node:nodesSets) {
         string host = get<0>(node);
         int Ncpu = get<1>(node);
         int hashsize = get<2>(node);
         string dumpFile1 = get<3>(node);
         String fen(fen1);
-        fen=fen.replace(' ', 1);
+        fen = fen.replace(' ', 1);
         String dumpFile(dumpFile1);
-        dumpFile=dumpFile.replace(' ', 1);
+        dumpFile = dumpFile.replace(' ', 1);
 
-        string a(fen + " " + String(depth1) + " " + String(hashsize) + " " + dumpFile);
+        int to = from + Ncpu;
+        if (to >= tot) {
+            to = tot - 1;
 
+        }
+
+        string a(fen + " " + String(depth1) + " " + String(hashsize) + " " + dumpFile, from, to);
+        from += to;
         c.sendMsg(host, port, a);
     }
 }

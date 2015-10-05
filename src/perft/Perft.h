@@ -30,6 +30,7 @@
 #include <signal.h>
 #include <set>
 #include "_TPerftRes.h"
+#include "RemoteNode.h"
 #include "../util/IniFile.h"
 
 /*
