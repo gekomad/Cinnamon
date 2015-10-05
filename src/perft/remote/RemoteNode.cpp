@@ -21,8 +21,12 @@
 
 void RemoteNode::run() {
     string a = Message::serialize(m);
-    c.sendMsg(host, port, a);
-    sleep
+    //c.sendMsg(host, port, a);
+    mutex mtx;
+
+
+    unique_lock<std::mutex> lck(mtx);
+    cv.wait(lck, [this](){return end == 1;});
 }
 
 void RemoteNode::endRun() {

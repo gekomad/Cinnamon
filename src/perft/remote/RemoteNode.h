@@ -32,13 +32,17 @@ public:
     virtual void run();
 
     virtual void endRun();
-
+void endWork(){
+    end=1;
+    cv.notify_all();
+}
 
 private:
     string host;
     Client c;
     Message::_Tmessage m;
     int port;
-
+    condition_variable cv;
+    int end =0;
 };
 

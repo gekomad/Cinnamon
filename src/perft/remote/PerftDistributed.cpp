@@ -113,9 +113,8 @@ void PerftDistributed::run() {
         remoteNode.setParam(port, fen, depth, from, to, nodesSet[i]);
     }
     startAll();
-    sleep(1);
-    cout <<"a";
-threadPool[0]->setGo(0);
+
+    threadPool[0]->endWork();dal server in base all'ip
     joinAll();
 
 }
