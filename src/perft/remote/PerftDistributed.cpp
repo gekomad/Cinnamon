@@ -103,7 +103,7 @@ void PerftDistributed::run() {
         c += std::get<1>(nodesSet[totMachine]);
         if (c >= totMoves)break;
     }
-    totMachine++;
+    totMachine;
     int form = 0;
     int to = 0;
     setNthread(totMachine);
@@ -113,6 +113,9 @@ void PerftDistributed::run() {
         remoteNode.setParam(port, fen, depth, from, to, nodesSet[i]);
     }
     startAll();
+    sleep(1);
+    cout <<"a";
+threadPool[0]->setGo(0);
     joinAll();
 
 }

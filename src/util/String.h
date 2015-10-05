@@ -22,6 +22,8 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
+#include "String.h"
+
 
 using namespace std;
 
@@ -34,7 +36,7 @@ public:
     String(char *s) : string(s) { };
 
     String(int);
-
+    String(unsigned long long );
     virtual ~ String();
 
     String trim();

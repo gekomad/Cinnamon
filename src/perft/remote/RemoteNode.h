@@ -26,28 +26,23 @@
 class RemoteNode : public Thread {
 
 public:
-    void setParam(int port, string fen, int depth, int from, int to, tuple<string, int, int, string> node) {
-        string host = get<0>(node);
-        int Ncpu = get<1>(node);
-        int hashsize = get<2>(node);
-        string dumpFile = get<3>(node);
-        Message::_Tmessage m;
-        m.fen = fen;
-        m.depth = depth;
-        m.dumpFile = dumpFile;
-        m.hashsize = hashsize;
-        m.from = from;
-        m.to = to;
-        string a = Message::serialize(m);
 
-
-        Client c;
-        c.sendMsg(host, port, a);
-    }
+    void setParam(const int port, const string fen, const int depth, const int from, const int to, const tuple<string, int, int, string> node);
 
     virtual void run();
 
     virtual void endRun();
 
+    void setGo(unsigned int go) {
+        RemoteNode::go = go;
+    }
+
+private:
+    string host;
+    Client c;
+    Message::_Tmessage m;
+    int port;
+
+    volatile unsigned go=24*365*100;
 };
 

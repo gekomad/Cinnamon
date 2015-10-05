@@ -18,7 +18,14 @@
 
 #include "String.h"
 
+
 String::String() {
+}
+
+String::String(unsigned long long  d) {
+    stringstream ss;
+    ss << d;
+    assign(ss.str());
 }
 
 String::String(int d) {

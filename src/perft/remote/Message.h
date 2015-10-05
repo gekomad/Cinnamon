@@ -24,24 +24,30 @@ using namespace _debug;
 class Message {
 
 public:
+
     typedef struct {
+//        string host;
         string fen;
         string dumpFile;
         int depth;
         int hashsize;
         int from;
         int to;
+//        unsigned long long partial;
+//        unsigned long long tot;
     } _Tmessage;
 
     const static char SEPARATOR = 1;
 
     bool static compare(_Tmessage &a, _Tmessage &b) {
         if (a.depth != b.depth ||
+//            ||a.host != b.host
             a.dumpFile != a.dumpFile ||
             a.fen != b.fen ||
             a.from != b.from ||
             a.to != b.to ||
             a.hashsize != b.hashsize
+//            || a.partial != b.partial|| a.tot != b.tot
                 )
             return false;
         return true;
@@ -50,8 +56,9 @@ public:
     string static serialize(_Tmessage &m) {
 
         char a[Server::MAX_MSG_SIZE];
-
         memset(a, 0, Server::MAX_MSG_SIZE);
+//        strcat(a, m.host.c_str());
+//        a[strlen(a)] = SEPARATOR;
         strcat(a, m.fen.c_str());
         a[strlen(a)] = SEPARATOR;
         strcat(a, String(m.depth).c_str());
@@ -63,6 +70,10 @@ public:
         strcat(a, String(m.from).c_str());
         a[strlen(a)] = SEPARATOR;
         strcat(a, String(m.to).c_str());
+//        a[strlen(a)] = SEPARATOR;
+//        strcat(a, String(m.partial).c_str());
+//        a[strlen(a)] = SEPARATOR;
+//        strcat(a, String(m.tot).c_str());
 
         string b(a);
 #ifdef DEBUG_MODE

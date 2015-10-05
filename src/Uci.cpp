@@ -23,7 +23,7 @@ Uci::Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFil
     //    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
 //    runPerft = true;
     perftDistributed = &PerftDistributed::getInstance();
-    perftDistributed->setParam(fen, perftDepth, "/home/geko/workspace/workspace_my/cinnamon/src/perft_distributed_nodes.ini", 8888);
+    perftDistributed->setParam(fen, perftDepth, "/home/geko/workspace/cinnamon/src/perft_distributed_nodes.ini", 8888);
 
     runPerftDistributed = true;
     startListner();
