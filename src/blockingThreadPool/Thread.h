@@ -106,10 +106,6 @@ public:
         threadID = id;
     }
 
-    void threadSleep(bool b) {
-        running = !b;
-    }
-
     bool isJoinable() {
         return theThread.joinable();
     }

@@ -33,9 +33,6 @@ public:
 
     virtual void endRun();
 
-    void setGo(unsigned int go) {
-        RemoteNode::go = go;
-    }
 
 private:
     string host;
@@ -43,6 +40,5 @@ private:
     Message::_Tmessage m;
     int port;
 
-    volatile unsigned go=24*365*100;
 };
 

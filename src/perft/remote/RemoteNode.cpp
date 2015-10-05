@@ -22,10 +22,7 @@
 void RemoteNode::run() {
     string a = Message::serialize(m);
     c.sendMsg(host, port, a);
-    mutex mtx;
-    unique_lock<mutex> lck(mtx);
-    condition_variable cv;
-    cv.wait_for(lck, chrono::hours(go));//TODO provare se esce con 0
+    sleep
 }
 
 void RemoteNode::endRun() {
