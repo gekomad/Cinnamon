@@ -178,6 +178,8 @@ void Perft::runDistributed(string fen1, int depth1, string distributedNodes) {
     if (newNode) {
         addNode(nodeIp, nodeNcores, nodeHash, nodeDumpfile);
     }
+    cout <<nodesSet.size()<<" nodes\n";
+    cout <<"";
 }
 
 void Perft::runLocale(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1, bool forceexit) {
@@ -272,8 +274,12 @@ void Perft::runLocale() {
 }
 
 void Perft::run() {
-    runLocale();
-//    runDistributed();
+    if (1){
+        runLocale();
+    }
+//    else {
+//        runDistributed();
+//    }
 }
 
 void Perft::endRun() {

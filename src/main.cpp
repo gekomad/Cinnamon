@@ -122,20 +122,19 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
-    int port = 8082;
-    Server s(port);
-    s.start();
-    sleep(1);
-    Client c("127.0.0.1", port);
-    int i = 0;
-    while (1) {
-        sleep(1);
-        c.sendMsg("vff " + String(i++));
-        c.start();
-        c.join();
-    }
-    cout << "cccccccccc2" << endl;
-    return 0;
+//    int port = 8082;
+//    Server s(port);
+//    s.start();
+//    sleep(1);
+//    Client c("127.0.0.1", port);
+//    int i = 0;
+//    while (1) {
+//        sleep(1);
+//        c.sendMsg("vff " + String(i++));
+//        c.start();
+//        c.join();
+//    }
+
     printHeader();
 
     GetOpt::parse(argc, argv);
