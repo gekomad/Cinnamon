@@ -12,6 +12,7 @@ set(SOURCE_FILES
         perft/Perft.cpp
         perft/PerftThread.cpp
         perft/PerftServer.cpp
+        perft/RemoteNode.cpp
 
         util/Bits.cpp
         util/String.cpp
