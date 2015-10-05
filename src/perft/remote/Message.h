@@ -17,6 +17,7 @@
 */
 
 #include "../../namespaces/def.h"
+#include "../../network/Server.h"
 
 using namespace _debug;
 
@@ -48,9 +49,9 @@ public:
 
     string static serialize(_Tmessage &m) {
 
-        char a[1024];//TODO Server::MAX_MSG_SIZE];
+        char a[Server::MAX_MSG_SIZE];
 
-        memset(a, 0, 1024);//TODO Server::MAX_MSG_SIZE];
+        memset(a, 0, Server::MAX_MSG_SIZE);
         strcat(a, m.fen.c_str());
         a[strlen(a)] = SEPARATOR;
         strcat(a, String(m.depth).c_str());
