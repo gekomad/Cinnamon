@@ -18,7 +18,7 @@
 
 #include "Uci.h"
 #include "util/GetOpt.h"
-#include "perft/PerftServer.h"
+//#include "perft/PerftServer.h"
 #include "network/Client.h"
 
 /*

@@ -19,7 +19,7 @@
 #pragma once
 
 #include "IterativeDeeping.h"
-#include "perft/Perft.h"
+#include "perft/locale/Perft.h"
 #include <string.h>
 #include "util/String.h"
 
