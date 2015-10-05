@@ -30,7 +30,7 @@ namespace _def {
     typedef unsigned char uchar;
     typedef long long unsigned u64;
     typedef u64 _Tchessboard[16];
-
+    static const string OK = "OK";
 #if defined(CLOP) || defined(DEBUG_MODE)
 #define STATIC_CONST
 #else

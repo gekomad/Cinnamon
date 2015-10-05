@@ -26,10 +26,10 @@
 #include <netinet/in.h>
 #include "../blockingThreadPool/Thread.h"
 
-
 class Server : public Thread {
 public:
     static const int MAX_MSG_SIZE=1024;
+
     Server(int port);
 
     virtual void run();
@@ -40,10 +40,9 @@ public:
 
 private:
 
-    int portno;
     int sockfd = -1;
-    int socket_desc, client_sock, c, read_size;
-    struct sockaddr_in server, client;
-    char client_message[MAX_MSG_SIZE];
+
+    int socket_desc;
+
     void dispose();
 };

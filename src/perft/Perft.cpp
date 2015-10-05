@@ -18,6 +18,7 @@
 
 
 #include "Perft.h"
+#include "../network/Client.h"
 
 int Perft::count;
 
@@ -131,7 +132,7 @@ void Perft::alloc() {
     }
 }
 
-void Perft::runDistributed(string fen1, int depth1, string distributedNodes) {
+void Perft::runDistributed( string fen1, int depth1, string distributedFile) {
     Perft::forceExit = true;
 
     if (depth1 <= 0)depth1 = 1;
@@ -139,9 +140,8 @@ void Perft::runDistributed(string fen1, int depth1, string distributedNodes) {
     fen = fen1;
     count = 0;
     dumping = false;
-    Perft::distributedNodes = distributedNodes;
-
-    IniFile iniFile(distributedNodes);
+    std::set<tuple<string, int, int, string>> nodesSet;
+    IniFile iniFile(distributedFile);
     string nodeIp;
     int nodeNcores;
     int nodeHash;
@@ -155,7 +155,12 @@ void Perft::runDistributed(string fen1, int depth1, string distributedNodes) {
         }
         if (parameters->first == "[node]") {
             if (newNode) {
-                addNode(nodeIp, nodeNcores, nodeHash, nodeDumpfile);
+                assert(nodeIp != "" && nodeNcores != -1 && nodeHash != -1 && nodeDumpfile != "*");
+                nodesSet.insert(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
+                nodeIp = "";
+                nodeNcores = -1;
+                nodeHash = -1;
+                nodeDumpfile = "*";
             }
             newNode = true;
         } else if (parameters->first == "ip") {
@@ -176,10 +181,16 @@ void Perft::runDistributed(string fen1, int depth1, string distributedNodes) {
 
     }
     if (newNode) {
-        addNode(nodeIp, nodeNcores, nodeHash, nodeDumpfile);
+        assert(nodeIp != "" && nodeNcores != -1 && nodeHash != -1 && nodeDumpfile != "*");
+        nodesSet.insert(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
     }
-    cout <<nodesSet.size()<<" nodes\n";
-    cout <<"";
+    cout << nodesSet.size() << " nodes\n";
+    runDistributed(fen1, depth1, nodesSet);
+}
+
+void Perft::runDistributed(string fen1, int depth1, std::set<tuple<string, int, int, string>> nodesSets) {
+//    Client c(host, port);
+//    c.sendMsg("");
 }
 
 void Perft::runLocale(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1, bool forceexit) {
@@ -274,7 +285,7 @@ void Perft::runLocale() {
 }
 
 void Perft::run() {
-    if (1){
+    if (1) {
         runLocale();
     }
 //    else {
@@ -326,13 +337,4 @@ void Perft::status() {
     auto end1 = std::chrono::high_resolution_clock::now();
     int sec = Time::diffTime(end1, start1) / 1000;
     cout << Time::getLocalTime() << " partial tot: " << tot << " (" << ((tot / 1000) / sec) << " k nodes per seconds)" << endl;
-}
-
-void Perft::addNode(string nodeIp, int nodeNcores, int nodeHash, string nodeDumpfile) {
-    assert(nodeIp != "" && nodeNcores != -1 && nodeHash != -1 && nodeDumpfile != "*");
-    nodesSet.insert(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
-    nodeIp = "";
-    nodeNcores = -1;
-    nodeHash = -1;
-    nodeDumpfile = "*";
 }

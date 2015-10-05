@@ -20,22 +20,18 @@
 #include "Server.h"
 
 void Server::run() {
-
+    int read_size;
+    struct sockaddr_in client;
+    char client_message[MAX_MSG_SIZE];
     while (1) {
-
         listen(socket_desc, 3);
-
-        c = sizeof(struct sockaddr_in);
-
-        client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
+        int c = sizeof(struct sockaddr_in);
+        int client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
         assert (client_sock >= 0);
-
         while ((read_size = recv(client_sock, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
-            strcat(client_message," FROM SERVER");
             cout << "Server::read " << client_message << "\n";
-            write(client_sock, client_message, strlen(client_message));
+            write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
         }
-
         assert(read_size != -1);
     }
 }
@@ -52,20 +48,14 @@ Server::~Server() {
     dispose();
 }
 
-Server::Server(int port) {
-    portno = port;
-
+Server::Server(int portno) {
+    struct sockaddr_in server;
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
     assert (socket_desc != -1);
-
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(portno);
-
     int on = 1;
     assert(setsockopt(socket_desc, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) >= 0);
-
-    assert (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) >= 0)
-
-
+    assert (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) >= 0);
 }

@@ -122,18 +122,17 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
-//    int port = 8082;
-//    Server s(port);
-//    s.start();
-//    sleep(1);
-//    Client c("127.0.0.1", port);
-//    int i = 0;
-//    while (1) {
-//        sleep(1);
-//        c.sendMsg("vff " + String(i++));
-//        c.start();
-//        c.join();
-//    }
+    int port = 8082;
+    Server s(port);
+    s.start();
+    sleep(1);
+
+    int i = 0;
+    while (1) {
+        sleep(1);
+        Client::sendMsg("127.0.0.1",port,"vff " + String(i++));
+
+    }
 
     printHeader();
 
