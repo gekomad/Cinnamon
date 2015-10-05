@@ -16,36 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
 
+#include "PerftServer.h"
 
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include "../blockingThreadPool/Thread.h"
-
-class Server : public Thread {
-public:
-    static const int MAX_MSG_SIZE = 1024;
-
-    Server(int port);
-
-    virtual void run();
-
-    virtual void endRun();
-
-    ~Server();
-
-protected:
-    virtual void receive(string msg)=0;
-
-private:
-
-    int sockfd = -1;
-
-    int socket_desc;
-
-    void dispose();
+void PerftServer::receive(string msg) {
+    cout << "PerftServer " << msg << endl;
 };
+

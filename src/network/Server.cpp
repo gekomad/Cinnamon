@@ -32,6 +32,7 @@ void Server::run() {
             cout << "Server::read " << client_message << "\n";
             write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
         }
+        receive(string(client_message));
         assert(read_size != -1);
     }
 }

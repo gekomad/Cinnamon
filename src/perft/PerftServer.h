@@ -18,34 +18,28 @@
 
 #pragma once
 
-
-#include <string.h>
+#include "../Search.h"
+#include <iomanip>
+#include <atomic>
+#include <fstream>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include "../blockingThreadPool/Thread.h"
+#include "../util/Timer.h"
+#include <mutex>
+#include "PerftThread.h"
+#include "../blockingThreadPool/ThreadPool.h"
+#include <signal.h>
+#include <set>
+#include "_TPerftRes.h"
+#include "../util/IniFile.h"
+#include "../network/Server.h"
 
-class Server : public Thread {
-public:
-    static const int MAX_MSG_SIZE = 1024;
-
-    Server(int port);
-
-    virtual void run();
-
-    virtual void endRun();
-
-    ~Server();
+class PerftServer : public Server {
+public :
+    PerftServer(int port) : Server(port) { }
 
 protected:
-    virtual void receive(string msg)=0;
 
-private:
+    virtual void receive(string msg);
 
-    int sockfd = -1;
-
-    int socket_desc;
-
-    void dispose();
 };
+

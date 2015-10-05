@@ -14,6 +14,7 @@ set(SOURCE_FILES
         perft/Perft.cpp
         perft/Perft.h
         perft/PerftThread.cpp
+        perft/PerftServer.cpp
         perft/PerftThread.h
         util/Bits.cpp
         util/Bits.h

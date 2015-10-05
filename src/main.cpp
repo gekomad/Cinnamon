@@ -18,7 +18,7 @@
 
 #include "Uci.h"
 #include "util/GetOpt.h"
-#include "network/Server.h"
+#include "perft/PerftServer.h"
 #include "network/Client.h"
 
 /*
@@ -123,7 +123,7 @@ void printHeader() {
 
 int main(int argc, char **argv) {
     int port = 8082;
-    Server s(port);
+    PerftServer s(port);
     s.start();
     sleep(1);
 
