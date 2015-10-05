@@ -24,8 +24,6 @@
 #include "SearchManager.h"
 #include "blockingThreadPool/Thread.h"
 #include "OpenBook.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 class IterativeDeeping : public Thread {
 

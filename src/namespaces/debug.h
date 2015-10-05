@@ -20,8 +20,6 @@
 #pragma once
 
 #include <mutex>
-#include <stdio.h>
-#include <stdlib.h>
 #include <cxxabi.h>
 
 namespace _debug {
