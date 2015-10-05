@@ -9,10 +9,11 @@ if (DR_MEMORY STREQUAL "YES")
 endif ()
 
 set(SOURCE_FILES
-        perft/Perft.cpp
-        perft/PerftThread.cpp
-        perft/PerftServer.cpp
-        perft/RemoteNode.cpp
+        perft/locale/Perft.cpp
+        perft/locale/PerftThread.cpp
+        perft/remote/PerftServer.cpp
+        perft/remote/RemoteNode.cpp
+        perft/remote/PerftDistributed.cpp
 
         util/Bits.cpp
         util/String.cpp

@@ -26,7 +26,6 @@ class RemoteNode : public Thread {
 public:
 
 
-
     virtual void run();
 
     virtual void endRun();

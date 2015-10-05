@@ -27,11 +27,8 @@
 #include <mutex>
 #include "PerftThread.h"
 #include "../../blockingThreadPool/ThreadPool.h"
-#include <signal.h>
-#include <set>
 #include "_TPerftRes.h"
-#include "../remote/RemoteNode.h"
-#include "../../util/IniFile.h"
+#include <signal.h>
 
 /*
 cat perft.html   | sed -e "s/xxxxxxa/\<img src=/g" | sed -e "s/xxxxxxb/>/g" >perft2.html
@@ -69,9 +66,7 @@ class Perft : public Thread, public ThreadPool<PerftThread>, public Singleton<Pe
 
 public:
 
-    void runLocale(string fen, int depth, int nCpu, int mbSize, string dumpFile, bool forceExit);
-
-    void runDistributed(string fen1, int depth1, string distributedFile, int port);
+    void setParam(string fen, int depth, int nCpu, int mbSize, string dumpFile, bool forceExit);
 
     ~Perft();
 
@@ -90,8 +85,6 @@ private:
 
     _TPerftRes perftRes;
     high_resolution_clock::time_point start1;
-
-    void runLocale();
 
     string fen;
     string dumpFile;
@@ -119,7 +112,5 @@ private:
 
     bool forceExit = false;
 
-    void runOnRemote(string fen1, int depth1, std::set<tuple<string, int, int, string>> nodesSets, int port);
-    std::set<tuple<string, int, int, string>> getRemoteNodes(string distributedFile) ;
 };
 

@@ -18,34 +18,46 @@
 
 #pragma once
 
-
-#include <string.h>
+#include "../../Search.h"
+#include <iomanip>
+#include <atomic>
+#include <fstream>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include "../blockingThreadPool/Thread.h"
 
-class Server : public Thread {
+#include <mutex>
+
+#include "../../blockingThreadPool/ThreadPool.h"
+
+#include <set>
+
+#include "../remote/RemoteNode.h"
+#include "../../util/IniFile.h"
+
+
+class PerftDistributed : public Thread, public ThreadPool<RemoteNode>, public Singleton<PerftDistributed> {
+    friend class Singleton<PerftDistributed>;
+
 public:
-    static const int MAX_MSG_SIZE = 1024;
 
-    Server(int port);
+
+    void setParam(string fen1, int depth1, string distributedFile, int port);
+
+    ~PerftDistributed();
 
     virtual void run();
 
     virtual void endRun();
 
-    ~Server();
-
-protected:
-    virtual void receive(string msg) = 0;
 
 private:
+    std::set<tuple<string, int, int, string>> nodesSet;
 
-    int sockfd = -1;
+    PerftDistributed() : ThreadPool(1) { };
 
-    int socket_desc;
+    std::set<tuple<string, int, int, string>> getRemoteNodes(string distributedFile);
 
-    void dispose();
+    int depth;
+    string fen;
+    int port;
 };
+

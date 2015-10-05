@@ -18,7 +18,9 @@
 
 
 #include "Client.h"
+
 mutex Client::clientMutex;
+
 void Client::sendMsg(string host, int portno, string msg) {
     lock_guard<mutex> lock(clientMutex);
     assert(msg.size() < Server::MAX_MSG_SIZE)

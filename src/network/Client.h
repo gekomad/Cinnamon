@@ -34,7 +34,7 @@ using namespace std;
 class Client {
 public:
 
-    void sendMsg(string host, int portno, string msg) ;
+    void sendMsg(string host, int portno, string msg);
 
 private:
     static mutex clientMutex;

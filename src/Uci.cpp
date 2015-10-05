@@ -19,10 +19,13 @@
 #include "Uci.h"
 
 Uci::Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile) {
-    perft = &Perft::getInstance();
-    perft->runDistributed(fen, perftDepth,"/home/geko/workspace/workspace_my/cinnamon/src/perft_distributed_nodes.ini",8888);
-//    perft->runLocale(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
-    runPerft = true;
+//    perft = &Perft::getInstance();
+    //    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
+//    runPerft = true;
+    perftDistributed = &PerftDistributed::getInstance();
+    perftDistributed->setParam(fen, perftDepth, "/home/geko/workspace/workspace_my/cinnamon/src/perft_distributed_nodes.ini", 8888);
+
+    runPerftDistributed = true;
     startListner();
 }
 
@@ -56,6 +59,9 @@ void Uci::listner(IterativeDeeping *it) {
         if (runPerft) {
             runPerft = false;
             perft->start();
+        } else if (runPerftDistributed) {
+            runPerftDistributed = false;
+            perftDistributed->start();
         }
         getline(cin, command);
         istringstream uip(command, ios::in);
@@ -110,7 +116,7 @@ void Uci::listner(IterativeDeeping *it) {
                 }
                 searchManager.setHashSize(hashDepth);
                 perft = &Perft::getInstance();
-                perft->runLocale(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile, false);
+                perft->setParam(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile, false);
                 perft->join();
                 perft->start();
             } else {

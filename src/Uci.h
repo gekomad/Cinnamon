@@ -20,6 +20,7 @@
 
 #include "IterativeDeeping.h"
 #include "perft/locale/Perft.h"
+#include "perft/remote/PerftDistributed.h"
 #include <string.h>
 #include "util/String.h"
 
@@ -36,6 +37,7 @@ private:
     Uci();
 
     Perft *perft = nullptr;
+    PerftDistributed *perftDistributed = nullptr;
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
     bool uciMode;
@@ -48,5 +50,6 @@ private:
     void startListner();
 
     bool runPerft = false;
+    bool runPerftDistributed=false;
 };
 
