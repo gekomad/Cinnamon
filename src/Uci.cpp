@@ -20,7 +20,7 @@
 
 Uci::Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile) {
     perft = &Perft::getInstance();
-    perft->runDistributed(fen, perftDepth,"/home/geko/workspace/workspace_my/cinnamon/src/perft_distributed_nodes.ini");
+    perft->runDistributed(fen, perftDepth,"/home/geko/workspace/workspace_my/cinnamon/src/perft_distributed_nodes.ini",8888);
 //    perft->runLocale(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
     runPerft = true;
     startListner();

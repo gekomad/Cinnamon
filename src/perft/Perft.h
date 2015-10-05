@@ -70,7 +70,7 @@ public:
 
     void runLocale(string fen, int depth, int nCpu, int mbSize, string dumpFile, bool forceExit);
 
-    void runDistributed(string fen1, int depth1, string distributedFile);
+    void runDistributed(string fen1, int depth1, string distributedFile, int port);
 
     ~Perft();
 
@@ -117,7 +117,8 @@ private:
     static bool dumping;
 
     bool forceExit = false;
-    void runDistributed(string fen1, int depth1, std::set<tuple<string, int, int, string>> nodesSets) ;
 
+    void runOnRemote(string fen1, int depth1, std::set<tuple<string, int, int, string>> nodesSets, int port);
+    std::set<tuple<string, int, int, string>> getRemoteNodes(string distributedFile) ;
 };
 

@@ -19,6 +19,7 @@
 
 #include "Perft.h"
 #include "../network/Client.h"
+#include "PerftServer.h"
 
 int Perft::count;
 
@@ -132,14 +133,8 @@ void Perft::alloc() {
     }
 }
 
-void Perft::runDistributed( string fen1, int depth1, string distributedFile) {
-    Perft::forceExit = true;
+std::set<tuple<string, int, int, string>> Perft::getRemoteNodes(string distributedFile) {
 
-    if (depth1 <= 0)depth1 = 1;
-    perftRes.depth = depth1;
-    fen = fen1;
-    count = 0;
-    dumping = false;
     std::set<tuple<string, int, int, string>> nodesSet;
     IniFile iniFile(distributedFile);
     string nodeIp;
@@ -185,12 +180,34 @@ void Perft::runDistributed( string fen1, int depth1, string distributedFile) {
         nodesSet.insert(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
     }
     cout << nodesSet.size() << " nodes\n";
-    runDistributed(fen1, depth1, nodesSet);
+    return nodesSet;
 }
 
-void Perft::runDistributed(string fen1, int depth1, std::set<tuple<string, int, int, string>> nodesSets) {
-//    Client c(host, port);
-//    c.sendMsg("");
+void Perft::runDistributed(string fen1, int depth1, string distributedFile, int port) {
+    PerftServer s(port);
+    s.start();
+    usleep(1000);//wait complete startup
+    Perft::forceExit = true;
+
+    if (depth1 <= 0)depth1 = 1;
+    perftRes.depth = depth1;
+    fen = fen1;
+    count = 0;
+    dumping = false;
+
+    auto nodesSet = getRemoteNodes(distributedFile);
+    runOnRemote(fen1, depth1, nodesSet, port);
+}
+
+void Perft::runOnRemote(string fen1, int depth1, std::set<tuple<string, int, int, string>> nodesSets, int port) {
+    Client c;
+    for (auto node:nodesSets) {
+        string host = get<0>(node);
+        int Ncpu = get<1>(node);
+        int hashsize = get<2>(node);
+        string dumpFile = get<3>(node);
+        c.sendMsg(host, port, dumpFile);
+    }
 }
 
 void Perft::runLocale(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1, bool forceexit) {

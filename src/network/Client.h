@@ -18,7 +18,6 @@
 
 #pragma once
 
-
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
@@ -28,7 +27,6 @@
 #include <iostream>
 #include "../blockingThreadPool/Thread.h"
 #include "Server.h"
-
 #include<arpa/inet.h>
 
 using namespace std;
@@ -36,28 +34,8 @@ using namespace std;
 class Client {
 public:
 
-    static void sendMsg(string host, int portno, string msg) {
-        assert(msg.size() < Server::MAX_MSG_SIZE)
+    void sendMsg(string host, int portno, string msg) ;
 
-        struct sockaddr_in server;
-        char server_reply[_def::OK.size() + 1];
-
-        int sock = socket(AF_INET, SOCK_STREAM, 0);
-        assert(sock != -1);
-
-        server.sin_addr.s_addr = inet_addr(host.c_str());
-        server.sin_family = AF_INET;
-        server.sin_port = htons(portno);
-
-        assert(connect(sock, (struct sockaddr *) &server, sizeof(server)) >= 0);
-
-        assert (send(sock, msg.c_str(), strlen(msg.c_str()) + 1, 0) >= 0);
-
-        assert(recv(sock, server_reply, _def::OK.size() + 1, 0) >= 0);
-        cout << "Client::reply from servers: " << server_reply << "\n";
-        assert(server_reply == _def::OK);
-        close(sock);
-    }
-
-
+private:
+    static mutex clientMutex;
 };
