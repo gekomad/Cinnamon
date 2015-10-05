@@ -19,13 +19,12 @@
 
 #include "PerftDistributed.h"
 #include "../../network/Client.h"
-#include "../remote/PerftServer.h"
 
 PerftDistributed::~PerftDistributed() {
 
 }
 
-std::set<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(string distributedFile) {
+std::vector<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(string distributedFile) {
 
 
     IniFile iniFile(distributedFile);
@@ -43,7 +42,7 @@ std::set<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(strin
         if (parameters->first == "[node]") {
             if (newNode) {
                 assert(nodeIp != "" && nodeNcores != -1 && nodeHash != -1 && nodeDumpfile != "*");
-                nodesSet.insert(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
+                nodesSet.push_back(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
                 nodeIp = "";
                 nodeNcores = -1;
                 nodeHash = -1;
@@ -69,7 +68,7 @@ std::set<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(strin
     }
     if (newNode) {
         assert(nodeIp != "" && nodeNcores != -1 && nodeHash != -1 && nodeDumpfile != "*");
-        nodesSet.insert(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
+        nodesSet.push_back(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
     }
     cout << nodesSet.size() << " nodes\n";
     return nodesSet;
@@ -90,34 +89,30 @@ void PerftDistributed::setParam(string fen1, int depth1, string distributedFile,
 }
 
 void PerftDistributed::run() {
-    PerftServer s(port);
-    s.start();
-    usleep(10000);//wait complete startup
-    int tot = 20;// getNmoves();
+//    PerftServer s(port);
+//    s.start();
+//    usleep(10000);//wait complete startup
+
+    int totMoves = 20;// getNmoves();TODO
     int from = 0;
-//    ThreadPool<RemoteNode> threadPool(nodesSet.size());
 
-    Client c;
-
-    for (auto node: nodesSet) {
-        string host = get<0>(node);
-        int Ncpu = get<1>(node);
-        int hashsize = get<2>(node);
-        string dumpFile1 = get<3>(node);
-        String f(fen);
-        f = f.replace(' ', 1);
-        String dumpFile(dumpFile1);
-        dumpFile = dumpFile.replace(' ', 1);
-
-        int to = from + Ncpu;
-        if (to >= tot) {
-            to = tot - 1;
-        }
-
-        string a(f + " " + String(depth) + " " + String(hashsize) + " " + dumpFile, from, to);
-        from += to;
-        c.sendMsg(host, port, a);
+    int totMachine = 0;
+    int c = 0;
+    for (int totMachine = 0; totMachine < nodesSet.size(); totMachine++) {
+        c += nodesSet[totMachine].get<1>();
+        if (c >= totMoves)break;
     }
+    int form = 0;
+    int to = 0;
+    setNthread(totMachine);
+    for (int i = 0; i < totMachine; i++) {
+        RemoteNode &remoteNode = getNextThread();
+        //nodeIp, nodeNcores, nodeHash, nodeDumpfile
+        remoteNode.setParam(port,fen, depth, from, to, nodesSet[i]);
+    }
+    startAll();
+    joinAll();
+
 }
 
 void PerftDistributed::endRun() {

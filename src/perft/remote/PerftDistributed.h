@@ -50,11 +50,11 @@ public:
 
 
 private:
-    std::set<tuple<string, int, int, string>> nodesSet;
+    std::vector<tuple<string, int, int, string>> nodesSet;
 
     PerftDistributed() : ThreadPool(1) { };
 
-    std::set<tuple<string, int, int, string>> getRemoteNodes(string distributedFile);
+    std::vector<tuple<string, int, int, string>> getRemoteNodes(string distributedFile);
 
     int depth;
     string fen;
