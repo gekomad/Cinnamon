@@ -122,6 +122,17 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
+
+    Message::_Tmessage m;
+    m.fen="a a";
+    m.depth=1;
+    m.dumpFile="   ";
+    m.hashsize=2;
+    m.from=-1;
+    m.to=4;
+    string a=Message::serialize(m);
+    cout << a << endl;
+
 //    int port = 8082;
 //    PerftServer s(port);
 //    s.start();

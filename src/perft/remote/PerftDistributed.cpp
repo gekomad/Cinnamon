@@ -110,7 +110,7 @@ void PerftDistributed::run() {
     for (int i = 0; i < totMachine; i++) {
         RemoteNode &remoteNode = getNextThread();
         //nodeIp, nodeNcores, nodeHash, nodeDumpfile
-        remoteNode.setParam(port,fen, depth, from, to, nodesSet[i]);
+        remoteNode.setParam(port, fen, depth, from, to, nodesSet[i]);
     }
     startAll();
     joinAll();

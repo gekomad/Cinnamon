@@ -19,25 +19,12 @@
 #include "PerftServer.h"
 
 void PerftServer::receive(string msg) {
-    String a(msg);
+    Message::_Tmessage tmessage = Message::deserialize(msg);
 
-    String fen, dumpFile;
-    int depth, hashsize;
-
-    stringstream ss(a);
-
-    ss >> fen;
-
-    fen = fen.replace(1, ' ');
-    ss >> depth;
-    ss >> hashsize;
-    ss >> dumpFile;
-    dumpFile = dumpFile.replace(1, ' ');
-    cout << "fen: " << fen << "\n";
-    cout << "depth: " << depth << "\n";
-    cout << "hashsize: " << hashsize << "\n";
-    cout << "dumpFile: " << dumpFile << endl;
-
+    cout << "fen: " << tmessage.fen << "\n";
+    cout << "depth: " << tmessage.depth << "\n";
+    cout << "hashsize: " << tmessage.hashsize << "\n";
+    cout << "dumpFile: " << tmessage.dumpFile << endl;
 
 };
 

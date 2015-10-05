@@ -28,7 +28,7 @@
 
 #include <signal.h>
 #include <set>
-
+#include "Message.h"
 
 #include "../../network/Server.h"
 
