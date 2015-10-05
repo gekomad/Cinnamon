@@ -26,23 +26,25 @@
 class RemoteNode : public Thread {
 
 public:
+    Message::_Tmessage message;
 
     void setParam(const int port, const string fen, const int depth, const int from, const int to, const tuple<string, int, int, string> node);
 
     virtual void run();
 
     virtual void endRun();
-void endWork(){
-    end=1;
-    cv.notify_all();
-}
+
+    void endWork() {
+        end = 1;
+        cv.notify_all();
+    }
 
 private:
     string host;
     Client c;
-    Message::_Tmessage m;
+
     int port;
     condition_variable cv;
-    int end =0;
+    int end = 0;
 };
 

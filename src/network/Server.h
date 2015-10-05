@@ -28,7 +28,7 @@
 
 class Server : public Thread {
 public:
-    static const int MAX_MSG_SIZE = 1024;
+    static const int MAX_MSG_SIZE = 2048;
 
     Server(int port);
 

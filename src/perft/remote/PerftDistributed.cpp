@@ -18,7 +18,6 @@
 
 
 #include "PerftDistributed.h"
-#include "../../network/Client.h"
 
 PerftDistributed::~PerftDistributed() {
 
@@ -88,7 +87,7 @@ void PerftDistributed::setParam(string fen1, int depth1, string distributedFile,
 }
 
 void PerftDistributed::run() {
-//    PerftServer s(port);
+//    PerftServer s(threadPool, port);
 //    s.start();
 //    usleep(10000);//wait complete startup
 
@@ -113,8 +112,6 @@ void PerftDistributed::run() {
         remoteNode.setParam(port, fen, depth, from, to, nodesSet[i]);
     }
     startAll();
-
-    threadPool[0]->endWork();dal server in base all'ip
     joinAll();
 
 }

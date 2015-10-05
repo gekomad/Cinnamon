@@ -17,14 +17,24 @@
 */
 
 #include "PerftServer.h"
+#include "Message.h"
 
 void PerftServer::receive(string msg) {
     Message::_Tmessage tmessage = Message::deserialize(msg);
 
-    cout << "fen: " << tmessage.fen << "\n";
-    cout << "depth: " << tmessage.depth << "\n";
-    cout << "hashsize: " << tmessage.hashsize << "\n";
-    cout << "dumpFile: " << tmessage.dumpFile << endl;
+    cout << "host: " << tmessage.host << "\n";
+    cout << "tot: " << tmessage.tot << "\n";
+    cout << "partial: " << tmessage.partial << "\n";
+
+    if (tmessage.tot != -1) {
+        for (int i = 0; i < threadPool.size(); i++) {
+            if (threadPool.at(i)->message.host == tmessage.host) {
+                threadPool.at(i)->endWork();
+                break;
+            }
+        }
+    }
+
 
 };
 

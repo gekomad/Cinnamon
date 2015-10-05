@@ -31,14 +31,18 @@
 #include "Message.h"
 
 #include "../../network/Server.h"
+#include "../../blockingThreadPool/ThreadPool.h"
+#include "RemoteNode.h"
 
 class PerftServer : public Server {
 public :
-    PerftServer(int port) : Server(port) { }
+    PerftServer(vector<RemoteNode*> threadPool1,int port) : Server(port) { threadPool=threadPool1;}
 
 protected:
 
     virtual void receive(string msg);
 
+private:
+    vector<RemoteNode*> threadPool;
 };
 

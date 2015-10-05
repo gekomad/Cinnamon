@@ -20,10 +20,9 @@
 #include "RemoteNode.h"
 
 void RemoteNode::run() {
-    string a = Message::serialize(m);
+    string a = Message::serialize(message);
     //c.sendMsg(host, port, a);
     mutex mtx;
-
 
     unique_lock<std::mutex> lck(mtx);
     cv.wait(lck, [this](){return end == 1;});
@@ -40,11 +39,11 @@ void RemoteNode::setParam(const int port1, const string fen, const int depth, co
     int hashsize = get<2>(node);
     string dumpFile = get<3>(node);
 
-    m.fen = fen;
-    m.depth = depth;
-    m.dumpFile = dumpFile;
-    m.hashsize = hashsize;
-    m.from = from;
-    m.to = to;
+    message.fen = fen;
+    message.depth = depth;
+    message.dumpFile = dumpFile;
+    message.hashsize = hashsize;
+    message.from = from;
+    message.to = to;
 
 }

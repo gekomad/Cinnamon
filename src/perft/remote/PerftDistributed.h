@@ -32,6 +32,9 @@
 
 #include "../remote/RemoteNode.h"
 #include "../../util/IniFile.h"
+#include "PerftServer.h"
+#include "PerftDistributed.h"
+#include "../../network/Client.h"
 
 
 class PerftDistributed : public Thread, public ThreadPool<RemoteNode>, public Singleton<PerftDistributed> {
