@@ -58,7 +58,6 @@ set(SOURCE_FILES
         Uci.h
         network/Server.cpp
         network/Server.h
-        network/Client.cpp
         network/Client.h
 )
 
