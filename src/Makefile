@@ -115,8 +115,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o
-	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o ${LIBS}
+all: ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o PerftServer.o IniFile.o Server.o
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o PerftServer.o IniFile.o Server.o ${LIBS}
 
 default:
 	help
@@ -142,6 +142,9 @@ Perft.o: perft/Perft.cpp
 PerftThread.o: perft/PerftThread.cpp
 	$(COMP) -c perft/PerftThread.cpp ${CFLAGS} ${ARC}
 
+PerftServer.o: perft/PerftServer.cpp
+	$(COMP) -c perft/PerftServer.cpp ${CFLAGS} ${ARC}
+
 Search.o: Search.cpp
 	$(COMP) -c Search.cpp ${CFLAGS} ${ARC}
 
@@ -166,8 +169,14 @@ String.o: util/String.cpp
 Bits.o: util/Bits.cpp
 	$(COMP) -c util/Bits.cpp ${CFLAGS} ${ARC}
 
+IniFile.o: util/IniFile.cpp
+	$(COMP) -c util/IniFile.cpp ${CFLAGS} ${ARC}
+
 Endgame.o: Endgame.cpp
 	$(COMP) -c Endgame.cpp ${CFLAGS} ${ARC}
-	
+
+Server.o: network/Server.cpp
+	$(COMP) -c  network/Server.cpp ${CFLAGS} ${ARC}
+
 clean:
 	$(RM) *.o $(EXE) *.gcda

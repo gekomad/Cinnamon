@@ -9,57 +9,40 @@ if (DR_MEMORY STREQUAL "YES")
 endif ()
 
 set(SOURCE_FILES
-        gtb/gtb-probe.h
-        perft/_TPerftRes.h
         perft/Perft.cpp
-        perft/Perft.h
         perft/PerftThread.cpp
         perft/PerftServer.cpp
-        perft/PerftThread.h
+
         util/Bits.cpp
-        util/Bits.h
-        ObserverSearch.h
-        util/Singleton.h
         util/String.cpp
-        util/String.h
-        util/GetOpt.h
-        util/IniFile.h
         util/IniFile.cpp
-        blockingThreadPool/Thread.h
-        blockingThreadPool/ThreadPool.h
-        blockingThreadPool/ObserverThread.h
-        util/Timer.h
+
         ChessBoard.cpp
-        ChessBoard.h
+
         Eval.cpp
-        Eval.h
+
         GenMoves.cpp
-        GenMoves.h
+
         Hash.cpp
-        Hash.h
+
         IterativeDeeping.cpp
-        IterativeDeeping.h
+
         main.cpp
-        namespaces/def.h
-        namespaces/board.h
-        namespaces/debug.h
-        namespaces/eval.h
-        namespaces/random.h
+
         OpenBook.cpp
-        OpenBook.h
+
         Search.cpp
-        Search.h
+
         SearchManager.cpp
-        SearchManager.h
+
         Tablebase.cpp
-        Tablebase.h
+
         Endgame.cpp
-        Endgame.h
+
         Uci.cpp
-        Uci.h
+
         network/Server.cpp
-        network/Server.h
-        network/Client.h
+
 )
 
 set(CMAKE_CXX_COMPILER "clang++")
