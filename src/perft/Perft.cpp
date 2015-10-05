@@ -186,7 +186,10 @@ std::set<tuple<string, int, int, string>> Perft::getRemoteNodes(string distribut
 void Perft::runDistributed(string fen1, int depth1, string distributedFile, int port) {
     PerftServer s(port);
     s.start();
-    usleep(1000);//wait complete startup
+    usleep(10000);//wait complete startup
+    if (fen1.empty()) {
+        fen1 = STARTPOS;
+    }
     Perft::forceExit = true;
 
     if (depth1 <= 0)depth1 = 1;
@@ -205,8 +208,15 @@ void Perft::runOnRemote(string fen1, int depth1, std::set<tuple<string, int, int
         string host = get<0>(node);
         int Ncpu = get<1>(node);
         int hashsize = get<2>(node);
-        string dumpFile = get<3>(node);
-        c.sendMsg(host, port, dumpFile);
+        string dumpFile1 = get<3>(node);
+        String fen(fen1);
+        fen=fen.replace(' ', 1);
+        String dumpFile(dumpFile1);
+        dumpFile=dumpFile.replace(' ', 1);
+
+        string a(fen + " " + String(depth1) + " " + String(hashsize) + " " + dumpFile);
+
+        c.sendMsg(host, port, a);
     }
 }
 
