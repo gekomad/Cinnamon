@@ -11,6 +11,7 @@ endif ()
 set(SOURCE_FILES
         perft/locale/Perft.cpp
         perft/locale/PerftThread.cpp
+
         perft/remote/PerftServer.cpp
         perft/remote/RemoteNode.cpp
         perft/remote/PerftDistributed.cpp

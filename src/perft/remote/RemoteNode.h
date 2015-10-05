@@ -19,12 +19,28 @@
 #pragma once
 
 #include "../../blockingThreadPool/Thread.h"
+#include "../../network/Client.h"
 
 
 class RemoteNode : public Thread {
 
 public:
+    void setParam(int port, string fen, int depth, int from, int to, tuple<string, int, int, string> node) {
+        string host = get<0>(node);
+        int Ncpu = get<1>(node);
+        int hashsize = get<2>(node);
+        string dumpFile1 = get<3>(node);
+        String f(fen);
+        f = f.replace(' ', 1);
+        String dumpFile(dumpFile1);
+        dumpFile = dumpFile.replace(' ', 1);
 
+
+        string a(f + " " + String(depth) + " " + String(hashsize) + " " + dumpFile, from, to);
+        from += to;
+        Client c;
+        c.sendMsg(host, port, a);
+    }
 
     virtual void run();
 
