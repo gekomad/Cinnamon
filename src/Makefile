@@ -115,8 +115,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o PerftServer.o IniFile.o Server.o
-	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o PerftServer.o IniFile.o Server.o ${LIBS}
+all: ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o PerftServer.o IniFile.o Server.o Client.o
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o PerftServer.o IniFile.o Server.o  Client.o ${LIBS}
 
 default:
 	help
@@ -177,6 +177,9 @@ Endgame.o: Endgame.cpp
 
 Server.o: network/Server.cpp
 	$(COMP) -c  network/Server.cpp ${CFLAGS} ${ARC}
+
+Client.o: network/Client.cpp
+	$(COMP) -c  network/Client.cpp ${CFLAGS} ${ARC}
 
 clean:
 	$(RM) *.o $(EXE) *.gcda
