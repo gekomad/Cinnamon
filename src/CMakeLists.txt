@@ -48,7 +48,7 @@ set(SOURCE_FILES
 
         network/Server.cpp
         network/Client.cpp
-)
+  )
 
 set(CMAKE_CXX_COMPILER "clang++")
 add_executable(cinnamon ${SOURCE_FILES})

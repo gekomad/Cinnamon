@@ -25,21 +25,20 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include "../blockingThreadPool/Thread.h"
+#include "Iparser.h"
 
 class Server : public Thread {
 public:
     static const int MAX_MSG_SIZE = 2048;
 
-    Server(int port);
+    Server(int port, Iparser *parser);
 
-    virtual void run();
+    void run();
 
-    virtual void endRun();
+    void endRun();
 
     ~Server();
 
-protected:
-    virtual void receive(string msg) = 0;
 
 private:
 
@@ -48,4 +47,6 @@ private:
     int socket_desc;
 
     void dispose();
+
+    Iparser *parser;
 };

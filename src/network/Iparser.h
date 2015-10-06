@@ -18,29 +18,8 @@
 
 #pragma once
 
-#include "../../Search.h"
-#include <iomanip>
-#include <atomic>
-#include <fstream>
-#include <unistd.h>
-#include "../../util/Timer.h"
-#include <mutex>
+class Iparser {
+public:
 
-#include <signal.h>
-#include <set>
-#include "Message.h"
-
-#include "../../network/Server.h"
-#include "../../blockingThreadPool/ThreadPool.h"
-#include "RemoteNode.h"
-#include "PerftClient.h"
-
-class PerftServer : public Iparser{
-public :
-
-    void parser(string msg);
-
-
-
+    virtual void parser(string) = 0;
 };
-

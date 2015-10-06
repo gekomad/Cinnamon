@@ -68,8 +68,6 @@ private:
         } else {
             new Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);//perft locale
         }
-
-
     }
 
     static void epd2pgn(int argc, char **argv) {

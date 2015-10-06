@@ -19,11 +19,11 @@
 #include "PerftServer.h"
 #include "Message.h"
 
-void PerftServer::sendMsg(string host, int portno, Message msg) {
-    sendMsg(host, portno, msg.getSerializedString());
-}
+//void PerftServer::sendMsg(string host, int portno, Message msg) {
+//    sendMsg(host, portno, msg.getSerializedString());
+//}
 
-void PerftServer::receive(string msg) {
+void PerftServer::parser(string msg) {
     cout <<"PerftServer::receive"<<endl;
     Message message(msg);
     PerftClient c;
@@ -38,5 +38,5 @@ void PerftServer::receive(string msg) {
     sleep(5);
     b.setTot(100);
     c.sendMsg("10.175.95.243", SOCK_PORT, b);
-    notifyObservers(msg);
+
 };

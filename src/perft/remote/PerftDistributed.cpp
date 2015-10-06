@@ -92,18 +92,13 @@ void PerftDistributed::setParam(string fen1, int depth1, string distributedFile,
 }
 
 void PerftDistributed::run() {
-    PerftServer s(port);
-    s.registerObservers([this](Message message) {
-        receiveMsg(message);
-    });
-    s.start();
-    usleep(10000);//wait complete startup
-
-    if (!serverMode) {
+    if (serverMode) {
+        Server s(port, new PerftServer());
+        s.start();
+        usleep(10000);//wait complete startup
+    } else {
         callRemoteNode();
     }
-
-
 }
 
 void PerftDistributed::endRun() {
