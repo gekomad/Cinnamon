@@ -21,7 +21,7 @@
 void RemoteNode::run() {
     ASSERT(message);
     string a = message->getSerializedString();
-    cout << "send " << a << " to " << host << "\nwaiting for result.." << endl;
+    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "send ", a, "to", host, "waiting for result..");
     c.sendMsg(host, port, a);
     mutex mtx;
     unique_lock<std::mutex> lck(mtx);
@@ -29,7 +29,7 @@ void RemoteNode::run() {
 }
 
 void RemoteNode::endRun() {
-    cout << "fine " << host << endl;
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "exit remoteNode ", host);
 }
 
 void RemoteNode::setParam(const int port1, const string fen, const int depth, const int from, const int to, const tuple<string, int, int, string> node) {

@@ -68,14 +68,14 @@ std::vector<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(st
         assert(nodeIp != "" && nodeNcores != -1 && nodeHash != -1 && nodeDumpfile != "*");
         nodesSet.push_back(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
     }
-    cout << nodesSet.size() << " nodes\n";
+
+    debug<LOG_LEVEL::INFO, false>(LINE_INFO, nodesSet.size(), "nodes");
     return nodesSet;
 }
 
 void PerftDistributed::setServer(int port1) {
-    cout << "SERVER MODE on port " << port1 << endl;
+    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "SERVER MODE on port", port1);
     serverMode = true;
-
     port = port1;
 }
 
@@ -107,11 +107,11 @@ void PerftDistributed::endRun() {
 }
 
 void PerftDistributed::receiveMsg(Message message) {
-    cout << "PerftServer:: receive msg from host: " << message.getHost() << endl;
-    cout << "PerftServer:: msg: " << message.getSerializedString() << "\n";
+    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer:: receive msg from host: ", message.getHost(), message.getSerializedString());
 
-    if (message.getTot() != -1)cout << "PerftServer::tot: " << message.getTot() << "\n";
-    if (message.getPartial() != -1)cout << "PerftServer::partial: " << message.getPartial() << "\n";
+    if (message.getTot() != -1)debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer::tot:", message.getTot());
+
+    if (message.getPartial() != -1) debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer::partial:", message.getPartial());
 
     if (message.getTot() != -1) {
         for (int i = 0; i < threadPool.size(); i++) {

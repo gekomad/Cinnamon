@@ -129,7 +129,7 @@ private:
         ASSERT(threadsBits & POW2[threadID]);
         threadsBits &= ~POW2[threadID];
         cv.notify_all();
-        debug<LOG_LEVEL::DEBUG,true>("ThreadPool::releaseThread #", threadID);
+        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"ThreadPool::releaseThread #", threadID);
     }
 
     void observerEndThread(int threadID) {

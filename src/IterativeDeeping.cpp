@@ -129,7 +129,7 @@ void IterativeDeeping::run() {
 //        }
 
         if (!searchManager.getRes(resultMove, ponderMove, pvv, &mateIn)) {
-            debug<LOG_LEVEL::DEBUG,false>("IterativeDeeping cmove == 0, exit");
+            debug<LOG_LEVEL::DEBUG,false>(LINE_INFO,"IterativeDeeping cmove == 0, exit");
             break;
         }
 

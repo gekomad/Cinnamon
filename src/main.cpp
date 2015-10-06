@@ -75,6 +75,7 @@ Rank Name                                   Elo    +    - games score oppo. draw
 
  */
 
+
 using namespace _board;
 
 void printHeader() {
@@ -122,10 +123,8 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
-    cout <<DLOG_LEVEL<<endl;
 
-    debug<LOG_LEVEL::TRACE,false>(LINE_INFO,"ddddddddddddds");
-//    cout << "SOLO SERVER\n";    PerftServer s(8888);    s.start();    while (1)sleep(100000);
-    printHeader();    GetOpt::parse(argc, argv);
+    printHeader();
+    GetOpt::parse(argc, argv);
     return 0;
 }

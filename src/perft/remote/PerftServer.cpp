@@ -24,7 +24,7 @@
 //}
 
 void PerftServer::parser(string msg) {
-    cout <<"PerftServer::receive"<<endl;
+    debug<LOG_LEVEL::INFO,false>(LINE_INFO,"receive");
     Message message(msg);
     PerftClient c;
 //    if(......)

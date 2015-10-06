@@ -22,14 +22,11 @@
 #include <mutex>
 #include <cxxabi.h>
 
+#if !defined DLOG_LEVEL
+#define DLOG_LEVEL OFF
+#endif
 namespace _debug {
-//    OFF 	    Il livello più alto possibile, viene usato per disattivare i log.
-//    FATAL 	Errore importante che causa un prematuro termine dell'esecuzione. Ci si aspetta che questo sia visibile immediatamente all'operatore.
-//    ERROR 	Un errore di esecuzione o una condizione imprevista. Anche questo deve essere immediatamente segnalato.
-//    WARN 	    Usato per ogni condizione inaspettata o anomalia di esecuzione, che però non necessariamente ha comportato un errore.
-//    INFO 	    Usato per segnalare eventi di esecuzione (esempio: startup/shutdown). Deve essere segnalato ma poi non mantenuto per tanto tempo.
-//    DEBUG 	Usato nella fase di debug del programma. Viene riportato nel file di log.
-//    TRACE 	Alcune informazioni dettagliate. Ci si aspetta che venga scritto esclusivamente nei file di log. È stato aggiunto nella versione 1.2.12.
+
     static enum LOG_LEVEL {
         TRACE = 0,
         DEBUG = 1,
@@ -64,16 +61,16 @@ namespace _debug {
 
     template<LOG_LEVEL type, bool nano, typename T, typename... Args>
     void debug(T t, Args... args) {
-        //2014-07-02 20:52:39 DEBUG HelloExample:19 - This is debug : mkyong
-        if (type > DLOG_LEVEL)return;
-        lock_guard <mutex> lock1(_CoutSyncMutex);
-        nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
-        cout << "info string " << " " << Time::getLocalTime();
-        if (nano)cout << " NANOSEC: " << ms.count();
-        cout << " " << LOG_LEVEL_STRING[type] << " ";
+        if (type <= DLOG_LEVEL) {
+            lock_guard <mutex> lock1(_CoutSyncMutex);
+            nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
+            cout << "info string " << " " << Time::getLocalTime();
+            if (nano)cout << " NANOSEC: " << ms.count();
+            cout << " " << LOG_LEVEL_STRING[type] << " ";
 
-        _debug(t, args...);
-        cout << "\n";
+            _debug(t, args...);
+            cout << "\n";
+        }
     }
 
 
