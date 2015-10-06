@@ -165,12 +165,15 @@ public:
         }
 
         int opt;
-        while ((opt = getopt(argc, argv, "p:e:hd:bf:")) != -1) {
+        while ((opt = getopt(argc, argv, "sp:e:hd:bf:")) != -1) {
             if (opt == 'h') {
                 help(argv);
                 return;
             }
-            if (opt == 'p') {  // perft test
+            if (opt == 's') {//server mode
+                new Uci(SOCK_PORT);
+                return;
+            } else if (opt == 'p') {  // perft test
                 perft(argc, argv);
                 return;
             } else {

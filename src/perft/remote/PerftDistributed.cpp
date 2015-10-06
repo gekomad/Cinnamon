@@ -72,10 +72,10 @@ std::vector<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(st
     return nodesSet;
 }
 
-void PerftDistributed::setServer(string mainServer1, int port1) {
-    cout << "SERVER MODE" << endl;
+void PerftDistributed::setServer(int port1) {
+    cout << "SERVER MODE on port " << port1 << endl;
     serverMode = true;
-    mainServer = mainServer1;
+
     port = port1;
 }
 

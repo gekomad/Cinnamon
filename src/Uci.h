@@ -28,7 +28,7 @@ class Uci : public Singleton<Uci> {
     friend class Singleton<Uci>;
 
 public:
-
+    Uci(int port) ;
     Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile);
 
     virtual ~Uci();
