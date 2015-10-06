@@ -115,8 +115,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o PerftServer.o IniFile.o Server.o Client.o
-	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o PerftServer.o IniFile.o Server.o  Client.o ${LIBS}
+all: ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o IniFile.o Server.o Client.o Message.o PerftDistributed.o PerftServer.o RemoteNode.o
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o IniFile.o Server.o  Client.o Message.o PerftDistributed.o PerftServer.o RemoteNode.o ${LIBS}
 
 default:
 	help
@@ -136,14 +136,30 @@ IterativeDeeping.o: IterativeDeeping.cpp
 main.o: main.cpp
 	$(COMP) -c main.cpp ${CFLAGS} ${ARC}
 
-Perft.o: perft/Perft.cpp
-	$(COMP) -c perft/Perft.cpp ${CFLAGS} ${ARC}
+Server.o: network/Server.cpp
+	$(COMP) -c  network/Server.cpp ${CFLAGS} ${ARC}
 
-PerftThread.o: perft/PerftThread.cpp
-	$(COMP) -c perft/PerftThread.cpp ${CFLAGS} ${ARC}
+Client.o: network/Client.cpp
+	$(COMP) -c  network/Client.cpp ${CFLAGS} ${ARC}
 
-PerftServer.o: perft/PerftServer.cpp
-	$(COMP) -c perft/PerftServer.cpp ${CFLAGS} ${ARC}
+Perft.o: perft/locale/Perft.cpp
+	$(COMP) -c perft/locale/Perft.cpp ${CFLAGS} ${ARC}
+
+PerftThread.o: perft/locale/PerftThread.cpp
+	$(COMP) -c perft/locale/PerftThread.cpp ${CFLAGS} ${ARC}
+
+Message.o: perft/remote/Message.cpp
+	$(COMP) -c perft/remote/Message.cpp ${CFLAGS} ${ARC}
+
+PerftDistributed.o: perft/remote/PerftDistributed.cpp
+	$(COMP) -c perft/remote/PerftDistributed.cpp ${CFLAGS} ${ARC}
+
+PerftServer.o: perft/remote/PerftServer.cpp
+	$(COMP) -c perft/remote/PerftServer.cpp ${CFLAGS} ${ARC}
+
+RemoteNode.o: perft/remote/RemoteNode.cpp
+	$(COMP) -c perft/remote/RemoteNode.cpp ${CFLAGS} ${ARC}
+
 
 Search.o: Search.cpp
 	$(COMP) -c Search.cpp ${CFLAGS} ${ARC}
@@ -174,12 +190,6 @@ IniFile.o: util/IniFile.cpp
 
 Endgame.o: Endgame.cpp
 	$(COMP) -c Endgame.cpp ${CFLAGS} ${ARC}
-
-Server.o: network/Server.cpp
-	$(COMP) -c  network/Server.cpp ${CFLAGS} ${ARC}
-
-Client.o: network/Client.cpp
-	$(COMP) -c  network/Client.cpp ${CFLAGS} ${ARC}
 
 clean:
 	$(RM) *.o $(EXE) *.gcda
