@@ -20,14 +20,14 @@
 #include "Message.h"
 
 
-bool Message::compare(Message &a, Message &b) {
-    if (a.depth != b.depth || a.host != b.host || a.dumpFile != a.dumpFile || a.fen != b.fen || a.from != b.from || a.to != b.to || a.hashsize != b.hashsize || a.partial != b.partial || a.tot != b.tot)
+bool Message::compare(Message &b) {
+    if (depth != b.depth || host != b.host || dumpFile != dumpFile || fen != b.fen || from != b.from || to != b.to || hashsize != b.hashsize || partial != b.partial || tot != b.tot)
         return false;
     return true;
 }
 
 Message::Message(const string host1, const string fen1, const int depth1, const int hashsize1, const string dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
-   cout <<"a";
+    cout << "a";
     assert(host1.size());
     assert(fen1.size() > 10);
     assert(depth1 > 0);
@@ -53,25 +53,24 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
     strcat(a, String(tot1).c_str());
 
     string b(a);
-//#ifdef DEBUG_MODE
-//        Message x = deserialize(b);
-//        ASSERT(Message::compare(m, x));
-//#endif
     serializedString = b;
-
+#ifdef DEBUG_MODE
+    Message x(serializedString);
+    ASSERT(compare(x));
+#endif
 }
 
 Message::Message(string m) {
 
     cout << m << endl;
-//#ifdef DEBUG_MODE
-//        int c = 0;
-//        for (int i = 0; i < size(); i++)if (at(i) == 1)c++;
-//        assert(c == 8);
-//#endif
+#ifdef DEBUG_MODE
+    int c = 0;
+    for (int i = 0; i < m.size(); i++)if (m.at(i) == 1)c++;
+    assert(c == 8);
+#endif
     stringstream ss(m);
 
-   
+
     string dummy;
     getline(ss, host, SEPARATOR);
     getline(ss, dummy, SEPARATOR);
