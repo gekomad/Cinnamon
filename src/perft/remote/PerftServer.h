@@ -36,13 +36,23 @@
 
 class PerftServer : public Server {
 public :
-    PerftServer(vector<RemoteNode*> threadPool1,int port) : Server(port) { threadPool=threadPool1;}
+    PerftServer(int port) : Server(port) { }
+
+    void registerObservers(function<void(Message message)> f) {
+        observers.push_back(f);
+    }
+
+    void notifyObservers(Message message) {
+        for (auto i = observers.begin(); i != observers.end(); ++i) {
+            (*i)( message);
+        }
+    }
 
 protected:
 
     virtual void receive(string msg);
 
 private:
-    vector<RemoteNode*> threadPool;
+    vector<function<void(Message message)>> observers;
 };
 

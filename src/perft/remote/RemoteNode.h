@@ -38,6 +38,10 @@ public:
         cv.notify_all();
     }
 
+    const string &getHost() const {
+        return host;
+    }
+
 private:
     string host;
     Client c;

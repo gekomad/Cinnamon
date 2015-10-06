@@ -78,10 +78,6 @@ public:
         return true;
     }
 
-    T& getThread(int i) {
-        return threadPool[i];
-    }
-
     void joinAll() {
         for (int i = 0; i < nThread; i++) {
             threadPool[i]->join();

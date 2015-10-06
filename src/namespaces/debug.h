@@ -43,7 +43,6 @@ namespace _debug {
         lock_guard <mutex> lock1(_CoutSyncMutex);
         nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
         cout << "info string TIME: " << ms.count() << " ";
-
         _debug(t, args...);
         cout << "\n";
     }

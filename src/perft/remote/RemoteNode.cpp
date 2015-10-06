@@ -21,7 +21,7 @@
 void RemoteNode::run() {
     string a = message->getSerializedString();
     cout << "send " << a << " to " << host << "\nwaiting for result.." << endl;
-    //c.sendMsg(host, port, a);
+    c.sendMsg(host, port, a);
     mutex mtx;
     unique_lock<std::mutex> lck(mtx);
     cv.wait(lck, [this]() { return end == 1; });

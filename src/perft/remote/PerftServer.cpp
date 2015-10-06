@@ -22,18 +22,7 @@
 void PerftServer::receive(string msg) {
     Message message(msg);
 
-    cout << "host: " << message.getHost() << "\n";
-    cout << "tot: " << message.getTot() << "\n";
-    cout << "partial: " << message.getPartial() << "\n";
-
-    if (message.getTot() != -1) {
-        for (int i = 0; i < threadPool.size(); i++) {
-//            if (threadPool.at(i)->message->getHost() == message.getHost()) {
-//                threadPool.at(i)->endWork();
-//                break;
-//            }
-        }
-    }
+    notifyObservers(msg);
 
 
 };

@@ -53,6 +53,24 @@ public:
 
 
 private:
+
+    void receiveMsg(Message message) {
+        cout << "PerftServer:: receive msg from host: " << message.getHost() << endl;
+        cout << "PerftServer:: msg: " << message.getSerializedString() << "\n";
+
+        if (message.getTot() != -1)cout << "PerftServer::tot: " << message.getTot() << "\n";
+        if (message.getPartial() != -1)cout << "PerftServer::partial: " << message.getPartial() << "\n";
+
+        if (message.getTot() != -1) {
+            for (int i = 0; i < threadPool.size(); i++) {
+                if (threadPool.at(i)->getHost() == message.getHost()) {
+                    threadPool.at(i)->endWork();
+                    break;
+                }
+            }
+        }
+    };
+
     std::vector<tuple<string, int, int, string>> nodesSet;
 
     PerftDistributed() : ThreadPool(1) { };

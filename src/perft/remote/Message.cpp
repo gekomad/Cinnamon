@@ -71,15 +71,12 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
     partial = partial1;
     tot = tot1;
 #ifdef DEBUG_MODE
-    cout << "|" << serializedString << "|" << endl;
     Message x(serializedString);
     ASSERT(compare(x));
 #endif
 }
 
 Message::Message(string m) {
-
-    cout << "|" << m << "|" << endl;
 #ifdef DEBUG_MODE
     int c = 0;
     for (int i = 0; i < m.size(); i++)if (m.at(i) == 1)c++;

@@ -87,9 +87,12 @@ void PerftDistributed::setParam(string fen1, int depth1, string distributedFile,
 }
 
 void PerftDistributed::run() {
-//    PerftServer s(threadPool, port);
-//    s.start();
-//    usleep(10000);//wait complete startup
+    PerftServer s( port);
+    s.registerObservers([this](Message message) {
+        receiveMsg(message);
+    });
+    s.start();
+    usleep(10000);//wait complete startup
 
     int totMoves = 20;
     // getNmoves();TODO
