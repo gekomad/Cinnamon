@@ -128,6 +128,7 @@ void PerftDistributed::receiveMsg(Message message) {
 };
 
 void PerftDistributed::callRemoteNode() {
+    assert(nodesSet.size());
     int totMoves = 20;
     // getNmoves();TODO
     int from = 0;

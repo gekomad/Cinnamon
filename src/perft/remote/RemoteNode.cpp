@@ -19,6 +19,7 @@
 #include "RemoteNode.h"
 
 void RemoteNode::run() {
+    ASSERT(message);
     string a = message->getSerializedString();
     cout << "send " << a << " to " << host << "\nwaiting for result.." << endl;
     c.sendMsg(host, port, a);

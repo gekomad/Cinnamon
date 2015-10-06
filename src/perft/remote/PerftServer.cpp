@@ -31,12 +31,12 @@ void PerftServer::receive(string msg) {
     sleep(10);
     Message b(message);
     b.setPartial(10);
-    c.sendMsg("10.175.95.243", 8888, b);
+    c.sendMsg("10.175.95.243", SOCK_PORT, b);
     sleep(5);
     b.setPartial(30);
-    c.sendMsg("10.175.95.243", 8888, b);
+    c.sendMsg("10.175.95.243", SOCK_PORT, b);
     sleep(5);
     b.setTot(100);
-    c.sendMsg("10.175.95.243", 8888, b);
+    c.sendMsg("10.175.95.243", SOCK_PORT, b);
     notifyObservers(msg);
 };

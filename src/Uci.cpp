@@ -18,19 +18,24 @@
 
 #include "Uci.h"
 
-Uci::Uci(int port) {
+Uci::Uci(int port) {//server mode
     perftDistributed = &PerftDistributed::getInstance();
     perftDistributed->setServer(port);
     runPerftDistributed = true;
     startListner();
 }
 
-Uci::Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile) {
-//    perft = &Perft::getInstance();
-    //    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
-//    runPerft = true;
+Uci::Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile) {//perft locale
+    perft = &Perft::getInstance();
+    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
+    runPerft = true;
+    startListner();
+}
+
+Uci::Uci(string fen, int perftDepth, string iniFile) {//perft remote
+
     perftDistributed = &PerftDistributed::getInstance();
-//    perftDistributed->setParam(fen, perftDepth, "/home/geko/workspace/workspace_my/cinnamon/src/perft_distributed_nodes.ini", 8888);
+    perftDistributed->setParam(fen, perftDepth, iniFile, SOCK_PORT);
 
     runPerftDistributed = true;
     startListner();

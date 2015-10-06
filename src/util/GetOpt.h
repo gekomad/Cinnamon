@@ -59,7 +59,8 @@ private:
             }
         }
 
-        new Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);
+//        new Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);perft locale
+        new Uci(fen, perftDepth, "/home/geko/workspace/workspace_my/cinnamon/src/perft_distributed_nodes.ini");//perft distributed
     }
 
     static void epd2pgn(int argc, char **argv) {
