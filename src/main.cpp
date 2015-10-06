@@ -122,7 +122,7 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
-    cout << "SOLO SERVER\n";    PerftServer s(8888);    s.start();    while (1)sleep(100000);
-//    printHeader();    GetOpt::parse(argc, argv);
+//    cout << "SOLO SERVER\n";    PerftServer s(8888);    s.start();    while (1)sleep(100000);
+    printHeader();    GetOpt::parse(argc, argv);
     return 0;
 }

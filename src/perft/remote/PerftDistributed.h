@@ -44,7 +44,7 @@ public:
 
 
     void setParam(string fen1, int depth1, string distributedFile, int port);
-
+    void setServer(string mainServer1, int port1) ;
     ~PerftDistributed();
 
     virtual void run();
@@ -65,5 +65,9 @@ private:
     int depth;
     string fen;
     int port;
+
+    void callRemoteNode();
+    string mainServer;
+    bool serverMode = false;
 };
 

@@ -72,8 +72,15 @@ std::vector<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(st
     return nodesSet;
 }
 
-void PerftDistributed::setParam(string fen1, int depth1, string distributedFile, int port1) {
+void PerftDistributed::setServer(string mainServer1, int port1) {
+    cout << "SERVER MODE" << endl;
+    serverMode = true;
+    mainServer = mainServer1;
+    port = port1;
+}
 
+void PerftDistributed::setParam(string fen1, int depth1, string distributedFile, int port1) {
+    serverMode = false;
     if (fen1.empty()) {
         fen1 = STARTPOS;
     }
@@ -81,41 +88,21 @@ void PerftDistributed::setParam(string fen1, int depth1, string distributedFile,
     if (depth <= 0)depth = 1;
     fen = fen1;
     port = port1;
-
     nodesSet = getRemoteNodes(distributedFile);
-
 }
 
 void PerftDistributed::run() {
-    PerftServer s( port);
+    PerftServer s(port);
     s.registerObservers([this](Message message) {
         receiveMsg(message);
     });
     s.start();
     usleep(10000);//wait complete startup
 
-    int totMoves = 20;
-    // getNmoves();TODO
-    int from = 0;
-
-    int totMachine = 0;
-    int c = 0;
-
-    for (totMachine = 0; totMachine < nodesSet.size(); totMachine++) {
-        c += std::get<1>(nodesSet[totMachine]);
-        if (c >= totMoves)break;
+    if (!serverMode) {
+        callRemoteNode();
     }
 
-    int form = 0;
-    int to = 0;
-    setNthread(totMachine);
-    for (int i = 0; i < totMachine; i++) {
-        RemoteNode &remoteNode = getNextThread();
-        //nodeIp, nodeNcores, nodeHash, nodeDumpfile
-        remoteNode.setParam(port, fen, depth, from, to, nodesSet[i]);
-    }
-    startAll();
-    joinAll();
 
 }
 
@@ -139,3 +126,28 @@ void PerftDistributed::receiveMsg(Message message) {
         }
     }
 };
+
+void PerftDistributed::callRemoteNode() {
+    int totMoves = 20;
+    // getNmoves();TODO
+    int from = 0;
+
+    int totMachine = 0;
+    int c = 0;
+
+    for (totMachine = 0; totMachine < nodesSet.size(); totMachine++) {
+        c += std::get<1>(nodesSet[totMachine]);
+        if (c >= totMoves)break;
+    }
+
+    int form = 0;
+    int to = 0;
+    setNthread(totMachine);
+    for (int i = 0; i < totMachine; i++) {
+        RemoteNode &remoteNode = getNextThread();
+        //nodeIp, nodeNcores, nodeHash, nodeDumpfile
+        remoteNode.setParam(port, fen, depth, from, to, nodesSet[i]);
+    }
+    startAll();
+    joinAll();
+}
