@@ -58,6 +58,7 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
 //        ASSERT(Message::compare(m, x));
 //#endif
     serializedString = b;
+
 }
 
 Message::Message(string m) {

@@ -102,7 +102,7 @@ void PerftDistributed::run() {
         c += std::get<1>(nodesSet[totMachine]);
         if (c >= totMoves)break;
     }
-    totMachine;
+
     int form = 0;
     int to = 0;
     setNthread(totMachine);
