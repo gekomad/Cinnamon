@@ -31,9 +31,10 @@ void Server::run() {
         while ((read_size = recv(client_sock, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
             cout << "Server::read " << client_message << "\n";
             write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
+            cout <<"aaaaaaaaaaaa"<<endl;
+            receive(string(client_message));
+            cout <<"bbbbbbbbbbbb"<<endl;
         }
-        receive(string(client_message));
-        assert(read_size != -1);
     }
 }
 
