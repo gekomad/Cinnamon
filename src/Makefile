@@ -55,6 +55,7 @@ else
 endif
 
 PARAM="-std=c++11 -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
+#PARAM="-std=c++11 -g -w -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
 
 help:
 
@@ -159,7 +160,6 @@ PerftServer.o: perft/remote/PerftServer.cpp
 
 RemoteNode.o: perft/remote/RemoteNode.cpp
 	$(COMP) -c perft/remote/RemoteNode.cpp ${CFLAGS} ${ARC}
-
 
 Search.o: Search.cpp
 	$(COMP) -c Search.cpp ${CFLAGS} ${ARC}

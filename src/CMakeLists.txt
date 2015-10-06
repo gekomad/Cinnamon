@@ -13,6 +13,7 @@ set(SOURCE_FILES
         perft/locale/PerftThread.cpp
 
         perft/remote/PerftServer.cpp
+
         perft/remote/RemoteNode.cpp
         perft/remote/PerftDistributed.cpp
         perft/remote/Message.cpp
@@ -49,7 +50,7 @@ set(SOURCE_FILES
         network/Client.cpp
 )
 
-set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_CXX_COMPILER "clang++")
 add_executable(cinnamon ${SOURCE_FILES})
 if (DR_MEMORY STREQUAL "YES")
     target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/32/libgtb.a)

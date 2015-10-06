@@ -33,6 +33,7 @@
 #include "../../network/Server.h"
 #include "../../blockingThreadPool/ThreadPool.h"
 #include "RemoteNode.h"
+#include "PerftClient.h"
 
 class PerftServer : public Server {
 public :
@@ -48,10 +49,12 @@ public :
         }
     }
 
+    virtual ~PerftServer() { }
+
 protected:
 
     virtual void receive(string msg);
-
+    virtual void sendMsg(string host, int portno, Message msg);
 private:
     vector<function<void(Message message)>> observers;
 

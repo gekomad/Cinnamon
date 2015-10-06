@@ -19,6 +19,17 @@
 
 #include "Message.h"
 
+Message::Message(const Message& b) {
+    depth = b.depth;
+    host = b.host;
+    dumpFile = dumpFile;
+    fen = b.fen;
+    from = b.from;
+    to = b.to;
+    hashsize = b.hashsize;
+    partial = b.partial;
+    tot = b.tot;
+}
 
 bool Message::compare(Message &b) {
     if (depth != b.depth) return false;
@@ -34,7 +45,7 @@ bool Message::compare(Message &b) {
 }
 
 Message::Message(const string host1, const string fen1, const int depth1, const int hashsize1, const string dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
-    assert(host1.size()>2);
+    assert(host1.size() > 2);
     assert(fen1.size() > 10);
     assert(depth1 > 0);
     assert(from1 >= to1);

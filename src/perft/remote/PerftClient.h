@@ -18,42 +18,14 @@
 
 #pragma once
 
-#include "../../blockingThreadPool/Thread.h"
-#include "../../network/Client.h"
 #include "Message.h"
-#include "PerftClient.h"
+#include "../../network/Client.h"
 
-
-class RemoteNode : public Thread {
-
-public:
-
-    virtual ~RemoteNode() {
-        if (message)delete message;
-        message = nullptr;
+class PerftClient : public Client {
+public :
+    void sendMsg(string host, int portno, Message msg) {
+        Client::sendMsg(host, portno, msg.getSerializedString());
     }
 
-    void setParam(const int port, const string fen, const int depth, const int from, const int to, const tuple<string, int, int, string> node);
-
-    virtual void run();
-
-    virtual void endRun();
-
-    void endWork() {
-        end = 1;
-        cv.notify_all();
-    }
-
-    const string &getHost() const {
-        return host;
-    }
-
-private:
-    string host;
-    PerftClient c;
-    Message *message = nullptr;
-    int port;
-    condition_variable cv;
-    int end = 0;
 };
 

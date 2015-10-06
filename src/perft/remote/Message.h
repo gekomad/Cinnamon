@@ -28,12 +28,13 @@ using namespace _def;
 class Message {
 
 public:
-
-    bool compare(Message &b);
+    Message(const Message& message);
 
     Message(const string host1, const string fen1, const int depth1, const int hashsize1, const string dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1);
 
     Message(string m);
+
+    bool compare(Message &b);
 
     const string &getHost() const {
         return host;
@@ -88,5 +89,41 @@ private:
     unsigned long long tot;
     string serializedString;
 
+public:
+    void setHost(const string &host) {
+        Message::host = host;
+    }
+
+    void setFen(const string &fen) {
+        Message::fen = fen;
+    }
+
+    void setDumpFile(const string &dumpFile) {
+        Message::dumpFile = dumpFile;
+    }
+
+    void setDepth(int depth) {
+        Message::depth = depth;
+    }
+
+    void setHashsize(int hashsize) {
+        Message::hashsize = hashsize;
+    }
+
+    void setFrom(int from) {
+        Message::from = from;
+    }
+
+    void setTo(int to) {
+        Message::to = to;
+    }
+
+    void setPartial(unsigned long long int partial) {
+        Message::partial = partial;
+    }
+
+    void setTot(unsigned long long int tot) {
+        Message::tot = tot;
+    }
 };
 

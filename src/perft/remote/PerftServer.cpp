@@ -19,7 +19,24 @@
 #include "PerftServer.h"
 #include "Message.h"
 
+void PerftServer::sendMsg(string host, int portno, Message msg) {
+    sendMsg(host, portno, msg.getSerializedString());
+}
+
 void PerftServer::receive(string msg) {
+    cout <<"PerftServer::receive"<<endl;
     Message message(msg);
+    PerftClient c;
+//    if(......)
+    sleep(10);
+    Message b(message);
+    b.setPartial(10);
+    c.sendMsg("10.175.95.243", 8888, b);
+    sleep(5);
+    b.setPartial(30);
+    c.sendMsg("10.175.95.243", 8888, b);
+    sleep(5);
+    b.setTot(100);
+    c.sendMsg("10.175.95.243", 8888, b);
     notifyObservers(msg);
 };
