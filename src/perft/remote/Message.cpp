@@ -21,8 +21,15 @@
 
 
 bool Message::compare(Message &b) {
-    if (depth != b.depth || host != b.host || dumpFile != dumpFile || fen != b.fen || from != b.from || to != b.to || hashsize != b.hashsize || partial != b.partial || tot != b.tot)
-        return false;
+    if (depth != b.depth) return false;
+    if (host != b.host)return false;
+    if (dumpFile != dumpFile)return false;
+    if (fen != b.fen)return false;
+    if (from != b.from)return false;
+    if (to != b.to)return false;
+    if (hashsize != b.hashsize)return false;
+    if (partial != b.partial)return false;
+    if (tot != b.tot) return false;
     return true;
 }
 
@@ -53,8 +60,18 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
 
     string b(a);
     serializedString.assign(b);
+
+    host = host1;
+    fen = fen1;
+    dumpFile = dumpFile1;
+    depth = depth1;
+    hashsize = hashsize1;
+    from = from1;
+    to = to1;
+    partial = partial1;
+    tot = tot1;
 #ifdef DEBUG_MODE
-    cout <<"|"<<serializedString<<"|"<<endl;
+    cout << "|" << serializedString << "|" << endl;
     Message x(serializedString);
     ASSERT(compare(x));
 #endif
@@ -62,7 +79,7 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
 
 Message::Message(string m) {
 
-    cout <<"|"<<m<<"|"<<endl;
+    cout << "|" << m << "|" << endl;
 #ifdef DEBUG_MODE
     int c = 0;
     for (int i = 0; i < m.size(); i++)if (m.at(i) == 1)c++;
