@@ -34,10 +34,10 @@ bool Message::compare(Message &b) {
 }
 
 Message::Message(const string host1, const string fen1, const int depth1, const int hashsize1, const string dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
-    assert(host1.size());
+    assert(host1.size()>2);
     assert(fen1.size() > 10);
     assert(depth1 > 0);
-    assert(from >= to);
+    assert(from1 >= to1);
     char a[Server::MAX_MSG_SIZE];
     memset(a, 0, Server::MAX_MSG_SIZE);
     strcat(a, host1.c_str());
