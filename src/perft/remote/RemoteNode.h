@@ -26,7 +26,6 @@
 class RemoteNode : public Thread {
 
 public:
-    Message::_Tmessage message;
 
     void setParam(const int port, const string fen, const int depth, const int from, const int to, const tuple<string, int, int, string> node);
 
@@ -42,7 +41,7 @@ public:
 private:
     string host;
     Client c;
-
+    Message *message = nullptr;
     int port;
     condition_variable cv;
     int end = 0;

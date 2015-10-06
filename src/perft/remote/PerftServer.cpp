@@ -20,18 +20,18 @@
 #include "Message.h"
 
 void PerftServer::receive(string msg) {
-    Message::_Tmessage tmessage = Message::deserialize(msg);
+    Message message(msg);
 
-    cout << "host: " << tmessage.host << "\n";
-    cout << "tot: " << tmessage.tot << "\n";
-    cout << "partial: " << tmessage.partial << "\n";
+    cout << "host: " << message.getHost() << "\n";
+    cout << "tot: " << message.getTot() << "\n";
+    cout << "partial: " << message.getPartial() << "\n";
 
-    if (tmessage.tot != -1) {
+    if (message.getTot() != -1) {
         for (int i = 0; i < threadPool.size(); i++) {
-            if (threadPool.at(i)->message.host == tmessage.host) {
-                threadPool.at(i)->endWork();
-                break;
-            }
+//            if (threadPool.at(i)->message->getHost() == message.getHost()) {
+//                threadPool.at(i)->endWork();
+//                break;
+//            }
         }
     }
 

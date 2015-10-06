@@ -16,16 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "RemoteNode.h"
 
 void RemoteNode::run() {
-    string a = Message::serialize(message);
+    string a = message->getSerializedString();
     //c.sendMsg(host, port, a);
     mutex mtx;
 
     unique_lock<std::mutex> lck(mtx);
-    cv.wait(lck, [this](){return end == 1;});
+    cv.wait(lck, [this]() { return end == 1; });
 }
 
 void RemoteNode::endRun() {
@@ -39,11 +38,5 @@ void RemoteNode::setParam(const int port1, const string fen, const int depth, co
     int hashsize = get<2>(node);
     string dumpFile = get<3>(node);
 
-    message.fen = fen;
-    message.depth = depth;
-    message.dumpFile = dumpFile;
-    message.hashsize = hashsize;
-    message.from = from;
-    message.to = to;
-
+    message = new Message(host, fen, depth, hashsize, dumpFile, from, to, -1, -1);
 }

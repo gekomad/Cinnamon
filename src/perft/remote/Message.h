@@ -17,108 +17,76 @@
 */
 
 #pragma once
+
 #include "../../namespaces/def.h"
 #include "../../network/Server.h"
+#include "../../namespaces/def.h"
 
 using namespace _debug;
+using namespace _def;
 
 class Message {
 
 public:
 
-    typedef struct {
-        string host;
-        string fen;
-        string dumpFile;
-        int depth;
-        int hashsize;
-        int from;
-        int to;
-        unsigned long long partial;
-        unsigned long long tot;
-    } _Tmessage;
+    bool compare(Message &a, Message &b);
 
+    Message(const string host1, const string fen1, const int depth1, const int hashsize1, const string dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1);
+
+    Message(string m);
+
+    const string &getHost() const {
+        return host;
+    }
+
+    const string &getFen() const {
+        return fen;
+    }
+
+    const string &getDumpFile() const {
+        return dumpFile;
+    }
+
+    int getDepth() const {
+        return depth;
+    }
+
+    int getHashsize() const {
+        return hashsize;
+    }
+
+    int getFrom() const {
+        return from;
+    }
+
+    int getTo() const {
+        return to;
+    }
+
+    unsigned long long int getPartial() const {
+        return partial;
+    }
+
+    unsigned long long int getTot() const {
+        return tot;
+    }
+
+    const string &getSerializedString() const {
+        return serializedString;
+    }
+
+private:
     const static char SEPARATOR = 1;
-
-    bool static compare(_Tmessage &a, _Tmessage &b) {
-        if (a.depth != b.depth
-            ||a.host != b.host||
-            a.dumpFile != a.dumpFile ||
-            a.fen != b.fen ||
-            a.from != b.from ||
-            a.to != b.to ||
-            a.hashsize != b.hashsize
-            || a.partial != b.partial||
-                a.tot != b.tot
-                )
-            return false;
-        return true;
-    }
-
-    string static serialize(_Tmessage &m) {
-
-        char a[Server::MAX_MSG_SIZE];
-        memset(a, 0, Server::MAX_MSG_SIZE);
-        strcat(a, m.host.c_str());
-        a[strlen(a)] = SEPARATOR;
-        strcat(a, m.fen.c_str());
-        a[strlen(a)] = SEPARATOR;
-        strcat(a, String(m.depth).c_str());
-        a[strlen(a)] = SEPARATOR;
-        strcat(a, String(m.hashsize).c_str());
-        a[strlen(a)] = SEPARATOR;
-        strcat(a, String(m.dumpFile).c_str());
-        a[strlen(a)] = SEPARATOR;
-        strcat(a, String(m.from).c_str());
-        a[strlen(a)] = SEPARATOR;
-        strcat(a, String(m.to).c_str());
-        a[strlen(a)] = SEPARATOR;
-        strcat(a, String(m.partial).c_str());
-        a[strlen(a)] = SEPARATOR;
-        strcat(a, String(m.tot).c_str());
-
-        string b(a);
-#ifdef DEBUG_MODE
-        _Tmessage x = Message::deserialize(b);
-        ASSERT(Message::compare(m, x));
-#endif
-        return b;
-    }
-
-    _Tmessage static deserialize(string m) {
-        cout <<m<<endl;
-#ifdef DEBUG_MODE
-        int c=0;
-for(int i=0;i<m.size();i++)if(m.at(i)==1)c++;
-assert(c==8);
-#endif
-        stringstream ss(m);
-
-        _Tmessage tmessage;
-
-        char sep = SEPARATOR;
-        string dummy;
-        getline(ss, tmessage.host, sep);
-        getline(ss, dummy, sep);
-        getline(ss, tmessage.fen, sep);
-        getline(ss, dummy, sep);
-        tmessage.depth = stoi(dummy);
-        getline(ss, dummy, sep);
-        assert(dummy.size()<10);
-        tmessage.hashsize = stoi(dummy);
-        getline(ss, tmessage.dumpFile, sep);
-        getline(ss, dummy, sep);
-        tmessage.from = stoi(dummy);
-        getline(ss, dummy, sep);
-        tmessage.to = stoi(dummy);
-
-        getline(ss, dummy, sep);
-        tmessage.partial = stoull(dummy);
-        getline(ss, dummy, sep);
-        tmessage.tot = stoull(dummy);
-        return tmessage;
-    }
-
+    string host;
+    string fen;
+    string dumpFile;
+    int depth;
+    int hashsize;
+    int from;
+    int to;
+    unsigned long long partial;
+    unsigned long long tot;
+    string serializedString;
 
 };
 
