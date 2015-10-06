@@ -53,8 +53,10 @@ public :
 
 protected:
 
-     void receive(string msg);
-     void sendMsg(string host, int portno, Message msg);
+    virtual void receive(string msg);
+
+    void sendMsg(string host, int portno, Message msg);
+
 private:
     vector<function<void(Message message)>> observers;
 
