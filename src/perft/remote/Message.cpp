@@ -27,7 +27,6 @@ bool Message::compare(Message &b) {
 }
 
 Message::Message(const string host1, const string fen1, const int depth1, const int hashsize1, const string dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
-    cout << "a";
     assert(host1.size());
     assert(fen1.size() > 10);
     assert(depth1 > 0);
@@ -53,8 +52,9 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
     strcat(a, String(tot1).c_str());
 
     string b(a);
-    serializedString = b;
+    serializedString.assign(b);
 #ifdef DEBUG_MODE
+    cout <<"|"<<serializedString<<"|"<<endl;
     Message x(serializedString);
     ASSERT(compare(x));
 #endif
@@ -62,7 +62,7 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
 
 Message::Message(string m) {
 
-    cout << m << endl;
+    cout <<"|"<<m<<"|"<<endl;
 #ifdef DEBUG_MODE
     int c = 0;
     for (int i = 0; i < m.size(); i++)if (m.at(i) == 1)c++;
@@ -70,22 +70,18 @@ Message::Message(string m) {
 #endif
     stringstream ss(m);
 
-
     string dummy;
     getline(ss, host, SEPARATOR);
-    getline(ss, dummy, SEPARATOR);
     getline(ss, fen, SEPARATOR);
     getline(ss, dummy, SEPARATOR);
     depth = stoi(dummy);
     getline(ss, dummy, SEPARATOR);
-    assert(dummy.size() < 10);
     hashsize = stoi(dummy);
     getline(ss, dumpFile, SEPARATOR);
     getline(ss, dummy, SEPARATOR);
     from = stoi(dummy);
     getline(ss, dummy, SEPARATOR);
     to = stoi(dummy);
-
     getline(ss, dummy, SEPARATOR);
     partial = stoull(dummy);
     getline(ss, dummy, SEPARATOR);

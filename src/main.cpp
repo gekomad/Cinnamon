@@ -123,27 +123,7 @@ void printHeader() {
 
 int main(int argc, char **argv) {
 
-//    Message::_Tmessage m;
-//    m.fen="a a";
-//    m.depth=1;
-//    m.dumpFile="   ";
-//    m.hashsize=2;
-//    m.from=-1;
-//    m.to=4;
-//    string a=Message::serialize(m);
-//    cout << a << endl;
-
-//    int port = 8082;
-//    PerftServer s(port);
-//    s.start();
-//    sleep(1);
-//
-//    int i = 0;
-//    while (1) {
-//        sleep(1);
-//        Client::sendMsg("127.0.0.1",port,"vff " + String(i++));
-//
-//    }
+    //Message* message = new Message("host", "", 4,2, "dumpFile",4,5, -1, -1);
 
     printHeader();
 
