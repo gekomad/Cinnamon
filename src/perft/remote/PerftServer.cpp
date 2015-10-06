@@ -21,9 +21,5 @@
 
 void PerftServer::receive(string msg) {
     Message message(msg);
-
     notifyObservers(msg);
-
-
 };
-

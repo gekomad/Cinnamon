@@ -44,7 +44,7 @@ public :
 
     void notifyObservers(Message message) {
         for (auto i = observers.begin(); i != observers.end(); ++i) {
-            (*i)( message);
+            (*i)(message);
         }
     }
 
@@ -54,5 +54,7 @@ protected:
 
 private:
     vector<function<void(Message message)>> observers;
+
+
 };
 
