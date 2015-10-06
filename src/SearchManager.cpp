@@ -62,7 +62,7 @@ void SearchManager::singleSearch(int mply) {
     ASSERT(!getBitCount());
     if (mply == 1) {
         threadPool[0]->init();
-        debug("val: ", valWindow);
+        debug<LOG_LEVEL::DEBUG,false>("val: ", valWindow);
 
         threadPool[0]->run(SMP_NO, mply, -_INFINITE, _INFINITE);
         valWindow = threadPool[0]->getValue();
@@ -113,13 +113,13 @@ void SearchManager::parallelSearch(int mply) {
 
     if (mply == 1) {
         Search &idThread1 = getNextThread();
-        debug("start loop1 ------------------------------ run threadid: ", idThread1.getId(), "count:", getBitCount());
-        debug("val: ", valWindow);
+        debug<LOG_LEVEL::DEBUG,true>("start loop1 ------------------------------ run threadid: ", idThread1.getId(), "count:", getBitCount());
+        debug<LOG_LEVEL::DEBUG,true>("val: ", valWindow);
         startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
         idThread1.join();
     } else {
 //  Parallel Aspiration Windows
-        debug("start loop2 --------------------------count:", getBitCount());
+        debug<LOG_LEVEL::DEBUG,true>("start loop2 --------------------------count:", getBitCount());
         ASSERT(nThreads);
         ASSERT(!getBitCount());
         ASSERT(lineWin.cmove <= 0);
@@ -134,21 +134,21 @@ void SearchManager::parallelSearch(int mply) {
 
             Search &idThread1 = getNextThread();
             idThread1.setRunning(1);
-            debug("val: ", valWindow);
+            debug<LOG_LEVEL::DEBUG,true>("val: ", valWindow);
             startThread(SMP_YES, idThread1, mply, alpha, beta);
         }
-        debug("end loop2 ---------------------------count:", getBitCount());
+        debug<LOG_LEVEL::DEBUG,true>("end loop2 ---------------------------count:", getBitCount());
         joinAll();
         ASSERT(!getBitCount());
         if (lineWin.cmove <= 0) {
 
-            debug("start loop3 -------------------------------count:", getBitCount());
+            debug<LOG_LEVEL::DEBUG,true>("start loop3 -------------------------------count:", getBitCount());
 //            for (int i = 0; i < getNthread(); i++) {
             Search &idThread1 = getNextThread();
             idThread1.setRunning(1);
             startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
 //            }
-            debug("end loop3 -------------------------------count:", getBitCount());
+            debug<LOG_LEVEL::DEBUG,true>("end loop3 -------------------------------count:", getBitCount());
             idThread1.join();
         }
     }
@@ -166,7 +166,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
                 ASSERT(mateIn == INT_MAX);
                 totCountWin += threadPool[threadID]->getTotMoves();
                 valWindow = getValue(threadID);
-                debug("win", threadID);
+                debug<LOG_LEVEL::DEBUG,true>("win", threadID);
                 ASSERT(lineWin.cmove);
                 stopAllThread();
             }
@@ -216,7 +216,7 @@ int SearchManager::loadFen(string fen) {
 
 void SearchManager::startThread(bool smpMode, Search &thread, int depth, int alpha, int beta) {
 
-    debug("startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
+    debug<LOG_LEVEL::DEBUG,true>("startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
     ASSERT(alpha >= -_INFINITE);
 
     thread.setMainParam(smpMode, depth, alpha, beta);

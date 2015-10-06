@@ -23,7 +23,31 @@
 #include <cxxabi.h>
 
 namespace _debug {
-#ifdef DEBUG_MODE
+//    OFF 	    Il livello più alto possibile, viene usato per disattivare i log.
+//    FATAL 	Errore importante che causa un prematuro termine dell'esecuzione. Ci si aspetta che questo sia visibile immediatamente all'operatore.
+//    ERROR 	Un errore di esecuzione o una condizione imprevista. Anche questo deve essere immediatamente segnalato.
+//    WARN 	    Usato per ogni condizione inaspettata o anomalia di esecuzione, che però non necessariamente ha comportato un errore.
+//    INFO 	    Usato per segnalare eventi di esecuzione (esempio: startup/shutdown). Deve essere segnalato ma poi non mantenuto per tanto tempo.
+//    DEBUG 	Usato nella fase di debug del programma. Viene riportato nel file di log.
+//    TRACE 	Alcune informazioni dettagliate. Ci si aspetta che venga scritto esclusivamente nei file di log. È stato aggiunto nella versione 1.2.12.
+    static enum LOG_LEVEL {
+        TRACE = 0,
+        DEBUG = 1,
+        INFO = 2,
+        WARN = 3,
+        ERROR = 4,
+        FATAL = 5,
+        OFF = 6
+    } _LOG_LEVEL;
+    static const string LOG_LEVEL_STRING[7] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"};
+
+#if defined(_WIN32)
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif
+
+#define LINE_INFO __FILENAME__,":",__LINE__
 
     template<typename T>
     void _debug(T a) {
@@ -38,26 +62,27 @@ namespace _debug {
 
     static mutex _CoutSyncMutex;
 
-    template<typename T, typename... Args>
+    template<LOG_LEVEL type, bool nano, typename T, typename... Args>
     void debug(T t, Args... args) {
+        //2014-07-02 20:52:39 DEBUG HelloExample:19 - This is debug : mkyong
+        if (type > DLOG_LEVEL)return;
         lock_guard <mutex> lock1(_CoutSyncMutex);
         nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
-        cout << "info string TIME: " << ms.count() << " ";
+        cout << "info string " << " " << Time::getLocalTime();
+        if (nano)cout << " NANOSEC: " << ms.count();
+        cout << " " << LOG_LEVEL_STRING[type] << " ";
+
         _debug(t, args...);
         cout << "\n";
     }
-
-#else
-
-#define debug(...)
-
-#endif
 
 
 #if defined(_WIN32) || !defined(DEBUG_MODE)
     static inline void print_stacktrace() { }
 #else
+
 #include <execinfo.h>
+
 /// (c) 2008, Timo Bingmann from http://idlebox.net/
 /// published under the WTFPL v2.0
 //Print a demangled stack backtrace of the caller function to FILE* out.
