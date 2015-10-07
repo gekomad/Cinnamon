@@ -23,18 +23,16 @@
 #include <cxxabi.h>
 
 #if !defined DLOG_LEVEL
+#if defined DEBUG_MODE
+#define DLOG_LEVEL TRACE
+#else
 #define DLOG_LEVEL OFF
+#endif
 #endif
 namespace _debug {
 
     static enum LOG_LEVEL {
-        TRACE = 0,
-        DEBUG = 1,
-        INFO = 2,
-        WARN = 3,
-        ERROR = 4,
-        FATAL = 5,
-        OFF = 6
+        TRACE = 0, DEBUG = 1, INFO = 2, WARN = 3, ERROR = 4, FATAL = 5, OFF = 6
     } _LOG_LEVEL;
     static const string LOG_LEVEL_STRING[7] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"};
 
