@@ -20,6 +20,7 @@
 #include "Server.h"
 
 void Server::run() {
+    cout <<"aaaaaaaaaaaaaaaa11111111111"<<endl;
     int read_size;
     int c = sizeof(struct sockaddr_in);
     struct sockaddr_in client;
@@ -43,14 +44,17 @@ void Server::dispose() {
 }
 
 void Server::endRun() {
+    cout <<"aaaaaaaaaaaaaaaa22222222222222222"<<endl;
     dispose();
 }
 
 Server::~Server() {
+    cout <<"aaaaaaaaaaaaaaaa33333333333333333"<<endl;
     dispose();
 }
 
 Server::Server(int portno, Iparser *parser1) {
+    cout <<"aaaaaaaaaaaaaaaa00000000000000000"<<endl;
     parser = parser1;
     struct sockaddr_in server;
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);

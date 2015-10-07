@@ -95,9 +95,9 @@ void PerftDistributed::setParam(const string &fen1, int depth1, const string &di
 }
 
 void PerftDistributed::run() {
-    Server s(port, new PerftParser());//TODO delete PerftParser?
-    server = &s;
-    s.start();
+    cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" << endl;
+    server = new Server(port, new PerftParser());//TODO delete PerftParser?
+    server->start();
     usleep(10000);//wait complete startup
     if (!serverMode) {
         callRemoteNode();

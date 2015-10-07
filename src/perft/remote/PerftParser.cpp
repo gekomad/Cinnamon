@@ -32,17 +32,4 @@ void PerftParser::parser(const string &msg) {
     perft.setCallbackResult(new PerftResultCallback());
     perft.start();
 
-//    PerftClient c;
-//    sleep(10);
-//    Message b(message);
-//    b.setPartial(10);
-////    sendMsg(b.getSerializedString());
-//    c.sendMsg("10.0.3.1", SOCK_PORT, b);
-//    sleep(5);
-//    b.setPartial(30);
-//    c.sendMsg("10.0.3.1", SOCK_PORT, b);
-//    sleep(5);
-//    b.setTot(100);
-//    c.sendMsg("10.0.3.1", SOCK_PORT, b);
-
 };
