@@ -122,7 +122,7 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
-
+    cout << " " << LOG_LEVEL_STRING[DLOG_LEVEL] << " "<<endl;
     printHeader();
     GetOpt::parse(argc, argv);
     return 0;

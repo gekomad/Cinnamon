@@ -22,7 +22,9 @@
 void PerftParser::parser(string msg) {
     debug<LOG_LEVEL::INFO, false>(LINE_INFO, "receive");
     Message message(msg);
-
+#ifdef DEBUG_MODE
+    message.print();
+#endif
 //    if(......)
 
     Perft &perft = Perft::getInstance();

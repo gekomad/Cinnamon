@@ -70,7 +70,7 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
 
 Message::Message(string m) {
 #ifdef DEBUG_MODE
-    cout <<m<<endl;
+    cout << m << endl;
     int c = 0;
     for (int i = 0; i < m.size(); i++)if (m.at(i) == SEPARATOR)c++;
     assert(c == 8);
@@ -119,4 +119,18 @@ const string Message::getSerializedString() const {
 
     string b(a);
     return b;
+}
+
+void Message::print() {
+    cout << "--- message ---\n";
+    cout << "host: " << host << "\n";
+    cout << " fen: " << fen << "\n";
+    cout << " dumpFile: " << dumpFile << "\n";
+    cout << " depth: " << depth << "\n";
+    cout << " hashsize: " << hashsize << "\n";
+    cout << " from: " << from << "\n";
+    cout << " to: " << to << "\n";
+    cout << " partial: " << partial << "\n";
+    cout << " tot: " << tot << "\n";
+    cout << "----------------" << endl;
 }

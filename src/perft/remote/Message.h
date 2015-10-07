@@ -88,6 +88,7 @@ private:
     unsigned long long tot;
 
 public:
+    void print();
     void setHost(const string &host) {
         Message::host = host;
     }
