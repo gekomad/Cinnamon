@@ -68,3 +68,10 @@ Server::Server(int portno, Iparser *parser1) {
 
 
 }
+
+void Server::sendMsg(const string &msg) {
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "sendmsgaaaa");
+    Message m(msg);
+    string s = m.getSerializedString();
+    write(client_sock, s.c_str(), strlen(s.c_str()) + 1);
+}

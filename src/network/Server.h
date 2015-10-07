@@ -41,12 +41,7 @@ public:
 
     ~Server();
 
-    void sendMsg(const string &msg) {
-        cout << "sendmsgaaaa " << msg << endl;
-//        Message m("msg");
-//        string s = m.getSerializedString();
-//        write(client_sock, s.c_str(), strlen(s.c_str()) + 1);
-    }
+    void sendMsg(const string &msg);
 
 private:
     int client_sock;
