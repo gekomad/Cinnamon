@@ -32,7 +32,7 @@
 
 #include "../remote/RemoteNode.h"
 #include "../../util/IniFile.h"
-#include "PerftServer.h"
+#include "PerftParser.h"
 #include "PerftDistributed.h"
 #include "../../network/Client.h"
 

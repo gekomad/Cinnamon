@@ -92,7 +92,7 @@ void PerftDistributed::setParam(string fen1, int depth1, string distributedFile,
 }
 
 void PerftDistributed::run() {
-    Server s(port, new PerftServer());
+    Server s(port, new PerftParser());
     s.start();
     usleep(10000);//wait complete startup
     if (!serverMode){

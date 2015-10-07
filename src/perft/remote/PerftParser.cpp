@@ -16,40 +16,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "PerftParser.h"
+#include "Message.h"
 
+//void PerftParser::sendMsg(string host, int portno, Message msg) {
+//    sendMsg(host, portno, msg.getSerializedString());
+//}
 
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include "../blockingThreadPool/Thread.h"
-#include "Iparser.h"
+void PerftParser::parser(string msg) {
+    debug<LOG_LEVEL::INFO,false>(LINE_INFO,"receive");
+    Message message(msg);
+    PerftClient c;
+//    if(......)
+    sleep(10);
+    Message b(message);
+    b.setPartial(10);
+//    sendMsg(b.getSerializedString());
+    c.sendMsg("10.0.3.1", SOCK_PORT, b);
+    sleep(5);
+    b.setPartial(30);
+    c.sendMsg("10.0.3.1", SOCK_PORT, b);
+    sleep(5);
+    b.setTot(100);
+    c.sendMsg("10.0.3.1", SOCK_PORT, b);
 
-class Server : public Thread {
-public:
-    static const int MAX_MSG_SIZE = 2048;
-
-    Server(int port, Iparser *parser);
-
-    void run();
-
-    void endRun();
-
-    ~Server();
-
-    void sendMsg(string msg) {
-        write(client_sock, msg.c_str(), strlen(msg.c_str()) + 1);
-    }
-
-private:
-    int client_sock;
-    int sockfd = -1;
-
-    int socket_desc;
-
-    void dispose();
-
-    Iparser *parser;
 };

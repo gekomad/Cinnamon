@@ -18,38 +18,29 @@
 
 #pragma once
 
-
-#include <string.h>
+#include "../../Search.h"
+#include <iomanip>
+#include <atomic>
+#include <fstream>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include "../blockingThreadPool/Thread.h"
-#include "Iparser.h"
+#include "../../util/Timer.h"
+#include <mutex>
 
-class Server : public Thread {
-public:
-    static const int MAX_MSG_SIZE = 2048;
+#include <signal.h>
+#include <set>
+#include "Message.h"
 
-    Server(int port, Iparser *parser);
+#include "../../network/Server.h"
+#include "../../blockingThreadPool/ThreadPool.h"
+#include "RemoteNode.h"
+#include "PerftClient.h"
 
-    void run();
+class PerftParser : public Iparser{
+public :
 
-    void endRun();
+    void parser(string msg);
 
-    ~Server();
 
-    void sendMsg(string msg) {
-        write(client_sock, msg.c_str(), strlen(msg.c_str()) + 1);
-    }
 
-private:
-    int client_sock;
-    int sockfd = -1;
-
-    int socket_desc;
-
-    void dispose();
-
-    Iparser *parser;
 };
+
