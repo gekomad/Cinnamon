@@ -18,6 +18,7 @@
 
 
 #include "Message.h"
+#include "../../network/util/Network.h"
 
 Message::Message(const Message &b) {
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "create message from message");
@@ -47,14 +48,14 @@ bool Message::compare(const Message &b) {
     return true;
 }
 
-Message::Message(const string &host1, const string &fen1, const int depth1, const int hashsize1, const int Ncpu1, const string &dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
+Message::Message(const string &fen1, const int depth1, const int hashsize1, const int Ncpu1, const string &dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "create message from param");
-    assert(host1.size() > 2);
+
     assert(tot!=-1 || fen1.size() > 10);
     assert(tot!=-1 || depth1 > 0);
     assert(tot!= -1 || from1 >= to1);
 
-    host = host1;
+    host =  Network::getIp();
     fen = fen1;
     dumpFile = dumpFile1;
     depth = depth1;

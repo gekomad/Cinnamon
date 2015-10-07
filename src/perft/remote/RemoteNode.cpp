@@ -40,5 +40,5 @@ void RemoteNode::setParam(const int port1, const string &fen, const int depth, c
     int hashsize = get<2>(node);
     string dumpFile = get<3>(node);
 
-    message = new Message(host, fen, depth, hashsize, Ncpu, dumpFile, from, to, -1, -1);
+    message = new Message( fen, depth, hashsize, Ncpu, dumpFile, from, to, -1, -1);
 }
