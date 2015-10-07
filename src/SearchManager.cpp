@@ -113,13 +113,13 @@ void SearchManager::parallelSearch(int mply) {
 
     if (mply == 1) {
         Search &idThread1 = getNextThread();
-        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"start loop1 ------------------------------ run threadid: ", idThread1.getId(), "count:", getBitCount());
+        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"start loop1 ------------------------------ run threadid: ", idThread1.getId());
         debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"val: ", valWindow);
         startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
         idThread1.join();
     } else {
 //  Parallel Aspiration Windows
-        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"start loop2 --------------------------count:", getBitCount());
+        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"start loop2 --------------------------");
         ASSERT(nThreads);
         ASSERT(!getBitCount());
         ASSERT(lineWin.cmove <= 0);
@@ -137,18 +137,18 @@ void SearchManager::parallelSearch(int mply) {
             debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"val: ", valWindow);
             startThread(SMP_YES, idThread1, mply, alpha, beta);
         }
-        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"end loop2 ---------------------------count:", getBitCount());
+        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"end loop2 ---------------------------");
         joinAll();
         ASSERT(!getBitCount());
         if (lineWin.cmove <= 0) {
 
-            debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"start loop3 -------------------------------count:", getBitCount());
+            debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"start loop3 -------------------------------");
 //            for (int i = 0; i < getNthread(); i++) {
             Search &idThread1 = getNextThread();
             idThread1.setRunning(1);
             startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
 //            }
-            debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"end loop3 -------------------------------count:", getBitCount());
+            debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"end loop3 -------------------------------");
             idThread1.join();
         }
     }
