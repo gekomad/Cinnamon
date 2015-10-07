@@ -116,8 +116,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o IniFile.o Server.o Client.o Message.o PerftDistributed.o PerftServer.o RemoteNode.o
-	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o IniFile.o Server.o  Client.o Message.o PerftDistributed.o PerftServer.o RemoteNode.o ${LIBS}
+all: ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o IniFile.o Server.o Client.o Message.o PerftDistributed.o PerftParser.o RemoteNode.o
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o IniFile.o Server.o  Client.o Message.o PerftDistributed.o PerftParser.o RemoteNode.o ${LIBS}
 
 default:
 	help
@@ -155,8 +155,8 @@ Message.o: perft/remote/Message.cpp
 PerftDistributed.o: perft/remote/PerftDistributed.cpp
 	$(COMP) -c perft/remote/PerftDistributed.cpp ${CFLAGS} ${ARC}
 
-PerftServer.o: perft/remote/PerftServer.cpp
-	$(COMP) -c perft/remote/PerftServer.cpp ${CFLAGS} ${ARC}
+PerftParser.o: perft/remote/PerftParser.cpp
+	$(COMP) -c perft/remote/PerftParser.cpp ${CFLAGS} ${ARC}
 
 RemoteNode.o: perft/remote/RemoteNode.cpp
 	$(COMP) -c perft/remote/RemoteNode.cpp ${CFLAGS} ${ARC}
