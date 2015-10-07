@@ -95,12 +95,13 @@ void PerftDistributed::run() {
     Server s(port, new PerftParser());
     s.start();
     usleep(10000);//wait complete startup
-    if (!serverMode){
+    if (!serverMode) {
         callRemoteNode();
     }
 }
 
 void PerftDistributed::endRun() {
+    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "endRun");
 
 }
 

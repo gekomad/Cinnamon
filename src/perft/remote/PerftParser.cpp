@@ -30,6 +30,7 @@ void PerftParser::parser(string msg) {
     Perft &perft = Perft::getInstance();
     perft.setParam(message.getFen(), message.getDepth(), 1, message.getHashsize(), message.getDumpFile(), false);
     perft.start();
+
 //    PerftClient c;
 //    sleep(10);
 //    Message b(message);

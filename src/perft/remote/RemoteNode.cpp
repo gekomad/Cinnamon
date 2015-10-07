@@ -26,6 +26,7 @@ void RemoteNode::run() {
     mutex mtx;
     unique_lock<std::mutex> lck(mtx);
     cv.wait(lck, [this]() { return end == 1; });
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "end run ", host);
 }
 
 void RemoteNode::endRun() {
@@ -39,5 +40,5 @@ void RemoteNode::setParam(const int port1, const string fen, const int depth, co
     int hashsize = get<2>(node);
     string dumpFile = get<3>(node);
 
-    message = new Message(host, fen, depth, hashsize, dumpFile, from, to, -1, -1);
+    message = new Message(host, fen, depth, hashsize,Ncpu, dumpFile, from, to, -1, -1);
 }

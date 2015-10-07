@@ -26,15 +26,33 @@ using namespace _debug;
 using namespace _def;
 
 class Message {
+private:
+    const static char SEPARATOR = 1;
+    string host;
+    string fen;
+    string dumpFile;
+    int depth;
+    int hashsize;
+    int Ncpu;
+    int from;
+    int to;
+    unsigned long long partial;
+    unsigned long long tot;
 
 public:
-    Message(const Message& message);
+    void print();
 
-    Message(const string host1, const string fen1, const int depth1, const int hashsize1, const string dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1);
+    Message(const Message &message);
+
+    Message(const string host1, const string fen1, const int depth1, const int hashsize1, const int Ncpu, const string dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1);
 
     Message(string m);
 
     bool compare(Message &b);
+
+    void setNcpu(int Ncpu) {
+        Message::Ncpu = Ncpu;
+    }
 
     const string &getHost() const {
         return host;
@@ -72,23 +90,12 @@ public:
         return tot;
     }
 
-    const string getSerializedString() const ;
+    const string getSerializedString() const;
 
-private:
-    const static char SEPARATOR = 1;
-    string host;
-    string fen;
-    string dumpFile;
-    int depth;
-    int hashsize;
-    //TODO int cpu;
-    int from;
-    int to;
-    unsigned long long partial;
-    unsigned long long tot;
+    int getNcpu() const {
+        return Ncpu;
+    }
 
-public:
-    void print();
     void setHost(const string &host) {
         Message::host = host;
     }
