@@ -17,6 +17,7 @@ set(SOURCE_FILES
         perft/remote/RemoteNode.cpp
         perft/remote/PerftDistributed.cpp
         perft/remote/Message.cpp
+        perft/remote/PerftResultCallback.cpp
 
         util/Bits.cpp
         util/String.cpp

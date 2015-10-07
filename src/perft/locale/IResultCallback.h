@@ -17,31 +17,10 @@
 */
 
 #pragma once
+#include "../../namespaces/def.h"
+using namespace _def;
+class IResultCallback {
+public:
 
-#include "../../Search.h"
-#include <iomanip>
-#include <atomic>
-#include <fstream>
-#include <unistd.h>
-#include "../../util/Timer.h"
-#include <mutex>
-
-#include <signal.h>
-#include <set>
-#include "Message.h"
-
-#include "../../network/Server.h"
-#include "../../blockingThreadPool/ThreadPool.h"
-#include "RemoteNode.h"
-#include "PerftClient.h"
-#include "PerftResultCallback.h"
-
-class PerftParser : public Iparser{
-public :
-
-    void parser(string msg);
-
-
-
+    virtual void setTot(u64) = 0;
 };
-

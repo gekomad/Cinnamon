@@ -16,32 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include "../../Search.h"
-#include <iomanip>
-#include <atomic>
-#include <fstream>
-#include <unistd.h>
-#include "../../util/Timer.h"
-#include <mutex>
-
-#include <signal.h>
-#include <set>
-#include "Message.h"
-
-#include "../../network/Server.h"
-#include "../../blockingThreadPool/ThreadPool.h"
-#include "RemoteNode.h"
-#include "PerftClient.h"
 #include "PerftResultCallback.h"
 
-class PerftParser : public Iparser{
-public :
+void PerftResultCallback::setTot(u64 tot) {
+    //getinstance server
+    cout <<"send tot at server: "<<tot<<endl;
 
-    void parser(string msg);
+}
 
-
-
-};
 

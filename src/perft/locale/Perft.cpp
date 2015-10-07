@@ -256,6 +256,9 @@ void Perft::endRun() {
     if (forceExit) {
         std::_Exit(0);
     }
+    if(callbackResult){
+        callbackResult->setTot(perftRes.totMoves);
+    }
 }
 
 void Perft::status() {
@@ -267,3 +270,4 @@ void Perft::status() {
     int sec = Time::diffTime(end1, start1) / 1000;
     cout << Time::getLocalTime() << " partial tot: " << tot << " (" << ((tot / 1000) / sec) << " k nodes per seconds)" << endl;
 }
+

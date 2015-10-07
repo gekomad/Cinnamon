@@ -30,13 +30,12 @@ void Server::run() {
     assert (client_sock >= 0);
     while(1) {
         while ((read_size = recv(client_sock, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
-            debug<LOG_LEVEL::INFO, false>(LINE_INFO, "Server::read", client_message);
+            debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "Server::read", client_message);
             write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
             parser->parser(client_message);
-            debug<LOG_LEVEL::INFO, false>(LINE_INFO, "ok");
+            debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok");
         }
     }
-    //debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "exit read");
 }
 
 void Server::dispose() {

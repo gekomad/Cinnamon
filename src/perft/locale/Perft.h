@@ -29,6 +29,7 @@
 #include "../../blockingThreadPool/ThreadPool.h"
 #include "_TPerftRes.h"
 #include <signal.h>
+#include "IResultCallback.h"
 
 /*
 cat perft.html   | sed -e "s/xxxxxxa/\<img src=/g" | sed -e "s/xxxxxxb/>/g" >perft2.html
@@ -80,6 +81,10 @@ public:
 
     void status();
 
+    void setCallbackResult(IResultCallback *callbackResult) {
+        Perft::callbackResult = callbackResult;
+    }
+
 private:
     Perft() : ThreadPool(1) { };
 
@@ -111,6 +116,7 @@ private:
     static bool dumping;
 
     bool forceExit = false;
+    IResultCallback *callbackResult = nullptr;
 
 };
 
