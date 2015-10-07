@@ -17,11 +17,6 @@
 */
 
 #include "PerftParser.h"
-#include "Message.h"
-
-//void PerftParser::sendMsg(string host, int portno, Message msg) {
-//    sendMsg(host, portno, msg.getSerializedString());
-//}
 
 void PerftParser::parser(string msg) {
     debug<LOG_LEVEL::INFO,false>(LINE_INFO,"receive");

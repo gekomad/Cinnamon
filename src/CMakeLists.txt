@@ -2,7 +2,7 @@ project(cinnamon)
 
 set(DR_MEMORY "NO")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -std=c++11 -Wno-reorder -DDLOG_LEVEL=TRACE -DDEBUG_MODE")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -std=c++11 -Wno-reorder -DDLOG_LEVELxx=TRACE -DDEBUG_MODE")
 
 if (DR_MEMORY STREQUAL "YES")
     set(CMAKE_CXX_FLAGS "-DDEBUG_MODE -pthread -std=c++11 -m32 -g -fno-inline -fno-omit-frame-pointer -Wno-reorder")
@@ -12,7 +12,7 @@ set(SOURCE_FILES
         perft/locale/Perft.cpp
         perft/locale/PerftThread.cpp
 
-        perft/remote/PerftServer.cpp
+        perft/remote/PerftParser.cpp
 
         perft/remote/RemoteNode.cpp
         perft/remote/PerftDistributed.cpp
