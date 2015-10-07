@@ -21,16 +21,20 @@
 
 void Server::run() {
     int read_size;
+    int c = sizeof(struct sockaddr_in);
     struct sockaddr_in client;
     char client_message[MAX_MSG_SIZE];
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "accept...",client_message);
     client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok",client_message);
     assert (client_sock >= 0);
     while ((read_size = recv(client_sock, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
-        cout << "Server::read " << client_message << "\n";
+
+        debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "Server::read",client_message);
         write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
-        cout << "aaaaaaaaaaaa" << endl;
+
         parser->parser(client_message);
-        cout << "bbbbbbbbbbbb" << endl;
+        
     }
 
 }
@@ -57,13 +61,11 @@ Server::Server(int portno, Iparser *parser1) {
     server.sin_port = htons(portno);
     int on = 1;
     assert(setsockopt(socket_desc, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) >= 0);
+    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "binding..");
+
     assert (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) >= 0);
-
-
-
-
-
+    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "ok");
     listen(socket_desc, 3);
-    int c = sizeof(struct sockaddr_in);
+
 
 }

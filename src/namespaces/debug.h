@@ -59,7 +59,7 @@ namespace _debug {
 
     template<LOG_LEVEL type, bool nano, typename T, typename... Args>
     void debug(T t, Args... args) {
-        if (type <= DLOG_LEVEL) {
+        if (type >= DLOG_LEVEL) {
             lock_guard <mutex> lock1(_CoutSyncMutex);
             nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
             cout << "info string " << " " << Time::getLocalTime();
@@ -67,7 +67,7 @@ namespace _debug {
             cout << " " << LOG_LEVEL_STRING[type] << " ";
 
             _debug(t, args...);
-            cout << "\n";
+            cout << endl;
         }
     }
 
