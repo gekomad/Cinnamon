@@ -36,8 +36,8 @@ private:
     int Ncpu;
     int from;
     int to;
-    unsigned long long partial;
-    unsigned long long tot;
+    u64 partial;
+    u64 tot;
 
 public:
     void print();
@@ -48,7 +48,7 @@ public:
 
     Message(const string &m);
 
-    bool compare(Message &b);
+    bool compare(const Message &b);
 
     void setNcpu(int Ncpu) {
         Message::Ncpu = Ncpu;
@@ -82,11 +82,11 @@ public:
         return to;
     }
 
-    unsigned long long int getPartial() const {
+    u64 getPartial() const {
         return partial;
     }
 
-    unsigned long long int getTot() const {
+    u64 getTot() const {
         return tot;
     }
 
@@ -124,11 +124,11 @@ public:
         Message::to = to;
     }
 
-    void setPartial(unsigned long long int partial) {
+    void setPartial(u64 partial) {
         Message::partial = partial;
     }
 
-    void setTot(unsigned long long int tot) {
+    void setTot(u64 tot) {
         Message::tot = tot;
     }
 };

@@ -22,8 +22,6 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
-#include "String.h"
-
 
 using namespace std;
 
@@ -33,7 +31,7 @@ public:
 
     String(const string &s) : string(s) { };
 
-    String(char *s) : string(s) { };
+    String(const char *s) : string(s) { };
 
     String(int);
 
@@ -41,17 +39,17 @@ public:
 
     virtual ~ String();
 
-    String trim();
+    String &trim();
 
-    String trimLeft();
+    String &trimLeft();
 
-    String trimRight();
+    String &trimRight();
 
-    String replace(const string &s1, const string &s2);
+    String &replace(const string &s1, const string &s2);
 
-    String replace(char c1, char c2);
+    String &replace(char c1, char c2);
 
-    String toUpper();
+    String &toUpper();
 
-    String toLower();
+    String &toLower();
 };

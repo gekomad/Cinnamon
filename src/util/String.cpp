@@ -18,7 +18,6 @@
 
 #include "String.h"
 
-
 String::String() {
 }
 
@@ -36,23 +35,23 @@ String::String(int d) {
 
 String::~String() { }
 
-String String::trim() {
+String &String::trim() {
     trimLeft();
     trimRight();
     return *this;
 }
 
-String String::trimLeft() {
+String &String::trimLeft() {
     this->erase(this->begin(), std::find_if(this->begin(), this->end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
     return *this;
 }
 
-String String::trimRight() {
+String &String::trimRight() {
     this->erase(std::find_if(this->rbegin(), this->rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), this->end());
     return *this;
 }
 
-String String::replace(char c1, char c2) {
+String &String::replace(char c1, char c2) {
     for (unsigned i = 0; i < size(); i++) {
         if (at(i) == c1) {
             at(i) = c2;
@@ -61,7 +60,7 @@ String String::replace(char c1, char c2) {
     return *this;
 }
 
-String String::replace(const string &s1, const string &s2) {
+String &String::replace(const string &s1, const string &s2) {
     unsigned long a;
     while ((a = find(s1)) != string::npos) {
         string::replace(a, s1.size(), s2);
@@ -69,12 +68,12 @@ String String::replace(const string &s1, const string &s2) {
     return *this;
 }
 
-String String::toUpper() {
+String &String::toUpper() {
     transform(begin(), end(), begin(), ::toupper);
     return *this;
 }
 
-String String::toLower() {
+String &String::toLower() {
     transform(begin(), end(), begin(), ::tolower);
     return *this;
 }

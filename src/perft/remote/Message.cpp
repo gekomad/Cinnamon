@@ -33,7 +33,7 @@ Message::Message(const Message &b) {
     tot = b.tot;
 }
 
-bool Message::compare(Message &b) {
+bool Message::compare(const Message &b) {
     if (depth != b.depth) return false;
     if (host != b.host)return false;
     if (dumpFile != dumpFile)return false;

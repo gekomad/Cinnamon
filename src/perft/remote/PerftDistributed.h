@@ -56,7 +56,7 @@ public:
 
 private:
 
-    void receiveMsg(Message message);
+    void receiveMsg(const Message &message);
 
     std::vector<tuple<string, int, int, string>> nodesSet;
 

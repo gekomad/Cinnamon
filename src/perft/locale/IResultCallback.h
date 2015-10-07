@@ -25,5 +25,5 @@ using namespace _def;
 class IResultCallback {
 public:
 
-    virtual void setTot(u64) = 0;
+    virtual void setTot(const u64) = 0;
 };

@@ -109,7 +109,7 @@ void PerftDistributed::endRun() {
 
 }
 
-void PerftDistributed::receiveMsg(Message message) {
+void PerftDistributed::receiveMsg(const Message &message) {
     debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer:: receive msg from host: ", message.getHost(), message.getSerializedString());
 
     if (message.getTot() != -1)debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer::tot:", message.getTot());

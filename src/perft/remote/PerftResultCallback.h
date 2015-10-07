@@ -26,7 +26,7 @@ using namespace _def;
 class PerftResultCallback : public IResultCallback {
 public :
 
-    void setTot(u64);
+    void setTot(const u64);
 
 };
 

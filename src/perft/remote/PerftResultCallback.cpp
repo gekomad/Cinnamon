@@ -19,7 +19,7 @@
 #include "PerftResultCallback.h"
 #include "PerftDistributed.h"
 
-void PerftResultCallback::setTot(u64 tot) {
+void PerftResultCallback::setTot(const u64 tot) {
     debug<LOG_LEVEL::INFO, false>(LINE_INFO, "send result to server");
     PerftDistributed::getInstance().getServer()->sendMsg(String(tot));
 

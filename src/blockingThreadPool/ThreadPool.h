@@ -108,7 +108,7 @@ protected:
 private:
 
     mutex mtx;
-    atomic <u64> threadsBits;
+    atomic<u64> threadsBits;
     int nThread = 0;
     condition_variable cv;
     mutex mxGet;
@@ -129,7 +129,7 @@ private:
         ASSERT(threadsBits & POW2[threadID]);
         threadsBits &= ~POW2[threadID];
         cv.notify_all();
-        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"ThreadPool::releaseThread #", threadID);
+        debug<LOG_LEVEL::DEBUG, true>(LINE_INFO, "ThreadPool::releaseThread #", threadID);
     }
 
     void observerEndThread(int threadID) {
