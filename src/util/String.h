@@ -31,7 +31,7 @@ class String : public string {
 public:
     String();
 
-    String(string s) : string(s) { };
+    String(const string &s) : string(s) { };
 
     String(char *s) : string(s) { };
 
@@ -47,7 +47,7 @@ public:
 
     String trimRight();
 
-    String replace(string &s1, string &s2);
+    String replace(const string &s1, const string &s2);
 
     String replace(char c1, char c2);
 

@@ -23,7 +23,7 @@ PerftDistributed::~PerftDistributed() {
 
 }
 
-std::vector<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(string distributedFile) {
+std::vector<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(const string &distributedFile) {
 
     IniFile iniFile(distributedFile);
     string nodeIp;
@@ -79,14 +79,17 @@ void PerftDistributed::setServer(int port1) {
     port = port1;
 }
 
-void PerftDistributed::setParam(string fen1, int depth1, string &distributedFile, int port1) {
+void PerftDistributed::setParam(const string &fen1, int depth1, const string &distributedFile, int port1) {
     serverMode = false;
+
     if (fen1.empty()) {
-        fen1 = STARTPOS;
+        fen = STARTPOS;
+    } else {
+        fen = fen1;
     }
     depth = depth1;
     if (depth <= 0)depth = 1;
-    fen = fen1;
+
     port = port1;
     nodesSet = getRemoteNodes(distributedFile);
 }

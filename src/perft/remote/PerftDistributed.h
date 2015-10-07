@@ -43,7 +43,7 @@ class PerftDistributed : public Thread, public ThreadPool<RemoteNode>, public Si
 public:
 
 
-    void setParam(string fen1, int depth1, string &distributedFile, int port);
+    void setParam(const string &fen1, int depth1, const string &distributedFile, int port);
 
     void setServer(int port1);
 
@@ -62,7 +62,7 @@ private:
 
     PerftDistributed() : ThreadPool(1) { };
 
-    std::vector<tuple<string, int, int, string>> getRemoteNodes(string distributedFile);
+    std::vector<tuple<string, int, int, string>> getRemoteNodes(const string &distributedFile);
 
     int depth;
     string fen;

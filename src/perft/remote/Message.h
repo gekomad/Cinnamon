@@ -46,7 +46,7 @@ public:
 
     Message(const string &host1, const string &fen1, const int depth1, const int hashsize1, const int Ncpu, const string &dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1);
 
-    Message(string m);
+    Message(const string &m);
 
     bool compare(Message &b);
 

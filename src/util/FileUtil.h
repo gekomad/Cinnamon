@@ -26,7 +26,7 @@ using namespace std;
 
 class FileUtil {
 public:
-    static bool fileExists(string filename) {
+    static bool fileExists(const string &filename) {
         ifstream inData;
         inData.open(filename);
         if (!inData) {
@@ -41,7 +41,8 @@ public:
         return in.tellg();
     }
 
-    static string getFileName(string path) {
+    static string getFileName(const string &path1) {
+        string path = path1;
         replace(path.begin(), path.end(), ':', '/');
         replace(path.begin(), path.end(), '\\', '/');
         istringstream iss(path);

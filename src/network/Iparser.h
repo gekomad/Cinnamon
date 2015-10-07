@@ -21,5 +21,5 @@
 class Iparser {
 public:
 
-    virtual void parser(string) = 0;
+    virtual void parser(const string &) = 0;
 };

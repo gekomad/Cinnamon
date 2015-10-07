@@ -132,7 +132,7 @@ bool Tablebase::setCacheSize(int mb) {
     return true;
 }
 
-bool Tablebase::setScheme(string s) {
+bool Tablebase::setScheme(const string &s) {
     bool res = false;
     if (s == "cp1") {
         scheme = tb_CP1;
@@ -174,7 +174,7 @@ bool Tablebase::setInstalledPieces(int n) {
     return true;
 }
 
-void Tablebase::setPath(string path1) {
+void Tablebase::setPath(const string &path1) {
     path = path1;
     load();
 }

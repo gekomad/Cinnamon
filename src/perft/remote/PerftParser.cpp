@@ -19,7 +19,7 @@
 #include "PerftParser.h"
 #include "../locale/Perft.h"
 
-void PerftParser::parser(string msg) {
+void PerftParser::parser(const string &msg) {
     debug<LOG_LEVEL::INFO, false>(LINE_INFO, "receive");
     Message message(msg);
 #ifdef DEBUG_MODE

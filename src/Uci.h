@@ -31,10 +31,10 @@ public:
     Uci(int port);
 
     //server mode
-    Uci(string &fen, int perftDepth, int nCpu, int perftHashSize, string &dumpFile);
+    Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile);
 
     //perft locale
-    Uci(string &fen, int perftDepth, string &iniFile);
+    Uci(const string &fen, int perftDepth, const string &iniFile);
 
     //perft distributed
     virtual ~Uci();

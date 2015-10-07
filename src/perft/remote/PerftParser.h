@@ -39,7 +39,7 @@
 class PerftParser : public Iparser {
 public :
 
-    void parser(string msg);
+    void parser(const string &msg);
 
 
 };

@@ -24,7 +24,7 @@ mutex PerftThread::mutexPrint;
 
 PerftThread::PerftThread() { }
 
-void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) {
+void PerftThread::setParam(const string &fen1, int from1, int to1, _TPerftRes *perft1) {
     perftMode = true;
     loadFen(fen1);
     this->tPerftRes = perft1;

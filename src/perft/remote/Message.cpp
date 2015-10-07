@@ -71,7 +71,7 @@ Message::Message(const string &host1, const string &fen1, const int depth1, cons
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok");
 }
 
-Message::Message(string m) {
+Message::Message(const string &m) {
 #ifdef DEBUG_MODE
     cout << m << endl;
     int c = 0;

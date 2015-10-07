@@ -42,9 +42,9 @@ public:
 
     bool setCacheSize(int mb);
 
-    void setPath(string path);
+    void setPath(const string &path);
 
-    bool setScheme(string s);
+    bool setScheme(const string &s);
 
     void restart();
 
