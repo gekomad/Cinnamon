@@ -29,8 +29,8 @@ class Uci : public Singleton<Uci> {
 
 public:
     Uci(int port) ;//server mode
-    Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile);//perft locale
-    Uci(string fen, int perftDepth,  string iniFile);//perft distributed
+    Uci(string &fen, int perftDepth, int nCpu, int perftHashSize, string& dumpFile);//perft locale
+    Uci(string& fen, int perftDepth,  string &iniFile);//perft distributed
     virtual ~Uci();
 
 private:

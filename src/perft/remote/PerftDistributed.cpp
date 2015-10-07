@@ -79,7 +79,7 @@ void PerftDistributed::setServer(int port1) {
     port = port1;
 }
 
-void PerftDistributed::setParam(string fen1, int depth1, string distributedFile, int port1) {
+void PerftDistributed::setParam(string fen1, int depth1, string& distributedFile, int port1) {
     serverMode = false;
     if (fen1.empty()) {
         fen1 = STARTPOS;

@@ -163,7 +163,7 @@ string ChessBoard::boardToFen() const {
     return fen;
 }
 
-char ChessBoard::decodeBoard(string a) {
+char ChessBoard::decodeBoard(const string& a) {
     for (int i = 0; i < 64; i++) {
         if (!a.compare(BOARD[i])) {
             return i;
@@ -178,7 +178,7 @@ int ChessBoard::loadFen() {
     return loadFen(fenString);
 }
 
-int ChessBoard::loadFen(string fen) {
+int ChessBoard::loadFen(const string& fen) {
     if (fen.empty()) {
         return loadFen();
     }

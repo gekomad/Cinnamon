@@ -43,7 +43,7 @@ class PerftDistributed : public Thread, public ThreadPool<RemoteNode>, public Si
 public:
 
 
-    void setParam(string fen1, int depth1, string distributedFile, int port);
+    void setParam(string fen1, int depth1, string& distributedFile, int port);
 
     void setServer(int port1);
 

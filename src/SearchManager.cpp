@@ -204,7 +204,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, 
 SearchManager::~SearchManager() {
 }
 
-int SearchManager::loadFen(string fen) {
+int SearchManager::loadFen(const string& fen) {
     int res = threadPool[0]->loadFen(fen);
 
     ASSERT_RANGE(res, 0, 1);
@@ -389,7 +389,7 @@ bool SearchManager::getGtbAvailable() {
     return threadPool[0]->getGtbAvailable();
 }
 
-int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
+int SearchManager::getMoveFromSan(const String& string, _Tmove *ptr) {
 #ifdef DEBUG_MODE
     int t = threadPool[0]->getMoveFromSan(string, ptr);
     for (Search *s:threadPool) {

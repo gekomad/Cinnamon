@@ -55,7 +55,7 @@ bool IterativeDeeping::getUseBook() {
     return useBook;
 }
 
-void IterativeDeeping::loadBook(string f) {
+void IterativeDeeping::loadBook(const string& f) {
     if (!openBook) {
         openBook = &OpenBook::getInstance();
     }

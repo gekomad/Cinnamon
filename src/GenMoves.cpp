@@ -859,13 +859,13 @@ void GenMoves::setRepetitionMapCount(int i) {
     repetitionMapCount = i;
 }
 
-int GenMoves::loadFen(string fen) {
+int GenMoves::loadFen(const string& fen) {
     repetitionMapCount = 0;
     int side = ChessBoard::loadFen(fen);
     return side;
 }
 
-int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
+int GenMoves::getMoveFromSan(const string & fenStr, _Tmove *move) {
     chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
     memset(move, 0, sizeof(_Tmove));
     static const string MATCH_QUEENSIDE = "O-O-O e1c1 e8c8";

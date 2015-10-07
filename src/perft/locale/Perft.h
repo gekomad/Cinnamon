@@ -67,7 +67,7 @@ class Perft : public Thread, public ThreadPool<PerftThread>, public Singleton<Pe
 
 public:
 
-    void setParam(string fen, int depth, int nCpu, int mbSize, string dumpFile, bool forceExit);
+    void setParam(const string &fen, int depth, int nCpu, int mbSize, const string &dumpFile, bool forceExit);
 
     ~Perft();
 

@@ -95,11 +95,11 @@ public:
         forceCheck = b;
     }
 
-    int getMoveFromSan(const string fenStr, _Tmove *move);
+    int getMoveFromSan(const string& fenStr, _Tmove *move);
 
     void init();
 
-    virtual int loadFen(string fen = "");
+    virtual int loadFen(const string& fen = "");
 
     u64 performDiagCaptureCount(const int, const u64 allpieces);
 

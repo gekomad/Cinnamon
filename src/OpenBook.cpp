@@ -39,7 +39,7 @@ OpenBook::~OpenBook() {
     dispose();
 }
 
-u64 OpenBook::createKey(string fen1) {
+u64 OpenBook::createKey(const string& fen1) {
     const char *fen = (const char *) fen1.c_str();
     u64 *RandomPiece = Random64;
     u64 *RandomCastle = Random64 + 768;
@@ -129,7 +129,7 @@ u64 OpenBook::createKey(string fen1) {
     return key;
 }
 
-bool OpenBook::load(string fileName) {
+bool OpenBook::load(const string& fileName) {
     dispose();
     if (!FileUtil::fileExists(fileName)) {
         cout << fileName << " not found" << endl;
@@ -240,7 +240,7 @@ void OpenBook::moveToString(char move_s[6], unsigned short move) {
     }
 }
 
-string OpenBook::search(string fen) {
+string OpenBook::search(const string& fen) {
     u64 key = createKey(fen);
     entry_t entry;
     char move_s[6];

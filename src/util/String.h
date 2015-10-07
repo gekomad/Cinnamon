@@ -45,7 +45,7 @@ public:
 
     String trimRight();
 
-    String replace(string s1, string s2);
+    String replace(string& s1, string &s2);
 
     String replace(char c1, char c2);
 

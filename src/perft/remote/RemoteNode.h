@@ -33,7 +33,7 @@ public:
         message = nullptr;
     }
 
-    void setParam(const int port, const string fen, const int depth, const int from, const int to, const tuple<string, int, int, string> node);
+    void setParam(const int port, const string& fen, const int depth, const int from, const int to, const tuple<string, int, int, string> node);
 
     virtual void run();
 

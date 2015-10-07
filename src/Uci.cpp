@@ -25,14 +25,14 @@ Uci::Uci(int port) {//server mode
     startListner();
 }
 
-Uci::Uci(string fen, int perftDepth, int nCpu, int perftHashSize, string dumpFile) {//perft locale
+Uci::Uci(string& fen, int perftDepth, int nCpu, int perftHashSize, string &dumpFile) {//perft locale
     perft = &Perft::getInstance();
     perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
     runPerft = true;
     startListner();
 }
 
-Uci::Uci(string fen, int perftDepth, string iniFile) {//perft remote
+Uci::Uci(string &fen, int perftDepth, string& iniFile) {//perft remote
 
     perftDistributed = &PerftDistributed::getInstance();
     perftDistributed->setParam(fen, perftDepth, iniFile, SOCK_PORT);

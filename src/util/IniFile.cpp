@@ -19,7 +19,7 @@
 #include "IniFile.h"
 #include "String.h"
 
-IniFile::IniFile(string fileName) {
+IniFile::IniFile(const string& fileName) {
     endFile = true;
     inData.open(fileName);
     if (inData.is_open()) {

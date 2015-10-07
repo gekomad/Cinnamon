@@ -43,7 +43,7 @@ public:
 
     Tablebase &createGtb();
 
-    int loadFen(string fen = "");
+    int loadFen(const string& fen = "");
 
     int getPieceAt(int side, u64 i);
 
@@ -108,7 +108,7 @@ public:
 
     bool getGtbAvailable();
 
-    int getMoveFromSan(String string, _Tmove *ptr);
+    int getMoveFromSan(const String& string, _Tmove *ptr);
 
     int printDtm();
 

@@ -34,7 +34,7 @@ using namespace std;//TODO eliminare file
 class Client {
 public:
 
-    void sendMsg(string host, int portno, string msg);
+    void sendMsg(const string& host, int portno,const string& msg);
 
 private:
     static mutex clientMutex;

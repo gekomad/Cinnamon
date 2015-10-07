@@ -26,7 +26,7 @@ using namespace std;
 
 class IniFile {
 public:
-    IniFile(string fileName);
+    IniFile(const string& fileName);
 
     pair<string, string> *get();
 

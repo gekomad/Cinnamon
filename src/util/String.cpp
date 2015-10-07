@@ -61,7 +61,7 @@ String String::replace(char c1, char c2) {
     return *this;
 }
 
-String String::replace(string s1, string s2) {
+String String::replace(string& s1, string& s2) {
     unsigned long a;
     while ((a = find(s1)) != string::npos) {
         string::replace(a, s1.size(), s2);

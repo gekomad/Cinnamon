@@ -131,7 +131,7 @@ void Perft::alloc() {
     }
 }
 
-void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1, bool forceexit) {
+void Perft::setParam(const string &fen1, int depth1, int nCpu2, int mbSize1, const string &dumpFile1, bool forceexit) {
     Perft::forceExit = forceexit;
     memset(&perftRes, 0, sizeof(_TPerftRes));
     if (depth1 <= 0)depth1 = 1;
@@ -256,7 +256,7 @@ void Perft::endRun() {
     if (forceExit) {
         std::_Exit(0);
     }
-    if(callbackResult){
+    if (callbackResult) {
         callbackResult->setTot(perftRes.totMoves);
     }
 }

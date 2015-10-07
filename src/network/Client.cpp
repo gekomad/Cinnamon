@@ -21,7 +21,7 @@
 
 mutex Client::clientMutex;
 
-void Client::sendMsg(string host, int portno, string msg) {
+void Client::sendMsg(const string &host, int portno, const string &msg) {
     lock_guard<mutex> lock(clientMutex);
     assert(msg.size() < Server::MAX_MSG_SIZE)
 
