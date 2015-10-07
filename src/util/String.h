@@ -36,7 +36,9 @@ public:
     String(char *s) : string(s) { };
 
     String(int);
-    String(unsigned long long );
+
+    String(unsigned long long);
+
     virtual ~ String();
 
     String trim();
@@ -45,7 +47,7 @@ public:
 
     String trimRight();
 
-    String replace(string& s1, string &s2);
+    String replace(string &s1, string &s2);
 
     String replace(char c1, char c2);
 

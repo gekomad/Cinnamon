@@ -36,11 +36,10 @@
 #include "PerftClient.h"
 #include "PerftResultCallback.h"
 
-class PerftParser : public Iparser{
+class PerftParser : public Iparser {
 public :
 
     void parser(string msg);
-
 
 
 };

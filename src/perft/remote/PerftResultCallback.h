@@ -17,9 +17,12 @@
 */
 
 #pragma once
+
 #include "../locale/IResultCallback.h"
 #include "../../namespaces/def.h"
+
 using namespace _def;
+
 class PerftResultCallback : public IResultCallback {
 public :
 

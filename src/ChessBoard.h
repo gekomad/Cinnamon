@@ -71,9 +71,9 @@ public:
 
     string getFen();
 
-    char decodeBoard(const string&);
+    char decodeBoard(const string &);
 
-    virtual int loadFen(const string&);
+    virtual int loadFen(const string &);
 
     int getPieceByChar(char);
 

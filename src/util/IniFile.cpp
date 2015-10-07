@@ -19,7 +19,7 @@
 #include "IniFile.h"
 #include "String.h"
 
-IniFile::IniFile(const string& fileName) {
+IniFile::IniFile(const string &fileName) {
     endFile = true;
     inData.open(fileName);
     if (inData.is_open()) {
@@ -44,8 +44,8 @@ pair<string, string> *IniFile::get() {
         getline(inData, line2);
         if (line2.size() == 0)continue;
         String line(line2);
-        line.replace('\t',' ');
-        line.replace('=',' ');
+        line.replace('\t', ' ');
+        line.replace('=', ' ');
         line.trim();
         if (line.at(0) == '#')continue;
         stringstream ss(line);

@@ -17,8 +17,11 @@
 */
 
 #pragma once
+
 #include "../../namespaces/def.h"
+
 using namespace _def;
+
 class IResultCallback {
 public:
 

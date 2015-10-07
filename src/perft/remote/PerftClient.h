@@ -23,7 +23,7 @@
 
 class PerftClient : public Client {//TODO eliminare file
 public :
-    void sendMsg(string& host, int portno, Message msg) {
+    void sendMsg(string &host, int portno, Message msg) {
         Client::sendMsg(host, portno, msg.getSerializedString());
     }
 

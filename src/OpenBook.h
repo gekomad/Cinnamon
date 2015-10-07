@@ -32,9 +32,9 @@ public:
 
     virtual ~OpenBook();
 
-    bool load(const string& fileName = "cinnamon.bin");
+    bool load(const string &fileName = "cinnamon.bin");
 
-    string search(const string& fen);
+    string search(const string &fen);
 
 private:
     OpenBook();
@@ -48,7 +48,7 @@ private:
 
     FILE *openBookFile;
 
-    u64 createKey(const string& fen);
+    u64 createKey(const string &fen);
 
     int intFromFile(int l, u64 *r);
 

@@ -24,11 +24,11 @@ void Server::run() {
     int c = sizeof(struct sockaddr_in);
     struct sockaddr_in client;
     char client_message[MAX_MSG_SIZE];
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "accept...",client_message);
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "accept...", client_message);
     client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok",client_message);
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok", client_message);
     assert (client_sock >= 0);
-    while(1) {
+    while (1) {
         while ((read_size = recv(client_sock, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
             debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "Server::read", client_message);
             write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);

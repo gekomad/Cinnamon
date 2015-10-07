@@ -55,7 +55,7 @@ bool IterativeDeeping::getUseBook() {
     return useBook;
 }
 
-void IterativeDeeping::loadBook(const string& f) {
+void IterativeDeeping::loadBook(const string &f) {
     if (!openBook) {
         openBook = &OpenBook::getInstance();
     }
@@ -129,7 +129,7 @@ void IterativeDeeping::run() {
 //        }
 
         if (!searchManager.getRes(resultMove, ponderMove, pvv, &mateIn)) {
-            debug<LOG_LEVEL::DEBUG,false>(LINE_INFO,"IterativeDeeping cmove == 0, exit");
+            debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "IterativeDeeping cmove == 0, exit");
             break;
         }
 

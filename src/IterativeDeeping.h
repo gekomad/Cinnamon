@@ -48,7 +48,7 @@ public:
 
     void setMaxDepth(int);
 
-    void loadBook(const string&);
+    void loadBook(const string &);
 
     bool setParameter(String param, int value);
 

@@ -28,9 +28,15 @@ class Uci : public Singleton<Uci> {
     friend class Singleton<Uci>;
 
 public:
-    Uci(int port) ;//server mode
-    Uci(string &fen, int perftDepth, int nCpu, int perftHashSize, string& dumpFile);//perft locale
-    Uci(string& fen, int perftDepth,  string &iniFile);//perft distributed
+    Uci(int port);
+
+    //server mode
+    Uci(string &fen, int perftDepth, int nCpu, int perftHashSize, string &dumpFile);
+
+    //perft locale
+    Uci(string &fen, int perftDepth, string &iniFile);
+
+    //perft distributed
     virtual ~Uci();
 
 private:
@@ -50,6 +56,6 @@ private:
     void startListner();
 
     bool runPerft = false;
-    bool runPerftDistributed=false;
+    bool runPerftDistributed = false;
 };
 

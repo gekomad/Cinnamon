@@ -47,7 +47,7 @@ bool Message::compare(Message &b) {
     return true;
 }
 
-Message::Message(const string& host1, const string& fen1, const int depth1, const int hashsize1,const int Ncpu1, const string& dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
+Message::Message(const string &host1, const string &fen1, const int depth1, const int hashsize1, const int Ncpu1, const string &dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "create message from param");
     assert(host1.size() > 2);
     assert(fen1.size() > 10);
@@ -138,7 +138,7 @@ void Message::print() {
     cout << " Ncpu: " << Ncpu << "\n";
     cout << " from: " << from << "\n";
     cout << " to: " << to << "\n";
-    if(partial==-1)cout << " partial: -1 \n";else    cout << " partial: " << partial << "\n";
-    if(tot==-1)cout << " tot: -1 \n";else    cout << " tot: " << tot << "\n";
+    if (partial == -1)cout << " partial: -1 \n"; else cout << " partial: " << partial << "\n";
+    if (tot == -1)cout << " tot: -1 \n"; else cout << " tot: " << tot << "\n";
     cout << "----------------" << endl;
 }

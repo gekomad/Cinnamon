@@ -34,8 +34,8 @@ SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
         }
         string param = parameters->first;
         int value = stoi(parameters->second);
-        cout <<param<<endl;
-        cout <<value<<endl;
+        cout << param << endl;
+        cout << value << endl;
 
         if (param == "threads") {
             setNthread(value);
@@ -62,7 +62,7 @@ void SearchManager::singleSearch(int mply) {
     ASSERT(!getBitCount());
     if (mply == 1) {
         threadPool[0]->init();
-        debug<LOG_LEVEL::DEBUG,false>(LINE_INFO,"val: ", valWindow);
+        debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "val: ", valWindow);
 
         threadPool[0]->run(SMP_NO, mply, -_INFINITE, _INFINITE);
         valWindow = threadPool[0]->getValue();
@@ -113,13 +113,13 @@ void SearchManager::parallelSearch(int mply) {
 
     if (mply == 1) {
         Search &idThread1 = getNextThread();
-        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"start loop1 ------------------------------ run threadid: ", idThread1.getId());
-        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"val: ", valWindow);
+        debug<LOG_LEVEL::DEBUG, true>(LINE_INFO, "start loop1 ------------------------------ run threadid: ", idThread1.getId());
+        debug<LOG_LEVEL::DEBUG, true>(LINE_INFO, "val: ", valWindow);
         startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
         idThread1.join();
     } else {
 //  Parallel Aspiration Windows
-        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"start loop2 --------------------------");
+        debug<LOG_LEVEL::DEBUG, true>(LINE_INFO, "start loop2 --------------------------");
         ASSERT(nThreads);
         ASSERT(!getBitCount());
         ASSERT(lineWin.cmove <= 0);
@@ -134,21 +134,21 @@ void SearchManager::parallelSearch(int mply) {
 
             Search &idThread1 = getNextThread();
             idThread1.setRunning(1);
-            debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"val: ", valWindow);
+            debug<LOG_LEVEL::DEBUG, true>(LINE_INFO, "val: ", valWindow);
             startThread(SMP_YES, idThread1, mply, alpha, beta);
         }
-        debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"end loop2 ---------------------------");
+        debug<LOG_LEVEL::DEBUG, true>(LINE_INFO, "end loop2 ---------------------------");
         joinAll();
         ASSERT(!getBitCount());
         if (lineWin.cmove <= 0) {
 
-            debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"start loop3 -------------------------------");
+            debug<LOG_LEVEL::DEBUG, true>(LINE_INFO, "start loop3 -------------------------------");
 //            for (int i = 0; i < getNthread(); i++) {
             Search &idThread1 = getNextThread();
             idThread1.setRunning(1);
             startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
 //            }
-            debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"end loop3 -------------------------------");
+            debug<LOG_LEVEL::DEBUG, true>(LINE_INFO, "end loop3 -------------------------------");
             idThread1.join();
         }
     }
@@ -166,7 +166,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
                 ASSERT(mateIn == INT_MAX);
                 totCountWin += threadPool[threadID]->getTotMoves();
                 valWindow = getValue(threadID);
-                debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"win", threadID);
+                debug<LOG_LEVEL::DEBUG, true>(LINE_INFO, "win", threadID);
                 ASSERT(lineWin.cmove);
                 stopAllThread();
             }
@@ -204,7 +204,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, 
 SearchManager::~SearchManager() {
 }
 
-int SearchManager::loadFen(const string& fen) {
+int SearchManager::loadFen(const string &fen) {
     int res = threadPool[0]->loadFen(fen);
 
     ASSERT_RANGE(res, 0, 1);
@@ -216,7 +216,7 @@ int SearchManager::loadFen(const string& fen) {
 
 void SearchManager::startThread(bool smpMode, Search &thread, int depth, int alpha, int beta) {
 
-    debug<LOG_LEVEL::DEBUG,true>(LINE_INFO,"startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
+    debug<LOG_LEVEL::DEBUG, true>(LINE_INFO, "startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
     ASSERT(alpha >= -_INFINITE);
 
     thread.setMainParam(smpMode, depth, alpha, beta);
@@ -389,7 +389,7 @@ bool SearchManager::getGtbAvailable() {
     return threadPool[0]->getGtbAvailable();
 }
 
-int SearchManager::getMoveFromSan(const String& string, _Tmove *ptr) {
+int SearchManager::getMoveFromSan(const String &string, _Tmove *ptr) {
 #ifdef DEBUG_MODE
     int t = threadPool[0]->getMoveFromSan(string, ptr);
     for (Search *s:threadPool) {
