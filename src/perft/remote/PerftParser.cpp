@@ -17,22 +17,28 @@
 */
 
 #include "PerftParser.h"
+#include "../locale/Perft.h"
 
 void PerftParser::parser(string msg) {
-    debug<LOG_LEVEL::INFO,false>(LINE_INFO,"receive");
+    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "receive");
     Message message(msg);
-    PerftClient c;
+
 //    if(......)
-    sleep(10);
-    Message b(message);
-    b.setPartial(10);
-//    sendMsg(b.getSerializedString());
-    c.sendMsg("10.0.3.1", SOCK_PORT, b);
-    sleep(5);
-    b.setPartial(30);
-    c.sendMsg("10.0.3.1", SOCK_PORT, b);
-    sleep(5);
-    b.setTot(100);
-    c.sendMsg("10.0.3.1", SOCK_PORT, b);
+
+    Perft &perft = Perft::getInstance();
+    perft.setParam(message.getFen(), message.getDepth(), 1, message.getHashsize(), message.getDumpFile(), false);
+    perft.start();
+//    PerftClient c;
+//    sleep(10);
+//    Message b(message);
+//    b.setPartial(10);
+////    sendMsg(b.getSerializedString());
+//    c.sendMsg("10.0.3.1", SOCK_PORT, b);
+//    sleep(5);
+//    b.setPartial(30);
+//    c.sendMsg("10.0.3.1", SOCK_PORT, b);
+//    sleep(5);
+//    b.setTot(100);
+//    c.sendMsg("10.0.3.1", SOCK_PORT, b);
 
 };

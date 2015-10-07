@@ -19,7 +19,7 @@
 
 #include "Message.h"
 
-Message::Message(const Message& b) {
+Message::Message(const Message &b) {
     depth = b.depth;
     host = b.host;
     dumpFile = dumpFile;
@@ -49,28 +49,6 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
     assert(fen1.size() > 10);
     assert(depth1 > 0);
     assert(from1 >= to1);
-    char a[Server::MAX_MSG_SIZE];
-    memset(a, 0, Server::MAX_MSG_SIZE);
-    strcat(a, host1.c_str());
-    a[strlen(a)] = SEPARATOR;
-    strcat(a, fen1.c_str());
-    a[strlen(a)] = SEPARATOR;
-    strcat(a, String(depth1).c_str());
-    a[strlen(a)] = SEPARATOR;
-    strcat(a, String(hashsize1).c_str());
-    a[strlen(a)] = SEPARATOR;
-    strcat(a, String(dumpFile1).c_str());
-    a[strlen(a)] = SEPARATOR;
-    strcat(a, String(from1).c_str());
-    a[strlen(a)] = SEPARATOR;
-    strcat(a, String(to1).c_str());
-    a[strlen(a)] = SEPARATOR;
-    strcat(a, String(partial1).c_str());
-    a[strlen(a)] = SEPARATOR;
-    strcat(a, String(tot1).c_str());
-
-    string b(a);
-    serializedString.assign(b);
 
     host = host1;
     fen = fen1;
@@ -82,7 +60,7 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
     partial = partial1;
     tot = tot1;
 #ifdef DEBUG_MODE
-    Message x(serializedString);
+    Message x(getSerializedString());
     ASSERT(compare(x));
 #endif
 }
@@ -111,6 +89,30 @@ Message::Message(string m) {
     partial = stoull(dummy);
     getline(ss, dummy, SEPARATOR);
     tot = stoull(dummy);
-    serializedString = m;
+
 }
 
+const string &Message::getSerializedString() const {
+    char a[Server::MAX_MSG_SIZE];
+    memset(a, 0, Server::MAX_MSG_SIZE);
+    strcat(a, host.c_str());
+    a[strlen(a)] = SEPARATOR;
+    strcat(a, fen.c_str());
+    a[strlen(a)] = SEPARATOR;
+    strcat(a, String(depth).c_str());
+    a[strlen(a)] = SEPARATOR;
+    strcat(a, String(hashsize).c_str());
+    a[strlen(a)] = SEPARATOR;
+    strcat(a, String(dumpFile).c_str());
+    a[strlen(a)] = SEPARATOR;
+    strcat(a, String(from).c_str());
+    a[strlen(a)] = SEPARATOR;
+    strcat(a, String(to).c_str());
+    a[strlen(a)] = SEPARATOR;
+    strcat(a, String(partial).c_str());
+    a[strlen(a)] = SEPARATOR;
+    strcat(a, String(tot).c_str());
+
+    string b(a);
+    return b;
+}

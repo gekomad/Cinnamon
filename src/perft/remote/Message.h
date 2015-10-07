@@ -72,9 +72,7 @@ public:
         return tot;
     }
 
-    const string &getSerializedString() const {
-        return serializedString;
-    }
+    const string &getSerializedString() const ;
 
 private:
     const static char SEPARATOR = 1;
@@ -83,11 +81,11 @@ private:
     string dumpFile;
     int depth;
     int hashsize;
+    //TODO int cpu;
     int from;
     int to;
     unsigned long long partial;
     unsigned long long tot;
-    string serializedString;
 
 public:
     void setHost(const string &host) {
