@@ -34,7 +34,7 @@ void Server::run() {
         write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
 
         parser->parser(client_message);
-        
+
     }
 
 }

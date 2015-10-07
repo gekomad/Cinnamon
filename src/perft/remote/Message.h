@@ -72,7 +72,7 @@ public:
         return tot;
     }
 
-    const string &getSerializedString() const ;
+    const string getSerializedString() const ;
 
 private:
     const static char SEPARATOR = 1;

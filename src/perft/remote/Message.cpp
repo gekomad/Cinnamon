@@ -20,6 +20,7 @@
 #include "Message.h"
 
 Message::Message(const Message &b) {
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "create message from message");
     depth = b.depth;
     host = b.host;
     dumpFile = dumpFile;
@@ -45,6 +46,7 @@ bool Message::compare(Message &b) {
 }
 
 Message::Message(const string host1, const string fen1, const int depth1, const int hashsize1, const string dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "create message from param");
     assert(host1.size() > 2);
     assert(fen1.size() > 10);
     assert(depth1 > 0);
@@ -63,6 +65,7 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
     Message x(getSerializedString());
     ASSERT(compare(x));
 #endif
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok");
 }
 
 Message::Message(string m) {
@@ -92,7 +95,7 @@ Message::Message(string m) {
 
 }
 
-const string &Message::getSerializedString() const {
+const string Message::getSerializedString() const {
     char a[Server::MAX_MSG_SIZE];
     memset(a, 0, Server::MAX_MSG_SIZE);
     strcat(a, host.c_str());
