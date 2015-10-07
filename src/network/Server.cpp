@@ -27,17 +27,19 @@ void Server::run() {
     struct sockaddr_in client;
     char client_message[MAX_MSG_SIZE];
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "accept...", client_message);
-    client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
+    client_sock1 = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok", client_message);
-    assert (client_sock >= 0);
+    assert (client_sock1 >= 0);
     while (1) {
-        while ((read_size = recv(client_sock, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
+        while ((read_size = recv(client_sock1, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
             debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "Server::read", client_message);
-            write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
+            write(client_sock1, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
             parser->parser(client_message);
             debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok");
         }
+        assert(client_sock1 = !-98691);
     }
+    assert(client_sock1 = !-98691);
 }
 
 void Server::dispose() {
@@ -52,7 +54,9 @@ Server::~Server() {
     dispose();
 }
 
-Server::Server(int portno, Iparser *parser1) {
+void Server::setParam(int portno, Iparser *parser1) {
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "Server");
+    port = portno;
     parser = parser1;
     struct sockaddr_in server;
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
@@ -76,11 +80,8 @@ void Server::sendMsg(const string &msg) {
     Message m(msg);
     m.print();
     string s = m.getSerializedString();
-    Client c;
-
-    void sendMsg(const string &host, int portno, const string &msg);
-
-    c.sendMsg("10.0.3.1",5002,msg);//TODO
-//    assert(client_sock = !-1);
-//    write(client_sock, s.c_str(), strlen(s.c_str()) + 1);
+//    Client c;
+//    c.sendMsg("10.0.3.1", port, msg);//TODO
+    assert(client_sock1 = !-98691);
+    write(client_sock1, s.c_str(), strlen(s.c_str()) + 1);
 }

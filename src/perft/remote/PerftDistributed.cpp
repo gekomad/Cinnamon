@@ -20,7 +20,7 @@
 #include "PerftDistributed.h"
 
 PerftDistributed::~PerftDistributed() {
-
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "~PerftDistributed()");
 }
 
 std::vector<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(const string &distributedFile) {
@@ -74,14 +74,14 @@ std::vector<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(co
 }
 
 void PerftDistributed::setServer(int port1) {
-    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "SERVER MODE on port", port1);
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "SERVER MODE on port", port1);
     serverMode = true;
     port = port1;
 }
 
 void PerftDistributed::setParam(const string &fen1, int depth1, const string &distributedFile, int port1) {
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "setParam");
     serverMode = false;
-
     if (fen1.empty()) {
         fen = STARTPOS;
     } else {
@@ -95,8 +95,10 @@ void PerftDistributed::setParam(const string &fen1, int depth1, const string &di
 }
 
 void PerftDistributed::run() {
-    cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" << endl;
-    server = new Server(port, new PerftParser());//TODO delete PerftParser?
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "run");
+    server= &Server::getInstance();
+    server->setParam(port, new PerftParser());
+//    server = new Server(port, new PerftParser());//TODO delete PerftParser?
     server->start();
     usleep(10000);//wait complete startup
     if (!serverMode) {
@@ -105,7 +107,7 @@ void PerftDistributed::run() {
 }
 
 void PerftDistributed::endRun() {
-    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "endRun");
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "endRun");
 
 }
 
@@ -146,7 +148,6 @@ void PerftDistributed::callRemoteNode() {
     setNthread(totMachine);
     for (int i = 0; i < totMachine; i++) {
         RemoteNode &remoteNode = getNextThread();
-        //nodeIp, nodeNcores, nodeHash, nodeDumpfile
         remoteNode.setParam(port, fen, depth, from, to, nodesSet[i]);
     }
     startAll();
