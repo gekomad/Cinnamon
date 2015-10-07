@@ -70,8 +70,9 @@ Message::Message(const string host1, const string fen1, const int depth1, const 
 
 Message::Message(string m) {
 #ifdef DEBUG_MODE
+    cout <<m<<endl;
     int c = 0;
-    for (int i = 0; i < m.size(); i++)if (m.at(i) == 1)c++;
+    for (int i = 0; i < m.size(); i++)if (m.at(i) == SEPARATOR)c++;
     assert(c == 8);
 #endif
     stringstream ss(m);
