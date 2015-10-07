@@ -21,7 +21,10 @@
 
 void Server::run() {
     int read_size;
+    struct sockaddr_in client;
     char client_message[MAX_MSG_SIZE];
+    client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
+    assert (client_sock >= 0);
     while ((read_size = recv(client_sock, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
         cout << "Server::read " << client_message << "\n";
         write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
@@ -57,11 +60,10 @@ Server::Server(int portno, Iparser *parser1) {
     assert (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) >= 0);
 
 
-    struct sockaddr_in client;
+
 
 
     listen(socket_desc, 3);
     int c = sizeof(struct sockaddr_in);
-    client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
-    assert (client_sock >= 0);
+
 }
