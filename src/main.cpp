@@ -122,6 +122,8 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
+//    Message m("aaaaaaaaa", "",-1,-1,-1, "",-1,-1,-1,1252);
+//    cout <<m.getSerializedString();
     cout << " " << LOG_LEVEL_STRING[DLOG_LEVEL] << " " << endl;
     printHeader();
     GetOpt::parse(argc, argv);

@@ -44,7 +44,7 @@ public:
     void sendMsg(const string &msg);
 
 private:
-    int client_sock;
+    int client_sock = -1;
     int sockfd = -1;
 
     int socket_desc;

@@ -50,9 +50,9 @@ bool Message::compare(const Message &b) {
 Message::Message(const string &host1, const string &fen1, const int depth1, const int hashsize1, const int Ncpu1, const string &dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "create message from param");
     assert(host1.size() > 2);
-    assert(fen1.size() > 10);
-    assert(depth1 > 0);
-    assert(from1 >= to1);
+    assert(tot!=-1 || fen1.size() > 10);
+    assert(tot!=-1 || depth1 > 0);
+    assert(tot!= -1 || from1 >= to1);
 
     host = host1;
     fen = fen1;
@@ -64,6 +64,8 @@ Message::Message(const string &host1, const string &fen1, const int depth1, cons
     to = to1;
     partial = partial1;
     tot = tot1;
+//    if(!fen.size())fen="-";//TODO
+//    if(!dumpFile.size())dumpFile="-";//TODO
 #ifdef DEBUG_MODE
     Message x(getSerializedString());
     ASSERT(compare(x));
@@ -76,7 +78,7 @@ Message::Message(const string &m) {
     cout << m << endl;
     int c = 0;
     for (int i = 0; i < m.size(); i++)if (m.at(i) == SEPARATOR)c++;
-    assert(c == 9);
+    if(c != 9)cout <<m<<endl;
 #endif
     stringstream ss(m);
 
