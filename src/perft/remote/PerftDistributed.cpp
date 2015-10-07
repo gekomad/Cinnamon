@@ -92,7 +92,8 @@ void PerftDistributed::setParam(string fen1, int depth1, string distributedFile,
 }
 
 void PerftDistributed::run() {
-    Server s(port, new PerftParser());
+    Server s(port, new PerftParser());//TODO delete PerftParser?
+    server = &s;
     s.start();
     usleep(10000);//wait complete startup
     if (!serverMode) {

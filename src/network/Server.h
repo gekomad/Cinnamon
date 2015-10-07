@@ -26,6 +26,8 @@
 #include <netinet/in.h>
 #include "../blockingThreadPool/Thread.h"
 #include "Iparser.h"
+#include "../perft/remote/Message.h"
+
 
 class Server : public Thread {
 public:
@@ -40,7 +42,9 @@ public:
     ~Server();
 
     void sendMsg(string msg) {
-        write(client_sock, msg.c_str(), strlen(msg.c_str()) + 1);
+        Message m("msg");
+        string s=m.getSerializedString();
+        write(client_sock, s.c_str(), strlen(s.c_str()) + 1);
     }
 
 private:

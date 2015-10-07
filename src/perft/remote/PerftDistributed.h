@@ -44,7 +44,9 @@ public:
 
 
     void setParam(string fen1, int depth1, string distributedFile, int port);
-    void setServer(int port1) ;
+
+    void setServer(int port1);
+
     ~PerftDistributed();
 
     virtual void run();
@@ -54,7 +56,7 @@ public:
 
 private:
 
-    void receiveMsg(Message message) ;
+    void receiveMsg(Message message);
 
     std::vector<tuple<string, int, int, string>> nodesSet;
 
@@ -69,5 +71,10 @@ private:
     void callRemoteNode();
 
     bool serverMode = false;
+    Server *server = nullptr;
+public:
+    Server *getServer() const {
+        return server;
+    }
 };
 

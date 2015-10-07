@@ -17,10 +17,12 @@
 */
 
 #include "PerftResultCallback.h"
+#include "PerftDistributed.h"
 
 void PerftResultCallback::setTot(u64 tot) {
-    //getinstance server
-    cout <<"send tot at server: "<<tot<<endl;
+    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "send result to server");
+    PerftDistributed::getInstance().getServer()->sendMsg(String(tot));
+
 
 }
 
