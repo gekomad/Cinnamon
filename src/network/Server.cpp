@@ -18,6 +18,7 @@
 
 
 #include "Server.h"
+#include "Client.h"
 
 void Server::run() {
     cout <<"aaaaaaaaaaaaaaaa11111111111"<<endl;
@@ -78,6 +79,11 @@ void Server::sendMsg(const string &msg) {
     Message m(msg);
     m.print();
     string s = m.getSerializedString();
-    assert(client_sock = !-1);
-    write(client_sock, s.c_str(), strlen(s.c_str()) + 1);
+    Client c;
+
+    void sendMsg(const string &host, int portno, const string &msg);
+
+    c.sendMsg("10.0.3.1",5002,msg);//TODO
+//    assert(client_sock = !-1);
+//    write(client_sock, s.c_str(), strlen(s.c_str()) + 1);
 }
