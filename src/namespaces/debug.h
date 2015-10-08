@@ -20,48 +20,66 @@
 #pragma once
 
 #include <mutex>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <cxxabi.h>
 
+#if !defined DLOG_LEVEL
+#if defined DEBUG_MODE
+#define DLOG_LEVEL TRACE
+#else
+#define DLOG_LEVEL OFF
+#endif
+#endif
 namespace _debug {
-#ifdef DEBUG_MODE
+
+    static enum LOG_LEVEL {
+        TRACE = 0, DEBUG = 1, INFO = 2, WARN = 3, ERROR = 4, FATAL = 5, OFF = 6
+    } _LOG_LEVEL;
+    static const string LOG_LEVEL_STRING[7] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF"};
+
+#if defined(_WIN32)
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif
+
+#define LINE_INFO __FILENAME__,":",__LINE__
 
     template<typename T>
-    void _debug(T a) {
+    void __debug(T a) {
         cout << a << " ";
     }
 
     template<typename T, typename... Args>
-    void _debug(T t, Args... args) {
+    void __debug(T t, Args... args) {
         cout << t << " ";
-        _debug(args...);
+        __debug(args...);
     }
 
     static mutex _CoutSyncMutex;
 
-    template<typename T, typename... Args>
+    template<LOG_LEVEL type, typename T, typename... Args>
     void debug(T t, Args... args) {
-        lock_guard <mutex> lock1(_CoutSyncMutex);
-        nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
-        cout << "info string TIME: " << ms.count() << " ";
-
-        _debug(t, args...);
-        cout << "\n";
+        if (type >= DLOG_LEVEL) {
+            lock_guard <mutex> lock1(_CoutSyncMutex);
+            cout << "info string " << " " << Time::getLocalTime() << " " << LOG_LEVEL_STRING[type] << " ";
+            __debug(t, args...);
+            cout << endl;
+        }
     }
 
-#else
-
-#define debug(...)
-
-#endif
-
+#define trace(...) debug<LOG_LEVEL::TRACE>( LINE_INFO,__VA_ARGS__)
+#define debug(...) debug<LOG_LEVEL::DEBUG>( LINE_INFO,__VA_ARGS__)
+#define info(...) debug<LOG_LEVEL::INFO>( LINE_INFO,__VA_ARGS__)
+#define warn(...) debug<LOG_LEVEL::WARN>( LINE_INFO,__VA_ARGS__)
+#define error(...) debug<LOG_LEVEL::ERROR>( LINE_INFO,__VA_ARGS__)
+#define fatal(...) debug<LOG_LEVEL::FATAL>( LINE_INFO,__VA_ARGS__)
 
 #if defined(_WIN32) || !defined(DEBUG_MODE)
     static inline void print_stacktrace() { }
 #else
+
 #include <execinfo.h>
+
 /// (c) 2008, Timo Bingmann from http://idlebox.net/
 /// published under the WTFPL v2.0
 //Print a demangled stack backtrace of the caller function to FILE* out.
