@@ -21,7 +21,7 @@
 #include "Message.h"
 #include "../../network/Client.h"
 
-class PerftClient : public Client {//TODO eliminare file
+class PerftClient : public Client {
 public :
     void sendMsg(const string &host, int portno, const Message &msg) {
         Client::sendMsg(host, portno, msg.getSerializedString());

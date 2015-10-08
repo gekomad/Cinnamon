@@ -29,13 +29,16 @@
 #include "Server.h"
 #include<arpa/inet.h>
 
-using namespace std;//TODO eliminare file
+using namespace std;
 
 class Client {
 public:
 
     void sendMsg(const string &host, int portno, const string &msg);
 
+    virtual ~Client() { closeSocket = true; }
+
 private:
-    static mutex clientMutex;
+    mutex clientMutex;
+    bool closeSocket = false;
 };

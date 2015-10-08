@@ -85,13 +85,10 @@ void Server::sendMsg(const string &msg) {
     Message m(msg);
 
     string s = m.getSerializedString();
-//    Client c;
-//    c.sendMsg("10.0.3.1", port, msg);//TODO
+
     assert(client_sock != -98691);
     assert(client_sock);
-//        debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "reconnect");
-//        client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
-//    }
+
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "write to server ", s, " , socket: ", client_sock);
     write(client_sock, s.c_str(), strlen(s.c_str()) + 1);
 

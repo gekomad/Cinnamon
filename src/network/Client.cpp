@@ -16,10 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//TODO eliminare
 #include "Client.h"
-
-mutex Client::clientMutex;
 
 void Client::sendMsg(const string &host, int portno, const string &msg) {
     lock_guard<mutex> lock(clientMutex);
@@ -42,7 +39,7 @@ void Client::sendMsg(const string &host, int portno, const string &msg) {
     assert(recv(sock, server_reply, _def::OK.size() + 1, 0) >= 0);
     cout << "Client::reply from servers: " << server_reply << "\n";
     assert(server_reply == _def::OK);
-    while(1){
+    while(!closeSocket){
         recv(sock, server_reply,Server::MAX_MSG_SIZE, 0);
         cout << "Client::reply from servers: " << server_reply << "\n";
     }
