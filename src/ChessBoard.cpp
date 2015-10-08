@@ -76,7 +76,7 @@ int ChessBoard::getPieceByChar(char c) {
 }
 
 
-void ChessBoard::display() {return;
+void ChessBoard::display() {
     cout << "\n     a   b   c   d   e   f   g   h";
     for (int t = 0; t <= 63; t++) {
         char x = ' ';
