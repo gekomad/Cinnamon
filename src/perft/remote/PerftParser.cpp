@@ -20,7 +20,7 @@
 #include "../locale/Perft.h"
 
 void PerftParser::parser(const string &msg) {
-    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "receive");
+    info( "receive");
     Message message(msg);
 #ifdef DEBUG_MODE
     message.print();

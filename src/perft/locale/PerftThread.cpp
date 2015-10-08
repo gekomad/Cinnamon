@@ -109,7 +109,13 @@ void PerftThread::run() {
     makeZobristKey();
     u64 keyold = chessboard[ZOBRISTKEY_IDX];
     for (int ii = from; ii <= to - 1; ii++) {
-        if (ii < FROM || ii > TO)continue;//in distributed perft there is a range FROM-TO on each node
+
+        if (ii < FROM || ii > TO) {
+            cout << getId() << " skip ii: " << ii << " from: " << from << " to: " << to << " FROM: " << FROM << " TO: " << TO << "\n";
+            continue;
+        }//in distributed perft there is a range FROM-TO on each node
+        else
+            cout << getId() << " ok   ii: " << ii << " from: " << from << " to: " << to << " FROM: " << FROM << " TO: " << TO << "\n";
         u64 n_perft = 0;
         move = getMove(ii);
         makemove(move, false, false);

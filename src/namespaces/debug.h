@@ -45,32 +45,30 @@ namespace _debug {
 #define LINE_INFO __FILENAME__,":",__LINE__
 
     template<typename T>
-    void _debug(T a) {
+    void __debug(T a) {
         cout << a << " ";
     }
 
     template<typename T, typename... Args>
-    void _debug(T t, Args... args) {
+    void __debug(T t, Args... args) {
         cout << t << " ";
-        _debug(args...);
+        __debug(args...);
     }
 
     static mutex _CoutSyncMutex;
 
-    template<LOG_LEVEL type, bool nano, typename T, typename... Args>
+    template<LOG_LEVEL type, typename T, typename... Args>
     void debug(T t, Args... args) {
         if (type >= DLOG_LEVEL) {
             lock_guard <mutex> lock1(_CoutSyncMutex);
-            nanoseconds ms = duration_cast<nanoseconds>(system_clock::now().time_since_epoch());
-            cout << "info string " << " " << Time::getLocalTime();
-            if (nano)cout << " NANOSEC: " << ms.count();
-            cout << " " << LOG_LEVEL_STRING[type] << " ";
-
-            _debug(t, args...);
+            cout << "info string " << " " << Time::getLocalTime() << " " << LOG_LEVEL_STRING[type] << " ";
+            __debug(t, args...);
             cout << endl;
         }
     }
 
+#define debug(...) debug<LOG_LEVEL::DEBUG>( LINE_INFO,__VA_ARGS__)
+#define info(...) debug<LOG_LEVEL::INFO>( LINE_INFO,__VA_ARGS__)
 
 #if defined(_WIN32) || !defined(DEBUG_MODE)
     static inline void print_stacktrace() { }

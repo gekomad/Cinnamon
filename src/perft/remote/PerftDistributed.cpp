@@ -21,7 +21,7 @@
 #include "../locale/PerftThread.h"
 
 PerftDistributed::~PerftDistributed() {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "~PerftDistributed()");
+    debug( "~PerftDistributed()");
 }
 
 std::vector<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(const string &distributedFile) {
@@ -70,18 +70,18 @@ std::vector<tuple<string, int, int, string>> PerftDistributed::getRemoteNodes(co
         nodesSet.push_back(make_tuple(nodeIp, nodeNcores, nodeHash, nodeDumpfile));
     }
 
-    debug<LOG_LEVEL::INFO, false>(LINE_INFO, nodesSet.size(), "nodes");
+    info( nodesSet.size(), "nodes");
     return nodesSet;
 }
 
 void PerftDistributed::setServer(int port1) {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "SERVER MODE on port", port1);
+    debug( "SERVER MODE on port", port1);
     serverMode = true;
     port = port1;
 }
 
 void PerftDistributed::setParam(const string &fen1, int depth1, const string &distributedFile, int port1) {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "setParam");
+    debug( "setParam");
     serverMode = false;
     if (fen1.empty()) {
         fen = STARTPOS;
@@ -96,7 +96,7 @@ void PerftDistributed::setParam(const string &fen1, int depth1, const string &di
 }
 
 void PerftDistributed::run() {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "run");
+    debug( "run");
 
     if (serverMode) {
         server = new Server(port, new PerftParser());//TODO delete PerftParser deleteserver??
@@ -108,16 +108,16 @@ void PerftDistributed::run() {
 }
 
 void PerftDistributed::endRun() {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "endRun");
+    debug( "endRun");
 
 }
 
 void PerftDistributed::receiveMsg(const Message &message) {
-    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer:: receive msg from host: ", message.getHost(), message.getSerializedString());
+    info( "PerftServer:: receive msg from host: ", message.getHost(), message.getSerializedString());
 
-    if (message.getTot() != 0xffffffffffffffff)debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer::tot:", message.getTot());
+    if (message.getTot() != 0xffffffffffffffff)info( "PerftServer::tot:", message.getTot());
 
-    if (message.getPartial() != 0xffffffffffffffff) debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer::partial:", message.getPartial());
+    if (message.getPartial() != 0xffffffffffffffff) info( "PerftServer::partial:", message.getPartial());
 
     if (message.getTot() != 0xffffffffffffffff) {
         for (unsigned i = 0; i < threadPool.size(); i++) {
@@ -147,7 +147,7 @@ int PerftDistributed::getTotMoves(const string &fen1) {
 }
 
 void PerftDistributed::callRemoteNode() {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "callRemoteNode");
+    debug( "callRemoteNode");
     assert(nodesSet.size());
     int totMoves = getTotMoves(fen);
 
@@ -168,6 +168,7 @@ void PerftDistributed::callRemoteNode() {
         RemoteNode &remoteNode = getNextThread();
         to += block;
         if (i == totMachine - 1)to += lastBlock;
+        debug(from+" "+to);
         cout << from << " " << to << endl;
         remoteNode.setRemoteNode(port, fen, depth, from, to - 1, nodesSet[i]);
         from = to;

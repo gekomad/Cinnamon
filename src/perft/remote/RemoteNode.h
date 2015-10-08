@@ -29,7 +29,7 @@ class RemoteNode : public Thread {
 public:
 
     virtual ~RemoteNode() {
-        debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "~RemoteNode()");
+        debug( "~RemoteNode()");
         if (message)delete message;
         message = nullptr;
     }

@@ -21,7 +21,7 @@
 #include "../../network/util/Network.h"
 
 Message::Message(const Message &b) {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "create message from message");
+    debug("create message from message");
     depth = b.depth;
     host = b.host;
     dumpFile = dumpFile;
@@ -49,7 +49,7 @@ bool Message::compare(const Message &b) {
 }
 
 Message::Message(const string &fen1, const int depth1, const int hashsize1, const int Ncpu1, const string &dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "create message from param");
+    debug( "create message from param");
 
     assert(tot1 != 0xffffffffffffffff || fen1.size() > 10);
     assert(tot1 != 0xffffffffffffffff || depth1 > 0);
@@ -70,7 +70,7 @@ Message::Message(const string &fen1, const int depth1, const int hashsize1, cons
     Message x(getSerializedString());
     ASSERT(compare(x));
 #endif
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok");
+    debug( "ok");
 }
 
 Message::Message(const string &m) {

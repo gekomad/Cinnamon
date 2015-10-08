@@ -214,6 +214,7 @@ void Perft::run() {
     setNthread(perftRes.nCpu);
     for (i = 0; i < perftRes.nCpu - 1; i++) {
         PerftThread &perftThread = getNextThread();
+        cout <<s<<" "<<(s+block)<<endl;
         perftThread.setParam(fen, s, s + block, &perftRes, FROM, TO);
         s += block;
     }

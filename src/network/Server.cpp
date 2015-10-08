@@ -26,21 +26,21 @@ void Server::run() {
     c = sizeof(struct sockaddr_in);
 
     char client_message[MAX_MSG_SIZE];
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "accept...", client_message);
+    debug( "accept...", client_message);
     while (1) {
         client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
 
         assert(client_sock != -98691);
         assert(client_sock);
-        debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "socket create: ", client_sock);
+        debug( "socket create: ", client_sock);
 
         while ((read_size = recv(client_sock, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
-            debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "Server::read", client_message);
+            debug( "Server::read", client_message);
             write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
             assert(client_sock != -98691);
             assert(client_sock);
             parser->parser(client_message);
-            debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok");
+            debug( "ok");
         }
         assert(client_sock != -98691);
         assert(client_sock);
@@ -60,7 +60,7 @@ Server::~Server() {
 }
 
 Server::Server(int portno, Iparser *parser1) {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "Server");
+    debug( "Server");
     port = portno;
     parser = parser1;
     struct sockaddr_in server;
@@ -71,17 +71,17 @@ Server::Server(int portno, Iparser *parser1) {
     server.sin_port = htons(portno);
     int on = 0;
     assert(setsockopt(socket_desc, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) >= 0);
-    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "binding..");
+    info( "binding..");
 
     assert (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) >= 0);
-    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "ok");
+    info( "ok");
     listen(socket_desc, 3);
 
 
 }
 
 void Server::sendMsg(const string &msg) {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "sendmsgaaaa");
+    debug( "sendmsgaaaa");
     Message m(msg);
 
     string s = m.getSerializedString();
@@ -89,10 +89,10 @@ void Server::sendMsg(const string &msg) {
     assert(client_sock != -98691);
     assert(client_sock);
 
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "write to server ", s, " , socket: ", client_sock);
+    debug( "write to server ", s, " , socket: ", client_sock);
     write(client_sock, s.c_str(), strlen(s.c_str()) + 1);
 
     assert(client_sock != -98691);
     assert(client_sock);
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok, socket: ", client_sock);
+    debug( "ok, socket: ", client_sock);
 }

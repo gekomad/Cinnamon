@@ -21,16 +21,16 @@
 void RemoteNode::run() {
     ASSERT(message);
     string a = message->getSerializedString();
-    debug<LOG_LEVEL::INFO, false>(LINE_INFO, "send ", a, "to", host, "waiting for result..");
+    info( "send ", a, "to", host, "waiting for result..");
     c.sendMsg(host, port, a);
     mutex mtx;
     unique_lock<std::mutex> lck(mtx);
     cv.wait(lck, [this]() { return end == 1; });
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "end run ", host);
+    debug( "end run ", host);
 }
 
 void RemoteNode::endRun() {
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "exit remoteNode ", host);
+    debug( "exit remoteNode ", host);
 }
 
 void RemoteNode::setRemoteNode(const int port1, const string &fen, const int depth, const int from, const int to, const tuple<string, int, int, string> node) {
