@@ -18,6 +18,7 @@
 
 
 #include "PerftDistributed.h"
+#include "../locale/PerftThread.h"
 
 PerftDistributed::~PerftDistributed() {
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "~PerftDistributed()");
@@ -128,12 +129,27 @@ void PerftDistributed::receiveMsg(const Message &message) {
     }
 };
 
+int PerftDistributed::getTotMoves(const string &fen) {
+    PerftThread p;
+
+    p.loadFen(fen);
+
+    p.setPerft(true);
+    int side = p.getSide() ? 1 : 0;
+
+    p.incListId();
+    u64 friends = side ? p.getBitBoard<WHITE>() : p.getBitBoard<BLACK>();
+    u64 enemies = side ? p.getBitBoard<BLACK>() : p.getBitBoard<WHITE>();
+    p.generateCaptures(side, enemies, friends);
+    p.generateMoves(side, friends | enemies);
+    return p.getListSize();
+
+}
+
 void PerftDistributed::callRemoteNode() {
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "callRemoteNode");
     assert(nodesSet.size());
-    int totMoves = 20;
-    // getNmoves();TODO
-    int from = 0;
+    int totMoves = getTotMoves(fen);
 
     int totMachine = 0;
     int c = 0;
@@ -143,12 +159,17 @@ void PerftDistributed::callRemoteNode() {
         if (c >= totMoves)break;
     }
 
-    int form = 0;
+    int from = 0;
     int to = 0;
     setNthread(totMachine);
+    int block = totMoves / totMachine;
+    int lastBlock =  totMoves % totMachine;
     for (int i = 0; i < totMachine; i++) {
         RemoteNode &remoteNode = getNextThread();
-        remoteNode.setParam(port, fen, depth, from, to, nodesSet[i]);
+        to += block;
+        if (i == totMachine - 1)to += lastBlock;
+        remoteNode.setParam(port, fen, depth, from, to-1, nodesSet[i]);
+        from += to;
     }
     startAll();
     joinAll();
