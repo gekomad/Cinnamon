@@ -53,7 +53,7 @@ Message::Message(const string &fen1, const int depth1, const int hashsize1, cons
 
     assert(tot1 != 0xffffffffffffffff || fen1.size() > 10);
     assert(tot1 != 0xffffffffffffffff || depth1 > 0);
-    assert(tot1 != 0xffffffffffffffff || from1 >= to1);
+    assert(tot1 != 0xffffffffffffffff || from1 <= to1);
 
     host = Network::getIp();
     fen = fen1;
