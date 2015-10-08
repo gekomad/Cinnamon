@@ -29,7 +29,7 @@ void PerftParser::parser(const string &msg) {
     if(message.getTot()!=-1)return;//TODO aggiungere campo comando
 
     Perft &perft = Perft::getInstance();
-    perft.setParam(message.getFen(), message.getDepth(), 1, message.getHashsize(), message.getDumpFile(),message.getFrom(),message.getTo(), false);
+    perft.setParam(message.getFen(), message.getDepth(), message.getNcpu(), message.getHashsize(), message.getDumpFile(),message.getFrom(),message.getTo(), false);
     perft.setCallbackResult(new PerftResultCallback());
     perft.start();
 

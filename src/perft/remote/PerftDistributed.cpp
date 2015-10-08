@@ -169,7 +169,7 @@ void PerftDistributed::callRemoteNode() {
         to += block;
         if (i == totMachine - 1)to += lastBlock;
         cout <<from <<" "<<to<<endl;
-        remoteNode.setParam(port, fen, depth, from, to-1, nodesSet[i]);
+        remoteNode.setRemoteNode(port, fen, depth, from, to-1, nodesSet[i]);
         from = to;
     }
     startAll();

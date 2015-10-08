@@ -33,7 +33,7 @@ void RemoteNode::endRun() {
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "exit remoteNode ", host);
 }
 
-void RemoteNode::setParam(const int port1, const string &fen, const int depth, const int from, const int to, const tuple<string, int, int, string> node) {
+void RemoteNode::setRemoteNode(const int port1, const string &fen, const int depth, const int from, const int to, const tuple<string, int, int, string> node) {
     host = get<0>(node);
     port = port1;
     int Ncpu = get<1>(node);
