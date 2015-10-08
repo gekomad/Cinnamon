@@ -31,7 +31,7 @@ namespace _def {
     typedef long long unsigned u64;
     typedef u64 _Tchessboard[16];
     static const string OK = "OK";
-    static const int SOCK_PORT = 5002;
+    static const int SOCK_PORT = 49152;
 
 #if defined(CLOP) || defined(DEBUG_MODE)
 #define STATIC_CONST

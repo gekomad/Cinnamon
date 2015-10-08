@@ -258,8 +258,6 @@ void Perft::endRun() {
     }
     if (callbackResult) {
         callbackResult->setTot(perftRes.totMoves);
-        sleep(1111111111);
-        exit(0);//TODO
     }
 }
 
