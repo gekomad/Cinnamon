@@ -15,15 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <unistd.h>
 #include "IterativeDeeping.h"
-
-#ifdef DEBUG_MODE
-
-#include "Hash.h"
-#include "SearchManager.h"
-
-#endif
 
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
     setUseBook(false);

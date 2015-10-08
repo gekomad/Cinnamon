@@ -18,8 +18,6 @@
 
 #include "Endgame.h"
 
-#include "Eval.h"
-
 /*
 KXK
 KBNK    ok

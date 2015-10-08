@@ -17,7 +17,6 @@
 */
 
 #include "GenMoves.h"
-#include "Eval.h"
 
 bool GenMoves::forceCheck = false;
 

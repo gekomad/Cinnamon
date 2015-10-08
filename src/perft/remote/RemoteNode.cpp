@@ -24,7 +24,7 @@ void RemoteNode::run() {
     debug<LOG_LEVEL::INFO, false>(LINE_INFO, "send ", a, "to", host, "waiting for result..");
     c.sendMsg(host, port, a);
     mutex mtx;
-    unique_lock <std::mutex> lck(mtx);
+    unique_lock<std::mutex> lck(mtx);
     cv.wait(lck, [this]() { return end == 1; });
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "end run ", host);
 }
