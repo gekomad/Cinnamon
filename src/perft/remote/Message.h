@@ -50,8 +50,8 @@ public:
 
     bool compare(const Message &b);
 
-    void setNcpu(int Ncpu) {
-        Message::Ncpu = Ncpu;
+    void setNcpu(int Ncpu1) {
+        Message::Ncpu = Ncpu1;
     }
 
     const string &getHost() const {
@@ -96,36 +96,36 @@ public:
         return Ncpu;
     }
 
-    void setFen(const string &fen) {
-        Message::fen = fen;
+    void setFen(const string &fen1) {
+        Message::fen = fen1;
     }
 
-    void setDumpFile(const string &dumpFile) {
-        Message::dumpFile = dumpFile;
+    void setDumpFile(const string &dumpFile1) {
+        Message::dumpFile = dumpFile1;
     }
 
-    void setDepth(int depth) {
-        Message::depth = depth;
+    void setDepth(int depth1) {
+        Message::depth = depth1;
     }
 
-    void setHashsize(int hashsize) {
-        Message::hashsize = hashsize;
+    void setHashsize(int hashsize1) {
+        Message::hashsize = hashsize1;
     }
 
-    void setFrom(int from) {
-        Message::from = from;
+    void setFrom(int from1) {
+        Message::from = from1;
     }
 
-    void setTo(int to) {
-        Message::to = to;
+    void setTo(int to1) {
+        Message::to = to1;
     }
 
-    void setPartial(u64 partial) {
-        Message::partial = partial;
+    void setPartial(u64 partial1) {
+        Message::partial = partial1;
     }
 
-    void setTot(u64 tot) {
-        Message::tot = tot;
+    void setTot(u64 tot1) {
+        Message::tot = tot1;
     }
 };
 

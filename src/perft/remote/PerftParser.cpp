@@ -26,12 +26,11 @@ void PerftParser::parser(const string &msg) {
     message.print();
 #endif
 
-    if (message.getTot() == -1) {//TODO sistemare
+    if (message.getTot() == 0xffffffffffffffff) {//TODO sistemare
 
         Perft &perft = Perft::getInstance();
         perft.setParam(message.getFen(), message.getDepth(), message.getNcpu(), message.getHashsize(), message.getDumpFile(), message.getFrom(), message.getTo(), false);
         perft.setCallbackResult(new PerftResultCallback());
         perft.start();
     }
-
-};
+}

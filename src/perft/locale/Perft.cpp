@@ -130,8 +130,8 @@ void Perft::alloc() {
     }
 }
 
-void Perft::setParam(const string &fen1, const int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1, const int from1, const int to1, const bool forceExit) {
-    Perft::forceExit = forceExit;
+void Perft::setParam(const string &fen1, const int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1, const int from1, const int to1, const bool forceExit1) {
+    Perft::forceExit = forceExit1;
     memset(&perftRes, 0, sizeof(_TPerftRes));
 
     depth1 <= 0 ? perftRes.depth = 1 : perftRes.depth = depth1;

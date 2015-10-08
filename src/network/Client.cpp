@@ -49,7 +49,7 @@ void Client::sendMsg(const string &host, int portno, const string &msg) {
         cout << "Client::reply from servers: " << server_reply << "\n";
         if (string(server_reply) != "OK") {//aggiungere decorator parser che chiama PerftClient, TOT e N_CLIENT va in PErftClient
             Message message(server_reply);
-            if (message.getTot() != -1) {
+            if (message.getTot() != 0xffffffffffffffff) {
                 cout << "node: " << message.getHost() << " tot: " << message.getTot() << "\n";
                 TOT += message.getTot();
                 endClient++;

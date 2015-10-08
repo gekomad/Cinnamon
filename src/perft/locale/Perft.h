@@ -81,8 +81,8 @@ public:
 
     void status();
 
-    void setCallbackResult(IResultCallback *callbackResult) {
-        Perft::callbackResult = callbackResult;
+    void setCallbackResult(IResultCallback *callbackResult1) {
+        Perft::callbackResult = callbackResult1;
     }
 
 private:

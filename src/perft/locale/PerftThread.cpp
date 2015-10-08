@@ -24,14 +24,14 @@ mutex PerftThread::mutexPrint;
 
 PerftThread::PerftThread() { }
 
-void PerftThread::setParam(const string &fen1, int from1, int to1, _TPerftRes *perft1, const int FROM, const int TO) {
+void PerftThread::setParam(const string &fen1, int from1, int to1, _TPerftRes *perft1, const int FROM1, const int TO1) {
     perftMode = true;
     loadFen(fen1);
     this->tPerftRes = perft1;
     this->from = from1;
     this->to = to1;
-    this->FROM = FROM;
-    this->TO = TO;
+    this->FROM = FROM1;
+    this->TO = TO1;
 
 }
 

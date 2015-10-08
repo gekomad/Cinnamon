@@ -115,24 +115,24 @@ void PerftDistributed::endRun() {
 void PerftDistributed::receiveMsg(const Message &message) {
     debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer:: receive msg from host: ", message.getHost(), message.getSerializedString());
 
-    if (message.getTot() != -1)debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer::tot:", message.getTot());
+    if (message.getTot() != 0xffffffffffffffff)debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer::tot:", message.getTot());
 
-    if (message.getPartial() != -1) debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer::partial:", message.getPartial());
+    if (message.getPartial() != 0xffffffffffffffff) debug<LOG_LEVEL::INFO, false>(LINE_INFO, "PerftServer::partial:", message.getPartial());
 
-    if (message.getTot() != -1) {
-        for (int i = 0; i < threadPool.size(); i++) {
+    if (message.getTot() != 0xffffffffffffffff) {
+        for (unsigned i = 0; i < threadPool.size(); i++) {
             if (threadPool.at(i)->getHost() == message.getHost()) {
                 threadPool.at(i)->endWork();
                 break;
             }
         }
     }
-};
+}
 
-int PerftDistributed::getTotMoves(const string &fen) {
+int PerftDistributed::getTotMoves(const string &fen1) {
     PerftThread p;
 
-    p.loadFen(fen);
+    p.loadFen(fen1);
 
     p.setPerft(true);
     int side = p.getSide() ? 1 : 0;
@@ -151,7 +151,7 @@ void PerftDistributed::callRemoteNode() {
     assert(nodesSet.size());
     int totMoves = getTotMoves(fen);
 
-    int totMachine = 0;
+    unsigned totMachine = 0;
     int c = 0;
 
     for (totMachine = 0; totMachine < nodesSet.size(); totMachine++) {
@@ -164,7 +164,7 @@ void PerftDistributed::callRemoteNode() {
     setNthread(totMachine);
     int block = totMoves / totMachine;
     int lastBlock = totMoves % totMachine;
-    for (int i = 0; i < totMachine; i++) {
+    for (unsigned i = 0; i < totMachine; i++) {
         RemoteNode &remoteNode = getNextThread();
         to += block;
         if (i == totMachine - 1)to += lastBlock;
