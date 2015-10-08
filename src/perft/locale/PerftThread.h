@@ -31,7 +31,7 @@
 class PerftThread : public Thread, public GenMoves {
 public:
 
-    void setParam(const string &fen, int from, int to, _TPerftRes *);
+    void setParam(const string &fen, int from, int to, _TPerftRes *,const int FROM,const int TO);
 
     PerftThread();
 
@@ -56,6 +56,8 @@ private:
     int from, to;
     _TPerftRes *tPerftRes;
     u64 partialTot = 0;
+    int FROM;
+    int TO;
 };
 
 

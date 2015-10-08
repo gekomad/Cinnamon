@@ -67,7 +67,7 @@ class Perft : public Thread, public ThreadPool<PerftThread>, public Singleton<Pe
 
 public:
 
-    void setParam(const string &fen, int depth, int nCpu, int mbSize, const string &dumpFile, bool forceExit);
+    void setParam(const string &fen, const int depth, const int nCpu, const int mbSize, const string &dumpFile, const int from, const int to, const bool forceExit);
 
     ~Perft();
 
@@ -87,7 +87,8 @@ public:
 
 private:
     Perft() : ThreadPool(1) { };
-
+    int FROM;
+    int TO;
     _TPerftRes perftRes;
     high_resolution_clock::time_point start1;
 

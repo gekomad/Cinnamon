@@ -27,7 +27,7 @@ Uci::Uci(int port) {//server mode
 
 Uci::Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile) {//perft locale
     perft = &Perft::getInstance();
-    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
+    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, -1, -1, true);
     runPerft = true;
     startListner();
 }
@@ -128,7 +128,7 @@ void Uci::listner(IterativeDeeping *it) {
                 }
                 searchManager.setHashSize(hashDepth);
                 perft = &Perft::getInstance();
-                perft->setParam(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile, false);
+                perft->setParam(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile, -1, -1, false);
                 perft->join();
                 perft->start();
             } else {

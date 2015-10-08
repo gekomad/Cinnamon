@@ -131,17 +131,20 @@ void Perft::alloc() {
     }
 }
 
-void Perft::setParam(const string &fen1, int depth1, int nCpu2, int mbSize1, const string &dumpFile1, bool forceexit) {
-    Perft::forceExit = forceexit;
+void Perft::setParam(const string &fen1, const int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1, const int from1, const int to1, const bool forceExit) {
+    Perft::forceExit = forceExit;
     memset(&perftRes, 0, sizeof(_TPerftRes));
-    if (depth1 <= 0)depth1 = 1;
+
+    depth1 <= 0 ? perftRes.depth = 1 : perftRes.depth = depth1;
     mbSize = mbSize1;
-    perftRes.depth = depth1;
+
     fen = fen1;
     dumpFile = dumpFile1;
     perftRes.nCpu = nCpu2;
     count = 0;
     dumping = false;
+    FROM = from1;
+    TO = to1;
 }
 
 void Perft::run() {
@@ -206,18 +209,17 @@ void Perft::run() {
     int listcount = p->getListSize();
     count = listcount;
     delete (p);
-    p = nullptr;
     ASSERT(perftRes.nCpu > 0);
     int block = listcount / perftRes.nCpu;
     int i, s = 0;
     setNthread(perftRes.nCpu);
     for (i = 0; i < perftRes.nCpu - 1; i++) {
         PerftThread &perftThread = getNextThread();
-        perftThread.setParam(fen, s, s + block, &perftRes);
+        perftThread.setParam(fen, s, s + block, &perftRes, FROM, TO);
         s += block;
     }
     PerftThread &perftThread = getNextThread();
-    perftThread.setParam(fen, s, listcount, &perftRes);
+    perftThread.setParam(fen, s, listcount, &perftRes, FROM, TO);
     startAll();
     joinAll();
 }

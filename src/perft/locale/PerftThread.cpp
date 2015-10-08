@@ -24,12 +24,15 @@ mutex PerftThread::mutexPrint;
 
 PerftThread::PerftThread() { }
 
-void PerftThread::setParam(const string &fen1, int from1, int to1, _TPerftRes *perft1) {
+void PerftThread::setParam(const string &fen1, int from1, int to1, _TPerftRes *perft1, const int FROM, const int TO) {
     perftMode = true;
     loadFen(fen1);
     this->tPerftRes = perft1;
     this->from = from1;
     this->to = to1;
+    this->FROM = FROM;
+    this->TO = TO;
+
 }
 
 template<int side, bool useHash, bool smp>
@@ -72,6 +75,7 @@ u64 PerftThread::search(const int depthx) {
         return 0;
     }
     for (int ii = 0; ii < listcount; ii++) {
+
         move = getMove(ii);
         u64 keyold = chessboard[ZOBRISTKEY_IDX];
         makemove(move, false, false);
@@ -105,6 +109,8 @@ void PerftThread::run() {
     makeZobristKey();
     u64 keyold = chessboard[ZOBRISTKEY_IDX];
     for (int ii = from; ii <= to - 1; ii++) {
+        cout <<"------------------ "<<ii<<" "<<FROM <<" "<<TO<<endl;
+        if (ii < FROM || ii > TO)continue;
         u64 n_perft = 0;
         move = getMove(ii);
         makemove(move, false, false);
