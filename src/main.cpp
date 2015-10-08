@@ -121,9 +121,9 @@ void printHeader() {
     cout << flush;
 }
 
-int main(int argc, char **argv) {
-    cout << " " << LOG_LEVEL_STRING[DLOG_LEVEL] << " " << endl;
+int main(int argc, char **argv) {    
     printHeader();
+	cout << " Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << " " << endl;
     GetOpt::parse(argc, argv);
     return 0;
 }
