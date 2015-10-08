@@ -18,13 +18,13 @@
 
 #include "Client.h"
 
-u64 Client::TOT;
-int Client::N_CLIENT;
-int Client::endClient;
+u64 Client::TOT=0;
+int Client::N_CLIENT=0;
+int Client::endClient=0;
 
 void Client::sendMsg(const string &host, int portno, const string &msg) {
     lock_guard<mutex> lock(clientMutex);
-    TOT = endClient=0;
+
     assert(msg.size() < Server::MAX_MSG_SIZE)
 
     struct sockaddr_in server;
