@@ -54,7 +54,7 @@ Server::~Server() {
     dispose();
 }
 
-void Server::setParam(int portno, Iparser *parser1) {
+Server::Server(int portno, Iparser *parser1) {
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "Server");
     port = portno;
     parser = parser1;

@@ -27,16 +27,13 @@
 #include "../blockingThreadPool/Thread.h"
 #include "Iparser.h"
 #include "../perft/remote/Message.h"
-#include "../util/Singleton.h"
 
-class Server : public Thread,
-               public Singleton<Server> {
-    friend class Singleton<Server>;
+class Server : public Thread {
 
 public:
     static const int MAX_MSG_SIZE = 2048;
 
-    void setParam(int port, Iparser *parser);
+    Server(int port, Iparser *parser);
 
     void run();
 
@@ -47,7 +44,7 @@ public:
     void sendMsg(const string &msg);
 
 private:
-    Server(){};
+    
     int client_sock1 = -98691;
     int sockfd = -1;
     int port;
