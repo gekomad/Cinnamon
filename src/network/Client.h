@@ -38,8 +38,12 @@ public:
 
     virtual ~Client() { closeSocket = true; }
 
+protected:
+    static int N_CLIENT;
 private:
     mutex clientMutex;
     bool closeSocket = false;
     static u64 TOT;
+
+    static int endClient;
 };

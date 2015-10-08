@@ -19,10 +19,12 @@
 #include "Client.h"
 
 u64 Client::TOT;
+int Client::N_CLIENT;
+int Client::endClient;
 
 void Client::sendMsg(const string &host, int portno, const string &msg) {
     lock_guard<mutex> lock(clientMutex);
-    TOT = 0;
+    TOT = endClient=0;
     assert(msg.size() < Server::MAX_MSG_SIZE)
 
     struct sockaddr_in server;
@@ -45,12 +47,13 @@ void Client::sendMsg(const string &host, int portno, const string &msg) {
     while (!closeSocket) {
         recv(sock, server_reply, Server::MAX_MSG_SIZE, 0);
         cout << "Client::reply from servers: " << server_reply << "\n";
-        if (string(server_reply) != "OK") {//aggiungere decorator parser che chiama PerftClient, TOT va in PErftClient
+        if (string(server_reply) != "OK") {//aggiungere decorator parser che chiama PerftClient, TOT e N_CLIENT va in PErftClient
             Message message(server_reply);
             if (message.getTot() != -1) {
-                cout << "TOOOOOOOOOOOOOOOOOOOOOOT parz " << message.getTot() << endl;
+                cout << "node: " << message.getHost() << " tot: " << message.getTot() << "\n";
                 TOT += message.getTot();
-                cout << "TOOOOOOOOOOOOOOOOOOOOOOT tot " << TOT << endl;
+                endClient++;
+                cout << "TOT " << TOT << " (" << endClient << "/" << N_CLIENT <<" nodes)"<< endl;
             }
         }
     }
