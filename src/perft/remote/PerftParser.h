@@ -41,6 +41,5 @@ public :
 
     void parser(const string &msg);
 
-
 };
 

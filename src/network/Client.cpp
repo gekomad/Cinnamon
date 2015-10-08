@@ -18,8 +18,11 @@
 
 #include "Client.h"
 
+u64 Client::TOT;
+
 void Client::sendMsg(const string &host, int portno, const string &msg) {
     lock_guard<mutex> lock(clientMutex);
+    TOT = 0;
     assert(msg.size() < Server::MAX_MSG_SIZE)
 
     struct sockaddr_in server;
@@ -39,9 +42,17 @@ void Client::sendMsg(const string &host, int portno, const string &msg) {
     assert(recv(sock, server_reply, _def::OK.size() + 1, 0) >= 0);
     cout << "Client::reply from servers: " << server_reply << "\n";
     assert(server_reply == _def::OK);
-    while(!closeSocket){
-        recv(sock, server_reply,Server::MAX_MSG_SIZE, 0);
+    while (!closeSocket) {
+        recv(sock, server_reply, Server::MAX_MSG_SIZE, 0);
         cout << "Client::reply from servers: " << server_reply << "\n";
+        if (string(server_reply) != "OK") {//aggiungere decorator parser che chiama PerftClient, TOT va in PErftClient
+            Message message(server_reply);
+            if (message.getTot() != -1) {
+                cout << "TOOOOOOOOOOOOOOOOOOOOOOT parz " << message.getTot() << endl;
+                TOT += message.getTot();
+                cout << "TOOOOOOOOOOOOOOOOOOOOOOT tot " << TOT << endl;
+            }
+        }
     }
     close(sock);
 }

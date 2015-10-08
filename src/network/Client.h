@@ -41,4 +41,5 @@ public:
 private:
     mutex clientMutex;
     bool closeSocket = false;
+    static u64 TOT;
 };
