@@ -31,7 +31,7 @@
 class PerftThread : public Thread, public GenMoves {
 public:
 
-    void setParam(const string &fen, int from, int to, _TPerftRes *,const int FROM,const int TO);
+    void setParam(const string &fen, int from, int to, _TPerftRes *, const int FROM, const int TO);
 
     PerftThread();
 

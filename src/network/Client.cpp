@@ -18,9 +18,9 @@
 
 #include "Client.h"
 
-u64 Client::TOT=0;
-int Client::N_CLIENT=0;
-int Client::endClient=0;
+u64 Client::TOT = 0;
+int Client::N_CLIENT = 0;
+int Client::endClient = 0;
 
 void Client::sendMsg(const string &host, int portno, const string &msg) {
     lock_guard<mutex> lock(clientMutex);
@@ -53,7 +53,7 @@ void Client::sendMsg(const string &host, int portno, const string &msg) {
                 cout << "node: " << message.getHost() << " tot: " << message.getTot() << "\n";
                 TOT += message.getTot();
                 endClient++;
-                cout << "TOT " << TOT << " (" << endClient << "/" << N_CLIENT <<" nodes)"<< endl;
+                cout << "TOT " << TOT << " (" << endClient << "/" << N_CLIENT << " nodes)" << endl;
             }
         }
     }

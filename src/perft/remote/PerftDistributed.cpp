@@ -163,13 +163,13 @@ void PerftDistributed::callRemoteNode() {
     int to = 0;
     setNthread(totMachine);
     int block = totMoves / totMachine;
-    int lastBlock =  totMoves % totMachine;
+    int lastBlock = totMoves % totMachine;
     for (int i = 0; i < totMachine; i++) {
         RemoteNode &remoteNode = getNextThread();
         to += block;
         if (i == totMachine - 1)to += lastBlock;
-        cout <<from <<" "<<to<<endl;
-        remoteNode.setRemoteNode(port, fen, depth, from, to-1, nodesSet[i]);
+        cout << from << " " << to << endl;
+        remoteNode.setRemoteNode(port, fen, depth, from, to - 1, nodesSet[i]);
         from = to;
     }
     startAll();

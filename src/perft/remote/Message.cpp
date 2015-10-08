@@ -51,11 +51,11 @@ bool Message::compare(const Message &b) {
 Message::Message(const string &fen1, const int depth1, const int hashsize1, const int Ncpu1, const string &dumpFile1, const int from1, const int to1, const u64 partial1, const u64 tot1) {
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "create message from param");
 
-    assert(tot!=-1 || fen1.size() > 10);
-    assert(tot!=-1 || depth1 > 0);
-    assert(tot!= -1 || from1 >= to1);
+    assert(tot != -1 || fen1.size() > 10);
+    assert(tot != -1 || depth1 > 0);
+    assert(tot != -1 || from1 >= to1);
 
-    host =  Network::getIp();
+    host = Network::getIp();
     fen = fen1;
     dumpFile = dumpFile1;
     depth = depth1;
@@ -79,7 +79,7 @@ Message::Message(const string &m) {
     cout << m << endl;
     int c = 0;
     for (int i = 0; i < m.size(); i++)if (m.at(i) == SEPARATOR)c++;
-    if(c != 9)cout <<m<<endl;
+    if (c != 9)cout << m << endl;
 #endif
     stringstream ss(m);
 
