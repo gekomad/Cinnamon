@@ -25,6 +25,7 @@
 using namespace _debug;
 using namespace _def;
 
+//TODO aggiungere header
 class Message {
 private:
     const static char SEPARATOR = 1;
