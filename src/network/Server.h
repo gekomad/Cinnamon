@@ -45,12 +45,12 @@ public:
 
 private:
     
-    int client_sock1 = -98691;
+    int client_sock = -98691;
     int sockfd = -1;
     int port;
     int socket_desc;
-
+    struct sockaddr_in client;
     void dispose();
-
+    int c;
     Iparser *parser;
 };

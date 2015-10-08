@@ -23,23 +23,22 @@
 void Server::run() {
 
     int read_size;
-    int c = sizeof(struct sockaddr_in);
-    struct sockaddr_in client;
+    c = sizeof(struct sockaddr_in);
+
     char client_message[MAX_MSG_SIZE];
     debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "accept...", client_message);
-    client_sock1 = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
-    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok", client_message);
-    assert (client_sock1 >= 0);
     while (1) {
-        while ((read_size = recv(client_sock1, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
+        client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
+        debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok", client_message);
+        assert (client_sock >= 0);
+        while ((read_size = recv(client_sock, client_message, Server::MAX_MSG_SIZE, 0)) > 0) {
             debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "Server::read", client_message);
-            write(client_sock1, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
+            write(client_sock, _def::OK.c_str(), strlen(_def::OK.c_str()) + 1);
             parser->parser(client_message);
             debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok");
         }
-        assert(client_sock1 = !-98691);
+        // assert(client_sock = !-98691);
     }
-    assert(client_sock1 = !-98691);
 }
 
 void Server::dispose() {
@@ -82,6 +81,11 @@ void Server::sendMsg(const string &msg) {
     string s = m.getSerializedString();
 //    Client c;
 //    c.sendMsg("10.0.3.1", port, msg);//TODO
-    assert(client_sock1 = !-98691);
-    write(client_sock1, s.c_str(), strlen(s.c_str()) + 1);
+    assert(client_sock != -98691);
+//        debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "reconnect");
+//        client_sock = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c);
+//    }
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "write to server..");
+    write(client_sock, s.c_str(), strlen(s.c_str()) + 1);
+    debug<LOG_LEVEL::DEBUG, false>(LINE_INFO, "ok");
 }
