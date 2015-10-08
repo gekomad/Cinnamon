@@ -26,7 +26,7 @@ void Client::sendMsg(const string &host, int portno, const string &msg) {
     assert(msg.size() < Server::MAX_MSG_SIZE)
 
     struct sockaddr_in server;
-    char server_reply[_def::OK.size() + 1];
+    char server_reply[Server::MAX_MSG_SIZE];
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     assert(sock != -1);
@@ -42,6 +42,10 @@ void Client::sendMsg(const string &host, int portno, const string &msg) {
     assert(recv(sock, server_reply, _def::OK.size() + 1, 0) >= 0);
     cout << "Client::reply from servers: " << server_reply << "\n";
     assert(server_reply == _def::OK);
+    while(1){
+        recv(sock, server_reply,Server::MAX_MSG_SIZE, 0);
+        cout << "Client::reply from servers: " << server_reply << "\n";
+    }
     close(sock);
 }
 
