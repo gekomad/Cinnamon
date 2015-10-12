@@ -67,8 +67,12 @@ namespace _debug {
         }
     }
 
+#define trace(...) debug<LOG_LEVEL::TRACE>( LINE_INFO,__VA_ARGS__)
 #define debug(...) debug<LOG_LEVEL::DEBUG>( LINE_INFO,__VA_ARGS__)
 #define info(...) debug<LOG_LEVEL::INFO>( LINE_INFO,__VA_ARGS__)
+#define warn(...) debug<LOG_LEVEL::WARN>( LINE_INFO,__VA_ARGS__)
+#define error(...) debug<LOG_LEVEL::ERROR>( LINE_INFO,__VA_ARGS__)
+#define fatal(...) debug<LOG_LEVEL::FATAL>( LINE_INFO,__VA_ARGS__)
 
 #if defined(_WIN32) || !defined(DEBUG_MODE)
     static inline void print_stacktrace() { }
