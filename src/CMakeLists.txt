@@ -9,49 +9,53 @@ if (DR_MEMORY STREQUAL "YES")
 endif ()
 
 set(SOURCE_FILES
-        perft/locale/Perft.cpp
-        perft/locale/PerftThread.cpp
-
-        perft/remote/PerftParser.cpp
-
-        perft/remote/RemoteNode.cpp
-        perft/remote/PerftDistributed.cpp
-        perft/remote/Message.cpp
-        perft/remote/PerftResultCallback.cpp
-
+        gtb/gtb-probe.h
+        perft/_TPerftRes.h
+        perft/Perft.cpp
+        perft/Perft.h
+        perft/PerftThread.cpp
+        perft/PerftThread.h
         util/Bits.cpp
+        util/Bits.h
+        ObserverSearch.h
+        util/Singleton.h
         util/String.cpp
-        util/IniFile.cpp
-
+		util/IniFile.cpp
+        util/String.h
+        blockingThreadPool/Thread.h
+        blockingThreadPool/ThreadPool.h
+        blockingThreadPool/ObserverThread.h
+        util/Timer.h
         ChessBoard.cpp
-
+        ChessBoard.h
         Eval.cpp
-
+        Eval.h
         GenMoves.cpp
-
+        GenMoves.h
         Hash.cpp
-
+        Hash.h
         IterativeDeeping.cpp
-
+        IterativeDeeping.h
         main.cpp
-
+        namespaces/def.h
+        namespaces/board.h
+        namespaces/debug.h
+        namespaces/eval.h
+        namespaces/random.h
         OpenBook.cpp
-
+        OpenBook.h
         Search.cpp
-
+        Search.h
         SearchManager.cpp
-
+        SearchManager.h
         Tablebase.cpp
-
+        Tablebase.h
         Endgame.cpp
-
+        Endgame.h
         Uci.cpp
+        Uci.h)
 
-        network/Server.cpp
-        network/Client.cpp
-)
-
-set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_CXX_COMPILER "clang++")
 add_executable(cinnamon ${SOURCE_FILES})
 if (DR_MEMORY STREQUAL "YES")
     target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/32/libgtb.a)
