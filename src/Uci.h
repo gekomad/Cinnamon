@@ -28,21 +28,15 @@ class Uci : public Singleton<Uci> {
     friend class Singleton<Uci>;
 
 public:
-//    Uci(int port);
-
     Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile);
 
-    //perft locale
-//    Uci(const string &fen, int perftDepth, const string &iniFile);
-
-    //perft distributed
     virtual ~Uci();
 
 private:
     Uci();
 
     Perft *perft = nullptr;
-//    PerftDistributed *perftDistributed = nullptr;
+
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
     bool uciMode;
@@ -55,6 +49,6 @@ private:
     void startListner();
 
     bool runPerft = false;
-//    bool runPerftDistributed = false;
+
 };
 

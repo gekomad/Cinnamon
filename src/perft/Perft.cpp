@@ -175,8 +175,9 @@ void Perft::run() {
     cout << "cache size:\t\t" << mbSize << "\n";
     cout << "dump file:\t\t" << dumpFile << "\n";
     cout << "\n" << Time::getLocalTime() << " start perft test...\n";
-    cout << "type 'status' for partial moves" << endl;
-
+    if (forceExit) {
+        cout << "type 'status' for partial moves" << endl;
+    }
     Timer t1(Time::HOUR_IN_SECONDS);// = new Timer(Time::HOUR_IN_SECONDS);
     t1.registerObservers([this]() {
         status();

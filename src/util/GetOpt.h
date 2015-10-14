@@ -58,17 +58,10 @@ private:
             } else if (opt == 'f') {  //fen
                 fen = optarg;
             }
-//            else if (opt == 'i') {  //distributed
-//                iniFile = optarg;
-//            }
-        }
 
-//        if (iniFile.size()) {
-//            //"/home/geko/workspace/workspace_my/cinnamon/src/perft_distributed_nodes.ini"
-//            new Uci(fen, perftDepth, iniFile);//perft distributed
-//        } else {
-            new Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);//perft locale
-//        }
+        }
+        new Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);
+
     }
 
     static void epd2pgn(int argc, char **argv) {
