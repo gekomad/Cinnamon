@@ -19,8 +19,11 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include "GenMoves.h"
+
+using namespace std;
 class WrapperCinnamon {
 
 public:
-    void getTotMoves1(void);
+    int getTotMoves(string);
 };

@@ -52,6 +52,7 @@ set(SOURCE_FILES
         Tablebase.h
         Endgame.cpp
         Endgame.h
+        WrapperCinnamon.cpp
         Uci.cpp
         Uci.h)
 

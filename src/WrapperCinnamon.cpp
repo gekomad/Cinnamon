@@ -19,7 +19,8 @@
 
 #include "WrapperCinnamon.h"
 
-void WrapperCinnamon::getTotMoves1(void) {
-    std::cout <<"ssssssssss\n"<<std::endl;
+int WrapperCinnamon::getTotMoves(string fen) {
+    GenMoves a;
+    return a.getTotMoves(fen);
 }
 
