@@ -18,26 +18,10 @@
 
 #include "Uci.h"
 
-Uci::Uci(int port) {//server mode
-    perftDistributed = &PerftDistributed::getInstance();
-    perftDistributed->setServer(port);
-    runPerftDistributed = true;
-    startListner();
-}
-
 Uci::Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile) {//perft locale
     perft = &Perft::getInstance();
-    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, -1, -1, true);
+    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
     runPerft = true;
-    startListner();
-}
-
-Uci::Uci(const string &fen, int perftDepth, const string &iniFile) {//perft remote
-
-    perftDistributed = &PerftDistributed::getInstance();
-    perftDistributed->setParam(fen, perftDepth, iniFile, SOCK_PORT);
-
-    runPerftDistributed = true;
     startListner();
 }
 
@@ -71,10 +55,11 @@ void Uci::listner(IterativeDeeping *it) {
         if (runPerft) {
             runPerft = false;
             perft->start();
-        } else if (runPerftDistributed) {
-            runPerftDistributed = false;
-            perftDistributed->start();
         }
+//        else if (runPerftDistributed) {
+//            runPerftDistributed = false;
+//            perftDistributed->start();
+//        }
         getline(cin, command);
         istringstream uip(command, ios::in);
         getToken(uip, token);
@@ -128,7 +113,7 @@ void Uci::listner(IterativeDeeping *it) {
                 }
                 searchManager.setHashSize(hashDepth);
                 perft = &Perft::getInstance();
-                perft->setParam(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile, -1, -1, false);
+                perft->setParam(fen, perftDepth, nCpu, PERFT_HASH_SIZE, dumpFile, false);
                 perft->join();
                 perft->start();
             } else {

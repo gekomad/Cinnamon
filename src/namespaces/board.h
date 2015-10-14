@@ -41,7 +41,7 @@ namespace _board {
     static const int _INFINITE = 32000;
 
     const string EPD2PGN_HELP = "-epd2pgn -f epd_file [-m max_pieces]";
-    const string PERFT_HELP = "-perft [[-d depth] [-c nCpu] [-h hash size (mb) [-F dump file]] [-f \"fen position\"] -i remote_host_ini] [-s -p port]";
+    const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb) [-F dump file]] [-f \"fen position\"]";
     const string DTM_HELP = "-dtm -f \"fen position\" [-p path] [-s scheme] [-i installed pieces]";
     const string ENDGAME_HELP = "-endgame_epd -t KRKP | KQKP | KBBKN | KQKR | KRKB | KRKN";
 

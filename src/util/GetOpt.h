@@ -42,7 +42,7 @@ private:
         string dumpFile;
         int opt;
         string iniFile;
-        while ((opt = getopt(argc, argv, "d:f:h:f:c:F:i:")) != -1) {
+        while ((opt = getopt(argc, argv, "d:f:h:f:c:F:")) != -1) {
             if (opt == 'd') {    //depth
                 perftDepth = atoi(optarg);
             } else if (opt == 'F') { //use dump
@@ -57,17 +57,18 @@ private:
                 perftHashSize = atoi(optarg);
             } else if (opt == 'f') {  //fen
                 fen = optarg;
-            } else if (opt == 'i') {  //distributed
-                iniFile = optarg;
             }
+//            else if (opt == 'i') {  //distributed
+//                iniFile = optarg;
+//            }
         }
 
-        if (iniFile.size()) {
-            //"/home/geko/workspace/workspace_my/cinnamon/src/perft_distributed_nodes.ini"
-            new Uci(fen, perftDepth, iniFile);//perft distributed
-        } else {
+//        if (iniFile.size()) {
+//            //"/home/geko/workspace/workspace_my/cinnamon/src/perft_distributed_nodes.ini"
+//            new Uci(fen, perftDepth, iniFile);//perft distributed
+//        } else {
             new Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);//perft locale
-        }
+//        }
     }
 
     static void epd2pgn(int argc, char **argv) {
@@ -173,15 +174,12 @@ public:
         }
 
         int opt;
-        while ((opt = getopt(argc, argv, "sp:e:hd:bf:")) != -1) {
+        while ((opt = getopt(argc, argv, "p:e:hd:bf:")) != -1) {
             if (opt == 'h') {
                 help(argv);
                 return;
             }
-            if (opt == 's') {//server mode
-                new Uci(SOCK_PORT);
-                return;
-            } else if (opt == 'p') {  // perft test
+            if (opt == 'p') {  // perft test
                 perft(argc, argv);
                 return;
             } else {

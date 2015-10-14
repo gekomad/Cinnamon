@@ -19,8 +19,8 @@
 #pragma once
 
 #include "IterativeDeeping.h"
-#include "perft/locale/Perft.h"
-#include "perft/remote/PerftDistributed.h"
+#include "perft/Perft.h"
+
 #include <string.h>
 #include "util/String.h"
 
@@ -28,13 +28,12 @@ class Uci : public Singleton<Uci> {
     friend class Singleton<Uci>;
 
 public:
-    Uci(int port);
+//    Uci(int port);
 
-    //server mode
     Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile);
 
     //perft locale
-    Uci(const string &fen, int perftDepth, const string &iniFile);
+//    Uci(const string &fen, int perftDepth, const string &iniFile);
 
     //perft distributed
     virtual ~Uci();
@@ -43,7 +42,7 @@ private:
     Uci();
 
     Perft *perft = nullptr;
-    PerftDistributed *perftDistributed = nullptr;
+//    PerftDistributed *perftDistributed = nullptr;
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
     bool uciMode;
@@ -56,6 +55,6 @@ private:
     void startListner();
 
     bool runPerft = false;
-    bool runPerftDistributed = false;
+//    bool runPerftDistributed = false;
 };
 
