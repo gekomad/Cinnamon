@@ -54,8 +54,8 @@ else
 	endif
 endif
 
-PARAM="-std=c++11 -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
-#PARAM="-std=c++11 -g  -DDLOG_LEVEL=TRACE -DDEBUG_MODE "
+#PARAM="-std=c++11 -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
+PARAM="-std=c++11 -g  -DDLOG_LEVEL=TRACE -DDEBUG_MODE "
 
 help:
 
@@ -91,6 +91,11 @@ else
 endif
 
 	$(STRIP) $(EXE)
+
+	@echo "create static library..."
+	ar rcs libCinnamon.a ChessBoard.o Uci.o PerftResultCallback.o PerftParser.o PerftDistributed.o RemoteNode.o Message.o Server.o Client.o IniFile.o Search.o Endgame.o Bits.o String.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
+	@echo "Build Auriga..."
+	$(COMP) -std=c++11 -g -DDLOG_LEVEL=TRACE -DDEBUG_MODE -Iperft/remote/ -Iperft/locale/ -L./ -Lgtb/Linux/64/libgtb.a -msse4a -march=athlon64 -mtune=athlon64  -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF  -m64 -pthread -static auriga.cpp -lCinnamon -o auriga
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
@@ -195,4 +200,4 @@ Endgame.o: Endgame.cpp
 	$(COMP) -c Endgame.cpp ${CFLAGS} ${ARC}
 
 clean:
-	$(RM) *.o $(EXE) *.gcda
+	$(RM) *.o $(EXE) *.gcda libCinnamon.a auriga

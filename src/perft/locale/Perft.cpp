@@ -106,6 +106,7 @@ bool Perft::load() {
 }
 
 Perft::~Perft() {
+    debug("~Perft()");
     if (perftRes.hash) {
         for (int i = 1; i <= perftRes.depth; i++) {
             free(perftRes.hash[i]);
