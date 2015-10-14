@@ -18,15 +18,24 @@
 
 #pragma once
 
-#include "../locale/IResultCallback.h"
-#include "../../namespaces/def.h"
+#include "../namespaces/def.h"
+#include <atomic>
 
 using namespace _def;
+using namespace std;
+#pragma pack(push)
+#pragma pack(1)
+typedef struct {
+    u64 key;
+    u64 nMoves;
+} _ThashPerft;
+#pragma pack(pop)
 
-class PerftResultCallback : public IResultCallback {
-public :
-
-    void setTot(const u64);
-
-};
+typedef struct {
+    atomic_ullong totMoves;
+    _ThashPerft **hash;
+    u64 sizeAtDepth[255];
+    int depth;
+    int nCpu;
+} _TPerftRes;
 

@@ -18,28 +18,44 @@
 
 #pragma once
 
-#include "../../Search.h"
+#include "_TPerftRes.h"
+#include "../Search.h"
+#include "../blockingThreadPool/Thread.h"
 #include <iomanip>
 #include <atomic>
 #include <fstream>
 #include <unistd.h>
-#include "../../util/Timer.h"
+#include "../util/Timer.h"
 #include <mutex>
 
-#include <signal.h>
-#include <set>
-#include "Message.h"
+class PerftThread : public Thread, public GenMoves {
+public:
 
-#include "../../network/Server.h"
-#include "../../blockingThreadPool/ThreadPool.h"
-#include "RemoteNode.h"
-#include "PerftClient.h"
-#include "PerftResultCallback.h"
+    void setParam(string fen, int from, int to, _TPerftRes *);
 
-class PerftParser : public Iparser {
-public :
+    PerftThread();
 
-    void parser(const string &msg);
+    virtual ~PerftThread();
 
+    virtual void run();
+
+    virtual void endRun();
+
+    u64 getPartial();
+
+private:
+
+    static mutex MUTEX_HASH;
+
+    static mutex mutexPrint;
+    u64 tot = 0;
+
+    template<int side, bool useHash, bool smp>
+    u64 search(const int depthx);
+
+    int from, to;
+    _TPerftRes *tPerftRes;
+    u64 partialTot = 0;
 };
+
 
