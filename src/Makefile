@@ -93,7 +93,7 @@ endif
 	$(STRIP) $(EXE)
 
 	@echo "create static library..."
-	ar rcs libCinnamon.a ChessBoard.o Uci.o PerftResultCallback.o PerftParser.o PerftDistributed.o RemoteNode.o Message.o Server.o Client.o IniFile.o Search.o Endgame.o Bits.o String.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
+	ar rcs libCinnamon.a ChessBoard.o Uci.o IniFile.o Search.o Endgame.o Bits.o String.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build

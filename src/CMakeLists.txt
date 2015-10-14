@@ -55,7 +55,7 @@ set(SOURCE_FILES
         Uci.cpp
         Uci.h)
 
-set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_COMPILER "g++")
 add_executable(cinnamon ${SOURCE_FILES})
 if (DR_MEMORY STREQUAL "YES")
     target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/32/libgtb.a)

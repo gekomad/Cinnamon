@@ -33,6 +33,23 @@ GenMoves::GenMoves() : perftMode(false), listId(-1) {
     repetitionMapCount = 0;
 }
 
+
+int GenMoves::getTotMoves(const string &fen1) {
+    loadFen(fen1);
+
+    int side = getSide() ? 1 : 0;
+
+    incListId();
+    u64 friends = side ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
+    u64 enemies = side ? getBitBoard<BLACK>() : getBitBoard<WHITE>();
+    generateCaptures(side, enemies, friends);
+    generateMoves(side, friends | enemies);
+
+    int t= getListSize();
+    decListId();
+    return t;
+}
+
 bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {
     ASSERT_RANGE(piece, 0, 11);
     ASSERT_RANGE(side, 0, 1);
