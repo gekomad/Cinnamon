@@ -166,7 +166,7 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name TB Restart type button\n";
 
             cout << "option name PerftThreads type spin default 1 min 1 max 64\n";
-            cout << "option name PerftHashSize type spin default 0 min 1\n";
+            cout << "option name PerftHashSize type spin default 0 min 0\n";
             cout << "uciok\n";
         } else if (token == "score") {
             int side = searchManager.getSide();
