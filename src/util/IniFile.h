@@ -33,6 +33,8 @@ public:
         if (inData.is_open()) {
             endFile = false;
         }
+        rgxLine.assign("^(\\w*)=(.*)$");
+        rgxTag.assign("^\\[.+]$");
     }
 
     ~IniFile() {
@@ -42,9 +44,6 @@ public:
     }
 
     pair<string, string> *get() {
-
-        std::regex rgx("^(\\w*)=(.*)$");
-        std::regex rgxNode("^\\[.+]$");
 
         std::smatch match;
         string line;
@@ -59,11 +58,11 @@ public:
             if (line.at(0) == '#')continue;
 
             const string line2 = line;
-            if (std::regex_search(line2.begin(), line2.end(), match, rgxNode)) {
+            if (std::regex_search(line2.begin(), line2.end(), match, rgxTag)) {
                 params.first =line;
                 params.second = "";
             }else
-            if (std::regex_search(line2.begin(), line2.end(), match, rgx)) {
+            if (std::regex_search(line2.begin(), line2.end(), match, rgxLine)) {
                 params.first = match[1];
                 params.second = match[2];
             }
@@ -74,7 +73,8 @@ public:
     };
 
 private:
-
+    std::regex rgxLine;
+    std::regex rgxTag;
     bool endFile = true;
     ifstream inData;
     pair<string, string> params;
