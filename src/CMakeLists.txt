@@ -20,7 +20,6 @@ set(SOURCE_FILES
         ObserverSearch.h
         util/Singleton.h
         util/String.cpp
-		util/IniFile.cpp
         util/String.h
         blockingThreadPool/Thread.h
         blockingThreadPool/ThreadPool.h

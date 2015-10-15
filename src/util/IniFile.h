@@ -20,19 +20,55 @@
 
 #include <fstream>
 #include <algorithm>
-//#include "FileUtil.h"
+#include <regex>
 
 using namespace std;
 
 class IniFile {
 public:
-    IniFile(const string &fileName);
 
-    pair<string, string> *get();
+    IniFile(const string &fileName) {
+        endFile = true;
+        inData.open(fileName);
+        if (inData.is_open()) {
+            endFile = false;
+        }
+    }
 
-    virtual ~IniFile();
+    ~IniFile() {
+        if (endFile) {
+            inData.close();
+        }
+    }
+
+    pair<string, string> *get() {
+
+        std::regex rgx("^(\\w*)=(.*)$");
+        std::smatch match;
+        string line;
+
+        while (!endFile) {
+            if (inData.eof()) {
+                endFile = true;
+                return nullptr;
+            }
+            getline(inData, line);
+
+            if (line.at(0) == '#')continue;
+
+            const string line2 = line;
+            if (std::regex_search(line2.begin(), line2.end(), match, rgx)) {
+                params.first = match[1];
+                params.second = match[2];
+            }
+            return &params;
+        }
+
+        return nullptr;
+    };
 
 private:
+
     bool endFile = true;
     ifstream inData;
     pair<string, string> params;
