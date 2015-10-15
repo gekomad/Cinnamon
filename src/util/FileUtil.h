@@ -20,6 +20,7 @@
 
 #include <fstream>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
