@@ -53,7 +53,7 @@ public:
                 return nullptr;
             }
             getline(inData, line);
-
+            if (!line.size)continue;
             if (line.at(0) == '#')continue;
 
             const string line2 = line;
