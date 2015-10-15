@@ -44,6 +44,8 @@ public:
     pair<string, string> *get() {
 
         std::regex rgx("^(\\w*)=(.*)$");
+        std::regex rgxNode("^\\[.+]$");
+
         std::smatch match;
         string line;
 
@@ -53,10 +55,14 @@ public:
                 return nullptr;
             }
             getline(inData, line);
-            if (!line.size)continue;
+            if (!line.size())continue;
             if (line.at(0) == '#')continue;
 
             const string line2 = line;
+            if (std::regex_search(line2.begin(), line2.end(), match, rgxNode)) {
+                params.first =line;
+                params.second = "";
+            }else
             if (std::regex_search(line2.begin(), line2.end(), match, rgx)) {
                 params.first = match[1];
                 params.second = match[2];
