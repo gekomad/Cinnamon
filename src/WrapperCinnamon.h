@@ -25,5 +25,5 @@ using namespace std;
 class WrapperCinnamon {
 
 public:
-    int getTotMoves(string);
+    vector<string> getTotMoves(string);
 };

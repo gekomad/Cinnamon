@@ -34,7 +34,6 @@ public:
             endFile = false;
         }else{
             error("file not found: ",fileName);
-            assert(0);
         }
         rgxLine.assign("^(\\w*)=(.*)$");
         rgxTag.assign("^\\[.+]$");

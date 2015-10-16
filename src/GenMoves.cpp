@@ -34,7 +34,7 @@ GenMoves::GenMoves() : perftMode(false), listId(-1) {
 }
 
 
-int GenMoves::getTotMoves(const string &fen1) {
+vector<string> GenMoves::getTotMoves(const string &fen1) {cambiare nome
     loadFen(fen1);
 
     int side = getSide() ? 1 : 0;
@@ -45,9 +45,17 @@ int GenMoves::getTotMoves(const string &fen1) {
     generateCaptures(side, enemies, friends);
     generateMoves(side, friends | enemies);
 
-    int t= getListSize();
+
+    vector<string> v;
+    _Tmove *move;
+    u64 oldKey = chessboard[ZOBRISTKEY_IDX];
+    while ((move = getNextMove(&gen_list[listId]))) {
+        makemove(move, false, true);
+        v.push_back(boardToFen());il colore è sbagliato
+        takeback(move, oldKey, false);
+    }
     decListId();
-    return t;
+    return v;
 }
 
 bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {

@@ -40,7 +40,7 @@ public:
 
     void generateMoves(const int side, const u64);
 
-    int getTotMoves(const string &fen);
+    vector<string> getTotMoves(const string &fen);
 
     void generateMoves(const int side);
 

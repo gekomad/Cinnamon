@@ -19,7 +19,7 @@
 
 #include "WrapperCinnamon.h"
 
-int WrapperCinnamon::getTotMoves(string fen) {
+vector<string> WrapperCinnamon::getTotMoves(string fen) {
     GenMoves a;
     return a.getTotMoves(fen);
 }
