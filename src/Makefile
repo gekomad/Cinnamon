@@ -54,8 +54,8 @@ else
 	endif
 endif
 
-#PARAM="-std=c++11 -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
-PARAM="-std=c++11 -g  -DDLOG_LEVEL=TRACE -DDEBUG_MODE "
+PARAM="-std=c++11 -O3 -pipe -DNDEBUG -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
+#PARAM="-std=c++11 -O2  -DDLOG_LEVEL=OFF -DDEBUG_MODEa "
 
 help:
 
@@ -93,7 +93,7 @@ endif
 	$(STRIP) $(EXE)
 
 	@echo "create static library..."
-	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o IniFile.o Search.o Endgame.o Bits.o String.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
+	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o Endgame.o Bits.o String.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
@@ -119,8 +119,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: ChessBoard.o Eval.o GenMoves.o WrapperCinnamon.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o IniFile.o
-	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o WrapperCinnamon.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o IniFile.o  ${LIBS}
+all: ChessBoard.o Eval.o GenMoves.o WrapperCinnamon.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o WrapperCinnamon.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o Endgame.o  ${LIBS}
 
 default:
 	help
@@ -169,9 +169,6 @@ String.o: util/String.cpp
 
 Bits.o: util/Bits.cpp
 	$(COMP) -c util/Bits.cpp ${CFLAGS} ${ARC}
-
-IniFile.o: util/IniFile.cpp
-	$(COMP) -c util/IniFile.cpp ${CFLAGS} ${ARC}
 
 Endgame.o: Endgame.cpp
 	$(COMP) -c Endgame.cpp ${CFLAGS} ${ARC}
