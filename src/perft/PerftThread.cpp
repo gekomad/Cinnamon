@@ -32,6 +32,59 @@ void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) 
     this->to = to1;
 }
 
+vector<string> PerftThread::getSuccessorsFen(const string &fen1, const int depth) {
+    loadFen(fen1);
+    if (getSide()) return getSuccessorsFen<WHITE>(depth);
+    return getSuccessorsFen<BLACK>(depth);
+}
+
+
+template<int side>
+vector<string> PerftThread::getSuccessorsFen(const int depthx) {
+    if (depthx == 0) {
+        vector<string> a;
+        a.push_back(boardToFen());
+        return a;
+    }
+
+    vector<string> n_perft;
+
+    int listcount;
+    _Tmove *move;
+    incListId();
+    u64 friends = getBitBoard<side>();
+    u64 enemies = getBitBoard<side ^ 1>();
+    if (generateCaptures<side>(enemies, friends)) {
+        assert(0);//TODO eliminare blocco
+        decListId();
+        {
+            vector<string> a;
+            return a;
+        }
+    }
+    generateMoves<side>(friends | enemies);
+    listcount = getListSize();
+    if (!listcount) {
+        decListId();
+        vector<string> a;
+        return a;
+    }
+    for (int ii = 0; ii < listcount; ii++) {
+        move = getMove(ii);
+        u64 keyold = chessboard[ZOBRISTKEY_IDX];
+        makemove(move, false, false);
+        setSide(side ^ 1);
+        vector<string> b = getSuccessorsFen<side ^ 1>(depthx - 1);
+        n_perft.insert(n_perft.end(), b.begin(), b.end());
+        takeback(move, keyold, false);
+        setSide(side ^ 1);
+    }
+    decListId();
+
+    return n_perft;
+}
+
+
 template<int side, bool useHash, bool smp>
 u64 PerftThread::search(const int depthx) {
     checkWait();

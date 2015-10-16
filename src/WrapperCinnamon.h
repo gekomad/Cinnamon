@@ -19,11 +19,11 @@
 #pragma once
 #include <string>
 #include <iostream>
-#include "GenMoves.h"
+#include "perft/PerftThread.h"
 
 using namespace std;
 class WrapperCinnamon {
 
 public:
-    vector<string> getTotMoves(string);
+    vector<string> getSuccessorsFen(const string&,const int depth);
 };

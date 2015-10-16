@@ -40,8 +40,6 @@ public:
 
     void generateMoves(const int side, const u64);
 
-    vector<string> getTotMoves(const string &fen);
-
     void generateMoves(const int side);
 
     template<int side>

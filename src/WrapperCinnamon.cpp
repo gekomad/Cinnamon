@@ -19,8 +19,8 @@
 
 #include "WrapperCinnamon.h"
 
-vector<string> WrapperCinnamon::getTotMoves(string fen) {
-    GenMoves a;
-    return a.getTotMoves(fen);
+vector<string> WrapperCinnamon::getSuccessorsFen(const string& fen,const int depth) {
+    PerftThread a;
+    return a.getSuccessorsFen(fen,depth);
 }
 

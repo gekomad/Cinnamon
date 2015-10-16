@@ -33,31 +33,6 @@ GenMoves::GenMoves() : perftMode(false), listId(-1) {
     repetitionMapCount = 0;
 }
 
-
-vector<string> GenMoves::getTotMoves(const string &fen1) {cambiare nome
-    loadFen(fen1);
-
-    int side = getSide() ? 1 : 0;
-
-    incListId();
-    u64 friends = side ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
-    u64 enemies = side ? getBitBoard<BLACK>() : getBitBoard<WHITE>();
-    generateCaptures(side, enemies, friends);
-    generateMoves(side, friends | enemies);
-
-
-    vector<string> v;
-    _Tmove *move;
-    u64 oldKey = chessboard[ZOBRISTKEY_IDX];
-    while ((move = getNextMove(&gen_list[listId]))) {
-        makemove(move, false, true);
-        v.push_back(boardToFen());il colore è sbagliato
-        takeback(move, oldKey, false);
-    }
-    decListId();
-    return v;
-}
-
 bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {
     ASSERT_RANGE(piece, 0, 11);
     ASSERT_RANGE(side, 0, 1);

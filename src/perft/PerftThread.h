@@ -43,6 +43,9 @@ public:
 
     u64 getPartial();
 
+
+    vector<string> getSuccessorsFen(const string &fen1, const int depth);
+
 private:
 
     static mutex MUTEX_HASH;
@@ -56,6 +59,9 @@ private:
     int from, to;
     _TPerftRes *tPerftRes;
     u64 partialTot = 0;
+
+    template<int side>
+    vector<string> getSuccessorsFen(const int depthx) ;
 };
 
 
