@@ -36,6 +36,30 @@ public:
         return elapsed.count();
     }
 
+    static string diffTimeToString(high_resolution_clock::time_point start, high_resolution_clock::time_point stop) {
+        string res;
+        int t = Time::diffTime(stop, start) / 1000;
+        int days = t / 60 / 60 / 24;
+        int hours = (t / 60 / 60) % 24;
+        int minutes = (t / 60) % 60;
+        int seconds = t % 60;
+
+
+        if (days) {
+            res.append("days: ").append(String(days));
+        }
+        if (days || hours) {
+            res.append("hours: ").append(String(hours));
+        }
+        if (days || hours || minutes) {
+            res.append("minutes: ").append(String(minutes));
+        }
+        if (!days) {
+            res.append("seconds: ").append(String(seconds));
+        }
+        return res;
+    }
+
     static string getLocalTime() {
         time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
         String gg(ctime(&current));

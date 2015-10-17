@@ -226,26 +226,11 @@ void Perft::run() {
 void Perft::endRun() {
     auto end1 = std::chrono::high_resolution_clock::now();
     int t = Time::diffTime(end1, start1) / 1000;
-    int days = t / 60 / 60 / 24;
-    int hours = (t / 60 / 60) % 24;
-    int minutes = (t / 60) % 60;
-    int seconds = t % 60;
 
     cout << endl << endl << "Perft moves: " << perftRes.totMoves;
+    string timetot=Time::diffTimeToString(start1,end1);
+    cout << " in "<<timetot;
 
-    cout << " in ";
-    if (days) {
-        cout << days << " days, ";
-    }
-    if (days || hours) {
-        cout << hours << " hours, ";
-    }
-    if (days || hours || minutes) {
-        cout << minutes << " minutes, ";
-    }
-    if (!days) {
-        cout << seconds << " seconds";
-    }
     if (t) {
         cout << " (" << (perftRes.totMoves / t) / 1000 - ((perftRes.totMoves / t) / 1000) % 1000 << "k nodes per seconds" << ")";
     }
