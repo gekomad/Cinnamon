@@ -142,6 +142,7 @@ void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dum
     perftRes.nCpu = nCpu2;
     count = 0;
     dumping = false;
+    setNthread(getNthread());//reinitialize threads
 }
 
 void Perft::run() {
