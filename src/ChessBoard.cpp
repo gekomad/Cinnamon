@@ -182,6 +182,7 @@ int ChessBoard::loadFen(const string &fen) {
     if (fen.empty()) {
         return loadFen();
     }
+    fenString=fen;
     memset(chessboard, 0, sizeof(_Tchessboard));
     istringstream iss(fen);
     string pos, castle, enpassant, side;
