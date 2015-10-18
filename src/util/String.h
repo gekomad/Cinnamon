@@ -33,11 +33,12 @@ public:
 
     String(const char *s) : string(s) { };
 
-    String(int);
-
-    String(unsigned long long);
-
-    virtual ~ String();
+    template<class T>
+    String(T d) {
+        stringstream ss;
+        ss << d;
+        assign(ss.str());
+    }
 
     String &trim();
 

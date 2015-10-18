@@ -39,7 +39,7 @@ public:
     static string diffTimeToString(high_resolution_clock::time_point start, high_resolution_clock::time_point stop) {
         string res;
         unsigned t = Time::diffTime(stop, start) / 1000;
-        int days = t / 60 / 60 / 24;
+        unsigned days = t / 60 / 60 / 24;
         int hours = (t / 60 / 60) % 24;
         int minutes = (t / 60) % 60;
         int seconds = t % 60;

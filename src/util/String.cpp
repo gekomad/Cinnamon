@@ -21,20 +21,6 @@
 String::String() {
 }
 
-String::String(unsigned long long d) {
-    stringstream ss;
-    ss << d;
-    assign(ss.str());
-}
-
-String::String(int d) {
-    stringstream ss;
-    ss << d;
-    assign(ss.str());
-}
-
-String::~String() { }
-
 String &String::trim() {
     trimLeft();
     trimRight();
