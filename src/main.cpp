@@ -122,6 +122,13 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
+
+    auto start1 = std::chrono::high_resolution_clock::now();
+    sleep(1);
+usleep(111111);
+    auto end1 = std::chrono::high_resolution_clock::now();
+    cout <<Time::diffTimeToString(start1,end1)<<endl;
+    return 0;
     printHeader();
     cout << " Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << " " << endl;
     GetOpt::parse(argc, argv);
