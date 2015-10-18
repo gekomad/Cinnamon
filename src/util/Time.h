@@ -31,14 +31,14 @@ public:
     static const int HOUR_IN_MINUTES = 60;
 
 
-    static int diffTime(high_resolution_clock::time_point t1, high_resolution_clock::time_point t2) {
+    static unsigned long long diffTime(high_resolution_clock::time_point t1, high_resolution_clock::time_point t2) {
         std::chrono::duration<double, std::milli> elapsed = t1 - t2;
         return elapsed.count();
     }
 
     static string diffTimeToString(high_resolution_clock::time_point start, high_resolution_clock::time_point stop) {
         string res;
-        int t = Time::diffTime(stop, start) / 1000;
+        unsigned t = Time::diffTime(stop, start) / 1000;
         int days = t / 60 / 60 / 24;
         int hours = (t / 60 / 60) % 24;
         int minutes = (t / 60) % 60;
