@@ -46,16 +46,16 @@ public:
 
 
         if (days) {
-            res.append("days: ").append(String(days));
+            res.append(String(days)).append(" days ");
         }
         if (days || hours) {
-            res.append("hours: ").append(String(hours));
+            res.append(String(hours)).append(" hours ");
         }
         if (days || hours || minutes) {
-            res.append("minutes: ").append(String(minutes));
+            res.append(String(minutes)).append(" minutes ");
         }
         if (!days) {
-            res.append("seconds: ").append(String(seconds));
+            res.append(String(seconds)).append(" seconds");
         }
         return res;
     }
