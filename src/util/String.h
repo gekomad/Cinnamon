@@ -31,6 +31,22 @@ public:
 
     String(const string &s) : string(s) { };
 
+    static string toString(const __int128_t value) {
+        __uint128_t tmp = value < 0 ? -value : value;
+        char buffer[128];
+        char *d = std::end(buffer);
+        do {
+            --d;
+            *d = "0123456789"[tmp % 10];
+            tmp /= 10;
+        } while (tmp != 0);
+        if (value < 0) {
+            --d;
+            *d = '-';
+        }
+        return d;
+    }
+
     String(const char *s) : string(s) { };
 
     template<class T>
