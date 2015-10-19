@@ -40,6 +40,11 @@ public:
         assign(ss.str());
     }
 
+    static int stoi(const string &s) {
+        if(s.size()==0)return 0;
+        return std::stoi(s);
+    }
+
     String &trim();
 
     String &trimLeft();
