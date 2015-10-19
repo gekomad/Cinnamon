@@ -21,8 +21,10 @@
 #include <fstream>
 #include <algorithm>
 #include <regex>
+#include "../namespaces/debug.h"
 
 using namespace std;
+using namespace _debug;
 
 class IniFile {
 public:
@@ -32,8 +34,8 @@ public:
         inData.open(fileName);
         if (inData.is_open()) {
             endFile = false;
-        }else{
-            error("file not found: ",fileName);
+        } else {
+            warn("file not found: ", fileName);
         }
         rgxLine.assign("^(\\w*)=(.*)$");
         rgxTag.assign("^\\[.+]$");
@@ -42,6 +44,16 @@ public:
     ~IniFile() {
         if (endFile) {
             inData.close();
+        }
+    }
+
+    string getValue(const string &value) {
+        while (true) {
+            pair<string, string> *parameters = get();
+            if (!parameters)return "";
+            if (parameters->first == value) {
+                return parameters->second;
+            }
         }
     }
 
@@ -56,6 +68,7 @@ public:
                 return nullptr;
             }
             getline(inData, line);
+            trace(line);
             if (!line.size())continue;
             if (line.at(0) == '#')continue;
 
