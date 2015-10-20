@@ -42,16 +42,16 @@ namespace _debug {
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
 
-#define LINE_INFO __FILENAME__,":",__LINE__
+#define LINE_INFO __FILENAME__,":",__LINE__," "
 
     template<typename T>
     void __log(T a) {
-        cout << a << " ";
+        cout << (a);
     }
 
     template<typename T, typename... Args>
     void __log(T t, Args... args) {
-        cout << t << " ";
+        cout << t;
         __log(args...);
     }
 
