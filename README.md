@@ -1,4 +1,4 @@
-Cinnamon version IGWT-2015 (experimental)
+Cinnamon v. IGWT-2015 (experimental)
 ==========
 ###UCI Chess Engine
 
