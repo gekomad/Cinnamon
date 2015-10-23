@@ -1,4 +1,4 @@
-Cinnamon v. IGWT-2015 (experimental)
+Cinnamon IGWT-2015 (experimental)
 ==========
 ###UCI Chess Engine
 
@@ -12,7 +12,7 @@ or any UCI-compatible GUI. Cinnamon is also a javascript library to play with
 
 Version
 ----------
-cinnamon-IGWT-2015 experimental
+cinnamon-IGWT-2015 (experimental)
 
 Features
 ----------
@@ -67,12 +67,12 @@ Cinnamon requires C++11 or greater, use unique Makefile to compile for many arch
     make cinnamon32-modern           > 32-bit with sse support
     make cinnamon32-generic          > Unspecified 32-bit
 
-    make cinnamon-native             > Optimized for native cpu (also Raspberry Pi)
-    make cinnamon-CLOP               > Enable CLOP parameter tuning
+    make cinnamon-native             > Optimized for native cpu
+    make cinnamon-ARM                > Optimized for arm cpu
 
     g++ is the default compiler, add COMP=yourcompiler to use another compiler
      example: make cinnamon64-modern-INTEL COMP=clang++
-
+	add PROFILE_GCC=yes for PGO build (gcc only)
 
 License
 -------
@@ -84,7 +84,7 @@ Credits
 
 Cinnamon was written by Giuseppe Cannella at gmail dot com.
 
-  [1]: http://cinnamonchess.altervista.org
+  [1]: cinnamonchess.altervista.org/download/cinnamon-IGWT-2015.exe
   [2]: http://cinnamonchess.altervista.org/api/1.2a/class_iterative_deeping.html
   [3]: http://www.computerchess.org.uk/ccrl/404/cgi/compare_engines.cgi?family=Cinnamon
   [4]: http://www.gnu.org/software/xboard
