@@ -84,7 +84,7 @@ Credits
 
 Cinnamon was written by Giuseppe Cannella at gmail dot com.
 
-  [1]: cinnamonchess.altervista.org/download/cinnamon-IGWT-2015.exe
+  [1]: http://cinnamonchess.altervista.org/download/cinnamon-IGWT-2015.exe
   [2]: http://cinnamonchess.altervista.org/api/1.2a/class_iterative_deeping.html
   [3]: http://www.computerchess.org.uk/ccrl/404/cgi/compare_engines.cgi?family=Cinnamon
   [4]: http://www.gnu.org/software/xboard
