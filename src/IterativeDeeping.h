@@ -22,7 +22,7 @@
 #include <string.h>
 #include "util/String.h"
 #include "SearchManager.h"
-#include "blockingThreadPool/Thread.h"
+#include "threadPool/Thread.h"
 #include "OpenBook.h"
 
 class IterativeDeeping : public Thread {

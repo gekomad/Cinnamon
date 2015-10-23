@@ -21,9 +21,9 @@ set(SOURCE_FILES
         util/Singleton.h
         util/String.cpp
         util/String.h
-        blockingThreadPool/Thread.h
-        blockingThreadPool/ThreadPool.h
-        blockingThreadPool/ObserverThread.h
+        threadPool/Thread.h
+        threadPool/ThreadPool.h
+        threadPool/ObserverThread.h
         util/Timer.h
         ChessBoard.cpp
         ChessBoard.h
@@ -55,7 +55,7 @@ set(SOURCE_FILES
         Uci.cpp
         Uci.h)
 
-set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_CXX_COMPILER "clang++")
 add_executable(cinnamon ${SOURCE_FILES})
 if (DR_MEMORY STREQUAL "YES")
     target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/32/libgtb.a)
