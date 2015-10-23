@@ -54,12 +54,12 @@ void Hash::setHashSize(int mb) {
         hashArray[HASH_GREATER] = (_Thash *) calloc(tmp, sizeof(_Thash));
         if (!hashArray[HASH_GREATER]) {
             cout << "info string error - no memory\n";
-            return;
+            exit(1);
         }
         hashArray[HASH_ALWAYS] = (_Thash *) calloc(tmp, sizeof(_Thash));
         if (!hashArray[HASH_ALWAYS]) {
             cout << "info string error - no memory\n";
-            return;
+            exit(1);
         }
         HASH_SIZE = tmp;
     }
