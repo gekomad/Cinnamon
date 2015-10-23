@@ -1,5 +1,5 @@
 /*
-    https://github.com/gekomad/BlockingThreadPool
+    https://github.com/gekomad/Auriga
     Copyright (C) Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
@@ -18,9 +18,15 @@
 
 #pragma once
 
+#include "../util/Singleton.h"
+
 using namespace std;
 
-class ObserverThread {
-public:
-    virtual void observerEndThread(int threadID) = 0;
-};
+#define log(...)                          
+#define trace(...)
+#define debug(...) 
+#define info(...) 
+#define warn(...)
+#define error(...) 
+#define fatal(...) 
+

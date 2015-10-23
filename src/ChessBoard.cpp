@@ -160,6 +160,7 @@ string ChessBoard::boardToFen() const {
         fen.append(" ");
         chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(BOARD[chessboard[ENPASSANT_IDX] - 8]);
     }
+    fen.append(" 0 1");
     return fen;
 }
 

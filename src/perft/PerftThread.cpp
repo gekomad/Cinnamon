@@ -19,7 +19,7 @@
 #include "PerftThread.h"
 #include "Perft.h"
 
-mutex PerftThread::MUTEX_HASH;
+Mutex PerftThread::MUTEX_HASH;
 mutex PerftThread::mutexPrint;
 
 PerftThread::PerftThread() { }

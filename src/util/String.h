@@ -22,6 +22,7 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
+#include <string.h>
 
 using namespace std;
 
@@ -34,16 +35,20 @@ public:
     static string toString(const __int128_t value) {
         __uint128_t tmp = value < 0 ? -value : value;
         char buffer[128];
+        int p = 0;
         char *d = std::end(buffer);
         do {
+            p++;
             --d;
             *d = "0123456789"[tmp % 10];
             tmp /= 10;
         } while (tmp != 0);
         if (value < 0) {
+            p++;
             --d;
             *d = '-';
         }
+        d[p] = 0;
         return d;
     }
 
@@ -57,7 +62,7 @@ public:
     }
 
     static int stoi(const string &s) {
-        if(s.size()==0)return 0;
+        if (s.size() == 0)return 0;
         return std::stoi(s);
     }
 

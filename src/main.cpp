@@ -123,6 +123,7 @@ void printHeader() {
 
 int main(int argc, char **argv) {
     printHeader();
+    
     GetOpt::parse(argc, argv);
     return 0;
 }

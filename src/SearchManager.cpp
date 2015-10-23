@@ -155,8 +155,7 @@ void SearchManager::parallelSearch(int mply) {
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
-
-    lock_guard<mutex> lock(mutexSearch);
+	mutexSearch.lock();    
     if (getRunning(threadID)) {
         if (lineWin.cmove == -1) {
             int t = threadPool[threadID]->getValue();
@@ -172,6 +171,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
             }
         }
     }
+	mutexSearch.unlock();
 }
 
 bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn1) {
