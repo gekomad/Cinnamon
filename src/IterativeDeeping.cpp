@@ -207,7 +207,7 @@ void IterativeDeeping::run() {
         }
 
         if (searchManager.getForceCheck()) {
-            searchManager.setForceCheck(false);
+            //searchManager.setForceCheck(false);
             searchManager.setRunning(1);
 
         } else if (abs(sc) > _INFINITE - MAX_PLY) {
