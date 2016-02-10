@@ -57,17 +57,13 @@ help:
 	@echo "make cinnamon64-generic          > unspecified 64-bit"
 	@echo "make cinnamon32-modern           > x86 32-bit with sse support"
 	@echo "make cinnamon32-generic          > unspecified 32-bit"
+	@echo "make cinnamon-ARM                > Optimized for arm cpu"
 	@echo ""
 
 
 build:
 
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
-	@echo "optimize..."
-	$(PA)$(EXE) -b >bench.tmp
-	$(RM) *.o bench.tmp
-	@echo "build..."
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-use all
+	$(MAKE) EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC) all
 	$(STRIP) $(EXE)
 
 cinnamon32-generic:
@@ -88,6 +84,9 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
+cinnamon-ARM:
+	$(MAKE) LIBS="$(LIBS) gtb/ARM/32/libgtb.a" ARC="$(ARC) -fno-gcse -w -fsigned-char" build
+	
 all: namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o
 	$(CC) ${CFLAGS} ${ARC} -o ${EXE} namespaces.o ChessBoard.o Eval.o GenMoves.o IterativeDeeping.o main.o Perft.o Search.o Hash.o Uci.o OpenBook.o Tablebase.o String.o Bits.o ${LIBS}
 
