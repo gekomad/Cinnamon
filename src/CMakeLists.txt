@@ -21,9 +21,9 @@ set(SOURCE_FILES
         util/Singleton.h
         util/String.cpp
         util/String.h
-        blockingThreadPool/Thread.h
-        blockingThreadPool/ThreadPool.h
-        blockingThreadPool/ObserverThread.h
+        threadPool/Thread.h
+        threadPool/ThreadPool.h
+        threadPool/ObserverThread.h
         util/Timer.h
         ChessBoard.cpp
         ChessBoard.h

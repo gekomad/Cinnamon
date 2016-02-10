@@ -24,7 +24,7 @@
 #include "namespaces/def.h"
 #include <climits>
 #include "Tablebase.h"
-#include "blockingThreadPool/Thread.h"
+#include "threadPool/Thread.h"
 #include "ObserverSearch.h"
 
 class Search : public Eval, public Thread, public Subject {
