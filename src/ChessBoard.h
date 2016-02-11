@@ -142,8 +142,6 @@ protected:
         u64 allPieces;
         u64 kingAttackers[2];
         u64 allPiecesSide[2];
-        u64 pawns[2];
-        u64 rooks[2];
         u64 openColumn;
         u64 semiOpenColumn[2];
         u64 isolated[2];

@@ -554,20 +554,20 @@ private:
         repetitionMap[repetitionMapCount++] = key;
     }
 
-    template<int side, bool getBoolean>
+    template<int side, bool exitOnFirst>
     u64 getAttackers(const int position, const u64 allpieces) const {
         ASSERT_RANGE(position, 0, 63);
         ASSERT_RANGE(side, 0, 1);
         int bound;
         ///knight
         u64 attackers = KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + (side ^ 1)];
-        if (getBoolean && attackers)return 1;
+        if (exitOnFirst && attackers)return 1;
         ///king
         attackers |= NEAR_MASK1[position] & chessboard[KING_BLACK + (side ^ 1)];
-        if (getBoolean && attackers)return 1;
+        if (exitOnFirst && attackers)return 1;
         ///pawn
         attackers |= PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + (side ^ 1)];
-        if (getBoolean && attackers)return 1;
+        if (exitOnFirst && attackers)return 1;
         ///bishop queen
         u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
         if (LEFT_RIGHT_DIAG[position] & enemies) {
@@ -577,7 +577,7 @@ private:
                 bound = Bits::BITScanReverse(q);
                 if (enemies & POW2[bound]) {
                     attackers |= POW2[bound];
-                    if (getBoolean && attackers)return 1;
+                    if (exitOnFirst && attackers)return 1;
                 }
             }
             q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
@@ -585,7 +585,7 @@ private:
                 bound = Bits::BITScanForward(q);
                 if (enemies & POW2[bound]) {
                     attackers |= POW2[bound];
-                    if (getBoolean && attackers)return 1;
+                    if (exitOnFirst && attackers)return 1;
                 }
             }
             ///RIGHT
@@ -594,7 +594,7 @@ private:
                 bound = Bits::BITScanReverse(q);
                 if (enemies & POW2[bound]) {
                     attackers |= POW2[bound];
-                    if (getBoolean && attackers)return 1;
+                    if (exitOnFirst && attackers)return 1;
                 }
             }
             q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
@@ -602,7 +602,7 @@ private:
                 bound = Bits::BITScanForward(q);
                 if (enemies & POW2[bound]) {
                     attackers |= POW2[bound];
-                    if (getBoolean && attackers)return 1;
+                    if (exitOnFirst && attackers)return 1;
                 }
             }
         }
@@ -616,7 +616,7 @@ private:
                 bound = Bits::BITScanReverse(q);
                 if (enemies & POW2[bound]) {
                     attackers |= POW2[bound];
-                    if (getBoolean && attackers)return 1;
+                    if (exitOnFirst && attackers)return 1;
                 }
             }
             q = x & MASK_BIT_UNSET_DOWN[position];
@@ -624,7 +624,7 @@ private:
                 bound = Bits::BITScanForward(q);
                 if (enemies & POW2[bound]) {
                     attackers |= POW2[bound];
-                    if (getBoolean && attackers)return 1;
+                    if (exitOnFirst && attackers)return 1;
                 }
             }
         }
@@ -635,7 +635,7 @@ private:
                 bound = Bits::BITScanForward(q);
                 if (enemies & POW2[bound]) {
                     attackers |= POW2[bound];
-                    if (getBoolean && attackers)return 1;
+                    if (exitOnFirst && attackers)return 1;
                 }
             }
             q = x & MASK_BIT_UNSET_LEFT[position];
@@ -643,11 +643,11 @@ private:
                 bound = Bits::BITScanReverse(q);
                 if (enemies & POW2[bound]) {
                     attackers |= POW2[bound];
-                    if (getBoolean && attackers)return 1;
+                    if (exitOnFirst && attackers)return 1;
                 }
             }
         }
-        if (getBoolean && attackers)return 1;
+        if (exitOnFirst && attackers)return 1;
         return attackers;
     }
 

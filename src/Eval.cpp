@@ -23,14 +23,14 @@ Eval::Eval() { }
 Eval::~Eval() { }
 
 void Eval::openColumn(int side) {
-    u64 side_rooks = structure.rooks[side];
+    u64 side_rooks = chessboard[ROOK_BLACK + side];
     structure.openColumn = 0;
     structure.semiOpenColumn[side] = 0;
     while (side_rooks) {
         int o = Bits::BITScanForward(side_rooks);
-        if (!(FILE_[o] & (structure.pawns[WHITE] | structure.pawns[BLACK]))) {
+        if (!(FILE_[o] & (chessboard[WHITE] | chessboard[BLACK]))) {
             structure.openColumn |= FILE_[o];
-        } else if (FILE_[o] & structure.pawns[side ^ 1]) {
+        } else if (FILE_[o] & chessboard[side ^ 1]) {
             structure.semiOpenColumn[side] |= FILE_[o];
         }
         side_rooks &= NOTPOW2[o];
@@ -40,7 +40,7 @@ void Eval::openColumn(int side) {
 template<int side, Eval::_Tstatus status>
 int Eval::evaluatePawn() {
     INC(evaluationCount[side]);
-    u64 ped_friends = structure.pawns[side];
+    u64 ped_friends = chessboard[side];
     if (!ped_friends) {
         ADD(SCORE_DEBUG.NO_PAWNS[side], -NO_PAWNS);
         return -NO_PAWNS;
@@ -48,7 +48,7 @@ int Eval::evaluatePawn() {
     structure.isolated[side] = 0;
     int result = MOB_PAWNS[getMobilityPawns(side, chessboard[ENPASSANT_IDX], ped_friends, side == WHITE ? structure.allPiecesSide[BLACK] : structure.allPiecesSide[WHITE], ~structure.allPiecesSide[BLACK] | ~structure.allPiecesSide[WHITE])];
     ADD(SCORE_DEBUG.MOB_PAWNS[side], result);
-    if (Bits::bitCount(structure.pawns[side ^ 1]) == 8) {
+    if (Bits::bitCount(chessboard[side ^ 1]) == 8) {
         result -= ENEMIES_PAWNS_ALL;
         ADD(SCORE_DEBUG.ENEMIES_PAWNS_ALL[side], -ENEMIES_PAWNS_ALL);
     }
@@ -106,7 +106,7 @@ int Eval::evaluatePawn() {
             result -= BACKWARD_PAWN;//TODO valore in base alla posizione
         }
         /// passed
-        if (!(structure.pawns[side ^ 1] & PAWN_PASSED_MASK[side][o])) {
+        if (!(chessboard[side ^ 1] & PAWN_PASSED_MASK[side][o])) {
             ADD(SCORE_DEBUG.PAWN_PASSED[side], PAWN_PASSED[side][o]);
             result += PAWN_PASSED[side][o];
         }
@@ -183,7 +183,7 @@ int Eval::evaluateQueen(int side, u64 enemies, u64 friends) {
             structure.kingSecurityDistance[side] -= ENEMY_NEAR_KING * (NEAR_MASK2[structure.posKing[side ^ 1]] & POW2[o] ? 1 : 0);
             ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side ^ 1], -ENEMY_NEAR_KING * (NEAR_MASK2[structure.posKing[side ^ 1]] & POW2[o] ? 1 : 0));
         }
-        if ((structure.pawns[side ^ 1] & FILE_[o])) {
+        if ((chessboard[side ^ 1] & FILE_[o])) {
             ADD(SCORE_DEBUG.HALF_OPEN_FILE_Q[side], HALF_OPEN_FILE_Q);
             result += HALF_OPEN_FILE_Q;
         }
@@ -314,11 +314,11 @@ int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
                 result -= ROOK_BLOCKED;
             };
         }
-        if (!(structure.pawns[side] & FILE_[o])) {
+        if (!(chessboard[side] & FILE_[o])) {
             ADD(SCORE_DEBUG.ROOK_OPEN_FILE[side], OPEN_FILE);
             result += OPEN_FILE;
         }
-        if (!(structure.pawns[side ^ 1] & FILE_[o])) {
+        if (!(chessboard[side ^ 1] & FILE_[o])) {
             ADD(SCORE_DEBUG.ROOK_OPEN_FILE[side], OPEN_FILE);
             result += OPEN_FILE;
         }
@@ -361,7 +361,7 @@ int Eval::evaluateKing(int side, u64 squares) {
         }
     }
     ASSERT(pos_king < 64);
-    if (!(NEAR_MASK1[pos_king] & structure.pawns[side])) {
+    if (!(NEAR_MASK1[pos_king] & chessboard[side])) {
         ADD(SCORE_DEBUG.PAWN_NEAR_KING[side], -PAWN_NEAR_KING);
         result -= PAWN_NEAR_KING;
     }
@@ -408,10 +408,7 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
     structure.posKing[WHITE] = (uchar) Bits::BITScanForward(chessboard[KING_WHITE]);
     structure.kingAttackers[WHITE] = getAllAttackers<WHITE>(structure.posKing[WHITE], structure.allPieces);
     structure.kingAttackers[BLACK] = getAllAttackers<BLACK>(structure.posKing[BLACK], structure.allPieces);
-    structure.pawns[BLACK] = chessboard[BLACK];
-    structure.pawns[WHITE] = chessboard[WHITE];
-    structure.rooks[BLACK] = chessboard[ROOK_BLACK];
-    structure.rooks[WHITE] = chessboard[ROOK_WHITE];
+
     openColumn(WHITE);
     openColumn(BLACK);
     int pawns_score_black;
@@ -437,8 +434,8 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
         queens_score_white = evaluateQueen<OPEN>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
         rooks_score_black = evaluateRook<BLACK, OPEN>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
         rooks_score_white = evaluateRook<WHITE, OPEN>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-        knights_score_black = evaluateKnight<BLACK, OPEN>(structure.pawns[WHITE], ~structure.allPiecesSide[BLACK]);
-        knights_score_white = evaluateKnight<WHITE, OPEN>(structure.pawns[BLACK], ~structure.allPiecesSide[WHITE]);
+        knights_score_black = evaluateKnight<BLACK, OPEN>(chessboard[WHITE], ~structure.allPiecesSide[BLACK]);
+        knights_score_white = evaluateKnight<WHITE, OPEN>(chessboard[BLACK], ~structure.allPiecesSide[WHITE]);
         kings_score_black = evaluateKing<OPEN>(BLACK, ~structure.allPiecesSide[BLACK]);
         kings_score_white = evaluateKing<OPEN>(WHITE, ~structure.allPiecesSide[WHITE]);
     } else {
@@ -453,8 +450,8 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
             queens_score_white = evaluateQueen<END>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
             rooks_score_black = evaluateRook<BLACK, END>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
             rooks_score_white = evaluateRook<WHITE, END>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            knights_score_black = evaluateKnight<BLACK, END>(structure.pawns[WHITE], ~structure.allPiecesSide[BLACK]);
-            knights_score_white = evaluateKnight<WHITE, END>(structure.pawns[BLACK], ~structure.allPiecesSide[WHITE]);
+            knights_score_black = evaluateKnight<BLACK, END>(chessboard[WHITE], ~structure.allPiecesSide[BLACK]);
+            knights_score_white = evaluateKnight<WHITE, END>(chessboard[BLACK], ~structure.allPiecesSide[WHITE]);
             kings_score_black = evaluateKing<END>(BLACK, ~structure.allPiecesSide[BLACK]);
             kings_score_white = evaluateKing<END>(WHITE, ~structure.allPiecesSide[WHITE]);
         } else {
@@ -466,8 +463,8 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
             queens_score_white = evaluateQueen<MIDDLE>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
             rooks_score_black = evaluateRook<BLACK, MIDDLE>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
             rooks_score_white = evaluateRook<WHITE, MIDDLE>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            knights_score_black = evaluateKnight<BLACK, MIDDLE>(structure.pawns[WHITE], ~structure.allPiecesSide[BLACK]);
-            knights_score_white = evaluateKnight<WHITE, MIDDLE>(structure.pawns[BLACK], ~structure.allPiecesSide[WHITE]);
+            knights_score_black = evaluateKnight<BLACK, MIDDLE>(chessboard[WHITE], ~structure.allPiecesSide[BLACK]);
+            knights_score_white = evaluateKnight<WHITE, MIDDLE>(chessboard[BLACK], ~structure.allPiecesSide[WHITE]);
             kings_score_black = evaluateKing<MIDDLE>(BLACK, ~structure.allPiecesSide[BLACK]);
             kings_score_white = evaluateKing<MIDDLE>(WHITE, ~structure.allPiecesSide[WHITE]);
         }
