@@ -116,14 +116,13 @@ void SearchManager::parallelSearch(int mply) {
 		//TODO cancellare blocco
         assert(0);
         Search &idThread1 = getNextThread();
-        debug("start loop1 ------------------------------ run threadid: ", idThread1.getId(), "count:", getBitCount());
+        debug("start loop1 ------------------------------ run threadid: ", idThread1.getId());
         debug("val: ", valWindow);
         startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
         idThread1.join();
     } else {
 //  Parallel Aspiration Windows
-        debug("start loop2 --------------------------count:", getBitCount());
-        ASSERT(nThreads);
+        debug("start loop2 --------------------------");
         ASSERT(!getBitCount());
         ASSERT(lineWin.cmove <= 0);
         for (int ii = 0; ii < std::max(3, getNthread()); ii++) {
@@ -140,18 +139,18 @@ void SearchManager::parallelSearch(int mply) {
             debug("val: ", valWindow);
             startThread(SMP_YES, idThread1, mply, alpha, beta);
         }
-        debug("end loop2 ---------------------------count:", getBitCount());
+        debug("end loop2 ---------------------------");
         joinAll();
         ASSERT(!getBitCount());
         if (lineWin.cmove <= 0) {
 
-            debug("start loop3 -------------------------------count:", getBitCount());
+            debug("start loop3 -------------------------------");
 //            for (int i = 0; i < getNthread(); i++) {
             Search &idThread1 = getNextThread();
             idThread1.setRunning(1);
             startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
 //            }
-            debug("end loop3 -------------------------------count:", getBitCount());
+            debug("end loop3 -------------------------------");
             idThread1.join();
         }
     }
