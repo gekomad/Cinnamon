@@ -17,6 +17,8 @@
 */
 
 #include "Uci.h"
+#include "util/GetOpt.h"
+
 
 /*
 
@@ -30,58 +32,29 @@
  1| 07 06 05 04 03 02 01 00
  ...a  b  c  d  e  f  g  h
 
-ratings
-Rank Name                  Elo    +    - games score oppo. draws
-   1 buzz-008_2181         385   13   13  2551   79%   146   14%
-   2 beowulf_2194          368   13   13  2551   77%   146   14%
-   3 gk-090-64-ja_2109     360   13   13  2552   77%   146   16%
-   4 clarabit_2098         263   12   12  2542   65%   146   18%
-   5 soldat_1960           197   12   12  2542   56%   146   16%
-   6 smash_1925            172   12   12  2552   53%   146   12%
-   7 faile-64_1976         153   11   11  2552   51%   146   20%
-   8 Cinnamon 1.2a         152   11   11  2550   51%   146   30%
-   9 Cinnamon 1.2b         146    5    5 33140   52%   -11   15%
-  10 Cinnamon 1.1c         105   11   11  2552   44%   146   27%
-  11 heracles_1973         105   12   12  2551   44%   146   16%
-  12 zct_2043              -15   12   12  2542   30%   146   12%
-  13 jabba-64_2041       -1196  200  179  2551    0%   146    0%
-  14 gullydeckel-64_1982 -1196  200  179  2552    0%   146    0%
-
-los
-                     bu be gk cl so sm fa Ci Ci Ci he zc ja gu
-buzz-008_2181           95 99100100100100100100100100100100100
-beowulf_2194          4    78100100100100100100100100100100100
-gk-090-64-ja_2109     0 21   100100100100100100100100100100100
-clarabit_2098         0  0  0    99100100100100100100100100100
-soldat_1960           0  0  0  0    99 99 99 99100100100100100
-smash_1925            0  0  0  0  0    98 99 99 99 99100100100
-faile-64_1976         0  0  0  0  0  1    54 86 99 99100100100
-Cinnamon 1.2a         0  0  0  0  0  0 45    83 99 99100100100
-Cinnamon 1.2b         0  0  0  0  0  0 13 16    99 99100100100
-Cinnamon 1.1c         0  0  0  0  0  0  0  0  0    52100100100
-heracles_1973         0  0  0  0  0  0  0  0  0 47   100100100
-zct_2043              0  0  0  0  0  0  0  0  0  0  0    99 99
-jabba-64_2041         0  0  0  0  0  0  0  0  0  0  0  0    50
-gullydeckel-64_1982   0  0  0  0  0  0  0  0  0  0  0  0 49
-
-
 tc="0/0:15+0.05" single thread
-Rank Name                                   Elo    +    - games score oppo. draws
-   1 Cinnamon 1.2c-smp.12-single-core-mod     3    5    5  5511   51%    -3   22%
-   2 Cinnamon 1.2c-SNAPSHOT                  -3    5    5  5511   49%     3   22%
+Rank Name            Elo    +    - games score oppo. draws 
+   1 Cinnamon.20-1    25    2    3 49962   57%   -25   25%
+   2 Cinnamon 1.2b   -25    3    2 49962   43%    25   25%
+
+   # PLAYER           : RATING    POINTS  PLAYED    (%)
+   1 Cinnamon.20-1    : 2324.9   28513.5   49962   57.1%
+   2 Cinnamon 1.2b    : 2275.1   21448.5   49962   42.9%
+
+ Rank Name            Elo    +    - games score oppo. draws
+   1 Cinnamon.20-1    24    4    4 10526   57%   -24   25%
+   2 Cinnamon 1.2b   -24    4    4 10526   43%    24   25%
+
+    # PLAYER           : RATING    POINTS  PLAYED    (%)
+   1 Cinnamon.20-1    : 2323.8    5974.5   10526   56.8%
+   2 Cinnamon 1.2b    : 2276.2    4551.5   10526   43.2%
 
  */
 
+
 using namespace _board;
 
-void help(char **argv) {
-    cout << "Perft test: " << argv[0] << " " << PERFT_HELP << "\n";
-    cout << "Distance to mate: " << argv[0] << " " << DTM_HELP << "\n";
-    cout << "Create .pgn from .epd: " << argv[0] << " " << EPD2PGN_HELP << endl;
-    cout << "Create endgame epd file: " << argv[0] << " " << ENDGAME_HELP << endl;
-}
-
-int main(int argc, char **argv) {
+void printHeader() {
     cout << NAME;
     cout << " UCI by Giuseppe Cannella\n";
 #if UINTPTR_MAX == 0xffffffffffffffff
@@ -113,7 +86,7 @@ int main(int argc, char **argv) {
 #elif defined(__SUNPRO_C) || defined(__SUNPRO_CC)
     cout << "Oracle Solaris Studio "<<__SUNPRO_CC;
 #else
-    cout << "Unknow compiler";
+    cout << "Unknown compiler";
 #endif
     cout << "\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\n";
 #ifdef CLOP
@@ -123,166 +96,18 @@ int main(int argc, char **argv) {
     cout << "DEBUG_MODE\n";
 #endif
     cout << flush;
+}
 
-    if (argc == 2 && !strcmp(argv[1], "--help")) {
-        help(argv);
-        return 1;
-    }
-    int opt;
+int main(int argc, char **argv) {
 
-    while ((opt = getopt(argc, argv, "p:e:hd:bf:")) != -1) {
-        if (opt == 'h') {
-            help(argv);
-            return 0;
-        }
-        if (opt == 'p') {  // perft test
-            if (string(optarg) != "erft") {
-                continue;
-            };
-            int nCpu = 0;
-            int perftDepth = 0;
-            string fen;
-            int perftHashSize = 0;
-            string dumpFile;
-            while ((opt = getopt(argc, argv, "d:f:h:f:c:F:")) != -1) {
-                if (opt == 'd') {    //depth
-                    perftDepth = atoi(optarg);
-                } else if (opt == 'F') { //use dump
-                    dumpFile = optarg;
-                    if (dumpFile.empty()) {
-                        cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
-                        return 1;
-                    }
-                } else if (opt == 'c') {  //N cpu
-                    nCpu = atoi(optarg);
-                } else if (opt == 'h') {  //hash
-                    perftHashSize = atoi(optarg);
-                } else if (opt == 'f') {  //fen
-                    fen = optarg;
-                }
-            }
-
-            new Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);
-            return 0;
-        } else {//end perft
-            SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-            if (opt == 'e') {
-                if (string(optarg) == "pd2pgn") {
-
-                    string epdfile;
-                    int m = 64;
-                    while ((opt = getopt(argc, argv, "f:m:")) != -1) {
-                        if (opt == 'f') {    //file
-                            epdfile = optarg;
-                        }
-                        if (opt == 'm') {    //n' pieces
-                            string h = optarg;
-                            m = stoi(h);
-                        }
-                    }
-                    ///////////////////
-                    ifstream inData;
-                    string fen;
-                    if (!FileUtil::fileExists(epdfile)) {
-                        cout << "error file not found  " << epdfile << endl;
-                        return 1;
-                    }
-                    inData.open(epdfile);
-                    int count = 0;
-                    int n = 0;
-                    ostringstream os;
-                    os << "[Date \"" << Time::getYear() << "." << Time::getMonth() << "." << Time::getDay() << "\"]";
-                    string date = os.str();
-                    while (!inData.eof()) {
-                        getline(inData, fen);
-                        n = 0;
-                        for (unsigned i = 0; i < fen.size(); i++) {
-                            int c = tolower(fen[i]);
-                            if (c == ' ') {
-                                break;
-                            }
-                            if (c == 'b' || c == 'k' || c == 'r' || c == 'q' || c == 'p' || c == 'n') {
-                                n++;
-                            }
-                        }
-                        if (n > 0 && n <= m) {
-                            count++;
-                            cout << "[Site \"" << count << " (" << n << " pieces)\"]\n";
-                            cout << date << "\n";
-                            cout << "[Result \"*\"]\n";
-                            string fenClean, token;
-                            istringstream uip(fen, ios::in);
-                            uip >> token;
-                            fenClean += token + " ";
-                            uip >> token;
-                            fenClean += token + " ";
-                            uip >> token;
-                            fenClean += token + " ";
-                            uip >> token;
-                            fenClean += token;
-                            cout << "[FEN \"" << fenClean << "\"]\n";
-                            cout << "*" << "\n";
-                        }
-                    }
-                    cout << endl;
-                    return 0;
-                } else if (string(optarg) == "ndgame_epd") {
-                    while ((opt = getopt(argc, argv, "t:")) != -1) {
-                        if (opt == 't') {    //file
-                            Search a;
-                            a.generatePuzzle(optarg);
-                            return 0;
-                        }
-                    }
-                } else {
-                    help(argv);
-                }
-
-            }
-            if (opt == 'b') {
-                unique_ptr<IterativeDeeping> it(new IterativeDeeping());
-                it->setUseBook(false);
-                searchManager.setMaxTimeMillsec(10000);
-                it->run();
-                return 0;
-            } else if (opt == 'd') {  // gtb dtm
-                if (string(optarg) != "tm") {
-                    cout << "use: " << argv[0] << " " << DTM_HELP << endl;
-                    return 1;
-                };
-                searchManager.createGtb();
-                string fen, token;
-                IterativeDeeping it;
-                while ((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
-                    if (opt == 'f') {    //fen
-                        fen = optarg;
-                    } else if (opt == 'p') { //path
-                        token = optarg;
-                        searchManager.getGtb().setPath(token);
-                    } else if (opt == 's') { //scheme
-                        token = optarg;
-                        if (!searchManager.getGtb().setScheme(token)) {
-                            cout << "set scheme error" << endl;
-                            return 1;
-                        }
-                    } else if (opt == 'i') {
-                        token = optarg;
-                        if (!searchManager.getGtb().setInstalledPieces(stoi(token))) {
-                            cout << "set installed pieces error" << endl;
-                            return 1;
-                        }
-                    }
-                }
-                if (!it.getGtbAvailable()) {
-                    cout << "error TB not found" << endl;
-                    return 1;
-                }
-                searchManager.loadFen(fen);
-                searchManager.printDtm();
-                return 0;
-            }
-        }
-    }
-    Uci::getInstance();
+    /*for(int i=1;i<65;i++) {
+         String x=String(_board::MASK_BIT_UNSET_RIGHT_UP[i-1],"int64tohex");
+        if(i!=64)x+=",";else x+=" ";
+        cout << setw(23) << x;
+        if( !(i%8))cout <<endl;
+    }*/
+    printHeader();
+    if (DLOG_LEVEL != LOG_LEVEL::_OFF)cout << "Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << " " << endl;
+    GetOpt::parse(argc, argv);
     return 0;
 }

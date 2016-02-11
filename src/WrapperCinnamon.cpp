@@ -16,39 +16,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
 
-#include "IterativeDeeping.h"
-#include "perft/Perft.h"
+#include "WrapperCinnamon.h"
 
-#include <string.h>
-#include "util/String.h"
+vector<string> WrapperCinnamon::getSuccessorsFen(const string &fen, const int depth) {
+    PerftThread a;
+    return a.getSuccessorsFen(fen, depth);
+}
 
-class Uci : public Singleton<Uci> {
-    friend class Singleton<Uci>;
+unsigned WrapperCinnamon::perft(const string &fen, const int depth) {
+    PerftThread a;
+    return a.perft(fen, depth);
+}
 
-public:
-    Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile);
-
-    virtual ~Uci();
-
-private:
-    Uci();
-
-    Perft *perft = nullptr;
-
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-
-    bool uciMode;
-    Tablebase *tablebase = nullptr;
-
-    void listner(IterativeDeeping *it);
-
-    void getToken(istringstream &uip, String &token);
-
-    void startListner();
-
-    bool runPerft = false;
-
-};
-
+bool WrapperCinnamon::isValid(const string &fen) {
+    ChessBoard a;
+    if (a.loadFen(fen) == -1)return false;
+    return true;
+}

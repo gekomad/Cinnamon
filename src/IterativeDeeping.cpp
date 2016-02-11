@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <unistd.h>
+
 #include "IterativeDeeping.h"
 
 #ifdef DEBUG_MODE
@@ -79,7 +79,9 @@ void IterativeDeeping::setUseBook(bool b) {
 }
 
 void IterativeDeeping::run() {
+//TODO provare a cancellare e verificare su ponder
     lock_guard<mutex> lock(commandMutex);
+	INC(checkSmp2);
     int timeTaken = 0;
     searchManager.setRunning(2);
     searchManager.setRunningThread(true);
@@ -92,6 +94,8 @@ void IterativeDeeping::run() {
             searchManager.getMoveFromSan(obMove, &move);
             searchManager.makemove(&move);
             cout << "bestmove " << obMove << endl;
+            ADD(checkSmp2, -1);
+            ASSERT(!checkSmp2);
             return;
         }
     }
@@ -136,7 +140,7 @@ void IterativeDeeping::run() {
         searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
 
         auto end1 = std::chrono::high_resolution_clock::now();
-        timeTaken = Time::diffTime(end1, start1);
+        timeTaken = Time::diffTime(end1, start1)+1;
         totMoves += searchManager.getTotMoves();
 
         sc = resultMove.score;
@@ -144,6 +148,7 @@ void IterativeDeeping::run() {
             sc = 0x7fffffff;
         }
 #ifdef DEBUG_MODE
+        u64 totMovesPrec = -1;
         int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
         int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
         int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
@@ -155,9 +160,9 @@ void IterativeDeeping::run() {
         cout << "info string tot moves: " << totMoves << "\n";
         unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
         cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" << percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
-        // ASSERT(totStoreHash <= cumulativeMovesCount);
+
         cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) << "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "%)" << endl;
-        //ASSERT(totCutHash <= cumulativeMovesCount);
+
         u64 nps = 0;
         if (timeTaken) {
             nps = totMoves * 1000 / timeTaken;
@@ -172,8 +177,9 @@ void IterativeDeeping::run() {
         unsigned totGen = searchManager.getTotGen();
         if (nCutAB) {
             cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%\n";
-            betaEfficiency = totGen = 0.0;
         }
+        if (totMovesPrec != -1)cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2) << ((double) totMoves / (double) totMovesPrec) << "\n";
+        totMovesPrec = totMoves;
         cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds) \n";
         cout << "info string alphaBeta cut: " << nCutAB << "\n";
         cout << "info string lazy eval cut: " << LazyEvalCuts << "\n";
@@ -183,7 +189,7 @@ void IterativeDeeping::run() {
         cout << "info string hash cut failed : " << nHashCutFailed << "\n";
 #endif
         ///is valid move?
-        bool print = true;
+        bool trace = true;
         if (abs(sc) > _INFINITE - MAX_PLY) {
             bool b = searchManager.getForceCheck();
             u64 oldKey = searchManager.getZobristKey(0);
@@ -191,12 +197,12 @@ void IterativeDeeping::run() {
             bool valid = searchManager.makemove(&resultMove);
             if (!valid) {
                 extension++;
-                print = false;
+                trace = false;
             }
             searchManager.takeback(&resultMove, oldKey, true);
             searchManager.setForceCheck(b);
         }
-        if (print) {
+        if (trace) {
 
             resultMove.capturedPiece = searchManager.getPieceAt(resultMove.side ^ 1, POW2[resultMove.to]);
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
@@ -208,14 +214,14 @@ void IterativeDeeping::run() {
             }
 
             if (abs(sc) > _INFINITE - MAX_PLY) {
-                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << timeTaken << " pv " << pvv << endl;
+                cout << "info score mate 1 depth " << mply << " nodes " << totMoves<< " time " << timeTaken << " knps "<<(totMoves/timeTaken)<< " pv " << pvv << endl;
             } else {
-                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << timeTaken << " pv " << pvv << endl;
+                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves <<" time " << timeTaken << " knps "<<(totMoves/timeTaken)<< " pv " << pvv << endl;
             }
         }
 
         if (searchManager.getForceCheck()) {
-            searchManager.setForceCheck(false);
+            searchManager.setForceCheck(inMate);
             searchManager.setRunning(1);
 
         } else if (abs(sc) > _INFINITE - MAX_PLY) {
@@ -231,11 +237,11 @@ void IterativeDeeping::run() {
             inMate = true;
         }
     }
-
     cout << "bestmove " << bestmove;
     if (ponderEnabled && ponderMove.size()) {
         cout << " ponder " << ponderMove;
     }
     cout << "\n" << flush;
-
+    ADD(checkSmp2, -1);
+    ASSERT(!checkSmp2);
 }

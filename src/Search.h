@@ -223,13 +223,13 @@ private:
                     }
                     INC(hash->cutFailed);
                 }
+                INC(hash->cutFailed);
             }
             INC(hash->cutFailed);
         }
         return false;
     }
 
-public:
 
 };
 

@@ -26,12 +26,11 @@
 #include <fstream>
 #include <unistd.h>
 #include "../util/Timer.h"
-#include <mutex>
 
 class PerftThread : public Thread, public GenMoves {
 public:
 
-    void setParam(string fen, int from, int to, _TPerftRes *);
+    void setParam(const string &fen, const int from, const int to, _TPerftRes *);
 
     PerftThread();
 
@@ -43,11 +42,15 @@ public:
 
     u64 getPartial();
 
+    unsigned perft(const string &fen, const int depth);
+
+    vector<string> getSuccessorsFen(const string &fen1, const int depth);
+
 private:
 
-    static mutex MUTEX_HASH;
+    static Spinlock SPINLOCK_HASH;
 
-    static mutex mutexPrint;
+    static Spinlock spinlockPrint;
     u64 tot = 0;
 
     template<int side, bool useHash, bool smp>
@@ -56,6 +59,9 @@ private:
     int from, to;
     _TPerftRes *tPerftRes;
     u64 partialTot = 0;
+
+    template<int side>
+    vector<string> getSuccessorsFen(const int depthx);
 };
 
 

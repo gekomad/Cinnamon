@@ -25,6 +25,7 @@
 #include <condition_variable>
 #include "ObserverSearch.h"
 #include "util/String.h"
+#include "util/IniFile.h"
 #include <algorithm>
 #include <future>
 #include "namespaces/def.h"
@@ -207,7 +208,7 @@ private:
     int mateIn;
     int valWindow;
     _TpvLine lineWin;
-    u64 totCountWin;
+    
     mutex mutexSearch;
 
     void setMainPly(int r);
@@ -217,6 +218,11 @@ private:
     int nThreads;
 
     void stopAllThread();
+#ifdef DEBUG_MODE
+
+    atomic_int checkSmp1;
+
+#endif
 
 };
 

@@ -297,6 +297,7 @@ void GenMoves::generateMoves(const int side, const u64 allpieces) {
     side ? generateMoves<WHITE>(allpieces) : generateMoves<BLACK>(allpieces);
 }
 
+/*
 bool GenMoves::generateCapturesMoves() {
     u64 w = getBitBoard<WHITE>();// getBitBoardNoPawns<WHITE>() | chessboard[PAWN_WHITE];
     u64 b = getBitBoard<BLACK>();// getBitBoardNoPawns<BLACK>() | chessboard[PAWN_BLACK];
@@ -313,6 +314,7 @@ bool GenMoves::generateCapturesMoves() {
     return false;
 }
 
+*/
 bool GenMoves::generateCaptures(const int side, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(side, 0, 1);
     return side ? generateCaptures<WHITE>(enemies, friends) : generateCaptures<BLACK>(enemies, friends);
@@ -332,12 +334,12 @@ int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 f
     ASSERT_RANGE(position, 0, 63);
     return performRankFileCaptureCount(position, enemies, enemies | friends) + performRankFileShiftCount(position, enemies | friends);
 }
-
+/*
 _Tmove *GenMoves::getNextMove() {
     ASSERT(listId >= 0);
     return GenMoves::getNextMove(&gen_list[listId++]);
 }
-
+*/
 void GenMoves::setPerft(const bool b) {
     perftMode = b;
 }
@@ -862,6 +864,10 @@ void GenMoves::setRepetitionMapCount(int i) {
 int GenMoves::loadFen(string fen) {
     repetitionMapCount = 0;
     int side = ChessBoard::loadFen(fen);
+    if (side == -1){
+        fatal("Bad FEN position format ", fen);
+        std::_Exit(1);
+    }
     return side;
 }
 
@@ -954,7 +960,7 @@ int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
     return move->side;
 }
 
-void GenMoves::writeFen(const vector<int> pieces) {
+void GenMoves::writeRandomFen(const vector<int> pieces) {
     while (1) {
         memset(chessboard, 0, sizeof(_Tchessboard));
         chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
@@ -975,42 +981,64 @@ void GenMoves::writeFen(const vector<int> pieces) {
     }
 }
 
-void GenMoves::generatePuzzle(const string type) {
+bool GenMoves::generatePuzzle(const string type) {
+    std::map<char,int> PIECES;
+    PIECES['R'] = ROOK_BLACK;
+    PIECES['P'] = PAWN_BLACK;
+    PIECES['Q'] = QUEEN_BLACK;
+    PIECES['B'] = BISHOP_BLACK;
+    PIECES['N'] = KNIGHT_BLACK;
+
     const int TOT = 5000;
     vector<int> pieces;
 
-    for (int k = 0; k < TOT; k++) {
+    int side = BLACK;
+    for (unsigned k = 0; k < TOT; k++) {
         pieces.clear();
-        if (type == "KRKP") {
-            pieces.push_back(ROOK_BLACK);
-            pieces.push_back(PAWN_WHITE);
-        } else if (type == "KQKP") {
-            pieces.push_back(QUEEN_BLACK);
-            pieces.push_back(PAWN_WHITE);
-
-        } else if (type == "KBBKN") {
-            pieces.push_back(BISHOP_BLACK);
-            pieces.push_back(BISHOP_BLACK);
-            pieces.push_back(KNIGHT_WHITE);
-
-        } else if (type == "KQKR") {
-            pieces.push_back(QUEEN_BLACK);
-            pieces.push_back(ROOK_WHITE);
-
-        } else if (type == "KRKB") {
-            pieces.push_back(ROOK_BLACK);
-            pieces.push_back(BISHOP_WHITE);
-
-        } else if (type == "KRKN") {
-            pieces.push_back(ROOK_BLACK);
-            pieces.push_back(KNIGHT_WHITE);
-
-        } else {
-            cout << "error type";
-            return;
+        char c = toupper(type.at(0));
+        assert(c == 'K');
+        for (unsigned i = 1; i < type.size(); i++) {
+            c = toupper(type.at(i));
+            if (!(c == 'K' || c == 'R' || c == 'P' || c == 'Q' || c == 'B' || c == 'N')) {
+                return false;
+            };
+            if (c == 'K') {
+                side = WHITE;
+            } else {
+                pieces.push_back(PIECES[c] + side);
+            }
         }
-        writeFen(pieces);
-    }
 
+        /* if (type == "KRKP") {
+             pieces.push_back(ROOK_BLACK);
+             pieces.push_back(PAWN_WHITE);
+         } else if (type == "KQKP") {
+             pieces.push_back(QUEEN_BLACK);
+             pieces.push_back(PAWN_WHITE);
+
+         } else if (type == "KBBKN") {
+             pieces.push_back(BISHOP_BLACK);
+             pieces.push_back(BISHOP_BLACK);
+             pieces.push_back(KNIGHT_WHITE);
+
+         } else if (type == "KQKR") {
+             pieces.push_back(QUEEN_BLACK);
+             pieces.push_back(ROOK_WHITE);
+
+         } else if (type == "KRKB") {
+             pieces.push_back(ROOK_BLACK);
+             pieces.push_back(BISHOP_WHITE);
+
+         } else if (type == "KRKN") {
+             pieces.push_back(ROOK_BLACK);
+             pieces.push_back(KNIGHT_WHITE);
+
+         } else {
+             cout << "error type";
+             return;
+         }*/
+        writeRandomFen(pieces);
+    }
+    return true;
 }
 

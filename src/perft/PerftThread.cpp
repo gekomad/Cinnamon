@@ -19,18 +19,71 @@
 #include "PerftThread.h"
 #include "Perft.h"
 
-mutex PerftThread::MUTEX_HASH;
-mutex PerftThread::mutexPrint;
+Spinlock PerftThread::SPINLOCK_HASH;
+Spinlock PerftThread::spinlockPrint;
 
-PerftThread::PerftThread() { }
+PerftThread::PerftThread() { perftMode = true; }
 
-void PerftThread::setParam(string fen1, int from1, int to1, _TPerftRes *perft1) {
-    perftMode = true;
+void PerftThread::setParam(const string &fen1, const int from1, const int to1, _TPerftRes *perft1) {
+
     loadFen(fen1);
     this->tPerftRes = perft1;
     this->from = from1;
     this->to = to1;
 }
+
+unsigned PerftThread::perft(const string &fen, const int depth) {
+    loadFen(fen);
+    if (getSide()) return search<WHITE, false, false>(depth);
+    return search<BLACK, false, false>(depth);
+}
+
+vector<string> PerftThread::getSuccessorsFen(const string &fen1, const int depth) {
+    loadFen(fen1);
+    if (getSide()) return getSuccessorsFen<WHITE>(depth);
+    return getSuccessorsFen<BLACK>(depth);
+}
+
+
+template<int side>
+vector<string> PerftThread::getSuccessorsFen(const int depthx) {
+    if (depthx == 0) {
+        vector<string> a;
+        a.push_back(boardToFen());
+        return a;
+    }
+
+    vector<string> n_perft;
+
+    int listcount;
+    _Tmove *move;
+    incListId();
+    u64 friends = getBitBoard<side>();
+    u64 enemies = getBitBoard<side ^ 1>();
+    bool b = generateCaptures<side>(enemies, friends);
+    ASSERT(!b);
+    generateMoves<side>(friends | enemies);
+    listcount = getListSize();
+    if (!listcount) {
+        decListId();
+        vector<string> a;
+        return a;
+    }
+    for (int ii = 0; ii < listcount; ii++) {
+        move = getMove(ii);
+        u64 keyold = chessboard[ZOBRISTKEY_IDX];
+        makemove(move, false, false);
+        setSide(side ^ 1);
+        vector<string> bb = getSuccessorsFen<side ^ 1>(depthx - 1);
+        n_perft.insert(n_perft.end(), bb.begin(), bb.end());
+        takeback(move, keyold, false);
+        setSide(side ^ 1);
+    }
+    decListId();
+
+    return n_perft;
+}
+
 
 template<int side, bool useHash, bool smp>
 u64 PerftThread::search(const int depthx) {
@@ -45,26 +98,23 @@ u64 PerftThread::search(const int depthx) {
 
     if (useHash) {
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
-        if (smp)MUTEX_HASH.lock();
+        if (smp)SPINLOCK_HASH.lock();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
             partialTot += phashe->nMoves;
             u64 r = phashe->nMoves;
-            if (smp)MUTEX_HASH.unlock();
+            if (smp)SPINLOCK_HASH.unlock();
             return r;
         }
-        if (smp)MUTEX_HASH.unlock();
+        if (smp)SPINLOCK_HASH.unlock();
     }
     int listcount;
     _Tmove *move;
     incListId();
     u64 friends = getBitBoard<side>();
     u64 enemies = getBitBoard<side ^ 1>();
-    if (generateCaptures<side>(enemies, friends)) {
-        assert(0);//TODO eliminare blocco
-        decListId();
-        return 0;
-    }
+    bool b = generateCaptures<side>(enemies, friends);
+    ASSERT(!b);
     generateMoves<side>(friends | enemies);
     listcount = getListSize();
     if (!listcount) {
@@ -80,10 +130,10 @@ u64 PerftThread::search(const int depthx) {
     }
     decListId();
     if (useHash) {
-        if (smp) MUTEX_HASH.lock();
+        if (smp) SPINLOCK_HASH.lock();
         phashe->key = zobristKeyR;
         phashe->nMoves = n_perft;
-        if (smp) MUTEX_HASH.unlock();
+        if (smp) SPINLOCK_HASH.unlock();
     }
     return n_perft;
 }
@@ -137,20 +187,21 @@ void PerftThread::run() {
         } else {
             y = '-';
         }
-        {
-            lock_guard<mutex> lock(mutexPrint);
-            cout << "\n";
-            string h;
-            if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
-                //castle
-                h = decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
-            } else {
-                h = h + x + decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) + y + decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
-            }
-            cout << setw(6) << h;
-            cout << setw(20) << n_perft;
-            cout << setw(8) << (Perft::count--);
+
+        spinlockPrint.lock();
+        cout << "\n";
+        string h;
+        if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
+            //castle
+            h = decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
+        } else {
+            h = h + x + decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) + y + decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
         }
+        cout << setw(6) << h;
+        cout << setw(20) << n_perft;
+        cout << setw(8) << (Perft::count--);
+        spinlockPrint.unlock();
+
         cout << flush;
         tot += n_perft;
     }

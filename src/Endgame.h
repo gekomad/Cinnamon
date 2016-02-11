@@ -35,7 +35,63 @@ public:
     int getEndgameValue(const int N_PIECE, const int side);
 
 private:
-    int KRKP(int loserSide, int tempo, int winnerKingPos, int loserKingPos, int rookPos, int pawnPos);
+
+    const int DistanceBonus[8] = {0, 0, 100, 80, 60, 40, 20, 10};    //TODO stockfish
+    const int VALUE_KNOWN_WIN = 15000;    //TODO stockfish
+    const int penaltyKRKN[8] = {0, 10, 14, 20, 30, 42, 58, 80};    //TODO stockfish
+    const int KBNKMateTable[64] = {    //TODO stockfish
+            200, 190, 180, 170, 170, 180, 190, 200, 190, 180, 170, 160, 160, 170, 180, 190, 180, 170, 155, 140, 140, 155, 170, 180, 170, 160, 140, 120, 120, 140, 160, 170, 170, 160, 140, 120, 120, 140, 160, 170, 180, 170, 155, 140, 140, 155, 170, 180, 190, 180, 170, 160, 160, 170, 180, 190, 200, 190, 180, 170, 170, 180, 190, 200};
+
+    const int MateTable[64] = {    //TODO stockfish
+            100, 90, 80, 70, 70, 80, 90, 100, 90, 70, 60, 50, 50, 60, 70, 90, 80, 60, 40, 30, 30, 40, 60, 80, 70, 50, 30, 20, 20, 30, 50, 70, 70, 50, 30, 20, 20, 30, 50, 70, 80, 60, 40, 30, 30, 40, 60, 80, 90, 70, 60, 50, 50, 60, 70, 90, 100, 90, 80, 70, 70, 80, 90, 100,};
+
+
+    template<int loserSide>
+    int KRKP(int tempo, int winnerKingPos, int loserKingPos, int rookPos, int pawnPos) {
+#ifdef DEBUG_MODE
+        std::map<int, int> pieces1;
+        std::map<int, int> pieces2;
+
+        pieces1[KING_BLACK] = 1;
+        pieces1[KING_WHITE] = 1;
+        pieces1[ROOK_BLACK] = 1;
+        pieces1[PAWN_WHITE] = 1;
+
+        pieces2[KING_BLACK] = 1;
+        pieces2[KING_WHITE] = 1;
+        pieces2[ROOK_WHITE] = 1;
+        pieces2[PAWN_BLACK] = 1;
+
+        ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
+#endif
+
+        // If the stronger side's king is in front of the pawn, it's a win
+        if (FILE_AT[winnerKingPos] == FILE_AT[pawnPos]) {
+            if (loserSide == BLACK && winnerKingPos < pawnPos) {
+                return VALUEROOK - Bits::DISTANCE[winnerKingPos][pawnPos];
+            }
+            if (loserSide == WHITE && winnerKingPos > pawnPos) {
+                return VALUEROOK - Bits::DISTANCE[winnerKingPos][pawnPos];
+            }
+        }
+        // If the weaker side's king is too far from the pawn and the rook, it's a win
+        if (Bits::DISTANCE[loserKingPos][pawnPos] - (tempo ^ 1) >= 3 && Bits::DISTANCE[loserKingPos][rookPos] >= 3) {
+            return VALUEROOK - Bits::DISTANCE[winnerKingPos][pawnPos];
+        }
+        // If the pawn is far advanced and supported by the defending king, the position is drawish
+        if (((loserSide == BLACK && RANK_AT[loserKingPos] <= 2) || (loserSide == WHITE && RANK_AT[loserKingPos] >= 5))
+            && Bits::DISTANCE[loserKingPos][pawnPos] == 1 && ((loserSide == BLACK && RANK_AT[winnerKingPos] >= 3) || (loserSide == WHITE && RANK_AT[winnerKingPos] <= 4))
+            && Bits::DISTANCE[winnerKingPos][pawnPos] - tempo > 2) {
+            return 80 - Bits::DISTANCE[winnerKingPos][pawnPos] * 8;
+        } else {
+            constexpr int DELTA_S = loserSide == WHITE ? -8 : 8;
+            int queeningSq = loserSide == BLACK ? Bits::BITScanForward(FILE_[pawnPos] & 0xffULL) : Bits::BITScanForward(FILE_[pawnPos] & 0xff00000000000000ULL);
+
+            return 200 - 8 * (Bits::DISTANCE[winnerKingPos][pawnPos + DELTA_S]
+                              - Bits::DISTANCE[loserKingPos][pawnPos + DELTA_S]
+                              - Bits::DISTANCE[pawnPos][queeningSq]);
+        }
+    }
 
     int KQKP(int side, int winnerKingPos, int loserKingPos, int pawnPos);
 

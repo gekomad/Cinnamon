@@ -275,7 +275,7 @@ public:
         gen_list[listId].size = 0;
     }
 
-    void generatePuzzle(const string type);
+    bool generatePuzzle(const string type);
 
     void incKillerHeuristic(const int from, const int to, const int value) {
         if (!getRunning()) {
@@ -474,7 +474,7 @@ protected:
                     ASSERT_RANGE(to, 0, 63);
                     ASSERT_RANGE(from, 0, 63);
                     mos->score = killerHeuristic[from][to];
-                    mos->score += (_eval::PIECES_VALUE[piece_captured] >= _eval::PIECES_VALUE[pieceFrom]) ? (_eval::PIECES_VALUE[piece_captured] - _eval::PIECES_VALUE[pieceFrom]) * 2 : _eval::PIECES_VALUE[piece_captured];
+                    mos->score += (PIECES_VALUE[piece_captured] >= PIECES_VALUE[pieceFrom]) ? (PIECES_VALUE[piece_captured] - PIECES_VALUE[pieceFrom]) * 2 : PIECES_VALUE[piece_captured];
                     //mos->score += (MOV_ORD[pieceFrom][to] - MOV_ORD[pieceFrom][from]);
                 }
             }
@@ -521,7 +521,7 @@ private:
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
     static const u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;
 
-    void writeFen(const vector<int>);
+    void writeRandomFen(const vector<int>);
 
     template<int side>
     void checkJumpPawn(u64 x, const u64 xallpieces) {

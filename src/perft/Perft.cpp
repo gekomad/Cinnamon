@@ -74,7 +74,7 @@ bool Perft::load() {
     getline(f, fen1);
     f.read(reinterpret_cast<char *>(&depthHash), sizeof(int));
     if (depthHash > perftRes.depth) {
-        cout << "error depth < hash depth" << endl;
+        fatal("error depth < hash depth");
         f.close();
         std::_Exit(0);
     };
@@ -142,6 +142,7 @@ void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dum
     perftRes.nCpu = nCpu2;
     count = 0;
     dumping = false;
+    setNthread(getNthread());//reinitialize threads
 }
 
 void Perft::run() {
@@ -175,8 +176,9 @@ void Perft::run() {
     cout << "cache size:\t\t" << mbSize << "\n";
     cout << "dump file:\t\t" << dumpFile << "\n";
     cout << "\n" << Time::getLocalTime() << " start perft test...\n";
-    cout << "type 'status' for partial moves" << endl;
-
+    if (forceExit) {
+    	cout << "type 'status' for partial moves" << endl;
+    }
     Timer t1(Time::HOUR_IN_SECONDS);
     t1.registerObservers([this]() {
         status();
@@ -225,26 +227,11 @@ void Perft::run() {
 void Perft::endRun() {
     auto end1 = std::chrono::high_resolution_clock::now();
     int t = Time::diffTime(end1, start1) / 1000;
-    int days = t / 60 / 60 / 24;
-    int hours = (t / 60 / 60) % 24;
-    int minutes = (t / 60) % 60;
-    int seconds = t % 60;
 
     cout << endl << endl << "Perft moves: " << perftRes.totMoves;
+    string timetot = Time::diffTimeToString(start1, end1);
+    cout << " in " << timetot;
 
-    cout << " in ";
-    if (days) {
-        cout << days << " days, ";
-    }
-    if (days || hours) {
-        cout << hours << " hours, ";
-    }
-    if (days || hours || minutes) {
-        cout << minutes << " minutes, ";
-    }
-    if (!days) {
-        cout << seconds << " seconds";
-    }
     if (t) {
         cout << " (" << (perftRes.totMoves / t) / 1000 - ((perftRes.totMoves / t) / 1000) % 1000 << "k nodes per seconds" << ")";
     }
@@ -265,5 +252,5 @@ void Perft::status() {
     }
     auto end1 = std::chrono::high_resolution_clock::now();
     int sec = Time::diffTime(end1, start1) / 1000;
-    cout << Time::getLocalTime() << " partial tot: " << tot << " (" << ((tot / 1000) / sec) << " k nodes per seconds)" << endl;
+    cout << Time::getLocalTime() << " perft partial moves: " << tot << " (" << ((tot / 1000) / sec) << " k nodes per seconds)" << endl;
 }

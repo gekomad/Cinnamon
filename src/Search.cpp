@@ -256,7 +256,7 @@ void Search::sortHashMoves(int listId1, Hash::_Thash &phashe) {
         }
     }
 }
-
+/*TODO riabilitare
 bool Search::checkInsufficientMaterial(int N_PIECE) {
     //regexp: KN?B*KB*
     if (N_PIECE > 6) {
@@ -286,7 +286,7 @@ bool Search::checkInsufficientMaterial(int N_PIECE) {
     }
     return false;
 }
-
+*/
 bool Search::checkDraw(u64 key) {
     int o = 0;
     int count = 0;
@@ -379,12 +379,12 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     int extension = 0;
     int is_incheck_side = inCheck<side>();
     if (!is_incheck_side && depth != mainDepth) {
-        if (checkInsufficientMaterial(N_PIECE)) {
+       /* if (checkInsufficientMaterial(N_PIECE)) {
             if (inCheck<side ^ 1>()) {
                 return _INFINITE - (mainDepth - depth + 1);
             }
             return -lazyEval<side>() * 2;
-        }
+        }*/
         if (checkDraw(chessboard[ZOBRISTKEY_IDX])) {
             return -lazyEval<side>() * 2;
         }

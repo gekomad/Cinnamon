@@ -19,9 +19,9 @@
 
 #pragma once
 
+
 namespace _random {
     static const u64 RANDSIDE[2] = {0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL};
-    static const u64 RANDOM_KEY[15][64] = {
+
 #include "random.inc"
-    };
 }

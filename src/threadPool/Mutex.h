@@ -18,37 +18,34 @@
 
 #pragma once
 
-#include "IterativeDeeping.h"
-#include "perft/Perft.h"
 
-#include <string.h>
-#include "util/String.h"
+#if defined(_WIN32)
+//mutex on windows are slow
+//https://msdn.microsoft.com/en-us/library/ms682530%28VS.85%29.aspx
 
-class Uci : public Singleton<Uci> {
-    friend class Singleton<Uci>;
+#include <windows.h>
 
+
+class Mutex {
 public:
-    Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile);
+    Mutex() { InitializeCriticalSection(&cs); }
 
-    virtual ~Uci();
+    ~Mutex() { DeleteCriticalSection(&cs); }
+
+    void lock() { EnterCriticalSection(&cs); }
+
+    void unlock() { LeaveCriticalSection(&cs); }
 
 private:
-    Uci();
+    CRITICAL_SECTION cs;
+};
 
-    Perft *perft = nullptr;
+#else
 
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+#include <mutex>
 
-    bool uciMode;
-    Tablebase *tablebase = nullptr;
-
-    void listner(IterativeDeeping *it);
-
-    void getToken(istringstream &uip, String &token);
-
-    void startListner();
-
-    bool runPerft = false;
+class Mutex : public mutex {
 
 };
 
+#endif

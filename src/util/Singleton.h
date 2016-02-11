@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <mutex>
-
 using namespace std;
 
 template<typename T>
@@ -27,13 +25,10 @@ class Singleton {
 public:
 
     static T &getInstance() {
-        static lock_guard<mutex> lock(singletonMutex);
+
         static T i;
         return i;
     }
 
-private:
-    static mutex singletonMutex;
 };
 
-template<typename T> mutex Singleton<T>::singletonMutex;

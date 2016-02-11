@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html>
-<head><title>cinnamon chess engine - regression test</title></head>
+<head><title>Cinnamon chess engine - regression test</title></head>
 <body>
-
 <h1>Cinnamon chess engine - Regression test</h1>
 
-
 <div id="maincol">
-
     <div id="wikipage">
-
         <table>
             <tbody>
             <tr>
-
-
-                <td style="vertical-align: top; padding-left: 5px;">
-
-
+                <td style="vertical-align: top; padding-left: 10px;">
                     <div>
                         <div>
-                            <h2>cinnamon 1.2c</h2>
+                            <h2>Cinnamon 2.0</h2>
 
+                            <p>News:</p>
+                            <li>New repository on https://github.com/gekomad/cinnamon</li>
+                            <li>Rewtitten architecture to run in SMP mode</li>
+                            <li>Written new project https://github.com/gekomad/ThreadPool to run Cinnamon on more CPU</li>
+                            <li>Evaluator</li>
+                            <li>Replace Mutex with Spinlock for some cases</li>
+                            <br>
                             <table>
                                 <tbody>
                                 <tr>
@@ -75,6 +74,60 @@
                                 </tr>
                                 </tbody>
                             </table>
+                            <table>
+                                <tbody>
+                                <b><br>4 core</b>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">Test file (5 sec)
+                                    </td>
+
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> Solved (Xeon
+                                        W3540)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">wac.epd</td>
+
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?/300</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">arasan12.epd</td>
+
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?/215</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">sbd.epd</td>
+
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?/134</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">kaufman.epd</td>
+
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?/25</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">zugzwang.epd</td>
+
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?/5</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">bk.epd</td>
+
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?/24</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">mate.epd</td>
+
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?/71</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"><a
+                                            href="http://www.rebel.nl/rebelfaq/rc3faq03.htm">BT2450.epd</a>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?</td>
+                                </tr>
+                                </tbody>
+                            </table>
                             <br>
                             &nbsp;<span style="font-weight: bold;">tc = 40/4, no tablebase, no open book</span><br>
                             <table>
@@ -90,7 +143,7 @@
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">draws</td>
                                 </tr>
                                 <tr>
-                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2c</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2c beta</td>
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
                                     </td>
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
@@ -136,7 +189,7 @@
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">draws</td>
                                 </tr>
                                 <tr>
-                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2c</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2c beta</td>
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
                                     </td>
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?<br>
@@ -151,7 +204,99 @@
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?%</td>
                                 </tr>
                                 <tr>
-                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2a</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2a/1.2b</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> -?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?%<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?%<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <br>
+                            &nbsp;<span style="font-weight: bold;">4 core tc = 40/4, no tablebase, no open book</span><br>
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">Rank Name</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">Elo</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">+</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">-</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">games</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">score</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">oppo.</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">draws</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2c beta</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?%<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> -?%
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?%</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2b</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> -?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?%<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?%<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <p>&nbsp;<span style="font-weight: bold;">4 core tc = 40/4, tablebase, open book</span><br>
+                            </p>
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">Rank Name</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">Elo</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">+</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">-</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">games</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">score</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">oppo.</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">draws</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2c beta</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?%<br>
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> -?%
+                                    </td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">?%</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2a/1.2b</td>
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> -?<br>
                                     </td>
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> ?<br>
@@ -171,12 +316,17 @@
                             </strong>
 
                             <p><strong> perft </strong> one cpu no hash<br><br>
-                                ./cinnamon -perft -d 5 -f "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w
-                                KQkq -"</p>
+                                ./cinnamon -perft -d 5 -f "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"</p>
 
                             <p><strong>13 sec. </strong>Intel Xeon W3540 Linux 3.13.0-37-generic gcc 4.8.2 </p>
 
-                            <h2>cinnamon 1.2a</h2>
+                            <p><strong> <br>perft </strong> 8 cpu 2 GB hash<br><br>
+                                ./cinnamon -perft -d 5 -f "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"</p>
+
+                            <p><strong>? </strong>Intel Xeon W3540 Linux 3.13.0-37-generic gcc 4.8.2 </p>
+
+
+                            <h2>cinnamon 1.2a/1.2b</h2>
 
                             <table>
                                 <tbody>
@@ -248,7 +398,7 @@
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">draws</td>
                                 </tr>
                                 <tr>
-                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2a</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2a/1.2b</td>
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> 14<br>
                                     </td>
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> 5<br>
@@ -294,7 +444,7 @@
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">draws</td>
                                 </tr>
                                 <tr>
-                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2a</td>
+                                    <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">cinnamon 1.2a/1.2b</td>
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;"> 21<br>
                                     </td>
                                     <td style="border: 1px solid rgb(204, 204, 204); padding: 5px;">6<br>
@@ -336,6 +486,10 @@
 
                             <p><strong>12 sec. </strong>Intel Xeon W3540 Linux 3.13.0-37-generic gcc 4.8.2 </p>
 
+                            <p><strong> <br>perft </strong> 8 cpu 2 GB hash<br><br>
+                                ./cinnamon -perft -d 5 -f "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"</p>
+
+                            <p><strong>? </strong>Intel Xeon W3540 Linux 3.13.0-37-generic gcc 4.8.2 </p>
 
                             <h2>cinnamon 1.1c</h2>
 

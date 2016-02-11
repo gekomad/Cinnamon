@@ -35,4 +35,5 @@ ehthumbs.db
 Thumbs.db
 *.gcda
 src/cinnamon
+libCinnamon.a
 .idea/

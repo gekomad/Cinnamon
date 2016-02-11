@@ -18,37 +18,18 @@
 
 #pragma once
 
-#include "IterativeDeeping.h"
-#include "perft/Perft.h"
+#include <string>
+#include <iostream>
+#include "perft/PerftThread.h"
 
-#include <string.h>
-#include "util/String.h"
+using namespace std;
 
-class Uci : public Singleton<Uci> {
-    friend class Singleton<Uci>;
+class WrapperCinnamon {
 
 public:
-    Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile);
+    vector<string> getSuccessorsFen(const string &, const int depth);
 
-    virtual ~Uci();
+    unsigned perft(const string &fen, const int depth);
 
-private:
-    Uci();
-
-    Perft *perft = nullptr;
-
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-
-    bool uciMode;
-    Tablebase *tablebase = nullptr;
-
-    void listner(IterativeDeeping *it);
-
-    void getToken(istringstream &uip, String &token);
-
-    void startListner();
-
-    bool runPerft = false;
-
+    bool isValid(const string &fen);
 };
-

@@ -2,7 +2,7 @@ project(cinnamon)
 
 set(DR_MEMORY "NO")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -std=c++11 -Wno-reorder -DDEBUG_MODE")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -std=c++11 -Wno-reorder -DDLOG_LEVEL=_TRACE -DDEBUG_MODE")
 
 if (DR_MEMORY STREQUAL "YES")
     set(CMAKE_CXX_FLAGS "-DDEBUG_MODE -pthread -std=c++11 -m32 -g -fno-inline -fno-omit-frame-pointer -Wno-reorder")
@@ -19,7 +19,6 @@ set(SOURCE_FILES
         util/Bits.h
         ObserverSearch.h
         util/Singleton.h
-        util/String.cpp
         util/String.h
         threadPool/Thread.h
         threadPool/ThreadPool.h
@@ -51,6 +50,7 @@ set(SOURCE_FILES
         Tablebase.h
         Endgame.cpp
         Endgame.h
+        WrapperCinnamon.cpp
         Uci.cpp
         Uci.h)
 

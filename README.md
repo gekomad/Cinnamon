@@ -12,15 +12,15 @@ or any UCI-compatible GUI. Cinnamon is also a javascript library to play with
 
 Version
 ----------
-1.2c-smp
+1.2c-smp.x
 
 Features
 ----------
           
-- Available for both Unix, Windows, Mac, Android, Raspberry Pi and Javascript
+- Available for both Unix, Windows, Mac, Android, ARM and Javascript
 - UCI protocol
 - GPL 3 License
-- C++14 source
+- C++11 source
 - Rotated bitboards
 - Null moves
 - Futility pruning

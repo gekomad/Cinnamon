@@ -32,9 +32,10 @@ public:
     }
 
     void notifySearch(int threadID) {
+        ASSERT(observer);
         observer->receiveObserverSearch(threadID);
     }
 
 private:
-    ObserverSearch *observer;
+    ObserverSearch *observer = nullptr;
 };

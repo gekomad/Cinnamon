@@ -23,9 +23,11 @@
 #include "namespaces/def.h"
 #include "namespaces/board.h"
 #include "util/Singleton.h"
-#include <mutex>
+#include "util/logger.h"
+#include "threadPool/Spinlock.h"
 
 using namespace _board;
+using namespace _logger;
 
 class Hash : public Singleton<Hash> {
     friend class Singleton<Hash>;
@@ -34,6 +36,7 @@ public:
 
     static const int HASH_GREATER = 0;
     static const int HASH_ALWAYS = 1;
+//TODO eliminare pragma
 #pragma pack(push)
 #pragma pack(1)
     typedef struct {
@@ -73,12 +76,12 @@ public:
         bool b = false;
         _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
 
-        if (smp)MUTEX_HASH.lock();
+        if (smp)spinlockHash[type].lock();
         if (hash->key == zobristKeyR) {
             b = true;
             memcpy(hashMini, hash, sizeof(_Thash));
         }
-        if (smp)MUTEX_HASH.unlock();
+        if (smp)spinlockHash[type].unlock();
 
         return b;
     }
@@ -105,9 +108,9 @@ public:
             tmp.from = tmp.to = 0;
         }
 
-        if (smp)MUTEX_HASH.lock();
+        if (smp)spinlockHash[HASH_GREATER].lock();
         memcpy(rootHash[HASH_GREATER], &tmp, sizeof(_Thash));
-        if (smp)MUTEX_HASH.unlock();
+        if (smp)spinlockHash[HASH_GREATER].unlock();
 
 
 #ifdef DEBUG_MODE
@@ -121,14 +124,14 @@ public:
 #endif
         tmp.entryAge = 1;
 
-        if (smp)MUTEX_HASH.lock();
+        if (smp)spinlockHash[HASH_ALWAYS].lock();
         if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {
             INC(collisions);
-            if (smp)MUTEX_HASH.unlock();
+            if (smp)spinlockHash[HASH_ALWAYS].unlock();
             return;
         }
         memcpy(rootHash[HASH_ALWAYS], &tmp, sizeof(_Thash));
-        if (smp)MUTEX_HASH.unlock();
+        if (smp)spinlockHash[HASH_ALWAYS].unlock();
 
     }
 
@@ -136,6 +139,6 @@ private:
     Hash();
     void dispose();
     _Thash *hashArray[2];
-    mutex MUTEX_HASH;
+    Spinlock spinlockHash[2];
 };
 

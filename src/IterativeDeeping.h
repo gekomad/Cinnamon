@@ -26,12 +26,14 @@
 #include "OpenBook.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <iomanip>
 
 class IterativeDeeping : public Thread {
 
 public:
+    Spinlock spinlockCommand;
     mutex commandMutex;
-
     virtual ~ IterativeDeeping();
 
     virtual void run();
@@ -61,6 +63,7 @@ private:
 #ifdef DEBUG_MODE
     //for staistics
     Hash &hash = Hash::getInstance();
+    atomic_int checkSmp2;
 #endif
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     int maxDepth;

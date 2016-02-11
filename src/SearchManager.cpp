@@ -20,34 +20,33 @@
 
 Hash *SearchManager::hash;
 
-SearchManager::SearchManager() : ThreadPool(1) {//TODO 1
-    nThreads = getNthread();
+SearchManager::SearchManager() {
+    SET(checkSmp1, 0);
     hash = &Hash::getInstance();
-    setNthread(nThreads);
 
-#if defined(DEBUG_MODE)
-    string parameterFile = "parameter.txt";
-    if (!FileUtil::fileExists(parameterFile)) {
-        cout << "warning file not found  " << parameterFile << endl;
-        return;
+    setNthread(1);//TODO 1
+
+    IniFile iniFile("cinnamon.ini");
+
+    while (true) {
+        pair<string, string> *parameters = iniFile.get();
+        if (!parameters) {
+            break;
+        }
+        string param = parameters->first;
+        int value = stoi(parameters->second);
+        cout << param << endl;
+        cout << value << endl;
+
+        if (param == "threads") {
+            setNthread(value);
+        } else {
+            if (!setParameter(param, value)) {
+                cout << "error parameter " << param << " not defined\n";
+            };
+        }
     }
-    ifstream inData;
-    string svalue, line;
-    String param;
-    int value;
-    inData.open(parameterFile);
-    while (!inData.eof()) {
-        getline(inData, line);
-        stringstream ss(line);
-        ss >> param;
-        ss >> svalue;
-        value = stoi(svalue);
-        if (!setParameter(param, value)) {
-            cout << "error parameter " << param << " not defined\n";
-        };
-    }
-    inData.close();
-#endif
+
 }
 
 void SearchManager::search(int mply) {
@@ -68,7 +67,7 @@ void SearchManager::singleSearch(int mply) {
 
         threadPool[0]->run(SMP_NO, mply, -_INFINITE, _INFINITE);
         valWindow = threadPool[0]->getValue();
-        totCountWin += threadPool[0]->getTotMoves();
+        
         memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
 
     } else {
@@ -102,7 +101,7 @@ void SearchManager::singleSearch(int mply) {
 
         if (threadPool[0]->getRunning()) {
             valWindow = tmp;
-            totCountWin += threadPool[0]->getTotMoves();
+            
             memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
         }
     }
@@ -114,6 +113,8 @@ void SearchManager::parallelSearch(int mply) {
     ASSERT(!getBitCount());
 
     if (mply == 1) {
+		//TODO cancellare blocco
+        assert(0);
         Search &idThread1 = getNextThread();
         debug("start loop1 ------------------------------ run threadid: ", idThread1.getId(), "count:", getBitCount());
         debug("val: ", valWindow);
@@ -157,7 +158,7 @@ void SearchManager::parallelSearch(int mply) {
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
-
+	//TODO usare spinlock come su trunk
     lock_guard<mutex> lock(mutexSearch);
     if (getRunning(threadID)) {
         if (lineWin.cmove == -1) {
@@ -166,7 +167,7 @@ void SearchManager::receiveObserverSearch(int threadID) {
                 memcpy(&lineWin, &threadPool[threadID]->getPvLine(), sizeof(_TpvLine));
                 mateIn = threadPool[threadID]->getMateIn();
                 ASSERT(mateIn == INT_MAX);
-                totCountWin += threadPool[threadID]->getTotMoves();
+
                 valWindow = getValue(threadID);
                 debug("win", threadID);
                 ASSERT(lineWin.cmove);
@@ -222,7 +223,6 @@ void SearchManager::startThread(bool smpMode, Search &thread, int depth, int alp
     ASSERT(alpha >= -_INFINITE);
 
     thread.setMainParam(smpMode, depth, alpha, beta);
-    thread.init();
     thread.start();
 }
 
@@ -237,12 +237,11 @@ int SearchManager::getPieceAt(int side, u64 i) {
 }
 
 u64 SearchManager::getTotMoves() {
-//    u64 i = 0;
-//    for (Search *s:threadPool) {
-//        i += s->getTotMoves();
-//    }
-//    return i;
-    return totCountWin;
+    u64 i = 0;
+    for (Search *s:threadPool) {
+        i += s->getTotMoves();
+    }
+    return i;
 }
 
 void SearchManager::incKillerHeuristic(int from, int to, int value) {
@@ -422,7 +421,6 @@ void SearchManager::pushStackMove() {
 }
 
 void SearchManager::init() {
-    totCountWin = 0;
     for (Search *s:threadPool) {
         s->init();
     }
@@ -442,8 +440,7 @@ void SearchManager::deleteGtb() {
 
 bool SearchManager::setNthread(int nthread) {
     ThreadPool::setNthread(nthread);
-    nThreads = nthread;
-    for (Search *s:threadPool) {
+     for (Search *s:threadPool) {
         s->registerObserver(this);
     }
     return true;

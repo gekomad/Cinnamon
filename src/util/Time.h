@@ -31,9 +31,36 @@ public:
     static const int HOUR_IN_MINUTES = 60;
 
 
-    static int diffTime(high_resolution_clock::time_point t1, high_resolution_clock::time_point t2) {
+    static unsigned long long diffTime(const high_resolution_clock::time_point t1, const high_resolution_clock::time_point t2) {
         std::chrono::duration<double, std::milli> elapsed = t1 - t2;
         return elapsed.count();
+    }
+
+    static string diffTimeToString(const high_resolution_clock::time_point start, const high_resolution_clock::time_point stop) {
+        string res;
+        unsigned t = Time::diffTime(stop, start) / 1000;
+        unsigned days = t / 60 / 60 / 24;
+        int hours = (t / 60 / 60) % 24;
+        int minutes = (t / 60) % 60;
+        int seconds = t % 60;
+        int millsec = Time::diffTime(stop, start) % 1000;
+
+        if (days) {
+            res.append(String(days)).append(" days ");
+        }
+        if (days || hours) {
+            res.append(String(hours)).append(" hours ");
+        }
+        if (days || hours || minutes) {
+            res.append(String(minutes)).append(" minutes ");
+        }
+        if (!days) {
+            res.append(String(seconds)).append(" seconds ");
+        }
+        if (!days && !hours) {
+            res.append(String(millsec)).append(" millsec");
+        }
+        return res;
     }
 
     static string getLocalTime() {

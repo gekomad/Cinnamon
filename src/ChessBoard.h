@@ -27,7 +27,9 @@
 #include <map>
 #include "namespaces/random.h"
 #include <climits>
+#include "util/logger.h"
 
+using namespace _logger;
 using namespace _board;
 using namespace _def;
 
@@ -208,7 +210,6 @@ protected:
 
     void updateZobristKey(int piece, int position) {
         ASSERT_RANGE(position, 0, 63);
-        ASSERT(piece != 12);
         ASSERT_RANGE(piece, 0, 14);
         chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];
     }
