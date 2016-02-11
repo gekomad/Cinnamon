@@ -19,16 +19,7 @@
 #pragma once
 
 namespace _eval {
-
-//    static const int VALUEPAWN = 100;
-//    static const int VALUEROOK = 520;
-//    static const int VALUEBISHOP = 335;
-//    static const int VALUEKNIGHT = 330;
-//    static const int VALUEQUEEN = 980;
-//    static const int VALUEKING = _INFINITE;
-
-//    static constexpr int PIECES_VALUE[13] = {VALUEPAWN, VALUEPAWN, VALUEROOK, VALUEROOK, VALUEBISHOP, VALUEBISHOP, VALUEKNIGHT, VALUEKNIGHT, VALUEKING, VALUEKING, VALUEQUEEN, VALUEQUEEN, 0};
-
+//TODO eliminare file
 
     static const int VALUE_KNOWN_WIN = 15000;    //TODO stockfish
     static const int penaltyKRKN[8] = {0, 10, 14, 20, 30, 42, 58, 80};    //TODO stockfish

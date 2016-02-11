@@ -115,7 +115,7 @@ void Uci::listner(IterativeDeeping *it) {
             uciMode = true;
             cout << "id name " << NAME << "\n";
             cout << "id author Giuseppe Cannella\n";
-            cout << "option name Hash type spin default 64 min 1 max 100000\n";
+            cout << "option name Hash type spin default 64 min 1 max 1000\n";
             cout << "option name Clear Hash type button\n";
             cout << "option name Nullmove type check default true\n";
             cout << "option name Book File type string default cinnamon.bin\n";
@@ -149,10 +149,12 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.setRunning(0);
             searchManager.setRunningThread(false);
         } else if (token == "ucinewgame") {
-            it->spinlockCommand.lock();
+			//TODO usare spinlock come in trunk
+            lock_guard<mutex> lock(it->commandMutex);
             searchManager.loadFen();
+            searchManager.clearHash();//TODO commentare
             knowCommand = true;
-            it->spinlockCommand.unlock();
+
         } else if (token == "setvalue") {
             getToken(uip, token);
             String value;
@@ -304,7 +306,8 @@ void Uci::listner(IterativeDeeping *it) {
                 }
             }
         } else if (token == "position") {
-            it->spinlockCommand.lock();
+			//TODO usare spinlock
+            lock_guard<mutex> lock(it->commandMutex);
             knowCommand = true;
             searchManager.setRepetitionMapCount(0);
             getToken(uip, token);
@@ -321,7 +324,6 @@ void Uci::listner(IterativeDeeping *it) {
                     fen.append(token);
                     fen.append(" ");
                 }
-                searchManager.clearKillerHeuristic();
                 searchManager.init();
                 int x = searchManager.loadFen(fen);
                 searchManager.setSide(x);
@@ -335,7 +337,6 @@ void Uci::listner(IterativeDeeping *it) {
                     searchManager.makemove(&move);
                 }
             }
-            it->spinlockCommand.unlock();
         } else if (token == "go") {
             it->setMaxDepth(MAX_PLY);
             int wtime = 200000; //5 min
