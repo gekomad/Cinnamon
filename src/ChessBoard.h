@@ -99,7 +99,7 @@ public:
 
     char decodeBoard(string);
 
-    virtual int loadFen(string);
+    virtual int loadFen(string);//TODO eliminare virtual
 
     int getPieceByChar(char);
 

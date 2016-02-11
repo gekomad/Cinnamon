@@ -139,6 +139,6 @@ private:
     Hash();
     void dispose();
     _Thash *hashArray[2];
-    Spinlock spinlockHash[2];
+    Spinlock spinlockHash[2];//TODO usare 2 spinlock separati
 };
 

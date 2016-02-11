@@ -21,12 +21,10 @@
 ChessBoard::ChessBoard() {
     fenString = string(STARTPOS);
     memset(&structure, 0, sizeof(_Tboard));
-    int x = loadFen(fenString);
-    if (x == -1) {
+    if ((chessboard[SIDETOMOVE_IDX] = loadFen(fenString)) == 2) {
         fatal("Bad FEN position format ", fenString);
         std::_Exit(1);
-}
-    chessboard[SIDETOMOVE_IDX] = x;
+    }
 }
 
 ChessBoard::~ChessBoard() {
@@ -39,7 +37,7 @@ u64 ChessBoard::getBitBoard(int side) {
 }
 
 int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
-    return side ? getPieceAt < WHITE > (bitmapPos) : getPieceAt < BLACK > (bitmapPos);
+    return side ? getPieceAt<WHITE>(bitmapPos) : getPieceAt<BLACK>(bitmapPos);
 }
 
 #endif
@@ -89,7 +87,7 @@ void ChessBoard::display() {
             cout << "\n   ----+---+---+---+---+---+---+----\n";
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
-        x = (x = (x = FEN_PIECE[getPieceAt < WHITE > (POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt < BLACK > (POW2[63 - t])]) == '-' ? ' ' : x;
+        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(POW2[63 - t])]) == '-' ? ' ' : x;
         x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     };
@@ -112,9 +110,9 @@ string ChessBoard::boardToFen() const {
         int l = 0;
         string row;
         for (int x = 0; x < 8; x++) {
-            int q = getPieceAt < BLACK > (POW2[63 - ((y * 8) + x)]);
+            int q = getPieceAt<BLACK>(POW2[63 - ((y * 8) + x)]);
             if (q == SQUARE_FREE) {
-                q = getPieceAt < WHITE > (POW2[63 - ((y * 8) + x)]);
+                q = getPieceAt<WHITE>(POW2[63 - ((y * 8) + x)]);
             }
             if (q == SQUARE_FREE) {
                 l++;
@@ -207,31 +205,31 @@ int ChessBoard::loadFen(string fen) {
                     s[ix++] = SQUARE_FREE;
                 }
             } else {
-                return -1;
+                return 2;
             };
         }
     }
     if (ix != 64) {
-        return -1;
+        return 2;
     }
     if (side == "b") {
         chessboard[SIDETOMOVE_IDX] = BLACK;
     } else if (side == "w") {
         chessboard[SIDETOMOVE_IDX] = WHITE;
     } else {
-        return -1;
+        return 2;
     }
 
     for (int i = 0; i < 64; i++) {
         int p = s[63 - i];
         if (p != SQUARE_FREE) {
-			updateZobristKey(p, i);
+            updateZobristKey(p, i);
             chessboard[p] |= POW2[i];
         } else {
             chessboard[p] &= NOTPOW2[i];
         }
     };
-   
+
     for (unsigned e = 0; e < castle.length(); e++) {
         switch (castle.at(e)) {
             case 'K':

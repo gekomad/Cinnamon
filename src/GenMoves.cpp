@@ -864,7 +864,7 @@ void GenMoves::setRepetitionMapCount(int i) {
 int GenMoves::loadFen(string fen) {
     repetitionMapCount = 0;
     int side = ChessBoard::loadFen(fen);
-    if (side == -1){
+    if (side == 2){
         fatal("Bad FEN position format ", fen);
         std::_Exit(1);
     }
