@@ -94,20 +94,13 @@ void printHeader() {
 #endif
 #ifdef DEBUG_MODE
     cout << "DEBUG_MODE\n";
+    cout << "Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << "\n";
 #endif
     cout << flush;
 }
 
 int main(int argc, char **argv) {
-
-    /*for(int i=1;i<65;i++) {
-         String x=String(_board::MASK_BIT_UNSET_RIGHT_UP[i-1],"int64tohex");
-        if(i!=64)x+=",";else x+=" ";
-        cout << setw(23) << x;
-        if( !(i%8))cout <<endl;
-    }*/
     printHeader();
-    if (DLOG_LEVEL != LOG_LEVEL::_OFF)cout << "Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << " " << endl;
     GetOpt::parse(argc, argv);
     return 0;
 }
