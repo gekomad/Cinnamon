@@ -38,7 +38,6 @@ set(SOURCE_FILES
         namespaces/def.h
         namespaces/board.h
         namespaces/debug.h
-        namespaces/eval.h
         namespaces/random.h
         OpenBook.cpp
         OpenBook.h
