@@ -43,6 +43,20 @@ public:
 
     bool endsWith(const string &ending);
 
+    String &trim();
+
+    String &trimLeft();
+
+    String &trimRight();
+
+    String &replace(const char c1, const char c2);
+
+    String &replace(const string &s1, const string &s2);
+
+    String &toUpper();
+
+    String &toLower();
+
     static string toString(const i128 value) {
         i128 tmp = value < 0 ? -value : value;
 
@@ -93,19 +107,5 @@ public:
         if (s.size() == 0)return 0;
         return std::stoi(s);
     }
-
-    String &trim();
-
-    String &trimLeft();
-
-    String &trimRight();
-
-    String &replace(const char c1, const char c2);
-
-    String &replace(const string &s1, const string &s2);
-
-    String &toUpper();
-
-    String &toLower();
 
 };

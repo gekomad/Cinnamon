@@ -22,73 +22,23 @@
 #include <algorithm>
 #include <regex>
 #include "../namespaces/debug.h"
+#include "logger.h"
+#include "FileUtil.h"
 
 using namespace std;
 using namespace _debug;
+using namespace _logger;
 
 class IniFile {
 public:
 
-    IniFile(const string &fileName1) {
-        fileName = fileName1;
-        if (FileUtil::fileSize(fileName) <= 0)return;
-        endFile = true;
-        inData.open(fileName, std::ofstream::in);
-        if (inData.is_open()) {
-            endFile = false;
-        } else {
-            warn("file not found: ", fileName);
-        }
-        rgxLine.assign("^(.+?)=(.*)$");
-        rgxTag.assign("^\\[.+]$");
-    }
+    IniFile(const string &fileName1);
 
-    ~IniFile() {
-        if (endFile) {
-            inData.close();
-        }
-    }
+    ~IniFile();
 
-    string getValue(const string &value) {
-        IniFile file(fileName);
-        while (true) {
-            pair<string, string> *parameters = file.get();
-            if (!parameters)return "";
-            if (parameters->first == value) {
-                return parameters->second;
-            }
-        }
-    }
+    string getValue(const string &value);
 
-    pair<string, string> *get() {
-        std::smatch match;
-        string line;
-        while (!endFile) {
-            if (inData.eof()) {
-                endFile = true;
-                return nullptr;
-            }
-            getline(inData, line);
-            trace(line);
-            if (!line.size())continue;
-            if (line.at(0) == '#' || line.at(0) == ';')continue;
-
-            const string line2 = line;
-            if (std::regex_search(line2.begin(), line2.end(), match, rgxTag)) {
-                params.first = line;
-                params.second = "";
-            } else if (std::regex_search(line2.begin(), line2.end(), match, rgxLine)) {
-                params.first = String(match[1]).trim();
-                if (!params.first.size())continue;
-                params.second = match[2];
-            } else {
-                continue;
-            }
-            return &params;
-        }
-
-        return nullptr;
-    };
+    pair<string, string> *get();
 
 private:
     std::regex rgxLine;

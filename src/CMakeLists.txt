@@ -25,6 +25,8 @@ set(SOURCE_FILES
         threadPool/ObserverThread.h
         util/Timer.h
         util/String.cpp
+        util/IniFile.cpp
+        util/Timer.cpp
         ChessBoard.cpp
         ChessBoard.h
         Eval.cpp

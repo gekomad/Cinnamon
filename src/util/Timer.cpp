@@ -16,28 +16,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "Timer.h"
 
-#include "../threadPool/Thread.h"
+Timer::Timer(int seconds1) {
+    seconds = seconds1;
+}
 
-class Timer : public Thread {
-public:
+void Timer::endRun() { }
 
-    Timer(int seconds1);
+void Timer::run() {
+    unique_lock<mutex> lck(mtx);
+    while (seconds) {
+        cv.wait_for(lck, chrono::seconds(seconds));
+        if (seconds) {
+            notifyObservers();
+        }
+    }
+}
 
-    void endRun() ;
+void Timer::registerObservers(function<void(void)> f) {
+    observers.push_back(f);
+}
 
-    void run();
+void Timer::notifyObservers(void) {
+    for (auto i = observers.begin(); i != observers.end(); ++i) {
+        (*i)();
+    }
+}
 
-    void registerObservers(function<void(void)> f) ;
-
-    void notifyObservers(void) ;
-
-    virtual ~Timer();
-
-private:
-    int seconds;
-    condition_variable cv;
-    mutex mtx;
-    vector<function<void(void)>> observers;
-};
+Timer::~Timer() {
+    seconds = 0;
+    cv.notify_all();
+    join();
+}
