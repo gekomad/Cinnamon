@@ -37,6 +37,12 @@ class String : public string {
 public:
     String(const string &s) : string(s) { };
 
+    String(const char *s) : string(s) { };
+
+    String() { }
+
+    bool endsWith(const string &ending);
+
     static string toString(const i128 value) {
         i128 tmp = value < 0 ? -value : value;
 
@@ -57,13 +63,6 @@ public:
         d[p] = 0;
         return d;
     }
-
-    bool endsWith(const string &ending) {
-        if (ending.size() > this->size()) return false;
-        return std::equal(ending.rbegin(), ending.rend(), this->rbegin());
-    }
-
-    String(const char *s) : string(s) { };
 
     template<class T>
     String(T d, const string tohex = "") {
@@ -95,50 +94,18 @@ public:
         return std::stoi(s);
     }
 
-    String() {
-    }
+    String &trim();
 
-    String &trim() {
-        trimLeft();
-        trimRight();
-        return *this;
-    }
+    String &trimLeft();
 
-    String &trimLeft() {
-        this->erase(this->begin(), std::find_if(this->begin(), this->end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-        return *this;
-    }
+    String &trimRight();
 
-    String &trimRight() {
-        this->erase(std::find_if(this->rbegin(), this->rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), this->end());
-        return *this;
-    }
+    String &replace(const char c1, const char c2);
 
-    String &replace(const char c1, const char c2) {
-        for (unsigned i = 0; i < size(); i++) {
-            if (at(i) == c1) {
-                at(i) = c2;
-            }
-        }
-        return *this;
-    }
+    String &replace(const string &s1, const string &s2);
 
-    String &replace(const string &s1, const string &s2) {
-        unsigned long a;
-        while ((a = find(s1)) != string::npos) {
-            string::replace(a, s1.size(), s2);
-        }
-        return *this;
-    }
+    String &toUpper();
 
-    String &toUpper() {
-        transform(begin(), end(), begin(), ::toupper);
-        return *this;
-    }
-
-    String &toLower() {
-        transform(begin(), end(), begin(), ::tolower);
-        return *this;
-    }
+    String &toLower();
 
 };
