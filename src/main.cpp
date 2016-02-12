@@ -32,22 +32,15 @@
  1| 07 06 05 04 03 02 01 00
  ...a  b  c  d  e  f  g  h
 
-tc="0/0:15+0.05" single thread
-Rank Name            Elo    +    - games score oppo. draws 
-   1 Cinnamon.20-1    25    2    3 49962   57%   -25   25%
-   2 Cinnamon 1.2b   -25    3    2 49962   43%    25   25%
+tc=""40/4:0+0" single thread
+Rank Name                        Elo    +    - games score oppo. draws
+   1 Cinnamon 1.2c-smp.16-tris    20    5    5  5864   56%   -20   34%
+   2 Cinnamon 1.2b               -20    5    5  5864   44%    20   34%
 
-   # PLAYER           : RATING    POINTS  PLAYED    (%)
-   1 Cinnamon.20-1    : 2324.9   28513.5   49962   57.1%
-   2 Cinnamon 1.2b    : 2275.1   21448.5   49962   42.9%
+   # PLAYER                       : RATING    POINTS  PLAYED    (%)
+   1 Cinnamon 1.2c-smp.16-tris    : 2320.9    3280.5    5864   55.9%
+   2 Cinnamon 1.2b                : 2279.1    2583.5    5864   44.1%
 
- Rank Name            Elo    +    - games score oppo. draws
-   1 Cinnamon.20-1    24    4    4 10526   57%   -24   25%
-   2 Cinnamon 1.2b   -24    4    4 10526   43%    24   25%
-
-    # PLAYER           : RATING    POINTS  PLAYED    (%)
-   1 Cinnamon.20-1    : 2323.8    5974.5   10526   56.8%
-   2 Cinnamon 1.2b    : 2276.2    4551.5   10526   43.2%
 
  */
 
