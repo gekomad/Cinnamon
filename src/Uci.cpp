@@ -136,7 +136,7 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "uciok\n";
         } else if (token == "score") {
             int side = searchManager.getSide();
-            int t = searchManager.getScore(side);
+            int t = searchManager.getScore(side, true);
 
             if (!searchManager.getSide()) {
                 t = -t;
@@ -154,7 +154,6 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.loadFen();
             searchManager.clearHash();//TODO commentare
             knowCommand = true;
-
         } else if (token == "setvalue") {
             getToken(uip, token);
             String value;
@@ -324,6 +323,7 @@ void Uci::listner(IterativeDeeping *it) {
                     fen.append(token);
                     fen.append(" ");
                 }
+;
                 searchManager.init();
                 int x = searchManager.loadFen(fen);
                 searchManager.setSide(x);
@@ -337,6 +337,7 @@ void Uci::listner(IterativeDeeping *it) {
                     searchManager.makemove(&move);
                 }
             }
+
         } else if (token == "go") {
             it->setMaxDepth(MAX_PLY);
             int wtime = 200000; //5 min

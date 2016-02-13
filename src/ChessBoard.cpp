@@ -44,24 +44,22 @@ int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
 
 void ChessBoard::makeZobristKey() {
     chessboard[ZOBRISTKEY_IDX] = 0;
-    int i = 0;
     for (int u = 0; u < 12; u++) {
         u64 c = chessboard[u];
         while (c) {
             int position = Bits::BITScanForward(c);
-            updateZobristKey(i, position);
-            c &= NOTPOW2[position];
+            updateZobristKey(u, position);
+            RESET_LSB(c);
         }
-        i++;
     }
     if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
-        updateZobristKey(13, chessboard[ENPASSANT_IDX]);
+        updateZobristKey(ENPASSANT_IDX, chessboard[ENPASSANT_IDX]);
     }
     u64 x2 = chessboard[RIGHT_CASTLE_IDX];
     while (x2) {
         int position = Bits::BITScanForward(x2);
         updateZobristKey(14, position);
-        x2 &= NOTPOW2[position];
+        RESET_LSB(x2);
     }
 }
 
@@ -102,7 +100,6 @@ void ChessBoard::display() {
 
 #endif
 }
-
 
 string ChessBoard::boardToFen() const {
     string fen;

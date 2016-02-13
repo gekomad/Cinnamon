@@ -81,7 +81,7 @@ void IterativeDeeping::setUseBook(bool b) {
 void IterativeDeeping::run() {
 //TODO provare a cancellare e verificare su ponder
     lock_guard<mutex> lock(commandMutex);
-	INC(checkSmp2);
+    INC(checkSmp2);
     int timeTaken = 0;
     searchManager.setRunning(2);
     searchManager.setRunningThread(true);
@@ -140,7 +140,7 @@ void IterativeDeeping::run() {
         searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
 
         auto end1 = std::chrono::high_resolution_clock::now();
-        timeTaken = Time::diffTime(end1, start1)+1;
+        timeTaken = Time::diffTime(end1, start1) + 1;
         totMoves += searchManager.getTotMoves();
 
         sc = resultMove.score;
@@ -214,9 +214,9 @@ void IterativeDeeping::run() {
             }
 
             if (abs(sc) > _INFINITE - MAX_PLY) {
-                cout << "info score mate 1 depth " << mply << " nodes " << totMoves<< " time " << timeTaken << " knps "<<(totMoves/timeTaken)<< " pv " << pvv << endl;
+                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << timeTaken << " knps " << (totMoves / timeTaken) << " pv " << pvv << endl;
             } else {
-                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves <<" time " << timeTaken << " knps "<<(totMoves/timeTaken)<< " pv " << pvv << endl;
+                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << timeTaken << " knps " << (totMoves / timeTaken) << " pv " << pvv << endl;
             }
         }
 

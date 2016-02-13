@@ -31,6 +31,8 @@ namespace _def {
     typedef long long unsigned u64;
     typedef u64 _Tchessboard[16];
 
+#define RESET_LSB(bits) (bits&=bits-1)
+
 #if defined(CLOP) || defined(DEBUG_MODE)
 #define STATIC_CONST
 #else
@@ -51,7 +53,7 @@ namespace _def {
 #define ASSERT(a) assert(a)
 #define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;assert(0)};}
 #define INC(a) (a++)
-#define SET(a,v) (a=v)
+#define SET(a, v) (a=v)
 #define ADD(a, b) (a+=(b))
 #else
 

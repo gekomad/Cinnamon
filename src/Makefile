@@ -54,7 +54,7 @@ else
 	endif
 endif
 
-PARAM="-std=c++11 -O3 -pipe -DNDEBUG -DDLOG_LEVEL=_FATAL -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
+PARAM="-std=c++11 -Ofast -pipe -DNDEBUG -DDLOG_LEVEL=_FATAL -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
 
 help:
 

@@ -108,7 +108,8 @@ int Endgame::getEndgameValue(const int N_PIECE, const int side) {
                 winnerSide = WHITE;
             }
             break;
-		default:break;
+        default:
+            break;
     }
     if (winnerSide == -1)return INT_MAX;
     return winnerSide == side ? result : -result;

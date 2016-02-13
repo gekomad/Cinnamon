@@ -96,9 +96,9 @@ public:
 
     void init();
 
-    virtual int loadFen(string fen = "");
+    int loadFen(string fen = "");
 
-    u64 performDiagCaptureCount(const int, const u64 allpieces);
+    u64 performDiagCaptureBits(const int, const u64 allpieces);
 
     void takeback(_Tmove *move, const u64 oldkey, bool rep);
 
@@ -155,7 +155,7 @@ public:
             } else if (pushmove<STANDARD_MOVE_MASK>(o + GG, o, side, NO_PROMOTION, side)) {
                 return true;
             }
-            x &= NOTPOW2[o];
+            RESET_LSB(x);
         };
         if (side) {
             GG = -9;
@@ -184,7 +184,7 @@ public:
             } else if (pushmove<STANDARD_MOVE_MASK>(o + GG, o, side, NO_PROMOTION, side)) {
                 return true;
             }
-            x &= NOTPOW2[o];
+            RESET_LSB(x);
         };
         //ENPASSANT
         if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
@@ -192,7 +192,7 @@ public:
             while (x) {
                 int o = Bits::BITScanForward(x);
                 pushmove<ENPASSANT_MOVE_MASK>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8), side, NO_PROMOTION, side);
-                x &= NOTPOW2[o];
+                RESET_LSB(x);
             }
             updateZobristKey(13, chessboard[ENPASSANT_IDX]);
             chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
@@ -230,7 +230,7 @@ public:
             } else {
                 pushmove<STANDARD_MOVE_MASK>(o + tt, o, side, NO_PROMOTION, side);
             }
-            x &= NOTPOW2[o];
+            RESET_LSB(x);
         };
     }
 
@@ -502,12 +502,11 @@ protected:
     }
 
     void setKillerHeuristic(const int from, const int to, const int value) {
-        if (!getRunning()) {
-            return;
+        if (getRunning()) {
+            ASSERT_RANGE(from, 0, 63);
+            ASSERT_RANGE(to, 0, 63);
+            killerHeuristic[from][to] = value;
         }
-        ASSERT_RANGE(from, 0, 63);
-        ASSERT_RANGE(to, 0, 63);
-        killerHeuristic[from][to] = value;
     }
 
 
@@ -531,7 +530,7 @@ private:
         while (x) {
             int o = Bits::BITScanForward(x);
             pushmove<STANDARD_MOVE_MASK>(o + (side ? -16 : 16), o, side, NO_PROMOTION, side);
-            x &= NOTPOW2[o];
+            RESET_LSB(x);
         };
     }
 

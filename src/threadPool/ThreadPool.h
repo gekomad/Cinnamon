@@ -1,5 +1,5 @@
 /*
-    https://github.com/gekomad/BlockingThreadPool
+    https://github.com/gekomad/ThreadPool
     Copyright (C) Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
@@ -20,29 +20,29 @@
 
 #include "Thread.h"
 #include <atomic>
-#include <mutex>
 #include <unistd.h>
 #include "ObserverThread.h"
 #include "../namespaces/def.h"
 #include "../util/Bits.h"
 #include <condition_variable>
 #include "../namespaces/debug.h"
+#include "../util/logger.h"
 
 using namespace _debug;
+using namespace _def;
 
 template<typename T, typename = typename std::enable_if<std::is_base_of<Thread, T>::value, T>::type>
 class ThreadPool : public ObserverThread {
 
 public:
-    ThreadPool(int t) {
-        threadsBits = 0;
+    ThreadPool(int t) : threadsBits(0) {
         setNthread(t);
     }
 
     ThreadPool() : ThreadPool(thread::hardware_concurrency()) { }
 
     T &getNextThread() {
-        lock_guard<mutex> lock1(mxRel);
+        lock_guard<mutex> lock1(mxRel);//TODO cancellare
         unique_lock<mutex> lck(mtx);
         cv.wait(lck, [this] { return Bits::bitCount(threadsBits) != nThread; });
         return getThread();
@@ -61,7 +61,8 @@ public:
 #endif
 
     bool setNthread(const int t) {
-        if (t < 1 || t > 64 || t == nThread) {
+        if (t < 1 || t > 64) {
+            warn("invalid value");
             return false;
         }
         joinAll();
@@ -74,7 +75,7 @@ public:
             threadPool.push_back(x);
         }
         registerThreads();
-//        cout << "ThreadPool size: " << getNthread() << "\n";
+        trace ("ThreadPool size: ", getNthread())
         return true;
     }
 
@@ -115,7 +116,7 @@ private:
     mutex mxRel;
 
     T &getThread() {
-        lock_guard<mutex> lock1(mxGet);
+        lock_guard<mutex> lock1(mxGet);//TODO cancellare
         int i = Bits::BITScanForwardUnset(threadsBits);
         threadPool[i]->join();
         ASSERT(!(threadsBits & POW2[i]));
@@ -125,7 +126,7 @@ private:
 
     void releaseThread(const int threadID) {
         ASSERT_RANGE(threadID, 0, 63);
-        lock_guard<mutex> lock1(mxGet);
+        lock_guard<mutex> lock1(mxGet);//TODO cancellare
         ASSERT(threadsBits & POW2[threadID]);
         threadsBits &= ~POW2[threadID];
         cv.notify_all();

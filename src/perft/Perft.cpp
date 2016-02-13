@@ -177,7 +177,7 @@ void Perft::run() {
     cout << "dump file:\t\t" << dumpFile << "\n";
     cout << "\n" << Time::getLocalTime() << " start perft test...\n";
     if (forceExit) {
-    	cout << "type 'status' for partial moves" << endl;
+        cout << "type 'status' for partial moves" << endl;
     }
     Timer t1(Time::HOUR_IN_SECONDS);
     t1.registerObservers([this]() {

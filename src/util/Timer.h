@@ -25,13 +25,13 @@ public:
 
     Timer(int seconds1);
 
-    void endRun() ;
+    void endRun();
 
     void run();
 
-    void registerObservers(function<void(void)> f) ;
+    void registerObservers(function<void(void)> f);
 
-    void notifyObservers(void) ;
+    void notifyObservers(void);
 
     virtual ~Timer();
 

@@ -31,7 +31,6 @@
 #include <signal.h>
 
 /*
-cat perft.html   | sed -e "s/xxxxxxa/\<img src=/g" | sed -e "s/xxxxxxb/>/g" >perft2.html
 
 rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
  Depth  Perft

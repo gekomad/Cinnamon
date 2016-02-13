@@ -83,7 +83,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
                 }
             }
         }
-        x2 &= NOTPOW2[position];
+        RESET_LSB(x2);
     }
     return false;
 }
@@ -117,7 +117,7 @@ int GenMoves::performRankFileCaptureCount(const int position, const u64 enemies,
     return count;
 }
 
-u64 GenMoves::performDiagCaptureCount(const int position, const u64 allpieces) {
+u64 GenMoves::performDiagCaptureBits(const int position, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
     u64 capturated = 0;
     u64 c = 0;
@@ -189,7 +189,7 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
             }
         }
         ///
-        x2 &= NOTPOW2[position];
+        RESET_LSB(x2);
     }
     return false;
 }
@@ -235,9 +235,9 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
         while (k) {
             n = Bits::BITScanForward(k);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
-            k &= NOTPOW2[n];
+            RESET_LSB(k);
         }
-        x2 &= NOTPOW2[position];
+        RESET_LSB(x2);
     }
 }
 
@@ -281,9 +281,9 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
         while (k) {
             n = Bits::BITScanForward(k);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
-            k &= NOTPOW2[n];
+            RESET_LSB(k);
         }
-        x2 &= NOTPOW2[position];
+        RESET_LSB(x2);
     }
 }
 
@@ -299,8 +299,8 @@ void GenMoves::generateMoves(const int side, const u64 allpieces) {
 
 /*
 bool GenMoves::generateCapturesMoves() {
-    u64 w = getBitBoard<WHITE>();// getBitBoardNoPawns<WHITE>() | chessboard[PAWN_WHITE];
-    u64 b = getBitBoard<BLACK>();// getBitBoardNoPawns<BLACK>() | chessboard[PAWN_BLACK];
+    u64 w = getBitBoard<WHITE>();
+    u64 b = getBitBoard<BLACK>();
     ASSERT(w == (getBitBoardNoPawns<WHITE>() | chessboard[PAWN_WHITE]));
     ASSERT(b == (getBitBoardNoPawns<BLACK>() | chessboard[PAWN_BLACK]));
     int side = getSide();
@@ -327,13 +327,14 @@ int GenMoves::getMobilityPawns(const int side, const int ep, const u64 ped_frien
 
 int GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(position, 0, 63);
-    return performRankFileCaptureCount(position, enemies, enemies | friends) + Bits::bitCount(enemies & performDiagCaptureCount(position, enemies | friends)) + performRankFileShiftCount(position, enemies | friends) + performDiagShiftCount(position, enemies | friends);
+    return performRankFileCaptureCount(position, enemies, enemies | friends) + Bits::bitCount(enemies & performDiagCaptureBits(position, enemies | friends)) + performRankFileShiftCount(position, enemies | friends) + performDiagShiftCount(position, enemies | friends);
 }
 
 int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(position, 0, 63);
     return performRankFileCaptureCount(position, enemies, enemies | friends) + performRankFileShiftCount(position, enemies | friends);
 }
+
 /*
 _Tmove *GenMoves::getNextMove() {
     ASSERT(listId >= 0);
@@ -585,9 +586,9 @@ bool GenMoves::performKnightShiftCapture(const int piece, const u64 enemies, con
             if (pushmove<STANDARD_MOVE_MASK>(pos, o, side, NO_PROMOTION, piece)) {
                 return true;
             }
-            x1 &= NOTPOW2[o];
+            RESET_LSB(x1);
         };
-        x &= NOTPOW2[pos];
+        RESET_LSB(x);
     }
     return false;
 }
@@ -602,7 +603,7 @@ bool GenMoves::performKingShiftCapture(int side, const u64 enemies) {
         if (pushmove<STANDARD_MOVE_MASK>(pos, o, side, NO_PROMOTION, KING_BLACK + side)) {
             return true;
         }
-        x1 &= NOTPOW2[o];
+        RESET_LSB(x1);
     };
     return false;
 }
@@ -829,7 +830,7 @@ bool GenMoves::makemove(_Tmove *move, bool rep, bool checkInCheck) {
     while (x2) {
         int position = Bits::BITScanForward(x2);
         updateZobristKey(14, position);
-        x2 &= NOTPOW2[position];
+        RESET_LSB(x2);
     }
     if (rep) {
         if (movecapture != SQUARE_FREE || pieceFrom == WHITE || pieceFrom == BLACK || move->type & 0xc) {
@@ -864,7 +865,7 @@ void GenMoves::setRepetitionMapCount(int i) {
 int GenMoves::loadFen(string fen) {
     repetitionMapCount = 0;
     int side = ChessBoard::loadFen(fen);
-    if (side == 2){
+    if (side == 2) {
         fatal("Bad FEN position format ", fen);
         std::_Exit(1);
     }
@@ -982,7 +983,7 @@ void GenMoves::writeRandomFen(const vector<int> pieces) {
 }
 
 bool GenMoves::generatePuzzle(const string type) {
-    std::map<char,int> PIECES;
+    std::map<char, int> PIECES;
     PIECES['R'] = ROOK_BLACK;
     PIECES['P'] = PAWN_BLACK;
     PIECES['Q'] = QUEEN_BLACK;

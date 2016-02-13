@@ -176,7 +176,7 @@ public:
                 SearchManager &searchManager = Singleton<SearchManager>::getInstance();
                 searchManager.loadFen(optarg);
                 searchManager.display();
-                searchManager.getScore(searchManager.getSide());
+                searchManager.getScore(searchManager.getSide(), true);
                 return;
             } else if (opt == 'p') {  // perft test
                 if (string(optarg) == "erft") {

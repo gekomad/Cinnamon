@@ -67,7 +67,7 @@ void SearchManager::singleSearch(int mply) {
 
         threadPool[0]->run(SMP_NO, mply, -_INFINITE, _INFINITE);
         valWindow = threadPool[0]->getValue();
-        
+
         memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
 
     } else {
@@ -101,7 +101,7 @@ void SearchManager::singleSearch(int mply) {
 
         if (threadPool[0]->getRunning()) {
             valWindow = tmp;
-            
+
             memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
         }
     }
@@ -113,7 +113,7 @@ void SearchManager::parallelSearch(int mply) {
     ASSERT(!getBitCount());
 
     if (mply == 1) {
-		//TODO cancellare blocco
+        //TODO cancellare blocco
         assert(0);
         Search &idThread1 = getNextThread();
         debug("start loop1 ------------------------------ run threadid: ", idThread1.getId());
@@ -157,7 +157,7 @@ void SearchManager::parallelSearch(int mply) {
 }
 
 void SearchManager::receiveObserverSearch(int threadID) {
-	//TODO usare spinlock come su trunk
+    //TODO usare spinlock come su trunk
     lock_guard<mutex> lock(mutexSearch);
     if (getRunning(threadID)) {
         if (lineWin.cmove == -1) {
@@ -335,20 +335,12 @@ int SearchManager::getSide() {
     return threadPool[0]->getSide();
 }
 
-int SearchManager::getScore(int side) {
-    //int N_PIECE;
-    //if (side == WHITE) {
-    //    N_PIECE = threadPool[0]->getScore(Bits::bitCount(threadPool[0]->getBitBoard<WHITE>()), side);
-    //} else {
-    //    N_PIECE = threadPool[0]->getScore(Bits::bitCount(threadPool[0]->getBitBoard<BLACK>()), side);
-    //}
+int SearchManager::getScore(int side, const bool trace) {
+    int N_PIECE = 0;
 #ifdef DEBUG_MODE
-    int t = threadPool[0]->getScore(side);
-    for (Search *s:threadPool) {
-        ASSERT(s->getScore(side) == t);
-    }
+    N_PIECE = Bits::bitCount(threadPool[0]->getBitBoard<WHITE>() | threadPool[0]->getBitBoard<BLACK>());
 #endif
-    return threadPool[0]->getScore(side);
+    return threadPool[0]->getScore(side, N_PIECE, -_INFINITE, _INFINITE, trace);
 }
 
 void SearchManager::clearHash() {
@@ -440,7 +432,7 @@ void SearchManager::deleteGtb() {
 bool SearchManager::setNthread(int nthread) {
     ThreadPool::setNthread(nthread);
     nThreads = nthread;
-     for (Search *s:threadPool) {
+    for (Search *s:threadPool) {
         s->registerObserver(this);
     }
     return true;

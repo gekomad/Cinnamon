@@ -77,8 +77,8 @@ public:
                 int position = Bits::BITScanForward(b);
                 ws[count] = DECODE_POSITION[position];
                 wp[count] = DECODE_PIECE[piece];
-                count++;
-                b &= NOTPOW2[position];
+                count++;                
+                RESET_LSB(b);
             }
         }
         ws[count] = tb_NOSQUARE;    /* it marks the end of list */
@@ -92,7 +92,7 @@ public:
                 bs[count] = DECODE_POSITION[position];
                 bp[count] = DECODE_PIECE[piece];
                 count++;
-                b &= NOTPOW2[position];
+                RESET_LSB(b);
             }
         }
         bs[count] = tb_NOSQUARE;

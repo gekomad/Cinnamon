@@ -22,22 +22,23 @@ Eval::Eval() { }
 
 Eval::~Eval() { }
 
-void Eval::openColumn(int side) {
+template<int side>
+void Eval::openFile() {
     u64 side_rooks = chessboard[ROOK_BLACK + side];
-    structure.openColumn = 0;
-    structure.semiOpenColumn[side] = 0;
+    structure.openFile = 0;
+    structure.semiOpenFile[side] = 0;
     while (side_rooks) {
         int o = Bits::BITScanForward(side_rooks);
         if (!(FILE_[o] & (chessboard[WHITE] | chessboard[BLACK]))) {
-            structure.openColumn |= FILE_[o];
+            structure.openFile |= FILE_[o];
         } else if (FILE_[o] & chessboard[side ^ 1]) {
-            structure.semiOpenColumn[side] |= FILE_[o];
+            structure.semiOpenFile[side] |= FILE_[o];
         }
-        side_rooks &= NOTPOW2[o];
+        RESET_LSB(side_rooks);
     }
 }
 
-template<int side, Eval::_Tstatus status>
+template<int side, Eval::_Tphase phase>
 int Eval::evaluatePawn() {
     INC(evaluationCount[side]);
     u64 ped_friends = chessboard[side];
@@ -55,7 +56,7 @@ int Eval::evaluatePawn() {
     result += ATTACK_KING * Bits::bitCount(ped_friends & structure.kingAttackers[side ^ 1]);
     ADD(SCORE_DEBUG.ATTACK_KING_PAWN[side], ATTACK_KING * Bits::bitCount(ped_friends & structure.kingAttackers[side ^ 1]));
     //space
-    if (status == OPEN) {
+    if (phase == OPEN) {
         result += PAWN_CENTER * Bits::bitCount(ped_friends & CENTER_MASK);
         ADD(SCORE_DEBUG.PAWN_CENTER[side], PAWN_CENTER * Bits::bitCount(ped_friends & CENTER_MASK));
     }
@@ -63,7 +64,7 @@ int Eval::evaluatePawn() {
     while (p) {
         int o = Bits::BITScanForward(p);
         u64 pos = POW2[o];
-        if (status != OPEN) {
+        if (phase != OPEN) {
             structure.kingSecurityDistance[side] += FRIEND_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & pos ? 1 : 0);
             structure.kingSecurityDistance[side] -= ENEMY_NEAR_KING * (NEAR_MASK2[structure.posKing[side ^ 1]] & pos ? 1 : 0);
             ///  pawn in race
@@ -110,12 +111,12 @@ int Eval::evaluatePawn() {
             ADD(SCORE_DEBUG.PAWN_PASSED[side], PAWN_PASSED[side][o]);
             result += PAWN_PASSED[side][o];
         }
-        p &= NOTPOW2[o];
+        RESET_LSB(p);
     }
     return result;
 }
 
-template<int side, Eval::_Tstatus status>
+template<int side, Eval::_Tphase phase>
 int Eval::evaluateBishop(u64 enemies, u64 friends) {
     INC(evaluationCount[side]);
     u64 x = chessboard[BISHOP_BLACK + side];
@@ -123,24 +124,24 @@ int Eval::evaluateBishop(u64 enemies, u64 friends) {
         return 0;
     }
     int result = 0;
-    if (status != OPEN && Bits::bitCount(x) > 1) {
+    if (phase != OPEN && Bits::bitCount(x) > 1) {
         result += BONUS2BISHOP;
         ADD(SCORE_DEBUG.BONUS2BISHOP[side], BONUS2BISHOP);
     }
     while (x) {
         int o = Bits::BITScanForward(x);
-        u64 captured = performDiagCaptureCount(o, enemies | friends);
+        u64 captured = performDiagCaptureBits(o, enemies | friends);
         ASSERT(Bits::bitCount(captured & enemies) + performDiagShiftCount(o, enemies | friends) < (int) (sizeof(MOB_BISHOP) / sizeof(int)));
-        result += MOB_BISHOP[status][Bits::bitCount(captured & enemies) + performDiagShiftCount(o, enemies | friends)];
-        ADD(SCORE_DEBUG.MOB_BISHOP[side], MOB_BISHOP[status][Bits::bitCount(captured & enemies) + performDiagShiftCount(o, enemies | friends)]);
+        result += MOB_BISHOP[phase][Bits::bitCount(captured & enemies) + performDiagShiftCount(o, enemies | friends)];
+        ADD(SCORE_DEBUG.MOB_BISHOP[side], MOB_BISHOP[phase][Bits::bitCount(captured & enemies) + performDiagShiftCount(o, enemies | friends)]);
         structure.kingSecurityDistance[side] += BISHOP_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & POW2[o] ? 1 : 0);
         ADD(SCORE_DEBUG.KING_SECURITY_BISHOP[side], BISHOP_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & POW2[o] ? 1 : 0));
-        if (status != OPEN) {
+        if (phase != OPEN) {
             structure.kingSecurityDistance[side] -= NEAR_MASK2[structure.posKing[side ^ 1]] & POW2[o] ? ENEMY_NEAR_KING : 0;
             ADD(SCORE_DEBUG.KING_SECURITY_BISHOP[side ^ 1], -NEAR_MASK2[structure.posKing[side ^ 1]] & POW2[o] ? ENEMY_NEAR_KING : 0);
         } else
             //attack center
-        if (status == OPEN) {
+        if (phase == OPEN) {
             if (side) {
                 if (o == C1 || o == F1) {
                     ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], -UNDEVELOPED_BISHOP);
@@ -162,22 +163,22 @@ int Eval::evaluateBishop(u64 enemies, u64 friends) {
                 result += OPEN_FILE;
             }
         }
-        x &= NOTPOW2[o];
+        RESET_LSB(x);
     };
     return result;
 }
 
-template<Eval::_Tstatus status>
-int Eval::evaluateQueen(int side, u64 enemies, u64 friends) {
+template<int side, Eval::_Tphase phase>
+int Eval::evaluateQueen(u64 enemies, u64 friends) {
     INC(evaluationCount[side]);
     int result = 0;
     u64 queen = chessboard[QUEEN_BLACK + side];
     while (queen) {
         int o = Bits::BITScanForward(queen);
-        ASSERT(getMobilityQueen(o, enemies, friends) < (int) (sizeof(MOB_QUEEN[status]) / sizeof(int)));
-        result += MOB_QUEEN[status][getMobilityQueen(o, enemies, friends)];
-        ADD(SCORE_DEBUG.MOB_QUEEN[side], MOB_QUEEN[status][getMobilityQueen(o, enemies, friends)]);
-        if (status != OPEN) {
+        ASSERT(getMobilityQueen(o, enemies, friends) < (int) (sizeof(MOB_QUEEN[phase]) / sizeof(int)));
+        result += MOB_QUEEN[phase][getMobilityQueen(o, enemies, friends)];
+        ADD(SCORE_DEBUG.MOB_QUEEN[side], MOB_QUEEN[phase][getMobilityQueen(o, enemies, friends)]);
+        if (phase != OPEN) {
             structure.kingSecurityDistance[side] += FRIEND_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & POW2[o] ? 1 : 0);
             ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side], FRIEND_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & POW2[o] ? 1 : 0));
             structure.kingSecurityDistance[side] -= ENEMY_NEAR_KING * (NEAR_MASK2[structure.posKing[side ^ 1]] & POW2[o] ? 1 : 0);
@@ -195,17 +196,18 @@ int Eval::evaluateQueen(int side, u64 enemies, u64 friends) {
             ADD(SCORE_DEBUG.BISHOP_ON_QUEEN[side], BISHOP_ON_QUEEN);
             result += BISHOP_ON_QUEEN;
         }
-        queen &= NOTPOW2[o];
+        RESET_LSB(queen);
     };
     return result;
 }
 
-template<int side, Eval::_Tstatus status>
+template<int side, Eval::_Tphase phase>
 int Eval::evaluateKnight(const u64 enemiesPawns, const u64 squares) {
     INC(evaluationCount[side]);
     int result = 0;
+    //TODO un solo cavallo e almeno 6 pedoni per lato aggiungi circa 11
     u64 x = chessboard[KNIGHT_BLACK + side];
-    if (status == OPEN) {
+    if (phase == OPEN) {
         result -= side ? Bits::bitCount(x & 0x42ULL) * UNDEVELOPED : Bits::bitCount(x & 0x4200000000000000ULL) * UNDEVELOPED;
         ADD(SCORE_DEBUG.UNDEVELOPED_KNIGHT[side], side ? -Bits::bitCount(x & 0x42ULL) * UNDEVELOPED : -Bits::bitCount(x & 0x4200000000000000ULL) * UNDEVELOPED);
     }
@@ -246,7 +248,7 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 squares) {
     }
     while (x) {
         int pos = Bits::BITScanForward(x);
-        if (status != OPEN) {
+        if (phase != OPEN) {
             structure.kingSecurityDistance[side] += FRIEND_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & POW2[pos] ? 1 : 0);
             ADD(SCORE_DEBUG.KING_SECURITY_KNIGHT[side], FRIEND_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & POW2[pos] ? 1 : 0));
             structure.kingSecurityDistance[side] -= ENEMY_NEAR_KING * (NEAR_MASK2[structure.posKing[side ^ 1]] & POW2[pos] ? 1 : 0);
@@ -256,12 +258,12 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 squares) {
         ASSERT(Bits::bitCount(squares & KNIGHT_MASK[pos]) < (int) (sizeof(MOB_KNIGHT) / sizeof(int)));
         result += MOB_KNIGHT[Bits::bitCount(squares & KNIGHT_MASK[pos])];
         ADD(SCORE_DEBUG.MOB_KNIGHT[side], MOB_KNIGHT[Bits::bitCount(squares & KNIGHT_MASK[pos])]);
-        x &= NOTPOW2[pos];
+        RESET_LSB(x);
     };
     return result;
 }
 
-template<int side, Eval::_Tstatus status>
+template<int side, Eval::_Tphase phase>
 int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
     INC(evaluationCount[side]);
     int o, result = 0;
@@ -269,7 +271,7 @@ int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
     if (!x) {
         return 0;
     }
-    if (status == MIDDLE) {
+    if (phase == MIDDLE) {
         if (!side && (o = Bits::bitCount(x & RANK_1))) {
             ADD(SCORE_DEBUG.ROOK_7TH_RANK[side], ROOK_7TH_RANK * o);
             result += ROOK_7TH_RANK * o;
@@ -295,15 +297,15 @@ int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
     while (x) {
         o = Bits::BITScanForward(x);
         //mobility
-        ASSERT(getMobilityRook(o, enemies, friends) < (int) (sizeof(MOB_ROOK[status]) / sizeof(int)));
-        result += MOB_ROOK[status][getMobilityRook(o, enemies, friends)];
-        ADD(SCORE_DEBUG.MOB_ROOK[side], MOB_ROOK[status][getMobilityRook(o, enemies, friends)]);
+        ASSERT(getMobilityRook(o, enemies, friends) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
+        result += MOB_ROOK[phase][getMobilityRook(o, enemies, friends)];
+        ADD(SCORE_DEBUG.MOB_ROOK[side], MOB_ROOK[phase][getMobilityRook(o, enemies, friends)]);
         if (firstRook == -1) {
             firstRook = o;
         } else {
             secondRook = o;
         }
-        if (status != OPEN) {
+        if (phase != OPEN) {
             structure.kingSecurityDistance[side] += FRIEND_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & POW2[o] ? 1 : 0);
             ADD(SCORE_DEBUG.KING_SECURITY_ROOK[side], FRIEND_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & POW2[o] ? 1 : 0));
             structure.kingSecurityDistance[side] -= ENEMY_NEAR_KING * (NEAR_MASK2[structure.posKing[side ^ 1]] & POW2[o] ? 1 : 0);
@@ -322,7 +324,7 @@ int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
             ADD(SCORE_DEBUG.ROOK_OPEN_FILE[side], OPEN_FILE);
             result += OPEN_FILE;
         }
-        x &= NOTPOW2[o];
+        RESET_LSB(x);
     };
     if (firstRook != -1 && secondRook != -1) {
         if ((!(bits.LINK_ROOKS[firstRook][secondRook] & structure.allPieces))) {
@@ -333,12 +335,12 @@ int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
     return result;
 }
 
-template<Eval::_Tstatus status>
+template<Eval::_Tphase phase>
 int Eval::evaluateKing(int side, u64 squares) {
     ASSERT(evaluationCount[side] == 5);
     int result = 0;
     uchar pos_king = structure.posKing[side];
-    if (status == END) {
+    if (phase == END) {
         ADD(SCORE_DEBUG.DISTANCE_KING[side], DISTANCE_KING_ENDING[pos_king]);
         result = DISTANCE_KING_ENDING[pos_king];
     } else {
@@ -347,11 +349,11 @@ int Eval::evaluateKing(int side, u64 squares) {
     }
     u64 POW2_king = POW2[pos_king];
     //mobility
-    ASSERT(Bits::bitCount(squares & NEAR_MASK1[pos_king]) < (int) (sizeof(MOB_KING[status]) / sizeof(int)));
-    result += MOB_KING[status][Bits::bitCount(squares & NEAR_MASK1[pos_king])];
-    ADD(SCORE_DEBUG.MOB_KING[side], MOB_KING[status][Bits::bitCount(squares & NEAR_MASK1[pos_king])]);
-    if (status != OPEN) {
-        if ((structure.openColumn & POW2_king) || (structure.semiOpenColumn[side ^ 1] & POW2_king)) {
+    ASSERT(Bits::bitCount(squares & NEAR_MASK1[pos_king]) < (int) (sizeof(MOB_KING[phase]) / sizeof(int)));
+    result += MOB_KING[phase][Bits::bitCount(squares & NEAR_MASK1[pos_king])];
+    ADD(SCORE_DEBUG.MOB_KING[side], MOB_KING[phase][Bits::bitCount(squares & NEAR_MASK1[pos_king])]);
+    if (phase != OPEN) {
+        if ((structure.openFile & POW2_king) || (structure.semiOpenFile[side ^ 1] & POW2_king)) {
             ADD(SCORE_DEBUG.END_OPENING_KING[side], -END_OPENING);
             result -= END_OPENING;
             if (Bits::bitCount(RANK[pos_king]) < 4) {
@@ -369,7 +371,8 @@ int Eval::evaluateKing(int side, u64 squares) {
     return result;
 }
 
-int Eval::getScore(const int side, const int alpha, const int beta) {
+int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int beta, const bool trace) {
+
     int lazyscore_white = lazyEvalSide<WHITE>();
     int lazyscore_black = lazyEvalSide<BLACK>();
     int lazyscore = lazyscore_black - lazyscore_white;
@@ -391,13 +394,13 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
 #endif
     memset(structure.kingSecurityDistance, 0, sizeof(structure.kingSecurityDistance));
     int npieces = getNpiecesNoPawnNoKing<WHITE>() + getNpiecesNoPawnNoKing<BLACK>();
-    _Tstatus status;
+    _Tphase phase;
     if (npieces < 4) {
-        status = END;
+        phase = END;
     } else if (npieces < 11) {
-        status = MIDDLE;
+        phase = MIDDLE;
     } else {
-        status = OPEN;
+        phase = OPEN;
     }
     structure.allPiecesNoPawns[BLACK] = getBitBoardNoPawns<BLACK>();
     structure.allPiecesNoPawns[WHITE] = getBitBoardNoPawns<WHITE>();
@@ -409,143 +412,136 @@ int Eval::getScore(const int side, const int alpha, const int beta) {
     structure.kingAttackers[WHITE] = getAllAttackers<WHITE>(structure.posKing[WHITE], structure.allPieces);
     structure.kingAttackers[BLACK] = getAllAttackers<BLACK>(structure.posKing[BLACK], structure.allPieces);
 
-    openColumn(WHITE);
-    openColumn(BLACK);
-    int pawns_score_black;
-    int pawns_score_white;
-    int bishop_score_black;
-    int bishop_score_white;
-    int queens_score_black;
-    int queens_score_white;
-    int rooks_score_black;
-    int rooks_score_white;
-    int knights_score_black;
-    int knights_score_white;
-    int kings_score_black;
-    int kings_score_white;
-    int bonus_attack_black_king = 0;
-    int bonus_attack_white_king = 0;
-    if (status == OPEN) {
-        pawns_score_black = evaluatePawn<BLACK, OPEN>();
-        pawns_score_white = evaluatePawn<WHITE, OPEN>();
-        bishop_score_black = evaluateBishop<BLACK, OPEN>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-        bishop_score_white = evaluateBishop<WHITE, OPEN>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-        queens_score_black = evaluateQueen<OPEN>(BLACK, structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-        queens_score_white = evaluateQueen<OPEN>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-        rooks_score_black = evaluateRook<BLACK, OPEN>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-        rooks_score_white = evaluateRook<WHITE, OPEN>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-        knights_score_black = evaluateKnight<BLACK, OPEN>(chessboard[WHITE], ~structure.allPiecesSide[BLACK]);
-        knights_score_white = evaluateKnight<WHITE, OPEN>(chessboard[BLACK], ~structure.allPiecesSide[WHITE]);
-        kings_score_black = evaluateKing<OPEN>(BLACK, ~structure.allPiecesSide[BLACK]);
-        kings_score_white = evaluateKing<OPEN>(WHITE, ~structure.allPiecesSide[WHITE]);
-    } else {
-        bonus_attack_black_king = BONUS_ATTACK_KING[Bits::bitCount(structure.kingAttackers[WHITE])];
-        bonus_attack_white_king = BONUS_ATTACK_KING[Bits::bitCount(structure.kingAttackers[BLACK])];
-        if (status == END) {
-            pawns_score_black = evaluatePawn<BLACK, END>();
-            pawns_score_white = evaluatePawn<WHITE, END>();
-            bishop_score_black = evaluateBishop<BLACK, END>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            bishop_score_white = evaluateBishop<WHITE, END>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            queens_score_black = evaluateQueen<END>(BLACK, structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            queens_score_white = evaluateQueen<END>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            rooks_score_black = evaluateRook<BLACK, END>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            rooks_score_white = evaluateRook<WHITE, END>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            knights_score_black = evaluateKnight<BLACK, END>(chessboard[WHITE], ~structure.allPiecesSide[BLACK]);
-            knights_score_white = evaluateKnight<WHITE, END>(chessboard[BLACK], ~structure.allPiecesSide[WHITE]);
-            kings_score_black = evaluateKing<END>(BLACK, ~structure.allPiecesSide[BLACK]);
-            kings_score_white = evaluateKing<END>(WHITE, ~structure.allPiecesSide[WHITE]);
-        } else {
-            pawns_score_black = evaluatePawn<BLACK, MIDDLE>();
-            pawns_score_white = evaluatePawn<WHITE, MIDDLE>();
-            bishop_score_black = evaluateBishop<BLACK, MIDDLE>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            bishop_score_white = evaluateBishop<WHITE, MIDDLE>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            queens_score_black = evaluateQueen<MIDDLE>(BLACK, structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            queens_score_white = evaluateQueen<MIDDLE>(WHITE, structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            rooks_score_black = evaluateRook<BLACK, MIDDLE>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
-            rooks_score_white = evaluateRook<WHITE, MIDDLE>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
-            knights_score_black = evaluateKnight<BLACK, MIDDLE>(chessboard[WHITE], ~structure.allPiecesSide[BLACK]);
-            knights_score_white = evaluateKnight<WHITE, MIDDLE>(chessboard[BLACK], ~structure.allPiecesSide[WHITE]);
-            kings_score_black = evaluateKing<MIDDLE>(BLACK, ~structure.allPiecesSide[BLACK]);
-            kings_score_white = evaluateKing<MIDDLE>(WHITE, ~structure.allPiecesSide[WHITE]);
-        }
+    openFile<WHITE>();
+    openFile<BLACK>();
+    int bonus_attack_king_black = 0;
+    int bonus_attack_king_white = 0;
+    if (phase != OPEN) {
+        bonus_attack_king_black = BONUS_ATTACK_KING[Bits::bitCount(structure.kingAttackers[WHITE])];
+        bonus_attack_king_white = BONUS_ATTACK_KING[Bits::bitCount(structure.kingAttackers[BLACK])];
     }
-    ASSERT(getMobilityCastle(WHITE, structure.allPieces) < (int) (sizeof(MOB_CASTLE[status]) / sizeof(int)));
-    ASSERT(getMobilityCastle(BLACK, structure.allPieces) < (int) (sizeof(MOB_CASTLE[status]) / sizeof(int)));
-    int mobWhite = MOB_CASTLE[status][getMobilityCastle(WHITE, structure.allPieces)];
-    int mobBlack = MOB_CASTLE[status][getMobilityCastle(BLACK, structure.allPieces)];
+    _Tresult Tresult;
+    switch (phase) {
+        case OPEN :
+            getRes<OPEN>(Tresult);
+            break;
+        case END :
+            getRes<END>(Tresult);
+            break;
+        case MIDDLE:
+            getRes<MIDDLE>(Tresult);
+            break;
+        default:
+            break;
+    }
+
+    ASSERT(getMobilityCastle(WHITE, structure.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)));
+    ASSERT(getMobilityCastle(BLACK, structure.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)));
+    int mobWhite = MOB_CASTLE[phase][getMobilityCastle(WHITE, structure.allPieces)];
+    int mobBlack = MOB_CASTLE[phase][getMobilityCastle(BLACK, structure.allPieces)];
     int attack_king_white = ATTACK_KING * Bits::bitCount(structure.kingAttackers[BLACK]);
     int attack_king_black = ATTACK_KING * Bits::bitCount(structure.kingAttackers[WHITE]);
     side == WHITE ? lazyscore_black -= 5 : lazyscore_white += 5;
-    int result = (mobBlack + attack_king_black + bonus_attack_black_king + lazyscore_black + pawns_score_black + knights_score_black + bishop_score_black + rooks_score_black + queens_score_black + kings_score_black) - (mobWhite + attack_king_white + bonus_attack_white_king + lazyscore_white + pawns_score_white + knights_score_white + bishop_score_white + rooks_score_white + queens_score_white + kings_score_white);
-#ifdef xDEBUG_MODE
-    cout << "\ntotal..........   " << (double) result / 100 << "\n";
-    cout << "PHASE: ";
-    if(status == OPEN) {
-        cout << " OPEN\n";
-    } else if(status == MIDDLE) {
-        cout << " MIDDLE\n";
-    } else {
-        cout << " END\n";
+    int result = (mobBlack + attack_king_black + bonus_attack_king_black + lazyscore_black + Tresult.pawns[BLACK] + Tresult.knights[BLACK] + Tresult.bishop[BLACK] + Tresult.rooks[BLACK] + Tresult.queens[BLACK] + Tresult.kings[BLACK]) - (mobWhite + attack_king_white + bonus_attack_king_white + lazyscore_white + Tresult.pawns[WHITE] + Tresult.knights[WHITE] + Tresult.bishop[WHITE] + Tresult.rooks[WHITE] + Tresult.queens[WHITE] + Tresult.kings[WHITE]);
+
+#ifdef DEBUG_MODE
+    if (trace) {
+        const string HEADER = "\n\t\t\t\t\tTOT (white)\t\t  WHITE\t\tBLACK\n";
+        if (side == WHITE) cout << "\nTotal (white)..........   " << (double) -result / 100.0 << "\n";
+        else
+            cout << "\nTotal (black)..........   " << (double) result / 100.0 << "\n";
+        cout << "PHASE: ";
+        if (phase == OPEN) {
+            cout << " OPEN\n";
+        } else if (phase == MIDDLE) {
+            cout << " MIDDLE\n";
+        } else {
+            cout << " END\n";
+        }
+        cout << "OPEN FILE: ";
+        if (!structure.openFile)cout << "none"; else
+            for (int i = 0; i < 8; i++) if (POW2[i] & structure.openFile)cout << (char) (65 + i) << " ";
+        cout << "\n";
+
+
+        cout << "VALUES:";
+        cout << "\tPAWN: " << (double) _board::VALUEPAWN / 100.0;
+        cout << " ROOK: " << (double) _board::VALUEROOK / 100.0;
+        cout << " BISHOP: " << (double) _board::VALUEBISHOP / 100.0;
+        cout << " KNIGHT: " << (double) _board::VALUEKNIGHT / 100.0;
+        cout << " QUEEN: " << (double) _board::VALUEQUEEN / 100.0 << "\n\n";
+
+        cout << HEADER;
+        cout << "Material:         " << setw(10) << (double) (lazyscore_white - lazyscore_black) / 100.0 << setw(15) << (double) (lazyscore_white) / 100.0 << setw(10) << (double) (lazyscore_black) / 100.0 << "\n";
+//        cout << "Semi-open file:   " << setw(10) << (double) (SCORE_DEBUG.HALF_OPEN_FILE[WHITE] - SCORE_DEBUG.HALF_OPEN_FILE[BLACK]) / 100.0 << setw(15) << (double) (SCORE_DEBUG.HALF_OPEN_FILE[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.HALF_OPEN_FILE[BLACK]) / 100.0 << "\n";
+        cout << "Mobility:         " << setw(10) << (double) (mobWhite - mobBlack) / 100.0 << setw(15) << (double) (mobWhite) / 100.0 << setw(10) << (double) (mobBlack) / 100.0 << "\n";
+//        cout << "Attack king:      " << setw(10) << (double) (attack_king_white - attack_king_black) / 100.0 << setw(15) << (double) (attack_king_white) / 100.0 << setw(10) << (double) (attack_king_black) / 100.0 << "\n";
+        cout << "Bonus attack king:" << setw(10) << (double) (bonus_attack_king_white - bonus_attack_king_black) / 100.0 << setw(15) << (double) (bonus_attack_king_white) / 100.0 << setw(10) << (double) (bonus_attack_king_black) / 100.0 << "\n";
+
+        cout << HEADER;
+        cout << "Pawn:             " << setw(10) << (double) (Tresult.pawns[WHITE] - Tresult.pawns[BLACK]) / 100.0 << setw(15) << (double) (Tresult.pawns[WHITE]) / 100.0 << setw(10) << (double) (Tresult.pawns[BLACK]) / 100.0 << "\n";
+        cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_PAWNS[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_PAWNS[BLACK]) / 100.0 << "\n";
+        cout << "       attack king:              " << setw(10) << (double) (SCORE_DEBUG.ATTACK_KING_PAWN[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ATTACK_KING_PAWN[BLACK]) / 100.0 << "\n";
+        cout << "       center:                   " << setw(10) << (double) (SCORE_DEBUG.PAWN_CENTER[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.PAWN_CENTER[BLACK]) / 100.0 << "\n";
+        cout << "       7h:                       " << setw(10) << (double) (SCORE_DEBUG.PAWN_7H[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.PAWN_7H[BLACK]) / 100.0 << "\n";
+        cout << "       in race:                  " << setw(10) << (double) (SCORE_DEBUG.PAWN_IN_RACE[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.PAWN_IN_RACE[BLACK]) / 100.0 << "\n";
+        cout << "       blocked:                  " << setw(10) << (double) (SCORE_DEBUG.PAWN_BLOCKED[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.PAWN_BLOCKED[BLACK]) / 100.0 << "\n";
+        cout << "       unprotected:              " << setw(10) << (double) (SCORE_DEBUG.UNPROTECTED_PAWNS[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.UNPROTECTED_PAWNS[BLACK]) / 100.0 << "\n";
+        cout << "       isolated                  " << setw(10) << (double) (SCORE_DEBUG.PAWN_ISOLATED[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.PAWN_ISOLATED[BLACK]) / 100.0 << "\n";
+        cout << "       double                    " << setw(10) << (double) (SCORE_DEBUG.DOUBLED_PAWNS[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.DOUBLED_PAWNS[BLACK]) / 100.0 << "\n";
+        cout << "       double isolated           " << setw(10) << (double) (SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[BLACK]) / 100.0 << "\n";
+        cout << "       backward                  " << setw(10) << (double) (SCORE_DEBUG.BACKWARD_PAWN[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.BACKWARD_PAWN[BLACK]) / 100.0 << "\n";
+        cout << "       fork:                     " << setw(10) << (double) (SCORE_DEBUG.FORK_SCORE[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.FORK_SCORE[BLACK]) / 100.0 << "\n";
+        cout << "       passed:                   " << setw(10) << (double) (SCORE_DEBUG.PAWN_PASSED[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.PAWN_PASSED[BLACK]) / 100.0 << "\n";
+        cout << "       all enemies:              " << setw(10) << (double) (SCORE_DEBUG.ENEMIES_PAWNS_ALL[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ENEMIES_PAWNS_ALL[BLACK]) / 100.0 << "\n";
+        cout << "       none:                     " << setw(10) << (double) (SCORE_DEBUG.NO_PAWNS[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.NO_PAWNS[BLACK]) / 100.0 << "\n";
+
+        cout << HEADER;
+        cout << "Knight:           " << setw(10) << (double) (Tresult.knights[WHITE] - Tresult.knights[BLACK]) / 100.0 << setw(15) << (double) (Tresult.knights[WHITE]) / 100.0 << setw(10) << (double) (Tresult.knights[BLACK]) / 100.0 << "\n";
+        cout << "       undevelop:                " << setw(10) << (double) (SCORE_DEBUG.UNDEVELOPED_KNIGHT[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.UNDEVELOPED_KNIGHT[BLACK]) / 100.0 << "\n";
+        cout << "       trapped:                  " << setw(10) << (double) (SCORE_DEBUG.KNIGHT_TRAPPED[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.KNIGHT_TRAPPED[BLACK]) / 100.0 << "\n";
+        cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_KNIGHT[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_KNIGHT[BLACK]) / 100.0 << "\n";
+//        cout << "       near enemy king           " << setw(10) << (double) (SCORE_DEBUG.XKNIGHT_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.XKNIGHT_NEAR_KING[BLACK]) / 100.0 << "\n";
+
+        cout << HEADER;
+        cout << "Bishop:           " << setw(10) << (double) (Tresult.bishop[WHITE] - Tresult.bishop[BLACK]) / 100.0 << setw(15) << (double) (Tresult.bishop[WHITE]) / 100.0 << setw(10) << (double) (Tresult.bishop[BLACK]) / 100.0 << "\n";
+        cout << "       bad:                      " << setw(10) << (double) (SCORE_DEBUG.BAD_BISHOP[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.BAD_BISHOP[BLACK]) / 100.0 << "\n";
+        cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_BISHOP[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_BISHOP[BLACK]) / 100.0 << "\n";
+        cout << "       undevelop:                " << setw(10) << (double) (SCORE_DEBUG.UNDEVELOPED_BISHOP[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.UNDEVELOPED_BISHOP[BLACK]) / 100.0 << "\n";
+        cout << "       open diag:                " << setw(10) << (double) (SCORE_DEBUG.OPEN_DIAG_BISHOP[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.OPEN_DIAG_BISHOP[BLACK]) / 100.0 << "\n";
+        cout << "       bonus 2 bishops:          " << setw(10) << (double) (SCORE_DEBUG.BONUS2BISHOP[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.BONUS2BISHOP[BLACK]) / 100.0 << "\n";
+//        cout << "       near enemy king           " << setw(10) << (double) (SCORE_DEBUG.XBISHOP_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.XBISHOP_NEAR_KING[BLACK]) / 100.0 << "\n";
+
+        cout << HEADER;
+        cout << "Rook:             " << setw(10) << (double) (Tresult.rooks[WHITE] - Tresult.rooks[BLACK]) / 100.0 << setw(15) << (double) (Tresult.rooks[WHITE]) / 100.0 << setw(10) << (double) (Tresult.rooks[BLACK]) / 100.0 << "\n";
+        cout << "       7th:                      " << setw(10) << (double) (SCORE_DEBUG.ROOK_7TH_RANK[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ROOK_7TH_RANK[BLACK]) / 100.0 << "\n";
+        cout << "       trapped:                  " << setw(10) << (double) (SCORE_DEBUG.ROOK_TRAPPED[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ROOK_TRAPPED[BLACK]) / 100.0 << "\n";
+        cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_ROOK[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_ROOK[BLACK]) / 100.0 << "\n";
+        cout << "       blocked:                  " << setw(10) << (double) (SCORE_DEBUG.ROOK_BLOCKED[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ROOK_BLOCKED[BLACK]) / 100.0 << "\n";
+        cout << "       open file:                " << setw(10) << (double) (SCORE_DEBUG.ROOK_OPEN_FILE[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ROOK_OPEN_FILE[BLACK]) / 100.0 << "\n";
+//        cout << "       semi open file:           " << setw(10) << (double) (SCORE_DEBUG.ROOK_SEMI_OPEN_FILE[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ROOK_SEMI_OPEN_FILE[BLACK]) / 100.0 << "\n";
+        cout << "       connected:                " << setw(10) << (double) (SCORE_DEBUG.CONNECTED_ROOKS[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.CONNECTED_ROOKS[BLACK]) / 100.0 << "\n";
+//        cout << "       near enemy king           " << setw(10) << (double) (SCORE_DEBUG.XROOK_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.XROOK_NEAR_KING[BLACK]) / 100.0 << "\n";
+
+        cout << HEADER;
+        cout << "Queen:            " << setw(10) << (double) (Tresult.queens[WHITE] - Tresult.queens[BLACK]) / 100.0 << setw(15) << (double) (Tresult.queens[WHITE]) / 100.0 << setw(10) << (double) (Tresult.queens[BLACK]) / 100.0 << "\n";
+        cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_QUEEN[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_QUEEN[BLACK]) / 100.0 << "\n";
+        cout << "       bishop on queen:          " << setw(10) << (double) (SCORE_DEBUG.BISHOP_ON_QUEEN[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.BISHOP_ON_QUEEN[BLACK]) / 100.0 << "\n";
+//        cout << "       near enemy king           " << setw(10) << (double) (SCORE_DEBUG.XQUEEN_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.XQUEEN_NEAR_KING[BLACK]) / 100.0 << "\n";
+
+        cout << HEADER;
+        cout << "King:             " << setw(10) << (double) (Tresult.kings[WHITE] - Tresult.kings[BLACK]) / 100.0 << setw(15) << (double) (Tresult.kings[WHITE]) / 100.0 << setw(10) << (double) (Tresult.kings[BLACK]) / 100.0 << "\n";
+        cout << "       distance:                 " << setw(10) << (double) (SCORE_DEBUG.DISTANCE_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.DISTANCE_KING[BLACK]) / 100.0 << "\n";
+        cout << "       open file:                " << setw(10) << (double) (SCORE_DEBUG.END_OPENING_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.END_OPENING_KING[BLACK]) / 100.0 << "\n";
+        cout << "       pawn near:                " << setw(10) << (double) (SCORE_DEBUG.PAWN_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.PAWN_NEAR_KING[BLACK]) / 100.0 << "\n";
+//        cout << "       pawn storm:               " << setw(10) << (double) (SCORE_DEBUG.PAWN_STORM[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.PAWN_STORM[BLACK]) / 100.0 << "\n";
+        cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_KING[BLACK]) / 100.0 << "\n";
+//        cout << "       bishop near king:         " << setw(10) << (double) (SCORE_DEBUG.BISHOP_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.BISHOP_NEAR_KING[BLACK]) / 100.0 << "\n";
+//        cout << "       queen near king:          " << setw(10) << (double) (SCORE_DEBUG.QUEEN_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.QUEEN_NEAR_KING[BLACK]) / 100.0 << "\n";
+//        cout << "       knight near king:         " << setw(10) << (double) (SCORE_DEBUG.KNIGHT_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.KNIGHT_NEAR_KING[BLACK]) / 100.0 << "\n";
+//        cout << "       rook near king:           " << setw(10) << (double) (SCORE_DEBUG.ROOK_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ROOK_NEAR_KING[BLACK]) / 100.0 << "\n";
+        cout << endl;
     }
-    cout << "VALUES:";
-    cout << "\tPAWN: " << (double) VALUEPAWN / 100;
-    cout << " ROOK: " << (double) VALUEROOK / 100;
-    cout << " BISHOP: " << (double) VALUEBISHOP / 100;
-    cout << " KNIGHT: " << (double) VALUEKNIGHT / 100;
-    cout << " QUEEN: " << (double) VALUEQUEEN / 100 << "\n";
-    cout << "\t\t\t\tTOT (white)\tWHITE\t\tBLACK" << "\n";
-    cout << "material:\t\t\t\t" << (double)(lazyscore_white - lazyscore_black) / 100 << "\t\t" << (double)(lazyscore_white) / 100 << "\t\t" << (double)(lazyscore_black) / 100 << "\n";
-    cout << "mobility:\t\t\t\t" << (double)(mobWhite - mobBlack) / 100 << "\t\t" << (double)(mobWhite) / 100 << "\t\t" << (double)(mobBlack) / 100 << "\n";
-    cout << "attack king:\t\t\t" << (double)(attack_king_white - attack_king_black) / 100 << "\t\t" << (double)(attack_king_white) / 100 << "\t\t" << (double)(attack_king_black) / 100 << "\n";
-    cout << "bonus attack king:\t\t" << (double)(bonus_attack_white_king - bonus_attack_black_king) / 100 << "\t\t" << (double)(bonus_attack_white_king) / 100 << "\t\t" << (double)(bonus_attack_black_king) / 100 << "\n";
-    cout << "\npawn:\t\t\t\t\t" << (double)(pawns_score_white - pawns_score_black) / 100 << "\t\t" << (double)(pawns_score_white) / 100 << "\t\t" << (double)(pawns_score_black) / 100 << "\n";
-    cout << "\tmobility:\t\t\t\t\t" << (double)(SCORE_DEBUG.MOB_PAWNS[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.MOB_PAWNS[BLACK]) / 100 << "\n";
-    cout << "\tattack king:\t\t\t\t" << (double)(SCORE_DEBUG.ATTACK_KING_PAWN[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.ATTACK_KING_PAWN[BLACK]) / 100 << "\n";
-    cout << "\tcenter:\t\t\t\t\t" << (double)(SCORE_DEBUG.PAWN_CENTER[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.PAWN_CENTER[BLACK]) / 100 << "\n";
-    cout << "\t7h:\t\t\t\t\t\t" << (double)(SCORE_DEBUG.PAWN_7H[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.PAWN_7H[BLACK]) / 100 << "\n";
-    cout << "\tin race:\t\t\t\t\t" << (double)(SCORE_DEBUG.PAWN_IN_RACE[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.PAWN_IN_RACE[BLACK]) / 100 << "\n";
-    cout << "\tblocked:\t\t\t\t\t" << (double)(SCORE_DEBUG.PAWN_BLOCKED[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.PAWN_BLOCKED[BLACK]) / 100 << "\n";
-    cout << "\tunprotected:\t\t\t\t" << (double)(SCORE_DEBUG.UNPROTECTED_PAWNS[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.UNPROTECTED_PAWNS[BLACK]) / 100 << "\n";
-    cout << "\tisolated\t\t\t\t\t" << (double)(SCORE_DEBUG.PAWN_ISOLATED[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.PAWN_ISOLATED[BLACK]) / 100 << "\n";
-    cout << "\tdouble\t\t\t\t\t" << (double)(SCORE_DEBUG.DOUBLED_PAWNS[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.DOUBLED_PAWNS[BLACK]) / 100 << "\n";
-    cout << "\tdouble isolated\t\t\t\t" << (double)(SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[BLACK]) / 100 << "\n";
-    cout << "\tbackward\t\t\t\t\t" << (double)(SCORE_DEBUG.BACKWARD_PAWN[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.BACKWARD_PAWN[BLACK]) / 100 << "\n";
-    cout << "\tfork:\t\t\t\t\t\t" << (double)(SCORE_DEBUG.FORK_SCORE[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.FORK_SCORE[BLACK]) / 100 << "\n";
-    cout << "\tpassed:\t\t\t\t\t" << (double)(SCORE_DEBUG.PAWN_PASSED[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.PAWN_PASSED[BLACK]) / 100 << "\n";
-    cout << "\tall enemies:\t\t\t\t" << (double)(SCORE_DEBUG.ENEMIES_PAWNS_ALL[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.ENEMIES_PAWNS_ALL[BLACK]) / 100 << "\n";
-    cout << "\tnone:\t\t\t\t\t\t" << (double)(SCORE_DEBUG.NO_PAWNS[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.NO_PAWNS[BLACK]) / 100 << "\n";
-    cout << "\nknight:\t\t\t\t" << (double)(knights_score_white - knights_score_black) / 100 << "\t\t" << (double)(knights_score_white) / 100 << "\t\t" << (double)(knights_score_black) / 100 << "\n";
-    cout << "\tundevelop:\t\t\t\t\t" << (double)(SCORE_DEBUG.UNDEVELOPED_KNIGHT[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.UNDEVELOPED_KNIGHT[BLACK]) / 100 << "\n";
-    cout << "\ttrapped:\t\t\t\t\t" << (double)(SCORE_DEBUG.KNIGHT_TRAPPED[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.KNIGHT_TRAPPED[BLACK]) / 100 << "\n";
-    cout << "\tmobility:\t\t\t\t\t" << (double)(SCORE_DEBUG.MOB_KNIGHT[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.MOB_KNIGHT[BLACK]) / 100 << "\n";
-    cout << "\nbishop:\t\t\t\t" << (double)(bishop_score_white - bishop_score_black) / 100 << "\t\t" << (double)(bishop_score_white) / 100 << "\t\t" << (double)(bishop_score_black) / 100 << "\n";
-    cout << "\tbad:\t\t\t\t\t\t" << (double)(SCORE_DEBUG.BAD_BISHOP[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.BAD_BISHOP[BLACK]) / 100 << "\n";
-    cout << "\tmobility:\t\t\t\t\t" << (double)(SCORE_DEBUG.MOB_BISHOP[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.MOB_BISHOP[BLACK]) / 100 << "\n";
-    cout << "\tundevelop:\t\t\t\t\t" << (double)(SCORE_DEBUG.UNDEVELOPED_BISHOP[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.UNDEVELOPED_BISHOP[BLACK]) / 100 << "\n";
-    cout << "\topen diag:\t\t\t\t\t" << (double)(SCORE_DEBUG.OPEN_DIAG_BISHOP[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.OPEN_DIAG_BISHOP[BLACK]) / 100 << "\n";
-    cout << "\tbonus 2 bishops:\t\t\t\t" << (double)(SCORE_DEBUG.BONUS2BISHOP[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.BONUS2BISHOP[BLACK]) / 100 << "\n";
-    cout << "\nrook:\t\t\t\t\t" << (double)(rooks_score_white - rooks_score_black) / 100 << "\t\t" << (double)(rooks_score_white) / 100 << "\t\t" << (double)(rooks_score_black) / 100 << "\n";
-    cout << "\t7th:\t\t\t\t\t\t" << (double)(SCORE_DEBUG.ROOK_7TH_RANK[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.ROOK_7TH_RANK[BLACK]) / 100 << "\n";
-    cout << "\ttrapped:\t\t\t\t\t" << (double)(SCORE_DEBUG.ROOK_TRAPPED[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.ROOK_TRAPPED[BLACK]) / 100 << "\n";
-    cout << "\tmobility:\t\t\t\t\t" << (double)(SCORE_DEBUG.MOB_ROOK[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.MOB_ROOK[BLACK]) / 100 << "\n";
-    cout << "\tblocked:\t\t\t\t\t" << (double)(SCORE_DEBUG.ROOK_BLOCKED[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.ROOK_BLOCKED[BLACK]) / 100 << "\n";
-    cout << "\topen file:\t\t\t\t\t" << (double)(SCORE_DEBUG.ROOK_OPEN_FILE[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.ROOK_OPEN_FILE[BLACK]) / 100 << "\n";
-    cout << "\tconnected:\t\t\t\t\t" << (double)(SCORE_DEBUG.CONNECTED_ROOKS[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.CONNECTED_ROOKS[BLACK]) / 100 << "\n";
-    cout << "\nqueen:\t\t\t\t" << (double)(queens_score_white - queens_score_black) / 100 << "\t\t" << (double)(queens_score_white) / 100 << "\t\t" << (double)(queens_score_black) / 100 << "\n";
-    cout << "\tmobility:\t\t\t\t\t" << (double)(SCORE_DEBUG.MOB_QUEEN[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.MOB_QUEEN[BLACK]) / 100 << "\n";
-    cout << "\topen file:\t\t\t\t\t" << (double)(SCORE_DEBUG.OPEN_FILE_Q[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.OPEN_FILE_Q[BLACK]) / 100 << "\n";
-    cout << "\tbishop on queen:\t\t\t\t" << (double)(SCORE_DEBUG.BISHOP_ON_QUEEN[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.BISHOP_ON_QUEEN[BLACK]) / 100 << "\n";
-    cout << "\tsemi open file:\t\t\t\t" << (double)(SCORE_DEBUG.HALF_OPEN_FILE_Q[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.HALF_OPEN_FILE_Q[BLACK]) / 100 << "\n";
-    cout << "\nking:\t\t\t\t\t" << (double)(kings_score_white - kings_score_black) / 100 << "\t\t" << (double)(kings_score_white) / 100 << "\t\t" << (double)(kings_score_black) / 100 << "\n";
-    cout << "\tdistance:\t\t\t\t\t" << (double)(SCORE_DEBUG.DISTANCE_KING[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.DISTANCE_KING[BLACK]) / 100 << "\n";
-    cout << "\topen file:\t\t\t\t\t" << (double)(SCORE_DEBUG.END_OPENING_KING[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.END_OPENING_KING[BLACK]) / 100 << "\n";
-    cout << "\tpawn near:\t\t\t\t\t" << (double)(SCORE_DEBUG.PAWN_NEAR_KING[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.PAWN_NEAR_KING[BLACK]) / 100 << "\n";
-    cout << "\tmobility:\t\t\t\t\t" << (double)(SCORE_DEBUG.MOB_KING[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.MOB_KING[BLACK]) / 100 << "\n";
-    cout << "\tsecurity bishop:\t\t\t\t" << (double)(SCORE_DEBUG.KING_SECURITY_BISHOP[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.KING_SECURITY_BISHOP[BLACK]) / 100 << "\n";
-    cout << "\tsecurity queen:\t\t\t\t" << (double)(SCORE_DEBUG.KING_SECURITY_QUEEN[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.KING_SECURITY_QUEEN[BLACK]) / 100 << "\n";
-    cout << "\tsecurity knight:\t\t\t\t" << (double)(SCORE_DEBUG.KING_SECURITY_KNIGHT[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.KING_SECURITY_KNIGHT[BLACK]) / 100 << "\n";
-    cout << "\tsecurity rook:\t\t\t\t" << (double)(SCORE_DEBUG.KING_SECURITY_ROOK[WHITE]) / 100 << "\t\t" << (double)(SCORE_DEBUG.KING_SECURITY_ROOK[BLACK]) / 100 << "\n";
-    cout << endl;
 #endif
     return side ? -result : result;
 }

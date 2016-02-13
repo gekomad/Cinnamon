@@ -134,7 +134,8 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
 //        if (score + FUTIL_MARGIN < alpha)
 //            return score;
 //    }
-    int score = getScore(side, alpha, beta);
+
+    int score = getScore(side, N_PIECE, alpha, beta, false);
     if (score >= beta) {
         return beta;
     }

@@ -99,7 +99,7 @@ public:
 
     char decodeBoard(string);
 
-    virtual int loadFen(string);//TODO eliminare virtual
+    int loadFen(string);
 
     int getPieceByChar(char);
 
@@ -142,8 +142,8 @@ protected:
         u64 allPieces;
         u64 kingAttackers[2];
         u64 allPiecesSide[2];
-        u64 openColumn;
-        u64 semiOpenColumn[2];
+        u64 openFile;
+        u64 semiOpenFile[2];
         u64 isolated[2];
         u64 allPiecesNoPawns[2];
         int kingSecurityDistance[2];

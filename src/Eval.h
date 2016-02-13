@@ -22,6 +22,7 @@
 #include "Endgame.h"
 #include <fstream>
 #include <string.h>
+#include <iomanip>
 
 using namespace _board;
 
@@ -34,7 +35,7 @@ public:
 
     virtual ~Eval();
 
-    int getScore(const int side, const int alpha = -_INFINITE, const int beta = _INFINITE);
+    int getScore(const int side, const int N_PIECE, const int alpha, const int beta, const bool trace);
 
     template<int side>
     int lazyEval() {
@@ -131,9 +132,18 @@ protected:
 #endif
 
 private:
-    enum _Tstatus {
+    enum _Tphase {
         OPEN, MIDDLE, END
     };
+
+    typedef struct {
+        int pawns[2];
+        int bishop[2];
+        int queens[2];
+        int rooks[2];
+        int knights[2];
+        int kings[2];
+    } _Tresult;
 
     const int MOB_QUEEN[3][29] = {{0,   1,   1,   1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
                                   {-10, -9,  -5,  0, 3, 6, 7, 10, 11, 12, 15, 18, 28, 30, 32, 35, 40, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61},
@@ -143,7 +153,15 @@ private:
                                  {-9,  -8,  1,  8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 51, 52},
                                  {-15, -10, -5, 0, 9, 11, 16, 22, 30, 32, 40, 45, 50, 51, 52}};
 
-    const int MOB_KNIGHT[9] = {-8, -4, 7, 10, 15, 20, 30, 35, 40};
+    const int MOB_KNIGHT[9] = {-8,
+                               -4,
+                               7,
+                               10,
+                               15,
+                               20,
+                               30,
+                               35,
+                               40};
 
     const int MOB_BISHOP[3][14] = {{-8,  -7,  2,  8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 50},
                                    {-20, -10, -4, 0, 5, 10, 15, 20, 28, 30, 40, 45, 50, 50},
@@ -173,7 +191,8 @@ private:
     const uchar PAWN_PASSED[2][64] = {{200, 200, 200, 200, 200, 200, 200, 200, 100, 100, 100, 100, 100, 100, 100, 100, 40, 40, 40, 40, 40, 40, 40, 40, 19, 19, 19, 21, 21, 19, 19, 19, 13, 13, 13, 25, 25, 13, 13, 13, 0,  0,  0,  0,  0,  0,  0,  0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0},
                                       {0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,  0,  0,  0,  0,  0,  0,  13, 13, 13, 25, 25, 13, 13, 13, 19, 19, 19, 21, 21, 19, 19, 19, 40, 40, 40, 40, 40, 40, 40, 40, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200, 200, 200}};
 
-    const u64 PAWN_ISOLATED_MASK[64] = {0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL,
+    const u64 PAWN_ISOLATED_MASK[64] = {0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL,
+                                        0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL,
                                         0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL};
 
     const char DISTANCE_KING_OPENING[64] = {-8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -12, -12, -12, -12, -8, -8, -8, -8, -12, -16, -16, -12, -8, -8, -8, -8, -12, -16, -16, -12, -8, -8, -8, -8, -12, -12, -12, -12, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8};
@@ -185,24 +204,42 @@ private:
     int evaluationCount[2];
 #endif
 
-    void openColumn(int side);
+    template<_Tphase phase>
+    void getRes(_Tresult &res) {
+        res.pawns[BLACK] = evaluatePawn<BLACK, phase>();
+        res.pawns[WHITE] = evaluatePawn<WHITE, phase>();
+        res.bishop[BLACK] = evaluateBishop<BLACK, phase>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+        res.bishop[WHITE] = evaluateBishop<WHITE, phase>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+        res.queens[BLACK] = evaluateQueen<BLACK, phase>(structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+        res.queens[WHITE] = evaluateQueen<WHITE, phase>(structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+        res.rooks[BLACK] = evaluateRook<BLACK, phase>(chessboard[KING_BLACK], structure.allPiecesSide[WHITE], structure.allPiecesSide[BLACK]);
+        res.rooks[WHITE] = evaluateRook<WHITE, phase>(chessboard[KING_WHITE], structure.allPiecesSide[BLACK], structure.allPiecesSide[WHITE]);
+        res.knights[BLACK] = evaluateKnight<BLACK, phase>(chessboard[WHITE], ~structure.allPiecesSide[BLACK]);
+        res.knights[WHITE] = evaluateKnight<WHITE, phase>(chessboard[BLACK], ~structure.allPiecesSide[WHITE]);
+        res.kings[BLACK] = evaluateKing<phase>(BLACK, ~structure.allPiecesSide[BLACK]);
+        res.kings[WHITE] = evaluateKing<phase>(WHITE, ~structure.allPiecesSide[WHITE]);
 
-    template<int side, _Tstatus status>
+    }
+
+    template<int side>
+    void openFile();
+
+    template<int side, _Tphase phase>
     int evaluatePawn();
 
-    template<int side, _Tstatus status>
+    template<int side, _Tphase phase>
     int evaluateBishop(const u64, u64);
 
-    template<_Tstatus status>
-    int evaluateQueen(int side, u64 enemies, u64 friends);
+    template<int side, Eval::_Tphase phase>
+    int evaluateQueen(u64 enemies, u64 friends);
 
-    template<int side, _Tstatus status>
+    template<int side, _Tphase phase>
     int evaluateKnight(const u64, const u64);
 
-    template<int side, Eval::_Tstatus status>
+    template<int side, Eval::_Tphase phase>
     int evaluateRook(const u64, u64 enemies, u64 friends);
 
-    template<_Tstatus status>
+    template<_Tphase phase>
     int evaluateKing(int side, u64 squares);
 
     template<int side>

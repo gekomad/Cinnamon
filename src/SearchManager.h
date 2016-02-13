@@ -93,7 +93,7 @@ public:
 
     int getSide();
 
-    int getScore(int side);
+    int getScore(int side, const bool trace);
 
     void clearHash();
 
@@ -208,7 +208,7 @@ private:
     int mateIn;
     int valWindow;
     _TpvLine lineWin;
-    
+
     mutex mutexSearch;
 
     void setMainPly(int r);
@@ -218,6 +218,7 @@ private:
     int nThreads;
 
     void stopAllThread();
+
 #ifdef DEBUG_MODE
 
     atomic_int checkSmp1;
