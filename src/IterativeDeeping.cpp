@@ -27,6 +27,7 @@
 
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
     setUseBook(false);
+    SET(checkSmp2, 0);
 }
 
 void IterativeDeeping::setMaxDepth(int d) {

@@ -63,14 +63,9 @@ public:
 
     void run(bool smp, int depth, int alpha, int beta);
 
-    void setMainParam(bool smp, int depth, int alpha, int beta);
+    void setMainParam(const bool smp, const int depth);
 
     int search(bool smp, int depth, int alpha, int beta);
-
-    int getValue() const {
-        ASSERT(threadValue != INT_MAX);
-        return threadValue;
-    }
 
     virtual void run();
 
@@ -90,6 +85,7 @@ public:
     STATIC_CONST int NULLMOVES_R2 = 3;
     STATIC_CONST int NULLMOVES_R3 = 2;
     STATIC_CONST int NULLMOVES_R4 = 2;
+    STATIC_CONST int VAL_WINDOW = 50;
 
     void setRunningThread(bool t) {
         runningThread = t;
@@ -99,21 +95,16 @@ public:
         return runningThread;
     }
 
+    int getMateIn() const;
 
-    int getMainBeta() const {
-        return mainBeta;
+    void setGtb(Tablebase &tablebase);
+
+    void setValWindow(int valWin) {
+        Search::valWindow = valWin;
     }
 
-    void setMainBeta(int b) {
-        Search::mainBeta = b;
-    }
-
-    int getMainAlpha() const {
-        return mainAlpha;
-    }
-
-    void setMainAlpha(int a) {
-        Search::mainAlpha = a;
+    int getValWindow() const {
+        return valWindow;
     }
 
     void setChessboard(_Tchessboard &);
@@ -123,8 +114,6 @@ public:
     u64 getZobristKey();
 
     int getMateIn();
-
-    void setGtb(Tablebase &tablebase);
 
 #ifdef DEBUG_MODE
     unsigned cumulativeMovesCount;
@@ -139,14 +128,15 @@ private:
         Hash::_Thash *rootHash[2];
     } _TcheckHash;
 
-
+    int valWindow = INT_MAX;
     static bool runningThread;
     _TpvLine pvLine;
     static Hash *hash;
     static Tablebase *gtb;
     bool ponder;
 
-    int threadValue = INT_MAX;
+    int checkTime() const;
+    int aspirationWindow(const int depth, const int valWindow);
 
 
     int checkTime();

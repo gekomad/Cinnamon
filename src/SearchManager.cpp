@@ -49,131 +49,72 @@ SearchManager::SearchManager() {
 
 }
 
-void SearchManager::search(int mply) {
-    if (nThreads > 1 && mply > 3) {//TODO
-        parallelSearch(mply);
+void SearchManager::search(const int mply) {
+    if (getNthread() > 1 && mply > 3) {//TODO
+        lazySMP(mply);
     } else {
         singleSearch(mply);
     }
 }
 
-void SearchManager::singleSearch(int mply) {
+void SearchManager::singleSearch(const int mply) {
+    debug("start singleSearch -------------------------------");
     lineWin.cmove = -1;
     setMainPly(mply);
     ASSERT(!getBitCount());
-    if (mply == 1) {
-        threadPool[0]->init();
-        debug("val: ", valWindow);
-
-        threadPool[0]->run(SMP_NO, mply, -_INFINITE, _INFINITE);
-        valWindow = threadPool[0]->getValue();
-
+    threadPool[0]->setMainParam(SMP_NO, mply);
+    threadPool[0]->run();
+    valWindow = threadPool[0]->getValWindow();
+    if (threadPool[0]->getRunning()) {
         memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
-
-    } else {
-        threadPool[0]->init();
-
-        //Aspiration Windows
-        threadPool[0]->run(SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
-        int tmp = threadPool[0]->getValue();
-        if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
-
-            if (tmp <= threadPool[0]->getMainAlpha()) {
-                threadPool[0]->run(SMP_NO, mply, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW);
-            } else {
-                threadPool[0]->run(SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 2);
-            }
-            tmp = threadPool[0]->getValue();
-            if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
-
-                if (tmp <= threadPool[0]->getMainAlpha()) {
-                    threadPool[0]->run(SMP_NO, mply, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW);
-                } else {
-                    threadPool[0]->run(SMP_NO, mply, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 4);
-                }
-                tmp = threadPool[0]->getValue();
-                if (tmp <= threadPool[0]->getMainAlpha() || tmp >= threadPool[0]->getMainBeta()) {
-                    threadPool[0]->run(SMP_NO, mply, -_INFINITE, _INFINITE);
-                    tmp = threadPool[0]->getValue();
-                }
-            }
-        }
-
-        if (threadPool[0]->getRunning()) {
-            valWindow = tmp;
-
-            memcpy(&lineWin, &threadPool[0]->getPvLine(), sizeof(_TpvLine));
+        for (int ii = 1; ii < getNthread(); ii++) {
+            threadPool[ii]->setValWindow(valWindow);
         }
     }
+    debug("end singleSearch -------------------------------");
 }
 
-void SearchManager::parallelSearch(int mply) {
+void SearchManager::lazySMP(const int mply) {
+    ASSERT (mply > 1);
     lineWin.cmove = -1;
     setMainPly(mply);
     ASSERT(!getBitCount());
 
-    if (mply == 1) {
-        //TODO cancellare blocco
-        assert(0);
+    debug("start lazySMP --------------------------");
+
+    for (int ii = 0; ii < getNthread(); ii++) {
         Search &idThread1 = getNextThread();
-        debug("start loop1 ------------------------------ run threadid: ", idThread1.getId());
-        debug("val: ", valWindow);
-        startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
-        idThread1.join();
-    } else {
-//  Parallel Aspiration Windows
-        debug("start loop2 --------------------------");
-        ASSERT(!getBitCount());
-        ASSERT(lineWin.cmove <= 0);
-        for (int ii = 0; ii < std::max(3, getNthread()); ii++) {
+        idThread1.setRunning(1);
+        startThread(SMP_YES, idThread1, mply + (ii % 2));
+    }
+    joinAll();
+    debug("end lazySMP ---------------------------");
 
-            int alpha = valWindow - VAL_WINDOW * (int) POW2[ii];
-            int beta = valWindow + VAL_WINDOW * (int) POW2[ii];
-
-            if (alpha <= -_INFINITE || beta >= _INFINITE) {
-                break;
-            }
-
-            Search &idThread1 = getNextThread();
-            idThread1.setRunning(1);
-            debug("val: ", valWindow);
-            startThread(SMP_YES, idThread1, mply, alpha, beta);
-        }
-        debug("end loop2 ---------------------------");
-        joinAll();
-        ASSERT(!getBitCount());
-        if (lineWin.cmove <= 0) {
-
-            debug("start loop3 -------------------------------");
-//            for (int i = 0; i < getNthread(); i++) {
-            Search &idThread1 = getNextThread();
-            idThread1.setRunning(1);
-            startThread(SMP_NO, idThread1, mply, -_INFINITE, _INFINITE);
-//            }
-            debug("end loop3 -------------------------------");
-            idThread1.join();
-        }
+    ASSERT(!getBitCount());
+    if (lineWin.cmove <= 0) {
+        singleSearch(mply);
     }
 }
 
-void SearchManager::receiveObserverSearch(int threadID) {
-    //TODO usare spinlock come su trunk
-    lock_guard<mutex> lock(mutexSearch);
-    if (getRunning(threadID)) {
-        if (lineWin.cmove == -1) {
-            int t = threadPool[threadID]->getValue();
-            if (t > threadPool[threadID]->getMainAlpha() && t < threadPool[threadID]->getMainBeta()) {
-                memcpy(&lineWin, &threadPool[threadID]->getPvLine(), sizeof(_TpvLine));
-                mateIn = threadPool[threadID]->getMateIn();
-                ASSERT(mateIn == INT_MAX);
+void SearchManager::receiveObserverSearch(const int threadID) {
+    if (getNthread() > 1)spinlockSearch.lock();
+    INC(checkSmp1);
+    if (getRunning(threadID) && lineWin.cmove == -1) {
+//        int t = threadPool[threadID]->getValue();
+//        if (t > threadPool[threadID]->getMainAlpha() && t < threadPool[threadID]->getMainBeta()) {
+        memcpy(&lineWin, &threadPool[threadID]->getPvLine(), sizeof(_TpvLine));
+        mateIn = threadPool[threadID]->getMateIn();
+        ASSERT(mateIn == INT_MAX);
 
-                valWindow = getValue(threadID);
-                debug("win", threadID);
-                ASSERT(lineWin.cmove);
-                stopAllThread();
-            }
-        }
+//            valWindow = getValue(threadID);
+        debug("win", threadID);
+        ASSERT(lineWin.cmove);
+        stopAllThread();
+//        }
     }
+    ADD(checkSmp1, -1);
+    ASSERT(!checkSmp1);
+    if (getNthread() > 1)spinlockSearch.unlock();
 }
 
 bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn1) {
@@ -216,12 +157,12 @@ int SearchManager::loadFen(string fen) {
     return res;
 }
 
-void SearchManager::startThread(bool smpMode, Search &thread, int depth, int alpha, int beta) {
+void SearchManager::startThread(const bool smpMode, Search &thread, const int depth) {
 
-    debug("startThread: ", thread.getId(), " depth: ", depth, " alpha: ", alpha, " beta: ", beta, " isrunning: ", getRunning(thread.getId()));
-    ASSERT(alpha >= -_INFINITE);
+    debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId()));
 
-    thread.setMainParam(smpMode, depth, alpha, beta);
+    thread.setMainParam(smpMode, depth);
+  
     thread.start();
 }
 
@@ -251,10 +192,6 @@ void SearchManager::incKillerHeuristic(int from, int to, int value) {
 
 int SearchManager::getHashSize() {
     return hash->getHashSize();
-}
-
-int SearchManager::getValue(int i) {
-    return threadPool[i]->getValue();
 }
 
 void SearchManager::startClock() {
@@ -431,7 +368,6 @@ void SearchManager::deleteGtb() {
 
 bool SearchManager::setNthread(int nthread) {
     ThreadPool::setNthread(nthread);
-    nThreads = nthread;
     for (Search *s:threadPool) {
         s->registerObserver(this);
     }

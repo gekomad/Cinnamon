@@ -201,21 +201,19 @@ private:
 
     SearchManager();
 
-    void parallelSearch(int mply);
+    void lazySMP(const int mply);
 
     void singleSearch(int mply);
 
     int mateIn;
-    int valWindow;
+    int valWindow = INT_MAX;
     _TpvLine lineWin;
+   
+    Spinlock spinlockSearch;
 
-    mutex mutexSearch;
+    void setMainPly(const int r);
 
-    void setMainPly(int r);
-
-    void startThread(bool smpMode, Search &thread, int depth, int, int);
-
-    int nThreads;
+    void startThread(const bool smpMode, Search &thread, const int depth);
 
     void stopAllThread();
 

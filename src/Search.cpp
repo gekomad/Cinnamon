@@ -28,7 +28,7 @@ high_resolution_clock::time_point Search::startTime;
 
 void Search::run() {
     if (getRunning()) {
-        threadValue = search(mainSmp, mainDepth, mainAlpha, mainBeta);
+        aspirationWindow(mainDepth, valWindow);
     }
 }
 
@@ -36,9 +36,42 @@ void Search::endRun() {
     notifySearch(getId());
 }
 
-void Search::run(bool smp, int depth, int alpha, int beta) {
-    setMainParam(smp, depth, alpha, beta);
-    run();
+int Search::aspirationWindow(const int depth, const int valWin) {
+    valWindow = valWin;
+    init();
+
+    if (depth == 1) {
+        valWindow = search(SMP_NO, depth, -_INFINITE, _INFINITE);
+    } else {
+        ASSERT(INT_MAX != valWindow);
+        int tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
+
+        if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
+
+            if (tmp <= valWindow - VAL_WINDOW) {
+                tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW);
+            } else {
+                tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 2);
+            }
+
+            if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
+                if (tmp <= valWindow - VAL_WINDOW) {
+                    tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW);
+                } else {
+                    tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 4);
+                }
+
+                if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
+                    tmp = search(SMP_NO, mainDepth, -_INFINITE, _INFINITE);
+                }
+            }
+        }
+        if (getRunning()) {
+            valWindow = tmp;
+        }
+    }
+
+    return valWindow;
 }
 
 Search::Search() : ponder(false), nullSearch(false) {
@@ -321,13 +354,10 @@ void Search::deleteGtb() {
     gtb = nullptr;
 }
 
-void Search::setMainParam(bool smp, int depth, int alpha, int beta) {
+void Search::setMainParam(const bool smp, const int depth) {
     memset(&pvLine, 0, sizeof(_TpvLine));
     mainDepth = depth;
-    mainAlpha = alpha;
     mainSmp = smp;
-    mainBeta = beta;
-
 }
 
 int Search::search(bool smp, int depth, int alpha, int beta) {
@@ -644,11 +674,9 @@ bool Search::setParameter(String param, int value) {
         UNDEVELOPED = value;
     } else if (param == "UNDEVELOPED_BISHOP") {
         UNDEVELOPED_BISHOP = value;
-    }
-//    else if (param == "VAL_WINDOW") {
-//        VAL_WINDOW = value;
-//    }
-    else if (param == "UNPROTECTED_PAWNS") {
+    } else if (param == "VAL_WINDOW") {
+        VAL_WINDOW = value;
+    } else if (param == "UNPROTECTED_PAWNS") {
         UNPROTECTED_PAWNS = value;
     } else if (param == "ENEMIES_PAWNS_ALL") {
         ENEMIES_PAWNS_ALL = value;
