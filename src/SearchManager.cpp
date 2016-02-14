@@ -97,24 +97,22 @@ void SearchManager::lazySMP(const int mply) {
 }
 
 void SearchManager::receiveObserverSearch(const int threadID) {
-    if (getNthread() > 1)spinlockSearch.lock();
+    ASSERT(getNthread() > 1);
+    spinlockSearch.lock();
     INC(checkSmp1);
+
     if (getRunning(threadID) && lineWin.cmove == -1) {
-//        int t = threadPool[threadID]->getValue();
-//        if (t > threadPool[threadID]->getMainAlpha() && t < threadPool[threadID]->getMainBeta()) {
+        stopAllThread();
         memcpy(&lineWin, &threadPool[threadID]->getPvLine(), sizeof(_TpvLine));
         mateIn = threadPool[threadID]->getMateIn();
         ASSERT(mateIn == INT_MAX);
 
-//            valWindow = getValue(threadID);
         debug("win", threadID);
         ASSERT(lineWin.cmove);
-        stopAllThread();
-//        }
     }
     ADD(checkSmp1, -1);
     ASSERT(!checkSmp1);
-    if (getNthread() > 1)spinlockSearch.unlock();
+    spinlockSearch.unlock();
 }
 
 bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn1) {
@@ -162,7 +160,7 @@ void SearchManager::startThread(const bool smpMode, Search &thread, const int de
     debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId()));
 
     thread.setMainParam(smpMode, depth);
-  
+
     thread.start();
 }
 
