@@ -61,7 +61,7 @@ public:
         return pvLine;
     }
 
-    void run(bool smp, int depth, int alpha, int beta);
+//    void run(bool smp, int depth, int alpha, int beta);
 
     void setMainParam(const bool smp, const int depth);
 
@@ -95,7 +95,7 @@ public:
         return runningThread;
     }
 
-    int getMateIn() const;
+//    int getMateIn() const;
 
     void setGtb(Tablebase &tablebase);
 
@@ -135,7 +135,7 @@ private:
     static Tablebase *gtb;
     bool ponder;
 
-    int checkTime() const;
+//    int checkTime() const;
     int aspirationWindow(const int depth, const int valWindow);
 
 

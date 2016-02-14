@@ -34,7 +34,7 @@ class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>
     friend class Singleton<SearchManager>;
 
 public:
-    STATIC_CONST int VAL_WINDOW = 50;
+//    STATIC_CONST int VAL_WINDOW = 50;
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn);
 
@@ -54,7 +54,7 @@ public:
 
     int getHashSize();
 
-    int getValue(int i);
+//    int getValue(int i);
 
     void startClock();
 
@@ -125,7 +125,7 @@ public:
 
     void receiveObserverSearch(int threadID);
 
-    bool setNthread(int);
+    void setNthread(int);
 
 #ifdef DEBUG_MODE
 
@@ -178,13 +178,13 @@ public:
         return i;
     }
 
-    unsigned getNNullMoveCut() {
-        unsigned i = 0;
-        for (Search *s:threadPool) {
-            i += s->nNullMoveCut;
-        }
-        return i;
-    }
+//    unsigned getNNullMoveCut() {
+//        unsigned i = 0;
+//        for (Search *s:threadPool) {
+//            i += s->nNullMoveCut;
+//        }
+//        return i;
+//    }
 
     unsigned getTotGen() {
         unsigned i = 0;

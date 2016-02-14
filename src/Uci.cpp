@@ -206,9 +206,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        if (searchManager.setNthread(stoi(token))) {
-                            knowCommand = true;
-                        };
+                        searchManager.setNthread(stoi(token));
                     }
                 } else if (token == "gaviotatbscheme") {
                     getToken(uip, token);

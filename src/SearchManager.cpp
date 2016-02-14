@@ -366,12 +366,11 @@ void SearchManager::deleteGtb() {
     }
 }
 
-bool SearchManager::setNthread(int nthread) {
+void SearchManager::setNthread(int nthread) {
     ThreadPool::setNthread(nthread);
     for (Search *s:threadPool) {
         s->registerObserver(this);
     }
-    return true;
 }
 
 void SearchManager::stopAllThread() {
