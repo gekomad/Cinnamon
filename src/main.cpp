@@ -41,6 +41,16 @@ Rank Name                        Elo    +    - games score oppo. draws
    1 Cinnamon 1.2c-smp.16-tris    : 2320.9    3280.5    5864   55.9%
    2 Cinnamon 1.2b                : 2279.1    2583.5    5864   44.1%
 
+ 
+tc=""40/4:0+0" 4 thread lazysmp vs 4 thread par aspiration win
+Rank Name                                Elo    +    - games score oppo. draws
+   1 Cinnamon 1.2c-smp.16-tris-lazysmp     7    6    6  2910   52%    -7   38%
+   2 Cinnamon 1.2c-smp.16-tris            -7    6    6  2910   48%     7   38%
+
+   # PLAYER                               : RATING    POINTS  PLAYED    (%)
+   1 Cinnamon 1.2c-smp.16-tris-lazysmp    : 2308.0    1521.5    2910   52.3%
+   2 Cinnamon 1.2c-smp.16-tris            : 2292.0    1388.5    2910   47.7%
+
 
  */
 
