@@ -81,7 +81,7 @@ void IterativeDeeping::setUseBook(bool b) {
 
 void IterativeDeeping::run() {
 //TODO provare a cancellare e verificare su ponder
-    lock_guard<mutex> lock(commandMutex);
+//    lock_guard<mutex> lock(commandMutex);
     INC(checkSmp2);
     int timeTaken = 0;
     searchManager.setRunning(2);
@@ -222,7 +222,7 @@ void IterativeDeeping::run() {
         }
 
         if (searchManager.getForceCheck()) {
-            searchManager.setForceCheck(false);//TODO inMate
+            searchManager.setForceCheck(inMate);
             searchManager.setRunning(1);
 
         } else if (abs(sc) > _INFINITE - MAX_PLY) {

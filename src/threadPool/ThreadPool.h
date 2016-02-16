@@ -42,7 +42,7 @@ public:
     ThreadPool() : ThreadPool(thread::hardware_concurrency()) { }
 
     T &getNextThread() {
-        lock_guard<mutex> lock1(mxRel);//TODO cancellare
+//        lock_guard<mutex> lock1(mxRel);//TODO cancellare
         unique_lock<mutex> lck(mtx);
         cv.wait(lck, [this] { return Bits::bitCount(threadsBits) != nThread; });
         return getThread();
@@ -112,11 +112,11 @@ private:
     atomic <u64> threadsBits;
     int nThread = 0;
     condition_variable cv;
-    mutex mxGet;
-    mutex mxRel;
+//    mutex mxGet;
+//    mutex mxRel;
 
     T &getThread() {
-        lock_guard<mutex> lock1(mxGet);//TODO cancellare
+//        lock_guard<mutex> lock1(mxGet);//TODO cancellare
         int i = Bits::BITScanForwardUnset(threadsBits);
         threadPool[i]->join();
         ASSERT(!(threadsBits & POW2[i]));
@@ -126,7 +126,7 @@ private:
 
     void releaseThread(const int threadID) {
         ASSERT_RANGE(threadID, 0, 63);
-        lock_guard<mutex> lock1(mxGet);//TODO cancellare
+//        lock_guard<mutex> lock1(mxGet);//TODO cancellare
         ASSERT(threadsBits & POW2[threadID]);
         threadsBits &= ~POW2[threadID];
         cv.notify_all();

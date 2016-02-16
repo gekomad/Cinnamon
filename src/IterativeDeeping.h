@@ -32,8 +32,8 @@
 class IterativeDeeping : public Thread {
 
 public:
-   // Spinlock spinlockCommand;
-    mutex commandMutex;
+//    Spinlock spinlockCommand;
+//    mutex commandMutex;
     virtual ~ IterativeDeeping();
 
     virtual void run();

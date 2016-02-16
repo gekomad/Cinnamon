@@ -50,8 +50,7 @@ set(SOURCE_FILES
         SearchManager.h
         Tablebase.cpp
         Tablebase.h
-        Endgame.cpp
-        Endgame.h
+#        Endgame.cpp
         WrapperCinnamon.cpp
         Uci.cpp
         Uci.h)
