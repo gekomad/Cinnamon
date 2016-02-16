@@ -72,7 +72,6 @@ help:
 	@echo "make cinnamon-ARM                > Optimized for arm cpu"
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
-	@echo " example: make cinnamon64-modern-INTEL COMP=clang++"
 	@echo "add PROFILE_GCC=yes for PGO build (gcc only)"
 	@echo ""
 
@@ -91,7 +90,7 @@ endif
 
 	$(STRIP) $(EXE)
 	@echo "create static library..."
-	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o Endgame.o Bits.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
+	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o Bits.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
@@ -117,8 +116,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: ChessBoard.o Eval.o GenMoves.o String.o WrapperCinnamon.o Timer.o IniFile.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o Endgame.o
-	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o WrapperCinnamon.o Timer.o Eval.o IniFile.o GenMoves.o String.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o Endgame.o  ${LIBS}
+all: ChessBoard.o Eval.o GenMoves.o String.o WrapperCinnamon.o Timer.o IniFile.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} ChessBoard.o WrapperCinnamon.o Timer.o Eval.o IniFile.o GenMoves.o String.o IterativeDeeping.o main.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o ${LIBS}
 
 default:
 	help
@@ -174,8 +173,8 @@ IniFile.o: util/IniFile.cpp
 Timer.o: util/Timer.cpp
 	$(COMP) -c util/Timer.cpp ${CFLAGS} ${ARC}
 
-Endgame.o: Endgame.cpp
-	$(COMP) -c Endgame.cpp ${CFLAGS} ${ARC}
+#Endgame.o: Endgame.cpp
+#	$(COMP) -c Endgame.cpp ${CFLAGS} ${ARC}
 	
 WrapperCinnamon.o: WrapperCinnamon.cpp
 	$(COMP) -c WrapperCinnamon.cpp ${CFLAGS} ${ARC}
