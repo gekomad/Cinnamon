@@ -71,17 +71,19 @@ public:
 
     void clearAge();
 
-    template<bool smp>
-    bool readHash(_Thash *phashe[2], const int type, const u64 zobristKeyR, _Thash *hashMini) {
+    template<bool smp, int type>
+    bool readHash(_Thash *phashe[2], const u64 zobristKeyR, _Thash *hashMini) {
         bool b = false;
         _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
 
-        if (smp)spinlockHash[type].lock();
+        if (smp && type == HASH_GREATER)spinlockHashGreater.lock();
+        if (smp && type == HASH_ALWAYS)spinlockHashAlways.lock();
         if (hash->key == zobristKeyR) {
             b = true;
             memcpy(hashMini, hash, sizeof(_Thash));
         }
-        if (smp)spinlockHash[type].unlock();
+        if (smp && type == HASH_GREATER)spinlockHashGreater.unlock();
+        if (smp && type == HASH_ALWAYS)spinlockHashAlways.unlock();
 
         return b;
     }
@@ -108,9 +110,9 @@ public:
             tmp.from = tmp.to = 0;
         }
 
-        if (smp)spinlockHash[HASH_GREATER].lock();
+        if (smp)spinlockHashGreater.lock();
         memcpy(rootHash[HASH_GREATER], &tmp, sizeof(_Thash));
-        if (smp)spinlockHash[HASH_GREATER].unlock();
+        if (smp)spinlockHashGreater.unlock();
 
 
 #ifdef DEBUG_MODE
@@ -124,14 +126,14 @@ public:
 #endif
         tmp.entryAge = 1;
 
-        if (smp)spinlockHash[HASH_ALWAYS].lock();
+        if (smp)spinlockHashAlways.lock();
         if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {
             INC(collisions);
-            if (smp)spinlockHash[HASH_ALWAYS].unlock();
+            if (smp)spinlockHashAlways.unlock();
             return;
         }
         memcpy(rootHash[HASH_ALWAYS], &tmp, sizeof(_Thash));
-        if (smp)spinlockHash[HASH_ALWAYS].unlock();
+        if (smp)spinlockHashAlways.unlock();
 
     }
 
@@ -141,6 +143,7 @@ private:
     void dispose();
 
     _Thash *hashArray[2];
-    Spinlock spinlockHash[2];//TODO usare 2 spinlock separati
+    Spinlock spinlockHashGreater;
+    Spinlock spinlockHashAlways;
 };
 

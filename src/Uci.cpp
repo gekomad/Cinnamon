@@ -149,7 +149,7 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.setRunning(0);
             searchManager.setRunningThread(false);
         } else if (token == "ucinewgame") {
-			//TODO usare spinlock come in trunk
+            //TODO usare spinlock come in trunk
             lock_guard<mutex> lock(it->commandMutex);
             searchManager.loadFen();
             searchManager.clearHash();//TODO commentare
@@ -206,7 +206,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        searchManager.setNthread(stoi(token));
+                        knowCommand = searchManager.setNthread(stoi(token));
                     }
                 } else if (token == "gaviotatbscheme") {
                     getToken(uip, token);
@@ -303,7 +303,7 @@ void Uci::listner(IterativeDeeping *it) {
                 }
             }
         } else if (token == "position") {
-			//TODO usare spinlock
+            //TODO usare spinlock
             lock_guard<mutex> lock(it->commandMutex);
             knowCommand = true;
             searchManager.setRepetitionMapCount(0);
@@ -320,8 +320,7 @@ void Uci::listner(IterativeDeeping *it) {
                     uip >> token;
                     fen.append(token);
                     fen.append(" ");
-                }
-;
+                };
                 searchManager.init();
                 int x = searchManager.loadFen(fen);
                 searchManager.setSide(x);
