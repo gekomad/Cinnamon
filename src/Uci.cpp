@@ -52,7 +52,7 @@ void Uci::listner(IterativeDeeping *it) {
     int perftThreads = 1;
     int perftHashSize = 0;
     string dumpFile;
-    static const string BOOLEAN[] = {"false", "true"};
+    static const string _BOOLEAN[] = {"false", "true"};
     while (!stop) {
         if (runPerft) {
             runPerft = false;
@@ -119,8 +119,8 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name Clear Hash type button\n";
             cout << "option name Nullmove type check default true\n";
             cout << "option name Book File type string default cinnamon.bin\n";
-            cout << "option name OwnBook type check default " << BOOLEAN[it->getUseBook()] << "\n";
-            cout << "option name Ponder type check default " << BOOLEAN[it->getPonderEnabled()] << "\n";
+            cout << "option name OwnBook type check default " << _BOOLEAN[it->getUseBook()] << "\n";
+            cout << "option name Ponder type check default " << _BOOLEAN[it->getPonderEnabled()] << "\n";
             cout << "option name Threads type spin default 1 min 1 max 64\n";
             cout << "option name TB Endgame type combo default none var Gaviota var none\n";
             cout << "option name GaviotaTbPath type string default gtb/gtb4\n";
