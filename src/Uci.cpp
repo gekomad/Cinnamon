@@ -150,9 +150,9 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.setRunningThread(false);
         } else if (token == "ucinewgame") {
             //TODO usare spinlock come in trunk
-//            lock_guard<mutex> lock(it->commandMutex);
+            lock_guard<mutex> lock(it->commandMutex);
             searchManager.loadFen();
-//            searchManager.clearHash();//TODO commentare
+            searchManager.clearHash();//TODO commentare
             knowCommand = true;
         } else if (token == "setvalue") {
             getToken(uip, token);
@@ -304,7 +304,7 @@ void Uci::listner(IterativeDeeping *it) {
             }
         } else if (token == "position") {
             //TODO usare spinlock
-//            lock_guard<mutex> lock(it->commandMutex);
+            lock_guard<mutex> lock(it->commandMutex);
             knowCommand = true;
             searchManager.setRepetitionMapCount(0);
             getToken(uip, token);
