@@ -88,11 +88,13 @@ namespace _logger {
 
     static Logger &logger = Logger::getInstance();
 
-#if defined(_WIN32)
-#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#ifdef _WIN32
+#define FILE_SEPARATOR '\\'
 #else
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define FILE_SEPARATOR '/'
 #endif
+
+#define __FILENAME__ (strrchr(__FILE__, FILE_SEPARATOR) ? strrchr(__FILE__, FILE_SEPARATOR) + 1 : __FILE__)
 
 #define LINE_INFO __FILENAME__,":",__LINE__," "
 
