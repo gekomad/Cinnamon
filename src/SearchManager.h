@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <mutex>
 #include <unistd.h>
 #include "Search.h"
 #include "threadPool/ThreadPool.h"
