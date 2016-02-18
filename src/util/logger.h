@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// compile time logger
 #pragma once
 
 #include "../util/Singleton.h"
@@ -28,15 +29,19 @@ using namespace std;
 namespace _logger {
 
     static enum LOG_LEVEL {
-        _TRACE = 0, _DEBUG = 1, _INFO = 2, _WARN = 3, _ERROR = 4, _FATAL = 5, _OFF = 6, _ALWAYS = 7
+        _TRACE = 0, _DEBUG = 1, _INFO = 2, _WARN = 3, _ERROR = 4, _FATAL = 5, _OFF = 6
     } _LOG_LEVEL;
 
 #if !defined DLOG_LEVEL
-#if defined DEBUG_MODE
-#define DLOG_LEVEL _TRACE
+    #if defined DEBUG_MODE
+        #define DLOG_LEVEL _TRACE
+    #else
+        #define DLOG_LEVEL _OFF
+    #endif
 #else
-#define DLOG_LEVEL _OFF
-#endif
+    #if defined DEBUG_MODE
+        #define DLOG_LEVEL _TRACE
+    #endif
 #endif
 
     static const string LOG_LEVEL_STRING[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF", "LOG"};
@@ -91,7 +96,6 @@ namespace _logger {
 
 #define LINE_INFO __FILENAME__,":",__LINE__," "
 
-#define log(...)                             {logger._log<LOG_LEVEL::_ALWAYS>(LINE_INFO,__VA_ARGS__);}
 #define trace(...) if (_TRACE >= DLOG_LEVEL) {logger._log<LOG_LEVEL::_TRACE>( LINE_INFO,__VA_ARGS__);}
 #define debug(...) if (_DEBUG >= DLOG_LEVEL) {logger._log<LOG_LEVEL::_DEBUG>( LINE_INFO,__VA_ARGS__);}
 #define info(...)  if (_INFO  >= DLOG_LEVEL) {logger._log<LOG_LEVEL::_INFO> ( LINE_INFO,__VA_ARGS__);}
