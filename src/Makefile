@@ -54,7 +54,7 @@ else
 	endif
 endif
 
-PARAM="-std=c++11 -Ofast -pipe -DNDEBUG -DDLOG_LEVEL=_FATAL -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
+PARAM="-std=c++11 -Ofast -pipe -DNDEBUG -fsigned-char -DDLOG_LEVEL=_FATAL -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
 
 help:
 
@@ -69,7 +69,7 @@ help:
 	@echo "make cinnamon32-generic          > Unspecified 32-bit"
 	@echo ""
 	@echo "make cinnamon-native             > Optimized for native cpu"
-	@echo "make cinnamon-ARM                > Optimized for arm cpu"
+	@echo "make cinnamon32-ARM              > Optimized for arm cpu"
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
 	@echo "add PROFILE_GCC=yes for PGO build (gcc only)"
@@ -98,8 +98,8 @@ cinnamon32-generic:
 cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse" cinnamon32-generic
 
-cinnamon-ARM:
-	$(MAKE) LIBS="$(LIBS) gtb/ARM/32/libgtb.a" ARC="$(ARC) -fno-gcse -w -fsigned-char" build
+cinnamon32-ARM:
+	$(MAKE) LIBS="$(LIBS) gtb/ARM/32/libgtb.a" ARC="$(ARC) -fno-gcse -w" build
 
 cinnamon-native:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
