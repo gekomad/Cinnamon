@@ -67,12 +67,12 @@ help:
 	@echo ""
 	@echo "make cinnamon32-modern           > 32-bit with sse support"
 	@echo "make cinnamon32-generic          > Unspecified 32-bit"
-	@echo ""
-	@echo "make cinnamon-native             > Optimized for native cpu"
 	@echo "make cinnamon32-ARM              > Optimized for arm cpu"
 	@echo ""
+	@echo "make cinnamon-native             > Optimized for native cpu"
+	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
-	@echo "add PROFILE_GCC=yes for PGO build (gcc only)"
+	@echo "add PROFILE_GCC=yes for PGO build"
 	@echo ""
 
 build:
