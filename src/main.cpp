@@ -32,17 +32,18 @@
  1| 07 06 05 04 03 02 01 00
  ...a  b  c  d  e  f  g  h
 
-tc=""40/4:0+0" single thread
+tc="40/4:0+0" single thread
 Rank Name                        Elo    +    - games score oppo. draws
    1 Cinnamon 1.2c-smp.16-tris    20    5    5  5864   56%   -20   34%
    2 Cinnamon 1.2b               -20    5    5  5864   44%    20   34%
 
-   # PLAYER                       : RATING    POINTS  PLAYED    (%)
-   1 Cinnamon 1.2c-smp.16-tris    : 2320.9    3280.5    5864   55.9%
-   2 Cinnamon 1.2b                : 2279.1    2583.5    5864   44.1%
+ su windows
+Rank Name                  Elo    +    - games score oppo. draws
+   1 Cinnamon 1.2c-smp.x    23   13   13   492   57%   -23   34%
+   2 Cinnamon 1.2b         -23   13   13   492   43%    23   34%
 
 
-tc=""40/4:0+0" 4 thread lazysmp vs 4 thread par aspiration win
+tc="40/4:0+0" 4 thread lazysmp vs 4 thread par aspiration win
 Rank Name                                Elo    +    - games score oppo. draws
    1 Cinnamon 1.2c-smp.16-tris-lazysmp     7    6    6  2910   52%    -7   38%
    2 Cinnamon 1.2c-smp.16-tris            -7    6    6  2910   48%     7   38%
