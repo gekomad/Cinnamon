@@ -22,6 +22,9 @@
 #include <windows.h>
 #include <intrin.h>
 
+#define LOCK_TEST_AND_SET(_lock) _InterlockedExchange(&_lock, 1)
+#define LOCK_RELEASE(_lock) _InterlockedExchange(&_lock, 0)
+
 #pragma intrinsic(_InterlockedExchange)
 
 class Spinlock {
@@ -30,28 +33,31 @@ private:
 public:
     __forceinline void lock() {
         while (true) {
-            if (!_InterlockedExchange(&_lock, 1))
+            if (!LOCK_TEST_AND_SET(_lock))
                 return;
             while (_lock);
         }
     }
-    __forceinline void unlock() { _InterlockedExchange(&_lock, 0); }
+    __forceinline void unlock() { LOCK_RELEASE(_lock); }
 };
 
 #else
 
+#define LOCK_TEST_AND_SET(_lock) __sync_lock_test_and_set(&_lock, 1)
+#define LOCK_RELEASE(_lock) __sync_lock_release(&_lock)
+
 class Spinlock {
 private:
-    volatile int _lock = 0;
+    volatile long _lock = 0;
 public:
     inline void lock() {
         while (true) {
-            if (!__sync_lock_test_and_set(&_lock, 1))
+            if (!LOCK_TEST_AND_SET(_lock))
                 return;
             while (_lock);
         }
     }
-    inline void unlock() { __sync_lock_release(&_lock); }
+    inline void unlock() { LOCK_RELEASE(_lock); }
 };
 
 #endif

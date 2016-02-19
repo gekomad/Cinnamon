@@ -25,7 +25,7 @@
 
 #endif
 
-IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), openBook(nullptr), ponderEnabled(false) {
+IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), running(false), openBook(nullptr), ponderEnabled(false) {
     setUseBook(false);
     SET(checkSmp2, 0);
 }
@@ -80,8 +80,11 @@ void IterativeDeeping::setUseBook(bool b) {
 }
 
 void IterativeDeeping::run() {
-//TODO provare a cancellare e verificare su ponder
-    lock_guard<mutex> lock(commandMutex);
+
+    if (LOCK_TEST_AND_SET(running)) {
+        while (running);
+    }
+
     INC(checkSmp2);
     int timeTaken = 0;
     searchManager.setRunning(2);
@@ -97,6 +100,7 @@ void IterativeDeeping::run() {
             cout << "bestmove " << obMove << endl;
             ADD(checkSmp2, -1);
             ASSERT(!checkSmp2);
+            LOCK_RELEASE(running);
             return;
         }
     }
@@ -245,4 +249,5 @@ void IterativeDeeping::run() {
     cout << "\n" << flush;
     ADD(checkSmp2, -1);
     ASSERT(!checkSmp2);
+    LOCK_RELEASE(running);
 }

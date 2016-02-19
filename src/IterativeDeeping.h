@@ -32,8 +32,9 @@
 class IterativeDeeping : public Thread {
 
 public:
-   // Spinlock spinlockCommand;
-    mutex commandMutex;
+
+    IterativeDeeping();
+
     virtual ~ IterativeDeeping();
 
     virtual void run();
@@ -56,7 +57,9 @@ public:
 
     bool setParameter(String param, int value);
 
-    IterativeDeeping();
+    int getRunning() const {
+        return running;
+    }
 
 private:
 
@@ -69,6 +72,7 @@ private:
     int maxDepth;
 
     bool useBook;
+    volatile long running;
     Tablebase *tablebase = nullptr;
     OpenBook *openBook = nullptr;
     bool ponderEnabled;

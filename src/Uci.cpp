@@ -149,8 +149,7 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.setRunning(0);
             searchManager.setRunningThread(false);
         } else if (token == "ucinewgame") {
-            //TODO usare while it->getRunning()
-            lock_guard<mutex> lock(it->commandMutex);
+            while (it->getRunning());
             searchManager.loadFen();
             searchManager.clearHash();//TODO commentare
             knowCommand = true;
@@ -303,8 +302,7 @@ void Uci::listner(IterativeDeeping *it) {
                 }
             }
         } else if (token == "position") {
-            //TODO usare while it->getRunning()
-            lock_guard<mutex> lock(it->commandMutex);
+            while (it->getRunning());
             knowCommand = true;
             searchManager.setRepetitionMapCount(0);
             getToken(uip, token);
