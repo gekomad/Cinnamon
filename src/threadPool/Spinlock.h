@@ -17,7 +17,6 @@
 */
 
 #pragma once
-
 #ifdef _WIN32
 
 #include <windows.h>
@@ -33,12 +32,10 @@ public:
         while (true) {
             if (!_InterlockedExchange(&_lock, 1))
                 return;
-            while (_lock);//TODO Sleep(1)
+            while (_lock);
         }
     }
-
-    inline void unlock() { _InterlockedExchange(&_lock, 0); }
-
+    __forceinline void unlock() { _InterlockedExchange(&_lock, 0); }
 };
 
 #else
@@ -51,12 +48,10 @@ public:
         while (true) {
             if (!__sync_lock_test_and_set(&_lock, 1))
                 return;
-            while (_lock);//TODO Sleep(1)
+            while (_lock);
         }
     }
-
     inline void unlock() { __sync_lock_release(&_lock); }
-
 };
 
 #endif
