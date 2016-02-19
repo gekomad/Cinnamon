@@ -23,6 +23,7 @@
 
 using namespace _def;
 using namespace std;
+//TODO eliminare pragma
 #pragma pack(push)
 #pragma pack(1)
 typedef struct {
