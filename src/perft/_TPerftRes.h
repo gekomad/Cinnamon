@@ -23,14 +23,12 @@
 
 using namespace _def;
 using namespace std;
-//TODO eliminare pragma
-#pragma pack(push)
-#pragma pack(1)
+
 typedef struct {
     u64 key;
     u64 nMoves;
 } _ThashPerft;
-#pragma pack(pop)
+
 
 typedef struct {
     atomic_ullong totMoves;

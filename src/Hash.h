@@ -36,9 +36,7 @@ public:
 
     static const int HASH_GREATER = 0;
     static const int HASH_ALWAYS = 1;
-//TODO eliminare pragma
-#pragma pack(push)
-#pragma pack(1)
+
     typedef struct {
         u64 key;
         short score;
@@ -49,7 +47,6 @@ public:
         uchar flags:2;
     } _Thash;
 
-#pragma pack(pop)
     enum : char {
         hashfALPHA = 0, hashfEXACT = 1, hashfBETA = 2
     };
