@@ -16,22 +16,65 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+// A shared Spinlock implementation
+
 #pragma once
 
 #include <atomic>
 
+using namespace std;
+
+#ifdef _WIN32
+#include <intrin.h>
+#pragma intrinsic(_InterlockedExchange)
+#define LOCK_TEST_AND_SET(_lock) _InterlockedExchange(&_lock, 1)
+#define LOCK_RELEASE(_lock) _InterlockedExchange(&_lock, 0)
+#else
+#define LOCK_TEST_AND_SET(_lock) __sync_lock_test_and_set(&_lock, 1)
+#define LOCK_RELEASE(_lock) __sync_lock_release(&_lock)
+#endif
+
 class Spinlock {
 private:
-    std::atomic_flag _lock;
-public:
+    volatile long _write = 0;
+    volatile atomic_int _read;
 
-    Spinlock() : _lock(ATOMIC_FLAG_INIT) { }
-
-    void lock() {
-        while (_lock.test_and_set(std::memory_order_acquire));
+    void _lock(){
+        while (true) {
+            if (!LOCK_TEST_AND_SET(_write))
+                return;
+            while (_write);
+        }
     }
 
-    void unlock() {
-        _lock.clear(std::memory_order_release);
+public:
+    Spinlock() : _read(false) { }
+
+    inline void lock(){
+        bool w = false;
+        while (true) {
+            if (!w && !LOCK_TEST_AND_SET(_write)) {
+                w = true;
+            }
+            if (w && !_read) {
+                return;
+            }
+            while ((!w && _write) || _read);
+        }
+    }
+
+    inline void unlock(){
+        LOCK_RELEASE(_write);
+    }
+
+    inline void sharedLock(){
+        _lock();
+        _read++;
+        unlock();
+    }
+
+    inline void sharedUnlock(){
+        _read--;
     }
 };

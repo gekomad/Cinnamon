@@ -98,15 +98,15 @@ u64 PerftThread::search(const int depthx) {
 
     if (useHash) {
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
-        if (smp)SPINLOCK_HASH.lock();
+        if (smp)SPINLOCK_HASH.sharedLock();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
             partialTot += phashe->nMoves;
             u64 r = phashe->nMoves;
-            if (smp)SPINLOCK_HASH.unlock();
+            if (smp)SPINLOCK_HASH.sharedUnlock();
             return r;
         }
-        if (smp)SPINLOCK_HASH.unlock();
+        if (smp)SPINLOCK_HASH.sharedUnlock();
     }
     int listcount;
     _Tmove *move;
@@ -188,7 +188,7 @@ void PerftThread::run() {
             y = '-';
         }
 
-        spinlockPrint.lock();
+        if (fhash)spinlockPrint.lock();
         cout << "\n";
         string h;
         if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
@@ -200,7 +200,7 @@ void PerftThread::run() {
         cout << setw(6) << h;
         cout << setw(20) << n_perft;
         cout << setw(8) << (Perft::count--);
-        spinlockPrint.unlock();
+        if (fhash) spinlockPrint.unlock();
 
         cout << flush;
         tot += n_perft;

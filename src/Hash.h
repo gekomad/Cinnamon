@@ -73,14 +73,14 @@ public:
         bool b = false;
         _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
 
-        if (smp && type == HASH_GREATER)spinlockHashGreater.lock();
-        if (smp && type == HASH_ALWAYS)spinlockHashAlways.lock();
+        if (smp && type == HASH_GREATER)spinlockHashGreater.sharedLock();
+        if (smp && type == HASH_ALWAYS)spinlockHashAlways.sharedLock();
         if (hash->key == zobristKeyR) {
             b = true;
             memcpy(hashMini, hash, sizeof(_Thash));
         }
-        if (smp && type == HASH_GREATER)spinlockHashGreater.unlock();
-        if (smp && type == HASH_ALWAYS)spinlockHashAlways.unlock();
+        if (smp && type == HASH_GREATER)spinlockHashGreater.sharedUnlock();
+        if (smp && type == HASH_ALWAYS)spinlockHashAlways.sharedUnlock();
 
         return b;
     }
