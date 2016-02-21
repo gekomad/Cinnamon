@@ -17,47 +17,21 @@
 */
 
 #pragma once
-#ifdef _WIN32
 
-#include <windows.h>
-#include <intrin.h>
-
-#define LOCK_TEST_AND_SET(_lock) _InterlockedExchange(&_lock, 1)
-#define LOCK_RELEASE(_lock) _InterlockedExchange(&_lock, 0)
-
-#pragma intrinsic(_InterlockedExchange)
+#include <atomic>
 
 class Spinlock {
 private:
-    volatile long _lock = 0;
+    std::atomic_flag _lock;
 public:
-    __forceinline void lock() {
-        while (true) {
-            if (!LOCK_TEST_AND_SET(_lock))
-                return;
-            while (_lock);
-        }
+
+    Spinlock() : _lock(ATOMIC_FLAG_INIT) { }
+
+    void lock() {
+        while (_lock.test_and_set(std::memory_order_acquire));
     }
-    __forceinline void unlock() { LOCK_RELEASE(_lock); }
-};
 
-#else
-
-#define LOCK_TEST_AND_SET(_lock) __sync_lock_test_and_set(&_lock, 1)
-#define LOCK_RELEASE(_lock) __sync_lock_release(&_lock)
-
-class Spinlock {
-private:
-    volatile long _lock = 0;
-public:
-    inline void lock() {
-        while (true) {
-            if (!LOCK_TEST_AND_SET(_lock))
-                return;
-            while (_lock);
-        }
+    void unlock() {
+        _lock.clear(std::memory_order_release);
     }
-    inline void unlock() { LOCK_RELEASE(_lock); }
 };
-
-#endif

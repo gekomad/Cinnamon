@@ -33,6 +33,17 @@ namespace _def {
 
 #define RESET_LSB(bits) (bits&=bits-1)
 
+
+#ifdef _WIN32
+#include <windows.h>
+#include <intrin.h>
+#define LOCK_TEST_AND_SET(_lock) _InterlockedExchange(&_lock, 1)
+#define LOCK_RELEASE(_lock) _InterlockedExchange(&_lock, 0)
+#else
+#define LOCK_TEST_AND_SET(_lock) __sync_lock_test_and_set(&_lock, 1)
+#define LOCK_RELEASE(_lock) __sync_lock_release(&_lock)
+#endif
+
 #if defined(CLOP) || defined(DEBUG_MODE)
 #define STATIC_CONST
 #else
