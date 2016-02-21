@@ -35,7 +35,6 @@ namespace _def {
 
 
 #ifdef _WIN32
-#include <windows.h>
 #include <intrin.h>
 #define LOCK_TEST_AND_SET(_lock) _InterlockedExchange(&_lock, 1)
 #define LOCK_RELEASE(_lock) _InterlockedExchange(&_lock, 0)
