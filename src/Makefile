@@ -71,6 +71,8 @@ help:
 	@echo ""
 	@echo "make cinnamon-native             > Optimized for native cpu"
 	@echo ""
+	@echo "make cinnamon-drmemory           > memory monitor"
+	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
 	@echo "add PROFILE_GCC=yes for PGO build"
 	@echo "add FULL_TEST=yes for unit test"
@@ -93,9 +95,17 @@ else
 endif
 endif
 
+drmemory:
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS="-pthread -std=c++11 -g -fno-inline -fno-omit-frame-pointer -Wno-reorder "$(STATIC) all
+	@echo "log in drmmemory.log..."
+	drmemory -show_reachable -- $(PA)$(EXE) -b 2>drmmeory.log
+
 	$(STRIP) $(EXE)
 	@echo "create static library..."
 	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o Bits.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
+
+cinnamon-drmemory:
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" drmemory
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
