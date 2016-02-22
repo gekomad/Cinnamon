@@ -72,16 +72,16 @@ help:
 	@echo "make cinnamon-native             > Optimized for native cpu"
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
-	@echo "add PROFILE_GCC for PGO build"
-	@echo "add FULL_TEST=google_test_path for unit test"
+	@echo "add PROFILE_GCC=yes for PGO build"
+	@echo "add FULL_TEST=yes for unit test"
 	@echo ""
 
 build:
 
-ifdef FULL_TEST
-	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) $(FULL_TEST)/libgtest.a " CFLAGS="-I$(FULL_TEST)/include -w "$(PARAM)$(STATIC)-DFULL_TEST all
+ifeq ($(FULL_TEST),yes)
+	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(PARAM)$(STATIC)-DFULL_TEST all
 else
-ifdef PROFILE_GCC
+ifeq ($(PROFILE_GCC),yes)
 	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b >bench.tmp

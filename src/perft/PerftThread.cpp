@@ -98,15 +98,15 @@ u64 PerftThread::search(const int depthx) {
 
     if (useHash) {
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
-        if (smp)SPINLOCK_HASH.sharedLock();
+        if (smp)SPINLOCK_HASH.lock();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
         if (zobristKeyR == phashe->key) {
             partialTot += phashe->nMoves;
             u64 r = phashe->nMoves;
-            if (smp)SPINLOCK_HASH.sharedUnlock();
+            if (smp)SPINLOCK_HASH.unlock();
             return r;
         }
-        if (smp)SPINLOCK_HASH.sharedUnlock();
+        if (smp)SPINLOCK_HASH.unlock();
     }
     int listcount;
     _Tmove *move;
