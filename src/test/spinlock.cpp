@@ -26,9 +26,9 @@
 
 using namespace std;
 using namespace _def;
-tuple <u64, u64, u64, u64> target;
+tuple<u64, u64, u64, u64> target{0, 0, 0, 0};
 
-void doFail() {
+void writeKO() {
 
     for (int i = 0; i < 100; i++) {
 
@@ -46,7 +46,7 @@ void doFail() {
     }
 }
 
-void doOK( Spinlock *spinlock) {
+void writeOK(Spinlock *spinlock) {
 
     for (int i = 0; i < 100; i++) {
         spinlock->lock();
@@ -66,58 +66,66 @@ void doOK( Spinlock *spinlock) {
     }
 }
 
-TEST(spinlockTest_test1_Test, testOK) {
-    Spinlock *spinlock = new Spinlock();
-    thread t1([=]() {
-        doOK(spinlock);
-        return 1;
-    });
-    thread t2([=]() {
-        doOK(spinlock);
-        return 1;
-    });
-    thread t3([=]() {
-        doOK(spinlock);
-        return 1;
-    });
-    thread t4([=]() {
-        doOK(spinlock);
-        return 1;
-    });
-    t1.join();
-    t2.join();
-    t3.join();
-    t4.join();
+void readOK(Spinlock *spinlock) {
 
-    EXPECT_TRUE(get<0>(target) == get<1>(target) );
-    EXPECT_TRUE(get<0>(target) == get<2>(target) );
-    EXPECT_TRUE(get<0>(target) == get<3>(target) );
+    for (int i = 0; i < 100; i++) {
+        spinlock->sharedLock();
+
+        usleep(Random::getRandom(100, 100000));
+
+        EXPECT_TRUE(get<0>(target) == get<1>(target));
+        EXPECT_TRUE(get<0>(target) == get<2>(target));
+        EXPECT_TRUE(get<0>(target) == get<3>(target));
+
+        spinlock->sharedUnlock();
+    }
+}
+
+TEST(spinlockTest_test1_Test, testOK) {
+
+    Spinlock *spinlock = new Spinlock();
+
+    vector<thread > threads;
+
+    int N = 4;
+    for (int i = 0; i < N; i++) {
+        threads.push_back(thread([=]() {
+            writeOK(spinlock);
+            return 1;
+        }));
+        threads.push_back(thread([=]() {
+            readOK(spinlock);
+            return 1;
+        }));
+    }
+
+
+    for (vector<thread>::iterator it = threads.begin() ; it != threads.end(); ++it){
+            (*it).join();
+    }
+
+    EXPECT_TRUE(get<0>(target) == get<1>(target));
+    EXPECT_TRUE(get<0>(target) == get<2>(target));
+    EXPECT_TRUE(get<0>(target) == get<3>(target));
 
     delete spinlock;
 }
 
 
 TEST(spinlockTest_test1_Test, testKO) {
-    thread t1([=]() {
-        doFail();
-        return 1;
-    });
-    thread t2([=]() {
-        doFail();
-        return 1;
-    });
-    thread t3([=]() {
-        doFail();
-        return 1;
-    });
-    thread t4([=]() {
-        doFail();
-        return 1;
-    });
-    t1.join();
-    t2.join();
-    t3.join();
-    t4.join();
+    vector<thread> threads;
+    int N = 4;
+    for (int i = 0; i < N; i++) {
+        threads.push_back(thread([=]() {
+            writeKO();
+            return 1;
+        }));
+    }
+    for (vector<thread>::iterator it = threads.begin() ; it != threads.end(); ++it){
+        (*it).join();
+    }
     EXPECT_FALSE(get<0>(target) == get<1>(target) == get<2>(target) == get<3>(target));
 }
+
 #endif
+
