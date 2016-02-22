@@ -47,11 +47,11 @@ namespace _def {
 #define FORCEINLINE __always_inline
 #endif
 
-#define assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::_Exit(1);};
+#define _assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::_Exit(1);};
 
 #ifdef DEBUG_MODE
-#define ASSERT(a) assert(a)
-#define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;assert(0)};}
+#define ASSERT(a) _assert(a)
+#define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;_assert(0)};}
 #define INC(a) (a++)
 #define SET(a, v) (a=v)
 #define ADD(a, b) (a+=(b))

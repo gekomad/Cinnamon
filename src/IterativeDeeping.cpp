@@ -117,7 +117,6 @@ void IterativeDeeping::run() {
     auto start1 = std::chrono::high_resolution_clock::now();
     bool inMate = false;
     int extension = 0;
-    string bestmove;
     string ponderMove;
     searchManager.init();
     int mateIn = INT_MAX;
@@ -250,4 +249,12 @@ void IterativeDeeping::run() {
     ADD(checkSmp2, -1);
     ASSERT(!checkSmp2);
     LOCK_RELEASE(running);
+}
+
+int IterativeDeeping::loadFen(string fen) {
+    return searchManager.loadFen(fen);
+}
+
+bool IterativeDeeping::setNthread(int i) {
+    return searchManager.setNthread(i);
 }

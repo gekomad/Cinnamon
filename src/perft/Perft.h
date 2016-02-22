@@ -78,6 +78,10 @@ public:
 
     void status();
 
+    u64 getResult(){
+        return perftRes.totMoves;
+    }
+
 private:
     Perft() : ThreadPool(1) { };
 

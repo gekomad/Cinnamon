@@ -18,41 +18,23 @@
 
 #ifdef DEBUG_MODE
 #include <gtest/gtest.h>
-#include "../../util/String.h"
+#include "../perft/Perft.h"
 
-TEST(StringTest, trim) {
-    String s(" hello ");
-    ASSERT_EQ("hello", s.trim());
+
+TEST(perft, oneCore) {
+    Perft *perft = &Perft::getInstance();
+    perft->setParam("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3, 1, 0, "", false);
+    perft->start();
+    perft->join();
+    ASSERT_EQ(97862, perft->getResult());
 }
 
-TEST(StringTest, endsWith) {
-    String s("hello");
-    ASSERT_TRUE(s.endsWith("lo"));
+TEST(perft, twoCore) {
+    Perft *perft = &Perft::getInstance();
+    perft->setParam("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3, 4, 10, "", false);
+    perft->start();
+    perft->join();
+    ASSERT_EQ(97862, perft->getResult());
 }
 
-TEST(StringTest, trimLeft) {
-    String s(" hello ");
-    ASSERT_EQ("hello ", s.trimLeft());
-}
-
-TEST(StringTest, trimRight) {
-    String s(" hello ");
-    ASSERT_EQ(" hello", s.trimRight());
-}
-
-
-TEST(StringTest, replace) {
-    String s(" hello ");
-    ASSERT_EQ(" hexxo ", s.replace("l","x"));
-}
-
-TEST(StringTest, replaceChar) {
-    String s(" hello ");
-    ASSERT_EQ(" hexxo ", s.replace('l','x'));
-}
-
-TEST(StringTest, toLower) {
-    String s("HELLO");
-    ASSERT_EQ("hello", s.toLower());
-}
 #endif

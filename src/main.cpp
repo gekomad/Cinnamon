@@ -19,10 +19,8 @@
 #include "Uci.h"
 #include "util/GetOpt.h"
 
-#ifdef GTEST_MODE
-
+#ifdef DEBUG_MODE
 #include <gtest/gtest.h>
-
 #endif
 
 /*
@@ -47,9 +45,7 @@ Rank Name                  Elo    +    - games score oppo. draws
    1 Cinnamon 1.2c-smp.x    23   13   13   492   57%   -23   34%
    2 Cinnamon 1.2b         -23   13   13   492   43%    23   34%
 
-
  */
-
 
 using namespace _board;
 
@@ -99,11 +95,13 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
-    printHeader();
-#ifdef GTEST_MODE
+
+#ifdef DEBUG_MODE
     testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    if(RUN_ALL_TESTS())return 1;
+    cout <<"\n\n";
 #endif
+    printHeader();
     GetOpt::parse(argc, argv);
     return 0;
 }

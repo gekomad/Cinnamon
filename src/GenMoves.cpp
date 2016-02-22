@@ -24,13 +24,13 @@ bool GenMoves::forceCheck = false;
 GenMoves::GenMoves() : perftMode(false), listId(-1) {
     currentPly = 0;
     gen_list = (_TmoveP *) calloc(MAX_PLY, sizeof(_TmoveP));
-    assert(gen_list);
+    _assert(gen_list);
     for (int i = 0; i < MAX_PLY; i++) {
         gen_list[i].moveList = (_Tmove *) calloc(MAX_MOVE, sizeof(_Tmove));
-        assert(gen_list[i].moveList);
+        _assert(gen_list[i].moveList);
     }
     repetitionMap = (u64 *) malloc(sizeof(u64) * MAX_REP_COUNT);
-    assert(repetitionMap);
+    _assert(repetitionMap);
     repetitionMapCount = 0;
 }
 
@@ -893,7 +893,7 @@ int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
         } else if (fenStr.find("8") != string::npos) {
             move->side = BLACK;
         } else {
-            assert(0);
+            _assert(0);
         }
         move->from = -1;
         move->capturedPiece = SQUARE_FREE;
@@ -909,7 +909,7 @@ int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
     }
     if (from == -1) {
         cout << fenStr << endl;
-        assert(0);
+        _assert(0);
     }
     for (int i = 0; i < 64; i++) {
         if (!fenStr.compare(2, 2, BOARD[i])) {
@@ -919,7 +919,7 @@ int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
     }
     if (to == -1) {
         cout << fenStr << endl;
-        assert(0);
+        _assert(0);
     }
     int pieceFrom;
     if ((pieceFrom = getPieceAt<WHITE>(POW2[from])) != 12) {
@@ -928,7 +928,7 @@ int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
         move->side = BLACK;
     } else {
         cout << "fenStr: " << fenStr << " from: " << from << endl;
-        assert(0);
+        _assert(0);
     }
     move->from = from;
     move->to = to;
@@ -997,7 +997,7 @@ bool GenMoves::generatePuzzle(const string type) {
     for (unsigned k = 0; k < TOT; k++) {
         pieces.clear();
         char c = toupper(type.at(0));
-        assert(c == 'K');
+        _assert(c == 'K');
         for (unsigned i = 1; i < type.size(); i++) {
             c = toupper(type.at(i));
             if (!(c == 'K' || c == 'R' || c == 'P' || c == 'Q' || c == 'B' || c == 'N')) {

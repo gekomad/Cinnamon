@@ -36,7 +36,7 @@ void Tablebase::load() {
     tbstats_reset();
     paths = tbpaths_done(paths);
     paths = tbpaths_init();
-    assert(paths);
+    _assert(paths);
     paths = tbpaths_add(paths, path.c_str());
     restart();
     unsigned av = tb_availability();

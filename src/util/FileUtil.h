@@ -20,9 +20,9 @@
 
 #include <fstream>
 #include <algorithm>
+#include "String.h"
 
 using namespace std;
-
 
 class FileUtil {
 public:
@@ -42,8 +42,11 @@ public:
     }
 
     static string getFileName(string path) {
-        replace(path.begin(), path.end(), ':', '/');
-        replace(path.begin(), path.end(), '\\', '/');
+        String s(path);
+        s.replace( ':', '/');
+        s.replace( "\\", "/");
+        s.replace("//", "/");
+        path=s;
         istringstream iss(path);
         string token;
         while (getline(iss, token, '/'));

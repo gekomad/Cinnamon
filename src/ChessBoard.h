@@ -75,7 +75,7 @@ public:
         if (a >= 0 && a < 64) {
             return BOARD[a];
         }
-        assert(0);
+        _assert(0);
     }
 
     static const uchar RIGHT_KING_CASTLE_WHITE_MASK = 0x10;

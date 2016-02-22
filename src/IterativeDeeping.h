@@ -57,8 +57,16 @@ public:
 
     bool setParameter(String param, int value);
 
+    int loadFen(string fen = "");
+
+    bool setNthread(int i);
     int getRunning() const {
         return running;
+    }
+
+
+    const string &getBestmove() const {
+        return bestmove;
     }
 
 private:
@@ -70,7 +78,7 @@ private:
 #endif
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     int maxDepth;
-
+    string bestmove;
     bool useBook;
     volatile long running;
     Tablebase *tablebase = nullptr;
