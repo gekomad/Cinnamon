@@ -96,7 +96,7 @@ endif
 endif
 
 drmemory:
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS="-pthread -std=c++11 -g -fno-inline -fno-omit-frame-pointer -Wno-reorder "$(STATIC) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS="-pthread -std=c++11 -g -fno-inline -fno-omit-frame-pointer " all
 	@echo "log in drmmemory.log..."
 	drmemory -show_reachable -- $(PA)$(EXE) -b 2>drmmeory.log
 
