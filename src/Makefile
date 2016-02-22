@@ -55,7 +55,7 @@ else
 endif
 
 PARAM="-std=c++11 -Ofast -pipe -DNDEBUG -fsigned-char -DDLOG_LEVEL=_FATAL -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
-FULLTEST="-I/home/geko/app/googletest/include/ "
+
 help:
 
 	@echo "Makefile for cross-compile Linux/Windows/OSX/ARM"
@@ -73,13 +73,13 @@ help:
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
 	@echo "add PROFILE_GCC for PGO build"
-	@echo "add FULL_TEST for unit test"
+	@echo "add FULL_TEST=google_test_path for unit test"
 	@echo ""
 
 build:
 
 ifdef FULL_TEST
-	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /home/geko/app/googletest/libgtest.a " CFLAGS=$(FULLTEST)$(PARAM)$(STATIC)-DFULL_TEST all
+	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) $(FULL_TEST)/libgtest.a " CFLAGS="-I$(FULL_TEST)/include -w "$(PARAM)$(STATIC)-DFULL_TEST all
 else
 ifdef PROFILE_GCC
 	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
