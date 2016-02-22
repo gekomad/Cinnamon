@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if defined(DEBUG_MODE) || defined(FULL_TEST)
+#if defined(FULL_TEST)
 
 #include <gtest/gtest.h>
 #include <thread>
@@ -46,7 +46,7 @@ void doFail() {
     }
 }
 
-void doOK(Spinlock *spinlock) {
+void doOK( Spinlock *spinlock) {
 
     for (int i = 0; i < 100; i++) {
         spinlock->lock();
@@ -64,33 +64,6 @@ void doOK(Spinlock *spinlock) {
 
         spinlock->unlock();
     }
-}
-
-
-TEST(spinlockTest_test1_Test, testKO) {
-
-
-    thread t1([=]() {
-        doFail();
-        return 1;
-    });
-    thread t2([=]() {
-        doFail();
-        return 1;
-    });
-    thread t3([=]() {
-        doFail();
-        return 1;
-    });
-    thread t4([=]() {
-        doFail();
-        return 1;
-    });
-    t1.join();
-    t2.join();
-    t3.join();
-    t4.join();
-    EXPECT_FALSE(get<0>(target) == get<1>(target) == get<2>(target) == get<3>(target));
 }
 
 TEST(spinlockTest_test1_Test, testOK) {
@@ -116,8 +89,35 @@ TEST(spinlockTest_test1_Test, testOK) {
     t3.join();
     t4.join();
 
-    EXPECT_TRUE(get<0>(target) == get<1>(target) == get<2>(target) == get<3>(target));
+    EXPECT_TRUE(get<0>(target) == get<1>(target) );
+    EXPECT_TRUE(get<0>(target) == get<2>(target) );
+    EXPECT_TRUE(get<0>(target) == get<3>(target) );
+
     delete spinlock;
 }
 
+
+TEST(spinlockTest_test1_Test, testKO) {
+    thread t1([=]() {
+        doFail();
+        return 1;
+    });
+    thread t2([=]() {
+        doFail();
+        return 1;
+    });
+    thread t3([=]() {
+        doFail();
+        return 1;
+    });
+    thread t4([=]() {
+        doFail();
+        return 1;
+    });
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+    EXPECT_FALSE(get<0>(target) == get<1>(target) == get<2>(target) == get<3>(target));
+}
 #endif
