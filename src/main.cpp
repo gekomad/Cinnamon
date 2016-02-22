@@ -19,6 +19,11 @@
 #include "Uci.h"
 #include "util/GetOpt.h"
 
+#ifdef GTEST_MODE
+
+#include <gtest/gtest.h>
+
+#endif
 
 /*
 
@@ -95,6 +100,10 @@ void printHeader() {
 
 int main(int argc, char **argv) {
     printHeader();
+#ifdef GTEST_MODE
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+#endif
     GetOpt::parse(argc, argv);
     return 0;
 }

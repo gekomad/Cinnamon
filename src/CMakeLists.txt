@@ -2,7 +2,7 @@ project(cinnamon)
 
 set(DR_MEMORY "NO")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -pedantic -std=c++11 -Wno-reorder -DDLOG_LEVEL=_TRACE -DDEBUG_MODE")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/home/geko/app/googletest/include/ -DGTEST_MODE -g -pthread -pedantic -std=c++11 -Wno-reorder -DDLOG_LEVEL=_TRACE -DDEBUG_MODE")
 
 if (DR_MEMORY STREQUAL "YES")
     set(CMAKE_CXX_FLAGS "-DDEBUG_MODE -pthread -std=c++11 -m32 -g -fno-inline -fno-omit-frame-pointer -Wno-reorder")
@@ -53,12 +53,14 @@ set(SOURCE_FILES
 #        Endgame.cpp
         WrapperCinnamon.cpp
         Uci.cpp
-        Uci.h)
+        Uci.h test/util/string.cpp
+        )
 
 set(CMAKE_CXX_COMPILER "clang++")
 add_executable(cinnamon ${SOURCE_FILES})
+
 if (DR_MEMORY STREQUAL "YES")
     target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/32/libgtb.a)
 else ()
-    target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/64/libgtb.a)
+    target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/64/libgtb.a /home/geko/app/googletest/libgtest.a)
 endif ()
