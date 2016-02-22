@@ -20,7 +20,9 @@
 
 Eval::Eval() { }
 
-Eval::~Eval() { }
+Eval::~Eval() {
+
+}
 
 template<int side>
 void Eval::openFile() {

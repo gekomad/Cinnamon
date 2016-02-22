@@ -61,8 +61,6 @@ public:
         return pvLine;
     }
 
-//    void run(bool smp, int depth, int alpha, int beta);
-
     void setMainParam(const bool smp, const int depth);
 
     int search(bool smp, int depth, int alpha, int beta);
@@ -94,8 +92,6 @@ public:
     bool getRunningThread() const {
         return runningThread;
     }
-
-//    int getMateIn() const;
 
     void setGtb(Tablebase &tablebase);
 
@@ -135,13 +131,11 @@ private:
     static Tablebase *gtb;
     bool ponder;
 
-//    int checkTime() const;
     int aspirationWindow(const int depth, const int valWindow);
-
 
     int checkTime();
 
-    int maxTimeMillsec;
+    int maxTimeMillsec = 5000;
     bool nullSearch;
     static high_resolution_clock::time_point startTime;
 
@@ -158,7 +152,6 @@ private:
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
-
 
     int mainMateIn;
     int mainDepth;

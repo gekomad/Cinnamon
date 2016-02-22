@@ -28,6 +28,7 @@ ChessBoard::ChessBoard() {
 }
 
 ChessBoard::~ChessBoard() {
+
 }
 
 #ifdef DEBUG_MODE
