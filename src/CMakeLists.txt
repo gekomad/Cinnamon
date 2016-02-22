@@ -54,10 +54,8 @@ set(SOURCE_FILES
         WrapperCinnamon.cpp
         Uci.cpp
         #google test
-        test/util/string.cpp
-        test/util/fileUtil.cpp
-        test/perft.cpp
-        test/search.cpp)
+        test/test.cpp
+        )
 
 set(CMAKE_CXX_COMPILER "clang++")
 add_executable(cinnamon ${SOURCE_FILES})

@@ -55,7 +55,7 @@ else
 endif
 
 PARAM="-std=c++11 -Ofast -pipe -DNDEBUG -fsigned-char -DDLOG_LEVEL=_FATAL -fno-exceptions -fno-rtti -fomit-frame-pointer -Wfloat-equal -Wpedantic -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Wmain -Wundef -Winit-self -Wredundant-decls -Wcast-align -ffast-math -funroll-loops -Wno-long-long -Wcast-qual -Wextra -Wshadow "
-
+FULLTEST="-I/home/geko/app/googletest/include/ "
 help:
 
 	@echo "Makefile for cross-compile Linux/Windows/OSX/ARM"
@@ -72,12 +72,16 @@ help:
 	@echo "make cinnamon-native             > Optimized for native cpu"
 	@echo ""
 	@echo "g++ is the default compiler, add COMP=yourcompiler to use another compiler"
-	@echo "add PROFILE_GCC=yes for PGO build"
+	@echo "add PROFILE_GCC for PGO build"
+	@echo "add FULL_TEST for unit test"
 	@echo ""
 
 build:
 
-ifeq ($(PROFILE_GCC),yes)
+ifdef FULL_TEST
+	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /home/geko/app/googletest/libgtest.a " CFLAGS=$(FULLTEST)$(PARAM)$(STATIC)-DFULL_TEST all
+else
+ifdef PROFILE_GCC
 	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b >bench.tmp
@@ -86,6 +90,7 @@ ifeq ($(PROFILE_GCC),yes)
 	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)$(PROFILE_USE_THREAD)  all
 else
 	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC) all
+endif
 endif
 
 	$(STRIP) $(EXE)
@@ -116,8 +121,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: main.o ChessBoard.o Eval.o GenMoves.o String.o WrapperCinnamon.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o
-	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} main.o ChessBoard.o WrapperCinnamon.o Timer.o Eval.o IniFile.o GenMoves.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o ${LIBS}
+all: main.o ChessBoard.o Eval.o GenMoves.o test.o String.o WrapperCinnamon.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o
+	$(COMP) ${CFLAGS} ${ARC} -o ${EXE} main.o test.o ChessBoard.o WrapperCinnamon.o Timer.o Eval.o IniFile.o GenMoves.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o ${LIBS}
 
 default:
 	help
@@ -172,6 +177,9 @@ IniFile.o: util/IniFile.cpp
 
 Timer.o: util/Timer.cpp
 	$(COMP) -c util/Timer.cpp ${CFLAGS} ${ARC}
+
+test.o: test/test.cpp
+	$(COMP) -c test/test.cpp ${CFLAGS} ${ARC}
 
 #Endgame.o: Endgame.cpp
 #	$(COMP) -c Endgame.cpp ${CFLAGS} ${ARC}

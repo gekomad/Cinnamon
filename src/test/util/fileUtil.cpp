@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef DEBUG_MODE
+#if defined(DEBUG_MODE) || defined(FULL_TEST)
 #include <gtest/gtest.h>
 #include "../../util/FileUtil.h"
 

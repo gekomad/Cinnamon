@@ -19,8 +19,10 @@
 #include "Uci.h"
 #include "util/GetOpt.h"
 
-#ifdef DEBUG_MODE
+#if defined(DEBUG_MODE) || defined(FULL_TEST)
+
 #include <gtest/gtest.h>
+
 #endif
 
 /*
@@ -96,10 +98,13 @@ void printHeader() {
 
 int main(int argc, char **argv) {
 
-#ifdef DEBUG_MODE
+#if defined(DEBUG_MODE) || defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);
-    if(RUN_ALL_TESTS())return 1;
-    cout <<"\n\n";
+    if (RUN_ALL_TESTS())return 1;
+#if defined(FULL_TEST)
+    return 0;
+#endif
+    cout << "\n\n";
 #endif
     printHeader();
     GetOpt::parse(argc, argv);

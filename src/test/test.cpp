@@ -17,42 +17,5 @@
 */
 
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
-#include <gtest/gtest.h>
-#include "../../util/String.h"
-
-TEST(StringTest, trim) {
-    String s(" hello ");
-    ASSERT_EQ("hello", s.trim());
-}
-
-TEST(StringTest, endsWith) {
-    String s("hello");
-    ASSERT_TRUE(s.endsWith("lo"));
-}
-
-TEST(StringTest, trimLeft) {
-    String s(" hello ");
-    ASSERT_EQ("hello ", s.trimLeft());
-}
-
-TEST(StringTest, trimRight) {
-    String s(" hello ");
-    ASSERT_EQ(" hello", s.trimRight());
-}
-
-
-TEST(StringTest, replace) {
-    String s(" hello ");
-    ASSERT_EQ(" hexxo ", s.replace("l","x"));
-}
-
-TEST(StringTest, replaceChar) {
-    String s(" hello ");
-    ASSERT_EQ(" hexxo ", s.replace('l','x'));
-}
-
-TEST(StringTest, toLower) {
-    String s("HELLO");
-    ASSERT_EQ("hello", s.toLower());
-}
+#include "test.h"
 #endif

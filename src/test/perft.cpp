@@ -16,12 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef DEBUG_MODE
+#if defined(DEBUG_MODE) || defined(FULL_TEST)
 #include <gtest/gtest.h>
 #include "../perft/Perft.h"
 
-
-TEST(perft, oneCore) {
+TEST(perftTest, oneCore) {
     Perft *perft = &Perft::getInstance();
     perft->setParam("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3, 1, 0, "", false);
     perft->start();
@@ -29,7 +28,7 @@ TEST(perft, oneCore) {
     ASSERT_EQ(97862, perft->getResult());
 }
 
-TEST(perft, twoCore) {
+TEST(perftTest, twoCore) {
     Perft *perft = &Perft::getInstance();
     perft->setParam("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3, 4, 10, "", false);
     perft->start();
@@ -37,4 +36,14 @@ TEST(perft, twoCore) {
     ASSERT_EQ(97862, perft->getResult());
 }
 
+#ifdef FULL_TEST
+TEST(perftTest, fullTest) {
+    Perft *perft = &Perft::getInstance();
+    perft->setParam("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 6, 4, 1000, "", false);
+    perft->start();
+    perft->join();
+    ASSERT_EQ(97862, perft->getResult());
+}
+
+#endif
 #endif
