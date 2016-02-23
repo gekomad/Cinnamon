@@ -77,13 +77,13 @@ public:
         LOCK_RELEASE(_write);
     }
 
-    inline void sharedLock() {
-        _lock();
+    inline void lockRead() {
+        lockWrite();
         _read++;
-        unlock();
+        unlockWrite();
     }
 
-    inline void sharedUnlock() {
+    inline void unlockRead() {
         _read--;
     }
 };

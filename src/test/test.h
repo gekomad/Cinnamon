@@ -19,6 +19,7 @@
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 #include <gtest/gtest.h>
 #include "eval.cpp"
+#include "spinlockShared.cpp"
 #include "spinlock.cpp"
 #include "search.cpp"
 #include "util/fileUtil.cpp"

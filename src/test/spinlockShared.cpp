@@ -24,64 +24,65 @@
 #include "../threadPool/Spinlock.h"
 #include "../namespaces/def.h"
 
+
 using namespace std;
 using namespace _def;
-tuple<u64, u64, u64, u64> target{0, 0, 0, 0};
+tuple<u64, u64, u64, u64> sharedTarget{0, 0, 0, 0};
 
-void writeKO() {
+void sharedWriteKO() {
 
     for (int i = 0; i < 100; i++) {
 
         u64 r = Random::getRandom64();
 
         usleep(Random::getRandom(100, 100000));
-        get<0>(target) = r;
+        get<0>(sharedTarget) = r;
         usleep(Random::getRandom(100, 100000));
-        get<1>(target) = r;
+        get<1>(sharedTarget) = r;
         usleep(Random::getRandom(100, 100000));
-        get<2>(target) = r;
+        get<2>(sharedTarget) = r;
         usleep(Random::getRandom(100, 100000));
-        get<3>(target) = r;
+        get<3>(sharedTarget) = r;
 
     }
 }
 
-void writeOK(Spinlock *spinlock) {
+void sharedWriteOK(Spinlock *spinlock) {
 
     for (int i = 0; i < 100; i++) {
-        spinlock->lock();
+        spinlock->lockWrite();
 
         u64 r = Random::getRandom64();
 
         usleep(Random::getRandom(100, 100000));
-        get<0>(target) = r;
+        get<0>(sharedTarget) = r;
         usleep(Random::getRandom(100, 100000));
-        get<1>(target) = r;
+        get<1>(sharedTarget) = r;
         usleep(Random::getRandom(100, 100000));
-        get<2>(target) = r;
+        get<2>(sharedTarget) = r;
         usleep(Random::getRandom(100, 100000));
-        get<3>(target) = r;
+        get<3>(sharedTarget) = r;
 
-        spinlock->unlock();
+        spinlock->unlockWrite();
     }
 }
 
-void readOK(Spinlock *spinlock) {
+void sharedReadOK(Spinlock *spinlock) {
 
     for (int i = 0; i < 100; i++) {
-        spinlock->lock();
+        spinlock->lockRead();
 
         usleep(Random::getRandom(100, 100000));
 
-        EXPECT_TRUE(get<0>(target) == get<1>(target));
-        EXPECT_TRUE(get<0>(target) == get<2>(target));
-        EXPECT_TRUE(get<0>(target) == get<3>(target));
+        EXPECT_TRUE(get<0>(sharedTarget) == get<1>(sharedTarget));
+        EXPECT_TRUE(get<0>(sharedTarget) == get<2>(sharedTarget));
+        EXPECT_TRUE(get<0>(sharedTarget) == get<3>(sharedTarget));
 
-        spinlock->unlock();
+        spinlock->unlockRead();
     }
 }
 
-TEST(spinlockTest_test1_Test, testOK) {
+TEST(spinlockSharedTest, testOK) {
 
     Spinlock *spinlock = new Spinlock();
 
@@ -90,11 +91,11 @@ TEST(spinlockTest_test1_Test, testOK) {
     int N = 2;
     for (int i = 0; i < N; i++) {
         threads.push_back(thread([=]() {
-            writeOK(spinlock);
+            sharedWriteOK(spinlock);
             return 1;
         }));
         threads.push_back(thread([=]() {
-            readOK(spinlock);
+            sharedReadOK(spinlock);
             return 1;
         }));
     }
@@ -104,28 +105,27 @@ TEST(spinlockTest_test1_Test, testOK) {
             (*it).join();
     }
 
-    EXPECT_TRUE(get<0>(target) == get<1>(target));
-    EXPECT_TRUE(get<0>(target) == get<2>(target));
-    EXPECT_TRUE(get<0>(target) == get<3>(target));
+    EXPECT_TRUE(get<0>(sharedTarget) == get<1>(sharedTarget));
+    EXPECT_TRUE(get<0>(sharedTarget) == get<2>(sharedTarget));
+    EXPECT_TRUE(get<0>(sharedTarget) == get<3>(sharedTarget));
 
     delete spinlock;
 }
 
 
-TEST(spinlockTest_test1_Test, testKO) {
+TEST(spinlockSharedTest, testKO) {
     vector<thread> threads;
     int N = 4;
     for (int i = 0; i < N; i++) {
         threads.push_back(thread([=]() {
-            writeKO();
+            sharedWriteKO();
             return 1;
         }));
     }
     for (vector<thread>::iterator it = threads.begin() ; it != threads.end(); ++it){
         (*it).join();
     }
-
-    EXPECT_TRUE(get<0>(target) != get<1>(target) ||  get<0>(target) == get<2>(target)||  get<0>(target) == get<3>(target));
+    EXPECT_TRUE(get<0>(sharedTarget) != get<1>(sharedTarget) ||  get<0>(sharedTarget) == get<2>(sharedTarget)||  get<0>(sharedTarget) == get<3>(sharedTarget));
 }
 
 #endif
