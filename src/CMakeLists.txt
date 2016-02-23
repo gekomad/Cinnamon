@@ -51,6 +51,6 @@ set(SOURCE_FILES
         test/test.cpp
         )
 
-set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_COMPILER "g++")
 add_executable(cinnamon ${SOURCE_FILES})
 target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Linux/64/libgtb.a /usr/local/lib/libgtest.a)
