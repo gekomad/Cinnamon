@@ -167,7 +167,7 @@ public:
         }
 
         int opt;
-        while ((opt = getopt(argc, argv, "p:e:hd:bf:")) != -1) {
+        while ((opt = getopt(argc, argv, "p:e:hd:b:f:")) != -1) {
             if (opt == 'h') {
                 help(argv);
                 return;
@@ -203,12 +203,15 @@ public:
                         return;
                     }
                 } else if (opt == 'b') {
+                    int thread = atoi(optarg);
                     unique_ptr<IterativeDeeping> it(new IterativeDeeping());
                     it->setUseBook(false);
                     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+                    searchManager.setNthread(thread);
                     searchManager.setMaxTimeMillsec(10000);
                     it->run();
                     return;
+
                 } else if (opt == 'd') {  // gtb dtm
                     if (string(optarg) != "tm") {
                         cout << "use: " << argv[0] << " " << DTM_HELP << endl;
