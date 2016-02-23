@@ -70,12 +70,12 @@ help:
 	@echo "make cinnamon32-ARM              > Optimized for arm cpu"
 	@echo ""
 	@echo "make cinnamon-native             > Optimized for native cpu"
-	@echo "make cinnamon-drmemory           > memory monitor"
+	@echo "make cinnamon-drmemory           > Memory monitor"
 	@echo ""
 	@echo "add:"
-	@echo " COMP=compiler                   > to use another compiler"
-	@echo " PROFILE_GCC=yes                 > for PGO build"
-	@echo " FULL_TEST=yes                   > for unit test"
+	@echo " COMP=compiler                   > Use another compiler"
+	@echo " PROFILE_GCC=yes                 > PGO build"
+	@echo " FULL_TEST=yes                   > Unit test"
 	@echo ""
 
 build:
