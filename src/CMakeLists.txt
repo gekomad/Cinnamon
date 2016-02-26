@@ -1,6 +1,6 @@
 project(cinnamon)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -I/usr/local/include/ -pedantic -std=c++11 -Wno-reorder -DDLOG_LEVEL=_TRACE -DDEBUG_MODE")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -pedantic -std=c++11 -Wno-reorder -DDLOG_LEVEL=_TRACE -DDEBUG_MODE")
 
 set(SOURCE_FILES
         gtb/gtb-probe.h
@@ -44,7 +44,7 @@ set(SOURCE_FILES
         SearchManager.h
         Tablebase.cpp
         Tablebase.h
-#        Endgame.cpp
+        #        Endgame.cpp
         WrapperCinnamon.cpp
         Uci.cpp
         #google test
