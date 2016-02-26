@@ -29,12 +29,33 @@ class OpenBook : public Singleton<OpenBook> {
     friend class Singleton<OpenBook>;
 
 public:
+    static OpenBook &getInstance() =delete;
+    static OpenBook *getInstance(const string &fileName) {
+
+        if (!FileUtil::fileExists(fileName)) {
+            cout << fileName << " not found" << endl;
+            return nullptr;
+        }
+
+        static OpenBook openBook;
+
+        openBook.openBookFile = fopen(fileName.c_str(), "rb");
+        openBook.Random64 = (u64 *) malloc(781 * sizeof(u64));
+        int k = 0;
+        for (int i = 0; i < 15 && k < 781; i++) {
+            for (int j = 0; j < 64 && k < 781; j++) {
+                openBook.Random64[k++] = _random::RANDOM_KEY[i][j];
+            }
+        }
+        return &openBook;
+    }
 
     virtual ~OpenBook();
 
-    bool load(string fileName = "cinnamon.bin");
 
     string search(string fen);
+
+    void dispose();
 
 private:
     OpenBook();
@@ -57,8 +78,6 @@ private:
     int findKey(u64 key, entry_t *entry);
 
     void moveToString(char move_s[6], unsigned short move);
-
-    void dispose();
 
     u64 *Random64;
 };

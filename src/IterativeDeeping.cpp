@@ -50,27 +50,22 @@ bool IterativeDeeping::getPonderEnabled() {
 }
 
 bool IterativeDeeping::getUseBook() {
-    return useBook;
+    return openBook;
 }
 
 void IterativeDeeping::loadBook(string f) {
-    openBook = &OpenBook::getInstance();
-    useBook = openBook->load(f);
-    if (!useBook) {
-        openBook = nullptr;
-    }
+    openBook = OpenBook::getInstance(f);
 }
 
 void IterativeDeeping::setUseBook(bool b) {
-    useBook = b;
     bool valid = true;
-    if (b && openBook == nullptr) {
-        openBook = &OpenBook::getInstance();
-        valid = useBook = openBook->load();
+    if (!openBook && b) {
+        openBook = OpenBook::getInstance("cinnamon.bin");
+        return;
     }
-    if ((!b && openBook) || !valid) {
+    if (!b && openBook) {
+        openBook->dispose();
         openBook = nullptr;
-        useBook = false;
     }
 }
 
@@ -85,7 +80,7 @@ void IterativeDeeping::run() {
     searchManager.setRunning(2);
     searchManager.setRunningThread(true);
     int mply = 0;
-    if (useBook) {
+    if (openBook) {
         ASSERT(openBook);
         string obMove = openBook->search(searchManager.boardToFen());
         if (!obMove.empty()) {

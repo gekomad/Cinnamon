@@ -27,11 +27,12 @@ OpenBook::OpenBook() : openBookFile(nullptr), Random64(nullptr) {
 void OpenBook::dispose() {
     if (openBookFile) {
         fclose(openBookFile);
+        openBookFile = nullptr;
     }
     if (Random64) {
         free(Random64);
     }
-    openBookFile = nullptr;
+
     Random64 = nullptr;
 }
 
@@ -127,23 +128,6 @@ u64 OpenBook::createKey(string fen1) {
         key ^= RandomTurn[0];
     }
     return key;
-}
-
-bool OpenBook::load(string fileName) {
-    dispose();
-    if (!FileUtil::fileExists(fileName)) {
-        cout << fileName << " not found" << endl;
-        return false;
-    }
-    openBookFile = fopen(fileName.c_str(), "rb");
-    Random64 = (u64 *) malloc(781 * sizeof(u64));
-    int k = 0;
-    for (int i = 0; i < 15 && k < 781; i++) {
-        for (int j = 0; j < 64 && k < 781; j++) {
-            Random64[k++] = _random::RANDOM_KEY[i][j];
-        }
-    }
-    return true;
 }
 
 int OpenBook::intFromFile(int l, u64 *r) {

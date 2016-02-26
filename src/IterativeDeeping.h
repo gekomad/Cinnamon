@@ -47,7 +47,7 @@ public:
 
     bool getUseBook();
 
-    void setUseBook(bool);
+    void setUseBook(bool b);
 
     void enablePonder(bool);
 
@@ -80,7 +80,7 @@ private:
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     int maxDepth;
     string bestmove;
-    bool useBook;
+
     volatile long running;
     Tablebase *tablebase = nullptr;
     OpenBook *openBook = nullptr;
