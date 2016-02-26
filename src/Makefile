@@ -107,7 +107,7 @@ drmemory:
 	drmemory -show_reachable -- $(PA)$(EXE) -b4 2>drmmemory_4core.log
 
 cinnamon-drmemory:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" drmemory
+	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" drmemory
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
