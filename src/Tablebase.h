@@ -77,7 +77,7 @@ public:
                 int position = Bits::BITScanForward(b);
                 ws[count] = DECODE_POSITION[position];
                 wp[count] = DECODE_PIECE[piece];
-                count++;                
+                count++;
                 RESET_LSB(b);
             }
         }

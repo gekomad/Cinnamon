@@ -17,7 +17,6 @@
 */
 
 #include "Perft.h"
-#include "_TPerftRes.h"
 
 int Perft::count;
 

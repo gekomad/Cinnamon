@@ -33,15 +33,15 @@ namespace _logger {
     } _LOG_LEVEL;
 
 #if !defined DLOG_LEVEL
-    #if defined DEBUG_MODE
-        #define DLOG_LEVEL _TRACE
-    #else
-        #define DLOG_LEVEL _OFF
-    #endif
+#if defined DEBUG_MODE
+#define DLOG_LEVEL _TRACE
 #else
-    #if defined DEBUG_MODE
-        #define DLOG_LEVEL _TRACE
-    #endif
+#define DLOG_LEVEL _OFF
+#endif
+#else
+#if defined DEBUG_MODE
+#define DLOG_LEVEL _TRACE
+#endif
 #endif
 
     static const string LOG_LEVEL_STRING[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF", "LOG"};

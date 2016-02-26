@@ -39,9 +39,6 @@ bool IterativeDeeping::getGtbAvailable() {
 }
 
 IterativeDeeping::~IterativeDeeping() {
-    if (openBook) {
-        delete openBook;
-    }
 }
 
 void IterativeDeeping::enablePonder(bool b) {
@@ -57,9 +54,7 @@ bool IterativeDeeping::getUseBook() {
 }
 
 void IterativeDeeping::loadBook(string f) {
-    if (!openBook) {
-        openBook = &OpenBook::getInstance();
-    }
+    openBook = &OpenBook::getInstance();
     useBook = openBook->load(f);
     if (!useBook) {
         openBook = nullptr;

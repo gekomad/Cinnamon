@@ -60,7 +60,7 @@ namespace _def {
 #define ASSERT(a)
 #define ASSERT_RANGE(value, from, to)
 #define INC(a)
-#define SET(a,v)
+#define SET(a, v)
 #define ADD(a, b)
 
 #endif

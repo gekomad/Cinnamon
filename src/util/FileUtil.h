@@ -43,10 +43,10 @@ public:
 
     static string getFileName(string path) {
         String s(path);
-        s.replace( ':', '/');
-        s.replace( "\\", "/");
+        s.replace(':', '/');
+        s.replace("\\", "/");
         s.replace("//", "/");
-        path=s;
+        path = s;
         istringstream iss(path);
         string token;
         while (getline(iss, token, '/'));

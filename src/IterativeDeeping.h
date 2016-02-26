@@ -60,6 +60,7 @@ public:
     int loadFen(string fen = "");
 
     bool setNthread(int i);
+
     int getRunning() const {
         return running;
     }

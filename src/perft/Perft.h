@@ -78,7 +78,7 @@ public:
 
     void status();
 
-    u64 getResult(){
+    u64 getResult() {
         return perftRes.totMoves;
     }
 
