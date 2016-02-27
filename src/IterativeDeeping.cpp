@@ -39,11 +39,6 @@ bool IterativeDeeping::getGtbAvailable() {
 }
 
 IterativeDeeping::~IterativeDeeping() {
-    searchManager.init();
-    searchManager.clearKillerHeuristic();
-    searchManager.clearAge();
-    searchManager.clearHash();
-    searchManager.setNthread(1);
 }
 
 void IterativeDeeping::enablePonder(bool b) {
