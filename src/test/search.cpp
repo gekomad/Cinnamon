@@ -40,7 +40,7 @@ TEST(search, depth1) {
 }
 
 TEST(search, twoCore) {
-    const set<string> v = {"d2d4", "e2e4"};
+    const set<string> v = {"d2d4", "e2e4", "e2e3"};
     IterativeDeeping it;
     it.setNthread(2);
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
