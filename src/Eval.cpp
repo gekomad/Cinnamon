@@ -89,24 +89,24 @@ int Eval::evaluatePawn() {
         };
         /// isolated
         if (!(ped_friends & PAWN_ISOLATED_MASK[o])) {
-            result -= PAWN_ISOLATED;//TODO valore in base alla posizione
+            result -= PAWN_ISOLATED;
             ADD(SCORE_DEBUG.PAWN_ISOLATED[side], -PAWN_ISOLATED);
             structure.isolated[side] |= pos;
         }
         /// doubled
         if (NOTPOW2[o] & FILE_[o] & ped_friends) {
-            result -= DOUBLED_PAWNS; //TODO valore in base alla posizione
+            result -= DOUBLED_PAWNS;
             ADD(SCORE_DEBUG.DOUBLED_PAWNS[side], -DOUBLED_PAWNS);
             /// doubled and isolated
             if (!(structure.isolated[side] & pos)) {
                 ADD(SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[side], -DOUBLED_ISOLATED_PAWNS);
-                result -= DOUBLED_ISOLATED_PAWNS;//TODO valore in base alla posizione
+                result -= DOUBLED_ISOLATED_PAWNS;
             }
         };
         /// backward
         if (!(ped_friends & PAWN_BACKWARD_MASK[side][o])) {
             ADD(SCORE_DEBUG.BACKWARD_PAWN[side], -BACKWARD_PAWN);
-            result -= BACKWARD_PAWN;//TODO valore in base alla posizione
+            result -= BACKWARD_PAWN;
         }
         /// passed
         if (!(chessboard[side ^ 1] & PAWN_PASSED_MASK[side][o])) {
@@ -207,7 +207,6 @@ template<int side, Eval::_Tphase phase>
 int Eval::evaluateKnight(const u64 enemiesPawns, const u64 squares) {
     INC(evaluationCount[side]);
     int result = 0;
-    //TODO un solo cavallo e almeno 6 pedoni per lato aggiungi circa 11
     u64 x = chessboard[KNIGHT_BLACK + side];
     if (phase == OPEN) {
         result -= side ? Bits::bitCount(x & 0x42ULL) * UNDEVELOPED : Bits::bitCount(x & 0x4200000000000000ULL) * UNDEVELOPED;
@@ -385,10 +384,6 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         INC(lazyEvalCuts);
         return lazyscore;
     }
-//    int endGameValue = getEndgameValue(N_PIECE, side);
-//    if (abs(endGameValue) != INT_MAX) {
-//        return endGameValue;
-//    }
 
 #ifdef DEBUG_MODE
     evaluationCount[WHITE] = evaluationCount[BLACK] = 0;

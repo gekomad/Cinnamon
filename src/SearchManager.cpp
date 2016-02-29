@@ -24,7 +24,7 @@ SearchManager::SearchManager() {
     SET(checkSmp1, 0);
     hash = &Hash::getInstance();
 
-    setNthread(1);//TODO 1
+    setNthread(1);
 
     IniFile iniFile("cinnamon.ini");
 
@@ -50,7 +50,7 @@ SearchManager::SearchManager() {
 }
 
 void SearchManager::search(const int mply) {
-    if (getNthread() > 1 && mply > 3) {//TODO
+    if (getNthread() > 1 && mply > 3) {
         lazySMP(mply);
     } else {
         singleSearch(mply);

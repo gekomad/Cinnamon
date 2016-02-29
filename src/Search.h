@@ -187,7 +187,7 @@ private:
                             }
                             break;
                         case Hash::hashfBETA:
-                            if (!quies)incKillerHeuristic(phashe->from, phashe->to, 1);//TODO
+                            if (!quies)incKillerHeuristic(phashe->from, phashe->to, 1);
                             if (phashe->score >= beta) {
                                 INC(hash->n_cut_hashB);
                                 checkHashStruct.res = beta;

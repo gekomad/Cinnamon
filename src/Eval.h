@@ -19,7 +19,6 @@
 #pragma once
 
 #include "GenMoves.h"
-//#include "Endgame.h"
 #include <fstream>
 #include <string.h>
 #include <iomanip>

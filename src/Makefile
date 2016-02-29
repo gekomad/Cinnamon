@@ -110,7 +110,7 @@ cinnamon-drmemory:
 	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" drmemory
 
 cinnamon32-generic:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
+	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32 -w" build
 
 cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse" cinnamon32-generic
@@ -193,9 +193,6 @@ Timer.o: util/Timer.cpp
 test.o: test/test.cpp
 	$(COMP) -c test/test.cpp ${CFLAGS} ${ARC}
 
-#Endgame.o: Endgame.cpp
-#	$(COMP) -c Endgame.cpp ${CFLAGS} ${ARC}
-	
 WrapperCinnamon.o: WrapperCinnamon.cpp
 	$(COMP) -c WrapperCinnamon.cpp ${CFLAGS} ${ARC}
 clean:
