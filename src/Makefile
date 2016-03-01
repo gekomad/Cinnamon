@@ -69,6 +69,7 @@ help:
 	@echo "make cinnamon32-generic          > Unspecified 32-bit"
 	@echo "make cinnamon32-ARM              > Optimized for arm cpu"
 	@echo ""
+	@echo "make cinnamon-js                 > Compile in Javascript "
 	@echo "make cinnamon-native             > Optimized for native cpu"
 	@echo "make cinnamon-drmemory           > Memory monitor"
 	@echo ""
@@ -105,6 +106,9 @@ drmemory:
 	drmemory -show_reachable -- $(PA)$(EXE) -b1 2>drmmemory_1core.log
 	@echo "check quad core search log in drmmemory_4core.log..."
 	drmemory -show_reachable -- $(PA)$(EXE) -b4 2>drmmemory_4core.log
+
+cinnamon-js:
+	em++  -std=c++11  ChessBoard.cpp  Eval.cpp  GenMoves.cpp  Hash.cpp  IterativeDeeping.cpp  main.cpp  OpenBook.cpp  Search.cpp  SearchManager.cpp   Uci.cpp util/String.cpp util/IniFile.cpp util/Bits.cpp -w -s EXPORTED_FUNCTIONS="['_main','_perft','_command']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
 
 cinnamon-drmemory:
 	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" drmemory
@@ -196,4 +200,4 @@ test.o: test/test.cpp
 WrapperCinnamon.o: WrapperCinnamon.cpp
 	$(COMP) -c WrapperCinnamon.cpp ${CFLAGS} ${ARC}
 clean:
-	$(RM) *.o $(EXE) *.gcda libCinnamon.a
+	$(RM) *.o $(EXE) *.gcda libCinnamon.a cinnamon.js
