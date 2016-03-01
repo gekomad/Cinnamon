@@ -70,6 +70,11 @@ void IterativeDeeping::setUseBook(bool b) {
 }
 
 string IterativeDeeping::run1() {
+	run();
+	return getBestmove();
+}
+
+void IterativeDeeping::run() {
 
     if (LOCK_TEST_AND_SET(running)) {
         while (running);
@@ -91,7 +96,7 @@ string IterativeDeeping::run1() {
             ADD(checkSmp2, -1);
             ASSERT(!checkSmp2);
             LOCK_RELEASE(running);
-            return "";
+            return;
         }
     }
     int sc = 0;
@@ -239,7 +244,6 @@ string IterativeDeeping::run1() {
     ADD(checkSmp2, -1);
     ASSERT(!checkSmp2);
     LOCK_RELEASE(running);
-    return bestmove;
 }
 
 int IterativeDeeping::loadFen(string fen) {

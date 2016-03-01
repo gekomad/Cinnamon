@@ -15,9 +15,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef UCI_H_
-#define UCI_H_
 
+#pragma once
+
+#ifdef JS_MODE
 #include "IterativeDeeping.h"
 
 #include <string.h>
@@ -34,6 +35,39 @@ private:
 
 
 };
+#else
+#include "IterativeDeeping.h"
+#include "perft/Perft.h"
+
+#include <string.h>
+#include "util/String.h"
+
+class Uci : public Singleton<Uci> {
+    friend class Singleton<Uci>;
+
+public:
+    Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile);
+
+    virtual ~Uci();
+
+private:
+    Uci();
+
+    Perft *perft = nullptr;
+
+    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+
+    bool uciMode;
+    Tablebase *tablebase = nullptr;
+
+    void listner(IterativeDeeping *it);
+
+    void getToken(istringstream &uip, String &token);
+
+    void startListner();
+
+    bool runPerft = false;
+
+};
+
 #endif
-
-

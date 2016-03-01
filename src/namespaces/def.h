@@ -39,7 +39,7 @@ namespace _def {
 #define STATIC_CONST static const
 #endif
 
-#if defined(__APPLE__) || defined(__MACH__)
+#if defined(__APPLE__) || defined(__MACH__)  || defined(JS_MODE)
 #define FORCEINLINE __inline
 #elif defined(__MINGW32__)
 #define FORCEINLINE __forceinline
