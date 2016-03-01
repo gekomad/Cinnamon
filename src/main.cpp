@@ -1,14 +1,6 @@
 /*
-em++  -std=c++11  ChessBoard.cpp  Eval.cpp  GenMoves.cpp  Hash.cpp  IterativeDeeping.cpp  main.cpp  OpenBook.cpp  Search.cpp  SearchManager.cpp   Uci.cpp util/String.cpp util/IniFile.cpp util/Bits.cpp -w -s EXPORTED_FUNCTIONS="['_main','_perft','_command']" -s NO_EXIT_RUNTIME=1 -o cinnamon2.0.js -O3 --memory-init-file 0
-
-com = Module.cwrap('command', 'string', ['string','string'])
-com("setMaxTimeMillsec","3000")
-com("position","r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -")
-com("go","")
-
-
-    Cinnamon is a UCI chess engine
-    Copyright (C) 2011-2014 Giuseppe Cannella
+    Cinnamon UCI chess engine
+    Copyright (C) Giuseppe Cannella
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,6 +15,7 @@ com("go","")
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #ifdef JS_MODE
 
 #include "Uci.h"

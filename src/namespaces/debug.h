@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <cxxabi.h>
-
 namespace _debug {
 
 #if defined(_WIN32) || !defined(DEBUG_MODE) || defined(JS_MODE)
@@ -28,7 +26,7 @@ namespace _debug {
     static inline void print_stacktrace() { }
 
 #else
-
+#include <cxxabi.h>
 #include <execinfo.h>
 
     /// (c) 2008, Timo Bingmann from http://idlebox.net/
