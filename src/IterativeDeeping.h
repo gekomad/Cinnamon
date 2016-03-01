@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <iomanip>
 
-class IterativeDeeping : public Thread {
+class IterativeDeeping  {
 
 public:
 
@@ -37,7 +37,7 @@ public:
 
     virtual ~ IterativeDeeping();
 
-    virtual void run();
+    string run1();
 
     void endRun() { };
 

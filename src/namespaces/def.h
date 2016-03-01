@@ -44,7 +44,7 @@ namespace _def {
 #elif defined(__MINGW32__)
 #define FORCEINLINE __forceinline
 #else
-#define FORCEINLINE __always_inline
+#define FORCEINLINE 
 #endif
 
 #define _assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< " line "<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::_Exit(1);};

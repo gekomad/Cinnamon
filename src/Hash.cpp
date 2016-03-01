@@ -25,7 +25,7 @@ Hash::Hash() {
     n_cut_hashA = n_cut_hashB = cutFailed = probeHash = 0;
     nRecordHashA = nRecordHashB = nRecordHashE = collisions = 0;
 #endif
-    setHashSize(64);
+    setHashSize(1);
 }
 
 void Hash::clearAge() {
