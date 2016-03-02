@@ -19,16 +19,18 @@
 
 #pragma once
 
-namespace _debug {
-
 #if defined(_WIN32) || !defined(DEBUG_MODE) || defined(JS_MODE)
 
-    static inline void print_stacktrace() { }
+namespace _debug {
 
+    static inline void print_stacktrace() { }
+}
 #else
 
 #include <cxxabi.h>
 #include <execinfo.h>
+
+namespace _debug {
 
     /// (c) 2008, Timo Bingmann from http://idlebox.net/
     /// published under the WTFPL v2.0
@@ -92,7 +94,6 @@ namespace _debug {
         free(symbollist);
         free(addrlist);
     }
+}
 
 #endif
-
-}
