@@ -29,7 +29,8 @@ class OpenBook : public Singleton<OpenBook> {
     friend class Singleton<OpenBook>;
 
 public:
-    static OpenBook &getInstance() =delete;
+    static OpenBook &getInstance() = delete;
+
     static OpenBook *getInstance(const string &fileName) {
 
         if (!FileUtil::fileExists(fileName)) {

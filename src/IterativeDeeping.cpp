@@ -69,9 +69,9 @@ void IterativeDeeping::setUseBook(bool b) {
     }
 }
 
-string IterativeDeeping::run1() {
-	run();
-	return getBestmove();
+string IterativeDeeping::go() {
+    run();
+    return getBestmove();
 }
 
 void IterativeDeeping::run() {

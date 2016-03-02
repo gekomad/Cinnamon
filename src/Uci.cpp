@@ -30,7 +30,7 @@ Uci::~Uci() {
 char* Uci::command(char* cmd,char* arg) {
     string a="";
     if(strcmp(cmd,"go")==0) {
-        a=iterativeDeeping->run1();
+        a=iterativeDeeping->go();
     } else if(strcmp(cmd,"setMaxTimeMillsec")==0) {
         searchManager.setMaxTimeMillsec(atoi(arg));
     } else if(strcmp(cmd,"position")==0) {
@@ -43,6 +43,7 @@ char* Uci::command(char* cmd,char* arg) {
 
 
 #else
+
 #include "Uci.h"
 
 Uci::Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile) {//perft locale
@@ -431,4 +432,5 @@ void Uci::listner(IterativeDeeping *it) {
         cout << flush;
     }
 }
+
 #endif

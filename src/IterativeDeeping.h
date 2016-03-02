@@ -37,7 +37,7 @@ public:
 
     virtual ~ IterativeDeeping();
 
-    string run1();
+    string go();
 
     virtual void run();
 

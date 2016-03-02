@@ -17,6 +17,7 @@
 */
 
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
+
 #include <gtest/gtest.h>
 #include "../perft/Perft.h"
 

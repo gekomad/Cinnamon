@@ -24,10 +24,10 @@
 
 TEST(eval, eval1) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    int score=searchManager.getScore(WHITE,false);
-    EXPECT_EQ(5,score);
-    score=searchManager.getScore(BLACK,false);
-    EXPECT_EQ(-5,score);
+    int score = searchManager.getScore(WHITE, false);
+    EXPECT_EQ(5, score);
+    score = searchManager.getScore(BLACK, false);
+    EXPECT_EQ(-5, score);
 }
 
 #endif

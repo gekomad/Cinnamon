@@ -16,69 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef JS_MODE
-
-#include "Uci.h"
-#include "perft/Perft.h"
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-/*
-
- 8| 63 62 61 60 59 58 57 56
- 7| 55 54 53 52 51 50 49 48
- 6| 47 46 45 44 43 42 41 40
- 5| 39 38 37 36 35 34 33 32
- 4| 31 30 29 28 27 26 25 24
- 3| 23 22 21 20 19 18 17 16
- 2| 15 14 13 12 11 10 09 08
- 1| 07 06 05 04 03 02 01 00
- ...a  b  c  d  e  f  g  h
-
- */
-Uci *u = NULL;
-Perft *p = NULL;
-ChessBoard *c = NULL;
-using namespace _board;
-
-extern "C" {
-
-char *command(char *t, char *arg) {
-    return u->command(t, arg);
-}
-
-unsigned perft(char *fen, int depth) {
-    return 1;
-}
-int isvalid(char *fen) {
-    if (c->loadFen(fen) == -1)return 0;
-    return 1;
-}
-
-}//extern C
-
-int main(int argc, char **argv) {
-    cout << NAME;
-    cout << " UCI by Giuseppe Cannella\n";
-    cout << "version compiled " << __DATE__ << " with emscripten - " << __VERSION__ << "\n";
-    cout << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\n";
-    //p = new Perft();
-//    c = new ChessBoard();
-	u = new Uci();
-//    if (c->loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") == -1)cout <<"KO\n";
-//    else cout <<"OK\n";
-
-//    int nMoves = perft("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 3);
-//    cout << "N tasks: " << nMoves << endl;
-
-
-//    
-  //  cout << u->command("go", "") << endl;
-    return 0;
-}
-#else
 #include "Uci.h"
 #include "util/GetOpt.h"
 
@@ -173,4 +110,3 @@ int main(int argc, char **argv) {
     GetOpt::parse(argc, argv);
     return 0;
 }
-#endif

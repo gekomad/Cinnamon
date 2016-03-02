@@ -17,5 +17,7 @@
 */
 
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
+
 #include "test.h"
+
 #endif

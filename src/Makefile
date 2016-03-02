@@ -58,7 +58,7 @@ PARAM="-std=c++11 -Ofast -pipe -DNDEBUG -fsigned-char -DDLOG_LEVEL=_FATAL -fno-e
 
 help:
 
-	@echo "Makefile for cross-compile Linux/Windows/OSX/ARM"
+	@echo "Makefile for cross-compile Linux/Windows/OSX/ARM/Javascript"
 	@echo ""
 	@echo "make cinnamon64-modern-INTEL     > 64-bit optimized for modern Intel cpu"
 	@echo "make cinnamon64-modern-AMD       > 64-bit optimized for modern Amd cpu"
@@ -108,7 +108,7 @@ drmemory:
 	drmemory -show_reachable -- $(PA)$(EXE) -b4 2>drmmemory_4core.log
 
 cinnamon-js:
-	em++  -std=c++11  -DJS_MODE ChessBoard.cpp  Eval.cpp  GenMoves.cpp  Hash.cpp  IterativeDeeping.cpp Tablebase.cpp main.cpp  OpenBook.cpp  Search.cpp  SearchManager.cpp   Uci.cpp util/String.cpp util/IniFile.cpp util/Bits.cpp -w -s EXPORTED_FUNCTIONS="['_main','_perft','_command']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
+	em++  -std=c++11  -DJS_MODE ChessBoard.cpp  Eval.cpp  GenMoves.cpp  Hash.cpp  IterativeDeeping.cpp Tablebase.cpp main_js.cpp  OpenBook.cpp  Search.cpp  SearchManager.cpp   Uci.cpp util/String.cpp util/IniFile.cpp util/Bits.cpp -w -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
 
 cinnamon-drmemory:
 	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" drmemory

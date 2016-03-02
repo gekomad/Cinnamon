@@ -61,6 +61,7 @@ private:
 
 };
 #else
+
 #include "gtb/gtb-probe.h"
 #include "namespaces/def.h"
 #include "ChessBoard.h"
@@ -200,8 +201,6 @@ private:
     const int wdl_fraction = 96;
 
 };
-
-
 
 
 #endif

@@ -137,6 +137,12 @@ public:
 private:
     Hash();
 
+#ifdef JS_MODE
+    static const int HASH_SIZE_DEFAULT = 1;
+#else
+    static const int HASH_SIZE_DEFAULT = 64;
+#endif
+
     void dispose();
 
     _Thash *hashArray[2];

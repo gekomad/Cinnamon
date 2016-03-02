@@ -24,7 +24,7 @@ class GetOpt {
 private:
     static void help(char **argv) {
         string exe = FileUtil::getFileName(argv[0]);
-        cout << "Perft test:            " <<exe << " " << PERFT_HELP << "\n";
+        cout << "Perft test:            " << exe << " " << PERFT_HELP << "\n";
         cout << "Distance to mate:      " << exe << " " << DTM_HELP << "\n";
         cout << "Create .pgn from .epd: " << exe << " " << EPD2PGN_HELP << endl;
         cout << "Generate puzzle epd:   " << exe << " " << PUZZLE_HELP << endl;
