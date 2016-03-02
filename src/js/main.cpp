@@ -17,7 +17,7 @@
 */
 
 #include "Uci.h"
-#include "perft/Perft.h"
+#include "../perft/Perft.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -18,50 +18,6 @@
 
 #pragma once
 
-#ifdef JS_MODE
-
-class Tablebase : public Singleton<Tablebase> {
-    friend class Singleton<Tablebase>;
-
-public:
-
-    ~Tablebase(){}
-
-    void cacheInit(int mb){}
-
-    bool getAvailable(){return false;}
-
-    int getCache(){return 1;}
-
-    string getPath(){return "";}
-
-    string getSchema(){return "";}
-
-    bool setCacheSize(int mb){return false;}
-
-    void setPath(string path){}
-
-    bool setScheme(string s){return false;}
-
-    void restart(){}
-
-    bool setProbeDepth(int d){return false;}
-
-    bool setInstalledPieces(int n){return false;}
-
-    bool isInstalledPieces(int p) {return 0; }
-
-    int getProbeDepth() {return 0; }
-
-    template<int side, bool doPrint>
-    int getDtm(_Tchessboard &chessboard, uchar rightCastle, int depth) {return 0; }
-
-private:
-    Tablebase(){}
-
-};
-#else
-
 #include "gtb/gtb-probe.h"
 #include "namespaces/def.h"
 #include "ChessBoard.h"
@@ -202,5 +158,3 @@ private:
 
 };
 
-
-#endif
