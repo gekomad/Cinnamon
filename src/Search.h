@@ -139,7 +139,7 @@ private:
     static Tablebase *gtb;
     bool ponder;
 
-    int aspirationWindow(const int depth, const int valWindow);
+    void aspirationWindow(const int depth, const int valWindow);
 
     int checkTime();
 

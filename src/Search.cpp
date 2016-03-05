@@ -36,7 +36,7 @@ void Search::endRun() {
     notifySearch(getId());
 }
 
-int Search::aspirationWindow(const int depth, const int valWin) {
+void Search::aspirationWindow(const int depth, const int valWin) {
     valWindow = valWin;
     init();
 
@@ -71,7 +71,6 @@ int Search::aspirationWindow(const int depth, const int valWin) {
         }
     }
 
-    return valWindow;
 }
 
 Search::Search() : ponder(false), nullSearch(false) {
