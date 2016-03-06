@@ -36,16 +36,12 @@ private:
     condition_variable cv;
     thread theThread;
 
-    void notifyEndThread(int i) {
-        if (observer != nullptr) {
-            observer->observerEndThread(i);
-        }
-    }
-
     void _run() {
         static_cast<T *>(this)->run();
         static_cast<T *>(this)->endRun();
-        static_cast<T *>(this)->notifyEndThread(getId());
+        if (observer != nullptr) {
+            observer->observerEndThread(threadID);
+        }
     }
 
 public:
