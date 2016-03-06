@@ -60,7 +60,7 @@ namespace _logger {
             cout << Time::getLocalTime() << " " << LOG_LEVEL_STRING[type] << " ";
             *this << Time::getLocalTime() << " " << LOG_LEVEL_STRING[type] << " ";
             __log(t, args...);
-            cout << endl;
+            cout << "\n";
             *this << endl;
             _CoutSyncSpinlock.unlock();
         }
