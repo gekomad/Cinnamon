@@ -35,7 +35,7 @@
 #include "threadPool/Thread.h"
 #include "ObserverSearch.h"
 
-class Search : public Eval, public Thread, public Subject {
+class Search : public Eval, public Thread<Search>, public Subject {
 
 public:
 

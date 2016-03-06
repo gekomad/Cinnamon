@@ -26,14 +26,8 @@
 
 using namespace std;
 
-class Runnable {
-public:
-    virtual void run() = 0;
-
-    virtual void endRun() = 0;
-};
-
-class Thread : virtual public Runnable {
+template<typename T>
+class Thread {
 
 private:
     bool running = true;
@@ -41,30 +35,23 @@ private:
     ObserverThread *observer = nullptr;
     condition_variable cv;
     thread theThread;
-    Runnable *execRunnable;
-
-    static void *__run(void *cthis) {
-        static_cast<Runnable *>(cthis)->run();
-        static_cast<Runnable *>(cthis)->endRun();
-        static_cast<Thread *>(cthis)->notifyEndThread((static_cast<Thread *>(cthis))->getId());
-
-        return nullptr;
-    }
-
-public:
-
-    Thread() {
-        execRunnable = this;
-    }
-
-    void registerObserverThread(ObserverThread *obs) {
-        observer = obs;
-    }
 
     void notifyEndThread(int i) {
         if (observer != nullptr) {
             observer->observerEndThread(i);
         }
+    }
+
+    void _run() {
+        static_cast<T *>(this)->run();
+        static_cast<T *>(this)->endRun();
+        static_cast<T *>(this)->notifyEndThread(getId());
+    }
+
+public:
+
+    void registerObserverThread(ObserverThread *obs) {
+        observer = obs;
     }
 
     virtual ~Thread() {
@@ -85,7 +72,7 @@ public:
 
     void start() {
         ASSERT(!isJoinable());
-        theThread = thread(__run, execRunnable);
+        theThread = thread(&Thread::_run, this);
     }
 
     void join() {

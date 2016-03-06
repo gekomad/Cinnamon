@@ -21,7 +21,7 @@
 #include "../threadPool/Thread.h"
 #include <vector>
 
-class Timer : public Thread {
+class Timer : public Thread<Timer> {
 public:
 
     Timer(int seconds1);

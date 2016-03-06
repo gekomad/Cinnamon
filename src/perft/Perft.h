@@ -59,7 +59,7 @@ Depth   Perft
 
 */
 
-class Perft : public Thread, public ThreadPool<PerftThread>, public Singleton<Perft> {
+class Perft : public Thread<Perft>, public ThreadPool<PerftThread>, public Singleton<Perft> {
     friend class Singleton<Perft>;
 
 public:
