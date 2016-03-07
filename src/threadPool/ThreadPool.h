@@ -144,7 +144,7 @@ private:
 
     void registerThreads() {
         for (T *s:threadPool) {
-            s->registerObserverThread(this);
+            s->template registerObserverThread<ThreadPool<T>>(this);
         }
     }
 

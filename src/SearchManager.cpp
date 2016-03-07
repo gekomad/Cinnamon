@@ -366,9 +366,6 @@ void SearchManager::deleteGtb() {
 
 bool SearchManager::setNthread(int nthread) {
     if (!ThreadPool::setNthread(nthread))return false;
-    for (Search *s:getPool()) {
-        s->registerObserver(this);
-    }
     return true;
 }
 

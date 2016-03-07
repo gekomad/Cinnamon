@@ -23,20 +23,16 @@
 #include "Eval.h"
 #include "namespaces/def.h"
 #include <climits>
+#include "threadPool/Thread.h"
 
 #ifdef JS_MODE
 #include "js/Tablebase.h"
 #else
-
 #include "Tablebase.h"
-
 #endif
 
-#include "threadPool/Thread.h"
-#include "ObserverSearch.h"
 
-
-class Search : public Eval, public Thread<Search>, public Subject {
+class Search : public Eval, public Thread<Search> {
 
 public:
 

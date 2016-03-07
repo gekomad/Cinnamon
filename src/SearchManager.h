@@ -22,18 +22,16 @@
 #include "Search.h"
 #include "threadPool/ThreadPool.h"
 #include <condition_variable>
-#include "ObserverSearch.h"
 #include "util/String.h"
 #include "util/IniFile.h"
 #include <algorithm>
 #include <future>
 #include "namespaces/def.h"
 
-class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search>, public ObserverSearch {
+class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search> {
     friend class Singleton<SearchManager>;
 
 public:
-//    STATIC_CONST int VAL_WINDOW = 50;
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn);
 

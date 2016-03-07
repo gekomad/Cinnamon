@@ -33,7 +33,7 @@ void Search::run() {
 }
 
 void Search::endRun() {
-    notifySearch(getId());
+    SearchManager::getInstance().receiveObserverSearch(getId());
 }
 
 void Search::aspirationWindow(const int depth, const int valWin) {
