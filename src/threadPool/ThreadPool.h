@@ -31,7 +31,7 @@
 using namespace _debug;
 using namespace _def;
 
-template<typename T>//, typename = typename std::enable_if<std::is_base_of<Thread, T>::value, T>::type>
+template<typename T, typename = typename std::enable_if<std::is_base_of<Thread<T>, T>::value, T>::type>
 class ThreadPool : public ObserverThread {
 
 public:
