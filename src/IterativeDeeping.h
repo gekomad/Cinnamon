@@ -39,7 +39,7 @@ public:
 
     string go();
 
-    virtual void run();
+    void run();
 
     void endRun() { };
 

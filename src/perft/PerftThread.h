@@ -36,9 +36,9 @@ public:
 
     virtual ~PerftThread();
 
-    virtual void run();
+    void run();
 
-    virtual void endRun();
+    void endRun();
 
     u64 getPartial();
 

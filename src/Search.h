@@ -73,9 +73,9 @@ public:
 
     int search(bool smp, int depth, int alpha, int beta);
 
-    virtual void run();
+    void run();
 
-    virtual void endRun();
+    void endRun();
 
     int printDtm();
 

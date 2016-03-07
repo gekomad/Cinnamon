@@ -70,9 +70,9 @@ public:
 
     void dump();
 
-    virtual void run();
+    void run();
 
-    virtual void endRun();
+    void endRun();
 
     static int count;
 
