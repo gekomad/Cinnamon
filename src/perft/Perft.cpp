@@ -246,7 +246,7 @@ void Perft::endRun() {
 
 void Perft::status() {
     u64 tot = 0;
-    for (PerftThread *s:threadPool) {
+    for (PerftThread *s:getPool()) {
         tot += s->getPartial();
     }
     auto end1 = std::chrono::high_resolution_clock::now();

@@ -103,10 +103,20 @@ public:
         removeAllThread();
     }
 
-protected:
-    vector<T *> threadPool;
-private:
+    const vector<T *> &getPool() const {
+        return threadPool;
+    }
 
+    T &getThread(int i) const {
+        ASSERT(i < nThread);
+        return *threadPool[i];
+    }
+
+
+protected:
+
+private:
+    vector<T *> threadPool;
     mutex mtx;
     atomic<u64> threadsBits;
     int nThread = 0;

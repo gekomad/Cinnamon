@@ -19,6 +19,17 @@
 
 #pragma once
 
+/*
+ template <typename T>
+class Subject {
+public:
+
+    void notifySearch(int threadID) {
+        static_cast<T *>(this)->receiveObserverSearch(threadID);
+    }
+
+};
+ * */
 class ObserverSearch {
 public:
     virtual void receiveObserverSearch(int threadID) = 0;
