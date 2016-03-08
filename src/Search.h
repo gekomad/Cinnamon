@@ -28,7 +28,9 @@
 #ifdef JS_MODE
 #include "js/Tablebase.h"
 #else
+
 #include "Tablebase.h"
+
 #endif
 
 

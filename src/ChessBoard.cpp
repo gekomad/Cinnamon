@@ -192,7 +192,7 @@ int ChessBoard::loadFen(string fen) {
     iss >> castle;
     iss >> enpassant;
     int ix = 0;
-    int s[64];
+    array<int, 64> s;
     for (unsigned ii = 0; ii < pos.length(); ii++) {
         uchar ch = pos.at(ii);
         if (ch != '/') {
@@ -271,7 +271,7 @@ int ChessBoard::loadFen(string fen) {
 
 #ifdef DEBUG_MODE
 
-bool ChessBoard::checkNPieces(std::map<int, int> pieces) {
+bool ChessBoard::checkNPieces(std::unordered_map<int, int> pieces) {
     int a = 0;
     for (int i = 0; i < 13; i++) {
         a += Bits::bitCount(chessboard[i]) == pieces[i];

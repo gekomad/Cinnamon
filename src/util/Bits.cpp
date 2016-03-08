@@ -18,7 +18,7 @@
 
 #include "Bits.h"
 
-uchar Bits::DISTANCE[64][64];
+array<array<uchar, 64>, 64> Bits::DISTANCE;
 
 Bits::Bits() {
     //LINK_ROOKS

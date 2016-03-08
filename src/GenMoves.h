@@ -338,7 +338,6 @@ protected:
 
     int killerHeuristic[64][64];
 
-
     template<int side, uchar type>
     bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
 #ifdef DEBUG_MODE

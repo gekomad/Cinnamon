@@ -983,7 +983,7 @@ void GenMoves::writeRandomFen(const vector<int> pieces) {
 }
 
 bool GenMoves::generatePuzzle(const string type) {
-    std::map<char, int> PIECES;
+    std::unordered_map<char, int> PIECES;
     PIECES['R'] = ROOK_BLACK;
     PIECES['P'] = PAWN_BLACK;
     PIECES['Q'] = QUEEN_BLACK;

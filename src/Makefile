@@ -83,6 +83,7 @@ build:
 
 ifeq ($(FULL_TEST),yes)
 	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(PARAM)$(STATIC)-DFULL_TEST all
+	$(PA)$(EXE)
 else
 ifeq ($(PROFILE_GCC),yes)
 	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all

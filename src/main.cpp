@@ -54,7 +54,7 @@ using namespace _board;
 void printHeader() {
     cout << NAME;
     cout << " UCI by Giuseppe Cannella\n";
-#if UINTPTR_MAX == 0xffffffffffffffff
+#if UINTPTR_MAX == 0xffffffffffffffffULL
     cout << "64-bit ";
 #else
     cout << "32-bit ";

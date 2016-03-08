@@ -24,7 +24,7 @@
 #include "util/String.h"
 #include "util/Bits.h"
 #include "namespaces/def.h"
-#include <map>
+#include <unordered_map>
 #include "namespaces/random.h"
 #include <climits>
 #include "util/logger.h"
@@ -107,7 +107,7 @@ public:
 
     u64 getBitBoard(int side);
 
-    bool checkNPieces(std::map<int, int>);
+    bool checkNPieces(std::unordered_map<int, int>);
 
 #endif
 

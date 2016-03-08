@@ -47,7 +47,7 @@ private:
 public:
     template<typename O, typename = typename std::enable_if<std::is_base_of<ObserverThread, O>::value, O>::type>
     void registerObserverThread(ObserverThread *obs) {
-        observer=static_cast<O *>(obs);
+        observer = static_cast<O *>(obs);
     }
 
     virtual ~Thread() {
