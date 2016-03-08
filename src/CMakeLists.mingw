@@ -52,6 +52,6 @@ set(SOURCE_FILES
 
 set(CMAKE_CXX_COMPILER "i686-w64-mingw32-g++")
 add_executable(cinnamon ${SOURCE_FILES})
-target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/Windows/32/libgtb.a)
+target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/gtb/ARM/32/libgtb.a)
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
