@@ -1,6 +1,6 @@
 project(cinnamon)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Ofast -DDNDEBUG -mno-ms-bitfields -static -static-libgcc -static-libstdc++ -pipe -fno-exceptions -fno-rtti -ffast-math -fomit-frame-pointer -pthread -fno-gcse -fsigned-char -funroll-loops -DDLOG_LEVEL=_FATAL ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Ofast -DDNDEBUG -mno-ms-bitfields -static -static-libgcc -static-libstdc++ -fno-exceptions -fno-rtti -pthread -fno-gcse -fsigned-char -funroll-loops -DDLOG_LEVEL=_FATAL ")
 
 set(SOURCE_FILES
         gtb/gtb-probe.h

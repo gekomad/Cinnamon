@@ -54,7 +54,7 @@ else
 	endif
 endif
 
-PARAM="-std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -pipe -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -fomit-frame-pointer -ffast-math -funroll-loops "
+PARAM="-std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
 
 help:
 
