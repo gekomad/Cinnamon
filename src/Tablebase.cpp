@@ -28,10 +28,11 @@ Tablebase::~Tablebase() {
     paths = tbpaths_done(paths);
 }
 
-void Tablebase::load() {
+bool Tablebase::load() {
     memset(installedPieces, 0, sizeof(installedPieces));
     if (!FileUtil::fileExists(path)) {
-        return;
+        debug("file not exists ", path);
+        return false;
     }
     tbstats_reset();
     paths = tbpaths_done(paths);
@@ -66,12 +67,13 @@ void Tablebase::load() {
     }
     cout << endl;
     if (!getAvailable()) {
-        return;
+        return false;
     }
     setCacheSize(cacheSize);
     tb_init(verbosity, scheme, paths);
     tbcache_init(cacheSize * 1024 * 1024, wdl_fraction);
     tbstats_reset();
+    return true;
 }
 
 int Tablebase::getCache() {
@@ -174,7 +176,7 @@ bool Tablebase::setInstalledPieces(int n) {
     return true;
 }
 
-void Tablebase::setPath(string path1) {
+bool Tablebase::setPath(string path1) {
     path = path1;
-    load();
+    return load();
 }

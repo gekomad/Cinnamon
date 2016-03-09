@@ -346,6 +346,7 @@ bool Search::getGtbAvailable() {
 }
 
 Tablebase &Search::getGtb() const {
+    ASSERT(gtb);
     return *gtb;
 }
 

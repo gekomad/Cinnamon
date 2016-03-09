@@ -16,19 +16,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if defined(DEBUG_MODE) || defined(FULL_TEST)
+#if defined(FULL_TEST)
 
 #include <gtest/gtest.h>
 #include <set>
 #include "../SearchManager.h"
+#include "../IterativeDeeping.h"
+#include "../Tablebase.h"
 
-TEST(eval, eval1) {
+TEST(tablebase, test1) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    searchManager.loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    int score = searchManager.getScore(WHITE, false);
-    EXPECT_EQ(5, score);
-    score = searchManager.getScore(BLACK, false);
-    EXPECT_EQ(-5, score);
+    Tablebase &tablebase = searchManager.createGtb();
+    if (!tablebase.setPath("/gtb4")) {
+        EXPECT_TRUE(false) << "path error";;
+        return;
+    }
+
+    IterativeDeeping it;
+
+    if (!searchManager.getGtb().setScheme("cp4")) {
+        EXPECT_TRUE(false) << "set scheme error";
+        return;
+    }
+    if (!searchManager.getGtb().setInstalledPieces(4)) {
+        EXPECT_TRUE(false) << "set installed pieces error";
+        return;
+    }
+    if (!it.getGtbAvailable()) {
+        EXPECT_TRUE(false) << "error TB not found";
+    }
+    searchManager.loadFen("8/8/8/8/6p1/7p/4kB2/6K1 w - -");
+    EXPECT_EQ(0, searchManager.printDtm());
+    searchManager.deleteGtb();
 }
 
 #endif

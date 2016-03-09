@@ -42,7 +42,7 @@ public:
 
     bool setCacheSize(int mb);
 
-    void setPath(string path);
+    bool setPath(string path);
 
     bool setScheme(string s);
 
@@ -146,7 +146,7 @@ private:
 
     void print(unsigned stm1, unsigned info1, unsigned pliestomate1);
 
-    void load();
+    bool load();
 
     const int verbosity = 0;
     int cacheSize = 32;        //mb
