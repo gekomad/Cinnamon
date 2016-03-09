@@ -124,7 +124,7 @@ private:
 
     T &getThread() {
         int i = Bits::BITScanForwardUnset(threadsBits);
-        threadPool[i]->join();
+        ASSERT(!threadPool[i]->isJoinable());
         ASSERT(!(threadsBits & POW2[i]));
         threadsBits |= POW2[i];
         return *threadPool[i];
