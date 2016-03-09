@@ -41,8 +41,8 @@ unsigned perft(char *fen, int depth, int hashSize) {
     return p->getResult();
 }
 int isvalid(char *fen) {
-    ChessBoard *c = new ChessBoard();
-    return c->loadFen(fen) == 2 ? 0 : 1;
+    ChessBoard c;
+    return c.loadFen(fen) == 2 ? 0 : 1;
 }
 
 }//extern C

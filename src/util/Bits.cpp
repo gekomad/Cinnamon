@@ -18,7 +18,11 @@
 
 #include "Bits.h"
 
-array<array<uchar, 64>, 64> Bits::DISTANCE;
+//array<array<uchar, 64>, 64> Bits::DISTANCE;
+
+array<array<u64, 64>, 64> Bits::MASK_BIT_SET_NOBOUND;
+array<array<char, 64>, 64> Bits::MASK_BIT_SET_NOBOUND_COUNT;
+u64 **Bits::LINK_ROOKS;
 
 Bits::Bits() {
     //LINK_ROOKS
@@ -50,56 +54,55 @@ Bits::Bits() {
         }
     }
     //DISTANCE
-    for (int i = 0; i < 64; i++) {
-        for (int j = 0; j < 64; j++) {
-            DISTANCE[i][j] = max(abs(RANK_AT[i] - FILE_AT[j]), abs(RANK_AT[j] - FILE_AT[i]));
-        }
-    }
+//    for (int i = 0; i < 64; i++) {
+//        for (int j = 0; j < 64; j++) {
+//            DISTANCE[i][j] = max(abs(RANK_AT[i] - FILE_AT[j]), abs(RANK_AT[j] - FILE_AT[i]));
+//        }
+//    }
     ///
-    u64 MASK_BIT_SET[64][64];
-    memset(MASK_BIT_SET, 0, sizeof(MASK_BIT_SET));
+    array<array<u64, 64>, 64> tmpMaskBit;
+    for (auto &a : tmpMaskBit)for (u64 &x : a) x = 0;
     for (int i = 0; i < 64; i++) {
         for (int j = 0; j < 64; j++) {
             int a = min(i, j);
             int b = max(i, j);
-            MASK_BIT_SET[i][i] = 0;
+            tmpMaskBit[i][i] = 0;
             for (int e = a; e <= b; e++) {
                 u64 r = (RANK[i] | POW2[i]) & (RANK[j] | POW2[j]);
                 if (r) {
-                    MASK_BIT_SET[i][j] |= POW2[e] & r;
+                    tmpMaskBit[i][j] |= POW2[e] & r;
                 } else {
                     r = (FILE_[i] | POW2[i]) & (FILE_[j] | POW2[j]);
                     if (r) {
-                        MASK_BIT_SET[i][j] |= POW2[e] & r;
+                        tmpMaskBit[i][j] |= POW2[e] & r;
                     } else {
                         r = (LEFT_DIAG[i] | POW2[i]) & (LEFT_DIAG[j] | POW2[j]);
                         if (r) {
-                            MASK_BIT_SET[i][j] |= POW2[e] & r;
+                            tmpMaskBit[i][j] |= POW2[e] & r;
                         } else {
                             r = (RIGHT_DIAG[i] | POW2[i]) & (RIGHT_DIAG[j] | POW2[j]);
                             if (r) {
-                                MASK_BIT_SET[i][j] |= POW2[e] & r;
+                                tmpMaskBit[i][j] |= POW2[e] & r;
                             }
                         }
                     }
                 }
             }
             if (i == j) {
-                MASK_BIT_SET[i][i] &= NOTPOW2[i];
+                tmpMaskBit[i][i] &= NOTPOW2[i];
             }
         }
     }
     for (int i = 0; i < 64; i++) {
         for (int j = 0; j < 64; j++) {
-            MASK_BIT_SET_NOBOUND[i][j] = MASK_BIT_SET[i][j];
+            MASK_BIT_SET_NOBOUND[i][j] = tmpMaskBit[i][j];
             MASK_BIT_SET_NOBOUND[i][j] &= NOTPOW2[i];
             MASK_BIT_SET_NOBOUND[i][j] &= NOTPOW2[j];
-            MASK_BIT_SET[i][j] &= NOTPOW2[i];
+            tmpMaskBit[i][j] &= NOTPOW2[i];
         }
     }
     for (int i = 0; i < 64; i++) {
         for (int j = 0; j < 64; j++) {
-            MASK_BIT_SET_COUNT[i][j] = Bits::bitCount(MASK_BIT_SET[i][j]);
             MASK_BIT_SET_NOBOUND_COUNT[i][j] = Bits::bitCount(MASK_BIT_SET_NOBOUND[i][j]);
         }
     }

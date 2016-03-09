@@ -198,10 +198,6 @@ int GenMoves::performRankFileShiftCount(const int position, const u64 allpieces)
     ASSERT_RANGE(position, 0, 63);
     int count = 0;
     ///FILE
-    ASSERT(RANK_AT[position] == bits.MASK_BIT_SET_COUNT[position][VERT_LOWER[position]]);
-    ASSERT(MASK_BIT_SET_COUNT_VERT_UPPER[position] == bits.MASK_BIT_SET_COUNT[position][VERT_UPPER[position]]);
-    ASSERT(MASK_BIT_SET_COUNT_ORIZ_LEFT[position] == bits.MASK_BIT_SET_COUNT[position][ORIZ_LEFT[position]]);
-    ASSERT(FILE_AT[position] == bits.MASK_BIT_SET_COUNT[position][ORIZ_RIGHT[position]]);
     u64 q = allpieces & MASK_BIT_UNSET_UP[position];
     count += q ? bits.MASK_BIT_SET_NOBOUND_COUNT[position][Bits::BITScanReverse(q)] : RANK_AT[position];
     q = allpieces & MASK_BIT_UNSET_DOWN[position];
@@ -244,10 +240,6 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
 int GenMoves::performDiagShiftCount(const int position, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
     ///LEFT
-    ASSERT(MASK_BIT_SET_COUNT_LEFT_LOWER[position] == bits.MASK_BIT_SET_COUNT[position][LEFT_LOWER[position]]);
-    ASSERT(MASK_BIT_SET_COUNT_LEFT_UPPER[position] == bits.MASK_BIT_SET_COUNT[position][LEFT_UPPER[position]]);
-    ASSERT(MASK_BIT_SET_COUNT_RIGHT_LOWER[position] == bits.MASK_BIT_SET_COUNT[position][RIGHT_LOWER[position]]);
-    ASSERT(MASK_BIT_SET_COUNT_RIGHT_UPPER[position] == bits.MASK_BIT_SET_COUNT[position][RIGHT_UPPER[position]]);
     u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
     int count = q ? bits.MASK_BIT_SET_NOBOUND_COUNT[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_COUNT_LEFT_LOWER[position];
     q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
