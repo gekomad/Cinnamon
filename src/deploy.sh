@@ -8,7 +8,7 @@ cp -r ../src /tmp/deploy/$UUID
 cd /tmp/deploy
 find $UUID/src/ -type f \( -name "*.html" -o -name "*.ods" -o -name "*.sh" -o -name "*.txt" \) -delete
 
-rm -fr $UUID/src/gtb/Linux $UUID/src/.idea $UUID/src/js $UUID/src/gtb/Windows $UUID/src/gtb/OSX $UUID/src/test
+rm -fr $UUID/src/gtb/Linux $UUID/src/.idea $UUID/src/js $UUID/src/gtb/Windows $UUID/src/gtb/OSX 
 tar -czf $UUID.tar.gz $UUID
 
 for ip in "${array[@]}"
