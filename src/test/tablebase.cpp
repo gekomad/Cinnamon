@@ -28,22 +28,19 @@ TEST(tablebase, test1) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     Tablebase &tablebase = searchManager.createGtb();
     if (!tablebase.setPath("/gtb4")) {
-        EXPECT_TRUE(false) << "path error";;
-        return;
+        FAIL() << "path error";
     }
 
     IterativeDeeping it;
 
     if (!searchManager.getGtb().setScheme("cp4")) {
-        EXPECT_TRUE(false) << "set scheme error";
-        return;
+        FAIL() << "set scheme error";
     }
     if (!searchManager.getGtb().setInstalledPieces(4)) {
-        EXPECT_TRUE(false) << "set installed pieces error";
-        return;
+        FAIL() << "set installed pieces error";
     }
     if (!it.getGtbAvailable()) {
-        EXPECT_TRUE(false) << "error TB not found";
+        FAIL() << "error TB not found";
     }
     searchManager.loadFen("8/8/8/8/6p1/7p/4kB2/6K1 w - -");
     EXPECT_EQ(0, searchManager.printDtm());
