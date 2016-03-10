@@ -411,7 +411,7 @@ protected:
                 break;
             }
             default:
-            _assert(0);
+                _assert(0);
         }
 
 #ifdef DEBUG_MODE

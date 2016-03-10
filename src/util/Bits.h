@@ -32,6 +32,7 @@ public:
 
     virtual ~Bits();
 
+    u64 **LINK_ROOKS;
 #ifdef HAS_POPCNT
 
     static int bitCount(u64 bits) {
@@ -108,10 +109,9 @@ public:
 
 #endif
 
-    static u64 **LINK_ROOKS;
-    static array<array<u64, 64>, 64> MASK_BIT_SET_NOBOUND;
-    static array<array<char, 64>, 64> MASK_BIT_SET_NOBOUND_COUNT;
-//    static array<array<uchar, 64>, 64> DISTANCE;
+    u64 MASK_BIT_SET_NOBOUND[64][64];
+    char MASK_BIT_SET_NOBOUND_COUNT[64][64];
+    //static array<array<uchar, 64>, 64> DISTANCE;
 
 private:
     Bits();
