@@ -51,7 +51,6 @@ public:
         hashfALPHA = 0, hashfEXACT = 1, hashfBETA = 2
     };
 
-    int HASH_SIZE;
 #ifdef DEBUG_MODE
     unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions;
 
@@ -136,7 +135,7 @@ public:
 
 private:
     Hash();
-
+    int HASH_SIZE;
 #ifdef JS_MODE
     static const int HASH_SIZE_DEFAULT = 1;
 #else
