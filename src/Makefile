@@ -16,7 +16,6 @@
 
 COMP=g++
 
-NATIVE_ARCH="32"
 ifndef SystemRoot
 	# *nix
 	ARC=
@@ -26,8 +25,7 @@ ifndef SystemRoot
 		LIBS= -static-libgcc -static-libstdc++ -lpthread
 		OS=OSX
 	else
-		PROFILE_USE_THREAD=" -fprofile-correction -fprofile-use "
-		STATIC="-static "
+		PROFILE_USE_THREAD=" -fprofile-correction -fprofile-use "		
 		OS=Linux
 	endif
 
@@ -36,9 +34,6 @@ ifndef SystemRoot
 	EXE="cinnamon"
 	STRIP=strip
 	UNAME_P := $(shell uname -p)
-	ifeq ($(UNAME_P),x86_64)
-		NATIVE_ARCH="64"
-	endif
 else
 	# Windows
 	ARC="-mno-ms-bitfields"
@@ -48,10 +43,6 @@ else
 	LIBS=-static -static-libgcc -static-libstdc++
 	EXE="cinnamon.exe"
 	STRIP=strip.exe
-
-	ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
-		NATIVE_ARCH="64"
-	endif
 endif
 
 PARAM="-std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
@@ -69,31 +60,31 @@ help:
 	@echo "make cinnamon32-generic          > Unspecified 32-bit"
 	@echo "make cinnamon32-ARM              > Optimized for arm cpu"
 	@echo ""
-	@echo "make cinnamon-js                 > Compile in Javascript"
-	@echo "make cinnamon-native             > Optimized for native cpu"
+	@echo "make cinnamon-js                 > Javascript build"
 	@echo "make cinnamon-drmemory           > Memory monitor"
 	@echo ""
 	@echo "add:"
 	@echo " COMP=compiler                   > Use another compiler"
 	@echo " PROFILE_GCC=yes                 > PGO build"
 	@echo " FULL_TEST=yes                   > Unit test"
+	@echo " LIBSTDC=-static                 > Link statically libstdc++"
 	@echo ""
 
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(PARAM)$(STATIC)-DFULL_TEST all
+	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(PARAM)$(LIBSTDC)-DFULL_TEST all
 	$(PA)$(EXE)
 else
 ifeq ($(PROFILE_GCC),yes)
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)-fprofile-generate all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(LIBSTDC)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b1 >bench.tmp
 	$(RM) *.o bench.tmp
 	@echo "build..."
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC)$(PROFILE_USE_THREAD) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(LIBSTDC)$(PROFILE_USE_THREAD) all
 else
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(STATIC) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(LIBSTDC) all
 endif
 endif
 
@@ -122,9 +113,6 @@ cinnamon32-modern:
 
 cinnamon32-ARM:
 	$(MAKE) LIBS="$(LIBS) gtb/ARM/32/libgtb.a" ARC="$(ARC) -fno-gcse -w" build
-
-cinnamon-native:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/$(NATIVE_ARCH)/libgtb.a" ARC="$(ARC) -march=native" build
 
 cinnamon64-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
