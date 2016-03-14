@@ -135,6 +135,7 @@ public:
 
 private:
     Hash();
+
     int HASH_SIZE;
 #ifdef JS_MODE
     static const int HASH_SIZE_DEFAULT = 1;
