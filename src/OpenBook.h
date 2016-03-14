@@ -21,10 +21,6 @@
 #include <fstream>
 #include "Eval.h"
 
-//#if defined(_WIN32)
-//#include "util/Time.h"
-//#endif
-
 class OpenBook : public Singleton<OpenBook> {
     friend class Singleton<OpenBook>;
 
