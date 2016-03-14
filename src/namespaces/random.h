@@ -19,7 +19,6 @@
 
 #pragma once
 
-
 namespace _random {
     static const array<u64, 2> RANDSIDE = {0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL};
 
