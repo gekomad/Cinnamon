@@ -33,7 +33,6 @@ ifndef SystemRoot
 	PA="./"
 	EXE="cinnamon"
 	STRIP=strip
-	UNAME_P := $(shell uname -p)
 else
 	# Windows
 	ARC="-mno-ms-bitfields"
