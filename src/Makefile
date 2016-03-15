@@ -108,7 +108,7 @@ cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32 -w" build
 
 cinnamon32-modern:
-	$(MAKE) ARC="$(ARC) -mfpmath=sse" cinnamon32-generic
+	$(MAKE) ARC="$(ARC) -mfpmath=sse -DHAS_BSF" cinnamon32-generic
 
 cinnamon32-ARM:
 	$(MAKE) LIBS="$(LIBS) gtb/ARM/32/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
