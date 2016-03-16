@@ -28,25 +28,25 @@ using namespace std;
 using namespace _def;
 tuple<u64, u64, u64, u64> target{0, 0, 0, 0};
 
-void writeKO() {
+void writeNOatomic() {
 
     for (int i = 0; i < 100; i++) {
 
         u64 r = Random::getRandom64();
 
-        usleep(Random::getRandom(100, 100000));
+        usleep(Random::getRandom(1000, 200000));
         get<0>(target) = r;
-        usleep(Random::getRandom(100, 100000));
+        usleep(Random::getRandom(1000, 200000));
         get<1>(target) = r;
-        usleep(Random::getRandom(100, 100000));
+        usleep(Random::getRandom(1000, 200000));
         get<2>(target) = r;
-        usleep(Random::getRandom(100, 100000));
+        usleep(Random::getRandom(1000, 200000));
         get<3>(target) = r;
 
     }
 }
 
-void writeOK(Spinlock *spinlock) {
+void writeAtomic(Spinlock *spinlock) {
 
     for (int i = 0; i < 100; i++) {
         spinlock->lock();
@@ -90,7 +90,7 @@ TEST(spinlockTest_test1_Test, testOK) {
     int N = 2;
     for (int i = 0; i < N; i++) {
         threads.push_back(thread([=]() {
-            writeOK(spinlock);
+            writeAtomic(spinlock);
             return 1;
         }));
         threads.push_back(thread([=]() {
@@ -117,7 +117,7 @@ TEST(spinlockTest_test1_Test, testKO) {
     int N = 4;
     for (int i = 0; i < N; i++) {
         threads.push_back(thread([=]() {
-            writeKO();
+            writeNOatomic();
             return 1;
         }));
     }
