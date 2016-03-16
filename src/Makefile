@@ -42,7 +42,7 @@ else
 	STRIP=strip.exe
 endif
 
-PARAM="-std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
+CFLAGS="-std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
 
 help:
 
@@ -70,18 +70,18 @@ help:
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(PARAM)$(LIBSTDC)-DFULL_TEST all
+	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(CFLAGS)$(LIBSTDC)-DFULL_TEST all
 	$(PA)$(EXE)
 else
 ifeq ($(PROFILE_GCC),yes)
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(LIBSTDC)-fprofile-generate all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(LIBSTDC)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b1 >bench.tmp
 	$(RM) *.o bench.tmp
 	@echo "build..."
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(LIBSTDC)$(PROFILE_USE_THREAD) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(LIBSTDC)$(PROFILE_USE_THREAD) all
 else
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(PARAM)$(LIBSTDC) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(LIBSTDC) all
 endif
 endif
 
@@ -90,7 +90,7 @@ endif
 	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o Bits.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
 
 drmemory:
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS="-pthread -std=c++11 -g -fsigned-char -fno-inline -fno-omit-frame-pointer " all
+	$(MAKE) -j4 EXE=$(EXE) all
 	@echo "check single core search log in drmmemory_1core.log..."
 	drmemory -show_reachable -- $(PA)$(EXE) -b1 2>drmmemory_1core.log
 	@echo "check quad core search log in drmmemory_4core.log..."
@@ -100,7 +100,7 @@ cinnamon-js:
 	em++ -std=c++11 -DJS_MODE -DDLOG_LEVEL=_FATAL -fsigned-char ChessBoard.cpp Eval.cpp GenMoves.cpp Hash.cpp IterativeDeeping.cpp js/main.cpp OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Bits.cpp util/Timer.cpp perft/PerftThread.cpp -w -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
 
 cinnamon-drmemory:
-	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" drmemory
+	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/32/libgtb.a" CFLAGS="-pthread -std=c++11 -g -fsigned-char -fno-inline -fno-omit-frame-pointer -m32 " drmemory
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32 -w" build
