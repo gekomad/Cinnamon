@@ -18,7 +18,6 @@ COMP=g++
 
 ifndef SystemRoot
 	# *nix
-	ARC=
 	LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
 
 	ifeq ($(shell uname -s),Darwin)
@@ -35,7 +34,6 @@ ifndef SystemRoot
 	STRIP=strip
 else
 	# Windows
-	ARC="-mno-ms-bitfields"
 	OS=Windows
 	RM=del
 	PA=""
