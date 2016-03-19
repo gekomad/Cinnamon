@@ -109,9 +109,11 @@ public:
 
 #endif
 
-    u64 MASK_BIT_SET_NOBOUND[64][64];
-    char MASK_BIT_SET_NOBOUND_COUNT[64][64];
-    //static array<array<uchar, 64>, 64> DISTANCE;
+    static u64 MASK_BIT_SET_NOBOUND[64][64];
+    static char MASK_BIT_SET_NOBOUND_COUNT[64][64];
+    static array<array<u64, 64>, 64> ROTATE_BITMAP_DIAGONAL;
+    static array<array<u64, 64>, 64> ROTATE_BITMAP_ANTIDIAGONAL;
+
 
 private:
     Bits();
