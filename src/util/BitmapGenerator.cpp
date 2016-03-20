@@ -2,17 +2,107 @@
 
 BitMapGenerator::BitMapGenerator() {
     Bits::getInstance();
-    vector<u64> elements;
-    for (int i = 0; i < 8; i++)
-        elements.push_back(pow(2, i));
+    popolateDiagonal();
+    popolateAntiDiagonal();
+}
 
-    vector<vector<u64>> res = go(elements);
-    for (int i = 0; i < res.size(); i++) {
-        for (int y:res[i]) cout << "(" << y << ")";
-        cout << "\n";
+void BitMapGenerator::popolateDiagonal() {
+    vector<u64> elements;
+    for (int pos = 0; pos < 64; pos++) {
+        elements.clear();
+        u64 diag =_board::LEFT_DIAG[pos] | POW2[pos];
+        while(diag) {
+            int o = Bits::BITScanForward(diag);
+            elements.push_back(o);
+            RESET_LSB(diag);
+        }
+        vector<vector<u64>> res = getPermutation(elements);
+        u64 allpieces = 0;
+        for (int i = 0; i < res.size(); i++) {
+            for (int y:res[i]) {
+                _assert(y < 64);
+                allpieces |= POW2[y];
+            }
+
+            uchar idx = diagonalIdx(pos, allpieces);
+            u64 mapDiag = performDiagShift(pos, allpieces);
+            cout << "ROTATE_BITMAP_DIAGONAL[pos:" << pos << "][idx:" << (int) idx << "]=" << "0x" << mapDiag << "ULL (allpieces: " << hex << "0x" << allpieces << "ULL)\n";
+            Bits::ROTATE_BITMAP_DIAGONAL[pos][idx] = mapDiag;
+        }
     }
+}
+
+void BitMapGenerator::popolateAntiDiagonal() {
+    vector<u64> elements;
+    for (int pos = 0; pos < 64; pos++) {
+        elements.clear();
+        u64 diag =_board::RIGHT_DIAG[pos] | POW2[pos];
+        while(diag) {
+            int o = Bits::BITScanForward(diag);
+            elements.push_back(o);
+            RESET_LSB(diag);
+        }
+        vector<vector<u64>> res = getPermutation(elements);
+        u64 allpieces = 0;
+        for (int i = 0; i < res.size(); i++) {
+            for (int y:res[i]) {
+                _assert(y < 64);
+                allpieces |= POW2[y];
+            }
+
+            uchar idx = antiDiagonalIdx(pos, allpieces);
+            u64 mapDiag = performAntiDiagShift(pos, allpieces);
+            cout << "ROTATE_BITMAP_ANTIDIAGONAL[pos:" << pos << "][idx:" << (int) idx << "]=" << "0x" << mapDiag << "ULL (allpieces: " << hex << "0x" << allpieces << "ULL)\n";
+            Bits::ROTATE_BITMAP_ANTIDIAGONAL[pos][idx] = mapDiag;
+        }
+    }
+}
+
+
+u64 BitMapGenerator::performDiagShift(const int position, const u64 allpieces) {
+    /*
+        LEFT
+             /
+            /
+           /
+*/
+    u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
+    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_LEFT_LOWER[position];
+    q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
+    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_LEFT_UPPER[position];
+    return k;
 
 }
+
+u64 BitMapGenerator::performAntiDiagShift(const int position, const u64 allpieces) {
+    /*
+        RIGHT
+        \
+         \
+          \
+*/
+    u64 q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
+    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_RIGHT_LOWER[position];
+    q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
+    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
+    return k;
+}
+
+uchar BitMapGenerator::diagonalIdx(const int position, u64 allpieces) {
+    const u64 File = 0x8080808080808080ull;//FILE_[position];
+    u64 diagonalMaskEx_sq = _board::LEFT_DIAG[position] | POW2[position];
+    allpieces = ((diagonalMaskEx_sq & allpieces) * File) >> 56;
+    return allpieces;
+}
+
+
+uchar BitMapGenerator::antiDiagonalIdx(const int position, u64 allpieces) {
+    const u64 File = 0x8080808080808080ull;//FILE_[position];
+    u64 diagonalMaskEx_sq = _board::RIGHT_DIAG[position] | POW2[position];
+    allpieces = ((diagonalMaskEx_sq & allpieces) * File) >> 56;
+    return allpieces;
+}
+
 
 vector<u64> BitMapGenerator::combinations_recursive(const vector<u64> &elems, unsigned long req_len,
                                                     vector<unsigned long> &pos, unsigned long depth,
@@ -53,7 +143,7 @@ vector<u64>  BitMapGenerator::combinations(const vector<u64> &elems, unsigned lo
 }
 
 
-vector<vector<u64>> BitMapGenerator::go(vector<u64> elements) {
+vector<vector<u64>> BitMapGenerator::getPermutation(vector<u64> elements) {
     vector<vector<u64>> res(256);
     vector<u64> v;
     int nVector = 0;
@@ -63,7 +153,7 @@ vector<vector<u64>> BitMapGenerator::go(vector<u64> elements) {
 
         for (int rr:v) {
             //  cout << "(" << rr << ")";
-            cout << nVector << endl;
+          //  cout << nVector << endl;
             res[nVector].push_back(rr);
             if (++k == comb_len) {
                 k = 0;
@@ -78,3 +168,6 @@ vector<vector<u64>> BitMapGenerator::go(vector<u64> elements) {
     res.resize(nVector);
     return res;
 }
+
+
+

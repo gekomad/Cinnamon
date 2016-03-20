@@ -113,95 +113,13 @@ u64 get_col(u64 board, int col, int y) {
 
 }
 
-uchar diagonalIdx(const int position, u64 allpieces) {
-    const u64 File = 0x8080808080808080ull;//FILE_[position];
-    u64 diagonalMaskEx_sq = _board::LEFT_DIAG[position] | POW2[position];
-    allpieces = ((diagonalMaskEx_sq & allpieces) * File) >> 56;
-    return allpieces;
-}
-
-
-uchar antiDiagonalIdx(const int position, u64 allpieces) {
-    const u64 File = 0x8080808080808080ull;//FILE_[position];
-    u64 diagonalMaskEx_sq = _board::RIGHT_DIAG[position] | POW2[position];
-    allpieces = ((diagonalMaskEx_sq & allpieces) * File) >> 56;
-    return allpieces;
-}
-
-u64 performDiagShift(const int position, const u64 allpieces) {
-    /*
-        LEFT
-             /
-            /
-           /
-*/
-    u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
-    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_LEFT_LOWER[position];
-    q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
-    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_LEFT_UPPER[position];
-    return k;
-    ///RIGHT
-//        q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
-//        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_RIGHT_LOWER[position];
-//        q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
-//        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
-}
-
-u64 performAntiDiagShift(const int position, const u64 allpieces) {
-    /*
-        RIGHT
-        \
-         \
-          \
-*/
-//    u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
-//    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_LEFT_LOWER[position];
-//    q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
-//    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_LEFT_UPPER[position];
-//    return k;
-
-    u64 q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
-    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_RIGHT_LOWER[position];
-    q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
-    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
-    return k;
-}
-
-vector<u64> getPermutationDiag(int pos) {
-    u64 diagonalMaskEx_sq = _board::LEFT_DIAG[pos] | POW2[pos];
-    while (diagonalMaskEx_sq) {
-        int bit = Bits::BITScanForward(diagonalMaskEx_sq);
-        RESET_LSB(diagonalMaskEx_sq);
-    }
-    vector<u64> allpiecesv={1,2,2,3};
-    return allpiecesv;
-}
-
 
 int main(int argc, char **argv) {
     BitMapGenerator bitMapGenerator;return 0;
 
-    for (int pos = 0; pos < 64; pos++) {
-        vector<u64> allpiecesv = getPermutationDiag(pos);
-        for (u64 allpieces:allpiecesv) {
-            uchar idx = diagonalIdx(pos, allpieces);
-            u64 mapDiag = performDiagShift(pos, allpieces);
-            cout << "ROTATE_BITMAP_DIAGONAL[pos:" << pos << "][idx:" << (int) idx << "]=" << "0x" << mapDiag << "ULL (allpieces: " << hex << "0x" << allpieces << "ULL)\n";
-            Bits::ROTATE_BITMAP_DIAGONAL[pos][idx] = mapDiag;
-        }
 
-    }
-
-//    for (int pos = 0; pos < 64; pos++) {
-//        u64 allpieces = getPermutationAntiDiag(pos);
-//        if(!allpieces)break;
-//        uchar idx = antiDiagonalIdx(pos, allpieces);
-//        u64 mapAntiDiag = performAntiDiagShift(pos, allpieces);
-//        cout << "ROTATE_BITMAP_ANTIDIAGONAL[pos:" << pos << "][idx:" << (int) idx << "]=" << "0x" << mapAntiDiag << "ULL (allpieces: " << hex << "0x" << allpieces << "ULL)\n";
-//        Bits::ROTATE_BITMAP_ANTIDIAGONAL[pos][idx] = mapAntiDiag;
-//    }
     return 0;
-    u64 t = 0;
+  /*  u64 t = 0;
     for (int ii = 0; ii < 999999; ii++)
         for (int i = 0; i < 64; i++) {
             for (int j = 0; j < 64; j++) {
@@ -222,6 +140,6 @@ int main(int argc, char **argv) {
 #endif
 
     GetOpt::parse(argc, argv);
-    return 0;
+    return 0;*/
 }
 
