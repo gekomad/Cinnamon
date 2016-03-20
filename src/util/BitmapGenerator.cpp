@@ -1,10 +1,10 @@
 #include "BitmapGenerator.h"
 
-u64 BitMapGenerator::ROTATE_BITMAP_DIAGONAL[64][256];
-u64 BitMapGenerator::ROTATE_BITMAP_ANTIDIAGONAL[64][256];
+u64 BitmapGenerator::ROTATE_BITMAP_DIAGONAL[64][256];
+u64 BitmapGenerator::ROTATE_BITMAP_ANTIDIAGONAL[64][256];
 
-BitMapGenerator::BitMapGenerator() {
-    cout <<"BitMapGenerator..."<<endl;
+BitmapGenerator::BitmapGenerator() {
+    cout <<"BitmapGenerator..."<<endl;
     memset(ROTATE_BITMAP_DIAGONAL, -1, sizeof(ROTATE_BITMAP_DIAGONAL));
     memset(ROTATE_BITMAP_ANTIDIAGONAL, -1, sizeof(ROTATE_BITMAP_ANTIDIAGONAL));
 
@@ -22,7 +22,7 @@ BitMapGenerator::BitMapGenerator() {
     cout << "aaa " << aaa << endl;
 }
 
-bool BitMapGenerator::popolateDiagonal(u64 key) {
+bool BitmapGenerator::popolateDiagonal(u64 key) {
     vector<u64> elements;
 
     for (uchar pos = 0; pos < 64; pos++) {
@@ -56,12 +56,12 @@ bool BitMapGenerator::popolateDiagonal(u64 key) {
     return true;
 }
 
-void BitMapGenerator::popolateAntiDiagonal() {
+void BitmapGenerator::popolateAntiDiagonal() {
 
 }
 
 
-u64 BitMapGenerator::performDiagShift(const int position, const u64 allpieces) {
+u64 BitmapGenerator::performDiagShift(const int position, const u64 allpieces) {
     /*
         LEFT
              /
@@ -76,7 +76,7 @@ u64 BitMapGenerator::performDiagShift(const int position, const u64 allpieces) {
 
 }
 
-u64 BitMapGenerator::performAntiDiagShift(const int position, const u64 allpieces) {
+u64 BitmapGenerator::performAntiDiagShift(const int position, const u64 allpieces) {
     /*
         RIGHT
         \
@@ -90,7 +90,7 @@ u64 BitMapGenerator::performAntiDiagShift(const int position, const u64 allpiece
     return k;
 }
 
-vector<u64> BitMapGenerator::combinations_recursive(const vector<u64> &elems, unsigned long req_len,
+vector<u64> BitmapGenerator::combinations_recursive(const vector<u64> &elems, unsigned long req_len,
                                                     vector<unsigned long> &pos, unsigned long depth,
                                                     unsigned long margin) {
     vector<u64> res;
@@ -121,7 +121,7 @@ vector<u64> BitMapGenerator::combinations_recursive(const vector<u64> &elems, un
     return res;
 }
 
-vector<u64>  BitMapGenerator::combinations(const vector<u64> &elems, unsigned long comb_len) {
+vector<u64>  BitmapGenerator::combinations(const vector<u64> &elems, unsigned long comb_len) {
     assert(comb_len > 0 && comb_len <= elems.size());
     vector<unsigned long> positions(comb_len, 0);
     return combinations_recursive(elems, comb_len, positions, 0, 0);
@@ -129,7 +129,7 @@ vector<u64>  BitMapGenerator::combinations(const vector<u64> &elems, unsigned lo
 }
 
 
-vector<vector<u64>> BitMapGenerator::getPermutation(vector<u64> elements) {
+vector<vector<u64>> BitmapGenerator::getPermutation(vector<u64> elements) {
     vector<vector<u64>> res(256);
     vector<u64> v;
     int nVector = 0;

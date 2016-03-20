@@ -12,9 +12,9 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-class BitMapGenerator {
+class BitmapGenerator {
 public:
-    BitMapGenerator();
+    BitmapGenerator();
     static u64 ROTATE_BITMAP_DIAGONAL[64][256];
     static u64 ROTATE_BITMAP_ANTIDIAGONAL[64][256];
 

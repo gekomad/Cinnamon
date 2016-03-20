@@ -123,8 +123,8 @@ cinnamon64-modern-AMD:
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
-all: main.o ChessBoard.o Eval.o GenMoves.o test.o String.o WrapperCinnamon.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o
-	$(COMP) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o WrapperCinnamon.o Timer.o Eval.o IniFile.o GenMoves.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o ${LIBS}
+all: main.o ChessBoard.o Eval.o GenMoves.o test.o String.o WrapperCinnamon.o BitmapGenerator.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o
+	$(COMP) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o WrapperCinnamon.o BitmapGenerator.o Timer.o Eval.o IniFile.o GenMoves.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o Bits.o ${LIBS}
 
 default:
 	help
@@ -182,6 +182,9 @@ Timer.o: util/Timer.cpp
 
 test.o: test/test.cpp
 	$(COMP) -c test/test.cpp ${CFLAGS} ${ARC}
+
+BitmapGenerator.o: util/BitmapGenerator.cpp
+	$(COMP) -c util/BitmapGenerator.cpp ${CFLAGS} ${ARC}
 
 WrapperCinnamon.o: WrapperCinnamon.cpp
 	$(COMP) -c WrapperCinnamon.cpp ${CFLAGS} ${ARC}

@@ -115,7 +115,7 @@ u64 get_col(u64 board, int col, int y) {
 
 
 int main(int argc, char **argv) {
-    BitMapGenerator bitMapGenerator;
+    BitmapGenerator BitmapGenerator;
 
 
 //    u64 t = 0;
