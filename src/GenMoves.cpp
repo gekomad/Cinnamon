@@ -18,6 +18,7 @@
 
 #include "GenMoves.h"
 #include "Eval.h"
+#include "util/BitmapGenerator.h"
 
 bool GenMoves::forceCheck = false;
 
@@ -259,18 +260,23 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
     while (x2) {
         int position = Bits::BITScanForward(x2);
         ///LEFT
+#ifdef DEBUG_MODE
         u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
         u64 k = q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_LEFT_LOWER[position];
         q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
         k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_LEFT_UPPER[position];
         ///RIGHT
-        q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
-        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_RIGHT_LOWER[position];
-        q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
-        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
+//        q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
+//        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_RIGHT_LOWER[position];
+//        q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
+//        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
+#endif
         ///
+        uchar idx = BitMapGenerator::diagonalIdx(position, allpieces);
+        u64 kk = BitMapGenerator::ROTATE_BITMAP_DIAGONAL[position][idx];
+        ASSERT(k==kk);
         int n;
-        while (k) {
+        while (kk) {
             n = Bits::BITScanForward(k);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
             RESET_LSB(k);
@@ -278,6 +284,33 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
         RESET_LSB(x2);
     }
 }
+
+//void GenMoves::performDiagShift(const int piece, const int side, const u64 allpieces) {
+//    ASSERT_RANGE(piece, 0, 11);
+//    ASSERT_RANGE(side, 0, 1);
+//    u64 x2 = chessboard[piece];
+//    while (x2) {
+//        int position = Bits::BITScanForward(x2);
+//        ///LEFT
+//        u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
+//        u64 k = q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_LEFT_LOWER[position];
+//        q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
+//        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_LEFT_UPPER[position];
+//        ///RIGHT
+//        q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
+//        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_RIGHT_LOWER[position];
+//        q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
+//        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
+//        ///
+//        int n;
+//        while (k) {
+//            n = Bits::BITScanForward(k);
+//            pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
+//            RESET_LSB(k);
+//        }
+//        RESET_LSB(x2);
+//    }
+//}
 
 void GenMoves::generateMoves(const int side) {
     u64 allpieces = getBitBoard<WHITE>() | getBitBoard<BLACK>();

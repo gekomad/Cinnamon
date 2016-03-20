@@ -19,8 +19,6 @@
 #include "Bits.h"
 
 //array<array<uchar, 64>, 64> Bits::DISTANCE;
-array<array<u64, 64>, 64> Bits::ROTATE_BITMAP_DIAGONAL;
-array<array<u64, 64>, 64> Bits::ROTATE_BITMAP_ANTIDIAGONAL;
 
 u64 Bits::MASK_BIT_SET_NOBOUND[64][64];
  char Bits::MASK_BIT_SET_NOBOUND_COUNT[64][64];

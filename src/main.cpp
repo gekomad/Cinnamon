@@ -115,20 +115,19 @@ u64 get_col(u64 board, int col, int y) {
 
 
 int main(int argc, char **argv) {
-    BitMapGenerator bitMapGenerator;return 0;
+    BitMapGenerator bitMapGenerator;
 
 
-    return 0;
-  /*  u64 t = 0;
-    for (int ii = 0; ii < 999999; ii++)
-        for (int i = 0; i < 64; i++) {
-            for (int j = 0; j < 64; j++) {
-//                t += get_col(_random::RANDOM_KEY[i][j], i % 8,j%64);
-                t += performDiagShift(_random::RANDOM_KEY[i][j], j % 64);
-            }
-        }
-    cout << t;
-    return 0;
+//    u64 t = 0;
+//    for (int ii = 0; ii < 999999; ii++)
+//        for (int i = 0; i < 64; i++) {
+//            for (int j = 0; j < 64; j++) {
+////                t += get_col(_random::RANDOM_KEY[i][j], i % 8,j%64);
+//                t += performDiagShift(_random::RANDOM_KEY[i][j], j % 64);
+//            }
+//        }
+//    cout << t;
+//    return 0;
     printHeader();
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);
@@ -140,6 +139,6 @@ int main(int argc, char **argv) {
 #endif
 
     GetOpt::parse(argc, argv);
-    return 0;*/
+    return 0;
 }
 

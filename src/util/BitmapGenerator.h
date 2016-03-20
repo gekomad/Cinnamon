@@ -14,18 +14,34 @@ using std::vector;
 class BitMapGenerator {
 public:
     BitMapGenerator();
+    static u64 ROTATE_BITMAP_DIAGONAL[64][256];
+    static u64 ROTATE_BITMAP_ANTIDIAGONAL[64][256];
+
+    static uchar diagonalIdx(const int position, u64 allpieces) {
+        const u64 File = 0x8080808080808080ull;//FILE_[position];
+        u64 diagonalMaskEx_sq = _board::LEFT_DIAG[position] | POW2[position];//TODO
+        allpieces = ((diagonalMaskEx_sq & allpieces) * File) >> 56;
+        return allpieces;
+    }
+
+
+    uchar antiDiagonalIdx(const int position, u64 allpieces) {
+        const u64 File = 0x8080808080808080ull;//FILE_[position];
+        u64 diagonalMaskEx_sq = _board::RIGHT_DIAG[position] | POW2[position];
+        allpieces = ((diagonalMaskEx_sq & allpieces) * File) >> 56;
+        return allpieces;
+    }
 
 private:
+    int aaa = 0;
+
     void popolateDiagonal();
+
     void popolateAntiDiagonal();
 
     vector<u64> combinations_recursive(const vector<u64> &elems, unsigned long req_len,
                                        vector<unsigned long> &pos, unsigned long depth,
                                        unsigned long margin);
-
-    uchar diagonalIdx(const int position, u64 allpieces);
-
-    uchar antiDiagonalIdx(const int position, u64 allpieces);
 
     vector<u64> combinations(const vector<u64> &elems, unsigned long comb_len);
 
