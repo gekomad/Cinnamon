@@ -272,15 +272,15 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
 //        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
 #endif
         ///
-        uchar idx = BitMapGenerator::diagonalIdx(position, allpieces);
+        uchar idx = BitMapGenerator::diagonalIdx(position, allpieces,1);
         u64 kk = BitMapGenerator::ROTATE_BITMAP_DIAGONAL[position][idx];
         ASSERT(k==kk);
         int n;
-        while (kk) {
-            n = Bits::BITScanForward(k);
-            pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
-            RESET_LSB(k);
-        }
+//        while (kk) {
+//            n = Bits::BITScanForward(k);
+//            pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
+//            RESET_LSB(k);
+//        }
         RESET_LSB(x2);
     }
 }
