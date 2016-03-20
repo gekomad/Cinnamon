@@ -1,6 +1,7 @@
 project(cinnamon)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -pedantic -std=c++11 -DDLOG_LEVEL=_TRACE -DDEBUG_MODE")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -pthread -pedantic -fno-exceptions -fno-rtti -funroll-loops -std=c++11 -DDLOG_LEVEL=_TRACE -DDEBUG_MODE1")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -pedantic -std=c++11 -DDLOG_LEVEL=_TRACE -DDEBUG_MOD1E")
 
 set(SOURCE_FILES
         gtb/gtb-probe.h
@@ -48,7 +49,7 @@ set(SOURCE_FILES
         Uci.cpp
         #google test
         test/test.cpp
-        )
+        util/BitmapGenerator.cpp util/BitmapGenerator.h)
 
 set(CMAKE_CXX_COMPILER "g++")
 add_executable(cinnamon ${SOURCE_FILES})

@@ -18,6 +18,9 @@
 
 #include "Uci.h"
 #include "util/GetOpt.h"
+#include "util/BitmapGenerator.h"
+
+vector<u64> getPermutationDiag(int pos);
 
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 
@@ -164,23 +167,39 @@ u64 performAntiDiagShift(const int position, const u64 allpieces) {
     return k;
 }
 
-int main(int argc, char **argv) {
-    Bits::getInstance();
-    for (int pos = 0; pos < 64; pos++) {
-        u64 allpieces = 0x4ffff0000ull;
-        uchar idx = diagonalIdx(pos, allpieces);
-        u64 mapDiag = performDiagShift(pos, allpieces);
-        cout << "ROTATE_BITMAP_DIAGONAL[pos:" << pos << "][idx:" << (int) idx << "]=" << "0x" << mapDiag << "ULL (allpieces: " << hex << "0x" << allpieces << "ULL)\n";
-        Bits::ROTATE_BITMAP_DIAGONAL[pos][idx] = mapDiag;
+vector<u64> getPermutationDiag(int pos) {
+    u64 diagonalMaskEx_sq = _board::LEFT_DIAG[pos] | POW2[pos];
+    while (diagonalMaskEx_sq) {
+        int bit = Bits::BITScanForward(diagonalMaskEx_sq);
+        RESET_LSB(diagonalMaskEx_sq);
     }
+    vector<u64> allpiecesv={1,2,2,3};
+    return allpiecesv;
+}
+
+
+int main(int argc, char **argv) {
+    BitMapGenerator bitMapGenerator;return 0;
 
     for (int pos = 0; pos < 64; pos++) {
-        u64 allpieces = 0x4ffff0000ull;
-        uchar idx = antiDiagonalIdx(pos, allpieces);
-        u64 mapAntiDiag = performAntiDiagShift(pos, allpieces);
-        cout << "ROTATE_BITMAP_ANTIDIAGONAL[pos:" << pos << "][idx:" << (int) idx << "]=" << "0x" << mapAntiDiag << "ULL (allpieces: " << hex << "0x" << allpieces << "ULL)\n";
-        Bits::ROTATE_BITMAP_ANTIDIAGONAL[pos][idx] = mapAntiDiag;
+        vector<u64> allpiecesv = getPermutationDiag(pos);
+        for (u64 allpieces:allpiecesv) {
+            uchar idx = diagonalIdx(pos, allpieces);
+            u64 mapDiag = performDiagShift(pos, allpieces);
+            cout << "ROTATE_BITMAP_DIAGONAL[pos:" << pos << "][idx:" << (int) idx << "]=" << "0x" << mapDiag << "ULL (allpieces: " << hex << "0x" << allpieces << "ULL)\n";
+            Bits::ROTATE_BITMAP_DIAGONAL[pos][idx] = mapDiag;
+        }
+
     }
+
+//    for (int pos = 0; pos < 64; pos++) {
+//        u64 allpieces = getPermutationAntiDiag(pos);
+//        if(!allpieces)break;
+//        uchar idx = antiDiagonalIdx(pos, allpieces);
+//        u64 mapAntiDiag = performAntiDiagShift(pos, allpieces);
+//        cout << "ROTATE_BITMAP_ANTIDIAGONAL[pos:" << pos << "][idx:" << (int) idx << "]=" << "0x" << mapAntiDiag << "ULL (allpieces: " << hex << "0x" << allpieces << "ULL)\n";
+//        Bits::ROTATE_BITMAP_ANTIDIAGONAL[pos][idx] = mapAntiDiag;
+//    }
     return 0;
     u64 t = 0;
     for (int ii = 0; ii < 999999; ii++)
@@ -205,3 +224,4 @@ int main(int argc, char **argv) {
     GetOpt::parse(argc, argv);
     return 0;
 }
+
