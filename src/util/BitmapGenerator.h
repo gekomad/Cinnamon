@@ -36,7 +36,7 @@ public:
 private:
     vector<u64> res[64];
     void genPerm();
-    bool popolateDiagonal(u64 key);
+    bool popolateDiagonal();
 
     void popolateAntiDiagonal();
 
