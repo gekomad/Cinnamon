@@ -51,7 +51,7 @@ bool BitmapGenerator::popolateDiagonal() {
 //            cout << "ROTATE_BITMAP_DIAGONAL valore precedente " << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
                 if (ROTATE_BITMAP_DIAGONAL[pos][idx] != mapDiag && ROTATE_BITMAP_DIAGONAL[pos][idx] != -1) {
                     b = false;
-                    if (!(count++ % 1000000)) {
+                    if (!(count++ % 100000000)) {
                         cout << dec << "#" << count << " try " << (int) pos << " 0x" << hex << key << "ULL\n";
                     }
                     if (shiftKey < 7) {
