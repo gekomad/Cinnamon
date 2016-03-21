@@ -21,24 +21,25 @@ public:
 //    static u64 MAGIC_BITMAP_DIAGONAL[64];
 //    static u64 MAGIC_BITMAP_ANTIDIAGONAL[64];
 
-    static uchar diagonalIdx(const int position, u64 allpieces, u64 key) {
+    inline static uchar diagonalIdx(const int position, u64 allpieces, u64 key) {//TODO eliminare key
         u64 diagonalMaskEx_sq = _board::LEFT_DIAG[position] | POW2[position];//TODO
         allpieces = ((diagonalMaskEx_sq & allpieces) * key) >> 56;
         return allpieces;
     }
 
 
-    uchar antiDiagonalIdx(const int position, u64 allpieces, u64 key) {
+    inline static uchar antiDiagonalIdx(const int position, u64 allpieces, u64 key) {//TODO eliminare key
         u64 diagonalMaskEx_sq = _board::RIGHT_DIAG[position] | POW2[position];//TODO
         allpieces = ((diagonalMaskEx_sq & allpieces) * key) >> 56;
         return allpieces;
     }
 
 private:
-    vector<u64> res[64];
+    vector<u64> resDiagonal[64];
+    vector<u64> resAntiDiagonal[64];
 
-    void genPerm();
-
+    void genPermDiagonal();
+    void genPermAntidiagonal() ;
     void popolateDiagonal();
 
     void popolateAntiDiagonal();

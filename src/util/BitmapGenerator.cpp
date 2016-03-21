@@ -1,4 +1,5 @@
 #include "BitmapGenerator.h"
+#include "logger.h"
 
 u64 BitmapGenerator::ROTATE_BITMAP_DIAGONAL[64][256];
 u64 BitmapGenerator::ROTATE_BITMAP_ANTIDIAGONAL[64][256];
@@ -12,14 +13,15 @@ BitmapGenerator::BitmapGenerator() {
 //    memset(MAGIC_BITMAP_DIAGONAL, -1, sizeof(MAGIC_BITMAP_DIAGONAL));
 
     Bits::getInstance();
-    genPerm();
-
+    genPermDiagonal();
+    genPermAntidiagonal();
+    popolateAntiDiagonal();
     popolateDiagonal();
-//    popolateAntiDiagonal();
+    cout << dec;
 
 }
 
-void BitmapGenerator::genPerm() {
+void BitmapGenerator::genPermDiagonal() {
 
     for (uchar pos = 0; pos < 64; pos++) {
         vector<u64> elements;
@@ -30,7 +32,22 @@ void BitmapGenerator::genPerm() {
             elements.push_back(o);
             RESET_LSB(diag);
         }
-        res[pos] = getPermutation(elements);
+        resDiagonal[pos] = getPermutation(elements);
+    }
+}
+
+void BitmapGenerator::genPermAntidiagonal() {
+
+    for (uchar pos = 0; pos < 64; pos++) {
+        vector<u64> elements;
+        elements.clear();
+        u64 diag = _board::RIGHT_DIAG[pos] | POW2[pos];
+        while (diag) {
+            int o = Bits::BITScanForward(diag);
+            elements.push_back(o);
+            RESET_LSB(diag);
+        }
+        resAntiDiagonal[pos] = getPermutation(elements);
     }
 }
 
@@ -41,7 +58,7 @@ void BitmapGenerator::popolateDiagonal() {
         int shiftKey = 0;
         u64 key = 0x101010101010101ULL;
         do {
-            for (u64 allpieces:res[pos]) {
+            for (u64 allpieces:resDiagonal[pos]) {
                 b = true;
                 uchar idx = diagonalIdx(pos, allpieces, key);
                 ASSERT_RANGE(idx, 0, 255);
@@ -77,7 +94,7 @@ void BitmapGenerator::popolateDiagonal() {
                 }
             }
         } while (!b);
-        cout << "key pos: " << dec << (int) pos << hex << " 0x" << key << "ULL" << endl;
+        debug("key pos: ", (int) pos, hex, " 0x", key, "ULL");
 
     }
 }
@@ -87,9 +104,9 @@ void BitmapGenerator::popolateAntiDiagonal() {
     bool b;
     for (uchar pos = 0; pos < 64; pos++) {
         int shiftKey = 0;
-        u64 key = 0x8080808080808080ULL;
+        u64 key = 0x101010101010101ULL;
         do {
-            for (u64 allpieces:res[pos]) {
+            for (u64 allpieces:resAntiDiagonal[pos]) {
                 b = true;
                 uchar idx = antiDiagonalIdx(pos, allpieces, key);
                 ASSERT_RANGE(idx, 0, 255);
@@ -125,7 +142,7 @@ void BitmapGenerator::popolateAntiDiagonal() {
                 }
             }
         } while (!b);
-        cout << "key pos: " << dec << (int) pos << hex << " 0x" << key << "ULL" << endl;
+        debug("key pos: ", (int) pos, hex, " 0x", key, "ULL");
 
     }
 }

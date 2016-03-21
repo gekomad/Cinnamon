@@ -109,10 +109,8 @@ public:
 
 #endif
 
-    static u64 MASK_BIT_SET_NOBOUND[64][64];
-    static char MASK_BIT_SET_NOBOUND_COUNT[64][64];
-
-
+    static u64 MASK_BIT_SET_NOBOUND[64][64];//TODO cancellare e usare magic bitboard
+    static char MASK_BIT_SET_NOBOUND_COUNT[64][64];//TODO cancellare e usare magic bitboard
 
 private:
     Bits();
