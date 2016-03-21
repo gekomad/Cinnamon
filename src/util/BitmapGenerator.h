@@ -15,6 +15,7 @@ using std::vector;
 class BitmapGenerator {
 public:
     BitmapGenerator();
+    static u64 MAGIC_BITMAP[64];
     static u64 ROTATE_BITMAP_DIAGONAL[64][256];
     static u64 ROTATE_BITMAP_ANTIDIAGONAL[64][256];
 
@@ -36,7 +37,7 @@ public:
 private:
     vector<u64> res[64];
     void genPerm();
-    bool popolateDiagonal();
+    void popolateDiagonal();
 
     void popolateAntiDiagonal();
 
