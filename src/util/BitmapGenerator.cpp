@@ -39,7 +39,7 @@ bool BitmapGenerator::popolateDiagonal() {
     u64 count = 0;
     bool b;
     for (uchar pos = 0; pos < 64; pos++) {
-        u64 key = 0x8080808080808080ull;
+        u64 key = 0x8080808080808080ULL;
         do {
             for (u64 allpieces:res[pos]) {
                 b = true;
@@ -51,6 +51,7 @@ bool BitmapGenerator::popolateDiagonal() {
 //            cout << "ROTATE_BITMAP_DIAGONAL valore precedente " << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
                 if (ROTATE_BITMAP_DIAGONAL[pos][idx] != mapDiag && ROTATE_BITMAP_DIAGONAL[pos][idx] != -1) {
                     b = false;
+                    memset(ROTATE_BITMAP_DIAGONAL, -1, sizeof(ROTATE_BITMAP_DIAGONAL));
                     if (!(count++ % 100000000)) {
                         cout << dec << "#" << count << " try " << (int) pos << " 0x" << hex << key << "ULL\n";
                     }
@@ -59,13 +60,21 @@ bool BitmapGenerator::popolateDiagonal() {
                         shiftKey++;
                     }
                     else {
-                        key = Random::getRandom64();
+                        key = 0;
+                        for (int i = 0; i < 10; i++) {
+                            int a = POW2[Random::getRandom(0, 7)];
+                            int b = Random::getRandom(0, 55);
+                            key |= a << b;
+                        }
+
+//                        key = Random::getRandom64();
                     }
                     break;
 
+                } else {
+                    ROTATE_BITMAP_DIAGONAL[pos][idx] = mapDiag;
+                    //  cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
                 }
-                ROTATE_BITMAP_DIAGONAL[pos][idx] = mapDiag;
-//            cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
             }
         } while (!b);
         cout << "key pos: " << dec << (int) pos << hex << " 0x" << key << "ULL" << endl;
