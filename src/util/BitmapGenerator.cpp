@@ -10,6 +10,7 @@ BitmapGenerator::BitmapGenerator() {
 
     u64 key;
     Bits::getInstance();
+    genPerm();
     u64 i = 1;
     do {
         key = Random::getRandom64();
@@ -19,13 +20,13 @@ BitmapGenerator::BitmapGenerator() {
     cout << "TROVATO " << hex << key << endl;
     exit(0);
     popolateAntiDiagonal();
-    cout << "aaa " << aaa << endl;
+
 }
 
-bool BitmapGenerator::popolateDiagonal(u64 key) {
-    vector<u64> elements;
+void BitmapGenerator::genPerm() {
 
     for (uchar pos = 0; pos < 64; pos++) {
+        vector<u64> elements;
         elements.clear();
         u64 diag = _board::LEFT_DIAG[pos] | POW2[pos];
         while (diag) {
@@ -33,9 +34,13 @@ bool BitmapGenerator::popolateDiagonal(u64 key) {
             elements.push_back(o);
             RESET_LSB(diag);
         }
-        vector<u64> res = getPermutation(elements);
+        res[pos] = getPermutation(elements);
+    }
+}
 
-        for (u64 allpieces:res) {
+bool BitmapGenerator::popolateDiagonal(u64 key) {
+    for (uchar pos = 0; pos < 64; pos++) {
+        for (u64 allpieces:res[pos]) {
             uchar idx = diagonalIdx(pos, allpieces, key);
             ASSERT_RANGE(idx, 0, 255);
 

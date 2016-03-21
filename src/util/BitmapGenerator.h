@@ -34,8 +34,8 @@ public:
     }
 
 private:
-    int aaa = 0;
-
+    vector<u64> res[64];
+    void genPerm();
     bool popolateDiagonal(u64 key);
 
     void popolateAntiDiagonal();
