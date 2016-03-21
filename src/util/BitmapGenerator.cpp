@@ -35,10 +35,12 @@ void BitmapGenerator::genPerm() {
 }
 
 bool BitmapGenerator::popolateDiagonal() {
-    int shiftKey = 0;
+
+
     u64 count = 0;
     bool b;
     for (uchar pos = 0; pos < 64; pos++) {
+        int shiftKey = 0;
         u64 key = 0x8080808080808080ULL;
         do {
             for (u64 allpieces:res[pos]) {
