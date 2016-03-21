@@ -51,6 +51,6 @@ private:
     u64 performAntiDiagShift(const int position, const u64 allpieces);
 
 public:
-    vector<vector<u64>> getPermutation(vector<u64> elements);
+    vector<u64> getPermutation(vector<u64> elements);
 };
 

@@ -4,7 +4,7 @@ u64 BitmapGenerator::ROTATE_BITMAP_DIAGONAL[64][256];
 u64 BitmapGenerator::ROTATE_BITMAP_ANTIDIAGONAL[64][256];
 
 BitmapGenerator::BitmapGenerator() {
-    cout <<"BitmapGenerator..."<<endl;
+    cout << "BitmapGenerator..." << endl;
     memset(ROTATE_BITMAP_DIAGONAL, -1, sizeof(ROTATE_BITMAP_DIAGONAL));
     memset(ROTATE_BITMAP_ANTIDIAGONAL, -1, sizeof(ROTATE_BITMAP_ANTIDIAGONAL));
 
@@ -33,14 +33,9 @@ bool BitmapGenerator::popolateDiagonal(u64 key) {
             elements.push_back(o);
             RESET_LSB(diag);
         }
-        vector<vector<u64>> res = getPermutation(elements);
-        for (int i = 0; i < res.size(); i++) {
-            u64 allpieces = 0;
-            for (int y:res[i]) {
-                _assert(y < 64);
-                allpieces |= POW2[y];
-            }
+        vector<u64> res = getPermutation(elements);
 
+        for (u64 allpieces:res) {
             uchar idx = diagonalIdx(pos, allpieces, key);
             ASSERT_RANGE(idx, 0, 255);
 
@@ -129,29 +124,26 @@ vector<u64>  BitmapGenerator::combinations(const vector<u64> &elems, unsigned lo
 }
 
 
-vector<vector<u64>> BitmapGenerator::getPermutation(vector<u64> elements) {
-    vector<vector<u64>> res(256);
+vector<u64> BitmapGenerator::getPermutation(vector<u64> elements) {
+    vector<u64> res;
     vector<u64> v;
-    int nVector = 0;
+    u64 bits = 0;
+
     for (int comb_len = 1; comb_len < elements.size() + 1; comb_len++) {
         v = combinations(elements, comb_len);
         int k = 0;
 
         for (int rr:v) {
-            //  cout << "(" << rr << ")";
-            //  cout << nVector << endl;
-            res[nVector].push_back(rr);
+            bits |= POW2[rr];
+
             if (++k == comb_len) {
+                res.push_back(bits);
+                bits = 0;
                 k = 0;
-                nVector++;
-                assert(nVector < 256);
-//                res.resize(nVector);
-                // cout << "\n";
+
             }
         }
-        //  cout << "\n";
     }
-    res.resize(nVector);
     return res;
 }
 
