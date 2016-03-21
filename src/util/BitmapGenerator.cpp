@@ -2,21 +2,20 @@
 
 u64 BitmapGenerator::ROTATE_BITMAP_DIAGONAL[64][256];
 u64 BitmapGenerator::ROTATE_BITMAP_ANTIDIAGONAL[64][256];
-u64 BitmapGenerator::MAGIC_BITMAP[64];
+//u64 BitmapGenerator::MAGIC_BITMAP_DIAGONAL[64];
+//u64 BitmapGenerator::MAGIC_BITMAP_ANTIDIAGONAL[64];
 
 BitmapGenerator::BitmapGenerator() {
     cout << "BitmapGenerator..." << endl;
     memset(ROTATE_BITMAP_DIAGONAL, -1, sizeof(ROTATE_BITMAP_DIAGONAL));
     memset(ROTATE_BITMAP_ANTIDIAGONAL, -1, sizeof(ROTATE_BITMAP_ANTIDIAGONAL));
-    memset(MAGIC_BITMAP, -1, sizeof(MAGIC_BITMAP));
+//    memset(MAGIC_BITMAP_DIAGONAL, -1, sizeof(MAGIC_BITMAP_DIAGONAL));
 
     Bits::getInstance();
     genPerm();
 
     popolateDiagonal();
-
-
-    popolateAntiDiagonal();
+//    popolateAntiDiagonal();
 
 }
 
@@ -40,20 +39,17 @@ void BitmapGenerator::popolateDiagonal() {
     bool b;
     for (uchar pos = 0; pos < 64; pos++) {
         int shiftKey = 0;
-        u64 key = 0x8080808080808080ULL;
+        u64 key = 0x101010101010101ULL;
         do {
             for (u64 allpieces:res[pos]) {
                 b = true;
                 uchar idx = diagonalIdx(pos, allpieces, key);
                 ASSERT_RANGE(idx, 0, 255);
-
                 u64 mapDiag = performDiagShift(pos, allpieces);
-//                 mapDiag = performDiagShift(3, 36743505477402648);
-//            cout << "ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "] <== " << "0x" << mapDiag << "ULL (allpieces: " << hex << "0x" << allpieces << "ULL)" << endl;
-//            cout << "ROTATE_BITMAP_DIAGONAL valore precedente " << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
                 if (ROTATE_BITMAP_DIAGONAL[pos][idx] != mapDiag && ROTATE_BITMAP_DIAGONAL[pos][idx] != -1) {
+                    _assert(0); //TODO cancellare blocco
                     b = false;
-                    for(int ii=0;ii<256;ii++)ROTATE_BITMAP_DIAGONAL[pos][ii]= -1;
+                    for (int ii = 0; ii < 256; ii++)ROTATE_BITMAP_DIAGONAL[pos][ii] = -1;
 
                     if (!(count++ % 100000000)) {
                         cout << dec << "#" << count << " try " << (int) pos << " 0x" << hex << key << "ULL\n";
@@ -76,7 +72,7 @@ void BitmapGenerator::popolateDiagonal() {
 
                 } else {
                     ROTATE_BITMAP_DIAGONAL[pos][idx] = mapDiag;
-                    MAGIC_BITMAP[pos] = key;
+//                    MAGIC_BITMAP_DIAGONAL[pos] = key;
                     //cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
                 }
             }
@@ -84,11 +80,54 @@ void BitmapGenerator::popolateDiagonal() {
         cout << "key pos: " << dec << (int) pos << hex << " 0x" << key << "ULL" << endl;
 
     }
-    cout << "ok";
 }
 
 void BitmapGenerator::popolateAntiDiagonal() {
+    u64 count = 0;
+    bool b;
+    for (uchar pos = 0; pos < 64; pos++) {
+        int shiftKey = 0;
+        u64 key = 0x8080808080808080ULL;
+        do {
+            for (u64 allpieces:res[pos]) {
+                b = true;
+                uchar idx = antiDiagonalIdx(pos, allpieces, key);
+                ASSERT_RANGE(idx, 0, 255);
+                u64 mapDiag = performAntiDiagShift(pos, allpieces);
+                if (ROTATE_BITMAP_ANTIDIAGONAL[pos][idx] != mapDiag && ROTATE_BITMAP_ANTIDIAGONAL[pos][idx] != -1) {
+                    _assert(0); //TODO cancellare blocco
+                    b = false;
+                    for (int ii = 0; ii < 256; ii++)ROTATE_BITMAP_ANTIDIAGONAL[pos][ii] = -1;
 
+                    if (!(count++ % 100000000)) {
+                        cout << dec << "#" << count << " try " << (int) pos << " 0x" << hex << key << "ULL\n";
+                    }
+                    if (shiftKey < 7) {
+                        key >>= 1;
+                        shiftKey++;
+                    }
+//                    else {
+//                        key = 0;
+//                        for (int i = 0; i < 10; i++) {
+//                            int a = POW2[Random::getRandom(0, 7)];
+//                            int b = Random::getRandom(0, 55);
+//                            key |= a << b;
+//                        }
+//
+////                        key = Random::getRandom64();
+//                    }
+                    break;
+
+                } else {
+                    ROTATE_BITMAP_ANTIDIAGONAL[pos][idx] = mapDiag;
+//                    MAGIC_BITMAP_ANTIDIAGONAL[pos] = key;
+                    //cout << "store ROTATE_BITMAP_ANTIDIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_ANTIDIAGONAL[pos][idx] << endl;
+                }
+            }
+        } while (!b);
+        cout << "key pos: " << dec << (int) pos << hex << " 0x" << key << "ULL" << endl;
+
+    }
 }
 
 

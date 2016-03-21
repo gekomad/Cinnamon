@@ -272,7 +272,7 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
 //        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
 #endif
         ///
-        uchar idx = BitmapGenerator::diagonalIdx(position, allpieces, BitmapGenerator::MAGIC_BITMAP[position]);
+        uchar idx = BitmapGenerator::diagonalIdx(position, allpieces, 0x101010101010101ULL);
         u64 nuovo = BitmapGenerator::ROTATE_BITMAP_DIAGONAL[position][idx];
 
         if (k != nuovo) {
@@ -281,9 +281,9 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
         }
         int n;
         while (nuovo) {
-            n = Bits::BITScanForward(k);
+            n = Bits::BITScanForward(nuovo);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
-            RESET_LSB(k);
+            RESET_LSB(nuovo);
         }
         RESET_LSB(x2);
     }
