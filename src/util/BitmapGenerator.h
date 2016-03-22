@@ -27,15 +27,11 @@ public:
     //Kindergarten
 
     inline static uchar diagonalIdx(const int position, u64 allpieces) {
-        u64 diagonalMaskEx_sq = _board::LEFT_DIAG[position] | POW2[position];//TODO
-        allpieces = ((diagonalMaskEx_sq & allpieces) * MAGIC_KEY) >> 56;
-        return allpieces;
+        return  (( (_board::LEFT_DIAG[position] | POW2[position]) & allpieces) * MAGIC_KEY) >> 56;//TODO
     }
 
     inline static uchar antiDiagonalIdx(const int position, u64 allpieces) {
-        u64 diagonalMaskEx_sq = _board::RIGHT_DIAG[position] | POW2[position];//TODO
-        allpieces = ((diagonalMaskEx_sq & allpieces) * MAGIC_KEY) >> 56;
-        return allpieces;
+        return ((( _board::RIGHT_DIAG[position] | POW2[position]) & allpieces) * MAGIC_KEY) >> 56;//TODO
     }
 
 private:
