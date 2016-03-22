@@ -154,14 +154,15 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
         u64 k = 0;
         int position = Bits::BITScanForward(x2);
         ///LEFT
+#ifdef DEBUG_MODE
         u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
         if (q) {
             bound = Bits::BITScanReverse(q);
             if (enemies & POW2[bound]) {
                 k |= POW2[bound];
-                if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
-                    return true;
-                }
+//                if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
+//                    return true;
+//                }
             }
         }
         q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
@@ -169,11 +170,12 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
             bound = Bits::BITScanForward(q);
             if (enemies & POW2[bound]) {
                 k |= POW2[bound];
-                if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
-                    return true;
-                }
+//                if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
+//                    return true;
+//                }
             }
         }
+#endif
         uchar idx = BitmapGenerator::diagonalIdx(position, allpieces);
         uchar idx2 = BitmapGenerator::diagonalIdx(position, enemies);
         u64 nuovo = BitmapGenerator::BITMAP_CAPTURE_DIAGONAL[position][idx][idx2];
@@ -181,15 +183,16 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
 //        if(k != nuovo)cout <<dec<<position<<" "<<allpieces<<" "<<enemies<<" " <<k<<" "<<nuovo<<endl;
         ASSERT(k == nuovo);
         ///RIGHT
+#ifdef DEBUG_MODE
         k = 0;
         q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
         if (q) {
             bound = Bits::BITScanReverse(q);
             if (enemies & POW2[bound]) {
                 k |= POW2[bound];
-                if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
-                    return true;
-                }
+//                if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
+//                    return true;
+//                }
             }
         }
         q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
@@ -197,16 +200,24 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
             bound = Bits::BITScanForward(q);
             if (enemies & POW2[bound]) {
                 k |= POW2[bound];
-                if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
-                    return true;
-                }
+//                if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
+//                    return true;
+//                }
             }
         }
-
+#endif
         idx = BitmapGenerator::antiDiagonalIdx(position, allpieces);
         idx2 = BitmapGenerator::antiDiagonalIdx(position, enemies);
-        nuovo = BitmapGenerator::BITMAP_CAPTURE_ANTIDIAGONAL[position][idx][idx2];
-        ASSERT(k == nuovo);
+        u64 nuovo2 = BitmapGenerator::BITMAP_CAPTURE_ANTIDIAGONAL[position][idx][idx2];
+        ASSERT(k == nuovo2);
+        u64 x=nuovo|nuovo2;
+        while (x) {
+            int bound = Bits::BITScanForward(x);
+            if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
+                return true;
+            }
+            RESET_LSB(x);
+        }
         ///
         RESET_LSB(x2);
     }
