@@ -151,10 +151,11 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
 
     u64 x2 = chessboard[piece];
     while (x2) {
-        u64 k = 0;
+
         int position = Bits::BITScanForward(x2);
         ///LEFT
 #ifdef DEBUG_MODE
+        u64 k = 0;
         u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
         if (q) {
             bound = Bits::BITScanReverse(q);
@@ -177,10 +178,9 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
         }
 #endif
         uchar idx = BitmapGenerator::diagonalIdx(position, allpieces);
-        uchar idx2 = BitmapGenerator::diagonalIdx(position, enemies);
-        u64 nuovo = BitmapGenerator::BITMAP_CAPTURE_DIAGONAL[position][idx][idx2];
+        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][idx] & enemies;
 
-//        if(k != nuovo)cout <<dec<<position<<" "<<allpieces<<" "<<enemies<<" " <<k<<" "<<nuovo<<endl;
+       // if (k != nuovo)cout << dec << position << " " << allpieces << " " << enemies << " " << k << " " << nuovo << endl;
         ASSERT(k == nuovo);
         ///RIGHT
 #ifdef DEBUG_MODE
@@ -206,11 +206,12 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
             }
         }
 #endif
+
         idx = BitmapGenerator::antiDiagonalIdx(position, allpieces);
-        idx2 = BitmapGenerator::antiDiagonalIdx(position, enemies);
-        u64 nuovo2 = BitmapGenerator::BITMAP_CAPTURE_ANTIDIAGONAL[position][idx][idx2];
+        u64 nuovo2 = BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][idx] & enemies;
+
         ASSERT(k == nuovo2);
-        u64 x=nuovo|nuovo2;
+        u64 x = nuovo | nuovo2;
         while (x) {
             int bound = Bits::BITScanForward(x);
             if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
@@ -297,7 +298,7 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
 #endif
 
         uchar idx = BitmapGenerator::diagonalIdx(position, allpieces);
-        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][idx];
+        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][idx] & ~allpieces;;
         ASSERT(k == nuovo);
 #ifdef DEBUG_MODE
         ///RIGHT
@@ -307,8 +308,8 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
         k1 |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
 #endif
 
-        idx = BitmapGenerator::antiDiagonalIdx(position, allpieces);
-        u64 nuovo1 = BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][idx];
+        idx = BitmapGenerator::antiDiagonalIdx(position, allpieces);//TODO riutilizzare i valori calcolati in performDiagCapture
+        u64 nuovo1 = BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][idx] & ~allpieces;
 
         // debug(k1," ",nuovo1);
         ASSERT(k1 == nuovo1);

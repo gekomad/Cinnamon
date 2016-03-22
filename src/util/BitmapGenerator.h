@@ -21,8 +21,8 @@ public:
     static u64 BITMAP_SHIFT_DIAGONAL[64][256];
     static u64 BITMAP_SHIFT_ANTIDIAGONAL[64][256];
 
-    static u64 BITMAP_CAPTURE_DIAGONAL[64][256][256];
-    static u64 BITMAP_CAPTURE_ANTIDIAGONAL[64][256][256];
+//    static u64 BITMAP_CAPTURE_DIAGONAL[64][256][256];
+//    static u64 BITMAP_CAPTURE_ANTIDIAGONAL[64][256][256];
 
     //Kindergarten
 
@@ -49,9 +49,9 @@ private:
     void popolateDiagonal();
 
     void popolateAntiDiagonal();
-    void popolateCaptureDiagonal();
+//    void popolateCaptureDiagonal();
 
-    void popolateCaptureAntiDiagonal();
+//    void popolateCaptureAntiDiagonal();
     vector<u64> combinations_recursive(const vector<u64> &elems, unsigned long req_len,
                                        vector<unsigned long> &pos, unsigned long depth,
                                        unsigned long margin);
