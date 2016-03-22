@@ -99,35 +99,9 @@ void printHeader() {
     cout << flush;
 }
 
-
-u64 get_col(u64 board, int col, int y) {
-    const u64 column_mask = 0x8080808080808080ull;
-    const u64 magic = 0x2040810204081ull;
-
-    u64 column = (board << col) & column_mask;
-    column *= magic;
-    u64 t = 0;
-    int idx = (column >> 56) & 0xff;
-
-    return Bits::MASK_BIT_SET_NOBOUND[idx][y];
-
-}
-
-
 int main(int argc, char **argv) {
     BitmapGenerator BitmapGenerator;
 
-
-//    u64 t = 0;
-//    for (int ii = 0; ii < 999999; ii++)
-//        for (int i = 0; i < 64; i++) {
-//            for (int j = 0; j < 64; j++) {
-////                t += get_col(_random::RANDOM_KEY[i][j], i % 8,j%64);
-//                t += performDiagShift(_random::RANDOM_KEY[i][j], j % 64);
-//            }
-//        }
-//    cout << t;
-//    return 0;
     printHeader();
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);

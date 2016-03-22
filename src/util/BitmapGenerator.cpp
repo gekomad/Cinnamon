@@ -3,6 +3,8 @@
 
 u64 BitmapGenerator::BITMAP_SHIFT_DIAGONAL[64][256];
 u64 BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[64][256];
+u64 BitmapGenerator::BITMAP_SHIFT_COLUMN[64][256];
+u64 BitmapGenerator::BITMAP_SHIFT_RANK[64][256];
 
 BitmapGenerator::BitmapGenerator() {
 
@@ -24,47 +26,99 @@ void BitmapGenerator::genPermDiagonal() {
     for (uchar pos = 0; pos < 64; pos++) {
         vector<u64> elements;
         elements.clear();
-        u64 diag = _board::LEFT_DIAG[pos] | POW2[pos];
+        u64 diag = _board::LEFT_DIAG[pos];
         while (diag) {
             int o = Bits::BITScanForward(diag);
             elements.push_back(o);
             RESET_LSB(diag);
         }
-        resDiagonal[pos] = getPermutation(elements);
+        combinationsDiagonal[pos] = getPermutation(elements);
     }
 }
+
+void BitmapGenerator::genPermColumn() {
+    for (uchar pos = 0; pos < 64; pos++) {
+        vector<u64> elements;
+        elements.clear();
+        u64 diag = _board::FILE_AT[pos];
+        while (diag) {
+            int o = Bits::BITScanForward(diag);
+            elements.push_back(o);
+            RESET_LSB(diag);
+        }
+        combinationsColumn[pos] = getPermutation(elements);
+    }
+}
+
+void BitmapGenerator::genPermRank() {
+    for (uchar pos = 0; pos < 64; pos++) {
+        vector<u64> elements;
+        elements.clear();
+        u64 diag = _board::RANK_AT[pos];
+        while (diag) {
+            int o = Bits::BITScanForward(diag);
+            elements.push_back(o);
+            RESET_LSB(diag);
+        }
+        combinationsRank[pos] = getPermutation(elements);
+    }
+}
+
 
 void BitmapGenerator::genPermAntidiagonal() {
 
     for (uchar pos = 0; pos < 64; pos++) {
         vector<u64> elements;
         elements.clear();
-        u64 diag = _board::RIGHT_DIAG[pos] | POW2[pos];
+        u64 diag = _board::RIGHT_DIAG[pos];
         while (diag) {
             int o = Bits::BITScanForward(diag);
             elements.push_back(o);
             RESET_LSB(diag);
         }
-        resAntiDiagonal[pos] = getPermutation(elements);
+        combinationsAntiDiagonal[pos] = getPermutation(elements);
     }
 }
 
 void BitmapGenerator::popolateDiagonal() {
     for (uchar pos = 0; pos < 64; pos++) {
-        for (u64 allpieces:resDiagonal[pos]) {
+        for (u64 allpieces:combinationsDiagonal[pos]) {
             uchar idx = diagonalIdx(pos, allpieces);
             BITMAP_SHIFT_DIAGONAL[pos][idx] = performDiagShift(pos, allpieces) | performDiagCapture(pos, allpieces, allpieces);
 //                    MAGIC_BITMAP_DIAGONAL[pos] = key;
             //cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
         }
         debug("key pos: ", (int) pos, hex);
+    }
+}
 
+void BitmapGenerator::popolateColumn() {
+    for (uchar pos = 0; pos < 64; pos++) {
+        for (u64 allpieces:combinationsColumn[pos]) {
+            uchar idx = columnIdx(pos, allpieces);
+            BITMAP_SHIFT_COLUMN[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
+//                    MAGIC_BITMAP_DIAGONAL[pos] = key;
+            //cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
+        }
+        debug("key pos: ", (int) pos, hex);
+    }
+}
+
+void BitmapGenerator::popolateRank() {
+    for (uchar pos = 0; pos < 64; pos++) {
+        for (u64 allpieces:combinationsRank[pos]) {
+            uchar idx = rankIdx(pos, allpieces);
+            BITMAP_SHIFT_RANK[pos][idx] = performRankShift(pos, allpieces) | performRankCapture(pos, allpieces);
+//                    MAGIC_BITMAP_DIAGONAL[pos] = key;
+            //cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
+        }
+        debug("key pos: ", (int) pos, hex);
     }
 }
 
 void BitmapGenerator::popolateAntiDiagonal() {
     for (uchar pos = 0; pos < 64; pos++) {
-        for (u64 allpieces:resAntiDiagonal[pos]) {
+        for (u64 allpieces:combinationsAntiDiagonal[pos]) {
             uchar idx = antiDiagonalIdx(pos, allpieces);
             BITMAP_SHIFT_ANTIDIAGONAL[pos][idx] = performAntiDiagShift(pos, allpieces) | performAntiDiagCapture(pos, allpieces, allpieces);
 //                    MAGIC_BITMAP_ANTIDIAGONAL[pos] = key;
@@ -89,10 +143,58 @@ u64 BitmapGenerator::performDiagShift(const int position, const u64 allpieces) {
 
 }
 
+u64 BitmapGenerator::performColumnShift(const int position, const u64 allpieces){
+    u64 q = allpieces & MASK_BIT_UNSET_UP[position];
+    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_VERT_LOWER[position];
+    q = allpieces & MASK_BIT_UNSET_DOWN[position];
+    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_VERT_UPPER[position];
+    return k;
+}
+
+
+u64 BitmapGenerator::performRankShift(const int position, const u64 allpieces){
+    u64 q = allpieces & MASK_BIT_UNSET_RIGHT[position];
+    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_ORIZ_LEFT[position];
+    q = allpieces & MASK_BIT_UNSET_LEFT[position];
+    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_ORIZ_RIGHT[position];
+    return k;
+}
+
+u64 BitmapGenerator::performColumnCapture(const int position, const u64 allpieces){
+    u64 q;
+    u64 k=0;
+    u64 x = allpieces & FILE_[position];
+    if (x & allpieces) {
+        q = x & MASK_BIT_UNSET_UP[position];
+        if (q && allpieces & POW2[Bits::BITScanReverse(q)]) {
+            k|=POW2[Bits::BITScanReverse(q)];
+        }
+        q = x & MASK_BIT_UNSET_DOWN[position];
+        if (q && allpieces & POW2[Bits::BITScanForward(q)]) {
+            k|=POW2[Bits::BITScanForward(q)];
+        }
+    }
+    return k;
+}
+
+u64 BitmapGenerator::performRankCapture(const int position, const u64 allpieces){
+    u64 q;
+    u64 k=0;
+    u64 x = allpieces & FILE_[position];
+    if (x & allpieces) {
+        q = x & MASK_BIT_UNSET_UP[position];
+        if (q && allpieces & POW2[Bits::BITScanReverse(q)]) {
+            k|=POW2[Bits::BITScanReverse(q)];
+        }
+        q = x & MASK_BIT_UNSET_DOWN[position];
+        if (q && allpieces & POW2[Bits::BITScanForward(q)]) {
+            k|=POW2[Bits::BITScanForward(q)];
+        }
+    }
+    return k;
+}
 
 u64 BitmapGenerator::performAntiDiagCapture(const int position, const u64 allpieces, const u64 enemies) {
-//TODO togliere enemies e usare solo allpieces
-
     int bound;
     u64 k = 0;
     u64 q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
