@@ -254,12 +254,16 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
         u64 k = q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_VERT_LOWER[position];
         q = allpieces & MASK_BIT_UNSET_DOWN[position];
         k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_VERT_UPPER[position];
+        uchar idx = columnIdx(position, allpieces);
+        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_COLUMN[position][idx];
+        ASSERT(k==nuovo);
         ///RANK
         q = allpieces & MASK_BIT_UNSET_RIGHT[position];
         k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_ORIZ_LEFT[position];
         q = allpieces & MASK_BIT_UNSET_LEFT[position];
         k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_ORIZ_RIGHT[position];
         ///
+
         int n;
         while (k) {
             n = Bits::BITScanForward(k);

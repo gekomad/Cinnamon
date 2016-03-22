@@ -26,7 +26,7 @@ public:
 
 #define  antiDiagonalIdx(position, allpieces) ( (( _board::RIGHT_DIAG[position]  & allpieces) * BitmapGenerator::MAGIC_KEY) >> 56)
 
-#define  columnIdx(position, allpieces) ((((allpieces << FILE_AT[position]) & FILE_[position])*MAGIC_KEY_FILE)>>56)
+#define  columnIdx(position, allpieces) ((((allpieces >> (7-FILE_AT[position])) & FILE_[position])*BitmapGenerator::MAGIC_KEY_FILE)>>56)
 
 #define  rankIdx(position, allpieces) (allpieces >> RANK_AT[position])
 

@@ -14,9 +14,13 @@ BitmapGenerator::BitmapGenerator() {
     Bits::getInstance();
     genPermDiagonal();
     genPermAntidiagonal();
+    genPermColumn();
+    genPermRank();
+
     popolateAntiDiagonal();
     popolateDiagonal();
-
+    popolateColumn();
+    popolateRank();
     cout << dec;
 
 }
@@ -97,10 +101,10 @@ void BitmapGenerator::popolateColumn() {
         for (u64 allpieces:combinationsColumn[pos]) {
             uchar idx = columnIdx(pos, allpieces);
             BITMAP_SHIFT_COLUMN[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
-//                    MAGIC_BITMAP_DIAGONAL[pos] = key;
-            //cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
+
+            cout << "store BITMAP_SHIFT_COLUMN[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << BITMAP_SHIFT_COLUMN[pos][idx] << endl;
         }
-        debug("key pos: ", (int) pos, hex);
+
     }
 }
 
