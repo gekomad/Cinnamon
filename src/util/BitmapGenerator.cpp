@@ -4,9 +4,6 @@
 u64 BitmapGenerator::BITMAP_SHIFT_DIAGONAL[64][256];
 u64 BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[64][256];
 
-//u64 BitmapGenerator::BITMAP_CAPTURE_DIAGONAL[64][256][256];
-//u64 BitmapGenerator::BITMAP_CAPTURE_ANTIDIAGONAL[64][256][256];
-
 BitmapGenerator::BitmapGenerator() {
 
     memset(BITMAP_SHIFT_DIAGONAL, -1, sizeof(BITMAP_SHIFT_DIAGONAL));
@@ -18,8 +15,6 @@ BitmapGenerator::BitmapGenerator() {
     popolateAntiDiagonal();
     popolateDiagonal();
 
-//    popolateCaptureDiagonal();
-//    popolateCaptureAntiDiagonal();
     cout << dec;
 
 }
@@ -78,41 +73,6 @@ void BitmapGenerator::popolateAntiDiagonal() {
         debug("key pos: ", (int) pos);
     }
 }
-
-
-//void BitmapGenerator::popolateCaptureDiagonal() {
-//    for (uchar pos = 0; pos < 64; pos++) {
-//        for (u64 allpieces:resDiagonal[pos]) {
-//            uchar idx = diagonalIdx(pos, allpieces);
-//            vector<u64> enem = getPermutation(allpieces);
-//            for (u64 enemies:enem) {
-//                uchar idx2 = diagonalIdx(pos, enemies);
-//                BITMAP_CAPTURE_DIAGONAL[pos][idx][idx2] = performDiagCapture(pos, allpieces, enemies);
-////                    MAGIC_BITMAP_DIAGONAL[pos] = key;
-//                //cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
-//            }
-//        }
-//        debug("key pos: ", (int) pos, hex);
-//
-//    }
-//}
-//
-//void BitmapGenerator::popolateCaptureAntiDiagonal() {
-//    for (uchar pos = 0; pos < 64; pos++) {
-//        for (u64 allpieces:resAntiDiagonal[pos]) {
-//            uchar idx = antiDiagonalIdx(pos, allpieces);
-//            vector<u64> enem = getPermutation(allpieces);
-//            for (u64 enemies:enem) {
-//                uchar idx2 = antiDiagonalIdx(pos, enemies);
-//                BITMAP_CAPTURE_ANTIDIAGONAL[pos][idx][idx2] = performAntiDiagCapture(pos, allpieces, enemies);
-////                    MAGIC_BITMAP_DIAGONAL[pos] = key;
-//                //cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
-//            }
-//        }
-//        debug("key pos: ", (int) pos, hex);
-//
-//    }
-//}
 
 u64 BitmapGenerator::performDiagShift(const int position, const u64 allpieces) {
     /*

@@ -21,7 +21,8 @@
 //array<array<uchar, 64>, 64> Bits::DISTANCE;
 
 u64 Bits::MASK_BIT_SET_NOBOUND[64][64];
- char Bits::MASK_BIT_SET_NOBOUND_COUNT[64][64];
+char Bits::MASK_BIT_SET_NOBOUND_COUNT[64][64];
+
 Bits::Bits() {
     //LINK_ROOKS
     LINK_ROOKS = (u64 **) malloc(64 * sizeof(u64 *));
