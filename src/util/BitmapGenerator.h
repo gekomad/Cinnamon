@@ -21,8 +21,8 @@ public:
     static u64 BITMAP_SHIFT_DIAGONAL[64][256];
     static u64 BITMAP_SHIFT_ANTIDIAGONAL[64][256];
 
-    static u64 BITMAP_CAPTURE_DIAGONAL[64][256];
-    static u64 BITMAP_CAPTURE_ANTIDIAGONAL[64][256];
+    static u64 BITMAP_CAPTURE_DIAGONAL[64][256][256];
+    static u64 BITMAP_CAPTURE_ANTIDIAGONAL[64][256][256];
 
     inline static uchar diagonalIdx(const int position, u64 allpieces) {
         u64 diagonalMaskEx_sq = _board::LEFT_DIAG[position] | POW2[position];//TODO
@@ -63,7 +63,7 @@ private:
     u64 performAntiDiagCapture(const int position, const u64 allpieces, const u64 enemies);
 
     u64 performAntiDiagShift(const int position, const u64 allpieces);
-
+    vector<u64> getPermutation(u64 elements);
 public:
     vector<u64> getPermutation(vector<u64> elements);
 };
