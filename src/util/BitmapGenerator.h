@@ -24,12 +24,13 @@ public:
     static u64 BITMAP_CAPTURE_DIAGONAL[64][256][256];
     static u64 BITMAP_CAPTURE_ANTIDIAGONAL[64][256][256];
 
+    //Kindergarten
+
     inline static uchar diagonalIdx(const int position, u64 allpieces) {
         u64 diagonalMaskEx_sq = _board::LEFT_DIAG[position] | POW2[position];//TODO
         allpieces = ((diagonalMaskEx_sq & allpieces) * MAGIC_KEY) >> 56;
         return allpieces;
     }
-
 
     inline static uchar antiDiagonalIdx(const int position, u64 allpieces) {
         u64 diagonalMaskEx_sq = _board::RIGHT_DIAG[position] | POW2[position];//TODO
