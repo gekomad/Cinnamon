@@ -332,7 +332,7 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
 
 int GenMoves::performDiagShiftCount(const int position, const u64 allpieces) {//TODO magic bitboard
     ASSERT_RANGE(position, 0, 63);
-//#ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
     ///LEFT
     u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
     int count = q ? bits.MASK_BIT_SET_NOBOUND_COUNT[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_COUNT_LEFT_LOWER[position];
@@ -343,16 +343,13 @@ int GenMoves::performDiagShiftCount(const int position, const u64 allpieces) {//
     count += q ? bits.MASK_BIT_SET_NOBOUND_COUNT[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_COUNT_RIGHT_LOWER[position];
     q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
     count += q ? bits.MASK_BIT_SET_NOBOUND_COUNT[position][Bits::BITScanForward(q)] : MASK_BIT_SET_COUNT_RIGHT_UPPER[position];
-//#endif
-    return count;
-//    u64 nuovo = BitmapGenerator::BITMAP_SHIFT_COLUMN[position][columnIdx(position, allpieces)];
-//    nuovo |= BitmapGenerator::BITMAP_SHIFT_RANK[position][rankIdx(position, allpieces)];
-//    nuovo =Bits::bitCount(nuovo & ~allpieces);
-//    cout <<count <<" "<<nuovo<<endl;
-//    ASSERT(count == (nuovo ));
-//
-//
-//    return nuovo;
+#endif
+
+    u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][diagonalIdx(position, allpieces)];
+    nuovo |= BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][antiDiagonalIdx(position, allpieces)];
+    nuovo = Bits::bitCount(nuovo & ~allpieces);
+    ASSERT(count == nuovo);
+    return nuovo;
 }
 
 void GenMoves::performDiagShift(const int piece, const int side, const u64 allpieces) {
