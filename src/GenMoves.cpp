@@ -267,8 +267,9 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
     return false;
 }
 
-int GenMoves::performRankFileShiftCount(const int position, const u64 allpieces) {//TODO magic bitboard
+int GenMoves::performRankFileShiftCount(const int position, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
+#ifdef DEBUG_MODE
     int count = 0;
     ///FILE
     u64 q = allpieces & MASK_BIT_UNSET_UP[position];
@@ -280,7 +281,13 @@ int GenMoves::performRankFileShiftCount(const int position, const u64 allpieces)
     count += q ? bits.MASK_BIT_SET_NOBOUND_COUNT[position][Bits::BITScanForward(q)] : MASK_BIT_SET_COUNT_ORIZ_LEFT[position];
     q = allpieces & MASK_BIT_UNSET_LEFT[position];
     count += q ? bits.MASK_BIT_SET_NOBOUND_COUNT[position][Bits::BITScanReverse(q)] : FILE_AT[position];
-    return count;
+#endif
+    u64 nuovo = BitmapGenerator::BITMAP_SHIFT_COLUMN[position][columnIdx(position, allpieces)];
+    nuovo |= BitmapGenerator::BITMAP_SHIFT_RANK[position][rankIdx(position, allpieces)];
+
+    nuovo &= ~allpieces;
+    ASSERT(count == Bits::bitCount(nuovo));
+    return Bits::bitCount(nuovo);
 }
 
 void GenMoves::performRankFileShift(const int piece, const int side, const u64 allpieces) {
@@ -391,33 +398,6 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
     }
 }
 
-//void GenMoves::performDiagShift(const int piece, const int side, const u64 allpieces) {
-//    ASSERT_RANGE(piece, 0, 11);
-//    ASSERT_RANGE(side, 0, 1);
-//    u64 x2 = chessboard[piece];
-//    while (x2) {
-//        int position = Bits::BITScanForward(x2);
-//        ///LEFT
-//        u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
-//        u64 k = q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_LEFT_LOWER[position];
-//        q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
-//        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_LEFT_UPPER[position];
-//        ///RIGHT
-//        q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
-//        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_RIGHT_LOWER[position];
-//        q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
-//        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
-//        ///
-//        int n;
-//        while (k) {
-//            n = Bits::BITScanForward(k);
-//            pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
-//            RESET_LSB(k);
-//        }
-//        RESET_LSB(x2);
-//    }
-//}
-
 void GenMoves::generateMoves(const int side) {
     u64 allpieces = getBitBoard<WHITE>() | getBitBoard<BLACK>();
     side ? generateMoves<WHITE>(allpieces) : generateMoves<BLACK>(allpieces);
@@ -428,24 +408,6 @@ void GenMoves::generateMoves(const int side, const u64 allpieces) {
     side ? generateMoves<WHITE>(allpieces) : generateMoves<BLACK>(allpieces);
 }
 
-/*
-bool GenMoves::generateCapturesMoves() {
-    u64 w = getBitBoard<WHITE>();
-    u64 b = getBitBoard<BLACK>();
-    ASSERT(w == (getBitBoardNoPawns<WHITE>() | chessboard[PAWN_WHITE]));
-    ASSERT(b == (getBitBoardNoPawns<BLACK>() | chessboard[PAWN_BLACK]));
-    int side = getSide();
-    if (side == WHITE) {
-        if (generateCaptures(side, b, w))return true;
-        generateMoves(side, w | b);
-    } else {
-        if (generateCaptures(side, w, b))return true;
-        generateMoves(side, b | w);
-    }
-    return false;
-}
-
-*/
 bool GenMoves::generateCaptures(const int side, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(side, 0, 1);
     return side ? generateCaptures<WHITE>(enemies, friends) : generateCaptures<BLACK>(enemies, friends);
@@ -460,24 +422,13 @@ int GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 
     ASSERT_RANGE(position, 0, 63);
     return performRankFileCaptureAndShiftCount(position, enemies, allpieces) +
            Bits::bitCount(performDiagShiftAndCaptureBits(position, enemies, allpieces));
-
-
 }
 
 int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(position, 0, 63);
-//    int t = performRankFileCaptureCount(position, enemies, enemies | friends) + performRankFileShiftCount(position, enemies | friends);
     return performRankFileCaptureAndShiftCount(position, enemies, enemies | friends);
-//    cout << position << " " << enemies << " " << friends << " " << t << " " << y << endl;
-
 }
 
-/*
-_Tmove *GenMoves::getNextMove() {
-    ASSERT(listId >= 0);
-    return GenMoves::getNextMove(&gen_list[listId++]);
-}
-*/
 void GenMoves::setPerft(const bool b) {
     perftMode = b;
 }
