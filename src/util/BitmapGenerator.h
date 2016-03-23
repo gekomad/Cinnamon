@@ -21,9 +21,9 @@ public:
 
 #define diagonalIdx(position, allpieces) ( (( _board::LEFT_DIAG[position]  & (allpieces)) * BitmapGenerator::MAGIC_KEY) >> 56   )
 
-#define antiDiagonalIdx(position, allpieces) ( (( _board::RIGHT_DIAG[position]  & allpieces) * BitmapGenerator::MAGIC_KEY) >> 56)
+#define antiDiagonalIdx(position, allpieces) ( (( _board::RIGHT_DIAG[position]  & (allpieces)) * BitmapGenerator::MAGIC_KEY) >> 56)
 
-#define columnIdx(position, allpieces) (((allpieces & FILE_[position])*BitmapGenerator::MAGIC_KEY_FILE)>>56)
+#define columnIdx(position, allpieces) (((allpieces & FILE_[position]) * BitmapGenerator::MAGIC_KEY_FILE) >>56)
 
 #define rankIdx(position, allpieces) ((allpieces) >> RANK_ATx8[position])
 
