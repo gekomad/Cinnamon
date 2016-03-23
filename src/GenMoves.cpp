@@ -102,6 +102,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
 
 int GenMoves::performRankFileCaptureCount(const int position, const u64 enemies, const u64 allpieces) {//TODO magic bitboard
     ASSERT_RANGE(position, 0, 63);
+#ifdef DEBUG_MODE
     int count = 0;
     u64 q;
     u64 x = allpieces & FILE_[position];
@@ -126,7 +127,13 @@ int GenMoves::performRankFileCaptureCount(const int position, const u64 enemies,
             count++;
         }
     }
-    return count;
+#endif
+    u64 nuovo = BitmapGenerator::BITMAP_SHIFT_COLUMN[position][columnIdx(position, allpieces)];
+    nuovo |= BitmapGenerator::BITMAP_SHIFT_RANK[position][rankIdx(position, allpieces)];
+    // cout << allpieces << " " << k2 << " " << (nuovo2 & enemies) << endl;
+    nuovo &= enemies;
+    ASSERT(count == Bits::bitCount(nuovo));
+    return Bits::bitCount(nuovo);
 }
 
 u64 GenMoves::performDiagCaptureBits(const int position, const u64 allpieces) {//TODO magic bitboard
