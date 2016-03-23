@@ -132,10 +132,10 @@ int Eval::evaluateBishop(u64 enemies, u64 friends) {
     }
     while (x) {
         int o = Bits::BITScanForward(x);
-        u64 captured = performDiagCaptureBits(o, enemies | friends);
-        ASSERT(Bits::bitCount(captured & enemies) + performDiagShiftCount(o, enemies | friends) < (int) (sizeof(MOB_BISHOP) / sizeof(int)));
-        result += MOB_BISHOP[phase][Bits::bitCount(captured & enemies) + performDiagShiftCount(o, enemies | friends)];
-        ADD(SCORE_DEBUG.MOB_BISHOP[side], MOB_BISHOP[phase][Bits::bitCount(captured & enemies) + performDiagShiftCount(o, enemies | friends)]);
+        u64 captured = performDiagCaptureBits(o, enemies | friends, enemies);
+        ASSERT(Bits::bitCount(captured) + performDiagShiftCount(o, enemies | friends) < (int) (sizeof(MOB_BISHOP) / sizeof(int)));
+        result += MOB_BISHOP[phase][Bits::bitCount(captured) + performDiagShiftCount(o, enemies | friends)];
+        ADD(SCORE_DEBUG.MOB_BISHOP[side], MOB_BISHOP[phase][Bits::bitCount(captured) + performDiagShiftCount(o, enemies | friends)]);
         structure.kingSecurityDistance[side] += BISHOP_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & POW2[o] ? 1 : 0);
         ADD(SCORE_DEBUG.KING_SECURITY_BISHOP[side], BISHOP_NEAR_KING * (NEAR_MASK2[structure.posKing[side]] & POW2[o] ? 1 : 0));
         if (phase != OPEN) {

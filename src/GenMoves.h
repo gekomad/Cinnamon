@@ -99,7 +99,7 @@ public:
 
     int loadFen(string fen = "");
 
-    u64 performDiagCaptureBits(const int, const u64 allpieces);
+    u64 performDiagCaptureBits(const int, const u64 allpieces,const u64 enemies);
 
     void takeback(_Tmove *move, const u64 oldkey, bool rep);
 

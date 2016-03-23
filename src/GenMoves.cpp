@@ -100,7 +100,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
     return false;
 }
 
-int GenMoves::performRankFileCaptureCount(const int position, const u64 enemies, const u64 allpieces) {//TODO magic bitboard
+int GenMoves::performRankFileCaptureCount(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
 #ifdef DEBUG_MODE
     int count = 0;
@@ -136,30 +136,35 @@ int GenMoves::performRankFileCaptureCount(const int position, const u64 enemies,
     return Bits::bitCount(nuovo);
 }
 
-u64 GenMoves::performDiagCaptureBits(const int position, const u64 allpieces) {//TODO magic bitboard
+u64 GenMoves::performDiagCaptureBits(const int position, const u64 allpieces,const u64 enemies) {//TODO magic bitboard
     ASSERT_RANGE(position, 0, 63);
+#ifdef DEBUG_MODE
     u64 capturated = 0;
     u64 c = 0;
     ///LEFT
     u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
     if (q && ((c = POW2[Bits::BITScanReverse(q)]))) {
-        capturated |= c;
+        capturated |= c&enemies;
     }
     q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
     if (q && ((c = POW2[Bits::BITScanForward(q)]))) {
-        capturated |= c;
+        capturated |=  c&enemies;
     }
     ///RIGHT
     q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
     if (q && ((c = POW2[Bits::BITScanReverse(q)]))) {
-        capturated |= c;
+        capturated |= c&enemies;
     }
     q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
     if (q && ((c = POW2[Bits::BITScanForward(q)]))) {
-        capturated |= c;
+        capturated |=  c&enemies;
     }
-    ///
-    return capturated;
+#endif
+    u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][diagonalIdx(position, allpieces)];
+    nuovo |= BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][antiDiagonalIdx(position, allpieces)];
+
+    ASSERT(capturated ==(nuovo&enemies));
+    return nuovo&enemies;
 }
 
 bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {
@@ -424,7 +429,7 @@ int GenMoves::getMobilityPawns(const int side, const int ep, const u64 ped_frien
 
 int GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(position, 0, 63);
-    return performRankFileCaptureCount(position, enemies, enemies | friends) + Bits::bitCount(enemies & performDiagCaptureBits(position, enemies | friends)) + performRankFileShiftCount(position, enemies | friends) + performDiagShiftCount(position, enemies | friends);
+    return performRankFileCaptureCount(position, enemies, enemies | friends) + Bits::bitCount(enemies & performDiagCaptureBits(position, enemies | friends,enemies)) + performRankFileShiftCount(position, enemies | friends) + performDiagShiftCount(position, enemies | friends);
 }
 
 int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
