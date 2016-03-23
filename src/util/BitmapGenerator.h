@@ -1,10 +1,7 @@
 #include <algorithm>
-#include <cassert>
-#include <iostream>
 #include <vector>
 #include "../namespaces/def.h"
 #include "Bits.h"
-#include "Random.h"
 
 using namespace _def;
 using std::vector;
@@ -36,27 +33,25 @@ private:
     vector<u64> combinationsColumn[64];
     vector<u64> combinationsRank[64];
 
+    vector<u64> getPermutation(vector<u64> elements);
+
     void popolateColumn();
 
-    void genPermDiagonal();
-
-    void genPermAntidiagonal();
+    void genPermutation();
 
     void popolateDiagonal();
 
     void popolateAntiDiagonal();
 
-    vector<u64> combinations_recursive(const vector<u64> &elems, unsigned long req_len,
-                                       vector<unsigned long> &pos, unsigned long depth,
-                                       unsigned long margin);
+    vector<u64> combinations(const vector<u64> &elems, int len, vector<int> &pos, int depth, int margin);
 
-    vector<u64> combinations(const vector<u64> &elems, unsigned long comb_len);
+    vector<u64> combinations(const vector<u64> &elems, int len);
 
     u64 performDiagShift(const int position, const u64 allpieces);
 
-    u64 performDiagCapture(const int position, const u64 allpieces, const u64 enemies);
+    u64 performDiagCapture(const int position, const u64 allpieces);
 
-    u64 performAntiDiagCapture(const int position, const u64 allpieces, const u64 enemies);
+    u64 performAntiDiagCapture(const int position, const u64 allpieces);
 
     u64 performAntiDiagShift(const int position, const u64 allpieces);
 
@@ -72,11 +67,5 @@ private:
 
     u64 performColumnShift(const int position, const u64 allpieces);
 
-    void genPermColumn();
-
-    void genPermRank();
-
-public:
-    vector<u64> getPermutation(vector<u64> elements);
 };
 

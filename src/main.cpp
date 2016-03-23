@@ -20,8 +20,6 @@
 #include "util/GetOpt.h"
 #include "util/BitmapGenerator.h"
 
-vector<u64> getPermutationDiag(int pos);
-
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 
 #include <gtest/gtest.h>
