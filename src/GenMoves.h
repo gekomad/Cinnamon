@@ -99,7 +99,9 @@ public:
 
     int loadFen(string fen = "");
 
-    u64 performDiagCaptureBits(const int, const u64 allpieces,const u64 enemies);
+    u64 performDiagCaptureBits(const int, const u64 allpieces, const u64 enemies);
+
+    u64 performDiagShiftAndCaptureBits(const int position, const u64 enemies, const u64 allpieces);
 
     void takeback(_Tmove *move, const u64 oldkey, bool rep);
 
@@ -330,7 +332,7 @@ protected:
 
     int getMobilityCastle(const int side, const u64 allpieces);
 
-    int getMobilityQueen(const int position, const u64 enemies, const u64 friends);
+    int getMobilityQueen(const int position, const u64 enemies, const u64 allpieces);
 
     void initKillerHeuristic();
 
@@ -536,7 +538,9 @@ private:
     }
 
     int performRankFileCaptureCount(const int, const u64 enemies, const u64 allpieces);
-    int performRankFileCaptureAndShiftCount(const int position, const u64 enemies, const u64 allpieces) ;
+
+    int performRankFileCaptureAndShiftCount(const int position, const u64 enemies, const u64 allpieces);
+
     int performRankFileShiftCount(const int piece, const u64 allpieces);
 
     void popStackMove() {

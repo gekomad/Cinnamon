@@ -147,6 +147,14 @@ int GenMoves::performRankFileCaptureCount(const int position, const u64 enemies,
     return Bits::bitCount(nuovo);
 }
 
+u64 GenMoves::performDiagShiftAndCaptureBits(const int position, const u64 enemies, const u64 allpieces) {
+    ASSERT_RANGE(position, 0, 63);
+    u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][diagonalIdx(position, allpieces)];
+    nuovo |= BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][antiDiagonalIdx(position, allpieces)];
+    return (nuovo & enemies) | (nuovo & ~allpieces);
+}
+
+
 u64 GenMoves::performDiagCaptureBits(const int position, const u64 allpieces, const u64 enemies) {
     ASSERT_RANGE(position, 0, 63);
 #ifdef DEBUG_MODE
@@ -448,9 +456,12 @@ int GenMoves::getMobilityPawns(const int side, const int ep, const u64 ped_frien
     return ep == NO_ENPASSANT ? 0 : Bits::bitCount(ENPASSANT_MASK[side ^ 1][ep] & chessboard[side]) + side == WHITE ? Bits::bitCount((ped_friends << 8) & xallpieces) + Bits::bitCount(((((ped_friends & TABJUMPPAWN) << 8) & xallpieces) << 8) & xallpieces) + Bits::bitCount((chessboard[side] << 7) & TABCAPTUREPAWN_LEFT & enemies) + Bits::bitCount((chessboard[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies) : Bits::bitCount((ped_friends >> 8) & xallpieces) + Bits::bitCount(((((ped_friends & TABJUMPPAWN) >> 8) & xallpieces) >> 8) & xallpieces) + Bits::bitCount((chessboard[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies) + Bits::bitCount((chessboard[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies);
 }
 
-int GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 friends) {
+int GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
-    return performRankFileCaptureCount(position, enemies, enemies | friends) + Bits::bitCount(enemies & performDiagCaptureBits(position, enemies | friends, enemies)) + performRankFileShiftCount(position, enemies | friends) + performDiagShiftCount(position, enemies | friends);
+    return performRankFileCaptureAndShiftCount(position, enemies, allpieces) +
+           Bits::bitCount(performDiagShiftAndCaptureBits(position, enemies, allpieces));
+
+
 }
 
 int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
