@@ -35,7 +35,7 @@ GenMoves::GenMoves() : perftMode(false), listId(-1) {
     repetitionMapCount = 0;
 }
 
-bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {//TODO magic bitboard
+bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {
     ASSERT_RANGE(piece, 0, 11);
     ASSERT_RANGE(side, 0, 1);
     int bound;
@@ -80,15 +80,13 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
             }
         }
 #endif
-        uchar idx = columnIdx(position, allpieces);
-        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_COLUMN[position][idx];
-        ASSERT(k == (nuovo & enemies));
 
-        idx = rankIdx(position, allpieces);
-        u64 nuovo2 = (BitmapGenerator::BITMAP_SHIFT_RANK[position][idx]);
+        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_COLUMN[position][columnIdx(position, allpieces)];
+        ASSERT(k == (nuovo & enemies));
+        nuovo |= BitmapGenerator::BITMAP_SHIFT_RANK[position][rankIdx(position, allpieces)];
         // cout << allpieces << " " << k2 << " " << (nuovo2 & enemies) << endl;
-        ASSERT(k2 == (nuovo2 & enemies));
-        nuovo = (nuovo | nuovo2) & enemies;
+//        ASSERT(k2 == (nuovo2 & enemies));
+        nuovo &= enemies;
         while (nuovo) {
             int bound = Bits::BITScanForward(nuovo);
             if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
@@ -190,14 +188,13 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
             }
         }
 #endif
-        uchar idx = diagonalIdx(position, allpieces);
-        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][idx];
+        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][diagonalIdx(position, allpieces)];
 
         // if (k != nuovo)cout << dec << position << " " << allpieces << " " << enemies << " " << k << " " << nuovo << endl;
         ASSERT(k == (nuovo & enemies));
         ///RIGHT
 #ifdef DEBUG_MODE
-        k = 0;
+
         q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
         if (q) {
             bound = Bits::BITScanReverse(q);
@@ -220,19 +217,18 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
         }
 #endif
 
-        idx = antiDiagonalIdx(position, allpieces);
-        u64 nuovo2 = BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][idx];
+        nuovo |= BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][antiDiagonalIdx(position, allpieces)];
 
-        ASSERT(k == (nuovo2 & enemies));
-        u64 x = nuovo | nuovo2;
+        ASSERT(k == (nuovo & enemies));
+
 //        generatedMoves[position] = x;
-        x &= enemies;
-        while (x) {
-            int bound = Bits::BITScanForward(x);
+        nuovo &= enemies;
+        while (nuovo) {
+            int bound = Bits::BITScanForward(nuovo);
             if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
                 return true;
             }
-            RESET_LSB(x);
+            RESET_LSB(nuovo);
         }
         ///
         RESET_LSB(x2);
@@ -269,28 +265,28 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
         q = allpieces & MASK_BIT_UNSET_DOWN[position];
         k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_VERT_UPPER[position];
 #endif
-        uchar idx = columnIdx(position, allpieces);
-        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_COLUMN[position][idx];
+
+        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_COLUMN[position][columnIdx(position, allpieces)];
 
         ASSERT(k == (nuovo & ~allpieces));
         ///RANK
 #ifdef DEBUG_MODE
         q = allpieces & MASK_BIT_UNSET_RIGHT[position];
-        u64 k2 = q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_ORIZ_LEFT[position];
+        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_ORIZ_LEFT[position];
         q = allpieces & MASK_BIT_UNSET_LEFT[position];
-        k2 |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_ORIZ_RIGHT[position];
+        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_ORIZ_RIGHT[position];
 #endif
         ///
-        idx = rankIdx(position, allpieces);
-        u64 nuovo2 = BitmapGenerator::BITMAP_SHIFT_RANK[position][idx];
 
-        ASSERT(k2 == (nuovo2 & ~allpieces));
-        int n;
-        u64 x = (nuovo | nuovo2) & ~allpieces;
-        while (x) {
-            n = Bits::BITScanForward(x);
+        nuovo |= BitmapGenerator::BITMAP_SHIFT_RANK[position][rankIdx(position, allpieces)];
+
+        ASSERT(k == (nuovo & ~allpieces));
+        nuovo &= ~allpieces;
+
+        while (nuovo) {
+            int n = Bits::BITScanForward(nuovo);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
-            RESET_LSB(x);
+            RESET_LSB(nuovo);
         }
         RESET_LSB(x2);
     }
@@ -325,8 +321,8 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
 //        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_LEFT_UPPER[position];
 //#endif
 
-        uchar idx = diagonalIdx(position, allpieces);
-        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][idx];
+
+        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][diagonalIdx(position, allpieces)];
 //        ASSERT(k == (nuovo & ~allpieces));
 //#ifdef DEBUG_MODE
 //        ///RIGHT
@@ -336,20 +332,19 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
 //        k1 |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
 //#endif
 
-        idx = antiDiagonalIdx(position, allpieces);//TODO riutilizzare i valori calcolati in performDiagCapture
-        u64 nuovo1 = BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][idx];
+        nuovo |= BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][antiDiagonalIdx(position, allpieces)];
 
 //        ASSERT(k1 == (nuovo1 & ~allpieces));
+        nuovo &= ~allpieces;
 
-        u64 x = (nuovo | nuovo1) & ~allpieces;
 //        cout << "aaaaaaaa " << x << " " << generatedMoves[position] << endl;
 //        ASSERT(x == generatedMoves[position]);
 //        u64 x = generatedMoves[position] & ~allpieces;
 //        x &= ~allpieces;
-        while (x) {
-            int n = Bits::BITScanForward(x);
+        while (nuovo) {
+            int n = Bits::BITScanForward(nuovo);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
-            RESET_LSB(x);
+            RESET_LSB(nuovo);
         }
         RESET_LSB(x2);
     }

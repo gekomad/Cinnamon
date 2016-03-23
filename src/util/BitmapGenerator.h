@@ -19,13 +19,13 @@ public:
     static u64 BITMAP_SHIFT_COLUMN[64][256];
     static u64 BITMAP_SHIFT_RANK[64][256];
 
-#define diagonalIdx(position, allpieces) ( (( _board::LEFT_DIAG[position]  & (allpieces)) * BitmapGenerator::MAGIC_KEY) >> 56   )
+#define diagonalIdx(position, allpieces) ( (uchar)((( _board::LEFT_DIAG[position]  & (allpieces)) * BitmapGenerator::MAGIC_KEY) >> 56   ))
 
-#define antiDiagonalIdx(position, allpieces) ( (( _board::RIGHT_DIAG[position]  & (allpieces)) * BitmapGenerator::MAGIC_KEY) >> 56)
+#define antiDiagonalIdx(position, allpieces) ((uchar) ((( _board::RIGHT_DIAG[position]  & (allpieces)) * BitmapGenerator::MAGIC_KEY) >> 56))
 
-#define columnIdx(position, allpieces) (((allpieces & FILE_[position]) * BitmapGenerator::MAGIC_KEY_FILE) >>56)
+#define columnIdx(position, allpieces) ((uchar)(((allpieces & FILE_[position]) * BitmapGenerator::MAGIC_KEY_FILE) >>56))
 
-#define rankIdx(position, allpieces) ((allpieces) >> RANK_ATx8[position])
+#define rankIdx(position, allpieces) ((uchar)((allpieces) >> RANK_ATx8[position]))
 
 private:
     vector<u64> combinationsDiagonal[64];
