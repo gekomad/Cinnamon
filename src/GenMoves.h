@@ -536,7 +536,7 @@ private:
     }
 
     int performRankFileCaptureCount(const int, const u64 enemies, const u64 allpieces);
-
+    int performRankFileCaptureAndShiftCount(const int position, const u64 enemies, const u64 allpieces) ;
     int performRankFileShiftCount(const int piece, const u64 allpieces);
 
     void popStackMove() {
