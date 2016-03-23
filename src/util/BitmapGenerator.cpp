@@ -183,13 +183,13 @@ u64 BitmapGenerator::performColumnCapture(const int position, const u64 allpiece
 u64 BitmapGenerator::performRankCapture(const int position, const u64 allpieces) {
     u64 q;
     u64 k = 0;
-    u64 x = allpieces & FILE_[position];
+    u64 x = allpieces & RANK[position];
     if (x & allpieces) {
-        q = x & MASK_BIT_UNSET_UP[position];
+        q = x & MASK_BIT_UNSET_LEFT[position];
         if (q && allpieces & POW2[Bits::BITScanReverse(q)]) {
             k |= POW2[Bits::BITScanReverse(q)];
         }
-        q = x & MASK_BIT_UNSET_DOWN[position];
+        q = x & MASK_BIT_UNSET_RIGHT[position];
         if (q && allpieces & POW2[Bits::BITScanForward(q)]) {
             k |= POW2[Bits::BITScanForward(q)];
         }
@@ -273,13 +273,9 @@ vector<u64> BitmapGenerator::combinations_recursive(const vector<u64> &elems, un
         return res;
     }
 
-    // Are there enough remaining elements to be selected?
-    // This test isn't required for the function to be correct, but
-    // it can save a good amount of futile function calls.
     if ((elems.size() - margin) < (req_len - depth))
         return res;
 
-    // Try to select new elements to the right of the last selected one.
     for (unsigned long ii = margin; ii < elems.size(); ++ii) {
         pos[depth] = ii;
 

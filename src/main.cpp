@@ -101,7 +101,6 @@ void printHeader() {
 
 int main(int argc, char **argv) {
     BitmapGenerator BitmapGenerator;
-
     printHeader();
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);

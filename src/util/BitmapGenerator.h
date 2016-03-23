@@ -24,18 +24,11 @@ public:
 
 #define diagonalIdx(position, allpieces) ( (( _board::LEFT_DIAG[position]  & (allpieces)) * BitmapGenerator::MAGIC_KEY) >> 56   )
 
-#define  antiDiagonalIdx(position, allpieces) ( (( _board::RIGHT_DIAG[position]  & allpieces) * BitmapGenerator::MAGIC_KEY) >> 56)
+#define antiDiagonalIdx(position, allpieces) ( (( _board::RIGHT_DIAG[position]  & allpieces) * BitmapGenerator::MAGIC_KEY) >> 56)
 
-#define  columnIdx(position, allpieces) (((allpieces & FILE_[position])*BitmapGenerator::MAGIC_KEY_FILE)>>56)
+#define columnIdx(position, allpieces) (((allpieces & FILE_[position])*BitmapGenerator::MAGIC_KEY_FILE)>>56)
 
-//    static char columnIdsx(int position, u64 allpieces) {
-//        u64 y=FILE_[position]| POW2[position];
-//        uchar r= ((allpieces  & y)*BitmapGenerator::MAGIC_KEY_FILE)>>56;
-//
-//        return r;
-//    }
-
-#define  rankIdx(position, allpieces) (allpieces >> 8*RANK_AT[position])
+#define rankIdx(position, allpieces) ((allpieces) >> RANK_ATx8[position])
 
 private:
     vector<u64> combinationsDiagonal[64];

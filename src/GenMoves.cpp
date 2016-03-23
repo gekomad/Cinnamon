@@ -42,7 +42,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
     u64 x, q, x2 = chessboard[piece];
     while (x2) {
         int position = Bits::BITScanForward(x2);
-
+#ifdef DEBUG_MODE
         u64 k = 0;
         x = allpieces & FILE_[position];
         if (x & enemies) {
@@ -79,15 +79,14 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
                 }
             }
         }
-
+#endif
         uchar idx = columnIdx(position, allpieces);
         u64 nuovo = BitmapGenerator::BITMAP_SHIFT_COLUMN[position][idx];
         ASSERT(k == (nuovo & enemies));
 
-
         idx = rankIdx(position, allpieces);
         u64 nuovo2 = (BitmapGenerator::BITMAP_SHIFT_RANK[position][idx]);
-        cout << allpieces << " " << k2 << " " << (nuovo2 & enemies) << endl;
+        // cout << allpieces << " " << k2 << " " << (nuovo2 & enemies) << endl;
         ASSERT(k2 == (nuovo2 & enemies));
         nuovo = (nuovo | nuovo2) & enemies;
         while (nuovo) {
@@ -97,48 +96,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
             }
             RESET_LSB(nuovo);
         }
-//        x = allpieces & FILE_[position];
-//        if (x & enemies) {
-//            q = x & MASK_BIT_UNSET_UP[position];
-//            if (q) {
-//                bound = Bits::BITScanReverse(q);
-//                if (enemies & POW2[bound]) {
-//                    if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
-//                        return true;
-//                    }
-//                }
-//            }
-//            q = x & MASK_BIT_UNSET_DOWN[position];
-//            if (q) {
-//                bound = Bits::BITScanForward(q);
-//                if (enemies & POW2[bound]) {
-//                    if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
-//                        return true;
-//                    }
-//                }
-//            }
-//        }
-//        x = allpieces & RANK[position];
-//        if (x & enemies) {
-//            q = x & MASK_BIT_UNSET_RIGHT[position];
-//            if (q) {
-//                bound = Bits::BITScanForward(q);
-//                if (enemies & POW2[bound]) {
-//                    if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
-//                        return true;
-//                    }
-//                }
-//            }
-//            q = x & MASK_BIT_UNSET_LEFT[position];
-//            if (q) {
-//                bound = Bits::BITScanReverse(q);
-//                if (enemies & POW2[bound]) {
-//                    if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
-//                        return true;
-//                    }
-//                }
-//            }
-//        }
+
         RESET_LSB(x2);
     }
     return false;
