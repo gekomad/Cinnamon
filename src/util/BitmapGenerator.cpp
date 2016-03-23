@@ -44,7 +44,7 @@ void BitmapGenerator::genPermColumn() {
     for (uchar pos = 0; pos < 64; pos++) {
         vector<u64> elements;
         elements.clear();
-        u64 diag = _board::FILE_AT[pos];
+        u64 diag = _board::FILE_[pos];
         while (diag) {
             int o = Bits::BITScanForward(diag);
             elements.push_back(o);
@@ -58,7 +58,7 @@ void BitmapGenerator::genPermRank() {
     for (uchar pos = 0; pos < 64; pos++) {
         vector<u64> elements;
         elements.clear();
-        u64 diag = _board::RANK_AT[pos];
+        u64 diag = _board::RANK[pos];
         while (diag) {
             int o = Bits::BITScanForward(diag);
             elements.push_back(o);
@@ -67,7 +67,6 @@ void BitmapGenerator::genPermRank() {
         combinationsRank[pos] = getPermutation(elements);
     }
 }
-
 
 void BitmapGenerator::genPermAntidiagonal() {
 
@@ -102,7 +101,7 @@ void BitmapGenerator::popolateColumn() {
             uchar idx = columnIdx(pos, allpieces);
             BITMAP_SHIFT_COLUMN[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
 
-            cout << "store BITMAP_SHIFT_COLUMN[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << BITMAP_SHIFT_COLUMN[pos][idx] << endl;
+//            cout << "store BITMAP_SHIFT_COLUMN[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << BITMAP_SHIFT_COLUMN[pos][idx] << endl;
         }
 
     }
@@ -147,7 +146,7 @@ u64 BitmapGenerator::performDiagShift(const int position, const u64 allpieces) {
 
 }
 
-u64 BitmapGenerator::performColumnShift(const int position, const u64 allpieces){
+u64 BitmapGenerator::performColumnShift(const int position, const u64 allpieces) {
     u64 q = allpieces & MASK_BIT_UNSET_UP[position];
     u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_VERT_LOWER[position];
     q = allpieces & MASK_BIT_UNSET_DOWN[position];
@@ -156,7 +155,7 @@ u64 BitmapGenerator::performColumnShift(const int position, const u64 allpieces)
 }
 
 
-u64 BitmapGenerator::performRankShift(const int position, const u64 allpieces){
+u64 BitmapGenerator::performRankShift(const int position, const u64 allpieces) {
     u64 q = allpieces & MASK_BIT_UNSET_RIGHT[position];
     u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_ORIZ_LEFT[position];
     q = allpieces & MASK_BIT_UNSET_LEFT[position];
@@ -164,35 +163,35 @@ u64 BitmapGenerator::performRankShift(const int position, const u64 allpieces){
     return k;
 }
 
-u64 BitmapGenerator::performColumnCapture(const int position, const u64 allpieces){
+u64 BitmapGenerator::performColumnCapture(const int position, const u64 allpieces) {
     u64 q;
-    u64 k=0;
+    u64 k = 0;
     u64 x = allpieces & FILE_[position];
     if (x & allpieces) {
         q = x & MASK_BIT_UNSET_UP[position];
         if (q && allpieces & POW2[Bits::BITScanReverse(q)]) {
-            k|=POW2[Bits::BITScanReverse(q)];
+            k |= POW2[Bits::BITScanReverse(q)];
         }
         q = x & MASK_BIT_UNSET_DOWN[position];
         if (q && allpieces & POW2[Bits::BITScanForward(q)]) {
-            k|=POW2[Bits::BITScanForward(q)];
+            k |= POW2[Bits::BITScanForward(q)];
         }
     }
     return k;
 }
 
-u64 BitmapGenerator::performRankCapture(const int position, const u64 allpieces){
+u64 BitmapGenerator::performRankCapture(const int position, const u64 allpieces) {
     u64 q;
-    u64 k=0;
+    u64 k = 0;
     u64 x = allpieces & FILE_[position];
     if (x & allpieces) {
         q = x & MASK_BIT_UNSET_UP[position];
         if (q && allpieces & POW2[Bits::BITScanReverse(q)]) {
-            k|=POW2[Bits::BITScanReverse(q)];
+            k |= POW2[Bits::BITScanReverse(q)];
         }
         q = x & MASK_BIT_UNSET_DOWN[position];
         if (q && allpieces & POW2[Bits::BITScanForward(q)]) {
-            k|=POW2[Bits::BITScanForward(q)];
+            k |= POW2[Bits::BITScanForward(q)];
         }
     }
     return k;

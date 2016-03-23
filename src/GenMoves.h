@@ -512,7 +512,7 @@ protected:
 
 private:
     int running;
-    u64 generatedMoves[64];
+//    u64 generatedMoves[64];
     static bool forceCheck;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;

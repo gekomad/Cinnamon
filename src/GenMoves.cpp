@@ -212,7 +212,7 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
 
         ASSERT(k == (nuovo2 & enemies));
         u64 x = nuovo | nuovo2;
-        generatedMoves[position] = x;
+//        generatedMoves[position] = x;
         x &= enemies;
         while (x) {
             int bound = Bits::BITScanForward(x);
@@ -250,25 +250,34 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
     while (x2) {
         int position = Bits::BITScanForward(x2);
         ///FILE
+#ifdef DEBUG_MODE
         u64 q = allpieces & MASK_BIT_UNSET_UP[position];
         u64 k = q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_VERT_LOWER[position];
         q = allpieces & MASK_BIT_UNSET_DOWN[position];
         k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_VERT_UPPER[position];
+#endif
         uchar idx = columnIdx(position, allpieces);
         u64 nuovo = BitmapGenerator::BITMAP_SHIFT_COLUMN[position][idx];
-        ASSERT(k==nuovo);
-        ///RANK
-        q = allpieces & MASK_BIT_UNSET_RIGHT[position];
-        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_ORIZ_LEFT[position];
-        q = allpieces & MASK_BIT_UNSET_LEFT[position];
-        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_ORIZ_RIGHT[position];
-        ///
 
+        ASSERT(k == (nuovo & ~allpieces));
+        ///RANK
+#ifdef DEBUG_MODE
+        q = allpieces & MASK_BIT_UNSET_RIGHT[position];
+        u64 k2 = q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_ORIZ_LEFT[position];
+        q = allpieces & MASK_BIT_UNSET_LEFT[position];
+        k2 |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_ORIZ_RIGHT[position];
+#endif
+        ///
+        idx = rankIdx(position, allpieces);
+        u64 nuovo2 = BitmapGenerator::BITMAP_SHIFT_RANK[position][idx];
+
+        ASSERT(k2 == (nuovo2 & ~allpieces));
         int n;
-        while (k) {
-            n = Bits::BITScanForward(k);
+        u64 x = (nuovo | nuovo2) & ~allpieces;
+        while (x) {
+            n = Bits::BITScanForward(x);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
-            RESET_LSB(k);
+            RESET_LSB(x);
         }
         RESET_LSB(x2);
     }
@@ -303,8 +312,8 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
 //        k |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_LEFT_UPPER[position];
 //#endif
 
-//        uchar idx = BitmapGenerator::diagonalIdx(position, allpieces);
-//        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][idx];
+        uchar idx = diagonalIdx(position, allpieces);
+        u64 nuovo = BitmapGenerator::BITMAP_SHIFT_DIAGONAL[position][idx];
 //        ASSERT(k == (nuovo & ~allpieces));
 //#ifdef DEBUG_MODE
 //        ///RIGHT
@@ -314,15 +323,15 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
 //        k1 |= q ? bits.MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
 //#endif
 
-//        idx = BitmapGenerator::antiDiagonalIdx(position, allpieces);//TODO riutilizzare i valori calcolati in performDiagCapture
-//        u64 nuovo1 = BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][idx];
+        idx = antiDiagonalIdx(position, allpieces);//TODO riutilizzare i valori calcolati in performDiagCapture
+        u64 nuovo1 = BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[position][idx];
 
 //        ASSERT(k1 == (nuovo1 & ~allpieces));
 
-//        u64 x = nuovo | nuovo1;
+        u64 x = (nuovo | nuovo1) & ~allpieces;
 //        cout << "aaaaaaaa " << x << " " << generatedMoves[position] << endl;
 //        ASSERT(x == generatedMoves[position]);
-        u64 x = generatedMoves[position] & ~allpieces;
+//        u64 x = generatedMoves[position] & ~allpieces;
 //        x &= ~allpieces;
         while (x) {
             int n = Bits::BITScanForward(x);

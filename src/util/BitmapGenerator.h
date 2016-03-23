@@ -26,12 +26,16 @@ public:
 
 #define  antiDiagonalIdx(position, allpieces) ( (( _board::RIGHT_DIAG[position]  & allpieces) * BitmapGenerator::MAGIC_KEY) >> 56)
 
-#define  columnIdx(position, allpieces) ((((allpieces >> (7-FILE_AT[position])) & FILE_[position])*BitmapGenerator::MAGIC_KEY_FILE)>>56)
+#define  columnIdx(position, allpieces) (((allpieces & FILE_[position])*BitmapGenerator::MAGIC_KEY_FILE)>>56)
 
-#define  rankIdx(position, allpieces) (allpieces >> RANK_AT[position])
+//    static char columnIdsx(int position, u64 allpieces) {
+//        u64 y=FILE_[position]| POW2[position];
+//        uchar r= ((allpieces  & y)*BitmapGenerator::MAGIC_KEY_FILE)>>56;
+//
+//        return r;
+//    }
 
-
-
+#define  rankIdx(position, allpieces) (allpieces >> 8*RANK_AT[position])
 
 private:
     vector<u64> combinationsDiagonal[64];
@@ -64,13 +68,21 @@ private:
     u64 performAntiDiagShift(const int position, const u64 allpieces);
 
     vector<u64> getPermutation(u64 elements);
+
     void popolateRank();
+
     u64 performRankShift(const int position, const u64 allpieces);
+
     u64 performColumnCapture(const int position, const u64 allpieces);
+
     u64 performRankCapture(const int position, const u64 allpieces);
+
     u64 performColumnShift(const int position, const u64 allpieces);
+
     void genPermColumn();
+
     void genPermRank();
+
 public:
     vector<u64> getPermutation(vector<u64> elements);
 };
