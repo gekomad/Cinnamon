@@ -42,7 +42,7 @@ else
 	STRIP=strip.exe
 endif
 
-CFLAGS="-std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
+CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
 
 help:
 
@@ -70,18 +70,18 @@ help:
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(CFLAGS)$(SPACE)$(LIBSTDC)" "-DFULL_TEST all
+	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(LIBSTDC)$(CFLAGS)-DFULL_TEST all
 	$(PA)$(EXE)
 else
 ifeq ($(PROFILE_GCC),yes)
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)-fprofile-generate" "$(LIBSTDC) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b1 >bench.tmp
 	$(RM) *.o bench.tmp
 	@echo "build..."
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(PROFILE_USE_THREAD)" "$(LIBSTDC) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)$(PROFILE_USE_THREAD) all
 else
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)" "$(LIBSTDC) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS) all
 endif
 endif
 
@@ -188,5 +188,7 @@ Bitboard.o: util/Bitboard.cpp
 
 WrapperCinnamon.o: WrapperCinnamon.cpp
 	$(COMP) -c WrapperCinnamon.cpp ${CFLAGS} ${ARC}
+
 clean:
 	$(RM) *.o $(EXE) *.gcda libCinnamon.a cinnamon.js
+
