@@ -33,6 +33,9 @@ private:
     vector<u64> combinationsColumn[64];
     vector<u64> combinationsRank[64];
 
+    u64 MASK_BIT_SET_NOBOUND[64][64];
+    char MASK_BIT_SET_NOBOUND_COUNT[64][64];
+
     vector<u64> getPermutation(vector<u64> elements);
 
     void popolateColumn();

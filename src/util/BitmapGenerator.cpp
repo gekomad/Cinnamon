@@ -8,8 +8,53 @@ u64 BitmapGenerator::BITMAP_SHIFT_RANK[64][256];
 
 BitmapGenerator::BitmapGenerator() {
 
-//    memset(BITMAP_SHIFT_DIAGONAL, -1, sizeof(BITMAP_SHIFT_DIAGONAL));
-//    memset(BITMAP_SHIFT_ANTIDIAGONAL, -1, sizeof(BITMAP_SHIFT_ANTIDIAGONAL));
+    u64 MASK_BIT_SET[64][64];
+    memset(MASK_BIT_SET, 0, sizeof(MASK_BIT_SET));
+    for (int i = 0; i < 64; i++) {
+        for (int j = 0; j < 64; j++) {
+            int a = min(i, j);
+            int b = max(i, j);
+            MASK_BIT_SET[i][i] = 0;
+            for (int e = a; e <= b; e++) {
+                u64 r = (RANK[i] | POW2[i]) & (RANK[j] | POW2[j]);
+                if (r) {
+                    MASK_BIT_SET[i][j] |= POW2[e] & r;
+                } else {
+                    r = (FILE_[i] | POW2[i]) & (FILE_[j] | POW2[j]);
+                    if (r) {
+                        MASK_BIT_SET[i][j] |= POW2[e] & r;
+                    } else {
+                        r = (LEFT_DIAG[i] | POW2[i]) & (LEFT_DIAG[j] | POW2[j]);
+                        if (r) {
+                            MASK_BIT_SET[i][j] |= POW2[e] & r;
+                        } else {
+                            r = (RIGHT_DIAG[i] | POW2[i]) & (RIGHT_DIAG[j] | POW2[j]);
+                            if (r) {
+                                MASK_BIT_SET[i][j] |= POW2[e] & r;
+                            }
+                        }
+                    }
+                }
+            }
+            if (i == j) {
+                MASK_BIT_SET[i][i] &= NOTPOW2[i];
+            }
+        }
+    }
+    for (int i = 0; i < 64; i++) {
+        for (int j = 0; j < 64; j++) {
+            MASK_BIT_SET_NOBOUND[i][j] = MASK_BIT_SET[i][j];
+            MASK_BIT_SET_NOBOUND[i][j] &= NOTPOW2[i];
+            MASK_BIT_SET_NOBOUND[i][j] &= NOTPOW2[j];
+            MASK_BIT_SET[i][j] &= NOTPOW2[i];
+        }
+    }
+    for (int i = 0; i < 64; i++) {
+        for (int j = 0; j < 64; j++) {
+            MASK_BIT_SET_NOBOUND_COUNT[i][j] = Bits::bitCount(MASK_BIT_SET_NOBOUND[i][j]);
+        }
+    }
+
 
     Bits::getInstance();
     genPermutation();
@@ -86,27 +131,27 @@ u64 BitmapGenerator::performDiagShift(const int position, const u64 allpieces) {
            /
 */
     u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
-    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_LEFT_LOWER[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_LEFT_LOWER[position];
     q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
-    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_LEFT_UPPER[position];
+    k |= q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_LEFT_UPPER[position];
     return k;
 
 }
 
 u64 BitmapGenerator::performColumnShift(const int position, const u64 allpieces) {
     u64 q = allpieces & MASK_BIT_UNSET_UP[position];
-    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_VERT_LOWER[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_VERT_LOWER[position];
     q = allpieces & MASK_BIT_UNSET_DOWN[position];
-    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_VERT_UPPER[position];
+    k |= q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_VERT_UPPER[position];
     return k;
 }
 
 
 u64 BitmapGenerator::performRankShift(const int position, const u64 allpieces) {
     u64 q = allpieces & MASK_BIT_UNSET_RIGHT[position];
-    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_ORIZ_LEFT[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_ORIZ_LEFT[position];
     q = allpieces & MASK_BIT_UNSET_LEFT[position];
-    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_ORIZ_RIGHT[position];
+    k |= q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_ORIZ_RIGHT[position];
     return k;
 }
 
@@ -200,9 +245,9 @@ u64 BitmapGenerator::performAntiDiagShift(const int position, const u64 allpiece
           \
 */
     u64 q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
-    u64 k = q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_RIGHT_LOWER[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : MASK_BIT_SET_RIGHT_LOWER[position];
     q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
-    k |= q ? Bits::MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
+    k |= q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : MASK_BIT_SET_RIGHT_UPPER[position];
     return k;
 }
 
