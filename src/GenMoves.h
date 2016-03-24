@@ -100,18 +100,22 @@ public:
 
     int loadFen(string fen = "");
 
-    inline u64 performDiagCaptureBits(const int position, const u64 allpieces, const u64 enemies) {
+    inline u64 getDiagCapture(const int position, const u64 allpieces, const u64 enemies) {
         ASSERT_RANGE(position, 0, 63);
         return Bitboard::getDiagAntiDiagShift(position, allpieces) & enemies;
     }
 
-    u64 performDiagShiftAndCaptureBits(const int position, const u64 enemies, const u64 allpieces);
+    u64 getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces) {
+        ASSERT_RANGE(position, 0, 63);
+        u64 nuovo = Bitboard::getDiagAntiDiagShift(position, allpieces);
+        return (nuovo & enemies) | (nuovo & ~allpieces);
+    }
 
     void takeback(_Tmove *move, const u64 oldkey, bool rep);
 
     void setRepetitionMapCount(int i);
 
-    inline int performDiagShiftCount(const int position, const u64 allpieces) {//TODO magic bitboard
+    inline int getDiagShiftCount(const int position, const u64 allpieces) {
         ASSERT_RANGE(position, 0, 63);
         return Bits::bitCount(Bitboard::getDiagAntiDiagShift(position, allpieces) & ~allpieces);
     }
@@ -125,7 +129,6 @@ public:
     u64 getTotMoves();
 
     bool performRankFileCapture(const int piece, const u64 enemies, const int side, const u64 allpieces);
-
 
     template<int side>
     bool performPawnCapture(const u64 enemies) {

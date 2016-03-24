@@ -49,7 +49,7 @@ set(SOURCE_FILES
         Uci.cpp
         #google test
         test/test.cpp
-        util/BitboardGenerator.cpp util/BitboardGenerator.h)
+        util/Bitboard.cpp util/Bitboard.h)
 
 set(CMAKE_CXX_COMPILER "g++")
 add_executable(cinnamon ${SOURCE_FILES})

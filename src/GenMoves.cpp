@@ -62,12 +62,6 @@ int GenMoves::performRankFileCaptureAndShiftCount(const int position, const u64 
     return Bits::bitCount(nuovo);
 }
 
-u64 GenMoves::performDiagShiftAndCaptureBits(const int position, const u64 enemies, const u64 allpieces) {
-    ASSERT_RANGE(position, 0, 63);
-    u64 nuovo = Bitboard::getDiagAntiDiagShift(position, allpieces);
-    return (nuovo & enemies) | (nuovo & ~allpieces);
-}
-
 bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {
     ASSERT_RANGE(piece, 0, 11);
     ASSERT_RANGE(side, 0, 1);
@@ -142,7 +136,7 @@ int GenMoves::getMobilityPawns(const int side, const int ep, const u64 ped_frien
 int GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
     return performRankFileCaptureAndShiftCount(position, enemies, allpieces) +
-           Bits::bitCount(performDiagShiftAndCaptureBits(position, enemies, allpieces));
+           Bits::bitCount(getDiagShiftAndCapture(position, enemies, allpieces));
 }
 
 int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
