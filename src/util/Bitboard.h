@@ -53,11 +53,11 @@ public:
 //    ........            00010000
 //    q.......            10100000
 //    .B......            00000000
-//    R.......    --->    10000000
-//    ........            00100000
+//    R.......    --->    10100000
 //    ........            00010000
 //    ........            00001000
 //    ........            00000100
+//    ........            00000010
 
         return BITMAP_SHIFT_DIAGONAL[position][diagonalIdx(position, allpieces)] |
                BITMAP_SHIFT_ANTIDIAGONAL[position][antiDiagonalIdx(position, allpieces)];
