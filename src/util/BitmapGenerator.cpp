@@ -57,7 +57,7 @@ BitmapGenerator::BitmapGenerator() {
 
 
     Bits::getInstance();
-    genPermutation();
+    genCombination();
 
     popolateAntiDiagonal();
     popolateDiagonal();
@@ -67,7 +67,7 @@ BitmapGenerator::BitmapGenerator() {
 
 }
 
-void BitmapGenerator::genPermutation() {
+void BitmapGenerator::genCombination() {
     for (uchar pos = 0; pos < 64; pos++) {
         combinationsDiagonal[pos] = getPermutation(_board::LEFT_DIAG[pos]);
         combinationsColumn[pos] = getPermutation(_board::FILE_[pos]);

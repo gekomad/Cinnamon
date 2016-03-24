@@ -40,7 +40,7 @@ private:
 
     void popolateColumn();
 
-    void genPermutation();
+    void genCombination();
 
     void popolateDiagonal();
 
