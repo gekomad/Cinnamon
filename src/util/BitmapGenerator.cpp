@@ -69,10 +69,10 @@ BitmapGenerator::BitmapGenerator() {
 
 void BitmapGenerator::genCombination() {
     for (uchar pos = 0; pos < 64; pos++) {
-        combinationsDiagonal[pos] = getPermutation(_board::LEFT_DIAG[pos]);
-        combinationsColumn[pos] = getPermutation(_board::FILE_[pos]);
-        combinationsRank[pos] = getPermutation(_board::RANK[pos]);
-        combinationsAntiDiagonal[pos] = getPermutation(_board::RIGHT_DIAG[pos]);
+        combinationsDiagonal[pos] = getCombination(_board::LEFT_DIAG[pos]);
+        combinationsColumn[pos] = getCombination(_board::FILE_[pos]);
+        combinationsRank[pos] = getCombination(_board::RANK[pos]);
+        combinationsAntiDiagonal[pos] = getCombination(_board::RIGHT_DIAG[pos]);
     }
 }
 
@@ -282,17 +282,17 @@ vector<u64>  BitmapGenerator::combinations(const vector<u64> &elems, int len) {
 
 }
 
-vector<u64> BitmapGenerator::getPermutation(u64 elements) {
+vector<u64> BitmapGenerator::getCombination(u64 elements) {
     vector<u64> res;
     while (elements) {
         int o = Bits::BITScanForward(elements);
         res.push_back(o);
         RESET_LSB(elements);
     }
-    return getPermutation(res);
+    return getCombination(res);
 }
 
-vector<u64> BitmapGenerator::getPermutation(vector<u64> elements) {
+vector<u64> BitmapGenerator::getCombination(vector<u64> elements) {
     vector<u64> res;
     vector<u64> v;
     u64 bits = 0;

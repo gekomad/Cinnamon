@@ -36,7 +36,7 @@ private:
     u64 MASK_BIT_SET_NOBOUND[64][64];
     char MASK_BIT_SET_NOBOUND_COUNT[64][64];
 
-    vector<u64> getPermutation(vector<u64> elements);
+    vector<u64> getCombination(vector<u64> elements);
 
     void popolateColumn();
 
@@ -58,7 +58,7 @@ private:
 
     u64 performAntiDiagShift(const int position, const u64 allpieces);
 
-    vector<u64> getPermutation(u64 elements);
+    vector<u64> getCombination(u64 elements);
 
     void popolateRank();
 
