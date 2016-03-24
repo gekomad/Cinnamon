@@ -70,11 +70,11 @@ private:
     }
 
     static uchar diagonalIdx(const int position, const u64 allpieces) {
-        return ((allpieces & _board::LEFT_DIAG[position]) * MAGIC_KEY_DIAG_ANTIDIAG) >> 56;
+        return ((allpieces & _board::DIAGONAL[position]) * MAGIC_KEY_DIAG_ANTIDIAG) >> 56;
     };
 
     static uchar antiDiagonalIdx(const int position, const u64 allpieces) {
-        return ((allpieces & _board::RIGHT_DIAG[position]) * MAGIC_KEY_DIAG_ANTIDIAG) >> 56;
+        return ((allpieces & _board::ANTIDIAGONAL[position]) * MAGIC_KEY_DIAG_ANTIDIAG) >> 56;
     }
 
     void popolateColumn();

@@ -156,11 +156,11 @@ int Eval::evaluateBishop(u64 enemies, u64 friends) {
                 }
             }
         } else {
-            if (BIG_DIAG_LEFT & POW2[o] && !(LEFT_DIAG[o] & structure.allPieces)) {
+            if (BIG_DIAG_LEFT & POW2[o] && !(DIAGONAL[o] & structure.allPieces)) {
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
-            if (BIG_DIAG_RIGHT & POW2[o] && !(RIGHT_DIAG[o] & structure.allPieces)) {
+            if (BIG_DIAG_RIGHT & POW2[o] && !(ANTIDIAGONAL[o] & structure.allPieces)) {
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }

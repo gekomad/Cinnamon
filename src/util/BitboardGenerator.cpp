@@ -24,11 +24,11 @@ BitboardGenerator::BitboardGenerator() {
                     if (r) {
                         MASK_BIT_SET[i][j] |= POW2[e] & r;
                     } else {
-                        r = (LEFT_DIAG[i] | POW2[i]) & (LEFT_DIAG[j] | POW2[j]);
+                        r = (DIAGONAL[i] | POW2[i]) & (DIAGONAL[j] | POW2[j]);
                         if (r) {
                             MASK_BIT_SET[i][j] |= POW2[e] & r;
                         } else {
-                            r = (RIGHT_DIAG[i] | POW2[i]) & (RIGHT_DIAG[j] | POW2[j]);
+                            r = (ANTIDIAGONAL[i] | POW2[i]) & (ANTIDIAGONAL[j] | POW2[j]);
                             if (r) {
                                 MASK_BIT_SET[i][j] |= POW2[e] & r;
                             }
@@ -67,10 +67,10 @@ BitboardGenerator::BitboardGenerator() {
 
 void BitboardGenerator::genCombination() {
     for (uchar pos = 0; pos < 64; pos++) {
-        combinationsDiagonal[pos] = getCombination(_board::LEFT_DIAG[pos]);
+        combinationsDiagonal[pos] = getCombination(_board::DIAGONAL[pos]);
         combinationsColumn[pos] = getCombination(_board::FILE_[pos]);
         combinationsRank[pos] = getCombination(_board::RANK[pos]);
-        combinationsAntiDiagonal[pos] = getCombination(_board::RIGHT_DIAG[pos]);
+        combinationsAntiDiagonal[pos] = getCombination(_board::ANTIDIAGONAL[pos]);
     }
 }
 
