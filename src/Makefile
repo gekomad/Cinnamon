@@ -70,18 +70,18 @@ help:
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(CFLAGS)$(LIBSTDC)-DFULL_TEST all
+	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(CFLAGS)$(SPACE)$(LIBSTDC)" "-DFULL_TEST all
 	$(PA)$(EXE)
 else
 ifeq ($(PROFILE_GCC),yes)
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(LIBSTDC)-fprofile-generate all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)-fprofile-generate" "$(LIBSTDC) all
 	@echo "optimize..."
 	$(PA)$(EXE) -b1 >bench.tmp
 	$(RM) *.o bench.tmp
 	@echo "build..."
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(LIBSTDC)$(PROFILE_USE_THREAD) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(PROFILE_USE_THREAD)" "$(LIBSTDC) all
 else
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(LIBSTDC) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)" "$(LIBSTDC) all
 endif
 endif
 
