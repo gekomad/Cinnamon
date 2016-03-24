@@ -156,11 +156,11 @@ int Eval::evaluateBishop(u64 enemies, u64 friends) {
                 }
             }
         } else {
-            if (BIG_DIAG_LEFT & POW2[o] && !(DIAGONAL[o] & structure.allPieces)) {
+            if (BIG_DIAGONAL & POW2[o] && !(DIAGONAL[o] & structure.allPieces)) {
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
-            if (BIG_DIAG_RIGHT & POW2[o] && !(ANTIDIAGONAL[o] & structure.allPieces)) {
+            if (BIG_ANTIDIAGONAL & POW2[o] && !(ANTIDIAGONAL[o] & structure.allPieces)) {
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
@@ -195,7 +195,7 @@ int Eval::evaluateQueen(u64 enemies, u64 friends) {
             ADD(SCORE_DEBUG.OPEN_FILE_Q[side], OPEN_FILE_Q);
             result += OPEN_FILE_Q;
         }
-        if (LEFT_RIGHT_DIAG[o] & chessboard[BISHOP_BLACK + side]) {
+        if (DIAGONAL_ANTIDIAGONAL[o] & chessboard[BISHOP_BLACK + side]) {
             ADD(SCORE_DEBUG.BISHOP_ON_QUEEN[side], BISHOP_ON_QUEEN);
             result += BISHOP_ON_QUEEN;
         }

@@ -83,8 +83,7 @@ public:
     static const uchar RIGHT_KING_CASTLE_BLACK_MASK = 0x40;
     static const uchar RIGHT_QUEEN_CASTLE_BLACK_MASK = 0x80;
     static const u64 CENTER_MASK = 0x1818000000ULL;
-    static const u64 BIG_DIAG_LEFT = 0x102040810204080ULL;
-    static const u64 BIG_DIAG_RIGHT = 0x8040201008040201ULL;
+
     static const int SQUARE_FREE = 12;
 
     static const u64 NO_ENPASSANT = 100;
