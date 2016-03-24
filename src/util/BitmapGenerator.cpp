@@ -3,7 +3,7 @@
 
 u64 BitmapGenerator::BITMAP_SHIFT_DIAGONAL[64][256];
 u64 BitmapGenerator::BITMAP_SHIFT_ANTIDIAGONAL[64][256];
-u64 BitmapGenerator::BITMAP_SHIFT_COLUMN[64][256];
+u64 BitmapGenerator::BITMAP_SHIFT_FILE[64][256];
 u64 BitmapGenerator::BITMAP_SHIFT_RANK[64][256];
 
 BitmapGenerator::BitmapGenerator() {
@@ -91,9 +91,9 @@ void BitmapGenerator::popolateDiagonal() {
 void BitmapGenerator::popolateColumn() {
     for (uchar pos = 0; pos < 64; pos++) {
         for (u64 allpieces:combinationsColumn[pos]) {
-            uchar idx = columnIdx(pos, allpieces);
-            BITMAP_SHIFT_COLUMN[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
-//            cout << "store BITMAP_SHIFT_COLUMN[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << BITMAP_SHIFT_COLUMN[pos][idx] << endl;
+            uchar idx = fileIdx(pos, allpieces);
+            BITMAP_SHIFT_FILE[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
+//            cout << "store BITMAP_SHIFT_FILE[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << BITMAP_SHIFT_FILE[pos][idx] << endl;
         }
 
     }

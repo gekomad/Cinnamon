@@ -178,7 +178,7 @@ int Eval::evaluateQueen(u64 enemies, u64 friends) {
     while (queen) {
         int o = Bits::BITScanForward(queen);
         ASSERT(getMobilityQueen(o, enemies, friends) < (int) (sizeof(MOB_QUEEN[phase]) / sizeof(int)));
-        ASSERT(structure.allPieces==enemies| friends);
+        ASSERT(structure.allPieces == enemies | friends);
         result += MOB_QUEEN[phase][getMobilityQueen(o, enemies, structure.allPieces)];
         ADD(SCORE_DEBUG.MOB_QUEEN[side], MOB_QUEEN[phase][getMobilityQueen(o, enemies, structure.allPieces)]);
         if (phase != OPEN) {

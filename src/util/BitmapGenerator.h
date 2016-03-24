@@ -11,23 +11,26 @@ class BitmapGenerator {
 public:
     BitmapGenerator();
 
-    const static u64 MAGIC_KEY = 0x101010101010101ULL;
-    const static u64 MAGIC_KEY_FILE = 0x102040810204080ULL;
+    static u64 getRankFileShift(const int position, const u64 allpieces) {
+        return (BITMAP_SHIFT_FILE[position][fileIdx(position, allpieces)]) |
+               BITMAP_SHIFT_RANK[position][rankIdx(position, allpieces)];
+    }
+
+    static u64 getDiagAntiDiagShift(const int position, const u64 allpieces) {
+        return BITMAP_SHIFT_DIAGONAL[position][diagonalIdx(position, allpieces)] |
+               BITMAP_SHIFT_ANTIDIAGONAL[position][antiDiagonalIdx(position, allpieces)];
+    }
+
+private:
+
+    const static u64 MAGIC_KEY_DIAG_ANTIDIAG = 0x101010101010101ULL;
+    const static u64 MAGIC_KEY_FILE_RANK = 0x102040810204080ULL;
 
     static u64 BITMAP_SHIFT_DIAGONAL[64][256];
     static u64 BITMAP_SHIFT_ANTIDIAGONAL[64][256];
-    static u64 BITMAP_SHIFT_COLUMN[64][256];
+    static u64 BITMAP_SHIFT_FILE[64][256];
     static u64 BITMAP_SHIFT_RANK[64][256];
 
-#define diagonalIdx(position, allpieces) ( (uchar)((( (allpieces) & _board::LEFT_DIAG[position] ) * BitmapGenerator::MAGIC_KEY) >> 56 ))
-
-#define antiDiagonalIdx(position, allpieces) ((uchar) ((( (allpieces) & _board::RIGHT_DIAG[position] ) * BitmapGenerator::MAGIC_KEY) >> 56))
-
-#define columnIdx(position, allpieces) ((uchar)((((allpieces) & FILE_[position]) * BitmapGenerator::MAGIC_KEY_FILE) >>56))
-
-#define rankIdx(position, allpieces) ((uchar)((allpieces) >> RANK_ATx8[position]))
-
-private:
     vector<u64> combinationsDiagonal[64];
     vector<u64> combinationsAntiDiagonal[64];
     vector<u64> combinationsColumn[64];
@@ -37,6 +40,22 @@ private:
     char MASK_BIT_SET_NOBOUND_COUNT[64][64];
 
     vector<u64> getCombination(vector<u64> elements);
+
+    static uchar rankIdx(const int position, const u64 allpieces) {
+        return allpieces >> RANK_ATx8[position];
+    }
+
+    static uchar fileIdx(const int position, const u64 allpieces) {
+        return ((allpieces & FILE_[position]) * MAGIC_KEY_FILE_RANK) >> 56;
+    }
+
+    static uchar diagonalIdx(const int position, const u64 allpieces) {
+        return ((allpieces & _board::LEFT_DIAG[position]) * MAGIC_KEY_DIAG_ANTIDIAG) >> 56;
+    };
+
+    static uchar antiDiagonalIdx(const int position, const u64 allpieces) {
+        return ((allpieces & _board::RIGHT_DIAG[position]) * MAGIC_KEY_DIAG_ANTIDIAG) >> 56;
+    }
 
     void popolateColumn();
 
