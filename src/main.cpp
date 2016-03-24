@@ -18,7 +18,7 @@
 
 #include "Uci.h"
 #include "util/GetOpt.h"
-#include "util/BitboardGenerator.h"
+#include "util/Bitboard.h"
 
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 
@@ -98,7 +98,6 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
-    BitboardGenerator bitboardGenerator;
     printHeader();
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);

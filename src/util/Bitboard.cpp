@@ -1,12 +1,29 @@
-#include "BitboardGenerator.h"
-#include "logger.h"
+/*
+    Cinnamon UCI chess engine
+    Copyright (C) Giuseppe Cannella
 
-u64 BitboardGenerator::BITMAP_SHIFT_DIAGONAL[64][256];
-u64 BitboardGenerator::BITMAP_SHIFT_ANTIDIAGONAL[64][256];
-u64 BitboardGenerator::BITMAP_SHIFT_FILE[64][256];
-u64 BitboardGenerator::BITMAP_SHIFT_RANK[64][256];
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-BitboardGenerator::BitboardGenerator() {
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "Bitboard.h"
+
+u64 Bitboard::BITMAP_SHIFT_DIAGONAL[64][256];
+u64 Bitboard::BITMAP_SHIFT_ANTIDIAGONAL[64][256];
+u64 Bitboard::BITMAP_SHIFT_FILE[64][256];
+u64 Bitboard::BITMAP_SHIFT_RANK[64][256];
+
+Bitboard::Bitboard() {
 
     u64 MASK_BIT_SET[64][64];
     memset(MASK_BIT_SET, 0, sizeof(MASK_BIT_SET));
@@ -65,7 +82,7 @@ BitboardGenerator::BitboardGenerator() {
 
 }
 
-void BitboardGenerator::genCombination() {
+void Bitboard::genCombination() {
     for (uchar pos = 0; pos < 64; pos++) {
         combinationsDiagonal[pos] = getCombination(_board::DIAGONAL[pos]);
         combinationsColumn[pos] = getCombination(_board::FILE_[pos]);
@@ -74,60 +91,44 @@ void BitboardGenerator::genCombination() {
     }
 }
 
-void BitboardGenerator::popolateDiagonal() {
+void Bitboard::popolateDiagonal() {
     for (uchar pos = 0; pos < 64; pos++) {
         for (u64 allpieces:combinationsDiagonal[pos]) {
             uchar idx = diagonalIdx(pos, allpieces);
             BITMAP_SHIFT_DIAGONAL[pos][idx] = performDiagShift(pos, allpieces) | performDiagCapture(pos, allpieces);
-//                    MAGIC_BITMAP_DIAGONAL[pos] = key;
-            //cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
         }
-        debug("key pos: ", (int) pos, hex);
     }
 }
 
-void BitboardGenerator::popolateColumn() {
+void Bitboard::popolateColumn() {
     for (uchar pos = 0; pos < 64; pos++) {
         for (u64 allpieces:combinationsColumn[pos]) {
             uchar idx = fileIdx(pos, allpieces);
             BITMAP_SHIFT_FILE[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
-//            cout << "store BITMAP_SHIFT_FILE[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << BITMAP_SHIFT_FILE[pos][idx] << endl;
         }
 
     }
 }
 
-void BitboardGenerator::popolateRank() {
+void Bitboard::popolateRank() {
     for (uchar pos = 0; pos < 64; pos++) {
         for (u64 allpieces:combinationsRank[pos]) {
             uchar idx = rankIdx(pos, allpieces);
             BITMAP_SHIFT_RANK[pos][idx] = performRankShift(pos, allpieces) | performRankCapture(pos, allpieces);
-//                    MAGIC_BITMAP_DIAGONAL[pos] = key;
-            //cout << "store ROTATE_BITMAP_DIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_DIAGONAL[pos][idx] << endl;
         }
-        debug("key pos: ", (int) pos, hex);
     }
 }
 
-void BitboardGenerator::popolateAntiDiagonal() {
+void Bitboard::popolateAntiDiagonal() {
     for (uchar pos = 0; pos < 64; pos++) {
         for (u64 allpieces:combinationsAntiDiagonal[pos]) {
             uchar idx = antiDiagonalIdx(pos, allpieces);
             BITMAP_SHIFT_ANTIDIAGONAL[pos][idx] = performAntiDiagShift(pos, allpieces) | performAntiDiagCapture(pos, allpieces);
-//                    MAGIC_BITMAP_ANTIDIAGONAL[pos] = key;
-            //cout << "store ROTATE_BITMAP_ANTIDIAGONAL[pos:0x" << hex << (int) pos << "][idx:0x" << (int) idx << "]=" << "0x" << ROTATE_BITMAP_ANTIDIAGONAL[pos][idx] << endl;
         }
-        debug("key pos: ", (int) pos);
     }
 }
 
-u64 BitboardGenerator::performDiagShift(const int position, const u64 allpieces) {
-    /*
-        LEFT
-             /
-            /
-           /
-*/
+u64 Bitboard::performDiagShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_UP[position];
     u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_DOWN[position];
@@ -136,7 +137,7 @@ u64 BitboardGenerator::performDiagShift(const int position, const u64 allpieces)
 
 }
 
-u64 BitboardGenerator::performColumnShift(const int position, const u64 allpieces) {
+u64 Bitboard::performColumnShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_UP[position];
     u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_VERT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_DOWN[position];
@@ -145,7 +146,7 @@ u64 BitboardGenerator::performColumnShift(const int position, const u64 allpiece
 }
 
 
-u64 BitboardGenerator::performRankShift(const int position, const u64 allpieces) {
+u64 Bitboard::performRankShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT[position];
     u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_LEFT[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT[position];
@@ -153,7 +154,7 @@ u64 BitboardGenerator::performRankShift(const int position, const u64 allpieces)
     return k;
 }
 
-u64 BitboardGenerator::performColumnCapture(const int position, const u64 allpieces) {
+u64 Bitboard::performColumnCapture(const int position, const u64 allpieces) {
     u64 q;
     u64 k = 0;
     u64 x = allpieces & FILE_[position];
@@ -170,7 +171,7 @@ u64 BitboardGenerator::performColumnCapture(const int position, const u64 allpie
     return k;
 }
 
-u64 BitboardGenerator::performRankCapture(const int position, const u64 allpieces) {
+u64 Bitboard::performRankCapture(const int position, const u64 allpieces) {
     u64 q;
     u64 k = 0;
     u64 x = allpieces & RANK[position];
@@ -187,7 +188,7 @@ u64 BitboardGenerator::performRankCapture(const int position, const u64 allpiece
     return k;
 }
 
-u64 BitboardGenerator::performAntiDiagCapture(const int position, const u64 allpieces) {
+u64 Bitboard::performAntiDiagCapture(const int position, const u64 allpieces) {
     int bound;
     u64 k = 0;
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_UP[position];
@@ -208,13 +209,7 @@ u64 BitboardGenerator::performAntiDiagCapture(const int position, const u64 allp
 }
 
 
-u64 BitboardGenerator::performDiagCapture(const int position, const u64 allpieces) {
-    /*
-        LEFT
-             /
-            /
-           /
-*/
+u64 Bitboard::performDiagCapture(const int position, const u64 allpieces) {
     u64 k = 0;
     int bound;
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_UP[position];
@@ -235,13 +230,7 @@ u64 BitboardGenerator::performDiagCapture(const int position, const u64 allpiece
     return k;
 }
 
-u64 BitboardGenerator::performAntiDiagShift(const int position, const u64 allpieces) {
-    /*
-        RIGHT
-        \
-         \
-          \
-*/
+u64 Bitboard::performAntiDiagShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_UP[position];
     u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_DOWN[position];
@@ -249,14 +238,12 @@ u64 BitboardGenerator::performAntiDiagShift(const int position, const u64 allpie
     return k;
 }
 
-vector<u64> BitboardGenerator::combinations(const vector<u64> &elems, int len, vector<int> &pos, int depth, int margin) {
+vector<u64> Bitboard::combinations(const vector<u64> &elems, int len, vector<int> &pos, int depth, int margin) {
     vector<u64> res;
     if (depth >= len) {
         for (int ii = 0; ii < pos.size(); ++ii) {
             res.push_back(elems[pos[ii]]);
-//            cout <<"X"<< elems[pos[ii]];
         }
-//        cout << endl;
         return res;
     }
 
@@ -265,7 +252,6 @@ vector<u64> BitboardGenerator::combinations(const vector<u64> &elems, int len, v
 
     for (int ii = margin; ii < elems.size(); ++ii) {
         pos[depth] = ii;
-
         vector<u64> A = combinations(elems, len, pos, depth + 1, ii + 1);
         res.insert(res.end(), A.begin(), A.end());
     }
@@ -273,14 +259,14 @@ vector<u64> BitboardGenerator::combinations(const vector<u64> &elems, int len, v
     return res;
 }
 
-vector<u64>  BitboardGenerator::combinations(const vector<u64> &elems, int len) {
+vector<u64>  Bitboard::combinations(const vector<u64> &elems, int len) {
     ASSERT(len > 0 && len <= elems.size());
     vector<int> positions(len, 0);
     return combinations(elems, len, positions, 0, 0);
 
 }
 
-vector<u64> BitboardGenerator::getCombination(u64 elements) {
+vector<u64> Bitboard::getCombination(u64 elements) {
     vector<u64> res;
     while (elements) {
         int o = Bits::BITScanForward(elements);
@@ -290,7 +276,7 @@ vector<u64> BitboardGenerator::getCombination(u64 elements) {
     return getCombination(res);
 }
 
-vector<u64> BitboardGenerator::getCombination(vector<u64> elements) {
+vector<u64> Bitboard::getCombination(vector<u64> elements) {
     vector<u64> res;
     vector<u64> v;
     u64 bits = 0;

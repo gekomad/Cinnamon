@@ -22,15 +22,16 @@
 #include <vector>
 #include "../namespaces/def.h"
 #include "Bits.h"
+#include "logger.h"
 
 using namespace _def;
 using std::vector;
 
 //Kindergarten
-class BitboardGenerator {
-public:
-    BitboardGenerator();
+class Bitboard : public Singleton<Bitboard> {
+    friend class Singleton<Bitboard>;
 
+public:
     static u64 getRankFileShift(const int position, const u64 allpieces) {
         return (BITMAP_SHIFT_FILE[position][fileIdx(position, allpieces)]) |
                BITMAP_SHIFT_RANK[position][rankIdx(position, allpieces)];
@@ -42,7 +43,7 @@ public:
     }
 
 private:
-
+    Bitboard();
     const static u64 MAGIC_KEY_DIAG_ANTIDIAG = 0x101010101010101ULL;
     const static u64 MAGIC_KEY_FILE_RANK = 0x102040810204080ULL;
 
