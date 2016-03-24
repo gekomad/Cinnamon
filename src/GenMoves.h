@@ -19,6 +19,7 @@
 #pragma once
 
 #include "ChessBoard.h"
+#include "util/BitboardGenerator.h"
 #include <vector>
 
 class GenMoves : public virtual ChessBoard {
@@ -572,83 +573,97 @@ private:
         ///bishop queen
         u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
         if (LEFT_RIGHT_DIAG[position] & enemies) {
+            u64 nuovo = BitboardGenerator::getDiagAntiDiagShift(position, allpieces) & enemies;
+            while (nuovo) {
+                int bound = Bits::BITScanForward(nuovo);
+                attackers |= POW2[bound];
+                if (exitOnFirst && attackers)return 1;
+                RESET_LSB(nuovo);
+            }
             ///LEFT
-            u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
-            if (q) {
-                bound = Bits::BITScanReverse(q);
-                if (enemies & POW2[bound]) {
-                    attackers |= POW2[bound];
-                    if (exitOnFirst && attackers)return 1;
-                }
-            }
-            q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
-            if (q) {
-                bound = Bits::BITScanForward(q);
-                if (enemies & POW2[bound]) {
-                    attackers |= POW2[bound];
-                    if (exitOnFirst && attackers)return 1;
-                }
-            }
-            ///RIGHT
-            q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
-            if (q) {
-                bound = Bits::BITScanReverse(q);
-                if (enemies & POW2[bound]) {
-                    attackers |= POW2[bound];
-                    if (exitOnFirst && attackers)return 1;
-                }
-            }
-            q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
-            if (q) {
-                bound = Bits::BITScanForward(q);
-                if (enemies & POW2[bound]) {
-                    attackers |= POW2[bound];
-                    if (exitOnFirst && attackers)return 1;
-                }
-            }
+//            u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
+//            if (q) {
+//                bound = Bits::BITScanReverse(q);
+//                if (enemies & POW2[bound]) {
+//                    attackers |= POW2[bound];
+//                    if (exitOnFirst && attackers)return 1;
+//                }
+//            }
+//            q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
+//            if (q) {
+//                bound = Bits::BITScanForward(q);
+//                if (enemies & POW2[bound]) {
+//                    attackers |= POW2[bound];
+//                    if (exitOnFirst && attackers)return 1;
+//                }
+//            }
+//            ///RIGHT
+//            q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
+//            if (q) {
+//                bound = Bits::BITScanReverse(q);
+//                if (enemies & POW2[bound]) {
+//                    attackers |= POW2[bound];
+//                    if (exitOnFirst && attackers)return 1;
+//                }
+//            }
+//            q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
+//            if (q) {
+//                bound = Bits::BITScanForward(q);
+//                if (enemies & POW2[bound]) {
+//                    attackers |= POW2[bound];
+//                    if (exitOnFirst && attackers)return 1;
+//                }
+//            }
         }
         enemies = chessboard[ROOK_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
-        u64 q;
-        ///rook queen
-        u64 x = allpieces & FILE_[position];
-        if (x & enemies) {
-            q = x & MASK_BIT_UNSET_UP[position];
-            if (q) {
-                bound = Bits::BITScanReverse(q);
-                if (enemies & POW2[bound]) {
-                    attackers |= POW2[bound];
-                    if (exitOnFirst && attackers)return 1;
-                }
-            }
-            q = x & MASK_BIT_UNSET_DOWN[position];
-            if (q) {
-                bound = Bits::BITScanForward(q);
-                if (enemies & POW2[bound]) {
-                    attackers |= POW2[bound];
-                    if (exitOnFirst && attackers)return 1;
-                }
-            }
+        u64 nuovo = BitboardGenerator::getRankFileShift(position, allpieces) & enemies;
+        while (nuovo) {
+            int bound = Bits::BITScanForward(nuovo);
+            attackers |= POW2[bound];
+            if (exitOnFirst && attackers)return 1;
+            RESET_LSB(nuovo);
         }
-        x = allpieces & RANK[position];
-        if (x & enemies) {
-            q = x & MASK_BIT_UNSET_RIGHT[position];
-            if (q) {
-                bound = Bits::BITScanForward(q);
-                if (enemies & POW2[bound]) {
-                    attackers |= POW2[bound];
-                    if (exitOnFirst && attackers)return 1;
-                }
-            }
-            q = x & MASK_BIT_UNSET_LEFT[position];
-            if (q) {
-                bound = Bits::BITScanReverse(q);
-                if (enemies & POW2[bound]) {
-                    attackers |= POW2[bound];
-                    if (exitOnFirst && attackers)return 1;
-                }
-            }
-        }
-        if (exitOnFirst && attackers)return 1;
+//        u64 q;
+//        ///rook queen
+//        u64 x = allpieces & FILE_[position];
+//        if (x & enemies) {
+//            q = x & MASK_BIT_UNSET_UP[position];
+//            if (q) {
+//                bound = Bits::BITScanReverse(q);
+//                if (enemies & POW2[bound]) {
+//                    attackers |= POW2[bound];
+//                    if (exitOnFirst && attackers)return 1;
+//                }
+//            }
+//            q = x & MASK_BIT_UNSET_DOWN[position];
+//            if (q) {
+//                bound = Bits::BITScanForward(q);
+//                if (enemies & POW2[bound]) {
+//                    attackers |= POW2[bound];
+//                    if (exitOnFirst && attackers)return 1;
+//                }
+//            }
+//        }
+//        x = allpieces & RANK[position];
+//        if (x & enemies) {
+//            q = x & MASK_BIT_UNSET_RIGHT[position];
+//            if (q) {
+//                bound = Bits::BITScanForward(q);
+//                if (enemies & POW2[bound]) {
+//                    attackers |= POW2[bound];
+//                    if (exitOnFirst && attackers)return 1;
+//                }
+//            }
+//            q = x & MASK_BIT_UNSET_LEFT[position];
+//            if (q) {
+//                bound = Bits::BITScanReverse(q);
+//                if (enemies & POW2[bound]) {
+//                    attackers |= POW2[bound];
+//                    if (exitOnFirst && attackers)return 1;
+//                }
+//            }
+//        }
+//        if (exitOnFirst && attackers)return 1;
         return attackers;
     }
 

@@ -18,7 +18,7 @@
 
 #include "GenMoves.h"
 #include "Eval.h"
-#include "util/BitmapGenerator.h"
+#include "util/BitboardGenerator.h"
 
 bool GenMoves::forceCheck = false;
 
@@ -42,7 +42,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
     u64 x, q, x2 = chessboard[piece];
     while (x2) {
         int position = Bits::BITScanForward(x2);
-        u64 nuovo = BitmapGenerator::getRankFileShift(position, allpieces);
+        u64 nuovo = BitboardGenerator::getRankFileShift(position, allpieces);
         // cout << allpieces << " " << k2 << " " << (nuovo2 & enemies) << endl;
 //        ASSERT(k2 == (nuovo2 & enemies));
         nuovo &= enemies;
@@ -62,7 +62,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
 int GenMoves::performRankFileCaptureAndShiftCount(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
 
-    u64 nuovo = BitmapGenerator::getRankFileShift(position, allpieces);
+    u64 nuovo = BitboardGenerator::getRankFileShift(position, allpieces);
     // cout << allpieces << " " << k2 << " " << (nuovo2 & enemies) << endl;
     nuovo = (nuovo & enemies) | (nuovo & ~allpieces);
 
@@ -72,7 +72,7 @@ int GenMoves::performRankFileCaptureAndShiftCount(const int position, const u64 
 int GenMoves::performRankFileCaptureCount(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
 
-    u64 nuovo = BitmapGenerator::getRankFileShift(position, allpieces);
+    u64 nuovo = BitboardGenerator::getRankFileShift(position, allpieces);
     // cout << allpieces << " " << k2 << " " << (nuovo2 & enemies) << endl;
     nuovo &= enemies;
 
@@ -81,14 +81,14 @@ int GenMoves::performRankFileCaptureCount(const int position, const u64 enemies,
 
 u64 GenMoves::performDiagShiftAndCaptureBits(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
-    u64 nuovo = BitmapGenerator::getDiagAntiDiagShift(position, allpieces);
+    u64 nuovo = BitboardGenerator::getDiagAntiDiagShift(position, allpieces);
     return (nuovo & enemies) | (nuovo & ~allpieces);
 }
 
 
 u64 GenMoves::performDiagCaptureBits(const int position, const u64 allpieces, const u64 enemies) {
     ASSERT_RANGE(position, 0, 63);
-    u64 nuovo = BitmapGenerator::getDiagAntiDiagShift(position, allpieces);
+    u64 nuovo = BitboardGenerator::getDiagAntiDiagShift(position, allpieces);
     return nuovo & enemies;
 }
 
@@ -101,7 +101,7 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
     while (x2) {
 
         int position = Bits::BITScanForward(x2);
-        u64 nuovo = BitmapGenerator::getDiagAntiDiagShift(position, allpieces);
+        u64 nuovo = BitboardGenerator::getDiagAntiDiagShift(position, allpieces);
 
         nuovo &= enemies;
         while (nuovo) {
@@ -120,7 +120,7 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
 int GenMoves::performRankFileShiftCount(const int position, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
 
-    u64 nuovo = BitmapGenerator::getRankFileShift(position, allpieces);
+    u64 nuovo = BitboardGenerator::getRankFileShift(position, allpieces);
 
     nuovo &= ~allpieces;
 
@@ -134,7 +134,7 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
     while (x2) {
         int position = Bits::BITScanForward(x2);
 
-        u64 nuovo = BitmapGenerator::getRankFileShift(position, allpieces);
+        u64 nuovo = BitboardGenerator::getRankFileShift(position, allpieces);
 
         nuovo &= ~allpieces;
 
@@ -149,7 +149,7 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
 
 int GenMoves::performDiagShiftCount(const int position, const u64 allpieces) {//TODO magic bitboard
     ASSERT_RANGE(position, 0, 63);
-    u64 nuovo = BitmapGenerator::getDiagAntiDiagShift(position, allpieces);
+    u64 nuovo = BitboardGenerator::getDiagAntiDiagShift(position, allpieces);
     nuovo = Bits::bitCount(nuovo & ~allpieces);
 
     return nuovo;
@@ -161,7 +161,7 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
     u64 x2 = chessboard[piece];
     while (x2) {
         int position = Bits::BITScanForward(x2);
-        u64 nuovo = BitmapGenerator::getDiagAntiDiagShift(position, allpieces);
+        u64 nuovo = BitboardGenerator::getDiagAntiDiagShift(position, allpieces);
         nuovo &= ~allpieces;
 
         while (nuovo) {
