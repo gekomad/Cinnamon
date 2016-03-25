@@ -281,12 +281,12 @@ vector<u64> Bitboard::getCombination(vector<u64> elements) {
     vector<u64> v;
     u64 bits = 0;
 
-    for (int comb_len = 1; comb_len < elements.size() + 1; comb_len++) {
-        v = combinations(elements, comb_len);
+    for (int len = 1; len < elements.size() + 1; len++) {
+        v = combinations(elements, len);
         int k = 0;
         for (int rr:v) {
             bits |= POW2[rr];
-            if (++k == comb_len) {
+            if (++k == len) {
                 res.push_back(bits);
                 bits = 0;
                 k = 0;
