@@ -34,7 +34,7 @@ class Bitboard : public Singleton<Bitboard> {
 public:
 
 
-    static u64 getRankFileShift(const int position, const u64 allpieces) {
+    static u64 getRankFile(const int position, const u64 allpieces) {
 //    ........            00000000
 //    ...q....            00010000
 //    ........            00010000
@@ -49,7 +49,7 @@ public:
     }
 
 
-    static u64 getDiagAntiDiagShift(const int position, const u64 allpieces) {
+    static u64 getDiagonalAntiDiagonal(const int position, const u64 allpieces) {
 //    ........            00010000
 //    q.......            10100000
 //    .B......            00000000

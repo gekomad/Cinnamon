@@ -42,7 +42,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
     u64 x2 = chessboard[piece];
     while (x2) {
         int position = Bits::BITScanForward(x2);
-        u64 nuovo = Bitboard::getRankFileShift(position, allpieces) & enemies;;
+        u64 nuovo = Bitboard::getRankFile(position, allpieces) & enemies;;
         while (nuovo) {
             int bound = Bits::BITScanForward(nuovo);
             if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
@@ -57,7 +57,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
 
 int GenMoves::performRankFileCaptureAndShiftCount(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
-    u64 nuovo = Bitboard::getRankFileShift(position, allpieces);
+    u64 nuovo = Bitboard::getRankFile(position, allpieces);
     nuovo = (nuovo & enemies) | (nuovo & ~allpieces);
     return Bits::bitCount(nuovo);
 }
@@ -68,7 +68,7 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
     u64 x2 = chessboard[piece];
     while (x2) {
         int position = Bits::BITScanForward(x2);
-        u64 nuovo = Bitboard::getDiagAntiDiagShift(position, allpieces) & enemies;;
+        u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;;
         while (nuovo) {
             int bound = Bits::BITScanForward(nuovo);
             if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
@@ -87,7 +87,7 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
     u64 x2 = chessboard[piece];
     while (x2) {
         int position = Bits::BITScanForward(x2);
-        u64 nuovo = Bitboard::getRankFileShift(position, allpieces) & ~allpieces;
+        u64 nuovo = Bitboard::getRankFile(position, allpieces) & ~allpieces;
         while (nuovo) {
             int n = Bits::BITScanForward(nuovo);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
@@ -103,7 +103,7 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
     u64 x2 = chessboard[piece];
     while (x2) {
         int position = Bits::BITScanForward(x2);
-        u64 nuovo = Bitboard::getDiagAntiDiagShift(position, allpieces) & ~allpieces;
+        u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces;
         while (nuovo) {
             int n = Bits::BITScanForward(nuovo);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);

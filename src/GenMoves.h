@@ -102,12 +102,12 @@ public:
 
     inline u64 getDiagCapture(const int position, const u64 allpieces, const u64 enemies) {
         ASSERT_RANGE(position, 0, 63);
-        return Bitboard::getDiagAntiDiagShift(position, allpieces) & enemies;
+        return Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
     }
 
     u64 getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces) {
         ASSERT_RANGE(position, 0, 63);
-        u64 nuovo = Bitboard::getDiagAntiDiagShift(position, allpieces);
+        u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
         return (nuovo & enemies) | (nuovo & ~allpieces);
     }
 
@@ -117,7 +117,7 @@ public:
 
     inline int getDiagShiftCount(const int position, const u64 allpieces) {
         ASSERT_RANGE(position, 0, 63);
-        return Bits::bitCount(Bitboard::getDiagAntiDiagShift(position, allpieces) & ~allpieces);
+        return Bits::bitCount(Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces);
     }
 
     bool performKingShiftCapture(int side, const u64 enemies);
@@ -581,7 +581,7 @@ private:
         if (exitOnFirst && attackers)return 1;
         ///bishop queen
         u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
-        u64 nuovo = Bitboard::getDiagAntiDiagShift(position, allpieces) & enemies;
+        u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
         while (nuovo) {
             int bound = Bits::BITScanForward(nuovo);
             attackers |= POW2[bound];
@@ -589,7 +589,7 @@ private:
             RESET_LSB(nuovo);
         }
         enemies = chessboard[ROOK_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
-        nuovo = Bitboard::getRankFileShift(position, allpieces) & enemies;
+        nuovo = Bitboard::getRankFile(position, allpieces) & enemies;
         while (nuovo) {
             int bound = Bits::BITScanForward(nuovo);
             attackers |= POW2[bound];
