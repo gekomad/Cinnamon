@@ -44,8 +44,8 @@ public:
 //    ...Q....            00010000
 //    ........            00000000
 
-        return (BITMAP_SHIFT_FILE[position][fileIdx(position, allpieces)]) |
-               BITMAP_SHIFT_RANK[position][rankIdx(position, allpieces)];
+        return (BITBOARD_FILE[position][fileIdx(position, allpieces)]) |
+               BITBOARD_RANK[position][rankIdx(position, allpieces)];
     }
 
 
@@ -59,8 +59,8 @@ public:
 //    ........            00000100
 //    ........            00000010
 
-        return BITMAP_SHIFT_DIAGONAL[position][diagonalIdx(position, allpieces)] |
-               BITMAP_SHIFT_ANTIDIAGONAL[position][antiDiagonalIdx(position, allpieces)];
+        return BITBOARD_DIAGONAL[position][diagonalIdx(position, allpieces)] |
+               BITBOARD_ANTIDIAGONAL[position][antiDiagonalIdx(position, allpieces)];
     }
 
 private:
@@ -69,18 +69,18 @@ private:
     const static u64 MAGIC_KEY_DIAG_ANTIDIAG = 0x101010101010101ULL;
     const static u64 MAGIC_KEY_FILE_RANK = 0x102040810204080ULL;
 
-    static u64 BITMAP_SHIFT_DIAGONAL[64][256];
-    static u64 BITMAP_SHIFT_ANTIDIAGONAL[64][256];
-    static u64 BITMAP_SHIFT_FILE[64][256];
-    static u64 BITMAP_SHIFT_RANK[64][256];
+    static u64 BITBOARD_DIAGONAL[64][256];
+    static u64 BITBOARD_ANTIDIAGONAL[64][256];
+    static u64 BITBOARD_FILE[64][256];
+    static u64 BITBOARD_RANK[64][256];
 
     vector<u64> combinationsDiagonal[64];
     vector<u64> combinationsAntiDiagonal[64];
     vector<u64> combinationsColumn[64];
     vector<u64> combinationsRank[64];
 
-    u64 MASK_BIT_SET_NOBOUND[64][64];
-    char MASK_BIT_SET_NOBOUND_COUNT[64][64];
+    u64 MASK_BIT_SET_NOBOUND_TMP[64][64];
+    char MASK_BIT_SET_NOBOUND_COUNT_TMP[64][64];
 
     vector<u64> getCombination(vector<u64> elements);
 

@@ -18,10 +18,10 @@
 
 #include "Bitboard.h"
 
-u64 Bitboard::BITMAP_SHIFT_DIAGONAL[64][256];
-u64 Bitboard::BITMAP_SHIFT_ANTIDIAGONAL[64][256];
-u64 Bitboard::BITMAP_SHIFT_FILE[64][256];
-u64 Bitboard::BITMAP_SHIFT_RANK[64][256];
+u64 Bitboard::BITBOARD_DIAGONAL[64][256];
+u64 Bitboard::BITBOARD_ANTIDIAGONAL[64][256];
+u64 Bitboard::BITBOARD_FILE[64][256];
+u64 Bitboard::BITBOARD_RANK[64][256];
 
 Bitboard::Bitboard() {
 
@@ -60,15 +60,15 @@ Bitboard::Bitboard() {
     }
     for (int i = 0; i < 64; i++) {
         for (int j = 0; j < 64; j++) {
-            MASK_BIT_SET_NOBOUND[i][j] = MASK_BIT_SET[i][j];
-            MASK_BIT_SET_NOBOUND[i][j] &= NOTPOW2[i];
-            MASK_BIT_SET_NOBOUND[i][j] &= NOTPOW2[j];
+            MASK_BIT_SET_NOBOUND_TMP[i][j] = MASK_BIT_SET[i][j];
+            MASK_BIT_SET_NOBOUND_TMP[i][j] &= NOTPOW2[i];
+            MASK_BIT_SET_NOBOUND_TMP[i][j] &= NOTPOW2[j];
             MASK_BIT_SET[i][j] &= NOTPOW2[i];
         }
     }
     for (int i = 0; i < 64; i++) {
         for (int j = 0; j < 64; j++) {
-            MASK_BIT_SET_NOBOUND_COUNT[i][j] = Bits::bitCount(MASK_BIT_SET_NOBOUND[i][j]);
+            MASK_BIT_SET_NOBOUND_COUNT_TMP[i][j] = Bits::bitCount(MASK_BIT_SET_NOBOUND_TMP[i][j]);
         }
     }
 
@@ -95,7 +95,7 @@ void Bitboard::popolateDiagonal() {
     for (uchar pos = 0; pos < 64; pos++) {
         for (u64 allpieces:combinationsDiagonal[pos]) {
             uchar idx = diagonalIdx(pos, allpieces);
-            BITMAP_SHIFT_DIAGONAL[pos][idx] = performDiagShift(pos, allpieces) | performDiagCapture(pos, allpieces);
+            BITBOARD_DIAGONAL[pos][idx] = performDiagShift(pos, allpieces) | performDiagCapture(pos, allpieces);
         }
     }
 }
@@ -104,7 +104,7 @@ void Bitboard::popolateColumn() {
     for (uchar pos = 0; pos < 64; pos++) {
         for (u64 allpieces:combinationsColumn[pos]) {
             uchar idx = fileIdx(pos, allpieces);
-            BITMAP_SHIFT_FILE[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
+            BITBOARD_FILE[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
         }
 
     }
@@ -114,7 +114,7 @@ void Bitboard::popolateRank() {
     for (uchar pos = 0; pos < 64; pos++) {
         for (u64 allpieces:combinationsRank[pos]) {
             uchar idx = rankIdx(pos, allpieces);
-            BITMAP_SHIFT_RANK[pos][idx] = performRankShift(pos, allpieces) | performRankCapture(pos, allpieces);
+            BITBOARD_RANK[pos][idx] = performRankShift(pos, allpieces) | performRankCapture(pos, allpieces);
         }
     }
 }
@@ -123,34 +123,34 @@ void Bitboard::popolateAntiDiagonal() {
     for (uchar pos = 0; pos < 64; pos++) {
         for (u64 allpieces:combinationsAntiDiagonal[pos]) {
             uchar idx = antiDiagonalIdx(pos, allpieces);
-            BITMAP_SHIFT_ANTIDIAGONAL[pos][idx] = performAntiDiagShift(pos, allpieces) | performAntiDiagCapture(pos, allpieces);
+            BITBOARD_ANTIDIAGONAL[pos][idx] = performAntiDiagShift(pos, allpieces) | performAntiDiagCapture(pos, allpieces);
         }
     }
 }
 
 u64 Bitboard::performDiagShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_UP[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_LOWER[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_DOWN[position];
-    k |= q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_UPPER[position];
+    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_UPPER[position];
     return k;
 
 }
 
 u64 Bitboard::performColumnShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_UP[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_VERT_LOWER[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_VERT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_DOWN[position];
-    k |= q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_VERT_UPPER[position];
+    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_VERT_UPPER[position];
     return k;
 }
 
 
 u64 Bitboard::performRankShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_LEFT[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_LEFT[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT[position];
-    k |= q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_RIGHT[position];
+    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_RIGHT[position];
     return k;
 }
 
@@ -232,9 +232,9 @@ u64 Bitboard::performDiagCapture(const int position, const u64 allpieces) {
 
 u64 Bitboard::performAntiDiagShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_UP[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_DOWN[position];
-    k |= q ? MASK_BIT_SET_NOBOUND[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_UPPER[position];
+    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_UPPER[position];
     return k;
 }
 
