@@ -35,7 +35,7 @@ Hash::Hash() {
         return;
     }
 
-    generated = true;
+
     HASH_SIZE = 0;
     hashArray[HASH_GREATER] = hashArray[HASH_ALWAYS] = nullptr;
 #ifdef DEBUG_MODE
@@ -43,6 +43,7 @@ Hash::Hash() {
     nRecordHashA = nRecordHashB = nRecordHashE = collisions = 0;
 #endif
     setHashSize(HASH_SIZE_DEFAULT);
+    generated = true;
 }
 
 void Hash::clearAge() {
@@ -82,14 +83,14 @@ void Hash::setHashSize(int mb) {
 }
 
 void Hash::dispose() {
-    std::lock_guard<std::mutex> lock(mutexDestructor);
+//    std::lock_guard<std::mutex> lock(mutexDestructor);
     if (hashArray[HASH_GREATER]) {
         free(hashArray[HASH_GREATER]);
     }
     if (hashArray[HASH_ALWAYS]) {
         free(hashArray[HASH_ALWAYS]);
     }
-    hashArray[HASH_GREATER] = nullptr;hashArray[HASH_ALWAYS] = nullptr;
+    hashArray[HASH_GREATER] = hashArray[HASH_ALWAYS] = nullptr;
     HASH_SIZE = 0;
     generated = false;
 }
