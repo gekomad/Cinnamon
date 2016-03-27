@@ -18,11 +18,9 @@
 
 #include "SearchManager.h"
 
-Hash *SearchManager::hash;
 
 SearchManager::SearchManager() {
     SET(checkSmp1, 0);
-    hash = &Hash::getInstance();
 
     setNthread(1);
 
@@ -189,7 +187,7 @@ void SearchManager::incKillerHeuristic(int from, int to, int value) {
 }
 
 int SearchManager::getHashSize() {
-    return hash->getHashSize();
+    return getThread(0).getHashSize();
 }
 
 void SearchManager::startClock() {
@@ -207,7 +205,7 @@ void SearchManager::clearKillerHeuristic() {
 }
 
 void SearchManager::clearAge() {
-    hash->clearAge();
+    getThread(0).clearAge();
 }
 
 int SearchManager::getForceCheck() {
@@ -245,7 +243,7 @@ string SearchManager::getFen() {
 }
 
 void SearchManager::setHashSize(int s) {
-    hash->setHashSize(s);
+    getThread(0).setHashSize(s);
 }
 
 void SearchManager::setMaxTimeMillsec(int i) {
@@ -279,7 +277,7 @@ int SearchManager::getScore(int side, const bool trace) {
 }
 
 void SearchManager::clearHash() {
-    hash->clearHash();
+    getThread(0).clearHash();
 }
 
 int SearchManager::getMaxTimeMillsec() {

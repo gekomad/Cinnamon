@@ -20,7 +20,7 @@
 #include "Search.h"
 #include "SearchManager.h"
 
-Hash *Search::hash;
+//Hash *Search::hash;
 Tablebase *Search::gtb;
 
 bool Search::runningThread;
@@ -78,7 +78,7 @@ Search::Search() : ponder(false), nullSearch(false) {
     lazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
     gtb = nullptr;
-    hash = &Hash::getInstance();
+
 }
 
 void Search::clone(const Search *s) {
@@ -237,7 +237,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
                 decListId();
                 ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
                 ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
-                hash->recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth, Hash::hashfBETA, zobristKeyR, score, move);
+                recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth, Hash::hashfBETA, zobristKeyR, score, move);
                 return beta;
             }
             best = move;
@@ -247,7 +247,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     }
     ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
     ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
-    hash->recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth, hashf, zobristKeyR, score, best);
+    recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth, hashf, zobristKeyR, score, best);
 
     decListId();
 
@@ -561,7 +561,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                 ADD(betaEfficiency, betaEfficiencyCount / (double) listcount * 100.0);
                 ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
                 ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
-                hash->recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
+                recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
                 setKillerHeuristic(move->from, move->to, 0x400);
                 return score;
             }
@@ -574,7 +574,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     ASSERT(checkHashStruct.rootHash[Hash::HASH_GREATER]);
     ASSERT(checkHashStruct.rootHash[Hash::HASH_ALWAYS]);
-    hash->recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth - extension, hashf, zobristKeyR, score, best);
+    recordHash<smp>(getRunning(), checkHashStruct.rootHash, depth - extension, hashf, zobristKeyR, score, best);
     decListId();
     return score;
 }

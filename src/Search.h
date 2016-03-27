@@ -34,7 +34,7 @@
 #endif
 
 
-class Search : public Eval, public Thread<Search> {
+class Search : public Eval, public Thread<Search>, public Hash {
 
 public:
 
@@ -134,7 +134,7 @@ private:
     int valWindow = INT_MAX;
     static bool runningThread;
     _TpvLine pvLine;
-    static Hash *hash;
+//    static Hash *hash;
     static Tablebase *gtb;
     bool ponder;
 
@@ -174,12 +174,12 @@ private:
         phashe = &checkHashStruct.phasheType[type];
 
 
-        if (hash->readHash<smp, type>(checkHashStruct.rootHash, zobristKeyR, phashe)) {
+        if (readHash<smp, type>(checkHashStruct.rootHash, zobristKeyR, phashe)) {
             if (phashe->from != phashe->to && phashe->flags & 0x3) {    // hashfEXACT or hashfBETA
                 checkHashStruct.hashFlag[type] = true;
             }
             if (phashe->depth >= depth) {
-                INC(hash->probeHash);
+                INC(probeHash);
                 if (!currentPly) {
                     if (phashe->flags == Hash::hashfBETA) {
                         incKillerHeuristic(phashe->from, phashe->to, 1);
@@ -188,7 +188,7 @@ private:
                     switch (phashe->flags) {
                         case Hash::hashfEXACT:
                             if (phashe->score >= beta) {
-                                INC(hash->n_cut_hashB);
+                                INC(n_cut_hashB);
                                 checkHashStruct.res = beta;
                                 return true;
                             }
@@ -196,14 +196,14 @@ private:
                         case Hash::hashfBETA:
                             if (!quies)incKillerHeuristic(phashe->from, phashe->to, 1);
                             if (phashe->score >= beta) {
-                                INC(hash->n_cut_hashB);
+                                INC(n_cut_hashB);
                                 checkHashStruct.res = beta;
                                 return true;
                             }
                             break;
                         case Hash::hashfALPHA:
                             if (phashe->score <= alpha) {
-                                INC(hash->n_cut_hashA);
+                                INC(n_cut_hashA);
                                 checkHashStruct.res = alpha;
                                 return true;
                             }
@@ -211,11 +211,11 @@ private:
                         default:
                             break;
                     }
-                    INC(hash->cutFailed);
+                    INC(cutFailed);
                 }
-                INC(hash->cutFailed);
+                INC(cutFailed);
             }
-            INC(hash->cutFailed);
+            INC(cutFailed);
         }
         return false;
     }

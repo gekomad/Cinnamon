@@ -187,7 +187,6 @@ public:
 
 private:
 
-    static Hash *hash;
 
     SearchManager();
 

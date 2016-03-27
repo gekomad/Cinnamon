@@ -76,7 +76,7 @@ private:
 
 #ifdef DEBUG_MODE
     //for staistics
-    Hash &hash = Hash::getInstance();
+
     atomic_int checkSmp2;
 #endif
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();

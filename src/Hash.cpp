@@ -16,9 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <mutex>
 #include "Hash.h"
 
+int Hash::HASH_SIZE;
+Hash::_Thash *Hash::hashArray[2];
+mutex Hash::mutexConstructor;
+mutex Hash::mutexDestructor;
+
+bool Hash::generated = false;
+
+Spinlock Hash::spinlockHashGreater;
+Spinlock Hash::spinlockHashAlways;
+
 Hash::Hash() {
+    std::lock_guard<std::mutex> lock(mutexConstructor);
+    if (generated) {
+        return;
+    }
+
+    generated = true;
     HASH_SIZE = 0;
     hashArray[HASH_GREATER] = hashArray[HASH_ALWAYS] = nullptr;
 #ifdef DEBUG_MODE
@@ -65,14 +82,16 @@ void Hash::setHashSize(int mb) {
 }
 
 void Hash::dispose() {
+    std::lock_guard<std::mutex> lock(mutexDestructor);
     if (hashArray[HASH_GREATER]) {
         free(hashArray[HASH_GREATER]);
     }
     if (hashArray[HASH_ALWAYS]) {
         free(hashArray[HASH_ALWAYS]);
     }
-    hashArray[HASH_GREATER] = hashArray[HASH_ALWAYS] = nullptr;
+    hashArray[HASH_GREATER] = nullptr;hashArray[HASH_ALWAYS] = nullptr;
     HASH_SIZE = 0;
+    generated = false;
 }
 
 Hash::~Hash() {

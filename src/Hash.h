@@ -25,14 +25,15 @@
 #include "util/Singleton.h"
 #include "util/logger.h"
 #include "threadPool/Spinlock.h"
+#include <mutex>
 
 using namespace _board;
 using namespace _logger;
 
-class Hash : public Singleton<Hash> {
-    friend class Singleton<Hash>;
+class Hash {
 
 public:
+    Hash();
 
     static const int HASH_GREATER = 0;
     static const int HASH_ALWAYS = 1;
@@ -57,7 +58,7 @@ public:
     int n_cut_hashA, n_cut_hashB, cutFailed, probeHash;
 #endif
 
-    virtual ~Hash();
+     ~Hash();
 
     void setHashSize(int mb);
 
@@ -134,9 +135,8 @@ public:
     }
 
 private:
-    Hash();
 
-    int HASH_SIZE;
+    static int HASH_SIZE;
 #ifdef JS_MODE
     static const int HASH_SIZE_DEFAULT = 1;
 #else
@@ -145,8 +145,11 @@ private:
 
     void dispose();
 
-    _Thash *hashArray[2];
-    Spinlock spinlockHashGreater;
-    Spinlock spinlockHashAlways;
+    static _Thash *hashArray[2];
+    static Spinlock spinlockHashGreater;
+    static Spinlock spinlockHashAlways;
+    static mutex mutexConstructor;
+    static mutex mutexDestructor;
+    static bool generated;
 };
 
