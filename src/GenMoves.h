@@ -22,7 +22,7 @@
 #include "util/Bitboard.h"
 #include <vector>
 
-class GenMoves : public virtual ChessBoard {
+class GenMoves : public  ChessBoard {
 
 public:
     static const int MAX_MOVE = 130;

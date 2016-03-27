@@ -28,12 +28,13 @@
 #include "namespaces/random.h"
 #include <climits>
 #include "util/logger.h"
+#include "util/Bitboard.h"
 
 using namespace _logger;
 using namespace _board;
 using namespace _def;
 
-class ChessBoard {
+class ChessBoard : public Bitboard{
 public:
 
 #define PAWN_BLACK 0

@@ -23,16 +23,19 @@
 #include "../namespaces/def.h"
 #include "Bits.h"
 #include "logger.h"
+#include <thread>
+#include <mutex>
+#include <iostream>
 
 using namespace _def;
 using std::vector;
 
 //Kindergarten
-class Bitboard : public Singleton<Bitboard> {
-    friend class Singleton<Bitboard>;
+class Bitboard {
 
 public:
 
+    Bitboard();
 
     static u64 getRankFile(const int position, const u64 allpieces) {
 //    ........            00000000
@@ -64,7 +67,6 @@ public:
     }
 
 private:
-    Bitboard();
 
     const static u64 MAGIC_KEY_DIAG_ANTIDIAG = 0x101010101010101ULL;
     const static u64 MAGIC_KEY_FILE_RANK = 0x102040810204080ULL;
@@ -132,6 +134,8 @@ private:
 
     u64 performColumnShift(const int position, const u64 allpieces);
 
+    static mutex mutexConstructor;
+    static bool generated;
 };
 
 namespace _bitboardTmp {

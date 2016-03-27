@@ -16,15 +16,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <mutex>
 #include "Bitboard.h"
 
 u64 Bitboard::BITBOARD_DIAGONAL[64][256];
 u64 Bitboard::BITBOARD_ANTIDIAGONAL[64][256];
 u64 Bitboard::BITBOARD_FILE[64][256];
 u64 Bitboard::BITBOARD_RANK[64][256];
+mutex Bitboard::mutexConstructor;
+bool Bitboard::generated=false;
 
 Bitboard::Bitboard() {
+    std::lock_guard<std::mutex> lock(mutexConstructor);
+    if (generated) {
+        return;
+    }
 
+    generated = true;
     u64 MASK_BIT_SET[64][64];
     memset(MASK_BIT_SET, 0, sizeof(MASK_BIT_SET));
     for (int i = 0; i < 64; i++) {
