@@ -65,7 +65,7 @@ public:
 
     static string getLocalTime() {
         time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
-        String gg(ctime(&current));
+        String gg(ctime(&current));//TODO memory leak?
         return gg.trimRight();
     }
 

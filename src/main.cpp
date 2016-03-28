@@ -98,7 +98,7 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
-
+cout <<Time::getLocalTime()<<endl;
     printHeader();
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);
