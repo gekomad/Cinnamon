@@ -60,7 +60,7 @@ private:
             }
 
         }
-        new Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);
+        Uci(fen, perftDepth, nCpu, perftHashSize, dumpFile);
 
     }
 

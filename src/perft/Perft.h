@@ -64,7 +64,7 @@ class Perft : public Thread<Perft>, public ThreadPool<PerftThread>, public Singl
 
 public:
 
-    void setParam(string fen, int depth, int nCpu, int mbSize, string dumpFile, bool forceExit);
+    void setParam(string fen, int depth, int nCpu, int mbSize, string dumpFile);
 
     ~Perft();
 
@@ -111,8 +111,6 @@ private:
     }
 
     static bool dumping;
-
-    bool forceExit = false;
 
 };
 

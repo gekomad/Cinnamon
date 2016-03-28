@@ -111,9 +111,6 @@ public:
         return *threadPool[i];
     }
 
-
-protected:
-
 private:
     vector<T *> threadPool;
     mutex mtx;

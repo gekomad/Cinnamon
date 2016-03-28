@@ -48,6 +48,6 @@ private:
 
     void startListner();
 
-    bool runPerft = false;
+    bool runPerftAndExit = false;
 
 };

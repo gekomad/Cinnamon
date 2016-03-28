@@ -20,8 +20,8 @@
 
 Uci::Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile) {//perft locale
     perft = &Perft::getInstance();
-    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, true);
-    runPerft = true;
+    perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile);
+    runPerftAndExit = true;
     startListner();
 }
 
@@ -54,9 +54,10 @@ void Uci::listner(IterativeDeeping *it) {
     string dumpFile;
     static const string _BOOLEAN[] = {"false", "true"};
     while (!stop) {
-        if (runPerft) {
-            runPerft = false;
-            perft->start();
+        if (runPerftAndExit) {
+            runPerftAndExit = false;
+            perft->run();
+            break;
         }
         getline(cin, command);
         istringstream uip(command, ios::in);
@@ -79,7 +80,7 @@ void Uci::listner(IterativeDeeping *it) {
             }
             searchManager.setHashSize(hashDepth);
             perft = &Perft::getInstance();
-            perft->setParam(fen, perftDepth, perftThreads, perftHashSize, dumpFile, false);
+            perft->setParam(fen, perftDepth, perftThreads, perftHashSize, dumpFile);
             perft->join();
             perft->start();
             perft->join();

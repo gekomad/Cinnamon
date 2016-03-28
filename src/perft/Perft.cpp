@@ -130,8 +130,7 @@ void Perft::alloc() {
     }
 }
 
-void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1, bool forceexit) {
-    Perft::forceExit = forceexit;
+void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dumpFile1) {
     memset(&perftRes, 0, sizeof(_TPerftRes));
     if (depth1 <= 0)depth1 = 1;
     mbSize = mbSize1;
@@ -175,9 +174,9 @@ void Perft::run() {
     cout << "cache size:\t\t" << mbSize << "\n";
     cout << "dump file:\t\t" << dumpFile << "\n";
     cout << "\n" << Time::getLocalTime() << " start perft test...\n";
-    if (forceExit) {
-        cout << "type 'status' for partial moves" << endl;
-    }
+
+    cout << "type 'status' for partial moves" << endl;
+
     Timer t1(Time::HOUR_IN_SECONDS);
     t1.registerObservers([this]() {
         status();
@@ -239,9 +238,6 @@ void Perft::endRun() {
     cout << Time::getLocalTime() << " end test" << endl;
     cerr << flush;
 
-    if (forceExit) {
-        std::_Exit(0);
-    }
 }
 
 void Perft::status() {
