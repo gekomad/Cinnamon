@@ -132,7 +132,6 @@ protected:
 private:
     static bool generated;
     static mutex mutexConstructor;
-    static mutex mutexDestructor;
     enum _Tphase {
         OPEN, MIDDLE, END
     };

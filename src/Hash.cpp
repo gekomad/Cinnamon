@@ -79,7 +79,6 @@ void Hash::setHashSize(int mb) {
 }
 
 void Hash::dispose() {
-//    std::lock_guard<std::mutex> lock(mutexDestructor);
     if (hashArray[HASH_GREATER]) {
         free(hashArray[HASH_GREATER]);
     }

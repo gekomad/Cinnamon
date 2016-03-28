@@ -21,7 +21,6 @@
 using namespace _eval;
 
 mutex Eval::mutexConstructor;
-mutex Eval::mutexDestructor;
 
 u64 **Eval::LINK_ROOKS = nullptr;
 bool Eval::generated = false;
@@ -86,7 +85,6 @@ void Eval::generateLinkRook() {
 }
 
 Eval::~Eval() {
-    std::lock_guard<std::mutex> lock(mutexDestructor);
     dispose();
 }
 
