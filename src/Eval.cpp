@@ -20,72 +20,10 @@
 
 using namespace _eval;
 
-mutex Eval::mutexConstructor;
-
-u64 **Eval::LINK_ROOKS = nullptr;
-bool Eval::generated = false;
-
 Eval::Eval() {
-    std::lock_guard<std::mutex> lock(mutexConstructor);
-    if (generated)return;
-    generateLinkRook();
-}
-
-void Eval::dispose() {
-    if (!LINK_ROOKS)return;
-    for (int i = 0; i < 64; i++) {
-        if (LINK_ROOKS[i]) {
-            free(LINK_ROOKS[i]);
-            LINK_ROOKS[i] = nullptr;
-        }
-    }
-    free(LINK_ROOKS);
-    LINK_ROOKS = nullptr;
-    generated = false;
-}
-
-void Eval::generateLinkRook() {
-    //LINK_ROOKS
-    dispose();
-    ASSERT(!LINK_ROOKS);
-    LINK_ROOKS = (u64 **) malloc(64 * sizeof(u64 *));
-    for (int i = 0; i < 64; i++) {
-        LINK_ROOKS[i] = (u64 *) malloc(64 * sizeof(u64));
-    }
-    int from, to;
-    for (int i = 0; i < 64; i++) {
-        for (int j = 0; j < 64; j++) {
-            u64 t = 0;
-            if (RANK[i] & RANK[j]) {    //rank
-                from = min(i, j);
-                to = max(i, j);
-                for (int k = from + 1; k <= to - 1; k++) {
-                    t |= POW2[k];
-                }
-            } else if (FILE_[i] & FILE_[j]) {    //file
-                from = min(i, j);
-                to = max(i, j);
-                for (int k = from + 8; k <= to - 8; k += 8) {
-                    t |= POW2[k];
-                }
-            }
-            if (!t) {
-                t = 0xffffffffffffffffULL;
-            }
-            LINK_ROOKS[i][j] = t;
-        }
-    }
-    //DISTANCE
-    //for (int i = 0; i < 64; i++) {
-    //    for (int j = 0; j < 64; j++) {
-    //        DISTANCE[i][j] = max(abs(RANK_AT[i] - FILE_AT[j]), abs(RANK_AT[j] - FILE_AT[i]));
-    //    }
-    //}
-    ///
 }
 
 Eval::~Eval() {
-    dispose();
 }
 
 template<int side>

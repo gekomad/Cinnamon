@@ -98,6 +98,7 @@ void printHeader() {
 }
 
 int main(int argc, char **argv) {
+
     printHeader();
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);
@@ -109,6 +110,7 @@ int main(int argc, char **argv) {
 #endif
 
     GetOpt::parse(argc, argv);
+
     return 0;
 }
 
