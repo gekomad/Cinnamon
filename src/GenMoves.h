@@ -39,8 +39,6 @@ public:
 
     void generateMoves(const int side, const u64);
 
-    void generateMoves(const int side);
-
     template<int side>
     void generateMoves(const u64 allpieces) {
         ASSERT_RANGE(side, 0, 1);

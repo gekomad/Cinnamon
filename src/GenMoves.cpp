@@ -41,13 +41,12 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
     u64 x2 = chessboard[piece];
     while (x2) {
         int position = BITScanForward(x2);
-        u64 nuovo = getRankFile(position, allpieces) & enemies;;
-        while (nuovo) {
-            int bound = BITScanForward(nuovo);
-            if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
+        u64 rankFile = getRankFile(position, allpieces) & enemies;;
+        while (rankFile) {
+            if (pushmove<STANDARD_MOVE_MASK>(position, BITScanForward(rankFile), side, NO_PROMOTION, piece)) {
                 return true;
             }
-            RESET_LSB(nuovo);
+            RESET_LSB(rankFile);
         }
         RESET_LSB(x2);
     }
@@ -56,9 +55,9 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
 
 int GenMoves::performRankFileCaptureAndShiftCount(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
-    u64 nuovo = getRankFile(position, allpieces);
-    nuovo = (nuovo & enemies) | (nuovo & ~allpieces);
-    return bitCount(nuovo);
+    u64 rankFile = getRankFile(position, allpieces);
+    rankFile = (rankFile & enemies) | (rankFile & ~allpieces);
+    return bitCount(rankFile);
 }
 
 bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {
@@ -67,13 +66,12 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
     u64 x2 = chessboard[piece];
     while (x2) {
         int position = BITScanForward(x2);
-        u64 nuovo = getDiagonalAntiDiagonal(position, allpieces) & enemies;;
-        while (nuovo) {
-            int bound = BITScanForward(nuovo);
-            if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
+        u64 diag = getDiagonalAntiDiagonal(position, allpieces) & enemies;;
+        while (diag) {
+            if (pushmove<STANDARD_MOVE_MASK>(position, BITScanForward(diag), side, NO_PROMOTION, piece)) {
                 return true;
             }
-            RESET_LSB(nuovo);
+            RESET_LSB(diag);
         }
         RESET_LSB(x2);
     }
@@ -86,11 +84,10 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
     u64 x2 = chessboard[piece];
     while (x2) {
         int position = BITScanForward(x2);
-        u64 nuovo = getRankFile(position, allpieces) & ~allpieces;
-        while (nuovo) {
-            int n = BITScanForward(nuovo);
-            pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
-            RESET_LSB(nuovo);
+        u64 rankFile = getRankFile(position, allpieces) & ~allpieces;
+        while (rankFile) {
+            pushmove<STANDARD_MOVE_MASK>(position, BITScanForward(rankFile), side, NO_PROMOTION, piece);
+            RESET_LSB(rankFile);
         }
         RESET_LSB(x2);
     }
@@ -102,19 +99,13 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
     u64 x2 = chessboard[piece];
     while (x2) {
         int position = BITScanForward(x2);
-        u64 nuovo = getDiagonalAntiDiagonal(position, allpieces) & ~allpieces;
-        while (nuovo) {
-            int n = BITScanForward(nuovo);
-            pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
-            RESET_LSB(nuovo);
+        u64 diag = getDiagonalAntiDiagonal(position, allpieces) & ~allpieces;
+        while (diag) {
+            pushmove<STANDARD_MOVE_MASK>(position, BITScanForward(diag), side, NO_PROMOTION, piece);
+            RESET_LSB(diag);
         }
         RESET_LSB(x2);
     }
-}
-
-void GenMoves::generateMoves(const int side) {
-    u64 allpieces = getBitBoard<WHITE>() | getBitBoard<BLACK>();
-    side ? generateMoves<WHITE>(allpieces) : generateMoves<BLACK>(allpieces);
 }
 
 void GenMoves::generateMoves(const int side, const u64 allpieces) {
@@ -384,8 +375,7 @@ bool GenMoves::performKnightShiftCapture(const int piece, const u64 enemies, con
         int pos = BITScanForward(x);
         u64 x1 = enemies & KNIGHT_MASK[pos];
         while (x1) {
-            int o = BITScanForward(x1);
-            if (pushmove<STANDARD_MOVE_MASK>(pos, o, side, NO_PROMOTION, piece)) {
+            if (pushmove<STANDARD_MOVE_MASK>(pos, BITScanForward(x1), side, NO_PROMOTION, piece)) {
                 return true;
             }
             RESET_LSB(x1);
@@ -401,8 +391,7 @@ bool GenMoves::performKingShiftCapture(int side, const u64 enemies) {
     ASSERT(pos != -1);
     u64 x1 = enemies & NEAR_MASK1[pos];
     while (x1) {
-        int o = BITScanForward(x1);
-        if (pushmove<STANDARD_MOVE_MASK>(pos, o, side, NO_PROMOTION, KING_BLACK + side)) {
+        if (pushmove<STANDARD_MOVE_MASK>(pos, BITScanForward(x1), side, NO_PROMOTION, KING_BLACK + side)) {
             return true;
         }
         RESET_LSB(x1);
