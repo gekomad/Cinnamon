@@ -59,6 +59,7 @@ help:
 	@echo ""
 	@echo "make cinnamon-js                 > Javascript build"
 	@echo "make cinnamon-drmemory           > Memory monitor"
+	@echo "make cinnamon-profiler           > Google profiler tool"
 	@echo ""
 	@echo "add:"
 	@echo " COMP=compiler                   > Use another compiler"
@@ -96,6 +97,13 @@ drmemory:
 	@echo "check quad core search log in drmmemory_4core.log..."
 	drmemory -show_reachable -- $(PA)$(EXE) -b4 2>drmmemory_4core.log
 
+profiler:
+	$(MAKE) -j4 EXE=$(EXE) all
+	@echo "\n\n **** \nsudo apt-get install google-perftools libgoogle-perftools-dev && export LD_PRELOAD=/usr/lib/libtcmalloc.so:/usr/lib/libprofiler.so\n **** \n"
+	$(RM) profiler.tmp
+	CPUPROFILE=profiler.tmp $(PA)$(EXE) -b1
+	google-pprof --text $(PA)$(EXE) profiler.tmp
+
 cinnamon-js:
 	em++ -std=c++11 -DJS_MODE -DDLOG_LEVEL=_FATAL -fsigned-char ChessBoard.cpp Eval.cpp GenMoves.cpp Hash.cpp IterativeDeeping.cpp js/main.cpp OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Timer.cpp perft/PerftThread.cpp -w -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
 
@@ -122,6 +130,9 @@ cinnamon64-modern-AMD:
 
 cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
+
+cinnamon-profiler:
+	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
 
 all: main.o ChessBoard.o Eval.o GenMoves.o test.o String.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o
 	$(COMP) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o GenMoves.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o ${LIBS}
