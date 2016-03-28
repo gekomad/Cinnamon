@@ -23,8 +23,8 @@ u64 Bitboard::BITBOARD_DIAGONAL[64][256];
 u64 Bitboard::BITBOARD_ANTIDIAGONAL[64][256];
 u64 Bitboard::BITBOARD_FILE[64][256];
 u64 Bitboard::BITBOARD_RANK[64][256];
+bool Bitboard::generated = false;
 mutex Bitboard::mutexConstructor;
-bool Bitboard::generated=false;
 
 Bitboard::Bitboard() {
     std::lock_guard<std::mutex> lock(mutexConstructor);
@@ -32,7 +32,6 @@ Bitboard::Bitboard() {
         return;
     }
 
-    generated = true;
     u64 MASK_BIT_SET[64][64];
     memset(MASK_BIT_SET, 0, sizeof(MASK_BIT_SET));
     for (int i = 0; i < 64; i++) {
@@ -76,7 +75,7 @@ Bitboard::Bitboard() {
     }
     for (int i = 0; i < 64; i++) {
         for (int j = 0; j < 64; j++) {
-            MASK_BIT_SET_NOBOUND_COUNT_TMP[i][j] = Bits::bitCount(MASK_BIT_SET_NOBOUND_TMP[i][j]);
+            MASK_BIT_SET_NOBOUND_COUNT_TMP[i][j] = bitCount(MASK_BIT_SET_NOBOUND_TMP[i][j]);
         }
     }
 
@@ -138,27 +137,27 @@ void Bitboard::popolateAntiDiagonal() {
 
 u64 Bitboard::performDiagShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_UP[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_LOWER[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_DOWN[position];
-    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_UPPER[position];
+    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_UPPER[position];
     return k;
 
 }
 
 u64 Bitboard::performColumnShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_UP[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_VERT_LOWER[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_VERT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_DOWN[position];
-    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_VERT_UPPER[position];
+    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_VERT_UPPER[position];
     return k;
 }
 
 
 u64 Bitboard::performRankShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_LEFT[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_LEFT[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT[position];
-    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_RIGHT[position];
+    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_RIGHT[position];
     return k;
 }
 
@@ -168,12 +167,12 @@ u64 Bitboard::performColumnCapture(const int position, const u64 allpieces) {
     u64 x = allpieces & FILE_[position];
     if (x & allpieces) {
         q = x & _bitboardTmp::MASK_BIT_UNSET_UP[position];
-        if (q && allpieces & POW2[Bits::BITScanReverse(q)]) {
-            k |= POW2[Bits::BITScanReverse(q)];
+        if (q && allpieces & POW2[BITScanReverse(q)]) {
+            k |= POW2[BITScanReverse(q)];
         }
         q = x & _bitboardTmp::MASK_BIT_UNSET_DOWN[position];
-        if (q && allpieces & POW2[Bits::BITScanForward(q)]) {
-            k |= POW2[Bits::BITScanForward(q)];
+        if (q && allpieces & POW2[BITScanForward(q)]) {
+            k |= POW2[BITScanForward(q)];
         }
     }
     return k;
@@ -185,12 +184,12 @@ u64 Bitboard::performRankCapture(const int position, const u64 allpieces) {
     u64 x = allpieces & RANK[position];
     if (x & allpieces) {
         q = x & _bitboardTmp::MASK_BIT_UNSET_LEFT[position];
-        if (q && allpieces & POW2[Bits::BITScanReverse(q)]) {
-            k |= POW2[Bits::BITScanReverse(q)];
+        if (q && allpieces & POW2[BITScanReverse(q)]) {
+            k |= POW2[BITScanReverse(q)];
         }
         q = x & _bitboardTmp::MASK_BIT_UNSET_RIGHT[position];
-        if (q && allpieces & POW2[Bits::BITScanForward(q)]) {
-            k |= POW2[Bits::BITScanForward(q)];
+        if (q && allpieces & POW2[BITScanForward(q)]) {
+            k |= POW2[BITScanForward(q)];
         }
     }
     return k;
@@ -201,14 +200,14 @@ u64 Bitboard::performAntiDiagCapture(const int position, const u64 allpieces) {
     u64 k = 0;
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_UP[position];
     if (q) {
-        bound = Bits::BITScanReverse(q);
+        bound = BITScanReverse(q);
         if (allpieces & POW2[bound]) {
             k |= POW2[bound];
         }
     }
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_DOWN[position];
     if (q) {
-        bound = Bits::BITScanForward(q);
+        bound = BITScanForward(q);
         if (allpieces & POW2[bound]) {
             k |= POW2[bound];
         }
@@ -222,14 +221,14 @@ u64 Bitboard::performDiagCapture(const int position, const u64 allpieces) {
     int bound;
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_UP[position];
     if (q) {
-        bound = Bits::BITScanReverse(q);
+        bound = BITScanReverse(q);
         if (allpieces & POW2[bound]) {
             k |= POW2[bound];
         }
     }
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_DOWN[position];
     if (q) {
-        bound = Bits::BITScanForward(q);
+        bound = BITScanForward(q);
         if (allpieces & POW2[bound]) {
             k |= POW2[bound];
         }
@@ -240,9 +239,9 @@ u64 Bitboard::performDiagCapture(const int position, const u64 allpieces) {
 
 u64 Bitboard::performAntiDiagShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_UP[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_DOWN[position];
-    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][Bits::BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_UPPER[position];
+    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_UPPER[position];
     return k;
 }
 
@@ -277,7 +276,7 @@ vector<u64>  Bitboard::combinations(const vector<u64> &elems, int len) {
 vector<u64> Bitboard::getCombination(u64 elements) {
     vector<u64> res;
     while (elements) {
-        int o = Bits::BITScanForward(elements);
+        int o = BITScanForward(elements);
         res.push_back(o);
         RESET_LSB(elements);
     }

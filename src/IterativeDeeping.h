@@ -75,7 +75,7 @@ public:
 private:
 
 #ifdef DEBUG_MODE
-    //for staistics
+    //for statistics
 
     atomic_int checkSmp2;
 #endif

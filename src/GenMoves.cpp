@@ -22,7 +22,7 @@
 
 bool GenMoves::forceCheck = false;
 
-GenMoves::GenMoves() : perftMode(false), listId(-1) {    
+GenMoves::GenMoves() : perftMode(false), listId(-1) {
     currentPly = 0;
     gen_list = (_TmoveP *) calloc(MAX_PLY, sizeof(_TmoveP));
     _assert(gen_list);
@@ -40,10 +40,10 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
     ASSERT_RANGE(side, 0, 1);
     u64 x2 = chessboard[piece];
     while (x2) {
-        int position = Bits::BITScanForward(x2);
+        int position = BITScanForward(x2);
         u64 nuovo = getRankFile(position, allpieces) & enemies;;
         while (nuovo) {
-            int bound = Bits::BITScanForward(nuovo);
+            int bound = BITScanForward(nuovo);
             if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
                 return true;
             }
@@ -58,7 +58,7 @@ int GenMoves::performRankFileCaptureAndShiftCount(const int position, const u64 
     ASSERT_RANGE(position, 0, 63);
     u64 nuovo = getRankFile(position, allpieces);
     nuovo = (nuovo & enemies) | (nuovo & ~allpieces);
-    return Bits::bitCount(nuovo);
+    return bitCount(nuovo);
 }
 
 bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {
@@ -66,10 +66,10 @@ bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int 
     ASSERT_RANGE(side, 0, 1);
     u64 x2 = chessboard[piece];
     while (x2) {
-        int position = Bits::BITScanForward(x2);
+        int position = BITScanForward(x2);
         u64 nuovo = getDiagonalAntiDiagonal(position, allpieces) & enemies;;
         while (nuovo) {
-            int bound = Bits::BITScanForward(nuovo);
+            int bound = BITScanForward(nuovo);
             if (pushmove<STANDARD_MOVE_MASK>(position, bound, side, NO_PROMOTION, piece)) {
                 return true;
             }
@@ -85,10 +85,10 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
     ASSERT_RANGE(side, 0, 1);
     u64 x2 = chessboard[piece];
     while (x2) {
-        int position = Bits::BITScanForward(x2);
+        int position = BITScanForward(x2);
         u64 nuovo = getRankFile(position, allpieces) & ~allpieces;
         while (nuovo) {
-            int n = Bits::BITScanForward(nuovo);
+            int n = BITScanForward(nuovo);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
             RESET_LSB(nuovo);
         }
@@ -101,10 +101,10 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
     ASSERT_RANGE(side, 0, 1);
     u64 x2 = chessboard[piece];
     while (x2) {
-        int position = Bits::BITScanForward(x2);
+        int position = BITScanForward(x2);
         u64 nuovo = getDiagonalAntiDiagonal(position, allpieces) & ~allpieces;
         while (nuovo) {
-            int n = Bits::BITScanForward(nuovo);
+            int n = BITScanForward(nuovo);
             pushmove<STANDARD_MOVE_MASK>(position, n, side, NO_PROMOTION, piece);
             RESET_LSB(nuovo);
         }
@@ -129,13 +129,13 @@ bool GenMoves::generateCaptures(const int side, const u64 enemies, const u64 fri
 
 int GenMoves::getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces) {
     ASSERT_RANGE(side, 0, 1);
-    return ep == NO_ENPASSANT ? 0 : Bits::bitCount(ENPASSANT_MASK[side ^ 1][ep] & chessboard[side]) + side == WHITE ? Bits::bitCount((ped_friends << 8) & xallpieces) + Bits::bitCount(((((ped_friends & TABJUMPPAWN) << 8) & xallpieces) << 8) & xallpieces) + Bits::bitCount((chessboard[side] << 7) & TABCAPTUREPAWN_LEFT & enemies) + Bits::bitCount((chessboard[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies) : Bits::bitCount((ped_friends >> 8) & xallpieces) + Bits::bitCount(((((ped_friends & TABJUMPPAWN) >> 8) & xallpieces) >> 8) & xallpieces) + Bits::bitCount((chessboard[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies) + Bits::bitCount((chessboard[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies);
+    return ep == NO_ENPASSANT ? 0 : bitCount(ENPASSANT_MASK[side ^ 1][ep] & chessboard[side]) + side == WHITE ? bitCount((ped_friends << 8) & xallpieces) + bitCount(((((ped_friends & TABJUMPPAWN) << 8) & xallpieces) << 8) & xallpieces) + bitCount((chessboard[side] << 7) & TABCAPTUREPAWN_LEFT & enemies) + bitCount((chessboard[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies) : bitCount((ped_friends >> 8) & xallpieces) + bitCount(((((ped_friends & TABJUMPPAWN) >> 8) & xallpieces) >> 8) & xallpieces) + bitCount((chessboard[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies) + bitCount((chessboard[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies);
 }
 
 int GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
     return performRankFileCaptureAndShiftCount(position, enemies, allpieces) +
-           Bits::bitCount(getDiagShiftAndCapture(position, enemies, allpieces));
+           bitCount(getDiagShiftAndCapture(position, enemies, allpieces));
 }
 
 int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
@@ -187,7 +187,7 @@ GenMoves::~GenMoves() {
 
 //bool GenMoves::isPinned(const int side, const uchar position, const uchar piece) {
 //    u64 king = chessboard[KING_BLACK + side];
-//    int posKing = Bits::BITScanForward(king);
+//    int posKing = BITScanForward(king);
 //    u64 pow2position = POW2[position];
 //    if(!(LEFT_RIGHT_RANK_FILE[posKing] & pow2position)) {
 //        return false;
@@ -381,10 +381,10 @@ bool GenMoves::performKnightShiftCapture(const int piece, const u64 enemies, con
     ASSERT_RANGE(side, 0, 1);
     u64 x = chessboard[piece];
     while (x) {
-        int pos = Bits::BITScanForward(x);
+        int pos = BITScanForward(x);
         u64 x1 = enemies & KNIGHT_MASK[pos];
         while (x1) {
-            int o = Bits::BITScanForward(x1);
+            int o = BITScanForward(x1);
             if (pushmove<STANDARD_MOVE_MASK>(pos, o, side, NO_PROMOTION, piece)) {
                 return true;
             }
@@ -397,11 +397,11 @@ bool GenMoves::performKnightShiftCapture(const int piece, const u64 enemies, con
 
 bool GenMoves::performKingShiftCapture(int side, const u64 enemies) {
     ASSERT_RANGE(side, 0, 1);
-    int pos = Bits::BITScanForward(chessboard[KING_BLACK + side]);
+    int pos = BITScanForward(chessboard[KING_BLACK + side]);
     ASSERT(pos != -1);
     u64 x1 = enemies & NEAR_MASK1[pos];
     while (x1) {
-        int o = Bits::BITScanForward(x1);
+        int o = BITScanForward(x1);
         if (pushmove<STANDARD_MOVE_MASK>(pos, o, side, NO_PROMOTION, KING_BLACK + side)) {
             return true;
         }
@@ -430,20 +430,20 @@ bool GenMoves::performKingShiftCapture(int side, const u64 enemies) {
 //    if (LEFT_RIGHT_DIAG[position] & enemies) {
 //        ///LEFT
 //        u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
-//        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
+//        if (q && enemies & POW2[BITScanReverse(q)]) {
 //            return true;
 //        }
 //        q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
-//        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
+//        if (q && enemies & POW2[BITScanForward(q)]) {
 //            return true;
 //        }
 //        ///RIGHT
 //        q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
-//        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
+//        if (q && enemies & POW2[BITScanReverse(q)]) {
 //            return true;
 //        }
 //        q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
-//        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
+//        if (q && enemies & POW2[BITScanForward(q)]) {
 //            return true;
 //        }
 //    }
@@ -452,22 +452,22 @@ bool GenMoves::performKingShiftCapture(int side, const u64 enemies) {
 //    enemies = chessboard[QUEEN_BLACK + (side ^ 1)] | chessboard[ROOK_BLACK + (side ^ 1)];
 //    if (x & enemies) {
 //        u64 q = x & MASK_BIT_UNSET_UP[position];
-//        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
+//        if (q && enemies & POW2[BITScanReverse(q)]) {
 //            return true;
 //        }
 //        q = x & MASK_BIT_UNSET_DOWN[position];
-//        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
+//        if (q && enemies & POW2[BITScanForward(q)]) {
 //            return true;
 //        }
 //    }
 //    x = allpieces & RANK[position];
 //    if (x & enemies) {
 //        u64 q = x & MASK_BIT_UNSET_RIGHT[position];
-//        if (q && enemies & POW2[Bits::BITScanForward(q)]) {
+//        if (q && enemies & POW2[BITScanForward(q)]) {
 //            return true;
 //        }
 //        q = x & MASK_BIT_UNSET_LEFT[position];
-//        if (q && enemies & POW2[Bits::BITScanReverse(q)]) {
+//        if (q && enemies & POW2[BITScanReverse(q)]) {
 //            return true;
 //        }
 //    }
@@ -545,7 +545,7 @@ void GenMoves::takeback(_Tmove *move, const u64 oldkey, bool rep) {
 
 bool GenMoves::makemove(_Tmove *move, bool rep, bool checkInCheck) {
     ASSERT(move);
-    ASSERT(Bits::bitCount(chessboard[KING_WHITE]) == 1 && Bits::bitCount(chessboard[KING_BLACK]) == 1);
+    ASSERT(bitCount(chessboard[KING_WHITE]) == 1 && bitCount(chessboard[KING_BLACK]) == 1);
     int pieceFrom = SQUARE_FREE, posTo, posFrom, movecapture = SQUARE_FREE;
     uchar rightCastleOld = chessboard[RIGHT_CASTLE_IDX];
     if (!(move->type & 0xc)) { //no castle
@@ -630,7 +630,7 @@ bool GenMoves::makemove(_Tmove *move, bool rep, bool checkInCheck) {
     }
     u64 x2 = rightCastleOld ^chessboard[RIGHT_CASTLE_IDX];
     while (x2) {
-        int position = Bits::BITScanForward(x2);
+        int position = BITScanForward(x2);
         updateZobristKey(14, position);
         RESET_LSB(x2);
     }
@@ -776,7 +776,7 @@ void GenMoves::writeRandomFen(const vector<int> pieces) {
             check |= chessboard[pieces[i]];
         }
 
-        if (Bits::bitCount(check) == (2 + (int) pieces.size()) && !inCheck<WHITE>() && !inCheck<BLACK>()) {
+        if (bitCount(check) == (2 + (int) pieces.size()) && !inCheck<WHITE>() && !inCheck<BLACK>()) {
             cout << boardToFen() << "\n";
             loadFen(boardToFen());
             return;

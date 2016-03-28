@@ -23,7 +23,6 @@
 #include <unistd.h>
 #include "ObserverThread.h"
 #include "../namespaces/def.h"
-#include "../util/Bits.h"
 #include <condition_variable>
 #include "../namespaces/debug.h"
 #include "../util/logger.h"
@@ -43,7 +42,7 @@ public:
 
     T &getNextThread() {
         unique_lock<mutex> lck(mtx);
-        cv.wait(lck, [this] { return Bits::bitCount(threadsBits) != nThread; });
+        cv.wait(lck, [this] { return bitCount(threadsBits) != nThread; });
         return getThread();
     }
 
@@ -54,7 +53,7 @@ public:
 #ifdef DEBUG_MODE
 
     int getBitCount() const {
-        return Bits::bitCount(threadsBits);
+        return bitCount(threadsBits);
     }
 
 #endif
@@ -123,7 +122,7 @@ private:
     condition_variable cv;
 
     T &getThread() {
-        int i = Bits::BITScanForwardUnset(threadsBits);
+        int i = BITScanForwardUnset(threadsBits);
         threadPool[i]->join();
         ASSERT(!(threadsBits & POW2[i]));
         threadsBits |= POW2[i];

@@ -21,13 +21,14 @@
 #include <algorithm>
 #include <vector>
 #include "../namespaces/def.h"
-#include "Bits.h"
+#include "../namespaces/board.h"
 #include "logger.h"
 #include <thread>
 #include <mutex>
 #include <iostream>
 
 using namespace _def;
+using namespace _board;
 using std::vector;
 
 //Kindergarten

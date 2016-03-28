@@ -58,7 +58,7 @@ public:
     int n_cut_hashA, n_cut_hashB, cutFailed, probeHash;
 #endif
 
-     ~Hash();
+    ~Hash();
 
     void setHashSize(int mb);
 
@@ -135,7 +135,7 @@ public:
     }
 
 private:
-
+    static bool generated;
     static int HASH_SIZE;
 #ifdef JS_MODE
     static const int HASH_SIZE_DEFAULT = 1;
@@ -149,7 +149,6 @@ private:
     static Spinlock spinlockHashGreater;
     static Spinlock spinlockHashAlways;
     static mutex mutexConstructor;
-    static mutex mutexDestructor;
-    static bool generated;
+
 };
 

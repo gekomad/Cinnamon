@@ -48,7 +48,7 @@ void ChessBoard::makeZobristKey() {
     for (int u = 0; u < 12; u++) {
         u64 c = chessboard[u];
         while (c) {
-            int position = Bits::BITScanForward(c);
+            int position = BITScanForward(c);
             updateZobristKey(u, position);
             RESET_LSB(c);
         }
@@ -58,7 +58,7 @@ void ChessBoard::makeZobristKey() {
     }
     u64 x2 = chessboard[RIGHT_CASTLE_IDX];
     while (x2) {
-        int position = Bits::BITScanForward(x2);
+        int position = BITScanForward(x2);
         updateZobristKey(14, position);
         RESET_LSB(x2);
     }
@@ -232,22 +232,22 @@ int ChessBoard::loadFen(string fen) {
         switch (castle.at(e)) {
             case 'K':
                 updateZobristKey(RIGHT_CASTLE_IDX, 4);
-                ASSERT(Bits::BITScanForward(4 == RIGHT_KING_CASTLE_WHITE_MASK));
+                ASSERT(BITScanForward(4 == RIGHT_KING_CASTLE_WHITE_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_WHITE_MASK;
                 break;
             case 'k':
                 updateZobristKey(RIGHT_CASTLE_IDX, 6);
-                ASSERT(Bits::BITScanForward(6 == RIGHT_KING_CASTLE_BLACK_MASK));
+                ASSERT(BITScanForward(6 == RIGHT_KING_CASTLE_BLACK_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_BLACK_MASK;
                 break;
             case 'Q':
                 updateZobristKey(RIGHT_CASTLE_IDX, 5);
-                ASSERT(Bits::BITScanForward(5 == RIGHT_QUEEN_CASTLE_WHITE_MASK));
+                ASSERT(BITScanForward(5 == RIGHT_QUEEN_CASTLE_WHITE_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_WHITE_MASK;
                 break;
             case 'q':
                 updateZobristKey(RIGHT_CASTLE_IDX, 7);
-                ASSERT(Bits::BITScanForward(7 == RIGHT_QUEEN_CASTLE_BLACK_MASK));
+                ASSERT(BITScanForward(7 == RIGHT_QUEEN_CASTLE_BLACK_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_BLACK_MASK;
                 break;
             default:;
@@ -274,7 +274,7 @@ int ChessBoard::loadFen(string fen) {
 bool ChessBoard::checkNPieces(std::unordered_map<int, int> pieces) {
     int a = 0;
     for (int i = 0; i < 13; i++) {
-        a += Bits::bitCount(chessboard[i]) == pieces[i];
+        a += bitCount(chessboard[i]) == pieces[i];
     }
     return a == 13;
 }

@@ -37,8 +37,7 @@ namespace _board {
     static const bool SMP_YES = true;
     static const bool SMP_NO = false;
 
-    static const int BLACK = 0;
-    static const int WHITE = 1;
+
     static const int _INFINITE = 32000;
 
     const string EPD2PGN_HELP = "-epd2pgn -f epd_file [-m max_pieces]";

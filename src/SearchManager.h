@@ -187,7 +187,6 @@ public:
 
 private:
 
-
     SearchManager();
 
     void lazySMP(const int mply);

@@ -19,13 +19,10 @@
 #include <mutex>
 #include "Hash.h"
 
-int Hash::HASH_SIZE;
+int Hash::HASH_SIZE = 0;
 Hash::_Thash *Hash::hashArray[2];
 mutex Hash::mutexConstructor;
-mutex Hash::mutexDestructor;
-
 bool Hash::generated = false;
-
 Spinlock Hash::spinlockHashGreater;
 Spinlock Hash::spinlockHashAlways;
 
@@ -34,7 +31,6 @@ Hash::Hash() {
     if (generated) {
         return;
     }
-
 
     HASH_SIZE = 0;
     hashArray[HASH_GREATER] = hashArray[HASH_ALWAYS] = nullptr;

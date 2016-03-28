@@ -22,7 +22,6 @@
 #include <string.h>
 #include <sstream>
 #include "util/String.h"
-#include "util/Bits.h"
 #include "namespaces/def.h"
 #include <unordered_map>
 #include "namespaces/random.h"
@@ -34,7 +33,7 @@ using namespace _logger;
 using namespace _board;
 using namespace _def;
 
-class ChessBoard : public Bitboard{
+class ChessBoard : public Bitboard {
 public:
 
 #define PAWN_BLACK 0
@@ -195,13 +194,12 @@ protected:
     static const u64 WHITE_SQUARES = 0xAA55AA55AA55AA55ULL;
 
     _Tboard structure;
-    Bits &bits = Bits::getInstance();
 
     void makeZobristKey();
 
     template<int side>
     int getNpiecesNoPawnNoKing() const {
-        return Bits::bitCount(chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[QUEEN_BLACK + side]);
+        return bitCount(chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[QUEEN_BLACK + side]);
     }
 
 #ifdef DEBUG_MODE

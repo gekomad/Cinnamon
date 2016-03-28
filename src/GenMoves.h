@@ -22,7 +22,7 @@
 #include "util/Bitboard.h"
 #include <vector>
 
-class GenMoves : public  ChessBoard {
+class GenMoves : public ChessBoard {
 
 public:
     static const int MAX_MOVE = 130;
@@ -117,7 +117,7 @@ public:
 
     inline int getDiagShiftCount(const int position, const u64 allpieces) {
         ASSERT_RANGE(position, 0, 63);
-        return Bits::bitCount(Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces);
+        return bitCount(Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces);
     }
 
     bool performKingShiftCapture(int side, const u64 enemies);
@@ -149,7 +149,7 @@ public:
             GG = 7;
         };
         while (x) {
-            int o = Bits::BITScanForward(x);
+            int o = BITScanForward(x);
             if ((side && o > 55) || (!side && o < 8)) {//PROMOTION
                 if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, QUEEN_BLACK + side, side)) {
                     return true;        //queen
@@ -178,7 +178,7 @@ public:
             x = (chessboard[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies;
         };
         while (x) {
-            int o = Bits::BITScanForward(x);
+            int o = BITScanForward(x);
             if ((side && o > 55) || (!side && o < 8)) {    //PROMOTION
                 if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, QUEEN_BLACK + side, side)) {
                     return true;        //queen
@@ -203,7 +203,7 @@ public:
         if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
             x = ENPASSANT_MASK[side ^ 1][chessboard[ENPASSANT_IDX]] & chessboard[side];
             while (x) {
-                int o = Bits::BITScanForward(x);
+                int o = BITScanForward(x);
                 pushmove<ENPASSANT_MOVE_MASK>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8), side, NO_PROMOTION, side);
                 RESET_LSB(x);
             }
@@ -230,7 +230,7 @@ public:
         };
         x &= xallpieces;
         while (x) {
-            int o = Bits::BITScanForward(x);
+            int o = BITScanForward(x);
             ASSERT(getPieceAt(side, POW2[o + tt]) != SQUARE_FREE);
             ASSERT(getBitBoard(side) & POW2[o + tt]);
             if (o > 55 || o < 8) {
@@ -380,7 +380,7 @@ protected:
                 ASSERT(chessboard[KING_BLACK]);
                 ASSERT(chessboard[KING_WHITE]);
 
-                result = isAttacked<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
                 chessboard[pieceFrom] = from1;
                 if (pieceTo != SQUARE_FREE) {
                     chessboard[pieceTo] = to1;
@@ -399,7 +399,7 @@ protected:
                     chessboard[pieceTo] &= NOTPOW2[to];
                 }
                 chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
-                result = isAttacked<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
                 if (pieceTo != SQUARE_FREE) {
                     chessboard[pieceTo] = to1;
                 }
@@ -417,7 +417,7 @@ protected:
                 } else {
                     chessboard[side ^ 1] &= NOTPOW2[to + 8];
                 }
-                result = isAttacked<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
                 chessboard[side ^ 1] = to1;
                 chessboard[side] = from1;;
                 break;
@@ -510,7 +510,7 @@ protected:
 
     template<int side>
     bool inCheck() const {
-        return isAttacked<side>(Bits::BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+        return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
     }
 
     void setKillerHeuristic(const int from, const int to, const int value) {
@@ -524,7 +524,6 @@ protected:
 
 private:
     int running;
-//    u64 generatedMoves[64];
     static bool forceCheck;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
@@ -541,7 +540,7 @@ private:
             x = (((x >> 8) & xallpieces) >> 8) & xallpieces;
         };
         while (x) {
-            int o = Bits::BITScanForward(x);
+            int o = BITScanForward(x);
             pushmove<STANDARD_MOVE_MASK>(o + (side ? -16 : 16), o, side, NO_PROMOTION, side);
             RESET_LSB(x);
         };
@@ -583,7 +582,7 @@ private:
         u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
         u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
         while (nuovo) {
-            int bound = Bits::BITScanForward(nuovo);
+            int bound = BITScanForward(nuovo);
             attackers |= POW2[bound];
             if (exitOnFirst && attackers)return 1;
             RESET_LSB(nuovo);
@@ -591,7 +590,7 @@ private:
         enemies = chessboard[ROOK_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
         nuovo = Bitboard::getRankFile(position, allpieces) & enemies;
         while (nuovo) {
-            int bound = Bits::BITScanForward(nuovo);
+            int bound = BITScanForward(nuovo);
             attackers |= POW2[bound];
             if (exitOnFirst && attackers)return 1;
             RESET_LSB(nuovo);
