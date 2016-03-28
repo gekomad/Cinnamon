@@ -92,21 +92,37 @@ endif
 
 drmemory:
 	$(MAKE) -j4 EXE=$(EXE) all
-	@echo "check single core search log in drmmemory_1core.log..."
-	drmemory -show_reachable -- $(PA)$(EXE) -b1 2>drmmemory_1core.log
-	@echo "check quad core search log in drmmemory_4core.log..."
-	drmemory -show_reachable -- $(PA)$(EXE) -b4 2>drmmemory_4core.log
+
+	@echo "check single core perft in drmemory_perft_1core.log..."
+	drmemory -show_reachable -- $(PA)$(EXE) -perft -d3 2>drmemory_perft_1core.log
+
+	@echo "check single core perft in drmemory_perft_4core.log..."
+	drmemory -show_reachable -- $(PA)$(EXE) -perft -d4 -c4 -h100 2>drmemory_perft_4core.log
+
+	@echo "check single core search log in drmemory_1core.log..."
+	drmemory -show_reachable -- $(PA)$(EXE) -b1 2>drmemory_1core.log
+
+	@echo "check quad core search log in drmemory_4core.log..."
+	drmemory -show_reachable -- $(PA)$(EXE) -b4 2>drmemory_4core.log
 
 profiler:
 	$(MAKE) -j4 EXE=$(EXE) all
 	@echo "\n\n **** \nsudo apt-get install google-perftools libgoogle-perftools-dev && export LD_PRELOAD=/usr/lib/libtcmalloc.so:/usr/lib/libprofiler.so\n **** \n"
+
+
+	@echo "\n\n *** SINGLE CORE ***\n"
 	$(RM) profiler.tmp
 	CPUPROFILE=profiler.tmp $(PA)$(EXE) -b1
-	@echo "\n\n *** SINGLE CORE ***\n"
 	google-pprof --text $(PA)$(EXE) profiler.tmp
-	$(RM) profiler.tmp
+
 	@echo "\n\n *** QUAD CORE ***\n"
+	$(RM) profiler.tmp
 	CPUPROFILE=profiler.tmp $(PA)$(EXE) -b4
+	google-pprof --text $(PA)$(EXE) profiler.tmp
+
+	@echo "\n\n *** PERFT ***\n"
+	$(RM) profiler.tmp
+	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d6
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
 cinnamon-js:
