@@ -102,6 +102,11 @@ profiler:
 	@echo "\n\n **** \nsudo apt-get install google-perftools libgoogle-perftools-dev && export LD_PRELOAD=/usr/lib/libtcmalloc.so:/usr/lib/libprofiler.so\n **** \n"
 	$(RM) profiler.tmp
 	CPUPROFILE=profiler.tmp $(PA)$(EXE) -b1
+	@echo "\n\n *** SINGLE CORE ***\n"
+	google-pprof --text $(PA)$(EXE) profiler.tmp
+	$(RM) profiler.tmp
+	@echo "\n\n *** QUAD CORE ***\n"
+	CPUPROFILE=profiler.tmp $(PA)$(EXE) -b4
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
 cinnamon-js:
