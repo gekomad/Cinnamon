@@ -77,11 +77,6 @@ private:
     static u64 BITBOARD_FILE[64][256];
     static u64 BITBOARD_RANK[64][256];
 
-    vector<u64> combinationsDiagonal[64];
-    vector<u64> combinationsAntiDiagonal[64];
-    vector<u64> combinationsColumn[64];
-    vector<u64> combinationsRank[64];
-
     u64 MASK_BIT_SET_NOBOUND_TMP[64][64];
     char MASK_BIT_SET_NOBOUND_COUNT_TMP[64][64];
 
@@ -104,8 +99,6 @@ private:
     }
 
     void popolateColumn();
-
-    void genCombination();
 
     void popolateDiagonal();
 

@@ -79,8 +79,6 @@ Bitboard::Bitboard() {
         }
     }
 
-    genCombination();
-
     popolateAntiDiagonal();
     popolateDiagonal();
     popolateColumn();
@@ -89,17 +87,11 @@ Bitboard::Bitboard() {
 
 }
 
-void Bitboard::genCombination() {
-    for (uchar pos = 0; pos < 64; pos++) {
-        combinationsDiagonal[pos] = getCombination(_board::DIAGONAL[pos]);
-        combinationsColumn[pos] = getCombination(_board::FILE_[pos]);
-        combinationsRank[pos] = getCombination(_board::RANK[pos]);
-        combinationsAntiDiagonal[pos] = getCombination(_board::ANTIDIAGONAL[pos]);
-    }
-}
 
 void Bitboard::popolateDiagonal() {
+    vector<u64> combinationsDiagonal[64];
     for (uchar pos = 0; pos < 64; pos++) {
+        combinationsDiagonal[pos] = getCombination(_board::DIAGONAL[pos]);
         for (u64 allpieces:combinationsDiagonal[pos]) {
             uchar idx = diagonalIdx(pos, allpieces);
             BITBOARD_DIAGONAL[pos][idx] = performDiagShift(pos, allpieces) | performDiagCapture(pos, allpieces);
@@ -108,17 +100,20 @@ void Bitboard::popolateDiagonal() {
 }
 
 void Bitboard::popolateColumn() {
+    vector<u64> combinationsColumn[64];
     for (uchar pos = 0; pos < 64; pos++) {
+        combinationsColumn[pos] = getCombination(_board::FILE_[pos]);
         for (u64 allpieces:combinationsColumn[pos]) {
             uchar idx = fileIdx(pos, allpieces);
             BITBOARD_FILE[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
         }
-
     }
 }
 
 void Bitboard::popolateRank() {
+    vector<u64> combinationsRank[64];
     for (uchar pos = 0; pos < 64; pos++) {
+        combinationsRank[pos] = getCombination(_board::RANK[pos]);
         for (u64 allpieces:combinationsRank[pos]) {
             uchar idx = rankIdx(pos, allpieces);
             BITBOARD_RANK[pos][idx] = performRankShift(pos, allpieces) | performRankCapture(pos, allpieces);
@@ -127,7 +122,9 @@ void Bitboard::popolateRank() {
 }
 
 void Bitboard::popolateAntiDiagonal() {
+    vector<u64> combinationsAntiDiagonal[64];
     for (uchar pos = 0; pos < 64; pos++) {
+        combinationsAntiDiagonal[pos] = getCombination(_board::ANTIDIAGONAL[pos]);
         for (u64 allpieces:combinationsAntiDiagonal[pos]) {
             uchar idx = antiDiagonalIdx(pos, allpieces);
             BITBOARD_ANTIDIAGONAL[pos][idx] = performAntiDiagShift(pos, allpieces) | performAntiDiagCapture(pos, allpieces);
