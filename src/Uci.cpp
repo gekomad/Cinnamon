@@ -56,7 +56,8 @@ void Uci::listner(IterativeDeeping *it) {
     while (!stop) {
         if (runPerftAndExit) {
             runPerftAndExit = false;
-            perft->run();usare start altrimenti non stampa il risulato
+            perft->start();
+            perft->join();
             break;
         }
         getline(cin, command);
