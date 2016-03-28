@@ -134,7 +134,6 @@ private:
     int valWindow = INT_MAX;
     static bool runningThread;
     _TpvLine pvLine;
-//    static Hash *hash;
     static Tablebase *gtb;
     bool ponder;
 
