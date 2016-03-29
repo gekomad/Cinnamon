@@ -111,20 +111,20 @@ profiler:
 
 	@echo "\n\n *** PERFT SINGLE CORE ***\n"
 	$(RM) profiler.tmp
-	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d6
+	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d5
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
 	@echo "\n\n *** PERFT QUAD CORE ***\n"
 	$(RM) profiler.tmp
-	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d6 -c4 -h500
+	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d5 -c4 -h100
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
-	@echo "\n\n *** SINGLE CORE ***\n"
+	@echo "\n\n *** SEARCH SINGLE CORE ***\n"
 	$(RM) profiler.tmp
 	CPUPROFILE=profiler.tmp $(PA)$(EXE) -b1
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
-	@echo "\n\n *** QUAD CORE ***\n"
+	@echo "\n\n *** SEARCH QUAD CORE ***\n"
 	$(RM) profiler.tmp
 	CPUPROFILE=profiler.tmp $(PA)$(EXE) -b4
 	google-pprof --text $(PA)$(EXE) profiler.tmp
