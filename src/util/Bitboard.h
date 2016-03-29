@@ -29,7 +29,7 @@
 
 using namespace _def;
 using namespace _board;
-using std::vector;
+using vector;
 
 //Kindergarten
 class Bitboard {
@@ -51,7 +51,6 @@ public:
         return (BITBOARD_FILE[position][fileIdx(position, allpieces)]) |
                BITBOARD_RANK[position][rankIdx(position, allpieces)];
     }
-
 
     static u64 getDiagonalAntiDiagonal(const int position, const u64 allpieces) {
 //    ........            00010000
