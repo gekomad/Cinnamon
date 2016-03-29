@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <mutex>
 #include "Bitboard.h"
 
 u64 Bitboard::BITBOARD_DIAGONAL[64][256];
@@ -89,10 +88,10 @@ Bitboard::Bitboard() {
 
 
 void Bitboard::popolateDiagonal() {
-    vector<u64> combinationsDiagonal[64];
+    vector<u64> combinationsDiagonal;
     for (uchar pos = 0; pos < 64; pos++) {
-        combinationsDiagonal[pos] = getCombination(_board::DIAGONAL[pos]);
-        for (u64 allpieces:combinationsDiagonal[pos]) {
+        combinationsDiagonal = getCombination(_board::DIAGONAL[pos]);
+        for (u64 allpieces:combinationsDiagonal) {
             uchar idx = diagonalIdx(pos, allpieces);
             BITBOARD_DIAGONAL[pos][idx] = performDiagShift(pos, allpieces) | performDiagCapture(pos, allpieces);
         }
@@ -100,10 +99,10 @@ void Bitboard::popolateDiagonal() {
 }
 
 void Bitboard::popolateColumn() {
-    vector<u64> combinationsColumn[64];
+    vector<u64> combinationsColumn;
     for (uchar pos = 0; pos < 64; pos++) {
-        combinationsColumn[pos] = getCombination(_board::FILE_[pos]);
-        for (u64 allpieces:combinationsColumn[pos]) {
+        combinationsColumn = getCombination(_board::FILE_[pos]);
+        for (u64 allpieces:combinationsColumn) {
             uchar idx = fileIdx(pos, allpieces);
             BITBOARD_FILE[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
         }
@@ -111,10 +110,10 @@ void Bitboard::popolateColumn() {
 }
 
 void Bitboard::popolateRank() {
-    vector<u64> combinationsRank[64];
+    vector<u64> combinationsRank;
     for (uchar pos = 0; pos < 64; pos++) {
-        combinationsRank[pos] = getCombination(_board::RANK[pos]);
-        for (u64 allpieces:combinationsRank[pos]) {
+        combinationsRank = getCombination(_board::RANK[pos]);
+        for (u64 allpieces:combinationsRank) {
             uchar idx = rankIdx(pos, allpieces);
             BITBOARD_RANK[pos][idx] = performRankShift(pos, allpieces) | performRankCapture(pos, allpieces);
         }
@@ -122,10 +121,10 @@ void Bitboard::popolateRank() {
 }
 
 void Bitboard::popolateAntiDiagonal() {
-    vector<u64> combinationsAntiDiagonal[64];
+    vector<u64> combinationsAntiDiagonal;
     for (uchar pos = 0; pos < 64; pos++) {
-        combinationsAntiDiagonal[pos] = getCombination(_board::ANTIDIAGONAL[pos]);
-        for (u64 allpieces:combinationsAntiDiagonal[pos]) {
+        combinationsAntiDiagonal = getCombination(_board::ANTIDIAGONAL[pos]);
+        for (u64 allpieces:combinationsAntiDiagonal) {
             uchar idx = antiDiagonalIdx(pos, allpieces);
             BITBOARD_ANTIDIAGONAL[pos][idx] = performAntiDiagShift(pos, allpieces) | performAntiDiagCapture(pos, allpieces);
         }
@@ -155,6 +154,14 @@ u64 Bitboard::performRankShift(const int position, const u64 allpieces) {
     u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_LEFT[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT[position];
     k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_RIGHT[position];
+    return k;
+}
+
+u64 Bitboard::performAntiDiagShift(const int position, const u64 allpieces) {
+    u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_UP[position];
+    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
+    q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_DOWN[position];
+    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_UPPER[position];
     return k;
 }
 
@@ -231,14 +238,6 @@ u64 Bitboard::performDiagCapture(const int position, const u64 allpieces) {
         }
     }
 
-    return k;
-}
-
-u64 Bitboard::performAntiDiagShift(const int position, const u64 allpieces) {
-    u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_UP[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
-    q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_DOWN[position];
-    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_UPPER[position];
     return k;
 }
 
