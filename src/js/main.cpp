@@ -35,7 +35,7 @@ char *command(char *t, char *arg) {
 
 unsigned perft(char *fen, int depth, int hashSize) {
     Perft *p = &Perft::getInstance();
-    p->setParam(fen, depth, 1, hashSize, "", true);
+    p->setParam(fen, depth, 1, hashSize, "");
     p->start();
     p->join();
     return p->getResult();
