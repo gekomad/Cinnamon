@@ -52,6 +52,7 @@ help:
 	@echo "make cinnamon64-modern-AMD       > 64-bit optimized for modern Amd cpu"
 	@echo "make cinnamon64-modern           > 64-bit with popcnt bsf sse3 support"
 	@echo "make cinnamon64-generic          > Unspecified 64-bit"
+	@echo "make cinnamon64-ARM              > Optimized for arm cpu"
 	@echo ""
 	@echo "make cinnamon32-modern           > 32-bit with sse support"
 	@echo "make cinnamon32-generic          > Unspecified 32-bit"
@@ -143,6 +144,9 @@ cinnamon32-modern:
 
 cinnamon32-ARM:
 	$(MAKE) LIBS="$(LIBS) gtb/ARM/32/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
+
+cinnamon64-ARM:
+	$(MAKE) LIBS="$(LIBS) gtb/ARM/64/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
 
 cinnamon64-generic:
 	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
