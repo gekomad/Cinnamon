@@ -109,9 +109,14 @@ profiler:
 	$(MAKE) -j4 EXE=$(EXE) all
 	@echo "\n\n **** \nsudo apt-get install google-perftools libgoogle-perftools-dev && export LD_PRELOAD=/usr/lib/libtcmalloc.so:/usr/lib/libprofiler.so\n **** \n"
 
-	@echo "\n\n *** PERFT ***\n"
+	@echo "\n\n *** PERFT SINGLE CORE ***\n"
 	$(RM) profiler.tmp
 	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d6
+	google-pprof --text $(PA)$(EXE) profiler.tmp
+
+	@echo "\n\n *** PERFT QUAD CORE ***\n"
+	$(RM) profiler.tmp
+	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d6 -c4 -h500
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
 	@echo "\n\n *** SINGLE CORE ***\n"
