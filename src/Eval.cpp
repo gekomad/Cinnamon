@@ -388,7 +388,7 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         return lazyscore;
     }
 
-//    int endGameValue = getEndgameValue(N_PIECE, side);TODO
+//    int endGameValue = getEndgameValue(N_PIECE, side);
 //    if (abs(endGameValue) != INT_MAX) {
 //        return endGameValue;
 //    }

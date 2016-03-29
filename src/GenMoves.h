@@ -20,9 +20,10 @@
 
 #include "ChessBoard.h"
 #include "util/Bitboard.h"
+//#include "Endgame.h"
 #include <vector>
 
-class GenMoves : public ChessBoard {
+class GenMoves : public ChessBoard /* Endgame*/ {
 
 public:
     static const int MAX_MOVE = 130;

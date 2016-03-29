@@ -21,7 +21,7 @@
 #include "ChessBoard.h"
 #include <unordered_map>
 
-class Endgame : public virtual ChessBoard {
+class Endgame : public  ChessBoard {
 
 public:
 
@@ -65,28 +65,28 @@ private:
         // If the stronger side's king is in front of the pawn, it's a win
         if (FILE_AT[winnerKingPos] == FILE_AT[pawnPos]) {
             if (loserSide == BLACK && winnerKingPos < pawnPos) {
-                return VALUEROOK - Bits::DISTANCE[winnerKingPos][pawnPos];
+                return VALUEROOK - DISTANCE[winnerKingPos][pawnPos];
             }
             if (loserSide == WHITE && winnerKingPos > pawnPos) {
-                return VALUEROOK - Bits::DISTANCE[winnerKingPos][pawnPos];
+                return VALUEROOK - DISTANCE[winnerKingPos][pawnPos];
             }
         }
         // If the weaker side's king is too far from the pawn and the rook, it's a win
-        if (Bits::DISTANCE[loserKingPos][pawnPos] - (tempo ^ 1) >= 3 && Bits::DISTANCE[loserKingPos][rookPos] >= 3) {
-            return VALUEROOK - Bits::DISTANCE[winnerKingPos][pawnPos];
+        if (DISTANCE[loserKingPos][pawnPos] - (tempo ^ 1) >= 3 && DISTANCE[loserKingPos][rookPos] >= 3) {
+            return VALUEROOK - DISTANCE[winnerKingPos][pawnPos];
         }
         // If the pawn is far advanced and supported by the defending king, the position is drawish
         if (((loserSide == BLACK && RANK_AT[loserKingPos] <= 2) || (loserSide == WHITE && RANK_AT[loserKingPos] >= 5))
-            && Bits::DISTANCE[loserKingPos][pawnPos] == 1 && ((loserSide == BLACK && RANK_AT[winnerKingPos] >= 3) || (loserSide == WHITE && RANK_AT[winnerKingPos] <= 4))
-            && Bits::DISTANCE[winnerKingPos][pawnPos] - tempo > 2) {
-            return 80 - Bits::DISTANCE[winnerKingPos][pawnPos] * 8;
+            && DISTANCE[loserKingPos][pawnPos] == 1 && ((loserSide == BLACK && RANK_AT[winnerKingPos] >= 3) || (loserSide == WHITE && RANK_AT[winnerKingPos] <= 4))
+            && DISTANCE[winnerKingPos][pawnPos] - tempo > 2) {
+            return 80 - DISTANCE[winnerKingPos][pawnPos] * 8;
         } else {
             constexpr int DELTA_S = loserSide == WHITE ? -8 : 8;
-            int queeningSq = loserSide == BLACK ? Bits::BITScanForward(FILE_[pawnPos] & 0xffULL) : Bits::BITScanForward(FILE_[pawnPos] & 0xff00000000000000ULL);
+            int queeningSq = loserSide == BLACK ? BITScanForward(FILE_[pawnPos] & 0xffULL) : BITScanForward(FILE_[pawnPos] & 0xff00000000000000ULL);
 
-            return 200 - 8 * (Bits::DISTANCE[winnerKingPos][pawnPos + DELTA_S]
-                              - Bits::DISTANCE[loserKingPos][pawnPos + DELTA_S]
-                              - Bits::DISTANCE[pawnPos][queeningSq]);
+            return 200 - 8 * (DISTANCE[winnerKingPos][pawnPos + DELTA_S]
+                              - DISTANCE[loserKingPos][pawnPos + DELTA_S]
+                              - DISTANCE[pawnPos][queeningSq]);
         }
     }
 
