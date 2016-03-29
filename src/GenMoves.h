@@ -23,7 +23,7 @@
 //#include "Endgame.h"
 #include <vector>
 
-class GenMoves : public ChessBoard /* Endgame*/ {
+class GenMoves : public ChessBoard /* Endgame ed eliminare ChessBoard TODO*/ {
 
 public:
     static const int MAX_MOVE = 130;
