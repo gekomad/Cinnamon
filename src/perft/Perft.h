@@ -76,8 +76,6 @@ public:
 
     static int count;
 
-    void status();
-
     u64 getResult() {
         return perftRes.totMoves;
     }

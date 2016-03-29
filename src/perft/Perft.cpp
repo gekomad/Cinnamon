@@ -175,13 +175,6 @@ void Perft::run() {
     cout << "dump file:\t\t" << dumpFile << "\n";
     cout << "\n" << Time::getLocalTime() << " start perft test...\n";
 
-    cout << "type 'status' for partial moves" << endl;
-
-    Timer t1(Time::HOUR_IN_SECONDS);
-    t1.registerObservers([this]() {
-        status();
-    });
-    t1.start();
     Timer t2(minutesToDump * 60);
     if (perftRes.hash && !dumpFile.empty()) {
         signal(SIGINT, Perft::ctrlChandler);
@@ -238,14 +231,4 @@ void Perft::endRun() {
     cout << Time::getLocalTime() << " end test" << endl;
     cerr << flush;
 
-}
-
-void Perft::status() {
-    u64 tot = 0;
-    for (PerftThread *s:getPool()) {
-        tot += s->getPartial();
-    }
-    auto end1 = std::chrono::high_resolution_clock::now();
-    int sec = Time::diffTime(end1, start1) / 1000;
-    cout << Time::getLocalTime() << " perft partial moves: " << tot << " (" << ((tot / 1000) / sec) << " k nodes per seconds)" << endl;
 }
