@@ -131,7 +131,7 @@ profiler:
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
 cinnamon-js:
-	em++ -std=c++11 -DJS_MODE -DDLOG_LEVEL=_FATAL -fsigned-char ChessBoard.cpp Eval.cpp GenMoves.cpp Hash.cpp IterativeDeeping.cpp js/main.cpp OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Timer.cpp perft/PerftThread.cpp -w -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
+	em++ -std=c++11 -DJS_MODE -DDLOG_LEVEL=_FATAL util/Bitboard.cpp -fsigned-char ChessBoard.cpp Eval.cpp GenMoves.cpp Hash.cpp IterativeDeeping.cpp js/main.cpp OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Timer.cpp perft/PerftThread.cpp -w -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
 
 cinnamon-drmemory:
 	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/32/libgtb.a" CFLAGS="-pthread -std=c++11 -g -fsigned-char -fno-inline -fno-omit-frame-pointer -m32 " drmemory
