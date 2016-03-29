@@ -94,16 +94,16 @@ drmemory:
 	$(MAKE) -j4 EXE=$(EXE) all
 
 	@echo "check single core perft in drmemory_perft_1core.log..."
-	drmemory -show_reachable -- $(PA)$(EXE) -perft -d3 2>drmemory_perft_1core.log
+	drmemory -- $(PA)$(EXE) -perft -d3 2>drmemory_perft_1core.log
 
 	@echo "check single core perft in drmemory_perft_4core.log..."
-	drmemory -show_reachable -- $(PA)$(EXE) -perft -d4 -c4 -h100 2>drmemory_perft_4core.log
+	drmemory -- $(PA)$(EXE) -perft -d4 -c4 -h100 2>drmemory_perft_4core.log
 
 	@echo "check single core search log in drmemory_1core.log..."
-	drmemory -show_reachable -- $(PA)$(EXE) -b1 2>drmemory_1core.log
+	drmemory -- $(PA)$(EXE) -b1 2>drmemory_1core.log
 
 	@echo "check quad core search log in drmemory_4core.log..."
-	drmemory -show_reachable -- $(PA)$(EXE) -b4 2>drmemory_4core.log
+	drmemory -- $(PA)$(EXE) -b4 2>drmemory_4core.log
 
 profiler:
 	$(MAKE) -j4 EXE=$(EXE) all
