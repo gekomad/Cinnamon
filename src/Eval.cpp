@@ -388,6 +388,11 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         return lazyscore;
     }
 
+//    int endGameValue = getEndgameValue(N_PIECE, side);TODO
+//    if (abs(endGameValue) != INT_MAX) {
+//        return endGameValue;
+//    }
+
 #ifdef DEBUG_MODE
     evaluationCount[WHITE] = evaluationCount[BLACK] = 0;
     memset(&SCORE_DEBUG, 0, sizeof(_TSCORE_DEBUG));
