@@ -86,19 +86,19 @@ private:
     vector<u64> getCombination(vector<u64> elements);
 
     static uchar rankIdx(const int position, const u64 allpieces) {
-        return allpieces >> RANK_ATx8[position];
+        return (allpieces >> RANK_ATx8[position]) & 0xff;
     }
 
     static uchar fileIdx(const int position, const u64 allpieces) {
-        return ((allpieces & FILE_[position]) * MAGIC_KEY_FILE_RANK) >> 56;
+        return (((allpieces & FILE_[position]) * MAGIC_KEY_FILE_RANK) >> 56) & 0xff;
     }
 
     static uchar diagonalIdx(const int position, const u64 allpieces) {
-        return ((allpieces & _board::DIAGONAL[position]) * MAGIC_KEY_DIAG_ANTIDIAG) >> 56;
+        return (((allpieces & _board::DIAGONAL[position]) * MAGIC_KEY_DIAG_ANTIDIAG) >> 56) & 0xff;
     };
 
     static uchar antiDiagonalIdx(const int position, const u64 allpieces) {
-        return ((allpieces & _board::ANTIDIAGONAL[position]) * MAGIC_KEY_DIAG_ANTIDIAG) >> 56;
+        return (((allpieces & _board::ANTIDIAGONAL[position]) * MAGIC_KEY_DIAG_ANTIDIAG) >> 56) & 0xff;
     }
 
     void popolateColumn();
