@@ -30,7 +30,7 @@ Bitboard::Bitboard() {
     if (generated) {
         return;
     }
-
+    tmpStruct = (_Ttmp *) malloc(sizeof(_Ttmp));
     u64 MASK_BIT_SET[64][64];
     memset(MASK_BIT_SET, 0, sizeof(MASK_BIT_SET));
     for (int i = 0; i < 64; i++) {
@@ -66,15 +66,15 @@ Bitboard::Bitboard() {
     }
     for (int i = 0; i < 64; i++) {
         for (int j = 0; j < 64; j++) {
-            MASK_BIT_SET_NOBOUND_TMP[i][j] = MASK_BIT_SET[i][j];
-            MASK_BIT_SET_NOBOUND_TMP[i][j] &= NOTPOW2[i];
-            MASK_BIT_SET_NOBOUND_TMP[i][j] &= NOTPOW2[j];
+            tmpStruct->MASK_BIT_SET_NOBOUND_TMP[i][j] = MASK_BIT_SET[i][j];
+            tmpStruct->MASK_BIT_SET_NOBOUND_TMP[i][j] &= NOTPOW2[i];
+            tmpStruct->MASK_BIT_SET_NOBOUND_TMP[i][j] &= NOTPOW2[j];
             MASK_BIT_SET[i][j] &= NOTPOW2[i];
         }
     }
     for (int i = 0; i < 64; i++) {
         for (int j = 0; j < 64; j++) {
-            MASK_BIT_SET_NOBOUND_COUNT_TMP[i][j] = bitCount(MASK_BIT_SET_NOBOUND_TMP[i][j]);
+            tmpStruct->MASK_BIT_SET_NOBOUND_COUNT_TMP[i][j] = bitCount(tmpStruct->MASK_BIT_SET_NOBOUND_TMP[i][j]);
         }
     }
 
@@ -82,8 +82,8 @@ Bitboard::Bitboard() {
     popolateDiagonal();
     popolateColumn();
     popolateRank();
+    free(tmpStruct);
     cout << dec;
-
 }
 
 
@@ -133,35 +133,35 @@ void Bitboard::popolateAntiDiagonal() {
 
 u64 Bitboard::performDiagShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_UP[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_LOWER[position];
+    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_DOWN[position];
-    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_UPPER[position];
+    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_UPPER[position];
     return k;
 
 }
 
 u64 Bitboard::performColumnShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_UP[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_VERT_LOWER[position];
+    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_VERT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_DOWN[position];
-    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_VERT_UPPER[position];
+    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_VERT_UPPER[position];
     return k;
 }
 
 
 u64 Bitboard::performRankShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_LEFT[position];
+    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_LEFT[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT[position];
-    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_RIGHT[position];
+    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_RIGHT[position];
     return k;
 }
 
 u64 Bitboard::performAntiDiagShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_UP[position];
-    u64 k = q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
+    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_DOWN[position];
-    k |= q ? MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_UPPER[position];
+    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_UPPER[position];
     return k;
 }
 

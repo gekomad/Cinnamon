@@ -77,8 +77,12 @@ private:
     static u64 BITBOARD_FILE[64][256];
     static u64 BITBOARD_RANK[64][256];
 
-    u64 MASK_BIT_SET_NOBOUND_TMP[64][64];
-    char MASK_BIT_SET_NOBOUND_COUNT_TMP[64][64];
+    typedef struct {
+        u64 MASK_BIT_SET_NOBOUND_TMP[64][64];
+        char MASK_BIT_SET_NOBOUND_COUNT_TMP[64][64];
+    } _Ttmp;
+
+    _Ttmp *tmpStruct;
 
     vector<u64> getCombination(vector<u64> elements);
 
