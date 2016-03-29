@@ -29,7 +29,7 @@
 
 using namespace _def;
 using namespace _board;
-using vector;
+using std::vector;
 
 //Kindergarten
 class Bitboard {

@@ -170,15 +170,13 @@ u64 Bitboard::performColumnCapture(const int position, const u64 allpieces) {
     u64 q;
     u64 k = 0;
     u64 x = allpieces & FILE_[position];
-    if (x & allpieces) {
-        q = x & _bitboardTmp::MASK_BIT_UNSET_UP[position];
-        if (q && allpieces & POW2[BITScanReverse(q)]) {
-            k |= POW2[BITScanReverse(q)];
-        }
-        q = x & _bitboardTmp::MASK_BIT_UNSET_DOWN[position];
-        if (q && allpieces & POW2[BITScanForward(q)]) {
-            k |= POW2[BITScanForward(q)];
-        }
+    q = x & _bitboardTmp::MASK_BIT_UNSET_UP[position];
+    if (q && allpieces & POW2[BITScanReverse(q)]) {
+        k |= POW2[BITScanReverse(q)];
+    }
+    q = x & _bitboardTmp::MASK_BIT_UNSET_DOWN[position];
+    if (q && allpieces & POW2[BITScanForward(q)]) {
+        k |= POW2[BITScanForward(q)];
     }
     return k;
 }
@@ -187,15 +185,13 @@ u64 Bitboard::performRankCapture(const int position, const u64 allpieces) {
     u64 q;
     u64 k = 0;
     u64 x = allpieces & RANK[position];
-    if (x & allpieces) {
-        q = x & _bitboardTmp::MASK_BIT_UNSET_LEFT[position];
-        if (q && allpieces & POW2[BITScanReverse(q)]) {
-            k |= POW2[BITScanReverse(q)];
-        }
-        q = x & _bitboardTmp::MASK_BIT_UNSET_RIGHT[position];
-        if (q && allpieces & POW2[BITScanForward(q)]) {
-            k |= POW2[BITScanForward(q)];
-        }
+    q = x & _bitboardTmp::MASK_BIT_UNSET_LEFT[position];
+    if (q && allpieces & POW2[BITScanReverse(q)]) {
+        k |= POW2[BITScanReverse(q)];
+    }
+    q = x & _bitboardTmp::MASK_BIT_UNSET_RIGHT[position];
+    if (q && allpieces & POW2[BITScanForward(q)]) {
+        k |= POW2[BITScanForward(q)];
     }
     return k;
 }
