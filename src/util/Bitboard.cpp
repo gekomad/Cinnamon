@@ -83,8 +83,8 @@ Bitboard::Bitboard() {
     popolateColumn();
     popolateRank();
     free(tmpStruct);
+    tmpStruct = nullptr;
     generated = true;
-    cout << dec;
 }
 
 
