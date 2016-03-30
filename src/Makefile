@@ -112,12 +112,12 @@ profiler:
 
 	@echo "\n\n *** PERFT SINGLE CORE ***\n"
 	$(RM) profiler.tmp
-	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d5
+	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d7
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
 	@echo "\n\n *** PERFT QUAD CORE ***\n"
 	$(RM) profiler.tmp
-	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d5 -c4 -h100
+	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d7 -c4 -h100
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
 	@echo "\n\n *** SEARCH SINGLE CORE ***\n"
@@ -161,7 +161,7 @@ cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
 cinnamon-profiler:
-	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
+	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -ltcmalloc -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
 
 all: main.o ChessBoard.o Eval.o GenMoves.o test.o String.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o
 	$(COMP) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o GenMoves.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o ${LIBS}
