@@ -609,7 +609,8 @@ bool GenMoves::makemove(_Tmove *move, bool rep, bool checkInCheck) {
                 break;
             default:;
         }
-    } else if (move->type & 0xc) {  //castle
+    } else{// if (move->type & 0xc) { //castle
+        _assert(move->type & 0xc);//TODO eliminare
         performCastle(move->side, move->type);
         if (move->side == WHITE) {
             chessboard[RIGHT_CASTLE_IDX] &= 0xcf;
