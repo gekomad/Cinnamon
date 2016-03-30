@@ -59,8 +59,10 @@ help:
 	@echo "make cinnamon32-ARM              > Optimized for arm cpu"
 	@echo ""
 	@echo "make cinnamon-js                 > Javascript build"
+	@echo ""
 	@echo "make cinnamon-drmemory           > Memory monitor"
 	@echo "make cinnamon-profiler           > Google profiler tool"
+	@echo "make cinnamon-gprof              > Gnu profiler tool"
 	@echo ""
 	@echo "add:"
 	@echo " COMP=compiler                   > Use another compiler"
@@ -94,17 +96,17 @@ endif
 drmemory:
 	$(MAKE) -j4 EXE=$(EXE) all
 
-	@echo "check single core perft in drmemory_perft_1core.log..."
-	drmemory -- $(PA)$(EXE) -perft -d3 2>drmemory_perft_1core.log
+	@echo "\n\n *** PERFT SINGLE CORE ***\n"
+	drmemory -- $(PA)$(EXE) -perft -d3
 
-	@echo "check single core perft in drmemory_perft_4core.log..."
-	drmemory -- $(PA)$(EXE) -perft -d4 -c4 -h100 2>drmemory_perft_4core.log
+	@echo "\n\n *** PERFT QUAD CORE ***\n"
+	drmemory -- $(PA)$(EXE) -perft -d4 -c4 -h100
 
-	@echo "check single core search log in drmemory_1core.log..."
-	drmemory -- $(PA)$(EXE) -b1 2>drmemory_1core.log
+	@echo "\n\n *** SEARCH SINGLE CORE ***\n"
+	drmemory -- $(PA)$(EXE) -b1
 
-	@echo "check quad core search log in drmemory_4core.log..."
-	drmemory -- $(PA)$(EXE) -b4 2>drmemory_4core.log
+	@echo "\n\n *** SEARCH QUAD CORE ***\n"
+	drmemory -- $(PA)$(EXE) -b4
 
 profiler:
 	$(MAKE) -j4 EXE=$(EXE) all
@@ -129,6 +131,25 @@ profiler:
 	$(RM) profiler.tmp
 	CPUPROFILE=profiler.tmp $(PA)$(EXE) -b4
 	google-pprof --text $(PA)$(EXE) profiler.tmp
+
+gnuprof:
+	$(MAKE) -j4 EXE=$(EXE) all
+
+	@echo "\n\n *** PERFT SINGLE CORE ***\n"
+	$(PA)$(EXE) -perft -d6
+	gprof $(PA)$(EXE)
+
+	@echo "\n\n *** PERFT QUAD CORE ***\n"
+	$(PA)$(EXE) -perft -d7 -c4 -h100
+	gprof $(PA)$(EXE)
+
+	@echo "\n\n *** SEARCH SINGLE CORE ***\n"
+	$(PA)$(EXE) -b1
+	gprof $(PA)$(EXE)
+
+	@echo "\n\n *** SEARCH QUAD CORE ***\n"
+	$(PA)$(EXE) -b4
+	gprof $(PA)$(EXE)
 
 cinnamon-js:
 	em++ -std=c++11 -DJS_MODE -DDLOG_LEVEL=_FATAL util/Bitboard.cpp -fsigned-char ChessBoard.cpp Eval.cpp GenMoves.cpp Hash.cpp IterativeDeeping.cpp js/main.cpp OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Timer.cpp perft/PerftThread.cpp -w -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
@@ -162,6 +183,9 @@ cinnamon64-modern-INTEL:
 
 cinnamon-profiler:
 	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -ltcmalloc -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
+
+cinnamon-gprof:
+	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -g -pg -DDLOG_LEVEL=_FATAL -Og -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " gnuprof
 
 all: main.o ChessBoard.o Eval.o GenMoves.o test.o String.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o
 	$(COMP) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o GenMoves.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o ${LIBS}
