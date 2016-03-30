@@ -208,8 +208,12 @@ public:
                     it->setUseBook(false);
                     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
                     searchManager.setNthread(thread);
-                    searchManager.setMaxTimeMillsec(10000);
-                    it->run();
+                    for (int i = 0; i < 2; i++) {
+                        searchManager.setMaxTimeMillsec(6000);
+                        it->start();
+                        it->join();
+                        searchManager.loadFen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+                    }
                     return;
 
                 } else if (opt == 'd') {  // gtb dtm
