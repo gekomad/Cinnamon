@@ -18,12 +18,10 @@
 
 #pragma once
 
-#include <algorithm>
 #include <vector>
 #include "../namespaces/def.h"
 #include "../namespaces/board.h"
 #include "logger.h"
-#include <thread>
 #include <mutex>
 #include <iostream>
 

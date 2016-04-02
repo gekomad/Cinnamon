@@ -19,7 +19,6 @@
 #pragma once
 
 #include <fstream>
-#include <algorithm>
 #include "String.h"
 
 using namespace std;

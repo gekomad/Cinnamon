@@ -19,7 +19,6 @@
 #pragma once
 
 #include <fstream>
-#include <algorithm>
 #include <regex>
 #include "../namespaces/debug.h"
 #include "logger.h"
