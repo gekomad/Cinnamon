@@ -111,7 +111,7 @@ public:
 #endif
 
     template<int side>
-    u64 getBitBoard() const {
+    u64 getBitBoard() const {//TODO cambiare nome
         return chessboard[PAWN_BLACK + side] | chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
 
