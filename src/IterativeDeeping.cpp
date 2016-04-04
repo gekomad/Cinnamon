@@ -207,10 +207,13 @@ void IterativeDeeping::run() {
             }
 
             if (abs(sc) > _INFINITE - MAX_PLY) {
-                cout << "info score mate 1 depth " << mply << " nodes " << totMoves << " time " << timeTaken << " knps " << (totMoves / timeTaken) << " pv " << pvv << endl;
+                cout << "info score mate 1 depth " << mply;
             } else {
-                cout << "info score cp " << sc << " depth " << mply - extension << " nodes " << totMoves << " time " << timeTaken << " knps " << (totMoves / timeTaken) << " pv " << pvv << endl;
+                cout << "info score cp " << sc << " depth " << mply - extension;
             }
+            cout << " nodes " << totMoves << " time " << timeTaken;
+            if (0)cout << " knps " << (totMoves / timeTaken);
+            cout << " pv " << pvv << endl;
         }
 
         if (searchManager.getForceCheck()) {
