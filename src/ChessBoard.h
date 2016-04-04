@@ -193,7 +193,7 @@ protected:
     static const u64 BLACK_SQUARES = 0x55AA55AA55AA55AAULL;
     static const u64 WHITE_SQUARES = 0xAA55AA55AA55AA55ULL;
 
-    _Tboard structure;
+    _Tboard structureEval;
 
     void makeZobristKey();
 

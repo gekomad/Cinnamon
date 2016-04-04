@@ -181,7 +181,7 @@ void IterativeDeeping::run() {
         cout << "info string null move cut: " << nNullMoveCut << "\n";
         cout << "info string hash cut failed : " << nHashCutFailed << "\n";
 #endif
-        ///is valid move?
+        ///is a valid move?
         bool trace = true;
         if (abs(sc) > _INFINITE - MAX_PLY) {
             bool b = searchManager.getForceCheck();
