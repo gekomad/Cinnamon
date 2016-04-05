@@ -104,14 +104,14 @@ public:
 
 #ifdef DEBUG_MODE
 
-    u64 getBitBoard(int side);
+    u64 getBitmap(int side);
 
     bool checkNPieces(std::unordered_map<int, int>);
 
 #endif
 
     template<int side>
-    u64 getBitBoard() const {//TODO cambiare nome
+    u64 getBitmap() const {//TODO cambiare nome
         return chessboard[PAWN_BLACK + side] | chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
 
@@ -124,7 +124,7 @@ public:
     }
 
     template<int side>
-    u64 getBitBoardNoPawns() const {
+    u64 getBitmapNoPawns() const {
         return chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
 

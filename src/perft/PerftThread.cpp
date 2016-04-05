@@ -58,8 +58,8 @@ vector<string> PerftThread::getSuccessorsFen(const int depthx) {
     int listcount;
     _Tmove *move;
     incListId();
-    u64 friends = getBitBoard<side>();
-    u64 enemies = getBitBoard<side ^ 1>();
+    u64 friends = getBitmap<side>();
+    u64 enemies = getBitmap<side ^ 1>();
     bool b = generateCaptures<side>(enemies, friends);
     ASSERT(!b);
     generateMoves<side>(friends | enemies);
@@ -111,8 +111,8 @@ u64 PerftThread::search(const int depthx) {
     int listcount;
     _Tmove *move;
     incListId();
-    u64 friends = getBitBoard<side>();
-    u64 enemies = getBitBoard<side ^ 1>();
+    u64 friends = getBitmap<side>();
+    u64 enemies = getBitmap<side ^ 1>();
     bool b = generateCaptures<side>(enemies, friends);
     ASSERT(!b);
     generateMoves<side>(friends | enemies);
@@ -147,8 +147,8 @@ void PerftThread::run() {
     _Tmove *move;
     incListId();
     resetList();
-    u64 friends = chessboard[SIDETOMOVE_IDX] ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
-    u64 enemies = chessboard[SIDETOMOVE_IDX] ? getBitBoard<BLACK>() : getBitBoard<WHITE>();
+    u64 friends = chessboard[SIDETOMOVE_IDX] ? getBitmap<WHITE>() : getBitmap<BLACK>();
+    u64 enemies = chessboard[SIDETOMOVE_IDX] ? getBitmap<BLACK>() : getBitmap<WHITE>();
     generateCaptures(chessboard[SIDETOMOVE_IDX], enemies, friends);
     generateMoves(chessboard[SIDETOMOVE_IDX], friends | enemies);
 

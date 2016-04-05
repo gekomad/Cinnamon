@@ -86,8 +86,8 @@ void Search::clone(const Search *s) {
 
 int Search::printDtm() {
     int side = getSide();
-    u64 friends = side == WHITE ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
-    u64 enemies = side == BLACK ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
+    u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
+    u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
     display();
     int res = side ? getGtb().getDtm<WHITE, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100) : getGtb().getDtm<BLACK, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
     cout << " res: " << res;
@@ -197,8 +197,8 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
 
     incListId();
 
-    u64 friends = getBitBoard<side>();
-    u64 enemies = getBitBoard<side ^ 1>();
+    u64 friends = getBitmap<side>();
+    u64 enemies = getBitmap<side ^ 1>();
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
 
@@ -362,9 +362,9 @@ void Search::setMainParam(const bool smp, const int depth) {
 int Search::search(bool smp, int depth, int alpha, int beta) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
     if (smp) {
-        return getSide() ? search<WHITE, SMP_YES>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK, SMP_YES>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
+        return getSide() ? search<WHITE, SMP_YES>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn) : search<BLACK, SMP_YES>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
     } else {
-        return getSide() ? search<WHITE, SMP_NO>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn) : search<BLACK, SMP_NO>(depth, alpha, beta, &pvLine, bitCount(getBitBoard<WHITE>() | getBitBoard<BLACK>()), &mainMateIn);
+        return getSide() ? search<WHITE, SMP_NO>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn) : search<BLACK, SMP_NO>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
     }
 }
 
@@ -486,8 +486,8 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     incListId();
     ASSERT_RANGE(KING_BLACK + side, 0, 11);
     ASSERT_RANGE(KING_BLACK + (side ^ 1), 0, 11);
-    u64 friends = getBitBoard<side>();
-    u64 enemies = getBitBoard<side ^ 1>();
+    u64 friends = getBitmap<side>();
+    u64 enemies = getBitmap<side ^ 1>();
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
         score = _INFINITE - (mainDepth - depth + 1);

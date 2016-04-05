@@ -33,8 +33,8 @@ ChessBoard::~ChessBoard() {
 
 #ifdef DEBUG_MODE
 
-u64 ChessBoard::getBitBoard(int side) {
-    return side ? getBitBoard<WHITE>() : getBitBoard<BLACK>();
+u64 ChessBoard::getBitmap(int side) {
+    return side ? getBitmap<WHITE>() : getBitmap<BLACK>();
 }
 
 int ChessBoard::getPieceAt(int side, u64 bitmapPos) {

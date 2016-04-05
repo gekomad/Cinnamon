@@ -21,7 +21,7 @@
 #include "ChessBoard.h"
 #include <unordered_map>
 
-class Endgame : public  ChessBoard {
+class Endgame : public ChessBoard {
 
 public:
 

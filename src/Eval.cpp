@@ -407,8 +407,8 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
     } else {
         phase = OPEN;
     }
-    structureEval.allPiecesNoPawns[BLACK] = getBitBoardNoPawns<BLACK>();
-    structureEval.allPiecesNoPawns[WHITE] = getBitBoardNoPawns<WHITE>();
+    structureEval.allPiecesNoPawns[BLACK] = getBitmapNoPawns<BLACK>();
+    structureEval.allPiecesNoPawns[WHITE] = getBitmapNoPawns<WHITE>();
     structureEval.allPiecesSide[BLACK] = structureEval.allPiecesNoPawns[BLACK] | chessboard[PAWN_BLACK];
     structureEval.allPiecesSide[WHITE] = structureEval.allPiecesNoPawns[WHITE] | chessboard[PAWN_WHITE];
     structureEval.allPieces = structureEval.allPiecesSide[BLACK] | structureEval.allPiecesSide[WHITE];

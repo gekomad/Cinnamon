@@ -23,7 +23,7 @@
 //#include "Endgame.h"
 #include <vector>
 
-class GenMoves : public ChessBoard /* Endgame ed eliminare ChessBoard TODO*/ {
+class GenMoves : public ChessBoard /* add Endgame and remove ChessBoard TODO*/ {
 
 public:
     static const int MAX_MOVE = 130;
@@ -231,7 +231,7 @@ public:
         while (x) {
             int o = BITScanForward(x);
             ASSERT(getPieceAt(side, POW2[o + tt]) != SQUARE_FREE);
-            ASSERT(getBitBoard(side) & POW2[o + tt]);
+            ASSERT(getBitmap(side) & POW2[o + tt]);
             if (o > 55 || o < 8) {
                 pushmove<PROMOTION_MOVE_MASK>(o + tt, o, side, QUEEN_BLACK + side, side);
                 if (perftMode) {
@@ -379,7 +379,7 @@ protected:
                 ASSERT(chessboard[KING_BLACK]);
                 ASSERT(chessboard[KING_WHITE]);
 
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
                 chessboard[pieceFrom] = from1;
                 if (pieceTo != SQUARE_FREE) {
                     chessboard[pieceTo] = to1;
@@ -398,7 +398,7 @@ protected:
                     chessboard[pieceTo] &= NOTPOW2[to];
                 }
                 chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
                 if (pieceTo != SQUARE_FREE) {
                     chessboard[pieceTo] = to1;
                 }
@@ -416,7 +416,7 @@ protected:
                 } else {
                     chessboard[side ^ 1] &= NOTPOW2[to + 8];
                 }
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
                 chessboard[side ^ 1] = to1;
                 chessboard[side] = from1;;
                 break;
@@ -509,7 +509,7 @@ protected:
 
     template<int side>
     bool inCheck() const {
-        return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitBoard<BLACK>() | getBitBoard<WHITE>());
+        return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
     }
 
     void setKillerHeuristic(const int from, const int to, const int value) {

@@ -271,7 +271,7 @@ int SearchManager::getSide() {
 int SearchManager::getScore(int side, const bool trace) {
     int N_PIECE = 0;
 #ifdef DEBUG_MODE
-    N_PIECE = bitCount(getThread(0).getBitBoard<WHITE>() | getThread(0).getBitBoard<BLACK>());
+    N_PIECE = bitCount(getThread(0).getBitmap<WHITE>() | getThread(0).getBitmap<BLACK>());
 #endif
     return getThread(0).getScore(side, N_PIECE, -_INFINITE, _INFINITE, trace);
 }

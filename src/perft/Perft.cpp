@@ -192,8 +192,8 @@ void Perft::run() {
 
     start1 = std::chrono::high_resolution_clock::now();
     p->incListId();
-    u64 friends = side ? p->getBitBoard<WHITE>() : p->getBitBoard<BLACK>();
-    u64 enemies = side ? p->getBitBoard<BLACK>() : p->getBitBoard<WHITE>();
+    u64 friends = side ? p->getBitmap<WHITE>() : p->getBitmap<BLACK>();
+    u64 enemies = side ? p->getBitmap<BLACK>() : p->getBitmap<WHITE>();
     p->generateCaptures(side, enemies, friends);
     p->generateMoves(side, friends | enemies);
     int listcount = p->getListSize();

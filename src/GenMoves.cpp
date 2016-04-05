@@ -185,7 +185,7 @@ GenMoves::~GenMoves() {
 //    }
 //    int xside = side ^ 1;
 //    chessboard[piece] &= NOTPOW2[position];
-//    u64 allpieces = getBitBoard<WHITE>() | getBitBoard<BLACK>();
+//    u64 allpieces = getBitmap<WHITE>() | getBitmap<BLACK>();
 //    u64 qr = chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside];
 //    u64 qb = chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside];
 //    if(king & RANK[position] && RANK[position] & qr) {
@@ -609,8 +609,7 @@ bool GenMoves::makemove(_Tmove *move, bool rep, bool checkInCheck) {
                 break;
             default:;
         }
-    } else{// if (move->type & 0xc) { //castle
-        _assert(move->type & 0xc);//TODO eliminare
+    } else { //castle
         performCastle(move->side, move->type);
         if (move->side == WHITE) {
             chessboard[RIGHT_CASTLE_IDX] &= 0xcf;
