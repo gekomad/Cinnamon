@@ -296,6 +296,3 @@ vector<u64> Bitboard::getCombination(vector<u64> elements) {
     }
     return res;
 }
-
-
-

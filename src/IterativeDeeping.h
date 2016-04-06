@@ -76,7 +76,6 @@ private:
 
 #ifdef DEBUG_MODE
     //for statistics
-
     atomic_int checkSmp2;
 #endif
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();

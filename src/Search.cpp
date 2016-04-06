@@ -159,12 +159,6 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     if (!(numMovesq++ & 1023)) {
         setRunning(checkTime());
     }
-//    int is_incheck_side = inCheck<side>();
-//    if (!is_incheck_side) {
-//        int score = lazyEval<side>();
-//        if (score + FUTIL_MARGIN < alpha)
-//            return score;
-//    }
 
     int score = getScore(side, N_PIECE, alpha, beta, false);
     if (score >= beta) {
@@ -395,7 +389,6 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             }
             ASSERT_RANGE(res, -_INFINITE, _INFINITE);
             ASSERT(mainDepth >= depth);
-//            cout << side << " " << (*mateIn) << " " << res << "\n";
             return res;
         }
     }

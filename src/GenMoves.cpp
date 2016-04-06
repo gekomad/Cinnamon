@@ -176,100 +176,6 @@ GenMoves::~GenMoves() {
     free(repetitionMap);
 }
 
-//bool GenMoves::isPinned(const int side, const uchar position, const uchar piece) {
-//    u64 king = chessboard[KING_BLACK + side];
-//    int posKing = BITScanForward(king);
-//    u64 pow2position = POW2[position];
-//    if(!(LEFT_RIGHT_RANK_FILE[posKing] & pow2position)) {
-//        return false;
-//    }
-//    int xside = side ^ 1;
-//    chessboard[piece] &= NOTPOW2[position];
-//    u64 allpieces = getBitmap<WHITE>() | getBitmap<BLACK>();
-//    u64 qr = chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside];
-//    u64 qb = chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside];
-//    if(king & RANK[position] && RANK[position] & qr) {
-//        //rank
-//        for(int n = position + 1; n <= ORIZ_LEFT[position]; n++) {
-//            if(qr & POW2[n]) {
-//                chessboard[piece] |= pow2position;
-//                return true;
-//            }
-//            if(allpieces & POW2[n]) {
-//                break;
-//            }
-//        }
-//        for(int n = position - 1; n >= ORIZ_RIGHT[position]; n--) {
-//            if(qr & POW2[n]) {
-//                chessboard[piece] |= pow2position;
-//                return true;
-//            }
-//            if(allpieces & POW2[n]) {
-//                break;
-//            }
-//        }
-//    } else if(king & FILE_[position] && FILE_[position] & qr) {
-//        for(int n = posKing + 8; n <= VERT_UPPER[posKing]; n += 8) {
-//            if(qr & POW2[n]) {
-//                chessboard[piece] |= pow2position;
-//                return true;
-//            }
-//            if(POW2[n]&allpieces) {
-//                break;
-//            }
-//        }
-//        for(int n = posKing - 8; n >= VERT_LOWER[posKing]; n -= 8) {
-//            if(qr & POW2[n]) {
-//                chessboard[piece] |= pow2position;
-//                return true;
-//            }
-//            if(POW2[n]&allpieces) {
-//                break;
-//            }
-//        }
-//    } else if(king & LEFT_DIAG[position] && LEFT_DIAG[position] & qb) {
-//        for(int n = position + 7; n <= LEFT_UPPER[position]; n += 7) {
-//            if(qb & POW2[n]) {
-//                chessboard[piece] |= pow2position;
-//                return true;
-//            }
-//            if(allpieces & POW2[n]) {
-//                break;
-//            }
-//        }
-//        for(int n = position - 7; n >= LEFT_LOWER[position]; n -= 7) {
-//            if(qb & POW2[n]) {
-//                chessboard[piece] |= pow2position;
-//                return true;
-//            }
-//            if(allpieces & POW2[n]) {
-//                break;
-//            }
-//        }
-//    } else if(king & RIGHT_DIAG[position] && RIGHT_DIAG[position] & qb) {
-//        for(int n = position + 9; n <= RIGHT_UPPER[position]; n += 9) {
-//            if(qb & POW2[n]) {
-//                chessboard[piece] |= pow2position;
-//                return true;
-//            }
-//            if(allpieces & POW2[n]) {
-//                break;
-//            }
-//        }
-//        for(int n = position - 9; n >= RIGHT_LOWER[position]; n -= 9) {
-//            if(qb & POW2[n]) {
-//                chessboard[piece] |= pow2position;
-//                return true;
-//            }
-//            if(allpieces & POW2[n]) {
-//                break;
-//            }
-//        }
-//    }
-//    chessboard[piece] |= pow2position;
-//    return false;
-//}
-
 void GenMoves::performCastle(const int side, const uchar type) {
     ASSERT_RANGE(side, 0, 1);
     if (side == WHITE) {
@@ -398,70 +304,6 @@ bool GenMoves::performKingShiftCapture(int side, const u64 enemies) {
     };
     return false;
 }
-
-
-//template<int side>
-//bool GenMoves::attackSquare(const uchar position, u64 allpieces) {
-//    ASSERT_RANGE(position, 0, 63);
-//    ASSERT_RANGE(side, 0, 1);
-//    if (KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + (side ^ 1)]) {
-//        return true;
-//    }
-//    if (NEAR_MASK1[position] & chessboard[KING_BLACK + (side ^ 1)]) {
-//        return true;
-//    }
-//    //enpassant
-//    if (PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + (side ^ 1)]) {
-//        return true;
-//    }
-//    allpieces |= POW2[position];
-//    u64 enemies = chessboard[QUEEN_BLACK + (side ^ 1)] | chessboard[BISHOP_BLACK + (side ^ 1)];
-//    if (LEFT_RIGHT_DIAG[position] & enemies) {
-//        ///LEFT
-//        u64 q = allpieces & MASK_BIT_UNSET_LEFT_UP[position];
-//        if (q && enemies & POW2[BITScanReverse(q)]) {
-//            return true;
-//        }
-//        q = allpieces & MASK_BIT_UNSET_LEFT_DOWN[position];
-//        if (q && enemies & POW2[BITScanForward(q)]) {
-//            return true;
-//        }
-//        ///RIGHT
-//        q = allpieces & MASK_BIT_UNSET_RIGHT_UP[position];
-//        if (q && enemies & POW2[BITScanReverse(q)]) {
-//            return true;
-//        }
-//        q = allpieces & MASK_BIT_UNSET_RIGHT_DOWN[position];
-//        if (q && enemies & POW2[BITScanForward(q)]) {
-//            return true;
-//        }
-//    }
-//    ///
-//    u64 x = allpieces & FILE_[position];
-//    enemies = chessboard[QUEEN_BLACK + (side ^ 1)] | chessboard[ROOK_BLACK + (side ^ 1)];
-//    if (x & enemies) {
-//        u64 q = x & MASK_BIT_UNSET_UP[position];
-//        if (q && enemies & POW2[BITScanReverse(q)]) {
-//            return true;
-//        }
-//        q = x & MASK_BIT_UNSET_DOWN[position];
-//        if (q && enemies & POW2[BITScanForward(q)]) {
-//            return true;
-//        }
-//    }
-//    x = allpieces & RANK[position];
-//    if (x & enemies) {
-//        u64 q = x & MASK_BIT_UNSET_RIGHT[position];
-//        if (q && enemies & POW2[BITScanForward(q)]) {
-//            return true;
-//        }
-//        q = x & MASK_BIT_UNSET_LEFT[position];
-//        if (q && enemies & POW2[BITScanReverse(q)]) {
-//            return true;
-//        }
-//    }
-//    return false;
-//}
 
 void GenMoves::unPerformCastle(const int side, const uchar type) {
     ASSERT_RANGE(side, 0, 1);
@@ -801,34 +643,6 @@ bool GenMoves::generatePuzzle(const string type) {
             }
         }
 
-        /* if (type == "KRKP") {
-             pieces.push_back(ROOK_BLACK);
-             pieces.push_back(PAWN_WHITE);
-         } else if (type == "KQKP") {
-             pieces.push_back(QUEEN_BLACK);
-             pieces.push_back(PAWN_WHITE);
-
-         } else if (type == "KBBKN") {
-             pieces.push_back(BISHOP_BLACK);
-             pieces.push_back(BISHOP_BLACK);
-             pieces.push_back(KNIGHT_WHITE);
-
-         } else if (type == "KQKR") {
-             pieces.push_back(QUEEN_BLACK);
-             pieces.push_back(ROOK_WHITE);
-
-         } else if (type == "KRKB") {
-             pieces.push_back(ROOK_BLACK);
-             pieces.push_back(BISHOP_WHITE);
-
-         } else if (type == "KRKN") {
-             pieces.push_back(ROOK_BLACK);
-             pieces.push_back(KNIGHT_WHITE);
-
-         } else {
-             cout << "error type";
-             return;
-         }*/
         writeRandomFen(pieces);
     }
     return true;

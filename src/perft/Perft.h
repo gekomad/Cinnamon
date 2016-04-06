@@ -29,36 +29,6 @@
 #include "_TPerftRes.h"
 #include <signal.h>
 
-/*
-
-rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
- Depth  Perft
- 1      20                  
- 2      400                 
- 3      8902                
- 4      197281              
- 5      4865609             
- 6      119060324           
- 7      3195901860          
- 8      84998978956         
- 9      2439530234167       
- 10     69352859712417      
- 11     2097651003696806    
-
-r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1
-Depth   Perft
- 1      48                  
- 2      2039                
- 3      97862               
- 4      4085603             
- 5      193690690           
- 6      8031647685          
- 7      374190009323        
- 8      15493944087984
- 9		708027759953502
-
-*/
-
 class Perft : public Thread<Perft>, public ThreadPool<PerftThread>, public Singleton<Perft> {
     friend class Singleton<Perft>;
 

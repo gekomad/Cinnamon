@@ -388,11 +388,6 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         return lazyscore;
     }
 
-//    int endGameValue = getEndgameValue(N_PIECE, side);
-//    if (abs(endGameValue) != INT_MAX) {
-//        return endGameValue;
-//    }
-
 #ifdef DEBUG_MODE
     evaluationCount[WHITE] = evaluationCount[BLACK] = 0;
     memset(&SCORE_DEBUG, 0, sizeof(_TSCORE_DEBUG));
@@ -478,9 +473,7 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
 
         cout << HEADER;
         cout << "Material:         " << setw(10) << (double) (lazyscore_white - lazyscore_black) / 100.0 << setw(15) << (double) (lazyscore_white) / 100.0 << setw(10) << (double) (lazyscore_black) / 100.0 << "\n";
-//        cout << "Semi-open file:   " << setw(10) << (double) (SCORE_DEBUG.HALF_OPEN_FILE[WHITE] - SCORE_DEBUG.HALF_OPEN_FILE[BLACK]) / 100.0 << setw(15) << (double) (SCORE_DEBUG.HALF_OPEN_FILE[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.HALF_OPEN_FILE[BLACK]) / 100.0 << "\n";
         cout << "Mobility:         " << setw(10) << (double) (mobWhite - mobBlack) / 100.0 << setw(15) << (double) (mobWhite) / 100.0 << setw(10) << (double) (mobBlack) / 100.0 << "\n";
-//        cout << "Attack king:      " << setw(10) << (double) (attack_king_white - attack_king_black) / 100.0 << setw(15) << (double) (attack_king_white) / 100.0 << setw(10) << (double) (attack_king_black) / 100.0 << "\n";
         cout << "Bonus attack king:" << setw(10) << (double) (bonus_attack_king_white - bonus_attack_king_black) / 100.0 << setw(15) << (double) (bonus_attack_king_white) / 100.0 << setw(10) << (double) (bonus_attack_king_black) / 100.0 << "\n";
 
         cout << HEADER;
@@ -506,7 +499,6 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         cout << "       undevelop:                " << setw(10) << (double) (SCORE_DEBUG.UNDEVELOPED_KNIGHT[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.UNDEVELOPED_KNIGHT[BLACK]) / 100.0 << "\n";
         cout << "       trapped:                  " << setw(10) << (double) (SCORE_DEBUG.KNIGHT_TRAPPED[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.KNIGHT_TRAPPED[BLACK]) / 100.0 << "\n";
         cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_KNIGHT[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_KNIGHT[BLACK]) / 100.0 << "\n";
-//        cout << "       near enemy king           " << setw(10) << (double) (SCORE_DEBUG.XKNIGHT_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.XKNIGHT_NEAR_KING[BLACK]) / 100.0 << "\n";
 
         cout << HEADER;
         cout << "Bishop:           " << setw(10) << (double) (Tresult.bishop[WHITE] - Tresult.bishop[BLACK]) / 100.0 << setw(15) << (double) (Tresult.bishop[WHITE]) / 100.0 << setw(10) << (double) (Tresult.bishop[BLACK]) / 100.0 << "\n";
@@ -515,7 +507,6 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         cout << "       undevelop:                " << setw(10) << (double) (SCORE_DEBUG.UNDEVELOPED_BISHOP[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.UNDEVELOPED_BISHOP[BLACK]) / 100.0 << "\n";
         cout << "       open diag:                " << setw(10) << (double) (SCORE_DEBUG.OPEN_DIAG_BISHOP[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.OPEN_DIAG_BISHOP[BLACK]) / 100.0 << "\n";
         cout << "       bonus 2 bishops:          " << setw(10) << (double) (SCORE_DEBUG.BONUS2BISHOP[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.BONUS2BISHOP[BLACK]) / 100.0 << "\n";
-//        cout << "       near enemy king           " << setw(10) << (double) (SCORE_DEBUG.XBISHOP_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.XBISHOP_NEAR_KING[BLACK]) / 100.0 << "\n";
 
         cout << HEADER;
         cout << "Rook:             " << setw(10) << (double) (Tresult.rooks[WHITE] - Tresult.rooks[BLACK]) / 100.0 << setw(15) << (double) (Tresult.rooks[WHITE]) / 100.0 << setw(10) << (double) (Tresult.rooks[BLACK]) / 100.0 << "\n";
@@ -524,27 +515,19 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_ROOK[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_ROOK[BLACK]) / 100.0 << "\n";
         cout << "       blocked:                  " << setw(10) << (double) (SCORE_DEBUG.ROOK_BLOCKED[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ROOK_BLOCKED[BLACK]) / 100.0 << "\n";
         cout << "       open file:                " << setw(10) << (double) (SCORE_DEBUG.ROOK_OPEN_FILE[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ROOK_OPEN_FILE[BLACK]) / 100.0 << "\n";
-//        cout << "       semi open file:           " << setw(10) << (double) (SCORE_DEBUG.ROOK_SEMI_OPEN_FILE[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ROOK_SEMI_OPEN_FILE[BLACK]) / 100.0 << "\n";
         cout << "       connected:                " << setw(10) << (double) (SCORE_DEBUG.CONNECTED_ROOKS[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.CONNECTED_ROOKS[BLACK]) / 100.0 << "\n";
-//        cout << "       near enemy king           " << setw(10) << (double) (SCORE_DEBUG.XROOK_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.XROOK_NEAR_KING[BLACK]) / 100.0 << "\n";
 
         cout << HEADER;
         cout << "Queen:            " << setw(10) << (double) (Tresult.queens[WHITE] - Tresult.queens[BLACK]) / 100.0 << setw(15) << (double) (Tresult.queens[WHITE]) / 100.0 << setw(10) << (double) (Tresult.queens[BLACK]) / 100.0 << "\n";
         cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_QUEEN[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_QUEEN[BLACK]) / 100.0 << "\n";
         cout << "       bishop on queen:          " << setw(10) << (double) (SCORE_DEBUG.BISHOP_ON_QUEEN[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.BISHOP_ON_QUEEN[BLACK]) / 100.0 << "\n";
-//        cout << "       near enemy king           " << setw(10) << (double) (SCORE_DEBUG.XQUEEN_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.XQUEEN_NEAR_KING[BLACK]) / 100.0 << "\n";
 
         cout << HEADER;
         cout << "King:             " << setw(10) << (double) (Tresult.kings[WHITE] - Tresult.kings[BLACK]) / 100.0 << setw(15) << (double) (Tresult.kings[WHITE]) / 100.0 << setw(10) << (double) (Tresult.kings[BLACK]) / 100.0 << "\n";
         cout << "       distance:                 " << setw(10) << (double) (SCORE_DEBUG.DISTANCE_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.DISTANCE_KING[BLACK]) / 100.0 << "\n";
         cout << "       open file:                " << setw(10) << (double) (SCORE_DEBUG.END_OPENING_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.END_OPENING_KING[BLACK]) / 100.0 << "\n";
         cout << "       pawn near:                " << setw(10) << (double) (SCORE_DEBUG.PAWN_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.PAWN_NEAR_KING[BLACK]) / 100.0 << "\n";
-//        cout << "       pawn storm:               " << setw(10) << (double) (SCORE_DEBUG.PAWN_STORM[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.PAWN_STORM[BLACK]) / 100.0 << "\n";
-        cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_KING[BLACK]) / 100.0 << "\n";
-//        cout << "       bishop near king:         " << setw(10) << (double) (SCORE_DEBUG.BISHOP_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.BISHOP_NEAR_KING[BLACK]) / 100.0 << "\n";
-//        cout << "       queen near king:          " << setw(10) << (double) (SCORE_DEBUG.QUEEN_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.QUEEN_NEAR_KING[BLACK]) / 100.0 << "\n";
-//        cout << "       knight near king:         " << setw(10) << (double) (SCORE_DEBUG.KNIGHT_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.KNIGHT_NEAR_KING[BLACK]) / 100.0 << "\n";
-//        cout << "       rook near king:           " << setw(10) << (double) (SCORE_DEBUG.ROOK_NEAR_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.ROOK_NEAR_KING[BLACK]) / 100.0 << "\n";
+//      cout << "       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_KING[BLACK]) / 100.0 << "\n";
         cout << endl;
     }
 #endif
