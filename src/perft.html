@@ -1,0 +1,671 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Cinnamon chess engine - Perft results</title>
+    <meta name="KEYWORDS" content="chess perft results">
+    <style type="text/css">
+        body,div,table,thead,tbody,tfoot,tr,th,td,p { font-family:"Liberation Sans"; font-size:x-small }
+    </style>
+
+    <script>
+
+function show_hide(target) {
+
+	if(document.getElementById(target).style.display == 'block')
+ 	   document.getElementById(target).style.display = 'none';
+	else
+		document.getElementById(target).style.display = 'block';
+}
+
+
+    </script>
+</head>
+
+<body>
+<table cellspacing="0" border="0" align="center">
+    <colgroup width="85"></colgroup>
+    <colgroup width="141"></colgroup>
+    <colgroup span="2" width="85"></colgroup>
+    <tr>
+        <td colspan=8 height="26" align="center" bgcolor="#FF950E"><b><font size=4><a href="http://cinnamonchess.altervista.org">Cinnamon</a> chess engine – Perft Results</font></b></td>
+    </tr>
+    <tr>
+        <td height="17" align="center"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="center"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td colspan=8 height="18" align="left" bgcolor="#DDDDDD"><b>Fen position rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1</b></td>
+    </tr>
+    <tr>
+        <td height="17" align="center"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2"><b>Depth</b></td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#B2B2B2"><b>Nodes</b></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="1" sdnum="1033;">1</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="20" sdnum="1033;">20</td>
+        <td align="left"><br></td>
+        <td colspan=5 rowspan=12 align="right"><img src="http://webchess.freehostia.com/diag/chessdiag.php?fen=rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1&amp;amp&amp;size=large&amp;amp&amp;coord=yes&amp;amp&amp;cap=no&amp;amp&amp;stm=yes&amp;amp&amp;fb=no&amp;amp&amp;theme=classic&amp;amp&amp;color1=E3CEAA&amp;amp&amp;color2=635147&amp;amp&amp;color3=000000&quot;  height=&quot;300&quot; width=&quot;300/"></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="2" sdnum="1033;">2</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="400" sdnum="1033;">400</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="3" sdnum="1033;">3</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="8902" sdnum="1033;">8902</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="4" sdnum="1033;">4</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="197281" sdnum="1033;">197281</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="5" sdnum="1033;">5</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="4865609" sdnum="1033;">4865609</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="6" sdnum="1033;">6</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="119060324" sdnum="1033;">119060324</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="7" sdnum="1033;">7</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="3195901860" sdnum="1033;">3195901860</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="8" sdnum="1033;">8</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="84998978956" sdnum="1033;">84998978956</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="9" sdnum="1033;">9</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="2439530234167" sdnum="1033;">2439530234167</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="10" sdnum="1033;">10</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="69352859712417" sdnum="1033;">69352859712417</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="11" sdnum="1033;">11</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="left" bgcolor="#FFFF99"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="12" sdnum="1033;">12</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="left" bgcolor="#FFFF99"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="center"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td colspan=8 height="18" align="left" bgcolor="#DDDDDD"><b>Fen position r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1</b></td>
+    </tr>
+    <tr>
+        <td height="17" align="center"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2"><b>Depth</b></td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#B2B2B2"><b>Nodes</b></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="1" sdnum="1033;">1</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="48" sdnum="1033;">48</td>
+        <td align="left"><br></td>
+        <td colspan=5 rowspan=11 align="right"><img src="http://webchess.freehostia.com/diag/chessdiag.php?fen=r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1&amp;amp&amp;size=large&amp;amp&amp;coord=yes&amp;amp&amp;cap=no&amp;amp&amp;stm=yes&amp;amp&amp;fb=no&amp;amp&amp;theme=classic&amp;amp&amp;color1=E3CEAA&amp;amp&amp;color2=635147&amp;amp&amp;color3=000000&quot;  height=&quot;300&quot; width=&quot;300/"></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="2" sdnum="1033;">2</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="2039" sdnum="1033;">2039</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="3" sdnum="1033;">3</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="97862" sdnum="1033;">97862</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="4" sdnum="1033;">4</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="4085603" sdnum="1033;">4085603</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="5" sdnum="1033;">5</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="193690690" sdnum="1033;">193690690</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="6" sdnum="1033;">6</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="8031647685" sdnum="1033;">8031647685</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="7" sdnum="1033;">7</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="374190009323" sdnum="1033;">
+            <div id="374190009323" style="display: none;background-color: lightblue;">
+
+                g2*h3 &nbsp;&nbsp; 7265571564 <br>
+                Ra1-b1 &nbsp;&nbsp; 7312345541 <br>
+                Be2-d3 &nbsp;&nbsp; 7843129110 <br>
+                a2-a3 &nbsp;&nbsp; 9491604100 <br>
+                Be2-c4 &nbsp;&nbsp; 8143385765 <br>
+                d5-d6 &nbsp;&nbsp; 7180089264 <br>
+                Qf3-g3 &nbsp;&nbsp; 9484342196 <br>
+                d5*e6 &nbsp;&nbsp; 9741806126 <br>
+                Be2-b5 &nbsp;&nbsp; 7708742487 <br>
+                Nc3-d1 &nbsp;&nbsp; 7560735010 <br>
+                Ne5*g6 &nbsp;&nbsp; 7679730505 <br>
+                Qf3-e3 &nbsp;&nbsp; 8885152041 <br>
+                Bd2-c1 &nbsp;&nbsp; 7188695081 <br>
+                Nc3-b1 &nbsp;&nbsp; 7574150349 <br>
+                Qf3-d3 &nbsp;&nbsp; 7637864872 <br>
+                Ne5*f7 &nbsp;&nbsp; 8146033781 <br>
+                Bd2-e3 &nbsp;&nbsp; 8831533611 <br>
+                Qf3-f4 &nbsp;&nbsp; 8487829062 <br>
+                Nc3-a4 &nbsp;&nbsp; 9346560191 <br>
+                Ne5*d7 &nbsp;&nbsp; 8964657917 <br>
+                Bd2-f4 &nbsp;&nbsp; 7644341581 <br>
+                Be2*a6 &nbsp;&nbsp; 6480008058 <br>
+                Qf3-f5 &nbsp;&nbsp; 10870589675 <br>
+                Nc3-b5 &nbsp;&nbsp; 8536331785 <br>
+                Bd2-g5 &nbsp;&nbsp; 8614847947 <br>
+                Ne5-d3 &nbsp;&nbsp; 6010078078 <br>
+                Qf3-g4 &nbsp;&nbsp; 9047498461 <br>
+                Qf3*h3 &nbsp;&nbsp; 10314822739 <br>
+                Bd2-h6 &nbsp;&nbsp; 7594325672 <br>
+                Ne5-g4 &nbsp;&nbsp; 6143255313 <br>
+                Qf3-h5 &nbsp;&nbsp; 9445639220 <br>
+                Rh1-g1 &nbsp;&nbsp; 7743466513 <br>
+                Ne5-c4 &nbsp;&nbsp; 6485370632 <br>
+                Qf3*f6 &nbsp;&nbsp; 7136487960 <br>
+                Rh1-f1 &nbsp;&nbsp; 6941145758 <br>
+                g2-g4 &nbsp;&nbsp; 5928350487 <br>
+                Ne5-c6 &nbsp;&nbsp; 8102096729 <br>
+                Ra1-d1 &nbsp;&nbsp; 6710600976 <br>
+                e1g1 &nbsp;&nbsp; 8038310789 <br>
+                Ke1-f1 &nbsp;&nbsp; 6050797903 <br>
+                Ra1-c1 &nbsp;&nbsp; 7249929466 <br>
+                a2-a4 &nbsp;&nbsp; 8711431200 <br>
+                Ke1-d1 &nbsp;&nbsp; 6605992768 <br>
+                e1c1 &nbsp;&nbsp; 6631088095 <br>
+                g2-g3 &nbsp;&nbsp; 6261927843 <br>
+                b2-b3 &nbsp;&nbsp; 7059227732 <br>
+                Be2-f1 &nbsp;&nbsp; 7893751276 <br>
+                Be2-d1 &nbsp;&nbsp; 5464336094 <br>
+
+            </div>
+            <a href="#" onclick="show_hide('374190009323')">374190009323</a>
+        </td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="8" sdnum="1033;">8</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="15493944087984" sdnum="1033;">
+            <div id="15493944087984" style="display: none;background-color: lightblue;">
+
+                g2*h3 &nbsp;&nbsp; 299731647143 <br>
+                Ra1-b1 &nbsp;&nbsp; 305422602641 <br>
+                Be2-d3 &nbsp;&nbsp; 323148326669 <br>
+                a2-a3 &nbsp;&nbsp; 402654556153 <br>
+                Be2-c4 &nbsp;&nbsp; 331999730288 <br>
+                d5-d6 &nbsp;&nbsp; 281928947052 <br>
+                Qf3-g3 &nbsp;&nbsp; 401204979014 <br>
+                d5*e6 &nbsp;&nbsp; 416725713915 <br>
+                Be2-b5 &nbsp;&nbsp; 305642680663 <br>
+                Nc3-d1 &nbsp;&nbsp; 313541077840 <br>
+                Ne5*g6 &nbsp;&nbsp; 321396995625 <br>
+                Qf3-e3 &nbsp;&nbsp; 374069077176 <br>
+                Bd2-c1 &nbsp;&nbsp; 299879274628 <br>
+                Nc3-b1 &nbsp;&nbsp; 314690850723 <br>
+                Qf3-d3 &nbsp;&nbsp; 318831262788 <br>
+                Ne5*f7 &nbsp;&nbsp; 342156201114 <br>
+                Bd2-e3 &nbsp;&nbsp; 367090135640 <br>
+                Qf3-f4 &nbsp;&nbsp; 355165150488 <br>
+                Nc3-a4 &nbsp;&nbsp; 386563996492 <br>
+                Ne5*d7 &nbsp;&nbsp; 392791660921 <br>
+                Bd2-f4 &nbsp;&nbsp; 320459928018 <br>
+                Be2*a6 &nbsp;&nbsp; 241387211019 <br>
+                Qf3-f5 &nbsp;&nbsp; 460271562178 <br>
+                Nc3-b5 &nbsp;&nbsp; 335285961781 <br>
+                Bd2-g5 &nbsp;&nbsp; 349225586853 <br>
+                Ne5-d3 &nbsp;&nbsp; 256502027044 <br>
+                Qf3-g4 &nbsp;&nbsp; 378965394329 <br>
+                Bd2-h6 &nbsp;&nbsp; 309132031261 <br>
+                Ne5-g4 &nbsp;&nbsp; 258333972987 <br>
+                Qf3*h3 &nbsp;&nbsp; 426819204139 <br>
+                Rh1-g1 &nbsp;&nbsp; 320668896061 <br>
+                Qf3-h5 &nbsp;&nbsp; 393307640844 <br>
+                Ne5-c4 &nbsp;&nbsp; 270362407999 <br>
+                Rh1-f1 &nbsp;&nbsp; 289675094245 <br>
+                g2-g4 &nbsp;&nbsp; 238841590165 <br>
+                Qf3*f6 &nbsp;&nbsp; 264835246136 <br>
+                Ra1-d1 &nbsp;&nbsp; 279687999714 <br>
+                Ne5-c6 &nbsp;&nbsp; 338226587566 <br>
+                Ra1-c1 &nbsp;&nbsp; 302507795871 <br>
+                e1g1 &nbsp;&nbsp; 334274439913 <br>
+                a2-a4 &nbsp;&nbsp; 363636312256 <br>
+                Ke1-f1 &nbsp;&nbsp; 248309615874 <br>
+                g2-g3 &nbsp;&nbsp; 252982671742 <br>
+                Ke1-d1 &nbsp;&nbsp; 274750767755 <br>
+                e1c1 &nbsp;&nbsp; 276865226742 <br>
+                b2-b3 &nbsp;&nbsp; 287466826392 <br>
+                Be2-f1 &nbsp;&nbsp; 334227994103 <br>
+                Be2-d1 &nbsp;&nbsp; 232299228024 <br>
+
+            </div>
+            <a href="#" onclick="show_hide('15493944087984')">15493944087984</a></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="9" sdnum="1033;">9</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="left" bgcolor="#FFFF99"><br></td>
+        <td align="left"><br></td>
+    </tr>
+
+    <tr>
+        <td height="17" align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="center"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td colspan=8 height="18" align="left" bgcolor="#DDDDDD"><b>Fen position 8/PPP4k/8/8/8/8/4Kppp/8 w - - 0 1</b></td>
+    </tr>
+    <tr>
+        <td height="17" align="center"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2"><b>Depth</b></td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#B2B2B2"><b>Nodes</b></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="1" sdnum="1033;">1</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="18" sdnum="1033;">18</td>
+        <td align="left"><br></td>
+        <td colspan=5 rowspan=12 align="right"><img src="http://webchess.freehostia.com/diag/chessdiag.php?fen=8/PPP4k/8/8/8/8/4Kppp/8 w - - 0 1&amp;amp&amp;size=large&amp;amp&amp;coord=yes&amp;amp&amp;cap=no&amp;amp&amp;stm=yes&amp;amp&amp;fb=no&amp;amp&amp;theme=classic&amp;amp&amp;color1=E3CEAA&amp;amp&amp;color2=635147&amp;amp&amp;color3=000000&quot;  height=&quot;300&quot; width=&quot;300/"></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="2" sdnum="1033;">2</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="290" sdnum="1033;">290</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="3" sdnum="1033;">3</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="5044" sdnum="1033;">5044</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="4" sdnum="1033;">4</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="89363" sdnum="1033;">89363</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="5" sdnum="1033;">5</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="1745545" sdnum="1033;">1745545</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="6" sdnum="1033;">6</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="34336777" sdnum="1033;">34336777</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="7" sdnum="1033;">7</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="749660761" sdnum="1033;">749660761</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="8" sdnum="1033;">8</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="16303466487" sdnum="1033;">16303466487</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="9" sdnum="1033;">9</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="389736558441" sdnum="1033;">389736558441</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="10" sdnum="1033;">10</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="9169262376292" sdnum="1033;">9169262376292</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="11" sdnum="1033;">11</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="235949253026850" sdnum="1033;">235949253026850</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="12" sdnum="1033;">12</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="left" bgcolor="#FFFF99"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td colspan=8 height="18" align="left" bgcolor="#DDDDDD"><b>Fen position 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1</b></td>
+    </tr>
+    <tr>
+        <td height="17" align="center"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2"><b>Depth</b></td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#B2B2B2"><b>Nodes</b></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="1" sdnum="1033;">1</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="14" sdnum="1033;">14</td>
+        <td align="left"><br></td>
+        <td colspan=5 rowspan=13 align="right"><img src="http://webchess.freehostia.com/diag/chessdiag.php?fen=8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1&amp;amp&amp;size=large&amp;amp&amp;coord=yes&amp;amp&amp;cap=no&amp;amp&amp;stm=yes&amp;amp&amp;fb=no&amp;amp&amp;theme=classic&amp;amp&amp;color1=E3CEAA&amp;amp&amp;color2=635147&amp;amp&amp;color3=000000&quot;  height=&quot;300&quot; width=&quot;300/"></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="2" sdnum="1033;">2</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="191" sdnum="1033;">191</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="3" sdnum="1033;">3</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="2812" sdnum="1033;">2812</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="4" sdnum="1033;">4</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="43238" sdnum="1033;">43238</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="5" sdnum="1033;">5</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="674624" sdnum="1033;">674624</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="6" sdnum="1033;">6</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="11030083" sdnum="1033;">11030083</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="7" sdnum="1033;">7</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="178633661" sdnum="1033;">178633661</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="8" sdnum="1033;">8</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="3009794393" sdnum="1033;">3009794393</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="9" sdnum="1033;">9</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="50086749815" sdnum="1033;">50086749815</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="10" sdnum="1033;">10</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="860322602309" sdnum="1033;">860322602309</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="11" sdnum="1033;">11</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="14621463323674" sdnum="1033;">14621463323674</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="11" sdnum="1033;">11</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="left" bgcolor="#FFFF99"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="12" sdnum="1033;">12</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="left" bgcolor="#FFFF99"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td colspan=8 height="18" align="left" bgcolor="#DDDDDD"><b>Fen position 8/3K4/2p5/p2b2r1/5k2/8/8/1q6 b - 1 67</b></td>
+    </tr>
+    <tr>
+        <td height="17" align="center"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2"><b>Depth</b></td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#B2B2B2"><b>Nodes</b></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="1" sdnum="1033;">1</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="50" sdnum="1033;">50</td>
+        <td align="left"><br></td>
+        <td colspan=5 rowspan=12 align="right"><img src="http://webchess.freehostia.com/diag/chessdiag.php?fen=8/3K4/2p5/p2b2r1/5k2/8/8/1q6 b - 1 67&amp;amp&amp;size=large&amp;amp&amp;coord=yes&amp;amp&amp;cap=no&amp;amp&amp;stm=yes&amp;amp&amp;fb=no&amp;amp&amp;theme=classic&amp;amp&amp;color1=E3CEAA&amp;amp&amp;color2=635147&amp;amp&amp;color3=000000&quot;  height=&quot;300&quot; width=&quot;300/"></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="2" sdnum="1033;">2</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="279" sdnum="1033;">279</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="3" sdnum="1033;">3</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="13310" sdnum="1033;">13310</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="4" sdnum="1033;">4</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="54703" sdnum="1033;">54703</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="5" sdnum="1033;">5</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="2538084" sdnum="1033;">2538084</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="6" sdnum="1033;">6</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="10809689" sdnum="1033;">10809689</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="7" sdnum="1033;">7</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="493407574" sdnum="1033;">493407574</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="8" sdnum="1033;">8</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="2074492344" sdnum="1033;">2074492344</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="9" sdnum="1033;">9</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="93718646102" sdnum="1033;">93718646102</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="10" sdnum="1033;">10</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="397773803207" sdnum="1033;">397773803207</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="11" sdnum="1033;">11</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="17852271013126" sdnum="1033;">17852271013126</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="12" sdnum="1033;">12</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="left" bgcolor="#FFFF99"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td height="17" align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td colspan=8 height="18" align="left" bgcolor="#DDDDDD"><b>Fen position 8/7p/p5pb/4k3/P1pPn3/8/P5PP/1rB2RK1 b - d3 0 28</b></td>
+    </tr>
+    <tr>
+        <td height="17" align="center"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2"><b>Depth</b></td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#B2B2B2"><b>Nodes</b></td>
+        <td align="left"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="1" sdnum="1033;">1</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="5" sdnum="1033;">5</td>
+        <td align="left"><br></td>
+        <td colspan=5 rowspan=12 align="right"><img src="http://webchess.freehostia.com/diag/chessdiag.php?fen=8/7p/p5pb/4k3/P1pPn3/8/P5PP/1rB2RK1 b - d3 0 28&amp;amp&amp;size=large&amp;amp&amp;coord=yes&amp;amp&amp;cap=no&amp;amp&amp;stm=yes&amp;amp&amp;fb=no&amp;amp&amp;theme=classic&amp;amp&amp;color1=E3CEAA&amp;amp&amp;color2=635147&amp;amp&amp;color3=000000&quot;  height=&quot;300&quot; width=&quot;300/"></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="2" sdnum="1033;">2</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="117" sdnum="1033;">117</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="3" sdnum="1033;">3</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="3293" sdnum="1033;">3293</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="4" sdnum="1033;">4</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="67197" sdnum="1033;">67197</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="5" sdnum="1033;">5</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="1881089" sdnum="1033;">1881089</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="6" sdnum="1033;">6</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="38633283" sdnum="1033;">38633283</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="7" sdnum="1033;">7</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="1069189070" sdnum="1033;">1069189070</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="8" sdnum="1033;">8</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="22488501780" sdnum="1033;">22488501780</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="9" sdnum="1033;">9</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="614975507497" sdnum="1033;">614975507497</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="10" sdnum="1033;">10</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="right" bgcolor="#FFFF99" sdval="13166245942927" sdnum="1033;">13166245942927</td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="11" sdnum="1033;">11</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="left" bgcolor="#FFFF99"><br></td>
+        <td align="left"><br></td>
+    </tr>
+    <tr>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" height="18" align="center" bgcolor="#B2B2B2" sdval="12" sdnum="1033;">12</td>
+        <td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="left" bgcolor="#FFFF99"><br></td>
+        <td align="left"><br></td>
+    </tr>
+</table>
+
+</body>
+
+</html>
