@@ -67,7 +67,6 @@ public:
         return running;
     }
 
-
     const string &getBestmove() const {
         return bestmove;
     }

@@ -51,8 +51,6 @@ public:
 
     int getHashSize();
 
-//    int getValue(int i);
-
     void startClock();
 
     string boardToFen();
@@ -72,7 +70,6 @@ public:
     void setRunningThread(bool r);
 
     void search(int mply);
-
 
     void setRunning(int i);
 
@@ -123,6 +120,11 @@ public:
     void receiveObserverSearch(int threadID);
 
     bool setNthread(int);
+
+    template<int side>
+    unsigned getPin(const u64 enemies, const u64 friends) const {
+        return getThread(0).getPin<side>(enemies, friends);
+    }
 
 #ifdef DEBUG_MODE
 
@@ -181,6 +183,10 @@ public:
             i += s->totGen;
         }
         return i;
+    }
+
+    u64 getBitmap(int side) {
+        return getPool()[0]->getBitmap(side);
     }
 
 #endif

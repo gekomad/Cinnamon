@@ -19,14 +19,18 @@
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 
 #include <gtest/gtest.h>
-#include "tablebase.cpp"
-#include "eval.cpp"
-#include "spinlockShared.cpp"
-#include "spinlock.cpp"
-#include "search.cpp"
-#include "util/fileUtil.cpp"
-#include "util/string.cpp"
-#include "perft.cpp"
-#include "pin.cpp"
+#include <set>
+#include "../IterativeDeeping.h"
+
+TEST(pin, test1) {
+    IterativeDeeping it;
+    it.loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+
+    u64 friends = searchManager.getBitmap(WHITE);
+    u64 enemies = searchManager.getBitmap(BLACK);
+    u64 p = searchManager.getPin<WHITE>(enemies, friends);
+    EXPECT_EQ(0, p);
+}
 
 #endif

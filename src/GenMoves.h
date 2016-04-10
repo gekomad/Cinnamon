@@ -296,13 +296,21 @@ public:
         killerHeuristic[from][to] += value;
     }
 
+    template<int side>
+    u64 getPin(const u64 enemies, const u64 friends) const {
+        int k = BITScanForward(chessboard[KING_BLACK + side]);
+        return 0;
+    }
+
     _Tmove *getNextMove();
 
 #ifdef DEBUG_MODE
     unsigned nCutAB, nNullMoveCut, nCutFp, nCutRazor;
     double betaEfficiency;
 #endif
+
 protected:
+
     bool perftMode;
     int listId;
     _TmoveP *gen_list;
