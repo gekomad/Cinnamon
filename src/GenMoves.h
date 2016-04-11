@@ -301,18 +301,20 @@ public:
         u64 result = 0;
         int k = BITScanForward(chessboard[KING_BLACK + side]);
         u64 allpieces = (enemies | friends) & NOTPOW2[k];
-
+//        const u64 *s = LINK_SQUARE[k];
         int xside = side ^1;
-        u64 attacked = ALL_DIRECTIONS[k] & (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
+        u64 attacked = DIAGONAL_ANTIDIAGONAL[k] & (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
+        attacked |= RANK_FILE[k] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
         while (attacked) {
             int pos = BITScanForward(attacked);
+//            u64 b = *(s + pos) & allpieces;//TODO
             u64 b = LINK_SQUARE[k][pos] & allpieces;
-            if (!static_cast<int>(b & (b - 1))) {
+            int t = b & (b - 1);
+            if (!t) {
                 result |= b & friends;
             }
             RESET_LSB(attacked);
         }
-
         return result;
     }
 
@@ -324,7 +326,7 @@ public:
 #endif
 
 protected:
-
+    u64 pinned;
     bool perftMode;
     int listId;
     _TmoveP *gen_list;
@@ -384,6 +386,22 @@ protected:
         ASSERT_RANGE(pieceTo, 0, 12);
         ASSERT(perftMode || forceCheck);
         ASSERT(!(type & 0xc));
+        if ((!(chessboard[KING_BLACK + side] & POW2[from])) && (type & 0x3) == STANDARD_MOVE_MASK) {
+//            int k = BITScanForward(chessboard[KING_BLACK + side]);
+            if (!(pinned & POW2[from])) {
+                return false;
+            }
+        }
+//        return !(LINK_SQUARE[from][to] | LINK_SQUARE[from][k] | LINK_SQUARE[to][k]) & (POW2[from] | POW2[to] | POW2[k]);
+//        if (FILE_[from] & FILE_[to] & k)
+//            return false;
+//        if (RANK[from] & RANK[to] & k)
+//            return false;
+//        if (DIAGONAL[from] & DIAGONAL[to] & k)
+//            return false;
+//        if (ANTIDIAGONAL[from] & ANTIDIAGONAL[to] & k)
+//            return false;
+
         bool result = 0;
         switch (type & 0x3) {
             case STANDARD_MOVE_MASK: {

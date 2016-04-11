@@ -19,6 +19,8 @@
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 
 #include <gtest/gtest.h>
+
+#include "pin.cpp"
 #include "tablebase.cpp"
 #include "eval.cpp"
 #include "spinlockShared.cpp"
@@ -27,6 +29,5 @@
 #include "util/fileUtil.cpp"
 #include "util/string.cpp"
 #include "perft.cpp"
-#include "pin.cpp"
 
 #endif
