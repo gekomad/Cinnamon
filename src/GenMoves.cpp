@@ -567,9 +567,9 @@ int GenMoves::loadFen(string fen) {
         std::_Exit(1);
     }
 
-    u64 friends = getBitmap(side);
-    u64 enemies = getBitmap(side ^ 1);
-    pinned = side == WHITE ? getPin<WHITE>(enemies, friends) : getPin<BLACK>(enemies, friends);
+//    u64 friends = getBitmap(side);
+//    u64 enemies = getBitmap(side ^ 1);
+//    pinned = side == WHITE ? getPin<WHITE>(enemies, friends) : getPin<BLACK>(enemies, friends);
     return side;
 }
 

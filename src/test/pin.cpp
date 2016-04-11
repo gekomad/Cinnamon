@@ -27,6 +27,12 @@ TEST(pin, test1) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     u64 friends, enemies, p;
 
+    it.loadFen("r3k2r/p1ppqpb1/1n2pnp1/3PN3/1p2P3/2Nb1Q1p/PPPBBPPP/R4K1R w kq - 0 1");
+    friends = searchManager.getBitmap(WHITE);
+    enemies = searchManager.getBitmap(BLACK);
+    p = searchManager.getPin<WHITE>(enemies, friends);
+    EXPECT_EQ(0x1000ULL, p);
+    if (p != 0x1000ULL)exit(1);//TODO
     it.loadFen("rn4k1/pp3ppp/2B5/3p4/3P4/8/PPPBb3/RN5K w - - 0 1");
     friends = searchManager.getBitmap(WHITE);
     enemies = searchManager.getBitmap(BLACK);

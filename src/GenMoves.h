@@ -60,6 +60,7 @@ public:
         ASSERT_RANGE(side, 0, 1);
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
+        pinned = getPin<side>(enemies, friends);
         u64 allpieces = enemies | friends;
         if (performPawnCapture<side>(enemies)) {
             return true;
@@ -455,15 +456,20 @@ protected:
         ASSERT_RANGE(pieceTo, 0, 12);
         ASSERT(perftMode || forceCheck);
         ASSERT(!(type & 0xc));
-        if ((!(chessboard[KING_BLACK + side] & POW2[from])) && (type & 0x3) == STANDARD_MOVE_MASK) {
+        if (isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>())) {
+            return true;
+        }
+        if (!(chessboard[KING_BLACK + side] & POW2[from])) {
+            if ((type & 0x3) == STANDARD_MOVE_MASK) {
 //            int k = BITScanForward(chessboard[KING_BLACK + side]);
-            if (!(pinned & POW2[from])) {
-                if (pippo<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
-                    display();
-                    cout << "from: " << from << " to: " << to << endl;
-                    _assert(0);
+                if (!(pinned & POW2[from])) {
+                    if (pippo<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
+                        display();
+                        cout << "from: " << from << " to: " << to << " pinned: " << pinned << endl;
+                        _assert(0);
+                    }
+                    return false;
                 }
-                return false;
             }
         }
 //        return !(LINK_SQUARE[from][to] | LINK_SQUARE[from][k] | LINK_SQUARE[to][k]) & (POW2[from] | POW2[to] | POW2[k]);

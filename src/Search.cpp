@@ -199,7 +199,6 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
 
     u64 friends = getBitmap<side>();
     u64 enemies = getBitmap<side ^ 1>();
-    pinned = getPin<side ^ 1>(friends, enemies);
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
 
@@ -489,7 +488,6 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     ASSERT_RANGE(KING_BLACK + (side ^ 1), 0, 11);
     u64 friends = getBitmap<side>();
     u64 enemies = getBitmap<side ^ 1>();
-    pinned = getPin<side ^ 1>(friends, enemies);
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
         score = _INFINITE - (mainDepth - depth + 1);
