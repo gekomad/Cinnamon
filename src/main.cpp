@@ -87,7 +87,7 @@ void printHeader() {
     cout << flush;
 }
 
-//u64 link(int a, int b) {
+//u64 link(int a, int b) {TODO cancellare
 //    if (a == b)return 0;
 //    int i = min(a, b);
 //    int j = max(a, b);
@@ -118,7 +118,7 @@ void printHeader() {
 
 int main(int argc, char **argv) {
 
-//    for (int i = 0; i < 64; i++) {
+//    for (int i = 0; i < 64; i++) {TODO cancellare
 //        cout << "{";
 //        for (int j = 0; j < 64; j++) {
 //            cout << "0x" << hex << link(i, j) << "ULL,";
