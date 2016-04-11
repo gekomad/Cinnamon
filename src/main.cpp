@@ -87,7 +87,45 @@ void printHeader() {
     cout << flush;
 }
 
+//u64 link(int a, int b) {
+//    if (a == b)return 0;
+//    int i = min(a, b);
+//    int j = max(a, b);
+//    u64 res = 0;
+//    if (RANK_AT[i] == RANK_AT[j]) {
+//        int x;
+//        for (x = i; x <= j; x++)res |= POW2[x];
+//        return res;
+//    }
+//    if (FILE_AT[i] == FILE_AT[j]) {
+//        int x;
+//        for (x = i; x <= j; x += 8)res |= POW2[x];
+//        return res;
+//    }
+//    if (DIAGONAL[i] == DIAGONAL[j]) {
+//        int x;
+//        for (x = i; x <= j; x += 7)res |= POW2[x];
+//        return res;
+//    }
+//    if (ANTIDIAGONAL[i] == ANTIDIAGONAL[j]) {
+//        int x;
+//        for (x = i; x <= j; x += 9)res |= POW2[x];
+//        return res;
+//    }
+//    return 0;
+//
+//}
+
 int main(int argc, char **argv) {
+
+//    for (int i = 0; i < 64; i++) {
+//        cout << "{";
+//        for (int j = 0; j < 64; j++) {
+//            cout << "0x" << hex << link(i, j) << "ULL,";
+//        }
+//        cout << "},\n";
+//    }
+
 
     printHeader();
 #if defined(DEBUG_MODE) || defined(FULL_TEST)

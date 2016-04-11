@@ -24,13 +24,19 @@
 
 TEST(pin, test1) {
     IterativeDeeping it;
-    it.loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    it.loadFen("rnK3nk/ppB2pp1/1bp1P3/b4q2/6p1/2P4b/PP2PP1P/RN3BNR w - - 0 1");
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-
     u64 friends = searchManager.getBitmap(WHITE);
     u64 enemies = searchManager.getBitmap(BLACK);
     u64 p = searchManager.getPin<WHITE>(enemies, friends);
+    EXPECT_EQ(0x80000000000ULL, p);
+
+    it.loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    friends = searchManager.getBitmap(WHITE);
+    enemies = searchManager.getBitmap(BLACK);
+    p = searchManager.getPin<WHITE>(enemies, friends);
     EXPECT_EQ(0, p);
+
 }
 
 #endif

@@ -298,8 +298,23 @@ public:
 
     template<int side>
     u64 getPin(const u64 enemies, const u64 friends) const {
+        display();
+        u64 result = 0;
+        u64 allpieces = enemies | friends;
         int k = BITScanForward(chessboard[KING_BLACK + side]);
-        return 0;
+        int xside = side ^1;
+        u64 attacked = ALL_DIRECTIONS[k] & (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
+        while (attacked) {
+            int pos = BITScanForward(attacked);
+            u64 b = LINK_SQUARE[k][pos] & allpieces & NOTPOW2[k];
+            int y = (b & (b - 1));
+            if (!y) {
+                result |= b & friends;
+            }
+            RESET_LSB(attacked);
+        }
+
+        return result;
     }
 
     _Tmove *getNextMove();

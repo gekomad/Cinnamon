@@ -90,7 +90,7 @@ public:
     static const uchar KING_SIDE_CASTLE_MOVE_MASK = 0x4;
     static const uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0x8;
 
-    void display();
+    void display() const;
 
     string boardToFen() const;
 

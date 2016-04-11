@@ -122,7 +122,7 @@ public:
     bool setNthread(int);
 
     template<int side>
-    unsigned getPin(const u64 enemies, const u64 friends) const {
+    u64 getPin(const u64 enemies, const u64 friends) const {
         return getThread(0).getPin<side>(enemies, friends);
     }
 
