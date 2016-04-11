@@ -63,11 +63,7 @@ public:
         ASSERT(chessboard[KING_WHITE]);
         int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
         pinned = getPin<side>(enemies, friends, kingPosition);
-//        display();
-//        cout <<hex<<"pinned 0x"<<pinned<<"ull\n";
-//        cout <<hex<<"enemies 0x"<<enemies<<"ull\n";
-//        cout <<hex<<"friends 0x"<<friends<<"ull\n";
-//        cout <<dec<<"kingPosition "<<kingPosition<<"\n";
+
         u64 allpieces = enemies | friends;
         isInCheck = isAttacked<side>(kingPosition, allpieces);
 
@@ -318,7 +314,7 @@ public:
             int pos = BITScanForward(attacked);
 //            u64 b = *(s + pos) & allpieces;//TODO
             u64 b = LINK_SQUARE[kingPosition][pos] & allpieces;
-            int t = b & (b - 1);
+            u64 t = b & (b - 1);
             if (!t) {
                 result |= b & friends;
             }
@@ -471,7 +467,6 @@ protected:
 //            if ((type & 0x3) == STANDARD_MOVE_MASK)
             {
 #ifdef DEBUG_MODE
-                display();
                 if (inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
                     display();
                     cout << "Afrom: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
@@ -480,11 +475,9 @@ protected:
 #endif
                 return false;
             }
-
         }
 //        if (!isInCheck &&((type & 0x3) == STANDARD_MOVE_MASK) && (pinned & POW2[from])) {
 //#ifdef DEBUG_MODE
-//            display();
 //            if (!inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
 //                display();
 //                cout << "Bfrom: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
