@@ -56,8 +56,8 @@ public:
     }
 
     template<int side>
-    u64 getForbidden(const int position) const {//TODO eliminare
-        return 0;
+    bool getForbidden(const int position) const {//TODO cambiare nome
+        return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
     }
 
     template<int side>
@@ -67,7 +67,7 @@ public:
         ASSERT(chessboard[KING_WHITE]);
         int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
         pinned = getPin<side>(enemies, friends, kingPosition);
-        forbidden = getForbidden<side>(kingPosition);
+        isInCheck = getForbidden<side>(kingPosition);
         u64 allpieces = enemies | friends;
         if (performPawnCapture<side>(enemies)) {
             return true;
@@ -334,7 +334,7 @@ public:
 
 protected:
     u64 pinned;
-    u64 forbidden;
+
     bool perftMode;
     int listId;
     _TmoveP *gen_list;
@@ -464,29 +464,21 @@ protected:
         ASSERT(perftMode || forceCheck);
         ASSERT(!(type & 0xc));
 
-        if (!(chessboard[KING_BLACK + side] & POW2[from])) {
+        if (!isInCheck && !(chessboard[KING_BLACK + side] & POW2[from])) {
             if ((type & 0x3) == STANDARD_MOVE_MASK) {
 //            int k = BITScanForward(chessboard[KING_BLACK + side]);
                 if (!(pinned & POW2[from])) {
+#ifdef DEBUG_MODE
                     if (pippo<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
                         display();
-                        cout << "from: " << from << " to: " << to << " pinned: " << pinned << endl;
+                        cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
                         _assert(0);
                     }
+#endif
                     return false;
                 }
             }
         }
-
-//        return !(LINK_SQUARE[from][to] | LINK_SQUARE[from][k] | LINK_SQUARE[to][k]) & (POW2[from] | POW2[to] | POW2[k]);
-//        if (FILE_[from] & FILE_[to] & k)
-//            return false;
-//        if (RANK[from] & RANK[to] & k)
-//            return false;
-//        if (DIAGONAL[from] & DIAGONAL[to] & k)
-//            return false;
-//        if (ANTIDIAGONAL[from] & ANTIDIAGONAL[to] & k)
-//            return false;
 
         bool result = 0;
         switch (type & 0x3) {
@@ -649,6 +641,7 @@ protected:
 
 private:
     int running;
+    bool isInCheck;
     static bool forceCheck;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
