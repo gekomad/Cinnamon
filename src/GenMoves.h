@@ -316,6 +316,7 @@ public:
             u64 b = LINK_SQUARE[kingPosition][pos] & allpieces;
             u64 t = b & (b - 1);
             if (!t) {
+//            if (!static_cast<u64>(b & (b - 1))) {
                 result |= b & friends;
             }
             RESET_LSB(attacked);
