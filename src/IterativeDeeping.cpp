@@ -212,7 +212,7 @@ void IterativeDeeping::run() {
                 cout << "info score cp " << sc << " depth " << mply - extension;
             }
             cout << " nodes " << totMoves << " time " << timeTaken;
-            if (0)cout << " knps " << (totMoves / timeTaken);
+            if (1)cout << " knps " << (totMoves / timeTaken);
             cout << " pv " << pvv << endl;
         }
 
