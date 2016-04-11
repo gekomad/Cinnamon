@@ -298,7 +298,7 @@ public:
 
     template<int side>
     u64 getPin(const u64 enemies, const u64 friends) const {
-        display();
+//        display();
         u64 result = 0;
         int k = BITScanForward(chessboard[KING_BLACK + side]);
         u64 allpieces = (enemies | friends) & NOTPOW2[k];
@@ -456,9 +456,7 @@ protected:
         ASSERT_RANGE(pieceTo, 0, 12);
         ASSERT(perftMode || forceCheck);
         ASSERT(!(type & 0xc));
-        if (isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>())) {
-            return true;
-        }
+
         if (!(chessboard[KING_BLACK + side] & POW2[from])) {
             if ((type & 0x3) == STANDARD_MOVE_MASK) {
 //            int k = BITScanForward(chessboard[KING_BLACK + side]);

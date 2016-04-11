@@ -117,9 +117,16 @@ void printHeader() {
 //}
 
 int main(int argc, char **argv) {
-//    for (int i = 0; i < 64; i++) {//TODO cancellare
-//        cout << "0x" << hex << ((RANK[i] | FILE_[i]) & NOTPOW2[i]) << "ULL,";
+
+//    for (int i = 0; i < 64; i++) {
+//        cout << "{";
+//        for (int j = 0; j < 64; j++) {
+//            cout << "0x" << hex << ((FILE_[j] | RANK[j]) & NOTPOW2[j]) << "ULL,";
+//        }
+//        cout << "},\n";
 //    }
+
+
     printHeader();
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);
