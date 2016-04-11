@@ -121,10 +121,12 @@ public:
 
     bool setNthread(int);
 
+#if defined(DEBUG_MODE) || defined(FULL_TEST)
     template<int side>
     u64 getPin(const u64 enemies, const u64 friends) const {
         return getThread(0).getPin<side>(enemies, friends);
     }
+#endif
 
 #ifdef DEBUG_MODE
 

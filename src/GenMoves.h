@@ -256,7 +256,6 @@ public:
 
     bool makemove(_Tmove *move, bool rep = true, bool = false);
 
-    //bool isPinned(const int side, const uchar Position, const uchar piece);
     void incListId() {
         listId++;
 #ifdef DEBUG_MODE
