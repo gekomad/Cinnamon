@@ -26,6 +26,7 @@
 class GenMoves : public ChessBoard /* add Endgame and remove ChessBoard TODO*/ {
 
 public:
+    static unsigned pippo;
     static const int MAX_MOVE = 130;
 
     GenMoves();
@@ -56,19 +57,15 @@ public:
     }
 
     template<int side>
-    bool getForbidden(const int position) const {//TODO cambiare nome
-        return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
-    }
-
-    template<int side>
     bool generateCaptures(const u64 enemies, const u64 friends) {
         ASSERT_RANGE(side, 0, 1);
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
         int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
         pinned = getPin<side>(enemies, friends, kingPosition);
-        isInCheck = getForbidden<side>(kingPosition);
         u64 allpieces = enemies | friends;
+        isInCheck = isAttacked<side>(kingPosition, allpieces);
+
         if (performPawnCapture<side>(enemies)) {
             return true;
         }
@@ -381,10 +378,12 @@ protected:
 
     int killerHeuristic[64][64];
 
-    template<int side, uchar type>
-    bool pippo(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
+#ifdef DEBUG_MODE
 
-        bool result = 0;
+    template<int side, uchar type>
+    bool inCheckSlow(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
+
+        bool result = false;
         switch (type & 0x3) {
             case STANDARD_MOVE_MASK: {
                 u64 from1, to1 = -1;
@@ -450,12 +449,11 @@ protected:
         return result;
     }
 
+#endif
+
     template<int side, uchar type>
     bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
-#ifdef DEBUG_MODE
-        _Tchessboard a;
-        memcpy(&a, chessboard, sizeof(_Tchessboard));
-#endif
+
         ASSERT_RANGE(from, 0, 63);
         ASSERT_RANGE(to, 0, 63);
         ASSERT_RANGE(side, 0, 1);
@@ -463,24 +461,26 @@ protected:
         ASSERT_RANGE(pieceTo, 0, 12);
         ASSERT(perftMode || forceCheck);
         ASSERT(!(type & 0xc));
-
-        if (!isInCheck && !(chessboard[KING_BLACK + side] & POW2[from])) {
-            if ((type & 0x3) == STANDARD_MOVE_MASK) {
-//            int k = BITScanForward(chessboard[KING_BLACK + side]);
-                if (!(pinned & POW2[from])) {
+        if (isInCheck)pippo++;
+        if (!isInCheck && !(pinned & POW2[from]) && !(chessboard[KING_BLACK + side] & POW2[from])) {//TODO se isInCheck solo evasion
+//            if ((type & 0x3) == STANDARD_MOVE_MASK)
+            {
 #ifdef DEBUG_MODE
-                    if (pippo<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
-                        display();
-                        cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
-                        _assert(0);
-                    }
-#endif
-                    return false;
+                if (inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
+                    display();
+                    cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
+                    _assert(0);
                 }
+#endif
+                return false;
             }
-        }
 
-        bool result = 0;
+        }
+#ifdef DEBUG_MODE
+        _Tchessboard a;
+        memcpy(&a, chessboard, sizeof(_Tchessboard));
+#endif
+        bool result = false;
         switch (type & 0x3) {
             case STANDARD_MOVE_MASK: {
                 u64 from1, to1 = -1;
@@ -642,6 +642,7 @@ protected:
 private:
     int running;
     bool isInCheck;
+
     static bool forceCheck;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;

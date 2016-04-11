@@ -20,6 +20,7 @@
 #include "Eval.h"
 #include "util/Bitboard.h"
 
+unsigned GenMoves::pippo = 0;
 bool GenMoves::forceCheck = false;
 
 GenMoves::GenMoves() : perftMode(false), listId(-1) {
@@ -566,7 +567,6 @@ int GenMoves::loadFen(string fen) {
         fatal("Bad FEN position format ", fen);
         std::_Exit(1);
     }
-
     return side;
 }
 
