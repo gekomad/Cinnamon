@@ -56,11 +56,18 @@ public:
     }
 
     template<int side>
+    u64 getForbidden(const int position) const {//TODO eliminare
+        return 0;
+    }
+
+    template<int side>
     bool generateCaptures(const u64 enemies, const u64 friends) {
         ASSERT_RANGE(side, 0, 1);
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
-        pinned = getPin<side>(enemies, friends);
+        int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
+        pinned = getPin<side>(enemies, friends, kingPosition);
+        forbidden = getForbidden<side>(kingPosition);
         u64 allpieces = enemies | friends;
         if (performPawnCapture<side>(enemies)) {
             return true;
@@ -297,19 +304,18 @@ public:
     }
 
     template<int side>
-    u64 getPin(const u64 enemies, const u64 friends) const {
+    u64 getPin(const u64 enemies, const u64 friends, const int kingPosition) const {
 //        display();
         u64 result = 0;
-        int k = BITScanForward(chessboard[KING_BLACK + side]);
-        u64 allpieces = (enemies | friends) & NOTPOW2[k];
+        u64 allpieces = (enemies | friends) & NOTPOW2[kingPosition];
 //        const u64 *s = LINK_SQUARE[k];
         int xside = side ^1;
-        u64 attacked = DIAGONAL_ANTIDIAGONAL[k] & (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
-        attacked |= RANK_FILE[k] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
+        u64 attacked = DIAGONAL_ANTIDIAGONAL[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
+        attacked |= RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
         while (attacked) {
             int pos = BITScanForward(attacked);
 //            u64 b = *(s + pos) & allpieces;//TODO
-            u64 b = LINK_SQUARE[k][pos] & allpieces;
+            u64 b = LINK_SQUARE[kingPosition][pos] & allpieces;
             int t = b & (b - 1);
             if (!t) {
                 result |= b & friends;
@@ -328,6 +334,7 @@ public:
 
 protected:
     u64 pinned;
+    u64 forbidden;
     bool perftMode;
     int listId;
     _TmoveP *gen_list;
@@ -470,6 +477,7 @@ protected:
                 }
             }
         }
+
 //        return !(LINK_SQUARE[from][to] | LINK_SQUARE[from][k] | LINK_SQUARE[to][k]) & (POW2[from] | POW2[to] | POW2[k]);
 //        if (FILE_[from] & FILE_[to] & k)
 //            return false;

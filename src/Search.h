@@ -112,7 +112,9 @@ public:
 
     void setChessboard(_Tchessboard &);
 
-    _Tchessboard &getChessboard();
+    _Tchessboard &getChessboard() {
+        return chessboard;
+    }
 
     u64 getZobristKey();
 
