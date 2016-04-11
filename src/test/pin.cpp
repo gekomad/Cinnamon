@@ -28,6 +28,13 @@ TEST(pin, test1) {
     u64 friends, enemies, p;
     int kingPosition;
 
+    it.loadFen("r3k2r/p1ppqpb1/Bn2pnp1/3PN3/1p2P3/2N2Q2/PPPB1PpP/R3K2R w KQkq - 0 1");
+    friends = searchManager.getBitmap(BLACK);
+    enemies = searchManager.getBitmap(WHITE);
+    kingPosition = BITScanForward(searchManager.getThread(0).getChessboard()[KING_BLACK]);
+    p = searchManager.getPin<BLACK>(enemies, friends, kingPosition);
+    EXPECT_EQ(0, p);
+
     it.loadFen("rnbq1bnr/pppppkpp/8/5p2/4P2P/5Q2/PPPP1PP1/RNB1KBNR b KQ - 0 1");
     friends = searchManager.getBitmap(BLACK);
     enemies = searchManager.getBitmap(WHITE);

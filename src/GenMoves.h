@@ -63,6 +63,11 @@ public:
         ASSERT(chessboard[KING_WHITE]);
         int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
         pinned = getPin<side>(enemies, friends, kingPosition);
+//        display();
+//        cout <<hex<<"pinned 0x"<<pinned<<"ull\n";
+//        cout <<hex<<"enemies 0x"<<enemies<<"ull\n";
+//        cout <<hex<<"friends 0x"<<friends<<"ull\n";
+//        cout <<dec<<"kingPosition "<<kingPosition<<"\n";
         u64 allpieces = enemies | friends;
         isInCheck = isAttacked<side>(kingPosition, allpieces);
 
@@ -466,9 +471,10 @@ protected:
 //            if ((type & 0x3) == STANDARD_MOVE_MASK)
             {
 #ifdef DEBUG_MODE
+                display();
                 if (inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
                     display();
-                    cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
+                    cout << "Afrom: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
                     _assert(0);
                 }
 #endif
@@ -476,6 +482,17 @@ protected:
             }
 
         }
+//        if (!isInCheck &&((type & 0x3) == STANDARD_MOVE_MASK) && (pinned & POW2[from])) {
+//#ifdef DEBUG_MODE
+//            display();
+//            if (!inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
+//                display();
+//                cout << "Bfrom: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
+//                _assert(0);
+//            }
+//#endif
+//            return true;
+//        }
 #ifdef DEBUG_MODE
         _Tchessboard a;
         memcpy(&a, chessboard, sizeof(_Tchessboard));
@@ -546,6 +563,7 @@ protected:
 #ifdef DEBUG_MODE
         ASSERT(!memcmp(&a, chessboard, sizeof(_Tchessboard)));
 #endif
+
         return result;
     }
 
