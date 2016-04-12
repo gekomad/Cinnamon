@@ -23,9 +23,10 @@
 #include <string.h>
 #include <iomanip>
 
+
 using namespace _board;
 
-class Eval : public GenMoves {
+class Eval : public GenMoves<SEARCH_MODE> {
 
 public:
 

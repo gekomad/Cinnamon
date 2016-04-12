@@ -33,6 +33,8 @@ namespace _def {
     typedef unsigned char uchar;
     typedef long long unsigned u64;
     typedef u64 _Tchessboard[16];
+    typedef int PERFT_MODE;
+    typedef double SEARCH_MODE;
 
 #define RESET_LSB(bits) (bits&=bits-1)
 

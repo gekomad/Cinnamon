@@ -407,10 +407,13 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     ASSERT(chessboard[KING_WHITE]);
     ASSERT(chessboard[KING_BLACK + side]);
     int extension = 0;
-    int is_incheck_side = inCheck<side>();
+    u64 friends = getBitmap<side>();
+    u64 enemies = getBitmap<side ^ 1>();
+    u64 allpieces = friends | enemies;
+    int is_incheck_side = inCheck<side>(allpieces);
     if (!is_incheck_side && depth != mainDepth) {
         if (checkInsufficientMaterial(N_PIECE)) {
-            if (inCheck<side ^ 1>()) {
+            if (inCheck<side ^ 1>(allpieces)) {
                 return _INFINITE - (mainDepth - depth + 1);
             }
             return -lazyEval<side>() * 2;
@@ -486,8 +489,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     incListId();
     ASSERT_RANGE(KING_BLACK + side, 0, 11);
     ASSERT_RANGE(KING_BLACK + (side ^ 1), 0, 11);
-    u64 friends = getBitmap<side>();
-    u64 enemies = getBitmap<side ^ 1>();
+
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
         score = _INFINITE - (mainDepth - depth + 1);

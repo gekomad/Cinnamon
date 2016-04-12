@@ -237,7 +237,9 @@ void IterativeDeeping::run() {
     if (ponderEnabled && ponderMove.size()) {
         cout << " ponder " << ponderMove;
     }
+
     cout << "\n" << flush;
+    cout << GenMoves<SEARCH_MODE>::pippo1 << " -------- " << GenMoves<SEARCH_MODE>::pippo2 << endl;
     ADD(checkSmp2, -1);
     ASSERT(!checkSmp2);
     LOCK_RELEASE(running);

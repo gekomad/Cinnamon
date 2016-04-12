@@ -27,7 +27,7 @@
 #include <unistd.h>
 #include "../util/Timer.h"
 
-class PerftThread : public Thread<PerftThread>, public GenMoves {
+class PerftThread : public Thread<PerftThread>, public GenMoves<PERFT_MODE> {
 public:
 
     void setParam(const string &fen, const int from, const int to, _TPerftRes *);

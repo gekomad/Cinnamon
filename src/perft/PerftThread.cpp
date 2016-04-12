@@ -22,7 +22,7 @@
 Spinlock PerftThread::SPINLOCK_HASH;
 Spinlock PerftThread::spinlockPrint;
 
-PerftThread::PerftThread() { perftMode = true; }
+PerftThread::PerftThread() { }
 
 void PerftThread::setParam(const string &fen1, const int from1, const int to1, _TPerftRes *perft1) {
 
