@@ -453,9 +453,14 @@ protected:
 
 #endif
 
+    inline bool squaresAligned(const u64 s1, const u64 s2, const u64 s3) {
+        return (LINK_SQUARE[s1][s2] | LINK_SQUARE[s1][s3] | LINK_SQUARE[s2][s3])
+               & (POW2[s1] | POW2[s2] | POW2[s3]);
+    }
+
     template<int side, uchar type>
     bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
-
+//giuseppe
         ASSERT_RANGE(from, 0, 63);
         ASSERT_RANGE(to, 0, 63);
         ASSERT_RANGE(side, 0, 1);
@@ -464,24 +469,25 @@ protected:
         ASSERT(perftMode || forceCheck);
         ASSERT(!(type & 0xc));
         if (isInCheck)pippo++;
-        if (!isInCheck && !(pinned & POW2[from]) && !(chessboard[KING_BLACK + side] & POW2[from])) {//TODO se isInCheck solo evasion
+
+        if (!isInCheck && !(chessboard[KING_BLACK + side] & POW2[from]) && (!(pinned & POW2[from]) || squaresAligned(from, to, BITScanForward(chessboard[KING_BLACK + side])))) {//TODO se isInCheck solo evasion
 //            if ((type & 0x3) == STANDARD_MOVE_MASK)
             {
 #ifdef DEBUG_MODE
                 if (inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
                     display();
-                    cout << "Afrom: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
+                    cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
                     _assert(0);
                 }
 #endif
                 return false;
             }
         }
-//        if (!isInCheck &&((type & 0x3) == STANDARD_MOVE_MASK) && (pinned & POW2[from])) {
+//        if (!isInCheck && ((type & 0x3) == STANDARD_MOVE_MASK) && (pinned & POW2[from])) {
 //#ifdef DEBUG_MODE
 //            if (!inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
 //                display();
-//                cout << "Bfrom: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
+//                cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
 //                _assert(0);
 //            }
 //#endif
