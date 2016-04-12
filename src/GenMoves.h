@@ -63,9 +63,9 @@ public:
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
         int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
-        pinned = getPin<side>(enemies, friends, kingPosition);
-
         u64 allpieces = enemies | friends;
+        pinned = getPin<side>(allpieces, friends, kingPosition);
+
         isInCheck = isAttacked<side>(kingPosition, allpieces);
 
         if (performPawnCapture<side>(enemies)) {
@@ -303,21 +303,24 @@ public:
     }
 
     template<int side>
-    u64 getPin(const u64 enemies, const u64 friends, const int kingPosition) const {
-//        display();
+    u64 getPin(const u64 allpieces, const u64 friends, const int kingPosition) const {
         u64 result = 0;
-        u64 allpieces = (enemies | friends) & NOTPOW2[kingPosition];
-//        const u64 *s = LINK_SQUARE[k];
-        int xside = side ^1;
+//        allpieces &= NOTPOW2[kingPosition];
+        const u64 *s = LINK_SQUARE[kingPosition];
+        constexpr int xside = side ^1;
         u64 attacked = DIAGONAL_ANTIDIAGONAL[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
         attacked |= RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
         while (attacked) {
             int pos = BITScanForward(attacked);
-//            u64 b = *(s + pos) & allpieces;//TODO
-            u64 b = LINK_SQUARE[kingPosition][pos] & allpieces;
-            u64 t = b & (b - 1);
-            if (!t) {
-//            if (!static_cast<u64>(b & (b - 1))) {
+            u64 b = *(s + pos) & allpieces;
+#ifdef DEBUG_MODE
+            u64 x = *(s + pos) & (allpieces & NOTPOW2[kingPosition]);
+            ASSERT(b == x);
+#endif
+//            u64 b = LINK_SQUARE[kingPosition][pos] & allpieces;
+//            u64 t = b & (b - 1);
+//            if (!t) {
+            if (!static_cast<u64>(b & (b - 1))) {
                 result |= b & friends;
             }
             RESET_LSB(attacked);
@@ -358,7 +361,7 @@ protected:
     _Tmove *getNextMove(decltype(gen_list));
 
     template<int side>
-    bool isAttacked(const int position, const u64 allpieces) const {
+    inline bool isAttacked(const int position, const u64 allpieces) const {
         return getAttackers<side, true>(position, allpieces);
     }
 

@@ -124,8 +124,8 @@ public:
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 
     template<int side>
-    u64 getPin(const u64 enemies, const u64 friends, const int kingPosition) const {
-        return getThread(0).getPin<side>(enemies, friends, kingPosition);
+    u64 getPin(const u64 allpieces, const u64 friends, const int kingPosition) const {
+        return getThread(0).getPin<side>(allpieces, friends, kingPosition);
     }
 
 #endif
