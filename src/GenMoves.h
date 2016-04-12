@@ -457,10 +457,6 @@ protected:
 
 #endif
 
-    inline bool squaresAligned(const u64 from, const u64 to, const u64 k) {
-        return LINES[from][to] & k;
-    }
-
     template<int side, uchar type>
     bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
 //giuseppe
@@ -473,19 +469,17 @@ protected:
         ASSERT(!(type & 0xc));
 
         pippo1++;
-        if (!isInCheck) {
-            if (!(chessboard[KING_BLACK + side] & POW2[from]) && (!(pinned & POW2[from]) || squaresAligned(from, to, chessboard[KING_BLACK + side]))) {
-                {
+        if ((KING_BLACK + side) != pieceFrom && !isInCheck) {
+            if (!(pinned & POW2[from]) || (LINES[from][to] & chessboard[KING_BLACK + side])) {
 #ifdef DEBUG_MODE
-                    if (inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
-                        display();
-                        cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
-                        _assert(0);
-                    }
-#endif
-                    return false;
+                if (inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
+                    display();
+                    cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
+                    _assert(0);
                 }
-            } else if (/* && ((type & 0x3) == STANDARD_MOVE_MASK)*/  (pinned & POW2[from])) {
+#endif
+                return false;
+            } else {
 #ifdef DEBUG_MODE
                 if (!inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
                     display();
