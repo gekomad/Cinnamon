@@ -26,7 +26,8 @@
 class GenMoves : public ChessBoard /* add Endgame and remove ChessBoard TODO*/ {
 
 public:
-    static unsigned pippo;
+    static unsigned pippo1;
+    static unsigned pippo2;
     static const int MAX_MOVE = 130;
 
     GenMoves();
@@ -453,9 +454,8 @@ protected:
 
 #endif
 
-    inline bool squaresAligned(const u64 s1, const u64 s2, const u64 s3) {
-        return (LINK_SQUARE[s1][s2] | LINK_SQUARE[s1][s3] | LINK_SQUARE[s2][s3])
-               & (POW2[s1] | POW2[s2] | POW2[s3]);
+    inline bool squaresAligned(const u64 from, const u64 to, const u64 k) {
+        return LINES[from][to] & k;
     }
 
     template<int side, uchar type>
@@ -468,31 +468,34 @@ protected:
         ASSERT_RANGE(pieceTo, 0, 12);
         ASSERT(perftMode || forceCheck);
         ASSERT(!(type & 0xc));
-        if (isInCheck)pippo++;
 
-        if (!isInCheck && !(chessboard[KING_BLACK + side] & POW2[from]) && (!(pinned & POW2[from]) || squaresAligned(from, to, BITScanForward(chessboard[KING_BLACK + side])))) {//TODO se isInCheck solo evasion
-//            if ((type & 0x3) == STANDARD_MOVE_MASK)
-            {
+        pippo1++;
+        if (!isInCheck) {
+            if (!(chessboard[KING_BLACK + side] & POW2[from]) && (!(pinned & POW2[from]) || squaresAligned(from, to, chessboard[KING_BLACK + side]))) {//TODO se isInCheck solo evasion
+                {
 #ifdef DEBUG_MODE
-                if (inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
+                    if (inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
+                        display();
+                        cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
+                        _assert(0);
+                    }
+#endif
+                    return false;
+                }
+            } else if (/* && ((type & 0x3) == STANDARD_MOVE_MASK)*/  (pinned & POW2[from])) {
+#ifdef DEBUG_MODE
+                if (!inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
                     display();
                     cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
                     _assert(0);
                 }
 #endif
-                return false;
+                return true;
             }
         }
-//        if (!isInCheck && ((type & 0x3) == STANDARD_MOVE_MASK) && (pinned & POW2[from])) {
-//#ifdef DEBUG_MODE
-//            if (!inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
-//                display();
-//                cout << "from: " << from << " to: " << to << " pinned: " << pinned << " is in check:" << isInCheck << endl;
-//                _assert(0);
-//            }
-//#endif
-//            return true;
-//        }
+
+        pippo2++;
+
 #ifdef DEBUG_MODE
         _Tchessboard a;
         memcpy(&a, chessboard, sizeof(_Tchessboard));

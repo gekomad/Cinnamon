@@ -144,7 +144,8 @@ void Perft::setParam(string fen1, int depth1, int nCpu2, int mbSize1, string dum
 }
 
 void Perft::run() {
-    GenMoves::pippo=0;
+    GenMoves::pippo1=0;
+    GenMoves::pippo2=0;
     if (!load()) {
         perftRes.hash = nullptr;
         if (mbSize) {
@@ -229,7 +230,7 @@ void Perft::endRun() {
     cout << endl;
     dump();
     cout << Time::getLocalTime() << " end test" << endl;
-    cout <<"aaaaaaaaaaa "<<GenMoves::pippo<<"\n";
+    cout <<"aaaaaaaaaaa "<<GenMoves::pippo2<<"/"<<GenMoves::pippo1<<" "<<(GenMoves::pippo2*100/GenMoves::pippo1)<<"%\n";
     cerr << flush;
 
 }

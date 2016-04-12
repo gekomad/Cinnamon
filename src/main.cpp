@@ -121,7 +121,16 @@ int main(int argc, char **argv) {
 //    for (int i = 0; i < 64; i++) {
 //        cout << "{";
 //        for (int j = 0; j < 64; j++) {
-//            cout << "0x" << hex << ((FILE_[j] | RANK[j]) & NOTPOW2[j]) << "ULL,";
+//        if(i==12 && j==40)
+//            cout <"";
+//            u64 a = ANTIDIAGONAL[i] & ANTIDIAGONAL[j];
+//            u64 d = DIAGONAL[i] & DIAGONAL[j];
+//            u64 f = FILE_[i] & FILE_[j];
+//            u64 r = RANK[i] & RANK[j];
+//            if (i != j)
+//                cout << "0x" << hex << (a | d | f | r) << "ULL,";
+//            else
+//                cout << "0x0ULL,";
 //        }
 //        cout << "},\n";
 //    }
