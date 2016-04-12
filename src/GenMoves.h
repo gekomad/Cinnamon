@@ -644,7 +644,7 @@ protected:
     }
 
     template<int side>
-    bool inCheck() const {
+    bool inCheck() const {//TODO passare getBitmap
         return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
     }
 
