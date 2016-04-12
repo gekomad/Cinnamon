@@ -20,8 +20,8 @@
 #include "Eval.h"
 #include "util/Bitboard.h"
 
-unsigned GenMoves::pippo1 = 0;
-unsigned GenMoves::pippo2 = 0;
+u64 GenMoves::pippo1 = 0;
+u64 GenMoves::pippo2 = 0;
 bool GenMoves::forceCheck = false;
 
 GenMoves::GenMoves() : perftMode(false), listId(-1) {

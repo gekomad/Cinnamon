@@ -26,8 +26,8 @@
 class GenMoves : public ChessBoard /* add Endgame and remove ChessBoard TODO*/ {
 
 public:
-    static unsigned pippo1;
-    static unsigned pippo2;
+    static u64 pippo1;
+    static u64 pippo2;
     static const int MAX_MOVE = 130;
 
     GenMoves();
@@ -471,7 +471,7 @@ protected:
 
         pippo1++;
         if (!isInCheck) {
-            if (!(chessboard[KING_BLACK + side] & POW2[from]) && (!(pinned & POW2[from]) || squaresAligned(from, to, chessboard[KING_BLACK + side]))) {//TODO se isInCheck solo evasion
+            if (!(chessboard[KING_BLACK + side] & POW2[from]) && (!(pinned & POW2[from]) || squaresAligned(from, to, chessboard[KING_BLACK + side]))) {
                 {
 #ifdef DEBUG_MODE
                     if (inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)) {
