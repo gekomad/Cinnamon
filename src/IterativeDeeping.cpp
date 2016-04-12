@@ -239,7 +239,6 @@ void IterativeDeeping::run() {
     }
 
     cout << "\n" << flush;
-    cout << GenMoves<SEARCH_MODE>::pippo1 << " -------- " << GenMoves<SEARCH_MODE>::pippo2 << endl;
     ADD(checkSmp2, -1);
     ASSERT(!checkSmp2);
     LOCK_RELEASE(running);

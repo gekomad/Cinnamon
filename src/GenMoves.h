@@ -1030,7 +1030,6 @@ protected:
         return result;
     }
 
-
     void performCastle(const int side, const uchar type) {
         ASSERT_RANGE(side, 0, 1);
         if (side == WHITE) {
@@ -1204,13 +1203,11 @@ protected:
 
     template<int side>
     inline bool inCheck(const u64 allpieces) const {
-        pippo1++;
         return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), allpieces);
     }
 
     template<int side>
-    bool inCheck() const {
-        pippo2++;
+    inline bool inCheck() const {
         return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
     }
 
@@ -1325,11 +1322,5 @@ private:
 
 };
 
-template<class PERFT_MODE>
-bool GenMoves<PERFT_MODE>::forceCheck = false;
-
-template<class PERFT_MODE>
-int GenMoves<PERFT_MODE>::pippo1 = 0;
-
-template<class PERFT_MODE>
-int GenMoves<PERFT_MODE>::pippo2 = 0;
+template<class SEARCH_MODE>
+bool GenMoves<SEARCH_MODE>::forceCheck = false;
