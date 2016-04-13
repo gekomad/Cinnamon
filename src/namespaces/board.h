@@ -75,15 +75,14 @@ namespace _board {
 
 
     typedef struct {
-        char promotionPiece;
-        char pieceFrom;
-        uchar capturedPiece;
+        char promotionPiece:5;
+        char side:2;
+        char pieceFrom:5;
+        uchar capturedPiece:4;
         uchar from;
         uchar to;
-        char side;
         uchar type;
-        int score;
-        bool used;
+        short score;//Last position! (sorting)
     } _Tmove;
 
     typedef struct {

@@ -19,6 +19,7 @@
 #include "Uci.h"
 #include "util/GetOpt.h"
 #include "util/Bitboard.h"
+#include "namespaces/board.h"
 
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 
@@ -116,6 +117,8 @@ void printHeader() {
 //
 //}
 
+
+
 int main(int argc, char **argv) {
 
 //    for (int i = 0; i < 64; i++) {
@@ -135,8 +138,14 @@ int main(int argc, char **argv) {
 //        cout << "},\n";
 //    }
 
+    _assert(sizeof(_Tmove) == sizeof(u64));
+    _Tmove test;
+    memset(&test, 0, sizeof(_Tmove));
+    test.score = 1;
+    _assert(*((u64 *) &test) == 0x1000000000000ULL);
 
     printHeader();
+
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);
     if (RUN_ALL_TESTS())return 1;
