@@ -204,6 +204,12 @@ void SearchManager::clearKillerHeuristic() {
     }
 }
 
+void SearchManager::setKillerHeuristic(const int from, const int to, const int value) {
+    for (Search *s:getPool()) {
+        s->setKillerHeuristic(from, to, value);
+    }
+}
+
 void SearchManager::clearAge() {
     getThread(0).clearAge();
 }

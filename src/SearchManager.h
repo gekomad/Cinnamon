@@ -59,6 +59,8 @@ public:
 
     void clearKillerHeuristic();
 
+    void setKillerHeuristic(const int from, const int to, const int value);
+
     void clearAge();
 
     int getForceCheck();

@@ -57,6 +57,14 @@ public:
         return side ? generateCaptures<WHITE>(enemies, friends) : generateCaptures<BLACK>(enemies, friends);
     }
 
+    void setKillerHeuristic(const int from, const int to, const int value) {
+        if (getRunning()) {
+            ASSERT_RANGE(from, 0, 63);
+            ASSERT_RANGE(to, 0, 63);
+            killerHeuristic[from][to] = value;
+        }
+    }
+    
     void generateMoves(const int side, const u64 allpieces) {
         ASSERT_RANGE(side, 0, 1);
         side ? generateMoves<WHITE>(allpieces) : generateMoves<BLACK>(allpieces);
@@ -1222,14 +1230,6 @@ protected:
     template<int side>
     inline bool inCheck() const {
         return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
-    }
-
-    void setKillerHeuristic(const int from, const int to, const int value) {
-        if (getRunning()) {
-            ASSERT_RANGE(from, 0, 63);
-            ASSERT_RANGE(to, 0, 63);
-            killerHeuristic[from][to] = value;
-        }
     }
 
 private:

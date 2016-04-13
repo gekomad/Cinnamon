@@ -201,6 +201,7 @@ void IterativeDeeping::run() {
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
             if (!(resultMove.type & (Search::KING_SIDE_CASTLE_MOVE_MASK | Search::QUEEN_SIDE_CASTLE_MOVE_MASK))) {
                 bestmove += Search::decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
+                searchManager.setKillerHeuristic(resultMove.from, resultMove.to, 0x40000000);
                 if (resultMove.promotionPiece != -1) {
                     bestmove += tolower(FEN_PIECE[(uchar) resultMove.promotionPiece]);
                 }
