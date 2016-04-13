@@ -754,8 +754,6 @@ public:
         return result;
     }
 
-    _Tmove *getNextMove();
-
 #ifdef DEBUG_MODE
     unsigned nCutAB, nNullMoveCut, nCutFp, nCutRazor;
     double betaEfficiency;
