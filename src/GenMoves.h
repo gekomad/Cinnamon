@@ -787,42 +787,42 @@ protected:
     u64 numMoves = 0;
     u64 numMovesq = 0;
 
-    void sortList(_TmoveP *list) {
-        _Tmove *gen_list1 = list->moveList;
-
-//        for(int i=0;i<list->size;i++)cout <<gen_list1[i].score<<",";
-//        sort(gen_list1, gen_list1 + size, [](const _Tmove &x, const _Tmove &y) { return (x.score > y.score); });
-        std::sort((u64 *) gen_list1, (u64 *) (gen_list1 + list->size), std::greater<u64>());
-//        cout <<"\n";
-//        for(int i=0;i<list->size;i++)cout <<gen_list1[i].score<<",";
-//        cout <<endl<<endl;
-    }
-
-//    _Tmove *getNextMove(_TmoveP *list) {
+//    void sortList(_TmoveP *list) {
 //        _Tmove *gen_list1 = list->moveList;
-//        ASSERT(gen_list1);
-//        int listcount = list->size;
-//        int bestId = -1;
-//        int j, bestScore;
-//        for (j = 0; j < listcount; j++) {
-//            if (!gen_list1[j].used) {
-//                bestId = j;
-//                bestScore = gen_list1[bestId].score;
-//                break;
-//            }
-//        }
-//        if (bestId == -1) {
-//            return nullptr;
-//        }
-//        for (int i = j + 1; i < listcount; i++) {
-//            if (!gen_list1[i].used && gen_list1[i].score > bestScore) {
-//                bestId = i;
-//                bestScore = gen_list1[bestId].score;
-//            }
-//        }
-//        gen_list1[bestId].used = true;
-//        return &gen_list1[bestId];
+//
+////        for(int i=0;i<list->size;i++)cout <<gen_list1[i].score<<",";
+////        sort(gen_list1, gen_list1 + size, [](const _Tmove &x, const _Tmove &y) { return (x.score > y.score); });
+//        std::sort((u64 *) gen_list1, (u64 *) (gen_list1 + list->size), std::greater<u64>());
+////        cout <<"\n";
+////        for(int i=0;i<list->size;i++)cout <<gen_list1[i].score<<",";
+////        cout <<endl<<endl;
 //    }
+
+    _Tmove *getNextMove(_TmoveP *list) {
+        _Tmove *gen_list1 = list->moveList;
+        ASSERT(gen_list1);
+        int listcount = list->size;
+        int bestId = -1;
+        int j, bestScore;
+        for (j = 0; j < listcount; j++) {
+            if (!gen_list1[j].used) {
+                bestId = j;
+                bestScore = gen_list1[bestId].score;
+                break;
+            }
+        }
+        if (bestId == -1) {
+            return nullptr;
+        }
+        for (int i = j + 1; i < listcount; i++) {
+            if (!gen_list1[i].used && gen_list1[i].score > bestScore) {
+                bestId = i;
+                bestScore = gen_list1[bestId].score;
+            }
+        }
+        gen_list1[bestId].used = true;
+        return &gen_list1[bestId];
+    }
 
     template<int side>
     inline bool isAttacked(const int position, const u64 allpieces) const {
@@ -1197,6 +1197,7 @@ protected:
             ASSERT(chessboard[RIGHT_CASTLE_IDX]);
             mos->score = 100;
         }
+        mos->used = false;
         ASSERT(getListSize() < MAX_MOVE);
         return res;
     }

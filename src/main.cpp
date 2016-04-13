@@ -138,11 +138,11 @@ int main(int argc, char **argv) {
 //        cout << "},\n";
 //    }
 
-    _assert(sizeof(_Tmove) == sizeof(u64));
-    _Tmove test;
-    memset(&test, 0, sizeof(_Tmove));
-    test.score = 1;
-    _assert(*((u64 *) &test) == 0x1000000000000ULL);
+//    _assert(sizeof(_Tmove) == sizeof(u64));
+//    _Tmove test;
+//    memset(&test, 0, sizeof(_Tmove));
+//    test.score = 1;
+//    _assert(*((u64 *) &test) == 0x1000000000000ULL);
 
     printHeader();
 
