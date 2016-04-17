@@ -60,7 +60,9 @@ void Uci::listner(IterativeDeeping *it) {
             perft->join();
             break;
         }
-        getline(cin, command);
+        if (!getline(cin, command)) {
+            break;
+        }
         istringstream uip(command, ios::in);
         getToken(uip, token);
         knowCommand = false;
