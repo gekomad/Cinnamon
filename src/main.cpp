@@ -39,14 +39,15 @@
  1| 07 06 05 04 03 02 01 00
  ...a  b  c  d  e  f  g  h
 
-  Rank Name                   Elo    +    - games score oppo. draws
-   1 Cinnamon v2.1.beta1    2009    5    4  5347   51%  2000   40%
-   2 Cinnamon 2.0           2000    4    5  5347   49%  2009   40%
+tc="40/4:0+0"
+Rank Name                  Elo    +    - games score oppo. draws 
+   1 Cinnamon v2.1.beta2  2014    5    4  6006   52%  2000   35% 
+   2 Cinnamon 2.0         2000    4    5  6006   48%  2014   35% 
 
 
    # PLAYER                 : RATING    POINTS  PLAYED    (%)
-   1 Cinnamon v2.1.beta1    : 2304.7    2745.5    5347   51.3%
-   2 Cinnamon 2.0           : 2295.3    2601.5    5347   48.7%
+   1 Cinnamon v2.1.beta2    : 2307.7    3135.0    6006   52.2%
+   2 Cinnamon 2.0           : 2292.3    2871.0    6006   47.8%
 
  */
 

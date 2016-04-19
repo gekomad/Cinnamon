@@ -60,7 +60,9 @@ void Uci::listner(IterativeDeeping *it) {
             perft->join();
             break;
         }
-        getline(cin, command);
+        if (!getline(cin, command)) {
+            break;
+        }
         istringstream uip(command, ios::in);
         getToken(uip, token);
         knowCommand = false;
@@ -105,8 +107,7 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
             searchManager.display();
         } else if (token == "isready") {
-            knowCommand = true;
-            searchManager.setRunning(0);
+            knowCommand = true;            
             cout << "readyok\n";
         } else if (token == "uci") {
             knowCommand = true;
@@ -147,7 +148,7 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.setRunning(0);
             searchManager.setRunningThread(false);
         } else if (token == "ucinewgame") {
-            while (it->getRunning());
+            while (it->getRunning())usleep(5);
             searchManager.loadFen();
             searchManager.clearHash();
             knowCommand = true;
@@ -300,7 +301,7 @@ void Uci::listner(IterativeDeeping *it) {
                 }
             }
         } else if (token == "position") {
-            while (it->getRunning());
+            while (it->getRunning())usleep(5);
             knowCommand = true;
             searchManager.setRepetitionMapCount(0);
             getToken(uip, token);

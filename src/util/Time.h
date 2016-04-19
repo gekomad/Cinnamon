@@ -66,7 +66,8 @@ public:
     static string getLocalTime() {
         time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
         String gg(ctime(&current));
-        return gg.trimRight();
+        unsigned long ns = (unsigned long) (std::chrono::steady_clock::now().time_since_epoch().count());
+        return gg.trimRight() + " ns: " + String(ns);
     }
 
     static int getYear() {
