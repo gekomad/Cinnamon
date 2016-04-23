@@ -40,7 +40,7 @@ void Search::aspirationWindow(const int depth, const int valWin) {
     init();
 
     if (depth == 1) {
-        valWindow = search(SMP_NO, depth, -_INFINITE, _INFINITE);
+        valWindow = search(SMP_NO, depth, -_INFINITE - 1, _INFINITE + 1);
     } else {
         ASSERT(INT_MAX != valWindow);
         int tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
@@ -356,9 +356,15 @@ void Search::setMainParam(const bool smp, const int depth) {
 int Search::search(bool smp, int depth, int alpha, int beta) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
     if (smp) {
-        return getSide() ? search<WHITE, SMP_YES>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn) : search<BLACK, SMP_YES>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
+        return getSide() ? search<WHITE, SMP_YES>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn) : search<BLACK, SMP_YES>(depth, alpha, beta, &pvLine,
+                                                                                                                                                                        bitCount(getBitmap<WHITE>() |
+                                                                                                                                                                                 getBitmap<BLACK>()),
+                                                                                                                                                                        &mainMateIn);
     } else {
-        return getSide() ? search<WHITE, SMP_NO>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn) : search<BLACK, SMP_NO>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
+        return getSide() ? search<WHITE, SMP_NO>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn) : search<BLACK, SMP_NO>(depth, alpha, beta, &pvLine,
+                                                                                                                                                                      bitCount(getBitmap<WHITE>() |
+                                                                                                                                                                               getBitmap<BLACK>()),
+                                                                                                                                                                      &mainMateIn);
     }
 }
 
