@@ -1,10 +1,13 @@
+#export main_debug=-debug
+export main_log=/dev/null
+#export main_log=$dir_src/out.log
 export main_tc="40/4:0+0"
 #export main_tc="0/0:15+0.05"
-export main_tot_match=650
+export main_tot_match=6500
 export main_concurrency=4
 #export main_option_first_engine="option.Threads=4"
 #export main_option_second_engine="option.Threads=4"
-export main_draw="movenumber=100 movecount=60 score=0"
-export main_resign="movecount=2 score=700"
+export main_draw="-draw movenumber=100 movecount=60 score=0"
+export main_resign="-resign movecount=2 score=700"
 #export second_engine="cinnamon12b"
 export second_engine="cinnamon20"

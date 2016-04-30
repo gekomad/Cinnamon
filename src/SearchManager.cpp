@@ -214,7 +214,7 @@ void SearchManager::clearAge() {
     getThread(0).clearAge();
 }
 
-int SearchManager::getForceCheck() {
+bool SearchManager::getForceCheck() {
     return getThread(0).getForceCheck();// static variable
 }
 
@@ -286,8 +286,8 @@ void SearchManager::clearHash() {
     getThread(0).clearHash();
 }
 
-int SearchManager::getMaxTimeMillsec() {
-    return getThread(0).getMaxTimeMillsec();
+int SearchManager::getMaxTimeMillsec(const int i) {
+    return getThread(i).getMaxTimeMillsec();
 }
 
 void SearchManager::setNullMove(bool i) {

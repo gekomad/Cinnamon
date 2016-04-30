@@ -41,7 +41,7 @@ void Search::aspirationWindow(const int depth, const int valWin) {
     init();
 
     if (depth == 1) {
-        valWindow = search(SMP_NO, depth, -_INFINITE, _INFINITE);
+        valWindow = search(SMP_NO, depth, -_INFINITE - 1, _INFINITE + 1);
     } else {
         ASSERT(INT_MAX != valWindow);
         int tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
@@ -325,15 +325,9 @@ bool Search::checkInsufficientMaterial(int N_PIECE) {
 
 bool Search::checkDraw(u64 key) {
     int o = 0;
-    int count = 0;
     for (int i = repetitionMapCount - 1; i >= 0; i--) {
         if (repetitionMap[i] == 0) {
             return false;
-        }
-
-        //fifty-move rule
-        if (++count > 100) {
-            return true;
         }
 
         //Threefold repetition
@@ -416,13 +410,10 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     u64 allpieces = friends | enemies;
     int is_incheck_side = inCheck<side>(allpieces);
     if (!is_incheck_side && depth != mainDepth) {
-        if (checkInsufficientMaterial(N_PIECE)) {
+        if (checkInsufficientMaterial(N_PIECE) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
             if (inCheck<side ^ 1>(allpieces)) {
                 return _INFINITE - (mainDepth - depth + 1);
             }
-            return -lazyEval<side>() * 2;
-        }
-        if (checkDraw(chessboard[ZOBRISTKEY_IDX])) {
             return -lazyEval<side>() * 2;
         }
     }

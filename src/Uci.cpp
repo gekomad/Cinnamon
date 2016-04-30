@@ -107,7 +107,7 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
             searchManager.display();
         } else if (token == "isready") {
-            knowCommand = true;            
+            knowCommand = true;       
             cout << "readyok\n";
         } else if (token == "uci") {
             knowCommand = true;
@@ -379,16 +379,16 @@ void Uci::listner(IterativeDeeping *it) {
                     winc -= (int) (winc * 0.1);
                     searchManager.setMaxTimeMillsec(winc + wtime / 40);
                     if (btime > wtime) {
-                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() - (int) (searchManager.getMaxTimeMillsec() * ((135.0 - wtime * 100.0 / btime) / 100.0)));
+                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec(0) - (int) (searchManager.getMaxTimeMillsec(0) * ((135.0 - wtime * 100.0 / btime) / 100.0)));
                     }
                 } else {
                     binc -= (int) (binc * 0.1);
                     searchManager.setMaxTimeMillsec(binc + btime / 40);
                     if (wtime > btime) {
-                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() - (int) (searchManager.getMaxTimeMillsec() * ((135.0 - btime * 100.0 / wtime) / 100.0)));
+                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec(0) - (int) (searchManager.getMaxTimeMillsec(0) * ((135.0 - btime * 100.0 / wtime) / 100.0)));
                     }
                 }
-                lastTime = searchManager.getMaxTimeMillsec();
+                lastTime = searchManager.getMaxTimeMillsec(0);
             }
             if (!uciMode) {
                 searchManager.display();

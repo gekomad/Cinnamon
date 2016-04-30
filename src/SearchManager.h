@@ -63,7 +63,7 @@ public:
 
     void clearAge();
 
-    int getForceCheck();
+    bool getForceCheck();
 
     u64 getZobristKey(int id);
 
@@ -93,7 +93,7 @@ public:
 
     void clearHash();
 
-    int getMaxTimeMillsec();
+    int getMaxTimeMillsec(const int);
 
     void setNullMove(bool i);
 
@@ -190,8 +190,8 @@ public:
         return i;
     }
 
-    u64 getBitmap(int side) {
-        return getPool()[0]->getBitmap(side);
+    u64 getBitmap(const int n, const int side) {
+        return getPool()[n]->getBitmap(side);
     }
 
 #endif
