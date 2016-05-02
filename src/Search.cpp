@@ -408,13 +408,10 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     int extension = 0;
     int is_incheck_side = inCheck<side>();
     if (!is_incheck_side && depth != mainDepth) {
-        if (checkInsufficientMaterial(N_PIECE)) {
+        if (checkInsufficientMaterial(N_PIECE) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
             if (inCheck<side ^ 1>()) {
                 return _INFINITE - (mainDepth - depth + 1);
             }
-            return -lazyEval<side>() * 2;
-        }
-        if (checkDraw(chessboard[ZOBRISTKEY_IDX])) {
             return -lazyEval<side>() * 2;
         }
     }
