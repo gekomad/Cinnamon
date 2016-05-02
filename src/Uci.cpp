@@ -388,7 +388,8 @@ void Uci::listner(IterativeDeeping *it) {
                         searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec(0) - (int) (searchManager.getMaxTimeMillsec(0) * ((135.0 - btime * 100.0 / wtime) / 100.0)));
                     }
                 }
-                lastTime = searchManager.getMaxTimeMillsec(0);
+                lastTime = searchManager.getMaxTimeMillsec(0)*3;
+                searchManager.setMaxTimeMillsec(lastTime);
             }
             if (!uciMode) {
                 searchManager.display();
