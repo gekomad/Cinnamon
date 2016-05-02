@@ -72,20 +72,6 @@ public:
     bool readHash(_Thash *phashe[2], const u64 zobristKeyR, _Thash *hashMini) {
         bool b = false;
         _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
-
-//        TODO
-//        if (hash->key == zobristKeyR) {
-//            if (smp && type == HASH_GREATER)spinlockHashGreater.lock();
-//            if (smp && type == HASH_ALWAYS)spinlockHashAlways.lock();
-//            if (hash->key == zobristKeyR) {
-//                b = true;
-//                memcpy(hashMini, hash, sizeof(_Thash));
-//            }
-//            if (smp && type == HASH_GREATER)spinlockHashGreater.unlock();
-//            if (smp && type == HASH_ALWAYS)spinlockHashAlways.unlock();
-//        }
-
-
         if (smp && type == HASH_GREATER)spinlockHashGreater.lock();
         if (smp && type == HASH_ALWAYS)spinlockHashAlways.lock();
         if (hash->key == zobristKeyR) {
@@ -95,6 +81,25 @@ public:
         if (smp && type == HASH_GREATER)spinlockHashGreater.unlock();
         if (smp && type == HASH_ALWAYS)spinlockHashAlways.unlock();
 
+/*
+if (smp){
+        if ( hash->key == zobristKeyR) {
+            if (type == HASH_GREATER)spinlockHashGreater.lock();
+            if ( type == HASH_ALWAYS)spinlockHashAlways.lock();
+            if (hash->key == zobristKeyR) {
+                b = true;
+                memcpy(hashMini, hash, sizeof(_Thash));
+            }
+            if ( type == HASH_GREATER)spinlockHashGreater.unlock();
+            if ( type == HASH_ALWAYS)spinlockHashAlways.unlock();
+        }
+}else{      
+        if (hash->key == zobristKeyR) {
+            b = true;
+            memcpy(hashMini, hash, sizeof(_Thash));
+        }
+      */
+}
         return b;
     }
 
