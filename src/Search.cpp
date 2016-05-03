@@ -220,9 +220,6 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
         sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_ALWAYS]);
     }
     while ((move = getNextMove(&gen_list[listId]))) {
-        /*sortList(&gen_list[listId]);
-        for (int k = 0; k < gen_list[listId].size; k++) {
-            move = &gen_list[listId].moveList[k];*/
         if (!makemove(move, false, true)) {
             takeback(move, oldKey, false);
             continue;
@@ -509,10 +506,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     bool checkInCheck = false;
     int countMove = 0;
     char hashf = Hash::hashfALPHA;
-    while ((move = getNextMove(&gen_list[listId]))) {
-        /* sortList(&gen_list[listId]);
-         for (int k = 0; k < gen_list[listId].size; k++) {
-             move = &gen_list[listId].moveList[k];*/
+    while ((move = getNextMove(&gen_list[listId]))) {  
         countMove++;
         INC(betaEfficiencyCount);
         if (!makemove(move, true, checkInCheck)) {
