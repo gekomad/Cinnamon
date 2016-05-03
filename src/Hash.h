@@ -92,7 +92,7 @@ public:
             if (hash->key == zobristKeyR) {
                 if (type == HASH_GREATER)spinlockHashGreater.lock();
                 if (type == HASH_ALWAYS)spinlockHashAlways.lock();
-                if (hash->key == zobristKeyR) {//TODO eliminare if
+                if (hash->key == zobristKeyR) {//TODO mettere assert e in caso eliminare if
                     b = true;
                     memcpy(hashMini, hash, sizeof(_Thash));
                 }
