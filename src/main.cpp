@@ -48,6 +48,15 @@ Rank Name                  Elo    +    - games score oppo. draws
    1 Cinnamon v2.1.beta3    : 2312.9    1773.0    3303   53.7%
    2 Cinnamon 2.0           : 2287.1    1530.0    3303   46.3%
 
+ 4 CORE
+ ratings
+Rank Name                  Elo    +    - games score oppo. draws
+   1 Cinnamon v2.1.beta3  2017    7    7  2355   53%  2000   32%
+   2 Cinnamon 2.0         2000    7    7  2355   47%  2017   32%
+
+   # PLAYER                 : RATING    POINTS  PLAYED    (%)
+   1 Cinnamon v2.1.beta3    : 2308.9    1238.5    2357   52.5%
+   2 Cinnamon 2.0           : 2291.1    1118.5    2357   47.5%
  */
 
 using namespace _board;
