@@ -41,11 +41,11 @@
 
 tc="40/4:0+0"
 Rank Name                  Elo    +    - games score oppo. draws 
-   1 Cinnamon v2.1.4  2035    6    6  3094   55%  2000   34%
+   1 Cinnamon v2.1.beta4  2035    6    6  3094   55%  2000   34%
    2 Cinnamon 2.0     2000    6    6  3094   45%  2035   34%
 
    # PLAYER             : RATING    POINTS  PLAYED    (%)
-   1 Cinnamon v2.1.x    : 2318.4    1709.0    3094   55.2%
+   1 Cinnamon v2.1.beta4    : 2318.4    1709.0    3094   55.2%
    2 Cinnamon 2.0       : 2281.6    1385.0    3094   44.8%
 
  4 CORE tc="0/0:15+0.05" with illegal move
