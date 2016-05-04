@@ -381,9 +381,6 @@ public:
     template<int side>
     bool performPawnCapture(const u64 enemies) {
         if (!chessboard[side]) {
-            if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
-                updateZobristKey(13, chessboard[ENPASSANT_IDX]);
-            }
             chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
             return false;
         }
@@ -460,7 +457,6 @@ public:
                 pushmove<ENPASSANT_MOVE_MASK, side>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8), NO_PROMOTION, side);
                 RESET_LSB(x);
             }
-            updateZobristKey(13, chessboard[ENPASSANT_IDX]);
             chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
         }
         return false;
