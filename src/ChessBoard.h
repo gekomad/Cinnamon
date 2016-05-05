@@ -180,16 +180,21 @@ protected:
     static const u64 A2C2bit = 0xa000ULL;
     static const u64 H2G2bit = 0x300ULL;
 
-    static const int E1 = 3;
-    static const int E8 = 59;
-    static const int C1 = 5;
+    static const int H1 = 0;
+    static const int G1 = 1;
     static const int F1 = 2;
-    static const int C8 = 61;
-    static const int F8 = 58;
-    static const int D8 = 60;
+    static const int E1 = 3;
+    static const int D1 = 4;
+    static const int C1 = 5;
+    static const int A1 = 7;
     static const int A8 = 63;
     static const int H8 = 56;
     static const int G8 = 57;
+    static const int F8 = 58;
+    static const int E8 = 59;
+    static const int D8 = 60;
+    static const int C8 = 61;
+
     static const u64 BLACK_SQUARES = 0x55AA55AA55AA55AAULL;
     static const u64 WHITE_SQUARES = 0xAA55AA55AA55AA55ULL;
 

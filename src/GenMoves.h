@@ -64,7 +64,7 @@ public:
             killerHeuristic[from][to] = value;
         }
     }
-    
+
     void generateMoves(const int side, const u64 allpieces) {
         ASSERT_RANGE(side, 0, 1);
         side ? generateMoves<WHITE>(allpieces) : generateMoves<BLACK>(allpieces);
@@ -91,11 +91,11 @@ public:
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
         u64 allpieces = enemies | friends;
-        if (std::is_same<TYPE_MODE, PERFT_MODE>::value) {
-            int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
-            pinned = getPin<side>(allpieces, friends, kingPosition);
-            isInCheck = isAttacked<side>(kingPosition, allpieces);
-        }
+//        if (std::is_same<TYPE_MODE, PERFT_MODE>::value) {fast_perft
+//            int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
+//            pinned = getPin<side>(allpieces, friends, kingPosition);
+//            isInCheck = isAttacked<side>(kingPosition, allpieces);
+//        }
 
         if (performPawnCapture<side>(enemies)) {
             return true;
@@ -381,6 +381,9 @@ public:
     template<int side>
     bool performPawnCapture(const u64 enemies) {
         if (!chessboard[side]) {
+            if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
+                updateZobristKey(13, chessboard[ENPASSANT_IDX]);
+            }
             chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
             return false;
         }
@@ -457,6 +460,7 @@ public:
                 pushmove<ENPASSANT_MOVE_MASK, side>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8), NO_PROMOTION, side);
                 RESET_LSB(x);
             }
+            updateZobristKey(13, chessboard[ENPASSANT_IDX]);
             chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
         }
         return false;
@@ -739,31 +743,28 @@ public:
         killerHeuristic[from][to] += value;
     }
 
-    template<int side>
-    u64 getPin(const u64 allpieces, const u64 friends, const int kingPosition) const {
-        u64 result = 0;
-//        allpieces &= NOTPOW2[kingPosition];
-        const u64 *s = LINK_SQUARE[kingPosition];
-        constexpr int xside = side ^1;
-        u64 attacked = DIAGONAL_ANTIDIAGONAL[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
-        attacked |= RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
-        while (attacked) {
-            int pos = BITScanForward(attacked);
-            u64 b = *(s + pos) & allpieces;
-#ifdef DEBUG_MODE
-            u64 x = *(s + pos) & (allpieces & NOTPOW2[kingPosition]);
-            ASSERT(b == x);
-#endif
-//            u64 b = LINK_SQUARE[kingPosition][pos] & allpieces;
-//            u64 t = b & (b - 1);
-//            if (!t) {
-            if (!static_cast<u64>(b & (b - 1))) {
-                result |= b & friends;
-            }
-            RESET_LSB(attacked);
-        }
-        return result;
-    }
+//    template<int side>fast_perft
+//    u64 getPin(const u64 allpieces, const u64 friends, const int kingPosition) const {
+//        u64 result = 0;
+////        allpieces &= NOTPOW2[kingPosition];
+//        const u64 *s = LINK_SQUARE[kingPosition];
+//        constexpr int xside = side ^1;
+//        u64 attacked = DIAGONAL_ANTIDIAGONAL[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
+//        attacked |= RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
+//        while (attacked) {
+//            int pos = BITScanForward(attacked);
+//            u64 b = *(s + pos) & allpieces;
+//#ifdef DEBUG_MODE
+//            u64 x = *(s + pos) & (allpieces & NOTPOW2[kingPosition]);
+//            ASSERT(b == x);
+//#endif
+//            if (!static_cast<u64>(b & (b - 1))) {
+//                result |= b & friends;
+//            }
+//            RESET_LSB(attacked);
+//        }
+//        return result;
+//    }
 
 #ifdef DEBUG_MODE
     unsigned nCutAB, nNullMoveCut, nCutFp, nCutRazor;
@@ -771,7 +772,7 @@ public:
 #endif
 
 protected:
-    u64 pinned;
+//    u64 pinned;fast_perft
     int listId;
     _TmoveP *gen_list;
     static const u64 RANK_1 = 0xff00ULL;
@@ -845,7 +846,12 @@ protected:
 
     int getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces) {
         ASSERT_RANGE(side, 0, 1);
-        return ep == NO_ENPASSANT ? 0 : bitCount(ENPASSANT_MASK[side ^ 1][ep] & chessboard[side]) + side == WHITE ? bitCount((ped_friends << 8) & xallpieces) + bitCount(((((ped_friends & TABJUMPPAWN) << 8) & xallpieces) << 8) & xallpieces) + bitCount((chessboard[side] << 7) & TABCAPTUREPAWN_LEFT & enemies) + bitCount((chessboard[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies) : bitCount((ped_friends >> 8) & xallpieces) + bitCount(((((ped_friends & TABJUMPPAWN) >> 8) & xallpieces) >> 8) & xallpieces) + bitCount((chessboard[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies) + bitCount((chessboard[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies);
+        return ep == NO_ENPASSANT ? 0 : bitCount(ENPASSANT_MASK[side ^ 1][ep] & chessboard[side]) + side == WHITE ?
+                                        bitCount((ped_friends << 8) & xallpieces) + bitCount(((((ped_friends & TABJUMPPAWN) << 8) & xallpieces) << 8) & xallpieces) + bitCount((chessboard[side] << 7) & TABCAPTUREPAWN_LEFT & enemies) + bitCount((chessboard[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies) :
+                                        bitCount((ped_friends >> 8) & xallpieces) +
+                                        bitCount(((((ped_friends & TABJUMPPAWN) >> 8) & xallpieces) >> 8) & xallpieces) +
+                                        bitCount((chessboard[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies) +
+                                        bitCount((chessboard[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies);
     }
 
 
@@ -875,10 +881,6 @@ protected:
         return performRankFileCaptureAndShiftCount(position, enemies, allpieces) +
                bitCount(getDiagShiftAndCapture(position, enemies, allpieces));
     }
-
-//    void initKillerHeuristic();
-
-//    void pushRepetition(u64);
 
     int killerHeuristic[64][64];
 
@@ -964,18 +966,18 @@ protected:
         ASSERT_RANGE(pieceTo, 0, 12);
         ASSERT((std::is_same<TYPE_MODE, PERFT_MODE>::value) || forceCheck);
         ASSERT(!(type & 0xc));
-        if (std::is_same<TYPE_MODE, PERFT_MODE>::value) {
-            if ((KING_BLACK + side) != pieceFrom && !isInCheck) {
-                if (!(pinned & POW2[from]) || (LINES[from][to] & chessboard[KING_BLACK + side])) {
-                    ASSERT(!(inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)));
-                    return false;
-                } else {
-                    ASSERT ((inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)));
-                    return true;
-                }
-            }
-
-        }
+//        if (std::is_same<TYPE_MODE, PERFT_MODE>::value) {fast_perft
+//            if ((KING_BLACK + side) != pieceFrom && !isInCheck) {
+//                if (!(pinned & POW2[from]) || (LINES[from][to] & chessboard[KING_BLACK + side])) {
+//                    ASSERT(!(inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)));
+//                    return false;
+//                } else {
+//                    ASSERT ((inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)));
+//                    return true;
+//                }
+//            }
+//
+//        }
 #ifdef DEBUG_MODE
         _Tchessboard a;
         memcpy(&a, chessboard, sizeof(_Tchessboard));
@@ -1058,11 +1060,11 @@ protected:
                 ASSERT(getPieceAt(side, POW2_1) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_2) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_0) == ROOK_WHITE);
-                updateZobristKey(KING_WHITE, 3);
-                updateZobristKey(KING_WHITE, 1);
+                updateZobristKey(KING_WHITE, E1);
+                updateZobristKey(KING_WHITE, G1);
                 chessboard[KING_WHITE] = (chessboard[KING_WHITE] | POW2_1) & NOTPOW2_3;
-                updateZobristKey(ROOK_WHITE, 2);
-                updateZobristKey(ROOK_WHITE, 0);
+                updateZobristKey(ROOK_WHITE, F1);
+                updateZobristKey(ROOK_WHITE, H1);
                 chessboard[ROOK_WHITE] = (chessboard[ROOK_WHITE] | POW2_2) & NOTPOW2_0;
             } else {
                 ASSERT(type & QUEEN_SIDE_CASTLE_MOVE_MASK);
@@ -1072,11 +1074,11 @@ protected:
                 ASSERT(getPieceAt(side, POW2_6) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_7) == ROOK_WHITE);
                 chessboard[KING_WHITE] = (chessboard[KING_WHITE] | POW2_5) & NOTPOW2_3;
-                updateZobristKey(KING_WHITE, 5);
-                updateZobristKey(KING_WHITE, 3);
+                updateZobristKey(KING_WHITE, C1);
+                updateZobristKey(KING_WHITE, E1);
                 chessboard[ROOK_WHITE] = (chessboard[ROOK_WHITE] | POW2_4) & NOTPOW2_7;
-                updateZobristKey(ROOK_WHITE, 4);
-                updateZobristKey(ROOK_WHITE, 7);
+                updateZobristKey(ROOK_WHITE, D1);
+                updateZobristKey(ROOK_WHITE, A1);
             }
         } else {
             if (type & KING_SIDE_CASTLE_MOVE_MASK) {
@@ -1085,11 +1087,11 @@ protected:
                 ASSERT(getPieceAt(side, POW2_57) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_56) == ROOK_BLACK);
                 chessboard[KING_BLACK] = (chessboard[KING_BLACK] | POW2_57) & NOTPOW2_59;
-                updateZobristKey(KING_BLACK, 57);
-                updateZobristKey(KING_BLACK, 59);
+                updateZobristKey(KING_BLACK, G8);
+                updateZobristKey(KING_BLACK, E8);
                 chessboard[ROOK_BLACK] = (chessboard[ROOK_BLACK] | POW2_58) & NOTPOW2_56;
-                updateZobristKey(ROOK_BLACK, 58);
-                updateZobristKey(ROOK_BLACK, 56);
+                updateZobristKey(ROOK_BLACK, F8);
+                updateZobristKey(ROOK_BLACK, H8);
             } else {
                 ASSERT(type & QUEEN_SIDE_CASTLE_MOVE_MASK);
                 ASSERT(getPieceAt(side, POW2_59) == KING_BLACK);
@@ -1098,11 +1100,11 @@ protected:
                 ASSERT(getPieceAt(side, POW2_62) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_63) == ROOK_BLACK);
                 chessboard[KING_BLACK] = (chessboard[KING_BLACK] | POW2_61) & NOTPOW2_59;
-                updateZobristKey(KING_BLACK, 61);
-                updateZobristKey(KING_BLACK, 59);
+                updateZobristKey(KING_BLACK, C8);
+                updateZobristKey(KING_BLACK, E8);
                 chessboard[ROOK_BLACK] = (chessboard[ROOK_BLACK] | POW2_60) & NOTPOW2_63;
-                updateZobristKey(ROOK_BLACK, 60);
-                updateZobristKey(ROOK_BLACK, 63);
+                updateZobristKey(ROOK_BLACK, D8);
+                updateZobristKey(ROOK_BLACK, A8);
             }
         }
     }
@@ -1230,7 +1232,7 @@ protected:
 
 private:
     int running;
-    bool isInCheck;
+//    bool isInCheck;fast_perft
 
     static bool forceCheck;
     static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;

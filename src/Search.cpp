@@ -65,7 +65,7 @@ void Search::aspirationWindow(const int depth, const int valWin) {
                 }
 
                 if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
-                    tmp = search<smp>(mainDepth, -_INFINITE - 1 , _INFINITE + 1);
+                    tmp = search<smp>(mainDepth, -_INFINITE - 1, _INFINITE + 1);
                 }
             }
         }
@@ -162,7 +162,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     if (!(numMovesq++ & 1023)) {
         setRunning(checkTime());
     }
-//    int is_incheck_side = inCheck<side>();
+
 //    if (!is_incheck_side) {
 //        int score = lazyEval<side>();
 //        if (score + FUTIL_MARGIN < alpha)
@@ -506,7 +506,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     bool checkInCheck = false;
     int countMove = 0;
     char hashf = Hash::hashfALPHA;
-    while ((move = getNextMove(&gen_list[listId]))) {  
+    while ((move = getNextMove(&gen_list[listId]))) {
         countMove++;
         INC(betaEfficiencyCount);
         if (!makemove(move, true, checkInCheck)) {
