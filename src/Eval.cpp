@@ -391,8 +391,8 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
     structureEval.posKing[BLACK] = (uchar) BITScanForward(chessboard[KING_BLACK]);
     structureEval.posKing[WHITE] = (uchar) BITScanForward(chessboard[KING_WHITE]);
 //    int endGameValue;
-//    if (side == WHITE)endGameValue = getEndgameValue<WHITE>(structureEval,N_PIECE);
-//    else endGameValue = getEndgameValue<BLACK>(N_PIECE);
+//    if (side == WHITE)endGameValue = getEndgameValue<WHITE>(structureEval, N_PIECE);
+//    else endGameValue = getEndgameValue<BLACK>(structureEval, N_PIECE);
 //    if (endGameValue != INT_MAX) {
 //        return endGameValue;
 //    }
@@ -402,17 +402,19 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
     memset(&SCORE_DEBUG, 0, sizeof(_TSCORE_DEBUG));
 #endif
 
-    int npieces = getNpiecesNoPawnNoKing<WHITE>() + getNpiecesNoPawnNoKing<BLACK>();
+    structureEval.allPiecesNoPawns[BLACK] = getBitmapNoPawns<BLACK>();
+    structureEval.allPiecesNoPawns[WHITE] = getBitmapNoPawns<WHITE>();
+    int npieces = bitCount(structureEval.allPiecesNoPawns[BLACK] + structureEval.allPiecesNoPawns[WHITE]);
+
     _Tphase phase;
-    if (npieces < 4) {
+    if (npieces < 6) {
         phase = END;
-    } else if (npieces < 11) {
+    } else if (npieces < 13) {
         phase = MIDDLE;
     } else {
         phase = OPEN;
     }
-    structureEval.allPiecesNoPawns[BLACK] = getBitmapNoPawns<BLACK>();
-    structureEval.allPiecesNoPawns[WHITE] = getBitmapNoPawns<WHITE>();
+
     structureEval.allPiecesSide[BLACK] = structureEval.allPiecesNoPawns[BLACK] | chessboard[PAWN_BLACK];
     structureEval.allPiecesSide[WHITE] = structureEval.allPiecesNoPawns[WHITE] | chessboard[PAWN_WHITE];
     structureEval.allPieces = structureEval.allPiecesSide[BLACK] | structureEval.allPiecesSide[WHITE];
