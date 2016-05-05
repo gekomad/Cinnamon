@@ -45,74 +45,72 @@ Endgame::Endgame() {
     srand(time(NULL));
 }
 
-int Endgame::getEndgameValue(const int N_PIECE, const int side) {
+template<int side>
+int Endgame::getEndgameValue(const int N_PIECE) {
     ASSERT(N_PIECE != 999);
     ASSERT_RANGE(side, 0, 1);
 
-    int result = INT_MAX;
-    int winnerSide = side;
     switch (N_PIECE) {
         case 4 :
             if (chessboard[QUEEN_BLACK]) {
                 if (chessboard[PAWN_WHITE]) {
-                    result = KQKP(WHITE, BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[PAWN_WHITE]));
-                    winnerSide = BLACK;
+                    int result = KQKP(WHITE, BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[PAWN_WHITE]));
+                    return side == BLACK ? result : -result;
                 } else if (chessboard[ROOK_WHITE]) {
-                    result = KQKR(BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]));
-                    winnerSide = BLACK;
+                    int result = KQKR(BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]));
+                    return side == BLACK ? result : -result;
                 }
             } else if (chessboard[QUEEN_WHITE]) {
                 if (chessboard[PAWN_BLACK]) {
-                    result = KQKP(BLACK, BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[PAWN_BLACK]));
-                    winnerSide = WHITE;
+                    int result = KQKP(BLACK, BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[PAWN_BLACK]));
+                    return side == WHITE ? result : -result;
                 } else if (chessboard[ROOK_BLACK]) {
                     result = KQKR(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]));
-                    winnerSide = WHITE;
+                    return side == WHITE ? result : -result;
                 }
             } else if (chessboard[ROOK_BLACK]) {
                 if (chessboard[PAWN_WHITE]) {
-                    result = KRKP<WHITE>(side == BLACK, BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[ROOK_BLACK]), BITScanForward(chessboard[PAWN_WHITE]));
-                    winnerSide = BLACK;
+                    int result = KRKP<WHITE>(side == BLACK, BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[ROOK_BLACK]), BITScanForward(chessboard[PAWN_WHITE]));
+                    return side == BLACK ? result : -result;
                 } else if (chessboard[BISHOP_WHITE]) {
-                    result = KRKB(BITScanForward(chessboard[KING_WHITE]));
-                    winnerSide = BLACK;
+                    int result = KRKB(BITScanForward(chessboard[KING_WHITE]));
+                    return side == BLACK ? result : -result;
                 } else if (chessboard[KNIGHT_WHITE]) {
-                    result = KRKN(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KNIGHT_WHITE]));
-                    winnerSide = BLACK;
+                    int result = KRKN(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KNIGHT_WHITE]));
+                    return side == BLACK ? result : -result;
                 }
             } else if (chessboard[ROOK_WHITE]) {
                 if (chessboard[PAWN_BLACK]) {
-                    result = KRKP<BLACK>(side == WHITE, BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[ROOK_WHITE]), BITScanForward(chessboard[PAWN_BLACK]));
-                    winnerSide = WHITE;
+                    int result = KRKP<BLACK>(side == WHITE, BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[ROOK_WHITE]), BITScanForward(chessboard[PAWN_BLACK]));
+                    return side == WHITE ? result : -result;
                 } else if (chessboard[BISHOP_BLACK]) {
-                    result = KRKB(BITScanForward(chessboard[KING_BLACK]));
-                    winnerSide = WHITE;
+                    int result = KRKB(BITScanForward(chessboard[KING_BLACK]));
+                    return side == WHITE ? result : -result;
                 } else if (chessboard[KNIGHT_BLACK]) {
-                    result = KRKN(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KNIGHT_BLACK]));
-                    winnerSide = WHITE;
+                    int result = KRKN(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KNIGHT_BLACK]));
+                    return side == WHITE ? result : -result;
                 }
             } else if ((chessboard[BISHOP_BLACK] && chessboard[KNIGHT_BLACK])) {
-                result = KBNK(BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]));
-                winnerSide = BLACK;
+                int result = KBNK(BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]));
+                return side == BLACK ? result : -result;
             } else if (chessboard[BISHOP_WHITE] && chessboard[KNIGHT_WHITE]) {
-                result = KBNK(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]));
-                winnerSide = WHITE;
+                int result = KBNK(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]));
+                return side == WHITE ? result : -result;
             }
             break;
         case 5:
             if (chessboard[KNIGHT_WHITE] && bitCount(chessboard[BISHOP_BLACK]) == 2) {
-                result = KBBKN(BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KNIGHT_WHITE]));
-                winnerSide = BLACK;
+                int result = KBBKN(BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KNIGHT_WHITE]));
+                return side == BLACK ? result : -result;
             } else if (chessboard[KNIGHT_BLACK] && bitCount(chessboard[BISHOP_WHITE]) == 2) {
-                result = KBBKN(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KNIGHT_BLACK]));
-                winnerSide = WHITE;
+                int result = KBBKN(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KNIGHT_BLACK]));
+                return side == WHITE ? result : -result;
             }
             break;
         default:
             break;
     }
-
-    return winnerSide == side ? result : -result;
+    return INT_MAX;
 }
 
 int Endgame::KQKP(int loserSide, int winnerKingPos, int loserKingPos, int pawnPos) {
@@ -168,101 +166,6 @@ int Endgame::KBBKN(int winnerKingPos, int loserKingPos, int knightPos) {
     // Bonus for driving the defending king and knight apart
     // Bonus for restricting the knight's mobility
     //result += Value((8 - popcount<Max15>(pos.attacks_from<KNIGHT>(nsq))) * 8);
-}
-
-int Endgame::KQKR(int winnerKingPos, int loserKingPos) {
-
-#ifdef DEBUG_MODE
-    std::unordered_map<int, int> pieces1;
-    std::unordered_map<int, int> pieces2;
-
-    pieces1[KING_BLACK] = 1;
-    pieces1[KING_WHITE] = 1;
-    pieces1[QUEEN_BLACK] = 1;
-    pieces1[ROOK_WHITE] = 1;
-
-    pieces2[KING_BLACK] = 1;
-    pieces2[KING_WHITE] = 1;
-    pieces2[QUEEN_WHITE] = 1;
-    pieces2[ROOK_BLACK] = 1;
-
-    ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
-#endif
-
-    ASSERT_RANGE(winnerKingPos, 0, 63);
-    ASSERT_RANGE(loserKingPos, 0, 63);
-    return _board::VALUEQUEEN - _board::VALUEROOK + MateTable[loserKingPos] + DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]];
-}
-
-int Endgame::KBNK(int winnerKingPos, int loserKingPos) {
-
-#ifdef DEBUG_MODE
-    std::unordered_map<int, int> pieces1;
-    std::unordered_map<int, int> pieces2;
-
-    pieces1[KING_BLACK] = 1;
-    pieces1[KING_WHITE] = 1;
-    pieces1[BISHOP_BLACK] = 1;
-    pieces1[KNIGHT_BLACK] = 1;
-
-    pieces2[KING_BLACK] = 1;
-    pieces2[KING_WHITE] = 1;
-    pieces2[BISHOP_WHITE] = 1;
-    pieces2[KNIGHT_WHITE] = 1;
-
-    ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
-#endif
-
-    ASSERT_RANGE(winnerKingPos, 0, 63);
-    ASSERT_RANGE(loserKingPos, 0, 63);
-
-    return VALUE_KNOWN_WIN + DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]] + KBNKMateTable[loserKingPos];
-}
-
-int Endgame::KRKB(int loserKingPos) {
-
-#ifdef DEBUG_MODE
-    std::unordered_map<int, int> pieces1;
-    std::unordered_map<int, int> pieces2;
-
-    pieces1[KING_BLACK] = 1;
-    pieces1[KING_WHITE] = 1;
-    pieces1[ROOK_BLACK] = 1;
-    pieces1[BISHOP_WHITE] = 1;
-
-    pieces2[KING_BLACK] = 1;
-    pieces2[KING_WHITE] = 1;
-    pieces2[ROOK_WHITE] = 1;
-    pieces2[BISHOP_BLACK] = 1;
-
-    ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
-#endif
-
-    ASSERT_RANGE(loserKingPos, 0, 63);
-    return MateTable[loserKingPos];
-}
-
-int Endgame::KRKN(int loserKingPos, int knightPos) {
-
-#ifdef DEBUG_MODE
-    std::unordered_map<int, int> pieces1;
-    std::unordered_map<int, int> pieces2;
-
-    pieces1[KING_BLACK] = 1;
-    pieces1[KING_WHITE] = 1;
-    pieces1[ROOK_BLACK] = 1;
-    pieces1[KNIGHT_WHITE] = 1;
-
-    pieces2[KING_BLACK] = 1;
-    pieces2[KING_WHITE] = 1;
-    pieces2[ROOK_WHITE] = 1;
-    pieces2[KNIGHT_BLACK] = 1;
-
-    ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
-#endif
-
-    ASSERT_RANGE(loserKingPos, 0, 63);
-    return MateTable[loserKingPos] + penaltyKRKN[DISTANCE[loserKingPos][knightPos]];
 }
 
 Endgame::~Endgame() {

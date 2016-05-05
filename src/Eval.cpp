@@ -388,8 +388,10 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         return lazyscore;
     }
 
-//    int endGameValue = getEndgameValue(N_PIECE, side);
-//    if (abs(endGameValue) != INT_MAX) {
+//    int endGameValue;
+//    if(side==WHITE)endGameValue = getEndgameValue<WHITE>(N_PIECE);
+//    else endGameValue = getEndgameValue<BLACK>(N_PIECE);
+//    if (endGameValue != INT_MAX) {
 //        return endGameValue;
 //    }
 

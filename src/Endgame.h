@@ -29,7 +29,8 @@ public:
 
     virtual ~Endgame();
 
-    int getEndgameValue(const int N_PIECE, const int side);
+    template<int side>
+    int getEndgameValue(const int N_PIECE);
 
 private:
 
@@ -94,13 +95,100 @@ private:
 
     int KBBKN(int winnerKingPos, int loserKingPos, int knightPos);
 
-    int KQKR(int winnerKingPos, int loserKingPos);
+    int KQKR(int winnerKingPos, int loserKingPos) {
 
-    int KBNK(int winnerKingPos, int loserKingPos);
+#ifdef DEBUG_MODE
+        std::unordered_map<int, int> pieces1;
+        std::unordered_map<int, int> pieces2;
 
-    int KRKB(int loserKingPos);
+        pieces1[KING_BLACK] = 1;
+        pieces1[KING_WHITE] = 1;
+        pieces1[QUEEN_BLACK] = 1;
+        pieces1[ROOK_WHITE] = 1;
 
-    int KRKN(int loserKingPos, int knightPos);
+        pieces2[KING_BLACK] = 1;
+        pieces2[KING_WHITE] = 1;
+        pieces2[QUEEN_WHITE] = 1;
+        pieces2[ROOK_BLACK] = 1;
+
+        ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
+#endif
+
+        ASSERT_RANGE(winnerKingPos, 0, 63);
+        ASSERT_RANGE(loserKingPos, 0, 63);
+        return _board::VALUEQUEEN - _board::VALUEROOK + MateTable[loserKingPos] + DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]];
+    }
+
+    int KBNK(int winnerKingPos, int loserKingPos) {
+
+#ifdef DEBUG_MODE
+        std::unordered_map<int, int> pieces1;
+        std::unordered_map<int, int> pieces2;
+
+        pieces1[KING_BLACK] = 1;
+        pieces1[KING_WHITE] = 1;
+        pieces1[BISHOP_BLACK] = 1;
+        pieces1[KNIGHT_BLACK] = 1;
+
+        pieces2[KING_BLACK] = 1;
+        pieces2[KING_WHITE] = 1;
+        pieces2[BISHOP_WHITE] = 1;
+        pieces2[KNIGHT_WHITE] = 1;
+
+        ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
+#endif
+
+        ASSERT_RANGE(winnerKingPos, 0, 63);
+        ASSERT_RANGE(loserKingPos, 0, 63);
+
+        return VALUE_KNOWN_WIN + DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]] + KBNKMateTable[loserKingPos];
+    }
+
+    int KRKB(int loserKingPos) {
+
+#ifdef DEBUG_MODE
+        std::unordered_map<int, int> pieces1;
+        std::unordered_map<int, int> pieces2;
+
+        pieces1[KING_BLACK] = 1;
+        pieces1[KING_WHITE] = 1;
+        pieces1[ROOK_BLACK] = 1;
+        pieces1[BISHOP_WHITE] = 1;
+
+        pieces2[KING_BLACK] = 1;
+        pieces2[KING_WHITE] = 1;
+        pieces2[ROOK_WHITE] = 1;
+        pieces2[BISHOP_BLACK] = 1;
+
+        ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
+#endif
+
+        ASSERT_RANGE(loserKingPos, 0, 63);
+        return MateTable[loserKingPos];
+    }
+
+    int KRKN(int loserKingPos, int knightPos) {
+
+#ifdef DEBUG_MODE
+        std::unordered_map<int, int> pieces1;
+        std::unordered_map<int, int> pieces2;
+
+        pieces1[KING_BLACK] = 1;
+        pieces1[KING_WHITE] = 1;
+        pieces1[ROOK_BLACK] = 1;
+        pieces1[KNIGHT_WHITE] = 1;
+
+        pieces2[KING_BLACK] = 1;
+        pieces2[KING_WHITE] = 1;
+        pieces2[ROOK_WHITE] = 1;
+        pieces2[KNIGHT_BLACK] = 1;
+
+        ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
+#endif
+
+        ASSERT_RANGE(loserKingPos, 0, 63);
+        return MateTable[loserKingPos] + penaltyKRKN[DISTANCE[loserKingPos][knightPos]];
+    }
 
 };
 
