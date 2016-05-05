@@ -387,9 +387,11 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         INC(lazyEvalCuts);
         return lazyscore;
     }
-
+    memset(structureEval.kingSecurityDistance, 0, sizeof(structureEval.kingSecurityDistance));
+    structureEval.posKing[BLACK] = (uchar) BITScanForward(chessboard[KING_BLACK]);
+    structureEval.posKing[WHITE] = (uchar) BITScanForward(chessboard[KING_WHITE]);
 //    int endGameValue;
-//    if(side==WHITE)endGameValue = getEndgameValue<WHITE>(N_PIECE);
+//    if (side == WHITE)endGameValue = getEndgameValue<WHITE>(structureEval,N_PIECE);
 //    else endGameValue = getEndgameValue<BLACK>(N_PIECE);
 //    if (endGameValue != INT_MAX) {
 //        return endGameValue;
@@ -399,7 +401,7 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
     evaluationCount[WHITE] = evaluationCount[BLACK] = 0;
     memset(&SCORE_DEBUG, 0, sizeof(_TSCORE_DEBUG));
 #endif
-    memset(structureEval.kingSecurityDistance, 0, sizeof(structureEval.kingSecurityDistance));
+
     int npieces = getNpiecesNoPawnNoKing<WHITE>() + getNpiecesNoPawnNoKing<BLACK>();
     _Tphase phase;
     if (npieces < 4) {
@@ -414,8 +416,7 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
     structureEval.allPiecesSide[BLACK] = structureEval.allPiecesNoPawns[BLACK] | chessboard[PAWN_BLACK];
     structureEval.allPiecesSide[WHITE] = structureEval.allPiecesNoPawns[WHITE] | chessboard[PAWN_WHITE];
     structureEval.allPieces = structureEval.allPiecesSide[BLACK] | structureEval.allPiecesSide[WHITE];
-    structureEval.posKing[BLACK] = (uchar) BITScanForward(chessboard[KING_BLACK]);
-    structureEval.posKing[WHITE] = (uchar) BITScanForward(chessboard[KING_WHITE]);
+
     structureEval.kingAttackers[WHITE] = getAllAttackers<WHITE>(structureEval.posKing[WHITE], structureEval.allPieces);
     structureEval.kingAttackers[BLACK] = getAllAttackers<BLACK>(structureEval.posKing[BLACK], structureEval.allPieces);
 

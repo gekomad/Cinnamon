@@ -46,7 +46,7 @@ Endgame::Endgame() {
 }
 
 template<int side>
-int Endgame::getEndgameValue(const int N_PIECE) {
+int Endgame::getEndgameValue(const _Tboard &structureEval, const int N_PIECE) {
     ASSERT(N_PIECE != 999);
     ASSERT_RANGE(side, 0, 1);
 
@@ -54,56 +54,56 @@ int Endgame::getEndgameValue(const int N_PIECE) {
         case 4 :
             if (chessboard[QUEEN_BLACK]) {
                 if (chessboard[PAWN_WHITE]) {
-                    int result = KQKP(WHITE, BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[PAWN_WHITE]));
+                    int result = KQKP(WHITE, structureEval.posKing[BLACK], structureEval.posKing[WHITE], BITScanForward(chessboard[PAWN_WHITE]));
                     return side == BLACK ? result : -result;
                 } else if (chessboard[ROOK_WHITE]) {
-                    int result = KQKR(BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]));
+                    int result = KQKR(structureEval.posKing[BLACK], structureEval.posKing[WHITE]);
                     return side == BLACK ? result : -result;
                 }
             } else if (chessboard[QUEEN_WHITE]) {
                 if (chessboard[PAWN_BLACK]) {
-                    int result = KQKP(BLACK, BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[PAWN_BLACK]));
+                    int result = KQKP(BLACK, structureEval.posKing[WHITE], structureEval.posKing[BLACK], BITScanForward(chessboard[PAWN_BLACK]));
                     return side == WHITE ? result : -result;
                 } else if (chessboard[ROOK_BLACK]) {
-                    result = KQKR(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]));
+                    result = KQKR(structureEval.posKing[WHITE], structureEval.posKing[BLACK]);
                     return side == WHITE ? result : -result;
                 }
             } else if (chessboard[ROOK_BLACK]) {
                 if (chessboard[PAWN_WHITE]) {
-                    int result = KRKP<WHITE>(side == BLACK, BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[ROOK_BLACK]), BITScanForward(chessboard[PAWN_WHITE]));
+                    int result = KRKP<WHITE>(side == BLACK, structureEval.posKing[BLACK], structureEval.posKing[WHITE], BITScanForward(chessboard[ROOK_BLACK]), BITScanForward(chessboard[PAWN_WHITE]));
                     return side == BLACK ? result : -result;
                 } else if (chessboard[BISHOP_WHITE]) {
-                    int result = KRKB(BITScanForward(chessboard[KING_WHITE]));
+                    int result = KRKB(structureEval.posKing[WHITE]);
                     return side == BLACK ? result : -result;
                 } else if (chessboard[KNIGHT_WHITE]) {
-                    int result = KRKN(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KNIGHT_WHITE]));
+                    int result = KRKN(structureEval.posKing[WHITE], BITScanForward(chessboard[KNIGHT_WHITE]));
                     return side == BLACK ? result : -result;
                 }
             } else if (chessboard[ROOK_WHITE]) {
                 if (chessboard[PAWN_BLACK]) {
-                    int result = KRKP<BLACK>(side == WHITE, BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[ROOK_WHITE]), BITScanForward(chessboard[PAWN_BLACK]));
+                    int result = KRKP<BLACK>(side == WHITE, structureEval.posKing[WHITE], structureEval.posKing[BLACK], BITScanForward(chessboard[ROOK_WHITE]), BITScanForward(chessboard[PAWN_BLACK]));
                     return side == WHITE ? result : -result;
                 } else if (chessboard[BISHOP_BLACK]) {
-                    int result = KRKB(BITScanForward(chessboard[KING_BLACK]));
+                    int result = KRKB(structureEval.posKing[BLACK]);
                     return side == WHITE ? result : -result;
                 } else if (chessboard[KNIGHT_BLACK]) {
-                    int result = KRKN(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KNIGHT_BLACK]));
+                    int result = KRKN(structureEval.posKing[WHITE], BITScanForward(chessboard[KNIGHT_BLACK]));
                     return side == WHITE ? result : -result;
                 }
             } else if ((chessboard[BISHOP_BLACK] && chessboard[KNIGHT_BLACK])) {
-                int result = KBNK(BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]));
+                int result = KBNK(structureEval.posKing[BLACK], structureEval.posKing[WHITE]);
                 return side == BLACK ? result : -result;
             } else if (chessboard[BISHOP_WHITE] && chessboard[KNIGHT_WHITE]) {
-                int result = KBNK(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]));
+                int result = KBNK(structureEval.posKing[WHITE], structureEval.posKing[BLACK]);
                 return side == WHITE ? result : -result;
             }
             break;
         case 5:
             if (chessboard[KNIGHT_WHITE] && bitCount(chessboard[BISHOP_BLACK]) == 2) {
-                int result = KBBKN(BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KNIGHT_WHITE]));
+                int result = KBBKN(structureEval.posKing[BLACK], structureEval.posKing[WHITE], BITScanForward(chessboard[KNIGHT_WHITE]));
                 return side == BLACK ? result : -result;
             } else if (chessboard[KNIGHT_BLACK] && bitCount(chessboard[BISHOP_WHITE]) == 2) {
-                int result = KBBKN(BITScanForward(chessboard[KING_WHITE]), BITScanForward(chessboard[KING_BLACK]), BITScanForward(chessboard[KNIGHT_BLACK]));
+                int result = KBBKN(structureEval.posKing[WHITE], structureEval.posKing[BLACK], BITScanForward(chessboard[KNIGHT_BLACK]));
                 return side == WHITE ? result : -result;
             }
             break;

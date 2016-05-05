@@ -30,7 +30,7 @@ public:
     virtual ~Endgame();
 
     template<int side>
-    int getEndgameValue(const int N_PIECE);
+    int getEndgameValue(const _Tboard& structureEval, const int N_PIECE);
 
 private:
 
