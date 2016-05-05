@@ -50,7 +50,7 @@ int Endgame::getEndgameValue(const int N_PIECE, const int side) {
     ASSERT_RANGE(side, 0, 1);
 
     int result = INT_MAX;
-    int winnerSide = -1;
+    int winnerSide = side;
     switch (N_PIECE) {
         case 4 :
             if (chessboard[QUEEN_BLACK]) {
@@ -111,7 +111,7 @@ int Endgame::getEndgameValue(const int N_PIECE, const int side) {
         default:
             break;
     }
-    if (winnerSide == -1)return INT_MAX;
+
     return winnerSide == side ? result : -result;
 }
 
