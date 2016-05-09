@@ -76,7 +76,7 @@ vector<string> PerftThread::getSuccessorsFen(const int depthx) {
         setSide(side ^ 1);
         vector<string> bb = getSuccessorsFen<side ^ 1>(depthx - 1);
         n_perft.insert(n_perft.end(), bb.begin(), bb.end());
-        takeback(move, keyold, false);
+        takeback<false>(move, keyold);
         setSide(side ^ 1);
     }
     decListId();
@@ -126,7 +126,7 @@ u64 PerftThread::search(const int depthx) {
         u64 keyold = chessboard[ZOBRISTKEY_IDX];
         makemove(move, false, false);
         n_perft += search<side ^ 1, useHash, smp>(depthx - 1);
-        takeback(move, keyold, false);
+        takeback<false>(move, keyold);
     }
     decListId();
     if (useHash) {
@@ -176,7 +176,7 @@ void PerftThread::run() {
             }
         }
 
-        takeback(move, keyold, false);
+        takeback<false>(move, keyold);
         char y;
         char x = FEN_PIECE[chessboard[SIDETOMOVE_IDX] ? getPieceAt<WHITE>(POW2[move->from]) : getPieceAt<BLACK>(POW2[move->from])];
         if (x == 'p' || x == 'P') {

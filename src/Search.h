@@ -71,7 +71,7 @@ public:
     void setMainParam(const bool smp, const int depth);
 
     template<bool mainSmp>
-    int search(int depth, int alpha, int beta);
+    int search(const int depth, const int alpha, const int beta);
 
     void run();
 
@@ -152,7 +152,7 @@ private:
     bool checkDraw(u64);
 
     template<int side, bool smp>
-    int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
+    int search(int depth, int alpha, const int beta, _TpvLine *pline, const int nPieces, int *mateIn);
 
     bool checkInsufficientMaterial(int);
 
@@ -169,8 +169,8 @@ private:
     int mainBeta;
     int mainAlpha;
 
-    template<bool type, bool smp>
-    FORCEINLINE bool checkHash(const bool quies, const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
+    template<bool type, bool smp, bool quies>
+    FORCEINLINE bool checkHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
         Hash::_Thash *phashe;
 
         checkHashStruct.hashFlag[type] = false;

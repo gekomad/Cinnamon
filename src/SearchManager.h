@@ -99,7 +99,12 @@ public:
 
     bool makemove(_Tmove *i);
 
-    void takeback(_Tmove *move, const u64 oldkey, bool rep);
+    template<bool rep>
+    void takeback(const _Tmove *move, const u64 oldkey) {
+        for (Search *s:getPool()) {
+            s->takeback<rep>(move, oldkey);
+        }
+    }
 
     void setSide(bool i);
 

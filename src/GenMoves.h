@@ -121,11 +121,11 @@ public:
         return false;
     }
 
-    bool getForceCheck() {
+    bool getForceCheck() const {
         return forceCheck;
     }
 
-    void setForceCheck(bool b) {
+    void setForceCheck(const bool b) {
         forceCheck = b;
     }
 
@@ -228,7 +228,7 @@ public:
 #endif
     }
 
-    int loadFen(string fen = "") {
+    int loadFen(const string fen = "") {
         repetitionMapCount = 0;
         int side = ChessBoard::loadFen(fen);
         if (side == 2) {
@@ -238,19 +238,19 @@ public:
         return side;
     }
 
-    inline u64 getDiagCapture(const int position, const u64 allpieces, const u64 enemies) {
+    inline u64 getDiagCapture(const int position, const u64 allpieces, const u64 enemies) const {
         ASSERT_RANGE(position, 0, 63);
         return Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
     }
 
-    u64 getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces) {
+    u64 getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces) const {
         ASSERT_RANGE(position, 0, 63);
-        u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
-        return (nuovo & enemies) | (nuovo & ~allpieces);
+        u64 bit = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
+        return (bit & enemies) | (bit & ~allpieces);
     }
 
-
-    void takeback(_Tmove *move, const u64 oldkey, bool rep) {
+    template<bool rep>
+    void takeback(const _Tmove *move, const u64 oldkey) {
         if (rep) {
             popStackMove();
         }
@@ -293,7 +293,7 @@ public:
         }
     }
 
-    void setRepetitionMapCount(int i) {
+    void setRepetitionMapCount(const int i) {
         repetitionMapCount = i;
     }
 
@@ -541,7 +541,7 @@ public:
         }
     }
 
-    bool makemove(_Tmove *move, bool rep = true, bool checkInCheck = false) {
+    bool makemove(const _Tmove *move, const bool rep = true, const bool checkInCheck = false) {
         ASSERT(move);
         ASSERT(bitCount(chessboard[KING_WHITE]) == 1 && bitCount(chessboard[KING_BLACK]) == 1);
         int pieceFrom = SQUARE_FREE, posTo, posFrom, movecapture = SQUARE_FREE;
@@ -659,7 +659,7 @@ public:
         gen_list[listId--].size = 0;
     }
 
-    int getListSize() {
+    int getListSize() const {
         return gen_list[listId].size;
     }
 
@@ -670,7 +670,6 @@ public:
     void resetList() {
         gen_list[listId].size = 0;
     }
-
 
     bool generatePuzzle(const string type) {
         std::unordered_map<char, int> PIECES;
@@ -803,7 +802,7 @@ protected:
 ////        cout <<endl<<endl;
 //    }
 
-    _Tmove *getNextMove(_TmoveP *list) {
+    _Tmove *getNextMove(const _TmoveP *list) {
         _Tmove *gen_list1 = list->moveList;
         ASSERT(gen_list1);
         int listcount = list->size;
@@ -835,7 +834,7 @@ protected:
     }
 
     template<int side>
-    u64 getAllAttackers(int position, u64 allpieces) const {
+    u64 getAllAttackers(const int position, const u64 allpieces) const {
         return getAttackers<side, false>(position, allpieces);
     }
 
@@ -844,7 +843,7 @@ protected:
         return performRankFileCaptureAndShiftCount(position, enemies, enemies | friends);
     }
 
-    int getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces) {
+    int getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces) const {
         ASSERT_RANGE(side, 0, 1);
         return ep == NO_ENPASSANT ? 0 : bitCount(ENPASSANT_MASK[side ^ 1][ep] & chessboard[side]) + side == WHITE ?
                                         bitCount((ped_friends << 8) & xallpieces) + bitCount(((((ped_friends & TABJUMPPAWN) << 8) & xallpieces) << 8) & xallpieces) + bitCount((chessboard[side] << 7) & TABCAPTUREPAWN_LEFT & enemies) + bitCount((chessboard[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies) :
@@ -855,7 +854,7 @@ protected:
     }
 
 
-    int getMobilityCastle(const int side, const u64 allpieces) {
+    int getMobilityCastle(const int side, const u64 allpieces) const {
         ASSERT_RANGE(side, 0, 1);
         int count = 0;
         if (side == WHITE) {
@@ -887,7 +886,7 @@ protected:
 #ifdef DEBUG_MODE
 
     template<int side, uchar type>
-    bool inCheckSlow(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
+    bool inCheckSlow(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) const {
 
         bool result = false;
         switch (type & 0x3) {
@@ -1208,11 +1207,11 @@ protected:
         return res;
     }
 
-    _Tmove *getMove(int i) const {
+    _Tmove *getMove(const int i) const {
         return &gen_list[listId].moveList[i];
     }
 
-    void setRunning(int t) {
+    void setRunning(const int t) {
         running = t;
     }
 
@@ -1289,7 +1288,7 @@ private:
         }
     }
 
-    void pushStackMove(u64 key) {
+    void pushStackMove(const u64 key) {
         ASSERT(repetitionMapCount < MAX_REP_COUNT - 1);
         repetitionMap[repetitionMapCount++] = key;
     }
@@ -1310,20 +1309,20 @@ private:
         if (exitOnFirst && attackers)return 1;
         ///bishop queen
         u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
-        u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
-        while (nuovo) {
-            int bound = BITScanForward(nuovo);
+        u64 bit = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
+        while (bit) {
+            int bound = BITScanForward(bit);
             attackers |= POW2[bound];
             if (exitOnFirst && attackers)return 1;
-            RESET_LSB(nuovo);
+            RESET_LSB(bit);
         }
         enemies = chessboard[ROOK_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
-        nuovo = Bitboard::getRankFile(position, allpieces) & enemies;
-        while (nuovo) {
-            int bound = BITScanForward(nuovo);
+        bit = Bitboard::getRankFile(position, allpieces) & enemies;
+        while (bit) {
+            int bound = BITScanForward(bit);
             attackers |= POW2[bound];
             if (exitOnFirst && attackers)return 1;
-            RESET_LSB(nuovo);
+            RESET_LSB(bit);
         }
         return attackers;
     }

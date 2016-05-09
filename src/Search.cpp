@@ -110,7 +110,7 @@ int Search::printDtm() {
             cout << " res: " << res;
         }
         cout << "\n";
-        takeback(move, oldKey, false);
+        takeback<false>(move, oldKey);
         if (res > best) {
             best = res;
         }
@@ -179,10 +179,10 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
 
     _TcheckHash checkHashStruct;
 
-    if (checkHash<Hash::HASH_GREATER, smp>(true, alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+    if (checkHash<Hash::HASH_GREATER, smp, true>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
     };
-    if (checkHash<Hash::HASH_ALWAYS, smp>(true, alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+    if (checkHash<Hash::HASH_ALWAYS, smp, true>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
     };
 
@@ -221,19 +221,19 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     }
     while ((move = getNextMove(&gen_list[listId]))) {
         if (!makemove(move, false, true)) {
-            takeback(move, oldKey, false);
+            takeback<false>(move, oldKey);
             continue;
         }
 /**************Delta Pruning ****************/
         if (fprune && ((move->type & 0x3) != PROMOTION_MOVE_MASK) && fscore + PIECES_VALUE[move->capturedPiece] <= alpha) {
             INC(nCutFp);
-            takeback(move, oldKey, false);
+            takeback<false>(move, oldKey);
             continue;
         }
 /************ end Delta Pruning *************/
         int val = -quiescence<side ^ 1, smp>(-beta, -alpha, move->promotionPiece, N_PIECE - 1, depth - 1);
         score = max(score, val);
-        takeback(move, oldKey, false);
+        takeback<false>(move, oldKey);
         if (score > alpha) {
             if (score >= beta) {
                 decListId();
@@ -357,13 +357,13 @@ void Search::setMainParam(const bool smp, const int depth) {
 }
 
 template<bool smp>
-int Search::search(int depth, int alpha, int beta) {
+int Search::search(const int depth, const int alpha, const int beta) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
     return getSide() ? search<WHITE, smp>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn) : search<BLACK, smp>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
 }
 
 template<int side, bool smp>
-int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
+int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const int nPieces, int *mateIn) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
     INC(cumulativeMovesCount);
     *mateIn = INT_MAX;
@@ -373,7 +373,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     int score = -_INFINITE;
     /* gtb */
-    if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(N_PIECE) && depth >= gtb->getProbeDepth()) {
+    if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(nPieces) && depth >= gtb->getProbeDepth()) {
         int v = gtb->getDtm<side, false>(chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
         if (abs(v) != INT_MAX) {
             *mateIn = v;
@@ -403,21 +403,21 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     u64 friends = getBitmap<side>();
     u64 enemies = getBitmap<side ^ 1>();
     u64 allpieces = friends | enemies;
-    int is_incheck_side = inCheck<side>(allpieces);
-    if (!is_incheck_side && depth != mainDepth) {
-        if (checkInsufficientMaterial(N_PIECE) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
+    int isIncheckSide = inCheck<side>(allpieces);
+    if (!isIncheckSide && depth != mainDepth) {
+        if (checkInsufficientMaterial(nPieces) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
             if (inCheck<side ^ 1>(allpieces)) {
                 return _INFINITE - (mainDepth - depth + 1);
             }
             return -lazyEval<side>() * 2;
         }
     }
-    if (is_incheck_side) {
+    if (isIncheckSide) {
         extension++;
     }
     depth += extension;
     if (depth == 0) {
-        return quiescence<side, smp>(alpha, beta, -1, N_PIECE, 0);
+        return quiescence<side, smp>(alpha, beta, -1, nPieces, 0);
     }
 
     //************* hash ****************
@@ -425,10 +425,10 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
 
     _TcheckHash checkHashStruct;
 
-    if (checkHash<Hash::HASH_GREATER, smp>(false, alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+    if (checkHash<Hash::HASH_GREATER, smp, false>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
     };
-    if (checkHash<Hash::HASH_ALWAYS, smp>(false, alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+    if (checkHash<Hash::HASH_ALWAYS, smp, false>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
     };
     ///********** end hash ***************
@@ -438,13 +438,14 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     ++numMoves;
     ///********* null move ***********
-    int n_pieces_side;
+
+    int nPiecesSide;
     _TpvLine line;
     line.cmove = 0;
 
-    if (!is_incheck_side && !nullSearch && depth >= NULLMOVE_DEPTH && (n_pieces_side = getNpiecesNoPawnNoKing<side>()) >= NULLMOVES_MIN_PIECE) {
+    if (!isIncheckSide && !nullSearch && depth >= NULLMOVE_DEPTH && (nPiecesSide = getNpiecesNoPawnNoKing<side>()) >= NULLMOVES_MIN_PIECE) {
         nullSearch = true;
-        int nullScore = -search<side ^ 1, smp>(depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (n_pieces_side < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) - 1, -beta, -beta + 1, &line, N_PIECE, mateIn);
+        int nullScore = -search<side ^ 1, smp>(depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (nPiecesSide < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) - 1, -beta, -beta + 1, &line, nPieces, mateIn);
         nullSearch = false;
         if (nullScore >= beta) {
             INC(nNullMoveCut);
@@ -456,7 +457,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     /**************Futility Pruning razor at pre-pre-frontier*****/
     bool futilPrune = false;
     int futilScore = 0;
-    if (depth <= 3 && !is_incheck_side) {
+    if (depth <= 3 && !isIncheckSide) {
         int matBalance = lazyEval<side>();
         if ((futilScore = matBalance + FUTIL_MARGIN) <= alpha) {
             if (depth == 3 && (matBalance + RAZOR_MARGIN) <= alpha && getNpiecesNoPawnNoKing<side ^ 1>() > 3) {
@@ -489,7 +490,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     int listcount = getListSize();
     if (!listcount) {
         --listId;
-        if (is_incheck_side) {
+        if (isIncheckSide) {
             return -_INFINITE + (mainDepth - depth + 1);
         } else {
             return -lazyEval<side>() * 2;
@@ -510,20 +511,20 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         countMove++;
         INC(betaEfficiencyCount);
         if (!makemove(move, true, checkInCheck)) {
-            takeback(move, oldKey, true);
+            takeback<true>(move, oldKey);
             continue;
         }
         checkInCheck = true;
         if (futilPrune && ((move->type & 0x3) != PROMOTION_MOVE_MASK) && futilScore + PIECES_VALUE[move->capturedPiece] <= alpha && !inCheck<side>()) {
             INC(nCutFp);
-            takeback(move, oldKey, true);
+            takeback<true>(move, oldKey);
             continue;
         }
         //Late Move Reduction
         int val = INT_MAX;
-        if (countMove > 4 && !is_incheck_side && depth >= 3 && move->capturedPiece == SQUARE_FREE && move->promotionPiece == NO_PROMOTION) {
+        if (countMove > 4 && !isIncheckSide && depth >= 3 && move->capturedPiece == SQUARE_FREE && move->promotionPiece == NO_PROMOTION) {
             currentPly++;
-            val = -search<side ^ 1, smp>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn);
+            val = -search<side ^ 1, smp>(depth - 2, -(alpha + 1), -alpha, &line, nPieces, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
         }
@@ -532,17 +533,17 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             int lwb = max(alpha, score);
             int upb = (doMws ? (lwb + 1) : beta);
             currentPly++;
-            val = -search<side ^ 1, smp>(depth - 1, -upb, -lwb, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
+            val = -search<side ^ 1, smp>(depth - 1, -upb, -lwb, &line, move->capturedPiece == SQUARE_FREE ? nPieces : nPieces - 1, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
             if (doMws && (lwb < val) && (val < beta)) {
                 currentPly++;
-                val = -search<side ^ 1, smp>(depth - 1, -beta, -val + 1, &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
+                val = -search<side ^ 1, smp>(depth - 1, -beta, -val + 1, &line, move->capturedPiece == SQUARE_FREE ? nPieces : nPieces - 1, mateIn);
                 currentPly--;
             }
         }
         score = max(score, val);
-        takeback(move, oldKey, true);
+        takeback<true>(move, oldKey);
         move->score = score;
         if (score > alpha) {
             if (score >= beta) {

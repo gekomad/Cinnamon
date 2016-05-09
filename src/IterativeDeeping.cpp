@@ -189,7 +189,7 @@ void IterativeDeeping::run() {
                 extension++;
                 trace = false;
             }
-            searchManager.takeback(&resultMove, oldKey, true);
+            searchManager.takeback<true>(&resultMove, oldKey);
             searchManager.setForceCheck(b);
         }
         if (trace) {

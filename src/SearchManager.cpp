@@ -304,12 +304,6 @@ bool SearchManager::makemove(_Tmove *i) {
     return b;
 }
 
-void SearchManager::takeback(_Tmove *move, const u64 oldkey, bool rep) {
-    for (Search *s:getPool()) {
-        s->takeback(move, oldkey, rep);
-    }
-}
-
 void SearchManager::setSide(bool i) {
     for (Search *s:getPool()) {
         s->setSide(i);
