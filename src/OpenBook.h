@@ -68,13 +68,13 @@ private:
 
     u64 createKey(string fen);
 
-    int intFromFile(int l, u64 *r);
+    int intFromFile(const int l, u64 *r);
 
     int entryFromFile(entry_t *entry);
 
-    int findKey(u64 key, entry_t *entry);
+    int findKey(const u64 key, entry_t *entry);
 
-    void moveToString(char move_s[6], unsigned short move);
+    void moveToString(char move_s[6], const unsigned short move);
 
     u64 *Random64;
 };

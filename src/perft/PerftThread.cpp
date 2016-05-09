@@ -211,6 +211,6 @@ void PerftThread::run() {
 PerftThread::~PerftThread() {
 }
 
-u64 PerftThread::getPartial() {
+u64 PerftThread::getPartial() const {
     return partialTot;
 }

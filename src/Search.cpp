@@ -88,7 +88,8 @@ int Search::printDtm() {
     u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
     u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
     display();
-    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100) : getGtb().getDtm<BLACK, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+    int res = getGtb().getDtm(side, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+
     cout << " res: " << res;
     incListId();
     generateCaptures(side, enemies, friends);
@@ -101,7 +102,7 @@ int Search::printDtm() {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
         cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) << decodeBoardinv(move->type, move->to, getSide()) << " ";
-        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100) : getGtb().getDtm<WHITE, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+        res = -getGtb().getDtm(side ^ 1, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
         if (res != -INT_MAX) {
             cout << " res: " << res;
         }
@@ -263,7 +264,7 @@ void Search::setRunning(const int r) {
     }
 }
 
-int Search::getRunning() {
+int Search::getRunning() const {
     if (!runningThread)return 0;
     return GenMoves::getRunning();
 
@@ -273,7 +274,7 @@ void Search::setMaxTimeMillsec(const int n) {
     maxTimeMillsec = n;
 }
 
-int Search::getMaxTimeMillsec() {
+int Search::getMaxTimeMillsec() const {
     return maxTimeMillsec;
 }
 
@@ -288,7 +289,7 @@ void Search::sortHashMoves(const int listId, const Hash::_Thash &phashe) {
     }
 }
 
-bool Search::checkInsufficientMaterial(const int nPieces) {
+bool Search::checkInsufficientMaterial(const int nPieces) const {
     //regexp: KN?B*KB*
     if (nPieces > 6) {
         return false;
@@ -370,7 +371,7 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
     int score = -_INFINITE;
     /* gtb */
     if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(nPieces) && depth >= gtb->getProbeDepth()) {
-        int v = gtb->getDtm<side, false>(chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
+        int v = gtb->getDtm(side, false,chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
         if (abs(v) != INT_MAX) {
             *mateIn = v;
             int res = 0;

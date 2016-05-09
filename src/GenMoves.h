@@ -129,7 +129,7 @@ public:
         forceCheck = b;
     }
 
-    int getMoveFromSan(const string fenStr, _Tmove *move) {
+    int getMoveFromSan(const string &fenStr, _Tmove *move) {
         chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
         memset(move, 0, sizeof(_Tmove));
         static const string MATCH_QUEENSIDE = "O-O-O e1c1 e8c8";

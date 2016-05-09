@@ -40,7 +40,7 @@ public:
 
     void endRun();
 
-    u64 getPartial();
+    u64 getPartial() const;
 
     unsigned perft(const string &fen, const int depth);
 

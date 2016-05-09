@@ -41,7 +41,7 @@ IniFile::~IniFile() {
 string IniFile::getValue(const string &value) {
     IniFile file(fileName);
     while (true) {
-        pair<string, string> *parameters = file.get();
+        const pair<string, string> *parameters = file.get();
         if (!parameters)return "";
         if (parameters->first == value) {
             return parameters->second;
@@ -49,7 +49,7 @@ string IniFile::getValue(const string &value) {
     }
 }
 
-pair<string, string> *IniFile::get() {
+const pair<string, string> *IniFile::get() {
     std::smatch match;
     string line;
     while (!endFile) {

@@ -43,25 +43,25 @@ public:
 
     void endRun() { };
 
-    bool getPonderEnabled();
+    bool getPonderEnabled() const;
 
-    bool getGtbAvailable();
+    bool getGtbAvailable() const;
 
-    bool getUseBook();
+    bool getUseBook() const;
 
-    void setUseBook(bool b);
+    void setUseBook(const bool b);
 
-    void enablePonder(bool);
+    void enablePonder(const bool);
 
-    void setMaxDepth(int);
+    void setMaxDepth(const int);
 
-    void loadBook(string);
+    void loadBook(const string);
 
     bool setParameter(String param, int value);
 
-    int loadFen(string fen = "");
+    int loadFen(const string fen = "");
 
-    bool setNthread(int i);
+    bool setNthread(const int i);
 
     int getRunning() const {
         return running;
