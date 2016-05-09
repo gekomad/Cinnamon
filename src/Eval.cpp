@@ -375,7 +375,7 @@ int Eval::evaluateKing(int side, u64 squares) {
     return result;
 }
 
-int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int beta, const bool trace) {
+int Eval::getScore(const int side, const int nPieces, const int alpha, const int beta, const bool trace) {
 
     int lazyscore_white = lazyEvalSide<WHITE>();
     int lazyscore_black = lazyEvalSide<BLACK>();
@@ -391,8 +391,8 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
     structureEval.posKing[BLACK] = (uchar) BITScanForward(chessboard[KING_BLACK]);
     structureEval.posKing[WHITE] = (uchar) BITScanForward(chessboard[KING_WHITE]);
 //    int endGameValue;
-//    if (side == WHITE)endGameValue = getEndgameValue<WHITE>(structureEval, N_PIECE);
-//    else endGameValue = getEndgameValue<BLACK>(structureEval, N_PIECE);
+//    if (side == WHITE)endGameValue = getEndgameValue<WHITE>(structureEval, nPieces);
+//    else endGameValue = getEndgameValue<BLACK>(structureEval, nPieces);
 //    if (endGameValue != INT_MAX) {
 //        return endGameValue;
 //    }

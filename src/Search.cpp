@@ -83,10 +83,6 @@ Search::Search() : ponder(false), nullSearch(false) {
 
 }
 
-void Search::clone(const Search *s) {
-    memcpy(chessboard, s->chessboard, sizeof(_Tchessboard));
-}
-
 int Search::printDtm() {
     int side = getSide();
     u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
@@ -125,7 +121,7 @@ int Search::printDtm() {
     return best;
 }
 
-void Search::setNullMove(bool b) {
+void Search::setNullMove(const bool b) {
     nullSearch = !b;
 }
 
@@ -133,7 +129,7 @@ void Search::startClock() {
     startTime = std::chrono::high_resolution_clock::now();
 }
 
-void Search::setMainPly(int m) {
+void Search::setMainPly(const int m) {
     mainDepth = m;
 }
 
@@ -154,7 +150,7 @@ Search::~Search() {
 }
 
 template<int side, bool smp>
-int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIECE, int depth) {
+int Search::quiescence(int alpha, const int beta, const char promotionPiece, const int nPieces, const int depth) {
     if (!getRunning()) {
         return 0;
     }
@@ -169,7 +165,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
 //            return score;
 //    }
 
-    int score = getScore(side, N_PIECE, alpha, beta, false);
+    int score = getScore(side, nPieces, alpha, beta, false);
     if (score >= beta) {
         return beta;
     }
@@ -231,7 +227,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
             continue;
         }
 /************ end Delta Pruning *************/
-        int val = -quiescence<side ^ 1, smp>(-beta, -alpha, move->promotionPiece, N_PIECE - 1, depth - 1);
+        int val = -quiescence<side ^ 1, smp>(-beta, -alpha, move->promotionPiece, nPieces - 1, depth - 1);
         score = max(score, val);
         takeback<false>(move, oldKey);
         if (score > alpha) {
@@ -256,11 +252,11 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     return score;
 }
 
-void Search::setPonder(bool r) {
+void Search::setPonder(const bool r) {
     ponder = r;
 }
 
-void Search::setRunning(int r) {
+void Search::setRunning(const int r) {
     GenMoves::setRunning(r);
     if (!r) {
         maxTimeMillsec = 0;
@@ -273,7 +269,7 @@ int Search::getRunning() {
 
 }
 
-void Search::setMaxTimeMillsec(int n) {
+void Search::setMaxTimeMillsec(const int n) {
     maxTimeMillsec = n;
 }
 
@@ -281,9 +277,9 @@ int Search::getMaxTimeMillsec() {
     return maxTimeMillsec;
 }
 
-void Search::sortHashMoves(int listId1, Hash::_Thash &phashe) {
-    for (int r = 0; r < gen_list[listId1].size; r++) {
-        _Tmove *mos = &gen_list[listId1].moveList[r];
+void Search::sortHashMoves(const int listId, const Hash::_Thash &phashe) {
+    for (int r = 0; r < gen_list[listId].size; r++) {
+        _Tmove *mos = &gen_list[listId].moveList[r];
 
         if (phashe.from == mos->from && phashe.to == mos->to) {
             mos->score = _INFINITE / 2;
@@ -292,13 +288,13 @@ void Search::sortHashMoves(int listId1, Hash::_Thash &phashe) {
     }
 }
 
-bool Search::checkInsufficientMaterial(int N_PIECE) {
+bool Search::checkInsufficientMaterial(const int nPieces) {
     //regexp: KN?B*KB*
-    if (N_PIECE > 6) {
+    if (nPieces > 6) {
         return false;
     }
     // KK
-    if (N_PIECE == 2) {
+    if (nPieces == 2) {
         return true;
     }
     if (!chessboard[PAWN_BLACK] && !chessboard[PAWN_WHITE] && !chessboard[ROOK_BLACK] && !chessboard[ROOK_WHITE] && !chessboard[QUEEN_WHITE] && !chessboard[QUEEN_BLACK]) {
@@ -322,7 +318,7 @@ bool Search::checkInsufficientMaterial(int N_PIECE) {
     return false;
 }
 
-bool Search::checkDraw(u64 key) {
+bool Search::checkDraw(const u64 key) const {
     int o = 0;
     for (int i = repetitionMapCount - 1; i >= 0; i--) {
         if (repetitionMap[i] == 0) {
@@ -337,7 +333,7 @@ bool Search::checkDraw(u64 key) {
     return false;
 }
 
-bool Search::getGtbAvailable() {
+bool Search::getGtbAvailable() const {
     return gtb;
 }
 
@@ -403,6 +399,7 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
     u64 friends = getBitmap<side>();
     u64 enemies = getBitmap<side ^ 1>();
     u64 allpieces = friends | enemies;
+
     int isIncheckSide = inCheck<side>(allpieces);
     if (!isIncheckSide && depth != mainDepth) {
         if (checkInsufficientMaterial(nPieces) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
@@ -579,11 +576,11 @@ void Search::updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move)
     pline->cmove = line->cmove + 1;
 }
 
-void Search::setChessboard(_Tchessboard &b) {
+void Search::setChessboard(const _Tchessboard &b) {
     memcpy(chessboard, b, sizeof(chessboard));
 }
 
-u64 Search::getZobristKey() {
+u64 Search::getZobristKey() const {
     return chessboard[ZOBRISTKEY_IDX];
 }
 
@@ -595,7 +592,7 @@ void Search::setGtb(Tablebase &tablebase) {
     gtb = &tablebase;
 }
 
-bool Search::setParameter(String param, int value) {
+bool Search::setParameter(String param, const int value) {
 #if defined(CLOP) || defined(DEBUG_MODE)
     param.toUpper();
     bool res = true;
