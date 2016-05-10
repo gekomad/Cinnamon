@@ -404,7 +404,7 @@ int Eval::getScore(const int side, const int nPieces, const int alpha, const int
 
     structureEval.allPiecesNoPawns[BLACK] = getBitmapNoPawns<BLACK>();
     structureEval.allPiecesNoPawns[WHITE] = getBitmapNoPawns<WHITE>();
-    int npieces = bitCount(structureEval.allPiecesNoPawns[BLACK] + structureEval.allPiecesNoPawns[WHITE]);
+    int npieces = bitCount(structureEval.allPiecesNoPawns[BLACK] | structureEval.allPiecesNoPawns[WHITE]);
 
     _Tphase phase;
     if (npieces < 6) {
