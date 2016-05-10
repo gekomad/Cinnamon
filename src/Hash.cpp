@@ -56,7 +56,7 @@ void Hash::clearHash() {
     memset(hashArray[HASH_GREATER], 0, sizeof(_Thash) * HASH_SIZE);
 }
 
-int Hash::getHashSize() {
+int Hash::getHashSize() const {
     return HASH_SIZE / (1024 * 1000 / (sizeof(_Thash) * 2));
 }
 

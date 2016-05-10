@@ -31,5 +31,5 @@ public:
 
     unsigned perft(const string &fen, const int depth);
 
-    bool isValid(const string &fen);
+    bool isValid(const string &fen) const;
 };

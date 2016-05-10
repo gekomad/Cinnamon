@@ -130,7 +130,7 @@ u64 OpenBook::createKey(string fen1) {
     return key;
 }
 
-int OpenBook::intFromFile(int l, u64 *r) {
+int OpenBook::intFromFile(const int l, u64 *r) {
     int c;
     for (int i = 0; i < l; i++) {
         c = fgetc(openBookFile);
@@ -163,7 +163,7 @@ int OpenBook::entryFromFile(entry_t *entry) {
     return 0;
 }
 
-int OpenBook::findKey(u64 key, entry_t *entry) {
+int OpenBook::findKey(const u64 key, entry_t *entry) {
     int first, last, middle;
     static const entry_t entry_none = {0, 0, 0, 0};
     entry_t first_entry = entry_none, last_entry, middle_entry;
@@ -193,7 +193,7 @@ int OpenBook::findKey(u64 key, entry_t *entry) {
     }
 }
 
-void OpenBook::moveToString(char move_s[6], unsigned short move) {
+void OpenBook::moveToString(char move_s[6], const unsigned short move) {
     const static char *promote_pieces = " nbrq";
     int f, fr, ff, t, tr, tf, p;
     f = (move >> 6) & 077;

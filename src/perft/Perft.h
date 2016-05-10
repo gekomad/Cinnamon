@@ -64,7 +64,7 @@ class Perft : public Thread<Perft>, public ThreadPool<PerftThread>, public Singl
 
 public:
 
-    void setParam(string fen, int depth, int nCpu, int mbSize, string dumpFile);
+    void setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1);
 
     ~Perft();
 

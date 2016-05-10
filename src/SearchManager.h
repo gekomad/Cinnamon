@@ -37,25 +37,25 @@ public:
 
     ~SearchManager();
 
-    Tablebase &getGtb();
+    Tablebase &getGtb() const;
 
     Tablebase &createGtb();
 
     int loadFen(string fen = "");
 
-    int getPieceAt(int side, u64 i);
+    int getPieceAt(const int side, const u64 i) const;
 
-    u64 getTotMoves();
+    u64 getTotMoves() const;
 
-    void incKillerHeuristic(int from, int to, int value);
+    void incKillerHeuristic(const int from, const int to, const int value);
 
-    int getHashSize();
+    int getHashSize() const;
 
     void startClock();
 
-    string boardToFen();
+    string boardToFen() const;
 
-    bool setParameter(String param, int value);
+    bool setParameter(const String param, const int value);
 
     void clearKillerHeuristic();
 
@@ -63,33 +63,33 @@ public:
 
     void clearAge();
 
-    bool getForceCheck();
+    bool getForceCheck() const;
 
-    u64 getZobristKey(int id);
+    u64 getZobristKey(const int id) const;
 
-    void setForceCheck(bool a);
+    void setForceCheck(const bool a);
 
-    void setRunningThread(bool r);
+    void setRunningThread(const bool r);
 
-    void search(int mply);
+    void search(const int mply);
 
-    void setRunning(int i);
+    void setRunning(const int i);
 
-    int getRunning(int i);
+    int getRunning(const int i) const;
 
-    void display();
+    void display() const;
 
-    string getFen();
+    string getFen() const;
 
-    void setHashSize(int s);
+    void setHashSize(const int s);
 
-    void setMaxTimeMillsec(int i);
+    void setMaxTimeMillsec(const int i);
 
-    void setPonder(bool i);
+    void setPonder(const bool i);
 
-    int getSide();
+    int getSide() const;
 
-    int getScore(int side, const bool trace);
+    int getScore(const int side, const bool trace) const;
 
     void clearHash();
 
@@ -97,7 +97,7 @@ public:
 
     void setNullMove(bool i);
 
-    bool makemove(_Tmove *i);
+    bool makemove(const _Tmove *i);
 
     template<bool rep>
     void takeback(const _Tmove *move, const u64 oldkey) {
@@ -106,13 +106,13 @@ public:
         }
     }
 
-    void setSide(bool i);
+    void setSide(const bool i);
 
-    bool getGtbAvailable();
+    bool getGtbAvailable() const;
 
-    int getMoveFromSan(String string, _Tmove *ptr);
+    int getMoveFromSan(const String &string, _Tmove *ptr);
 
-    int printDtm();
+    int printDtm() const;
 
     void setGtb(Tablebase &tablebase);
 
@@ -120,26 +120,26 @@ public:
 
     void init();
 
-    void setRepetitionMapCount(int i);
+    void setRepetitionMapCount(const int i);
 
     void deleteGtb();
 
-    void receiveObserverSearch(int threadID);
+    void receiveObserverSearch(const int threadID);
 
     bool setNthread(int);
 
-#if defined(DEBUG_MODE) || defined(FULL_TEST)
-
-    template<int side>
-    u64 getPin(const u64 allpieces, const u64 friends, const int kingPosition) const {
-        return getThread(0).getPin<side>(allpieces, friends, kingPosition);
-    }
-
-#endif
+//#if defined(DEBUG_MODE) || defined(FULL_TEST)fast_perft
+//
+//    template<int side>
+//    u64 getPin(const u64 allpieces, const u64 friends, const int kingPosition) const {
+//         return getThread(0).getPin<side>(allpieces, friends, kingPosition);
+//    }
+//
+//#endif
 
 #ifdef DEBUG_MODE
 
-    unsigned getCumulativeMovesCount() {
+    unsigned getCumulativeMovesCount() const {
         unsigned i = 0;
         for (Search *s:getPool()) {
             i += s->cumulativeMovesCount;
@@ -147,7 +147,7 @@ public:
         return i;
     }
 
-    unsigned getNCutAB() {
+    unsigned getNCutAB() const {
         unsigned i = 0;
         for (Search *s:getPool()) {
             i += s->nCutAB;
@@ -155,7 +155,7 @@ public:
         return i;
     }
 
-    double getBetaEfficiency() {
+    double getBetaEfficiency() const {
         double i = 0;
         for (Search *s:getPool()) {
             i += s->betaEfficiency;
@@ -163,7 +163,7 @@ public:
         return i;
     }
 
-    unsigned getLazyEvalCuts() {
+    unsigned getLazyEvalCuts() const {
         unsigned i = 0;
         for (Search *s:getPool()) {
             i += s->lazyEvalCuts;
@@ -171,7 +171,7 @@ public:
         return i;
     }
 
-    unsigned getNCutFp() {
+    unsigned getNCutFp() const {
         unsigned i = 0;
         for (Search *s:getPool()) {
             i += s->nCutFp;
@@ -179,7 +179,7 @@ public:
         return i;
     }
 
-    unsigned getNCutRazor() {
+    unsigned getNCutRazor() const {
         unsigned i = 0;
         for (Search *s:getPool()) {
             i += s->nCutRazor;
@@ -187,7 +187,7 @@ public:
         return i;
     }
 
-    unsigned getTotGen() {
+    unsigned getTotGen() const {
         unsigned i = 0;
         for (Search *s:getPool()) {
             i += s->totGen;
@@ -195,7 +195,7 @@ public:
         return i;
     }
 
-    u64 getBitmap(const int n, const int side) {
+    u64 getBitmap(const int n, const int side) const {
         return getPool()[n]->getBitmap(side);
     }
 
@@ -207,7 +207,7 @@ private:
 
     void lazySMP(const int mply);
 
-    void singleSearch(int mply);
+    void singleSearch(const int mply);
 
     int mateIn;
     int valWindow = INT_MAX;

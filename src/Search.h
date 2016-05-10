@@ -24,15 +24,7 @@
 #include "namespaces/def.h"
 #include <climits>
 #include "threadPool/Thread.h"
-
-#ifdef JS_MODE
-#include "js/Tablebase.h"
-#else
-
 #include "Tablebase.h"
-
-#endif
-
 
 class Search : public Eval, public Thread<Search>, public Hash {
 
@@ -52,11 +44,11 @@ public:
 
     bool setParameter(String param, const int value);
 
-    int getMaxTimeMillsec();
+    int getMaxTimeMillsec() const;
 
     void startClock();
 
-    int getRunning();
+    int getRunning() const;
 
     void deleteGtb();
 
@@ -121,7 +113,7 @@ public:
     unsigned cumulativeMovesCount;
     unsigned totGen;
 #endif
-    
+
 private:
 
     int mainMateIn;
@@ -157,7 +149,7 @@ private:
     template<int side, bool smp>
     int search(int depth, int alpha, const int beta, _TpvLine *pline, const int nPieces, int *mateIn);
 
-    bool checkInsufficientMaterial(const int);
+    bool checkInsufficientMaterial(const int) const;
 
     void sortHashMoves(const int listId, const Hash::_Thash &phashe);
 

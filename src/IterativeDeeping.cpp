@@ -24,34 +24,34 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), running(false), openBo
     SET(checkSmp2, 0);
 }
 
-void IterativeDeeping::setMaxDepth(int d) {
+void IterativeDeeping::setMaxDepth(const int d) {
     maxDepth = min(d, _board::MAX_PLY);
 }
 
-bool IterativeDeeping::getGtbAvailable() {
+bool IterativeDeeping::getGtbAvailable() const {
     return searchManager.getGtbAvailable();
 }
 
 IterativeDeeping::~IterativeDeeping() {
 }
 
-void IterativeDeeping::enablePonder(bool b) {
+void IterativeDeeping::enablePonder(const bool b) {
     ponderEnabled = b;
 }
 
-bool IterativeDeeping::getPonderEnabled() {
+bool IterativeDeeping::getPonderEnabled() const {
     return ponderEnabled;
 }
 
-bool IterativeDeeping::getUseBook() {
+bool IterativeDeeping::getUseBook() const {
     return openBook;
 }
 
-void IterativeDeeping::loadBook(string f) {
+void IterativeDeeping::loadBook(const string f) {
     openBook = OpenBook::getInstance(f);
 }
 
-void IterativeDeeping::setUseBook(bool b) {
+void IterativeDeeping::setUseBook(const bool b) {
     bool valid = true;
     if (!openBook && b) {
         openBook = OpenBook::getInstance("cinnamon.bin");
@@ -246,10 +246,10 @@ void IterativeDeeping::run() {
     LOCK_RELEASE(running);
 }
 
-int IterativeDeeping::loadFen(string fen) {
+int IterativeDeeping::loadFen(const string fen) {
     return searchManager.loadFen(fen);
 }
 
-bool IterativeDeeping::setNthread(int i) {
+bool IterativeDeeping::setNthread(const int i) {
     return searchManager.setNthread(i);
 }

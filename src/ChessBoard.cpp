@@ -33,11 +33,11 @@ ChessBoard::~ChessBoard() {
 
 #ifdef DEBUG_MODE
 
-u64 ChessBoard::getBitmap(int side) {
+u64 ChessBoard::getBitmap(int side) const {
     return side ? getBitmap<WHITE>() : getBitmap<BLACK>();
 }
 
-int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
+int ChessBoard::getPieceAt(int side, const u64 bitmapPos) const {
     return side ? getPieceAt<WHITE>(bitmapPos) : getPieceAt<BLACK>(bitmapPos);
 }
 
@@ -65,11 +65,11 @@ void ChessBoard::makeZobristKey() {
 }
 
 
-string ChessBoard::getFen() {
+string ChessBoard::getFen() const {
     return fenString;
 }
 
-int ChessBoard::getPieceByChar(char c) {
+int ChessBoard::getPieceByChar(const char c) const {
     for (int i = 0; i < 12; i++)
         if (c == FEN_PIECE[i]) {
             return i;
@@ -165,13 +165,13 @@ string ChessBoard::boardToFen() const {
     return fen;
 }
 
-char ChessBoard::decodeBoard(string a) {
+char ChessBoard::decodeBoard(const string a) {
     for (int i = 0; i < 64; i++) {
         if (!a.compare(BOARD[i])) {
             return i;
         }
     }
-    cout << "\n" << a << endl;
+    debug(a);
     ASSERT(0);
     return -1;
 }
@@ -271,7 +271,7 @@ int ChessBoard::loadFen(string fen) {
 
 #ifdef DEBUG_MODE
 
-bool ChessBoard::checkNPieces(std::unordered_map<int, int> pieces) {
+bool ChessBoard::checkNPieces(std::unordered_map<int, int> pieces) const {
     int a = 0;
     for (int i = 0; i < 13; i++) {
         a += bitCount(chessboard[i]) == pieces[i];

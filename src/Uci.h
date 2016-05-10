@@ -28,7 +28,7 @@ class Uci : public Singleton<Uci> {
     friend class Singleton<Uci>;
 
 public:
-    Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile);
+    Uci(const string &fen, const int perftDepth, const int nCpu, const int perftHashSize, const string &dumpFile);
 
     virtual ~Uci();
 

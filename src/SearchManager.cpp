@@ -27,7 +27,7 @@ SearchManager::SearchManager() {
     IniFile iniFile("cinnamon.ini");
 
     while (true) {
-        pair<string, string> *parameters = iniFile.get();
+        const pair<string, string> *parameters = iniFile.get();
         if (!parameters) {
             break;
         }
@@ -162,17 +162,17 @@ void SearchManager::startThread(const bool smpMode, Search &thread, const int de
     thread.start();
 }
 
-void SearchManager::setMainPly(int r) {
+void SearchManager::setMainPly(const int r) {
     for (Search *s:getPool()) {
         s->setMainPly(r);
     }
 }
 
-int SearchManager::getPieceAt(int side, u64 i) {
+int SearchManager::getPieceAt(const int side, const u64 i) const {
     return side == WHITE ? getThread(0).getPieceAt<WHITE>(i) : getThread(0).getPieceAt<BLACK>(i);
 }
 
-u64 SearchManager::getTotMoves() {
+u64 SearchManager::getTotMoves() const {
     u64 i = 0;
     for (Search *s:getPool()) {
         i += s->getTotMoves();
@@ -180,13 +180,13 @@ u64 SearchManager::getTotMoves() {
     return i;
 }
 
-void SearchManager::incKillerHeuristic(int from, int to, int value) {
+void SearchManager::incKillerHeuristic(const int from, const int to, const int value) {
     for (Search *s:getPool()) {
         s->incKillerHeuristic(from, to, value);
     }
 }
 
-int SearchManager::getHashSize() {
+int SearchManager::getHashSize() const {
     return getThread(0).getHashSize();
 }
 
@@ -194,7 +194,7 @@ void SearchManager::startClock() {
     getThread(0).startClock();// static variable
 }
 
-string SearchManager::boardToFen() {
+string SearchManager::boardToFen() const {
     return getThread(0).boardToFen();
 }
 
@@ -214,57 +214,57 @@ void SearchManager::clearAge() {
     getThread(0).clearAge();
 }
 
-bool SearchManager::getForceCheck() {
+bool SearchManager::getForceCheck() const {
     return getThread(0).getForceCheck();// static variable
 }
 
-u64 SearchManager::getZobristKey(int id) {
+u64 SearchManager::getZobristKey(const int id) const {
     return getThread(id).getZobristKey();
 }
 
-void SearchManager::setForceCheck(bool a) {
+void SearchManager::setForceCheck(const bool a) {
     getThread(0).setForceCheck(a);    // static variable
 }
 
-void SearchManager::setRunningThread(bool r) {
+void SearchManager::setRunningThread(const bool r) {
     getThread(0).setRunningThread(r);// static variable
 }
 
-void SearchManager::setRunning(int i) {
+void SearchManager::setRunning(const int i) {
     for (Search *s:getPool()) {
         s->setRunning(i);
     }
 }
 
-int SearchManager::getRunning(int i) {
+int SearchManager::getRunning(const int i) const {
     return getThread(i).getRunning();
 }
 
-void SearchManager::display() {
+void SearchManager::display() const {
     getThread(0).display();
 }
 
-string SearchManager::getFen() {
+string SearchManager::getFen() const {
     return getThread(0).getFen();
 }
 
-void SearchManager::setHashSize(int s) {
+void SearchManager::setHashSize(const int s) {
     getThread(0).setHashSize(s);
 }
 
-void SearchManager::setMaxTimeMillsec(int i) {
+void SearchManager::setMaxTimeMillsec(const int i) {
     for (Search *s:getPool()) {
         s->setMaxTimeMillsec(i);
     }
 }
 
-void SearchManager::setPonder(bool i) {
+void SearchManager::setPonder(const bool i) {
     for (Search *s:getPool()) {
         s->setPonder(i);
     }
 }
 
-int SearchManager::getSide() {
+int SearchManager::getSide() const {
 #ifdef DEBUG_MODE
     int t = getThread(0).getSide();
     for (Search *s:getPool()) {
@@ -274,7 +274,7 @@ int SearchManager::getSide() {
     return getThread(0).getSide();
 }
 
-int SearchManager::getScore(int side, const bool trace) {
+int SearchManager::getScore(const int side, const bool trace) const {
     int N_PIECE = 0;
 #ifdef DEBUG_MODE
     N_PIECE = bitCount(getThread(0).getBitmap<WHITE>() | getThread(0).getBitmap<BLACK>());
@@ -296,7 +296,7 @@ void SearchManager::setNullMove(bool i) {
     }
 }
 
-bool SearchManager::makemove(_Tmove *i) {
+bool SearchManager::makemove(const _Tmove *i) {
     bool b = false;
     for (Search *s:getPool()) {
         b = s->makemove(i);
@@ -304,17 +304,17 @@ bool SearchManager::makemove(_Tmove *i) {
     return b;
 }
 
-void SearchManager::setSide(bool i) {
+void SearchManager::setSide(const bool i) {
     for (Search *s:getPool()) {
         s->setSide(i);
     }
 }
 
-bool SearchManager::getGtbAvailable() {
+bool SearchManager::getGtbAvailable() const {
     return getThread(0).getGtbAvailable();
 }
 
-int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
+int SearchManager::getMoveFromSan(const String &string, _Tmove *ptr) {
 #ifdef DEBUG_MODE
     int t = getThread(0).getMoveFromSan(string, ptr);
     for (Search *s:getPool()) {
@@ -324,11 +324,11 @@ int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
     return getThread(0).getMoveFromSan(string, ptr);
 }
 
-Tablebase &SearchManager::getGtb() {
+Tablebase &SearchManager::getGtb() const {
     return getThread(0).getGtb();
 }
 
-int SearchManager::printDtm() {
+int SearchManager::printDtm() const {
     return getThread(0).printDtm();
 }
 
@@ -350,7 +350,7 @@ void SearchManager::init() {
     }
 }
 
-void SearchManager::setRepetitionMapCount(int i) {
+void SearchManager::setRepetitionMapCount(const int i) {
     for (Search *s:getPool()) {
         s->setRepetitionMapCount(i);
     }
@@ -371,7 +371,7 @@ void SearchManager::stopAllThread() {
     getThread(0).setRunningThread(false);//is static
 }
 
-bool SearchManager::setParameter(String param, int value) {
+bool SearchManager::setParameter(const String param, const int value) {
     bool b = false;
     for (Search *s:getPool()) {
         b = s->setParameter(param, value);

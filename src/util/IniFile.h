@@ -37,7 +37,7 @@ public:
 
     string getValue(const string &value);
 
-    pair<string, string> *get();
+    const pair<string, string> *get();
 
 private:
     std::regex rgxLine;

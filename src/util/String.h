@@ -41,7 +41,7 @@ public:
 
     String() { }
 
-    bool endsWith(const string &ending);
+    bool endsWith(const string &ending) const;
 
     String &trim();
 

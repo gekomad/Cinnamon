@@ -36,7 +36,7 @@ public:
 
     Bitboard();
 
-    static u64 getRankFile(const int position, const u64 allpieces) {
+    static inline u64 getRankFile(const int position, const u64 allpieces) {
 //    ........            00000000
 //    ...q....            00010000
 //    ........            00010000
@@ -50,7 +50,7 @@ public:
                BITBOARD_RANK[position][rankIdx(position, allpieces)];
     }
 
-    static u64 getDiagonalAntiDiagonal(const int position, const u64 allpieces) {
+    static inline u64 getDiagonalAntiDiagonal(const int position, const u64 allpieces) {
 //    ........            00010000
 //    q.......            10100000
 //    .B......            00000000
@@ -81,7 +81,7 @@ private:
 
     _Ttmp *tmpStruct;
 
-    vector<u64> getCombination(vector<u64> elements);
+    vector<u64> getCombination(const vector<u64> elements);
 
     static uchar rankIdx(const int position, const u64 allpieces) {
         return (allpieces >> RANK_ATx8[position]) & 0xff;
@@ -105,9 +105,9 @@ private:
 
     void popolateAntiDiagonal();
 
-    vector<u64> combinations(const vector<u64> &elems, int len, vector<int> &pos, int depth, int margin);
+    vector<u64> combinations(const vector<u64> &elems, const int len, vector<int> &pos, const int depth, const int margin);
 
-    vector<u64> combinations(const vector<u64> &elems, int len);
+    vector<u64> combinations(const vector<u64> &elems, const int len);
 
     u64 performDiagShift(const int position, const u64 allpieces);
 
