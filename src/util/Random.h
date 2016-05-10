@@ -26,7 +26,7 @@
 class Random {
 
 public:
-    static unsigned long long getRandom64() const {
+    static unsigned long long getRandom64() {
         unsigned sign = Random::getRandom(0, 1);
         unsigned long long a = Random::getRandom(0, INT_MAX) | sign << 31;
         sign = Random::getRandom(0, 1);
@@ -36,7 +36,7 @@ public:
         return a;
     }
 
-    static int getRandom(const int from, const int to) const {
+    static int getRandom(const int from, const int to) {
 #ifdef _WIN32
         std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch());
         std::mt19937 mt(static_cast<unsigned int>(ns.count()));

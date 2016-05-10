@@ -24,15 +24,7 @@
 #include "namespaces/def.h"
 #include <climits>
 #include "threadPool/Thread.h"
-
-#ifdef JS_MODE
-#include "js/Tablebase.h"
-#else
-
 #include "Tablebase.h"
-
-#endif
-
 
 class Search : public Eval, public Thread<Search>, public Hash {
 
