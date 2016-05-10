@@ -116,7 +116,7 @@ Perft::~Perft() {
 }
 
 void Perft::alloc() {
-    perftRes.hash = (_ThashPerft **) calloc(perftRes.depth + 1, sizeof(_ThashPerft *));
+    perftRes.hash = (_ThashPerft **) calloc(perftRes.depth + 1, sizeof(_ThashPerft * ));
     _assert(perftRes.hash);
     u64 k = 1024 * 1024 * mbSize / POW2[perftRes.depth];
     for (int i = 1; i <= perftRes.depth; i++) {

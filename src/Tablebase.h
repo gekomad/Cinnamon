@@ -54,7 +54,7 @@ public:
 
     int getProbeDepth() const;
 
-    int getDtm(const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth) const ;
+    int getDtm(const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth) const;
 
 private:
     Tablebase();

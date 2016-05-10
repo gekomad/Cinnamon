@@ -125,8 +125,8 @@ private:
     typedef struct {
         int res;
         bool hashFlag[2];
-        Hash::_Thash phasheType[2];
-        Hash::_Thash *rootHash[2];
+        _Tdata phasheType[2];
+//        _Tdata *rootHash[2];
     } _TcheckHash;
 
 
@@ -151,7 +151,7 @@ private:
 
     bool checkInsufficientMaterial(const int) const;
 
-    void sortHashMoves(const int listId, const Hash::_Thash &phashe);
+    void sortHashMoves(const int listId, const Hash::_Tdata &phashe);
 
     template<int side, bool smp>
     int quiescence(int alpha, const int beta, const char promotionPiece, const int nPieces, const int depth);
@@ -160,40 +160,39 @@ private:
 
     template<bool type, bool smp, bool quies>
     FORCEINLINE bool checkHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
-        Hash::_Thash *phashe;
 
         checkHashStruct.hashFlag[type] = false;
-        phashe = &checkHashStruct.phasheType[type];
+        _Tdata *phashe = &checkHashStruct.phasheType[type];
 
-        if (readHash<smp, type>(checkHashStruct.rootHash, zobristKeyR, phashe)) {
-            if (phashe->from != phashe->to && phashe->flags & 0x3) {    // hashfEXACT or hashfBETA
+        if (readHash<smp, type>(zobristKeyR, &(phashe->dataU))) {
+            if (phashe->dataS.from != phashe->dataS.to && phashe->dataS.flags & 0x3) {    // hashfEXACT or hashfBETA
                 checkHashStruct.hashFlag[type] = true;
             }
-            if (phashe->depth >= depth) {
+            if (phashe->dataS.depth >= depth) {
                 INC(probeHash);
                 if (!currentPly) {
-                    if (phashe->flags == Hash::hashfBETA) {
-                        incKillerHeuristic(phashe->from, phashe->to, 1);
+                    if (phashe->dataS.flags == Hash::hashfBETA) {
+                        incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
                     }
                 } else {
-                    switch (phashe->flags) {
+                    switch (phashe->dataS.flags) {
                         case Hash::hashfEXACT:
-                            if (phashe->score >= beta) {
+                            if (phashe->dataS.score >= beta) {
                                 INC(n_cut_hashB);
                                 checkHashStruct.res = beta;
                                 return true;
                             }
                             break;
                         case Hash::hashfBETA:
-                            if (!quies)incKillerHeuristic(phashe->from, phashe->to, 1);
-                            if (phashe->score >= beta) {
+                            if (!quies)incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
+                            if (phashe->dataS.score >= beta) {
                                 INC(n_cut_hashB);
                                 checkHashStruct.res = beta;
                                 return true;
                             }
                             break;
                         case Hash::hashfALPHA:
-                            if (phashe->score <= alpha) {
+                            if (phashe->dataS.score <= alpha) {
                                 INC(n_cut_hashA);
                                 checkHashStruct.res = alpha;
                                 return true;

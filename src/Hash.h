@@ -38,14 +38,21 @@ public:
     static const int HASH_GREATER = 0;
     static const int HASH_ALWAYS = 1;
 
+    typedef union {
+        u64 dataU;
+        struct {
+            short score;
+            char depth;
+            uchar from:6;
+            uchar to:6;
+            uchar entryAge:1;
+            uchar flags:2;
+        } dataS;
+    } _Tdata;
+
     typedef struct {
         u64 key;
-        short score;
-        char depth;
-        uchar from:6;
-        uchar to:6;
-        uchar entryAge:1;
-        uchar flags:2;
+        _Tdata u;
     } _Thash;
 
     enum : char {
@@ -69,57 +76,62 @@ public:
     void clearAge();
 
     template<bool smp, int type>
-    bool readHash(_Thash *phashe[2], const u64 zobristKeyR, _Thash *hashMini) const {
-        bool b = false;
-        _Thash *hash = phashe[type] = &(hashArray[type][zobristKeyR % HASH_SIZE]);
-
+    bool readHash(const u64 zobristKeyR, u64 *hashMini) const {
+        //bool b = false;
+        _Thash *hash = &(hashArray[type][zobristKeyR % HASH_SIZE]);
+        *hashMini = hash->u.dataU;
         if (smp) {
-            if (hash->key == zobristKeyR) {
-                if (type == HASH_GREATER)spinlockHashGreater.lock();
-                if (type == HASH_ALWAYS)spinlockHashAlways.lock();
-                if (hash->key == zobristKeyR) {//TODO mettere assert e in caso eliminare if
-                    b = true;
-                    memcpy(hashMini, hash, sizeof(_Thash));
-                }
-                if (type == HASH_GREATER)spinlockHashGreater.unlock();
-                if (type == HASH_ALWAYS)spinlockHashAlways.unlock();
+//            if (type == HASH_GREATER)spinlockHashGreater.lock();
+//            if (type == HASH_ALWAYS)spinlockHashAlways.lock();
+            u64 k = hash->key;
+
+            if (zobristKeyR == (k ^ *hashMini)) {
+                return true;
+//                memcpy(hashMini, hash, sizeof(_Thash));
             }
+//            if (type == HASH_GREATER)spinlockHashGreater.unlock();
+//            if (type == HASH_ALWAYS)spinlockHashAlways.unlock();
+
         } else {
-            if (hash->key == zobristKeyR) {
-                b = true;
-                memcpy(hashMini, hash, sizeof(_Thash));
+            if (zobristKeyR == (hash->key ^ *hashMini)) {
+
+                *hashMini = hash->u.dataU;
+                return true;
+//                memcpy(hashMini, hash, sizeof(_Thash));
             }
 
         }
 
-        return b;
+        return false;
     }
 
     template<bool smp>
-    void recordHash(const bool running, _Thash *rootHash[2], const char depth, const char flags, const u64 key, const int score, const _Tmove *bestMove) {
+    void recordHash(const bool running, const char depth, const char flags, const u64 key, const int score, const _Tmove *bestMove) {
         ASSERT(key);
-        ASSERT(rootHash[HASH_GREATER]);
-        ASSERT(rootHash[HASH_ALWAYS]);
+
         if (!running) {
             return;
         }
         ASSERT(abs(score) <= 32200);
         _Thash tmp;
 
-        tmp.key = key;
-        tmp.score = score;
-        tmp.flags = flags;
-        tmp.depth = depth;
+//        tmp.key = key;
+        tmp.u.dataS.score = score;
+        tmp.u.dataS.flags = flags;
+        tmp.u.dataS.depth = depth;
         if (bestMove && bestMove->from != bestMove->to) {
-            tmp.from = bestMove->from;
-            tmp.to = bestMove->to;
+            tmp.u.dataS.from = bestMove->from;
+            tmp.u.dataS.to = bestMove->to;
         } else {
-            tmp.from = tmp.to = 0;
+            tmp.u.dataS.from = tmp.u.dataS.to = 0;
         }
 
-        if (smp)spinlockHashGreater.lock();
-        memcpy(rootHash[HASH_GREATER], &tmp, sizeof(_Thash));
-        if (smp)spinlockHashGreater.unlock();
+        _Thash *rootHashG = &(hashArray[HASH_GREATER][key % HASH_SIZE]);
+//        if (smp)spinlockHashGreater.lock();
+        rootHashG->key = (key ^ tmp.u.dataU);
+        rootHashG->u.dataU = tmp.u.dataU;
+//        memcpy(rootHash[HASH_GREATER], &tmp, sizeof(_Thash));
+//        if (smp)spinlockHashGreater.unlock();
 
 
 #ifdef DEBUG_MODE
@@ -131,16 +143,19 @@ public:
             nRecordHashE++;
         }
 #endif
-        tmp.entryAge = 1;
+        tmp.u.dataS.entryAge = 1;
 
-        if (smp)spinlockHashAlways.lock();
-        if (rootHash[HASH_ALWAYS]->key && rootHash[HASH_ALWAYS]->depth >= depth && rootHash[HASH_ALWAYS]->entryAge) {
+//        if (smp)spinlockHashAlways.lock();
+        _Thash *rootHashA = &(hashArray[HASH_ALWAYS][key % HASH_SIZE]);
+        if (rootHashA->key && rootHashA->u.dataS.depth >= depth && rootHashA->u.dataS.entryAge) {//TODO eliminare prima condizone
             INC(collisions);
-            if (smp)spinlockHashAlways.unlock();
+//            if (smp)spinlockHashAlways.unlock();
             return;
         }
-        memcpy(rootHash[HASH_ALWAYS], &tmp, sizeof(_Thash));
-        if (smp)spinlockHashAlways.unlock();
+        rootHashA->key = (key ^ tmp.u.dataU);
+        rootHashA->u.dataU = tmp.u.dataU;
+//        memcpy(rootHash[HASH_ALWAYS], &tmp, sizeof(_Thash));
+//        if (smp)spinlockHashAlways.unlock();
 
     }
 
@@ -156,8 +171,8 @@ private:
     void dispose();
 
     static _Thash *hashArray[2];
-    static Spinlock spinlockHashGreater;
-    static Spinlock spinlockHashAlways;
+//    static Spinlock spinlockHashGreater;
+//    static Spinlock spinlockHashAlways;
     static mutex mutexConstructor;
 
 };
