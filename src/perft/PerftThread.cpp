@@ -19,7 +19,6 @@
 #include "PerftThread.h"
 #include "Perft.h"
 
-Spinlock PerftThread::SPINLOCK_HASH;
 Spinlock PerftThread::spinlockPrint;
 
 PerftThread::PerftThread() { }
@@ -98,15 +97,23 @@ u64 PerftThread::search(const int depthx) {
 
     if (useHash) {
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
-        if (smp)SPINLOCK_HASH.lock();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
-        if (zobristKeyR == phashe->key) {
-            partialTot += phashe->nMoves;
-            u64 r = phashe->nMoves;
-            if (smp)SPINLOCK_HASH.unlock();
-            return r;
+
+        if (smp) {
+            u64 k = phashe->key;
+            u64 n = phashe->nMoves;
+
+            if (zobristKeyR == (k ^ n)) {
+                partialTot += n;
+                return n;
+            }
+        } else {
+            if (zobristKeyR == phashe->key) {
+                partialTot += phashe->nMoves;
+                return phashe->nMoves;
+            }
         }
-        if (smp)SPINLOCK_HASH.unlock();
+
     }
     int listcount;
     _Tmove *move;
@@ -130,10 +137,13 @@ u64 PerftThread::search(const int depthx) {
     }
     decListId();
     if (useHash) {
-        if (smp) SPINLOCK_HASH.lock();
-        phashe->key = zobristKeyR;
-        phashe->nMoves = n_perft;
-        if (smp) SPINLOCK_HASH.unlock();
+        if (smp) {
+            phashe->key = (zobristKeyR ^ n_perft);
+            phashe->nMoves = n_perft;
+        } else {
+            phashe->key = zobristKeyR;
+            phashe->nMoves = n_perft;
+        }
     }
     return n_perft;
 }

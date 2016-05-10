@@ -48,8 +48,6 @@ public:
 
 private:
 
-    static Spinlock SPINLOCK_HASH;
-
     static Spinlock spinlockPrint;
     u64 tot = 0;
 
