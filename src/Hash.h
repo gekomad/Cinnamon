@@ -43,10 +43,10 @@ public:
         struct {
             short score;
             char depth;
-            uchar from:6;
-            uchar to:6;
-            uchar entryAge:1;
-            uchar flags:2;
+            uchar from;
+            uchar to;
+            uchar entryAge;
+            uchar flags;
         } dataS;
     } _Tdata;
 
@@ -75,64 +75,53 @@ public:
 
     void clearAge();
 
-    template<bool smp, int type>
-    bool readHash(const u64 zobristKeyR, u64 *hashMini) const {
-        //bool b = false;
+    template<int type>
+    u64 readHash(const u64 zobristKeyR) const {
         _Thash *hash = &(hashArray[type][zobristKeyR % HASH_SIZE]);
-        *hashMini = hash->u.dataU;
-        if (smp) {
-//            if (type == HASH_GREATER)spinlockHashGreater.lock();
-//            if (type == HASH_ALWAYS)spinlockHashAlways.lock();
-            u64 k = hash->key;
-
-            if (zobristKeyR == (k ^ *hashMini)) {
-                return true;
-//                memcpy(hashMini, hash, sizeof(_Thash));
-            }
-//            if (type == HASH_GREATER)spinlockHashGreater.unlock();
-//            if (type == HASH_ALWAYS)spinlockHashAlways.unlock();
-
-        } else {
-            if (zobristKeyR == (hash->key ^ *hashMini)) {
-
-                *hashMini = hash->u.dataU;
-                return true;
-//                memcpy(hashMini, hash, sizeof(_Thash));
-            }
-
+        u64 data = hash->u.dataU;
+        u64 k = hash->key;
+        if (zobristKeyR == (k ^ data)) {
+            return data;
         }
-
-        return false;
+        return 0;
     }
 
-    template<bool smp>
-    void recordHash(const bool running, const char depth, const char flags, const u64 key, const int score, const _Tmove *bestMove) {
-        ASSERT(key);
+    void recordHash(const bool running, const char depth, const char flags, const u64 zobristKey, const int score, const _Tmove *bestMove) {
+        ASSERT(zobristKey);
 
-        if (!running) {
+        if (!bestMove || !running) {
             return;
         }
-        ASSERT(abs(score) <= 32200);
-        _Thash tmp;
 
-//        tmp.key = key;
-        tmp.u.dataS.score = score;
-        tmp.u.dataS.flags = flags;
-        tmp.u.dataS.depth = depth;
-        if (bestMove && bestMove->from != bestMove->to) {
-            tmp.u.dataS.from = bestMove->from;
-            tmp.u.dataS.to = bestMove->to;
-        } else {
-            tmp.u.dataS.from = tmp.u.dataS.to = 0;
+
+        if (bestMove->from == bestMove->to) { //TODO eliminare
+            cout << "assert from: " << (int) bestMove->from << "\n";
+            cout << " to: " << (int) bestMove->to << "\n";
+            cout << " capturedPiece: " << (int) bestMove->capturedPiece << "\n";
+            cout << " pieceFrom: " << (int) bestMove->pieceFrom << "\n";
+            cout << " score: " << (int) bestMove->score << "\n";
+            cout << " type: " << (int) bestMove->type << "\n";
+            cout << " side: " << (int) bestMove->side << "\n";
+            cout << " used: " << (int) bestMove->used << "\n";
+            cout << " promotionPiece: " << (int) bestMove->promotionPiece << endl;
+            _assert(0);
+
         }
+        ASSERT(abs(score) <= 32200);
+        _Tdata tmp;
 
-        _Thash *rootHashG = &(hashArray[HASH_GREATER][key % HASH_SIZE]);
-//        if (smp)spinlockHashGreater.lock();
-        rootHashG->key = (key ^ tmp.u.dataU);
-        rootHashG->u.dataU = tmp.u.dataU;
-//        memcpy(rootHash[HASH_GREATER], &tmp, sizeof(_Thash));
-//        if (smp)spinlockHashGreater.unlock();
+        tmp.dataS.from = bestMove->from;
+        tmp.dataS.to = bestMove->to;
 
+        tmp.dataS.score = score;
+        tmp.dataS.flags = flags;
+        tmp.dataS.depth = depth;
+        tmp.dataS.entryAge = 0;//TODO cancellare
+        int kMod = zobristKey % HASH_SIZE;
+        _Thash *rootHashG = &(hashArray[HASH_GREATER][kMod]);
+
+        rootHashG->key = (zobristKey ^ tmp.dataU);
+        rootHashG->u.dataU = tmp.dataU;
 
 #ifdef DEBUG_MODE
         if (flags == hashfALPHA) {
@@ -143,19 +132,15 @@ public:
             nRecordHashE++;
         }
 #endif
-        tmp.u.dataS.entryAge = 1;
 
-//        if (smp)spinlockHashAlways.lock();
-        _Thash *rootHashA = &(hashArray[HASH_ALWAYS][key % HASH_SIZE]);
+        _Thash *rootHashA = &(hashArray[HASH_ALWAYS][kMod]);
         if (rootHashA->key && rootHashA->u.dataS.depth >= depth && rootHashA->u.dataS.entryAge) {//TODO eliminare prima condizone
             INC(collisions);
-//            if (smp)spinlockHashAlways.unlock();
             return;
         }
-        rootHashA->key = (key ^ tmp.u.dataU);
-        rootHashA->u.dataU = tmp.u.dataU;
-//        memcpy(rootHash[HASH_ALWAYS], &tmp, sizeof(_Thash));
-//        if (smp)spinlockHashAlways.unlock();
+        tmp.dataS.entryAge = 1;
+        rootHashA->key = (zobristKey ^ tmp.dataU);
+        rootHashA->u.dataU = tmp.dataU;
 
     }
 

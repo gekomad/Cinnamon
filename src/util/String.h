@@ -25,7 +25,7 @@
 #include <string.h>
 
 using namespace std;
-#if UINTPTR_MAX == 0xffffffffffffffff
+#if __WORDSIZE == 64
 //64 bit
 typedef __int128_t i128;
 #else

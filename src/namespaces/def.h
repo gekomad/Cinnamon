@@ -92,7 +92,7 @@ namespace _def {
 
 
 #ifdef HAS_BSF
-#if UINTPTR_MAX == 0xffffffffffffffff
+#if __WORDSIZE == 64
 
     static inline int BITScanForward(u64 bits) {
         return __builtin_ffsll(bits) - 1;

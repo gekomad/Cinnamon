@@ -177,10 +177,10 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
 
     _TcheckHash checkHashStruct;
 
-    if (checkHash<Hash::HASH_GREATER, smp, true>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+    if (checkHash<Hash::HASH_GREATER, true>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
     };
-    if (checkHash<Hash::HASH_ALWAYS, smp, true>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+    if (checkHash<Hash::HASH_ALWAYS, true>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
     };
 
@@ -212,9 +212,9 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
     _Tmove *move;
     _Tmove *best = nullptr;
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
-    if (checkHashStruct.hashFlag[Hash::HASH_GREATER]) {
+    if (checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.flags & 0x3 /*&& checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.from != checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.to*/) {// hashfEXACT or hashfBETA
         sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_GREATER]);
-    } else if (checkHashStruct.hashFlag[Hash::HASH_ALWAYS]) {
+    } else if (checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.flags & 0x3 /*&& checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.from != checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.to*/) {// hashfEXACT or hashfBETA
         sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_ALWAYS]);
     }
     while ((move = getNextMove(&gen_list[listId]))) {
@@ -236,7 +236,7 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
             if (score >= beta) {
                 decListId();
 
-                recordHash<smp>(getRunning(), depth, Hash::hashfBETA, zobristKeyR, score, move);
+                recordHash(getRunning(), depth, Hash::hashfBETA, zobristKeyR, score, move);
                 return beta;
             }
             best = move;
@@ -245,7 +245,7 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
         }
     }
 
-    recordHash<smp>(getRunning(), depth, hashf, zobristKeyR, score, best);
+    recordHash(getRunning(), depth, hashf, zobristKeyR, score, best);
 
     decListId();
 
@@ -422,10 +422,10 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
 
     _TcheckHash checkHashStruct;
 
-    if (checkHash<Hash::HASH_GREATER, smp, false>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+    if (checkHash<Hash::HASH_GREATER, false>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
     };
-    if (checkHash<Hash::HASH_ALWAYS, smp, false>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
+    if (checkHash<Hash::HASH_ALWAYS, false>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
         return checkHashStruct.res;
     };
     ///********** end hash ***************
@@ -494,11 +494,12 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
         }
     }
     _Tmove *best = nullptr;
-    if (checkHashStruct.hashFlag[Hash::HASH_GREATER]) {
+    if (checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.flags & 0x3 /*&& checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.from != checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.to*/) {// hashfEXACT or hashfBETA
         sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_GREATER]);
-    } else if (checkHashStruct.hashFlag[Hash::HASH_ALWAYS]) {
+    } else if (checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.flags & 0x3 /* && checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.from != checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.to*/) {// hashfEXACT or hashfBETA
         sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_ALWAYS]);
     }
+
     INC(totGen);
     _Tmove *move;
     bool checkInCheck = false;
@@ -549,7 +550,7 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
                 INC(nCutAB);
                 ADD(betaEfficiency, betaEfficiencyCount / (double) listcount * 100.0);
 
-                recordHash<smp>(getRunning(), depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
+                recordHash(getRunning(), depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
                 setKillerHeuristic(move->from, move->to, 0x400);
                 return score;
             }
@@ -561,7 +562,7 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
         }
     }
 
-    recordHash<smp>(getRunning(), depth - extension, hashf, zobristKeyR, score, best);
+    recordHash(getRunning(), depth - extension, hashf, zobristKeyR, score, best);
     decListId();
     return score;
 }

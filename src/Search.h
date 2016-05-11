@@ -124,9 +124,7 @@ private:
 
     typedef struct {
         int res;
-        bool hashFlag[2];
         _Tdata phasheType[2];
-//        _Tdata *rootHash[2];
     } _TcheckHash;
 
 
@@ -158,16 +156,12 @@ private:
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
-    template<bool type, bool smp, bool quies>
+    template<bool type, bool quies>
     FORCEINLINE bool checkHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
 
-        checkHashStruct.hashFlag[type] = false;
         _Tdata *phashe = &checkHashStruct.phasheType[type];
 
-        if (readHash<smp, type>(zobristKeyR, &(phashe->dataU))) {
-            if (phashe->dataS.from != phashe->dataS.to && phashe->dataS.flags & 0x3) {    // hashfEXACT or hashfBETA
-                checkHashStruct.hashFlag[type] = true;
-            }
+        if (phashe->dataU = readHash<type>(zobristKeyR)) {
             if (phashe->dataS.depth >= depth) {
                 INC(probeHash);
                 if (!currentPly) {
