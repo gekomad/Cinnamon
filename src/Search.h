@@ -124,7 +124,7 @@ private:
 
     typedef struct {
         int res;
-        _Tdata phasheType[2];
+        _ThashData phasheType[2];
     } _TcheckHash;
 
 
@@ -149,7 +149,7 @@ private:
 
     bool checkInsufficientMaterial(const int) const;
 
-    void sortHashMoves(const int listId, const Hash::_Tdata &phashe);
+    void sortHashMoves(const int listId, const Hash::_ThashData &phashe);
 
     template<int side, bool smp>
     int quiescence(int alpha, const int beta, const char promotionPiece, const int nPieces, const int depth);
@@ -159,7 +159,7 @@ private:
     template<bool type, bool quies>
     FORCEINLINE bool checkHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
 
-        _Tdata *phashe = &checkHashStruct.phasheType[type];
+        _ThashData *phashe = &checkHashStruct.phasheType[type];
 
         if (phashe->dataU = readHash<type>(zobristKeyR)) {
             if (phashe->dataS.depth >= depth) {

@@ -38,21 +38,43 @@ public:
     static const int HASH_GREATER = 0;
     static const int HASH_ALWAYS = 1;
 
-    typedef union {
+    union _ThashData {
         u64 dataU;
-        struct {
+
+        struct __dataS {
             short score;
             char depth;
             uchar from;
             uchar to;
             uchar entryAge;
             uchar flags;
+
+            __dataS() { };
+
+            __dataS(short score1, char depth1, uchar from1,
+                    uchar to1,
+                    uchar entryAge1,
+                    uchar flags1) :
+                    score(score1),
+                    depth(depth1),
+                    from(from1),
+                    to(to1),
+                    entryAge(entryAge1),
+                    flags(flags1) { };
         } dataS;
-    } _Tdata;
+
+        _ThashData() { };
+
+        _ThashData(short score1, char depth1, uchar from1,
+                   uchar to1,
+                   uchar entryAge1,
+                   uchar flags1) :
+                dataS(score1, depth1, from1, to1, entryAge1, flags1) { };
+    } __Tdata;
 
     typedef struct {
         u64 key;
-        _Tdata u;
+        _ThashData u;
     } _Thash;
 
     enum : char {
@@ -86,37 +108,9 @@ public:
         return 0;
     }
 
-    void recordHash(const bool running, const char depth, const char flags, const u64 zobristKey, const int score, const _Tmove *bestMove) {
+    void recordHash(const u64 zobristKey, _ThashData &tmp) {
         ASSERT(zobristKey);
 
-        if (!bestMove || !running) {
-            return;
-        }
-
-
-        if (bestMove->from == bestMove->to) { //TODO eliminare
-            cout << "assert from: " << (int) bestMove->from << "\n";
-            cout << " to: " << (int) bestMove->to << "\n";
-            cout << " capturedPiece: " << (int) bestMove->capturedPiece << "\n";
-            cout << " pieceFrom: " << (int) bestMove->pieceFrom << "\n";
-            cout << " score: " << (int) bestMove->score << "\n";
-            cout << " type: " << (int) bestMove->type << "\n";
-            cout << " side: " << (int) bestMove->side << "\n";
-            cout << " used: " << (int) bestMove->used << "\n";
-            cout << " promotionPiece: " << (int) bestMove->promotionPiece << endl;
-            _assert(0);
-
-        }
-        ASSERT(abs(score) <= 32200);
-        _Tdata tmp;
-
-        tmp.dataS.from = bestMove->from;
-        tmp.dataS.to = bestMove->to;
-
-        tmp.dataS.score = score;
-        tmp.dataS.flags = flags;
-        tmp.dataS.depth = depth;
-        tmp.dataS.entryAge = 0;//TODO cancellare
         int kMod = zobristKey % HASH_SIZE;
         _Thash *rootHashG = &(hashArray[HASH_GREATER][kMod]);
 
@@ -124,9 +118,9 @@ public:
         rootHashG->u.dataU = tmp.dataU;
 
 #ifdef DEBUG_MODE
-        if (flags == hashfALPHA) {
+        if (tmp.dataS.flags == hashfALPHA) {
             nRecordHashA++;
-        } else if (flags == hashfBETA) {
+        } else if (tmp.dataS.flags == hashfBETA) {
             nRecordHashB++;
         } else {
             nRecordHashE++;
@@ -134,7 +128,7 @@ public:
 #endif
 
         _Thash *rootHashA = &(hashArray[HASH_ALWAYS][kMod]);
-        if (rootHashA->key && rootHashA->u.dataS.depth >= depth && rootHashA->u.dataS.entryAge) {//TODO eliminare prima condizone
+        if (rootHashA->key && rootHashA->u.dataS.depth >= tmp.dataS.depth && rootHashA->u.dataS.entryAge) {//TODO eliminare prima condizone
             INC(collisions);
             return;
         }
