@@ -38,7 +38,7 @@ public:
     static const int HASH_GREATER = 0;
     static const int HASH_ALWAYS = 1;
 
-    union _ThashData {
+    typedef union _ThashData {
         u64 dataU;
 
         struct __dataS {
@@ -51,25 +51,14 @@ public:
 
             __dataS() { };
 
-            __dataS(short score1, char depth1, uchar from1,
-                    uchar to1,
-                    uchar entryAge1,
-                    uchar flags1) :
-                    score(score1),
-                    depth(depth1),
-                    from(from1),
-                    to(to1),
-                    entryAge(entryAge1),
-                    flags(flags1) { };
+            __dataS(const short score, const char depth, const uchar from, const uchar to, const uchar entryAge, const uchar flags) :
+                    score(score), depth(depth), from(from), to(to), entryAge(entryAge), flags(flags) { };
         } dataS;
 
         _ThashData() { };
 
-        _ThashData(short score1, char depth1, uchar from1,
-                   uchar to1,
-                   uchar entryAge1,
-                   uchar flags1) :
-                dataS(score1, depth1, from1, to1, entryAge1, flags1) { };
+        _ThashData(const short score, const char depth, const uchar from, const uchar to, const uchar entryAge, const uchar flags) :
+                dataS(score, depth, from, to, entryAge, flags) { };
     } __Tdata;
 
     typedef struct {
@@ -150,8 +139,6 @@ private:
     void dispose();
 
     static _Thash *hashArray[2];
-//    static Spinlock spinlockHashGreater;
-//    static Spinlock spinlockHashAlways;
     static mutex mutexConstructor;
 
 };

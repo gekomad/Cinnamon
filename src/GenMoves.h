@@ -233,7 +233,7 @@ public:
         int side = ChessBoard::loadFen(fen);
         if (side == 2) {
             fatal("Bad FEN position format ", fen);
-            std::_Exit(1);
+            std::exit(1);
         }
         return side;
     }

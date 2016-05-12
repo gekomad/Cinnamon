@@ -25,6 +25,8 @@
 
 #include <gtest/gtest.h>
 
+void check();
+
 #endif
 
 /*
@@ -106,9 +108,14 @@ void printHeader() {
     cout << flush;
 }
 
+void check() {
+    _assert(sizeof(Hash::_Thash) == 16);
+    _assert(sizeof(_Tmove) == 16);
+}
+
 int main(int argc, char **argv) {
     printHeader();
-
+    check();
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);
     if (RUN_ALL_TESTS())return 1;
@@ -122,4 +129,5 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
 

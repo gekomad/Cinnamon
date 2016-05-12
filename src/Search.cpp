@@ -16,11 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <unistd.h>
+
 #include "Search.h"
 #include "SearchManager.h"
-#include "namespaces/board.h"
-#include "Hash.h"
 
 Tablebase *Search::gtb;
 
@@ -177,11 +175,12 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
 
     _TcheckHash checkHashStruct;
 
-    if (checkHash<Hash::HASH_GREATER, true>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
-        return checkHashStruct.res;
+    int r;
+    if ((r = checkHash<Hash::HASH_GREATER, true>(alpha, beta, depth, zobristKeyR, checkHashStruct)) != INT_MAX) {
+        return r;
     };
-    if (checkHash<Hash::HASH_ALWAYS, true>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
-        return checkHashStruct.res;
+    if ((r = checkHash<Hash::HASH_ALWAYS, true>(alpha, beta, depth, zobristKeyR, checkHashStruct)) != INT_MAX) {
+        return r;
     };
 
 ///********** end hash ***************
@@ -210,7 +209,8 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
         return score;
     }
     _Tmove *move;
-    _Tmove *best = nullptr;
+    ASSERT(gen_list[listId].size > 0);
+    _Tmove *best = &gen_list[listId].moveList[0];
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     if (checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.flags & 0x3 /*&& checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.from != checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.to*/) {// hashfEXACT or hashfBETA
         sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_GREATER]);
@@ -235,20 +235,7 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
         if (score > alpha) {
             if (score >= beta) {
                 decListId();
-                if (move && getRunning()) {
-                    if (move->from == move->to) { //TODO eliminare
-                        cout << "assert from: " << (int) move->from << "\n";
-                        cout << " to: " << (int) move->to << "\n";
-                        cout << " capturedPiece: " << (int) move->capturedPiece << "\n";
-                        cout << " pieceFrom: " << (int) move->pieceFrom << "\n";
-                        cout << " score: " << (int) move->score << "\n";
-                        cout << " type: " << (int) move->type << "\n";
-                        cout << " side: " << (int) move->side << "\n";
-                        cout << " used: " << (int) move->used << "\n";
-                        cout << " promotionPiece: " << (int) move->promotionPiece << endl;
-                        _assert(0);
-
-                    }
+                if (getRunning()) {
                     _ThashData data(score, depth, move->from, move->to, 0, Hash::hashfBETA);
                     recordHash(zobristKeyR, data);
                 }
@@ -259,20 +246,7 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
             hashf = Hash::hashfEXACT;
         }
     }
-    if (best && getRunning()) {
-        if (best->from == best->to) { //TODO eliminare
-            cout << "assert from: " << (int) best->from << "\n";
-            cout << " to: " << (int) best->to << "\n";
-            cout << " capturedPiece: " << (int) best->capturedPiece << "\n";
-            cout << " pieceFrom: " << (int) best->pieceFrom << "\n";
-            cout << " score: " << (int) best->score << "\n";
-            cout << " type: " << (int) best->type << "\n";
-            cout << " side: " << (int) best->side << "\n";
-            cout << " used: " << (int) best->used << "\n";
-            cout << " promotionPiece: " << (int) best->promotionPiece << endl;
-            _assert(0);
-
-        }
+    if (getRunning()) {
         _ThashData data(score, depth, best->from, best->to, 0, hashf);
         recordHash(zobristKeyR, data);
     }
@@ -451,12 +425,12 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
     u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
 
     _TcheckHash checkHashStruct;
-
-    if (checkHash<Hash::HASH_GREATER, false>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
-        return checkHashStruct.res;
+    int r;
+    if ((r = checkHash<Hash::HASH_GREATER, false>(alpha, beta, depth, zobristKeyR, checkHashStruct)) != INT_MAX) {
+        return r;
     };
-    if (checkHash<Hash::HASH_ALWAYS, false>(alpha, beta, depth, zobristKeyR, checkHashStruct)) {
-        return checkHashStruct.res;
+    if ((r = checkHash<Hash::HASH_ALWAYS, false>(alpha, beta, depth, zobristKeyR, checkHashStruct)) != INT_MAX) {
+        return r;
     };
     ///********** end hash ***************
 
@@ -523,7 +497,8 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
             return -lazyEval<side>() * 2;
         }
     }
-    _Tmove *best = nullptr;
+    ASSERT(gen_list[listId].size > 0);
+    _Tmove *best = &gen_list[listId].moveList[0];
     if (checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.flags & 0x3 /*&& checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.from != checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.to*/) {// hashfEXACT or hashfBETA
         sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_GREATER]);
     } else if (checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.flags & 0x3 /* && checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.from != checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.to*/) {// hashfEXACT or hashfBETA
@@ -580,25 +555,10 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
                 INC(nCutAB);
                 ADD(betaEfficiency, betaEfficiencyCount / (double) listcount * 100.0);
 
-                if (best && getRunning()) {
-                    if (best->from == best->to) { //TODO eliminare
-                        cout << "assert from: " << (int) best->from << "\n";
-                        cout << " to: " << (int) best->to << "\n";
-                        cout << " capturedPiece: " << (int) best->capturedPiece << "\n";
-                        cout << " pieceFrom: " << (int) best->pieceFrom << "\n";
-                        cout << " score: " << (int) best->score << "\n";
-                        cout << " type: " << (int) best->type << "\n";
-                        cout << " side: " << (int) best->side << "\n";
-                        cout << " used: " << (int) best->used << "\n";
-                        cout << " promotionPiece: " << (int) best->promotionPiece << endl;
-                        _assert(0);
-
-                    }
+                if (getRunning()) {
                     _ThashData data(score, depth - extension, move->from, move->to, 0, Hash::hashfBETA);
                     recordHash(zobristKeyR, data);
                 }
-
-//                recordHash(getRunning(), depth - extension, Hash::hashfBETA, zobristKeyR, score, move);
                 setKillerHeuristic(move->from, move->to, 0x400);
                 return score;
             }
@@ -609,24 +569,11 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
             updatePv(pline, &line, move);
         }
     }
-    if (best && getRunning()) {
-        if (best->from == best->to) { //TODO eliminare
-            cout << "assert from: " << (int) best->from << "\n";
-            cout << " to: " << (int) best->to << "\n";
-            cout << " capturedPiece: " << (int) best->capturedPiece << "\n";
-            cout << " pieceFrom: " << (int) best->pieceFrom << "\n";
-            cout << " score: " << (int) best->score << "\n";
-            cout << " type: " << (int) best->type << "\n";
-            cout << " side: " << (int) best->side << "\n";
-            cout << " used: " << (int) best->used << "\n";
-            cout << " promotionPiece: " << (int) best->promotionPiece << endl;
-            _assert(0);
-
-        }
+    if (getRunning()) {
         _ThashData data(score, depth - extension, best->from, best->to, 0, hashf);
         recordHash(zobristKeyR, data);
     }
-//    recordHash(getRunning(), depth - extension, hashf, zobristKeyR, score, best);
+
     decListId();
     return score;
 }

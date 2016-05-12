@@ -19,6 +19,7 @@
 #pragma once
 
 #include <sys/timeb.h>
+#include <unistd.h>
 #include "Hash.h"
 #include "Eval.h"
 #include "namespaces/def.h"
@@ -123,10 +124,8 @@ private:
     int valWindow = INT_MAX;
 
     typedef struct {
-        int res;
         _ThashData phasheType[2];
     } _TcheckHash;
-
 
     static bool runningThread;
     _TpvLine pvLine;
@@ -157,10 +156,9 @@ private:
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
     template<bool type, bool quies>
-    FORCEINLINE bool checkHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
+    FORCEINLINE int checkHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
 
         _ThashData *phashe = &checkHashStruct.phasheType[type];
-
         if (phashe->dataU = readHash<type>(zobristKeyR)) {
             if (phashe->dataS.depth >= depth) {
                 INC(probeHash);
@@ -173,23 +171,20 @@ private:
                         case Hash::hashfEXACT:
                             if (phashe->dataS.score >= beta) {
                                 INC(n_cut_hashB);
-                                checkHashStruct.res = beta;
-                                return true;
+                                return beta;
                             }
                             break;
                         case Hash::hashfBETA:
                             if (!quies)incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
                             if (phashe->dataS.score >= beta) {
                                 INC(n_cut_hashB);
-                                checkHashStruct.res = beta;
-                                return true;
+                                return beta;
                             }
                             break;
                         case Hash::hashfALPHA:
                             if (phashe->dataS.score <= alpha) {
                                 INC(n_cut_hashA);
-                                checkHashStruct.res = alpha;
-                                return true;
+                                return alpha;
                             }
                             break;
                         default:
@@ -201,7 +196,7 @@ private:
             }
             INC(cutFailed);
         }
-        return false;
+        return INT_MAX;
     }
 
 

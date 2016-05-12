@@ -75,7 +75,7 @@ bool Perft::load() {
     if (depthHash > perftRes.depth) {
         fatal("error depth < hash depth");
         f.close();
-        std::_Exit(0);
+        std::exit(0);
     };
     f.read(reinterpret_cast<char *>(&nCpuHash), sizeof(int));
     f.read(reinterpret_cast<char *>(&mbSizeHash), sizeof(u64));
