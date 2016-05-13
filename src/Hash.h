@@ -117,7 +117,9 @@ public:
 #endif
 
         _Thash *rootHashA = &(hashArray[HASH_ALWAYS][kMod]);
-        if (rootHashA->key && rootHashA->u.dataS.depth >= tmp.dataS.depth && rootHashA->u.dataS.entryAge) {//TODO eliminare prima condizone
+
+        if (rootHashA->u.dataS.depth >= tmp.dataS.depth && rootHashA->u.dataS.entryAge) {
+            _assert(rootHashA->key);//TODO eliminare
             INC(collisions);
             return;
         }
