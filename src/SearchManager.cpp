@@ -96,7 +96,7 @@ void SearchManager::lazySMP(const int mply) {
 
 void SearchManager::receiveObserverSearch(const int threadID) {
     ASSERT(getNthread() > 1);
-    spinlockSearch.lock();//TODO commentare se single-thread
+    spinlockSearch.lock();
     INC(checkSmp1);
 
     if (getRunning(threadID) && lineWin.cmove == -1) {
