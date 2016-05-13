@@ -267,12 +267,6 @@ void Search::setRunning(const int r) {
     }
 }
 
-int Search::getRunning() const {
-    if (!runningThread)return 0;
-    return GenMoves::getRunning();
-
-}
-
 void Search::setMaxTimeMillsec(const int n) {
     maxTimeMillsec = n;
 }

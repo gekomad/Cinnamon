@@ -18,8 +18,6 @@
 
 #include "Uci.h"
 #include "util/GetOpt.h"
-#include "util/Bitboard.h"
-#include "namespaces/board.h"
 
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 

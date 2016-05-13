@@ -52,7 +52,6 @@ void IterativeDeeping::loadBook(const string f) {
 }
 
 void IterativeDeeping::setUseBook(const bool b) {
-    bool valid = true;
     if (!openBook && b) {
         openBook = OpenBook::getInstance("cinnamon.bin");
         return;
@@ -112,6 +111,9 @@ void IterativeDeeping::run() {
     string pvv;
     _Tmove resultMove;
     bool foundBestmove = false;
+#ifdef DEBUG_MODE
+    u64 totMovesPrec = -1;
+#endif
     while (searchManager.getRunning(0)) {
         totMoves = 0;
         ++mply;
@@ -138,7 +140,6 @@ void IterativeDeeping::run() {
             sc = 0x7fffffff;
         }
 #ifdef DEBUG_MODE
-        u64 totMovesPrec = -1;
         int totStoreHash = searchManager.getPool()[0]->nRecordHashA + searchManager.getPool()[0]->nRecordHashB + searchManager.getPool()[0]->nRecordHashE + 1;
         int percStoreHashA = searchManager.getPool()[0]->nRecordHashA * 100 / totStoreHash;
         int percStoreHashB = searchManager.getPool()[0]->nRecordHashB * 100 / totStoreHash;

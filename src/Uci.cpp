@@ -69,10 +69,9 @@ void Uci::listner(IterativeDeeping *it) {
 
         if (token == "perft") {
             //compatible with ARENA (http://auriga-cinnamon.rhcloud.com)
-            int perftDepth = -1;
             string fen;
             getToken(uip, token);
-            perftDepth = stoi(token);
+            int perftDepth = stoi(token);
             if (perftDepth > MAX_PLY || perftDepth <= 0) {
                 perftDepth = 1;
             }

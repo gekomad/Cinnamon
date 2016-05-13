@@ -49,7 +49,10 @@ public:
 
     void startClock();
 
-    int getRunning() const;
+    int getRunning() const {
+        if (!runningThread)return 0;
+        return GenMoves::getRunning();
+    }
 
     void deleteGtb();
 
