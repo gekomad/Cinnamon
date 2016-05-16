@@ -119,7 +119,6 @@ public:
         _Thash *rootHashA = &(hashArray[HASH_ALWAYS][kMod]);
 
         if (rootHashA->u.dataS.depth >= tmp.dataS.depth && rootHashA->u.dataS.entryAge) {
-            _assert(rootHashA->key);//TODO eliminare
             INC(collisions);
             return;
         }
