@@ -45,7 +45,11 @@ set(SOURCE_FILES
         Uci.cpp
         #google test
         test/test.cpp
-        util/Bitboard.cpp util/Bitboard.h)
+        util/Bitboard.cpp util/Bitboard.h
+#        syzygy/apps/main.cpp
+        syzygy/tbprobe.cpp
+        syzygy/main.cpp
+        )
 
 set(CMAKE_CXX_COMPILER "g++")
 add_executable(cinnamon ${SOURCE_FILES})
