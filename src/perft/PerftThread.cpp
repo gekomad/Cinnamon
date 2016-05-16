@@ -33,8 +33,8 @@ void PerftThread::setParam(const string &fen1, const int from1, const int to1, _
 
 unsigned PerftThread::perft(const string &fen, const int depth) {
     loadFen(fen);
-    if (getSide()) return search<WHITE, false, false>(depth);
-    return search<BLACK, false, false>(depth);
+    if (getSide()) return search<WHITE, false>(depth);
+    return search<BLACK, false>(depth);
 }
 
 vector<string> PerftThread::getSuccessorsFen(const string &fen1, const int depth) {
@@ -84,11 +84,10 @@ vector<string> PerftThread::getSuccessorsFen(const int depthx) {
 }
 
 
-template<int side, bool useHash, bool smp>
+template<int side, bool useHash>
 u64 PerftThread::search(const int depthx) {
     checkWait();
     if (depthx == 0) {
-        partialTot++;
         return 1;
     }
     u64 zobristKeyR;
@@ -99,21 +98,12 @@ u64 PerftThread::search(const int depthx) {
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
 
-        if (smp) {
-            u64 k = phashe->key;
-            u64 n = phashe->nMoves;
+        u64 k = phashe->key;
+        u64 n = phashe->nMoves;
 
-            if (zobristKeyR == (k ^ n)) {
-                partialTot += n;
-                return n;
-            }
-        } else {
-            if (zobristKeyR == phashe->key) {
-                partialTot += phashe->nMoves;
-                return phashe->nMoves;
-            }
+        if (zobristKeyR == (k ^ n)) {
+            return n;
         }
-
     }
     int listcount;
     _Tmove *move;
@@ -132,18 +122,13 @@ u64 PerftThread::search(const int depthx) {
         move = getMove(ii);
         u64 keyold = chessboard[ZOBRISTKEY_IDX];
         makemove(move, false, false);
-        n_perft += search<side ^ 1, useHash, smp>(depthx - 1);
+        n_perft += search<side ^ 1, useHash>(depthx - 1);
         takeback<false>(move, keyold);
     }
     decListId();
     if (useHash) {
-        if (smp) {
-            phashe->key = (zobristKeyR ^ n_perft);
-            phashe->nMoves = n_perft;
-        } else {
-            phashe->key = zobristKeyR;
-            phashe->nMoves = n_perft;
-        }
+        phashe->key = (zobristKeyR ^ n_perft);
+        phashe->nMoves = n_perft;
     }
     return n_perft;
 }
@@ -168,22 +153,13 @@ void PerftThread::run() {
         u64 n_perft = 0;
         move = getMove(ii);
         makemove(move, false, false);
-        bool fhash = tPerftRes->hash != nullptr ? true : false;
+        bool fhash = tPerftRes->hash != nullptr;
         bool side = (chessboard[SIDETOMOVE_IDX] ^ 1);
-        bool smp = tPerftRes->nCpu == 1 ? false : true;
 
         if (fhash) {
-            if (side == WHITE) {
-                n_perft = smp ? search<WHITE, USE_HASH_YES, true>(tPerftRes->depth - 1) : search<WHITE, USE_HASH_YES, false>(tPerftRes->depth - 1);
-            } else {
-                n_perft = smp ? search<BLACK, USE_HASH_YES, true>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_YES, false>(tPerftRes->depth - 1);
-            }
+            n_perft = side == WHITE ? search<WHITE, USE_HASH_YES>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_YES>(tPerftRes->depth - 1);
         } else {//no hash
-            if (side == WHITE) {
-                n_perft = smp ? search<WHITE, USE_HASH_NO, true>(tPerftRes->depth - 1) : search<WHITE, USE_HASH_NO, false>(tPerftRes->depth - 1);
-            } else {
-                n_perft = smp ? search<BLACK, USE_HASH_NO, true>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_NO, false>(tPerftRes->depth - 1);
-            }
+            n_perft = side == WHITE ? search<WHITE, USE_HASH_NO>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_NO>(tPerftRes->depth - 1);
         }
 
         takeback<false>(move, keyold);
@@ -219,8 +195,4 @@ void PerftThread::run() {
 }
 
 PerftThread::~PerftThread() {
-}
-
-u64 PerftThread::getPartial() const {
-    return partialTot;
 }

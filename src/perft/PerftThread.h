@@ -40,8 +40,6 @@ public:
 
     void endRun();
 
-    u64 getPartial() const;
-
     unsigned perft(const string &fen, const int depth);
 
     vector<string> getSuccessorsFen(const string &fen1, const int depth);
@@ -51,12 +49,11 @@ private:
     static Spinlock spinlockPrint;
     u64 tot = 0;
 
-    template<int side, bool useHash, bool smp>
+    template<int side, bool useHash>
     u64 search(const int depthx);
 
     int from, to;
     _TPerftRes *tPerftRes;
-    u64 partialTot = 0;
 
     template<int side>
     vector<string> getSuccessorsFen(const int depthx);
