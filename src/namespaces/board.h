@@ -73,6 +73,15 @@ namespace _board {
     static const u64 BIG_DIAGONAL = 0x102040810204080ULL;
     static const u64 BIG_ANTIDIAGONAL = 0x8040201008040201ULL;
 
+    typedef struct _Tchessboard {
+        u64 bit[16];
+
+        template<int side>
+        u64 getBitmap() const {
+            return bit[PAWN_BLACK + side] | bit[ROOK_BLACK + side] | bit[BISHOP_BLACK + side] | bit[KNIGHT_BLACK + side] | bit[KING_BLACK + side] | bit[QUEEN_BLACK + side];
+        }
+    } _Tchessboard;
+
     typedef struct {
         char promotionPiece;
         char pieceFrom;
@@ -84,17 +93,6 @@ namespace _board {
         int score;
         bool used;
     } _Tmove;
-
-    /* typedef struct {
-         char promotionPiece:5;
-         char side:2;
-         char pieceFrom:5;
-         uchar capturedPiece:4;
-         uchar from;
-         uchar to;
-         uchar type;
-         short score;//Last position! (sorting)
-     } _Tmove;*/
 
     typedef struct {
         _Tmove *moveList;

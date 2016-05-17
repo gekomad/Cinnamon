@@ -112,25 +112,25 @@ public:
 
     template<int side>
     u64 getBitmap() const {
-        return chessboard[PAWN_BLACK + side] | chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
+        return chessboard.getBitmap<side>();
     }
 
     void setSide(const bool b) {
-        chessboard[SIDETOMOVE_IDX] = b;
+        chessboard.bit[SIDETOMOVE_IDX] = b;
     }
 
     int getSide() const {
-        return chessboard[SIDETOMOVE_IDX];
+        return chessboard.bit[SIDETOMOVE_IDX];
     }
 
     template<int side>
     u64 getBitmapNoPawns() const {
-        return chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
+        return chessboard.bit[ROOK_BLACK + side] | chessboard.bit[BISHOP_BLACK + side] | chessboard.bit[KNIGHT_BLACK + side] | chessboard.bit[KING_BLACK + side] | chessboard.bit[QUEEN_BLACK + side];
     }
 
     template<int side>
     int getPieceAt(const u64 bitmapPos) const {
-        return ((chessboard[PAWN_BLACK + side] & bitmapPos) ? PAWN_BLACK + side : ((chessboard[ROOK_BLACK + side] & bitmapPos) ? ROOK_BLACK + side : ((chessboard[BISHOP_BLACK + side] & bitmapPos) ? BISHOP_BLACK + side : ((chessboard[KNIGHT_BLACK + side] & bitmapPos) ? KNIGHT_BLACK + side : ((chessboard[QUEEN_BLACK + side] & bitmapPos) ? QUEEN_BLACK + side : ((chessboard[KING_BLACK + side] & bitmapPos) ? KING_BLACK + side : SQUARE_FREE))))));
+        return ((chessboard.bit[PAWN_BLACK + side] & bitmapPos) ? PAWN_BLACK + side : ((chessboard.bit[ROOK_BLACK + side] & bitmapPos) ? ROOK_BLACK + side : ((chessboard.bit[BISHOP_BLACK + side] & bitmapPos) ? BISHOP_BLACK + side : ((chessboard.bit[KNIGHT_BLACK + side] & bitmapPos) ? KNIGHT_BLACK + side : ((chessboard.bit[QUEEN_BLACK + side] & bitmapPos) ? QUEEN_BLACK + side : ((chessboard.bit[KING_BLACK + side] & bitmapPos) ? KING_BLACK + side : SQUARE_FREE))))));
     }
 
 protected:
@@ -204,7 +204,7 @@ protected:
 
     template<int side>
     int getNpiecesNoPawnNoKing() const {
-        return bitCount(chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] | chessboard[QUEEN_BLACK + side]);
+        return bitCount(chessboard.bit[ROOK_BLACK + side] | chessboard.bit[BISHOP_BLACK + side] | chessboard.bit[KNIGHT_BLACK + side] | chessboard.bit[QUEEN_BLACK + side]);
     }
 
 #ifdef DEBUG_MODE
@@ -212,13 +212,13 @@ protected:
     void updateZobristKey(const int piece, const int position) {
         ASSERT_RANGE(position, 0, 63);
         ASSERT_RANGE(piece, 0, 14);
-        chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];
+        chessboard.bit[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];
     }
 
     int getPieceAt(const int side, const u64 bitmapPos) const;
 
 #else
-#define updateZobristKey(piece, position) (chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position])
+#define updateZobristKey(piece, position) (chessboard.bit[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position])
 
 #endif
 private:

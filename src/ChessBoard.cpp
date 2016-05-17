@@ -21,7 +21,7 @@
 ChessBoard::ChessBoard() {
     fenString = string(STARTPOS);
     memset(&structureEval, 0, sizeof(_Tboard));
-    if ((chessboard[SIDETOMOVE_IDX] = loadFen(fenString)) == 2) {
+    if ((chessboard.bit[SIDETOMOVE_IDX] = loadFen(fenString)) == 2) {
         fatal("Bad FEN position format ", fenString);
         std::exit(1);
     }
@@ -44,19 +44,19 @@ int ChessBoard::getPieceAt(int side, const u64 bitmapPos) const {
 #endif
 
 void ChessBoard::makeZobristKey() {
-    chessboard[ZOBRISTKEY_IDX] = 0;
+    chessboard.bit[ZOBRISTKEY_IDX] = 0;
     for (int u = 0; u < 12; u++) {
-        u64 c = chessboard[u];
+        u64 c = chessboard.bit[u];
         while (c) {
             int position = BITScanForward(c);
             updateZobristKey(u, position);
             RESET_LSB(c);
         }
     }
-    if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
-        updateZobristKey(ENPASSANT_IDX, chessboard[ENPASSANT_IDX]);
+    if (chessboard.bit[ENPASSANT_IDX] != NO_ENPASSANT) {
+        updateZobristKey(ENPASSANT_IDX, chessboard.bit[ENPASSANT_IDX]);
     }
-    u64 x2 = chessboard[RIGHT_CASTLE_IDX];
+    u64 x2 = chessboard.bit[RIGHT_CASTLE_IDX];
     while (x2) {
         int position = BITScanForward(x2);
         updateZobristKey(14, position);
@@ -94,10 +94,10 @@ void ChessBoard::display() const {
     cout << "     a   b   c   d   e   f   g   h\n\n\n" << boardToFen() << "\n" << endl;
 #ifdef DEBUG_MODE
 
-    cout << "zobristKey: " << chessboard[ZOBRISTKEY_IDX] << "\n";
-    cout << "enpassantPosition: " << chessboard[ENPASSANT_IDX] << "\n";
-    cout << "rightCastle: " << (int) chessboard[RIGHT_CASTLE_IDX] << "\n";
-    cout << "sideToMove: " << chessboard[SIDETOMOVE_IDX] << "\n";
+    cout << "zobristKey: " << chessboard.bit[ZOBRISTKEY_IDX] << "\n";
+    cout << "enpassantPosition: " << chessboard.bit[ENPASSANT_IDX] << "\n";
+    cout << "rightCastle: " << (int) chessboard.bit[RIGHT_CASTLE_IDX] << "\n";
+    cout << "sideToMove: " << chessboard.bit[SIDETOMOVE_IDX] << "\n";
 
 #endif
 }
@@ -130,36 +130,36 @@ string ChessBoard::boardToFen() const {
             fen.append("/");
         }
     }
-    if (chessboard[SIDETOMOVE_IDX] == BLACK) {
+    if (chessboard.bit[SIDETOMOVE_IDX] == BLACK) {
         fen.append(" b ");
     } else {
         fen.append(" w ");
     }
     int cst = 0;
-    if (chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK) {
+    if (chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK) {
         fen.append("K");
         cst++;
     }
-    if (chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK) {
+    if (chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK) {
         fen.append("Q");
         cst++;
     }
-    if (chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK) {
+    if (chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK) {
         fen.append("k");
         cst++;
     }
-    if (chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK) {
+    if (chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK) {
         fen.append("q");
         cst++;
     }
     if (!cst) {
         fen.append("-");
     }
-    if (chessboard[ENPASSANT_IDX] == NO_ENPASSANT) {
+    if (chessboard.bit[ENPASSANT_IDX] == NO_ENPASSANT) {
         fen.append(" -");
     } else {
         fen.append(" ");
-        chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(BOARD[chessboard[ENPASSANT_IDX] - 8]);
+        chessboard.bit[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard.bit[ENPASSANT_IDX] + 8]) : fen.append(BOARD[chessboard.bit[ENPASSANT_IDX] - 8]);
     }
     fen.append(" 0 1");
     return fen;
@@ -184,7 +184,7 @@ int ChessBoard::loadFen(string fen) {
     if (fen.empty()) {
         return loadFen();
     }
-    memset(chessboard, 0, sizeof(_Tchessboard));
+    memset(chessboard.bit, 0, sizeof(_Tchessboard));
     istringstream iss(fen);
     string pos, castle, enpassant, side;
     iss >> pos;
@@ -211,9 +211,9 @@ int ChessBoard::loadFen(string fen) {
         return 2;
     }
     if (side == "b") {
-        chessboard[SIDETOMOVE_IDX] = BLACK;
+        chessboard.bit[SIDETOMOVE_IDX] = BLACK;
     } else if (side == "w") {
-        chessboard[SIDETOMOVE_IDX] = WHITE;
+        chessboard.bit[SIDETOMOVE_IDX] = WHITE;
     } else {
         return 2;
     }
@@ -222,9 +222,9 @@ int ChessBoard::loadFen(string fen) {
         int p = s[63 - i];
         if (p != SQUARE_FREE) {
             updateZobristKey(p, i);
-            chessboard[p] |= POW2[i];
+            chessboard.bit[p] |= POW2[i];
         } else {
-            chessboard[p] &= NOTPOW2[i];
+            chessboard.bit[p] &= NOTPOW2[i];
         }
     };
 
@@ -233,40 +233,40 @@ int ChessBoard::loadFen(string fen) {
             case 'K':
                 updateZobristKey(RIGHT_CASTLE_IDX, 4);
                 ASSERT(BITScanForward(4 == RIGHT_KING_CASTLE_WHITE_MASK));
-                chessboard[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_WHITE_MASK;
+                chessboard.bit[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_WHITE_MASK;
                 break;
             case 'k':
                 updateZobristKey(RIGHT_CASTLE_IDX, 6);
                 ASSERT(BITScanForward(6 == RIGHT_KING_CASTLE_BLACK_MASK));
-                chessboard[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_BLACK_MASK;
+                chessboard.bit[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_BLACK_MASK;
                 break;
             case 'Q':
                 updateZobristKey(RIGHT_CASTLE_IDX, 5);
                 ASSERT(BITScanForward(5 == RIGHT_QUEEN_CASTLE_WHITE_MASK));
-                chessboard[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_WHITE_MASK;
+                chessboard.bit[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_WHITE_MASK;
                 break;
             case 'q':
                 updateZobristKey(RIGHT_CASTLE_IDX, 7);
                 ASSERT(BITScanForward(7 == RIGHT_QUEEN_CASTLE_BLACK_MASK));
-                chessboard[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_BLACK_MASK;
+                chessboard.bit[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_BLACK_MASK;
                 break;
             default:;
         };
     };
-    chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
+    chessboard.bit[ENPASSANT_IDX] = NO_ENPASSANT;
     for (int i = 0; i < 64; i++) {
         if (enpassant == BOARD[i]) {
-            chessboard[ENPASSANT_IDX] = i;
-            if (chessboard[SIDETOMOVE_IDX]) {
-                chessboard[ENPASSANT_IDX] -= 8;
+            chessboard.bit[ENPASSANT_IDX] = i;
+            if (chessboard.bit[SIDETOMOVE_IDX]) {
+                chessboard.bit[ENPASSANT_IDX] -= 8;
             } else {
-                chessboard[ENPASSANT_IDX] += 8;
+                chessboard.bit[ENPASSANT_IDX] += 8;
             }
-            updateZobristKey(ENPASSANT_IDX, chessboard[ENPASSANT_IDX]);
+            updateZobristKey(ENPASSANT_IDX, chessboard.bit[ENPASSANT_IDX]);
             break;
         }
     }
-    return chessboard[SIDETOMOVE_IDX];
+    return chessboard.bit[SIDETOMOVE_IDX];
 }
 
 #ifdef DEBUG_MODE
@@ -274,7 +274,7 @@ int ChessBoard::loadFen(string fen) {
 bool ChessBoard::checkNPieces(std::unordered_map<int, int> pieces) const {
     int a = 0;
     for (int i = 0; i < 13; i++) {
-        a += bitCount(chessboard[i]) == pieces[i];
+        a += bitCount(chessboard.bit[i]) == pieces[i];
     }
     return a == 13;
 }

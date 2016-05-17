@@ -112,9 +112,9 @@ public:
 
     bool getGtbAvailable() const;
 
-    string getSYZYGYbestmove() const;
+    string getSYZYGYbestmove(const int side) const;
 
-    int getSYZYGYdtm() const;
+    int getSYZYGYdtm(const int side) const;
 
     int getMoveFromSan(const String &string, _Tmove *ptr);
 

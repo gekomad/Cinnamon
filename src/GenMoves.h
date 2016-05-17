@@ -73,8 +73,8 @@ public:
     template<int side>
     void generateMoves(const u64 allpieces) {
         ASSERT_RANGE(side, 0, 1);
-        ASSERT(chessboard[KING_BLACK]);
-        ASSERT(chessboard[KING_WHITE]);
+        ASSERT(chessboard.bit[KING_BLACK]);
+        ASSERT(chessboard.bit[KING_WHITE]);
         tryAllCastle<side>(allpieces);
         performDiagShift<side>(BISHOP_BLACK + side, allpieces);
         performRankFileShift<side>(ROOK_BLACK + side, allpieces);
@@ -88,11 +88,11 @@ public:
     template<int side>
     bool generateCaptures(const u64 enemies, const u64 friends) {
         ASSERT_RANGE(side, 0, 1);
-        ASSERT(chessboard[KING_BLACK]);
-        ASSERT(chessboard[KING_WHITE]);
+        ASSERT(chessboard.bit[KING_BLACK]);
+        ASSERT(chessboard.bit[KING_WHITE]);
         u64 allpieces = enemies | friends;
 //        if (std::is_same<TYPE_MODE, PERFT_MODE>::value) {fast_perft
-//            int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
+//            int kingPosition = BITScanForward(chessboard.bit[KING_BLACK + side]);
 //            pinned = getPin<side>(allpieces, friends, kingPosition);
 //            isInCheck = isAttacked<side>(kingPosition, allpieces);
 //        }
@@ -130,7 +130,7 @@ public:
     }
 
     int getMoveFromSan(const string &fenStr, _Tmove *move) {
-        chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
+        chessboard.bit[ENPASSANT_IDX] = NO_ENPASSANT;
         memset(move, 0, sizeof(_Tmove));
         static const string MATCH_QUEENSIDE = "O-O-O e1c1 e8c8";
         static const string MATCH_QUEENSIDE_WHITE = "O-O-O e1c1";
@@ -254,10 +254,10 @@ public:
         if (rep) {
             popStackMove();
         }
-        chessboard[ZOBRISTKEY_IDX] = oldkey;
-        chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
+        chessboard.bit[ZOBRISTKEY_IDX] = oldkey;
+        chessboard.bit[ENPASSANT_IDX] = NO_ENPASSANT;
         int pieceFrom, posTo, posFrom, movecapture;
-        chessboard[RIGHT_CASTLE_IDX] = move->type & 0xf0;
+        chessboard.bit[RIGHT_CASTLE_IDX] = move->type & 0xf0;
         if ((move->type & 0x3) == STANDARD_MOVE_MASK || (move->type & 0x3) == ENPASSANT_MOVE_MASK) {
             posTo = move->to;
             posFrom = move->from;
@@ -265,16 +265,16 @@ public:
             ASSERT_RANGE(posFrom, 0, 63);
             ASSERT_RANGE(posTo, 0, 63);
             pieceFrom = move->pieceFrom;
-            chessboard[pieceFrom] = (chessboard[pieceFrom] & NOTPOW2[posTo]) | POW2[posFrom];
+            chessboard.bit[pieceFrom] = (chessboard.bit[pieceFrom] & NOTPOW2[posTo]) | POW2[posFrom];
             if (movecapture != SQUARE_FREE) {
                 if (((move->type & 0x3) != ENPASSANT_MOVE_MASK)) {
-                    chessboard[movecapture] |= POW2[posTo];
+                    chessboard.bit[movecapture] |= POW2[posTo];
                 } else {
                     ASSERT(movecapture == (move->side ^ 1));
                     if (move->side) {
-                        chessboard[movecapture] |= POW2[posTo - 8];
+                        chessboard.bit[movecapture] |= POW2[posTo - 8];
                     } else {
-                        chessboard[movecapture] |= POW2[posTo + 8];
+                        chessboard.bit[movecapture] |= POW2[posTo + 8];
                     }
                 }
             }
@@ -283,10 +283,10 @@ public:
             posFrom = move->from;
             movecapture = move->capturedPiece;
             ASSERT(posTo >= 0 && move->side >= 0 && move->promotionPiece >= 0);
-            chessboard[(uchar) move->side] |= POW2[posFrom];
-            chessboard[(uchar) move->promotionPiece] &= NOTPOW2[posTo];
+            chessboard.bit[(uchar) move->side] |= POW2[posFrom];
+            chessboard.bit[(uchar) move->promotionPiece] &= NOTPOW2[posTo];
             if (movecapture != SQUARE_FREE) {
-                chessboard[movecapture] |= POW2[posTo];
+                chessboard.bit[movecapture] |= POW2[posTo];
             }
         } else if (move->type & 0xc) { //castle
             unPerformCastle(move->side, move->type);
@@ -305,7 +305,7 @@ public:
     template<int side>
     bool performKingShiftCapture(const u64 enemies) {
         ASSERT_RANGE(side, 0, 1);
-        int pos = BITScanForward(chessboard[KING_BLACK + side]);
+        int pos = BITScanForward(chessboard.bit[KING_BLACK + side]);
         ASSERT(pos != -1);
         u64 x1 = enemies & NEAR_MASK1[pos];
         while (x1) {
@@ -321,7 +321,7 @@ public:
     bool performKnightShiftCapture(const int piece, const u64 enemies) {
         ASSERT_RANGE(piece, 0, 11);
         ASSERT_RANGE(side, 0, 1);
-        u64 x = chessboard[piece];
+        u64 x = chessboard.bit[piece];
         while (x) {
             int pos = BITScanForward(x);
             u64 x1 = enemies & KNIGHT_MASK[pos];
@@ -340,7 +340,7 @@ public:
     bool performDiagCapture(const int piece, const u64 enemies, const u64 allpieces) {
         ASSERT_RANGE(piece, 0, 11);
         ASSERT_RANGE(side, 0, 1);
-        u64 x2 = chessboard[piece];
+        u64 x2 = chessboard.bit[piece];
         while (x2) {
             int position = BITScanForward(x2);
             u64 diag = getDiagonalAntiDiagonal(position, allpieces) & enemies;;
@@ -363,7 +363,7 @@ public:
     bool performRankFileCapture(const int piece, const u64 enemies, const u64 allpieces) {
         ASSERT_RANGE(piece, 0, 11);
         ASSERT_RANGE(side, 0, 1);
-        u64 x2 = chessboard[piece];
+        u64 x2 = chessboard.bit[piece];
         while (x2) {
             int position = BITScanForward(x2);
             u64 rankFile = getRankFile(position, allpieces) & enemies;;
@@ -380,11 +380,11 @@ public:
 
     template<int side>
     bool performPawnCapture(const u64 enemies) {
-        if (!chessboard[side]) {
-            if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
-                updateZobristKey(13, chessboard[ENPASSANT_IDX]);
+        if (!chessboard.bit[side]) {
+            if (chessboard.bit[ENPASSANT_IDX] != NO_ENPASSANT) {
+                updateZobristKey(13, chessboard.bit[ENPASSANT_IDX]);
             }
-            chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
+            chessboard.bit[ENPASSANT_IDX] = NO_ENPASSANT;
             return false;
         }
 
@@ -392,9 +392,9 @@ public:
 
         u64 x;
         if (side) {
-            x = (chessboard[side] << 7) & TABCAPTUREPAWN_LEFT & enemies;
+            x = (chessboard.bit[side] << 7) & TABCAPTUREPAWN_LEFT & enemies;
         } else {
-            x = (chessboard[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies;
+            x = (chessboard.bit[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies;
         };
         while (x) {
             int o = BITScanForward(x);
@@ -420,9 +420,9 @@ public:
         };
         constexpr int GG2 = side ? -9 : 9;
         if (side) {
-            x = (chessboard[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies;
+            x = (chessboard.bit[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies;
         } else {
-            x = (chessboard[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies;
+            x = (chessboard.bit[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies;
         };
         u64 inPromotion = x & 0xff000000000000ffULL;
         while (inPromotion) {    //PROMOTION
@@ -453,15 +453,15 @@ public:
             RESET_LSB(x);
         };
         //ENPASSANT
-        if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
-            x = ENPASSANT_MASK[side ^ 1][chessboard[ENPASSANT_IDX]] & chessboard[side];
+        if (chessboard.bit[ENPASSANT_IDX] != NO_ENPASSANT) {
+            x = ENPASSANT_MASK[side ^ 1][chessboard.bit[ENPASSANT_IDX]] & chessboard.bit[side];
             while (x) {
                 int o = BITScanForward(x);
-                pushmove<ENPASSANT_MOVE_MASK, side>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8), NO_PROMOTION, side);
+                pushmove<ENPASSANT_MOVE_MASK, side>(o, (side ? chessboard.bit[ENPASSANT_IDX] + 8 : chessboard.bit[ENPASSANT_IDX] - 8), NO_PROMOTION, side);
                 RESET_LSB(x);
             }
-            updateZobristKey(13, chessboard[ENPASSANT_IDX]);
-            chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
+            updateZobristKey(13, chessboard.bit[ENPASSANT_IDX]);
+            chessboard.bit[ENPASSANT_IDX] = NO_ENPASSANT;
         }
         return false;
     }
@@ -470,7 +470,7 @@ public:
     template<int side>
     void performPawnShift(const u64 xallpieces) {
         constexpr int tt = side ? -8 : 8;
-        u64 x = chessboard[side];
+        u64 x = chessboard.bit[side];
         if (x & PAWNS_JUMP[side]) {
             checkJumpPawn<side>(x, xallpieces);
         }
@@ -513,7 +513,7 @@ public:
     void performDiagShift(const int piece, const u64 allpieces) {
         ASSERT_RANGE(piece, 0, 11);
         ASSERT_RANGE(side, 0, 1);
-        u64 x2 = chessboard[piece];
+        u64 x2 = chessboard.bit[piece];
         while (x2) {
             int position = BITScanForward(x2);
             u64 diag = getDiagonalAntiDiagonal(position, allpieces) & ~allpieces;
@@ -529,7 +529,7 @@ public:
     void performRankFileShift(const int piece, const u64 allpieces) {
         ASSERT_RANGE(piece, 0, 11);
         ASSERT_RANGE(side, 0, 1);
-        u64 x2 = chessboard[piece];
+        u64 x2 = chessboard.bit[piece];
         while (x2) {
             int position = BITScanForward(x2);
             u64 rankFile = getRankFile(position, allpieces) & ~allpieces;
@@ -543,9 +543,9 @@ public:
 
     bool makemove(const _Tmove *move, const bool rep = true, const bool checkInCheck = false) {
         ASSERT(move);
-        ASSERT(bitCount(chessboard[KING_WHITE]) == 1 && bitCount(chessboard[KING_BLACK]) == 1);
+        ASSERT(bitCount(chessboard.bit[KING_WHITE]) == 1 && bitCount(chessboard.bit[KING_BLACK]) == 1);
         int pieceFrom = SQUARE_FREE, posTo, posFrom, movecapture = SQUARE_FREE;
-        uchar rightCastleOld = chessboard[RIGHT_CASTLE_IDX];
+        uchar rightCastleOld = chessboard.bit[RIGHT_CASTLE_IDX];
         if (!(move->type & 0xc)) { //no castle
             posTo = move->to;
             posFrom = move->from;
@@ -554,27 +554,27 @@ public:
             ASSERT_RANGE(posTo, 0, 63);
             pieceFrom = move->pieceFrom;
             if ((move->type & 0x3) == PROMOTION_MOVE_MASK) {
-                chessboard[pieceFrom] &= NOTPOW2[posFrom];
+                chessboard.bit[pieceFrom] &= NOTPOW2[posFrom];
                 updateZobristKey(pieceFrom, posFrom);
                 ASSERT(move->promotionPiece >= 0);
-                chessboard[(uchar) move->promotionPiece] |= POW2[posTo];
+                chessboard.bit[(uchar) move->promotionPiece] |= POW2[posTo];
                 updateZobristKey((uchar) move->promotionPiece, posTo);
             } else {
-                chessboard[pieceFrom] = (chessboard[pieceFrom] | POW2[posTo]) & NOTPOW2[posFrom];
+                chessboard.bit[pieceFrom] = (chessboard.bit[pieceFrom] | POW2[posTo]) & NOTPOW2[posFrom];
                 updateZobristKey(pieceFrom, posFrom);
                 updateZobristKey(pieceFrom, posTo);
             }
             if (movecapture != SQUARE_FREE) {
                 if ((move->type & 0x3) != ENPASSANT_MOVE_MASK) {
-                    chessboard[movecapture] &= NOTPOW2[posTo];
+                    chessboard.bit[movecapture] &= NOTPOW2[posTo];
                     updateZobristKey(movecapture, posTo);
                 } else { //en passant
                     ASSERT(movecapture == (move->side ^ 1));
                     if (move->side) {
-                        chessboard[movecapture] &= NOTPOW2[posTo - 8];
+                        chessboard.bit[movecapture] &= NOTPOW2[posTo - 8];
                         updateZobristKey(movecapture, posTo - 8);
                     } else {
-                        chessboard[movecapture] &= NOTPOW2[posTo + 8];
+                        chessboard.bit[movecapture] &= NOTPOW2[posTo + 8];
                         updateZobristKey(movecapture, posTo + 8);
                     }
                 }
@@ -582,38 +582,38 @@ public:
             //lost castle right
             switch (pieceFrom) {
                 case KING_WHITE: {
-                    chessboard[RIGHT_CASTLE_IDX] &= 0xcf;
+                    chessboard.bit[RIGHT_CASTLE_IDX] &= 0xcf;
                 }
                     break;
                 case KING_BLACK: {
-                    chessboard[RIGHT_CASTLE_IDX] &= 0x3f;
+                    chessboard.bit[RIGHT_CASTLE_IDX] &= 0x3f;
                 }
                     break;
                 case ROOK_WHITE:
                     if (posFrom == 0) {
-                        chessboard[RIGHT_CASTLE_IDX] &= 0xef;
+                        chessboard.bit[RIGHT_CASTLE_IDX] &= 0xef;
                     } else if (posFrom == 7) {
-                        chessboard[RIGHT_CASTLE_IDX] &= 0xdf;
+                        chessboard.bit[RIGHT_CASTLE_IDX] &= 0xdf;
                     }
                     break;
                 case ROOK_BLACK:
                     if (posFrom == 56) {
-                        chessboard[RIGHT_CASTLE_IDX] &= 0xbf;
+                        chessboard.bit[RIGHT_CASTLE_IDX] &= 0xbf;
                     } else if (posFrom == 63) {
-                        chessboard[RIGHT_CASTLE_IDX] &= 0x7f;
+                        chessboard.bit[RIGHT_CASTLE_IDX] &= 0x7f;
                     }
                     break;
                     //en passant
                 case PAWN_WHITE:
                     if ((RANK_1 & POW2[posFrom]) && (RANK_3 & POW2[posTo])) {
-                        chessboard[ENPASSANT_IDX] = posTo;
-                        updateZobristKey(13, chessboard[ENPASSANT_IDX]);
+                        chessboard.bit[ENPASSANT_IDX] = posTo;
+                        updateZobristKey(13, chessboard.bit[ENPASSANT_IDX]);
                     }
                     break;
                 case PAWN_BLACK:
                     if ((RANK_6 & POW2[posFrom]) && (RANK_4 & POW2[posTo])) {
-                        chessboard[ENPASSANT_IDX] = posTo;
-                        updateZobristKey(13, chessboard[ENPASSANT_IDX]);
+                        chessboard.bit[ENPASSANT_IDX] = posTo;
+                        updateZobristKey(13, chessboard.bit[ENPASSANT_IDX]);
                     }
                     break;
                 default:;
@@ -621,12 +621,12 @@ public:
         } else { //castle
             performCastle(move->side, move->type);
             if (move->side == WHITE) {
-                chessboard[RIGHT_CASTLE_IDX] &= 0xcf;
+                chessboard.bit[RIGHT_CASTLE_IDX] &= 0xcf;
             } else {
-                chessboard[RIGHT_CASTLE_IDX] &= 0x3f;
+                chessboard.bit[RIGHT_CASTLE_IDX] &= 0x3f;
             }
         }
-        u64 x2 = rightCastleOld ^chessboard[RIGHT_CASTLE_IDX];
+        u64 x2 = rightCastleOld ^chessboard.bit[RIGHT_CASTLE_IDX];
         while (x2) {
             int position = BITScanForward(x2);
             updateZobristKey(14, position);
@@ -636,7 +636,7 @@ public:
             if (movecapture != SQUARE_FREE || pieceFrom == WHITE || pieceFrom == BLACK || move->type & 0xc) {
                 pushStackMove(0);
             }
-            pushStackMove(chessboard[ZOBRISTKEY_IDX]);
+            pushStackMove(chessboard.bit[ZOBRISTKEY_IDX]);
         }
         if ((forceCheck || (checkInCheck && !(std::is_same<TYPE_MODE, PERFT_MODE>::value))) && ((move->side == WHITE && inCheck<WHITE>()) || (move->side == BLACK && inCheck<BLACK>()))) {
             return false;
@@ -664,7 +664,7 @@ public:
     }
 
     void pushStackMove() {
-        pushStackMove(chessboard[ZOBRISTKEY_IDX]);
+        pushStackMove(chessboard.bit[ZOBRISTKEY_IDX]);
     }
 
     void resetList() {
@@ -748,8 +748,8 @@ public:
 ////        allpieces &= NOTPOW2[kingPosition];
 //        const u64 *s = LINK_SQUARE[kingPosition];
 //        constexpr int xside = side ^1;
-//        u64 attacked = DIAGONAL_ANTIDIAGONAL[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
-//        attacked |= RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
+//        u64 attacked = DIAGONAL_ANTIDIAGONAL[kingPosition] & (chessboard.bit[QUEEN_BLACK + xside] | chessboard.bit[BISHOP_BLACK + xside]);
+//        attacked |= RANK_FILE[kingPosition] & (chessboard.bit[QUEEN_BLACK + xside] | chessboard.bit[ROOK_BLACK + xside]);
 //        while (attacked) {
 //            int pos = BITScanForward(attacked);
 //            u64 b = *(s + pos) & allpieces;
@@ -845,12 +845,12 @@ protected:
 
     int getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces) const {
         ASSERT_RANGE(side, 0, 1);
-        return ep == NO_ENPASSANT ? 0 : bitCount(ENPASSANT_MASK[side ^ 1][ep] & chessboard[side]) + side == WHITE ?
-                                        bitCount((ped_friends << 8) & xallpieces) + bitCount(((((ped_friends & TABJUMPPAWN) << 8) & xallpieces) << 8) & xallpieces) + bitCount((chessboard[side] << 7) & TABCAPTUREPAWN_LEFT & enemies) + bitCount((chessboard[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies) :
+        return ep == NO_ENPASSANT ? 0 : bitCount(ENPASSANT_MASK[side ^ 1][ep] & chessboard.bit[side]) + side == WHITE ?
+                                        bitCount((ped_friends << 8) & xallpieces) + bitCount(((((ped_friends & TABJUMPPAWN) << 8) & xallpieces) << 8) & xallpieces) + bitCount((chessboard.bit[side] << 7) & TABCAPTUREPAWN_LEFT & enemies) + bitCount((chessboard.bit[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies) :
                                         bitCount((ped_friends >> 8) & xallpieces) +
                                         bitCount(((((ped_friends & TABJUMPPAWN) >> 8) & xallpieces) >> 8) & xallpieces) +
-                                        bitCount((chessboard[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies) +
-                                        bitCount((chessboard[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies);
+                                        bitCount((chessboard.bit[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies) +
+                                        bitCount((chessboard.bit[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies);
     }
 
 
@@ -858,17 +858,17 @@ protected:
         ASSERT_RANGE(side, 0, 1);
         int count = 0;
         if (side == WHITE) {
-            if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x6ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_0 && !isAttacked<WHITE>(1, allpieces) && !isAttacked<WHITE>(2, allpieces) && !isAttacked<WHITE>(3, allpieces)) {
+            if (POW2_3 & chessboard.bit[KING_WHITE] && !(allpieces & 0x6ULL) && chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard.bit[ROOK_WHITE] & POW2_0 && !isAttacked<WHITE>(1, allpieces) && !isAttacked<WHITE>(2, allpieces) && !isAttacked<WHITE>(3, allpieces)) {
                 count++;
             }
-            if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x70ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_7 && !isAttacked<WHITE>(3, allpieces) && !isAttacked<WHITE>(4, allpieces) && !isAttacked<WHITE>(5, allpieces)) {
+            if (POW2_3 & chessboard.bit[KING_WHITE] && !(allpieces & 0x70ULL) && chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard.bit[ROOK_WHITE] & POW2_7 && !isAttacked<WHITE>(3, allpieces) && !isAttacked<WHITE>(4, allpieces) && !isAttacked<WHITE>(5, allpieces)) {
                 count++;
             }
         } else {
-            if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK && !(allpieces & 0x600000000000000ULL) && chessboard[ROOK_BLACK] & POW2_56 && !isAttacked<BLACK>(57, allpieces) && !isAttacked<BLACK>(58, allpieces) && !isAttacked<BLACK>(59, allpieces)) {
+            if (POW2_59 & chessboard.bit[KING_BLACK] && chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK && !(allpieces & 0x600000000000000ULL) && chessboard.bit[ROOK_BLACK] & POW2_56 && !isAttacked<BLACK>(57, allpieces) && !isAttacked<BLACK>(58, allpieces) && !isAttacked<BLACK>(59, allpieces)) {
                 count++;
             }
-            if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK && !(allpieces & 0x7000000000000000ULL) && chessboard[ROOK_BLACK] & POW2_63 && !isAttacked<BLACK>(59, allpieces) && !isAttacked<BLACK>(60, allpieces) && !isAttacked<BLACK>(61, allpieces)) {
+            if (POW2_59 & chessboard.bit[KING_BLACK] && chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK && !(allpieces & 0x7000000000000000ULL) && chessboard.bit[ROOK_BLACK] & POW2_63 && !isAttacked<BLACK>(59, allpieces) && !isAttacked<BLACK>(60, allpieces) && !isAttacked<BLACK>(61, allpieces)) {
                 count++;
             }
         }
@@ -895,56 +895,56 @@ protected:
                 ASSERT(pieceFrom != SQUARE_FREE);
                 ASSERT(pieceTo != KING_BLACK);
                 ASSERT(pieceTo != KING_WHITE);
-                from1 = chessboard[pieceFrom];
+                from1 = chessboard.bit[pieceFrom];
                 if (pieceTo != SQUARE_FREE) {
-                    to1 = chessboard[pieceTo];
-                    chessboard[pieceTo] &= NOTPOW2[to];
+                    to1 = chessboard.bit[pieceTo];
+                    chessboard.bit[pieceTo] &= NOTPOW2[to];
                 };
-                chessboard[pieceFrom] &= NOTPOW2[from];
-                chessboard[pieceFrom] |= POW2[to];
-                ASSERT(chessboard[KING_BLACK]);
-                ASSERT(chessboard[KING_WHITE]);
+                chessboard.bit[pieceFrom] &= NOTPOW2[from];
+                chessboard.bit[pieceFrom] |= POW2[to];
+                ASSERT(chessboard.bit[KING_BLACK]);
+                ASSERT(chessboard.bit[KING_WHITE]);
 
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
-                chessboard[pieceFrom] = from1;
+                result = isAttacked<side>(BITScanForward(chessboard.bit[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                chessboard.bit[pieceFrom] = from1;
                 if (pieceTo != SQUARE_FREE) {
-                    chessboard[pieceTo] = to1;
+                    chessboard.bit[pieceTo] = to1;
                 };
                 break;
             }
             case PROMOTION_MOVE_MASK: {
                 u64 to1 = 0;
                 if (pieceTo != SQUARE_FREE) {
-                    to1 = chessboard[pieceTo];
+                    to1 = chessboard.bit[pieceTo];
                 }
-                u64 from1 = chessboard[pieceFrom];
-                u64 p1 = chessboard[promotionPiece];
-                chessboard[pieceFrom] &= NOTPOW2[from];
+                u64 from1 = chessboard.bit[pieceFrom];
+                u64 p1 = chessboard.bit[promotionPiece];
+                chessboard.bit[pieceFrom] &= NOTPOW2[from];
                 if (pieceTo != SQUARE_FREE) {
-                    chessboard[pieceTo] &= NOTPOW2[to];
+                    chessboard.bit[pieceTo] &= NOTPOW2[to];
                 }
-                chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                chessboard.bit[promotionPiece] = chessboard.bit[promotionPiece] | POW2[to];
+                result = isAttacked<side>(BITScanForward(chessboard.bit[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
                 if (pieceTo != SQUARE_FREE) {
-                    chessboard[pieceTo] = to1;
+                    chessboard.bit[pieceTo] = to1;
                 }
-                chessboard[pieceFrom] = from1;
-                chessboard[promotionPiece] = p1;
+                chessboard.bit[pieceFrom] = from1;
+                chessboard.bit[promotionPiece] = p1;
                 break;
             }
             case ENPASSANT_MOVE_MASK: {
-                u64 to1 = chessboard[side ^ 1];
-                u64 from1 = chessboard[side];
-                chessboard[side] &= NOTPOW2[from];
-                chessboard[side] |= POW2[to];
+                u64 to1 = chessboard.bit[side ^ 1];
+                u64 from1 = chessboard.bit[side];
+                chessboard.bit[side] &= NOTPOW2[from];
+                chessboard.bit[side] |= POW2[to];
                 if (side) {
-                    chessboard[side ^ 1] &= NOTPOW2[to - 8];
+                    chessboard.bit[side ^ 1] &= NOTPOW2[to - 8];
                 } else {
-                    chessboard[side ^ 1] &= NOTPOW2[to + 8];
+                    chessboard.bit[side ^ 1] &= NOTPOW2[to + 8];
                 }
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
-                chessboard[side ^ 1] = to1;
-                chessboard[side] = from1;;
+                result = isAttacked<side>(BITScanForward(chessboard.bit[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                chessboard.bit[side ^ 1] = to1;
+                chessboard.bit[side] = from1;;
                 break;
             }
             default:
@@ -967,7 +967,7 @@ protected:
         ASSERT(!(type & 0xc));
 //        if (std::is_same<TYPE_MODE, PERFT_MODE>::value) {fast_perft
 //            if ((KING_BLACK + side) != pieceFrom && !isInCheck) {
-//                if (!(pinned & POW2[from]) || (LINES[from][to] & chessboard[KING_BLACK + side])) {
+//                if (!(pinned & POW2[from]) || (LINES[from][to] & chessboard.bit[KING_BLACK + side])) {
 //                    ASSERT(!(inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)));
 //                    return false;
 //                } else {
@@ -979,7 +979,7 @@ protected:
 //        }
 #ifdef DEBUG_MODE
         _Tchessboard a;
-        memcpy(&a, chessboard, sizeof(_Tchessboard));
+        memcpy(&a, chessboard.bit, sizeof(_Tchessboard));
 #endif
         bool result = false;
         switch (type & 0x3) {
@@ -988,56 +988,56 @@ protected:
                 ASSERT(pieceFrom != SQUARE_FREE);
                 ASSERT(pieceTo != KING_BLACK);
                 ASSERT(pieceTo != KING_WHITE);
-                from1 = chessboard[pieceFrom];
+                from1 = chessboard.bit[pieceFrom];
                 if (pieceTo != SQUARE_FREE) {
-                    to1 = chessboard[pieceTo];
-                    chessboard[pieceTo] &= NOTPOW2[to];
+                    to1 = chessboard.bit[pieceTo];
+                    chessboard.bit[pieceTo] &= NOTPOW2[to];
                 };
-                chessboard[pieceFrom] &= NOTPOW2[from];
-                chessboard[pieceFrom] |= POW2[to];
-                ASSERT(chessboard[KING_BLACK]);
-                ASSERT(chessboard[KING_WHITE]);
+                chessboard.bit[pieceFrom] &= NOTPOW2[from];
+                chessboard.bit[pieceFrom] |= POW2[to];
+                ASSERT(chessboard.bit[KING_BLACK]);
+                ASSERT(chessboard.bit[KING_WHITE]);
 
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
-                chessboard[pieceFrom] = from1;
+                result = isAttacked<side>(BITScanForward(chessboard.bit[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                chessboard.bit[pieceFrom] = from1;
                 if (pieceTo != SQUARE_FREE) {
-                    chessboard[pieceTo] = to1;
+                    chessboard.bit[pieceTo] = to1;
                 };
                 break;
             }
             case PROMOTION_MOVE_MASK: {
                 u64 to1 = 0;
                 if (pieceTo != SQUARE_FREE) {
-                    to1 = chessboard[pieceTo];
+                    to1 = chessboard.bit[pieceTo];
                 }
-                u64 from1 = chessboard[pieceFrom];
-                u64 p1 = chessboard[promotionPiece];
-                chessboard[pieceFrom] &= NOTPOW2[from];
+                u64 from1 = chessboard.bit[pieceFrom];
+                u64 p1 = chessboard.bit[promotionPiece];
+                chessboard.bit[pieceFrom] &= NOTPOW2[from];
                 if (pieceTo != SQUARE_FREE) {
-                    chessboard[pieceTo] &= NOTPOW2[to];
+                    chessboard.bit[pieceTo] &= NOTPOW2[to];
                 }
-                chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                chessboard.bit[promotionPiece] = chessboard.bit[promotionPiece] | POW2[to];
+                result = isAttacked<side>(BITScanForward(chessboard.bit[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
                 if (pieceTo != SQUARE_FREE) {
-                    chessboard[pieceTo] = to1;
+                    chessboard.bit[pieceTo] = to1;
                 }
-                chessboard[pieceFrom] = from1;
-                chessboard[promotionPiece] = p1;
+                chessboard.bit[pieceFrom] = from1;
+                chessboard.bit[promotionPiece] = p1;
                 break;
             }
             case ENPASSANT_MOVE_MASK: {
-                u64 to1 = chessboard[side ^ 1];
-                u64 from1 = chessboard[side];
-                chessboard[side] &= NOTPOW2[from];
-                chessboard[side] |= POW2[to];
+                u64 to1 = chessboard.bit[side ^ 1];
+                u64 from1 = chessboard.bit[side];
+                chessboard.bit[side] &= NOTPOW2[from];
+                chessboard.bit[side] |= POW2[to];
                 if (side) {
-                    chessboard[side ^ 1] &= NOTPOW2[to - 8];
+                    chessboard.bit[side ^ 1] &= NOTPOW2[to - 8];
                 } else {
-                    chessboard[side ^ 1] &= NOTPOW2[to + 8];
+                    chessboard.bit[side ^ 1] &= NOTPOW2[to + 8];
                 }
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
-                chessboard[side ^ 1] = to1;
-                chessboard[side] = from1;;
+                result = isAttacked<side>(BITScanForward(chessboard.bit[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                chessboard.bit[side ^ 1] = to1;
+                chessboard.bit[side] = from1;;
                 break;
             }
             default:
@@ -1045,7 +1045,7 @@ protected:
         }
 
 #ifdef DEBUG_MODE
-        ASSERT(!memcmp(&a, chessboard, sizeof(_Tchessboard)));
+        ASSERT(!memcmp(&a, chessboard.bit, sizeof(_Tchessboard)));
 #endif
 
         return result;
@@ -1061,10 +1061,10 @@ protected:
                 ASSERT(getPieceAt(side, POW2_0) == ROOK_WHITE);
                 updateZobristKey(KING_WHITE, E1);
                 updateZobristKey(KING_WHITE, G1);
-                chessboard[KING_WHITE] = (chessboard[KING_WHITE] | POW2_1) & NOTPOW2_3;
+                chessboard.bit[KING_WHITE] = (chessboard.bit[KING_WHITE] | POW2_1) & NOTPOW2_3;
                 updateZobristKey(ROOK_WHITE, F1);
                 updateZobristKey(ROOK_WHITE, H1);
-                chessboard[ROOK_WHITE] = (chessboard[ROOK_WHITE] | POW2_2) & NOTPOW2_0;
+                chessboard.bit[ROOK_WHITE] = (chessboard.bit[ROOK_WHITE] | POW2_2) & NOTPOW2_0;
             } else {
                 ASSERT(type & QUEEN_SIDE_CASTLE_MOVE_MASK);
                 ASSERT(getPieceAt(side, POW2_3) == KING_WHITE);
@@ -1072,10 +1072,10 @@ protected:
                 ASSERT(getPieceAt(side, POW2_5) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_6) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_7) == ROOK_WHITE);
-                chessboard[KING_WHITE] = (chessboard[KING_WHITE] | POW2_5) & NOTPOW2_3;
+                chessboard.bit[KING_WHITE] = (chessboard.bit[KING_WHITE] | POW2_5) & NOTPOW2_3;
                 updateZobristKey(KING_WHITE, C1);
                 updateZobristKey(KING_WHITE, E1);
-                chessboard[ROOK_WHITE] = (chessboard[ROOK_WHITE] | POW2_4) & NOTPOW2_7;
+                chessboard.bit[ROOK_WHITE] = (chessboard.bit[ROOK_WHITE] | POW2_4) & NOTPOW2_7;
                 updateZobristKey(ROOK_WHITE, D1);
                 updateZobristKey(ROOK_WHITE, A1);
             }
@@ -1085,10 +1085,10 @@ protected:
                 ASSERT(getPieceAt(side, POW2_58) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_57) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_56) == ROOK_BLACK);
-                chessboard[KING_BLACK] = (chessboard[KING_BLACK] | POW2_57) & NOTPOW2_59;
+                chessboard.bit[KING_BLACK] = (chessboard.bit[KING_BLACK] | POW2_57) & NOTPOW2_59;
                 updateZobristKey(KING_BLACK, G8);
                 updateZobristKey(KING_BLACK, E8);
-                chessboard[ROOK_BLACK] = (chessboard[ROOK_BLACK] | POW2_58) & NOTPOW2_56;
+                chessboard.bit[ROOK_BLACK] = (chessboard.bit[ROOK_BLACK] | POW2_58) & NOTPOW2_56;
                 updateZobristKey(ROOK_BLACK, F8);
                 updateZobristKey(ROOK_BLACK, H8);
             } else {
@@ -1098,10 +1098,10 @@ protected:
                 ASSERT(getPieceAt(side, POW2_61) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_62) == SQUARE_FREE);
                 ASSERT(getPieceAt(side, POW2_63) == ROOK_BLACK);
-                chessboard[KING_BLACK] = (chessboard[KING_BLACK] | POW2_61) & NOTPOW2_59;
+                chessboard.bit[KING_BLACK] = (chessboard.bit[KING_BLACK] | POW2_61) & NOTPOW2_59;
                 updateZobristKey(KING_BLACK, C8);
                 updateZobristKey(KING_BLACK, E8);
-                chessboard[ROOK_BLACK] = (chessboard[ROOK_BLACK] | POW2_60) & NOTPOW2_63;
+                chessboard.bit[ROOK_BLACK] = (chessboard.bit[ROOK_BLACK] | POW2_60) & NOTPOW2_63;
                 updateZobristKey(ROOK_BLACK, D8);
                 updateZobristKey(ROOK_BLACK, A8);
             }
@@ -1116,19 +1116,19 @@ protected:
                 ASSERT(getPieceAt(side, POW2_0) == 12);
                 ASSERT(getPieceAt(side, POW2_3) == 12);
                 ASSERT(getPieceAt(side, POW2_2) == ROOK_WHITE);
-                chessboard[KING_WHITE] = (chessboard[KING_WHITE] | POW2_3) & NOTPOW2_1;
-                chessboard[ROOK_WHITE] = (chessboard[ROOK_WHITE] | POW2_0) & NOTPOW2_2;
+                chessboard.bit[KING_WHITE] = (chessboard.bit[KING_WHITE] | POW2_3) & NOTPOW2_1;
+                chessboard.bit[ROOK_WHITE] = (chessboard.bit[ROOK_WHITE] | POW2_0) & NOTPOW2_2;
             } else {
-                chessboard[KING_WHITE] = (chessboard[KING_WHITE] | POW2_3) & NOTPOW2_5;
-                chessboard[ROOK_WHITE] = (chessboard[ROOK_WHITE] | POW2_7) & NOTPOW2_4;
+                chessboard.bit[KING_WHITE] = (chessboard.bit[KING_WHITE] | POW2_3) & NOTPOW2_5;
+                chessboard.bit[ROOK_WHITE] = (chessboard.bit[ROOK_WHITE] | POW2_7) & NOTPOW2_4;
             }
         } else {
             if (type & KING_SIDE_CASTLE_MOVE_MASK) {
-                chessboard[KING_BLACK] = (chessboard[KING_BLACK] | POW2_59) & NOTPOW2_57;
-                chessboard[ROOK_BLACK] = (chessboard[ROOK_BLACK] | POW2_56) & NOTPOW2_58;
+                chessboard.bit[KING_BLACK] = (chessboard.bit[KING_BLACK] | POW2_59) & NOTPOW2_57;
+                chessboard.bit[ROOK_BLACK] = (chessboard.bit[ROOK_BLACK] | POW2_56) & NOTPOW2_58;
             } else {
-                chessboard[KING_BLACK] = (chessboard[KING_BLACK] | POW2_59) & NOTPOW2_61;
-                chessboard[ROOK_BLACK] = (chessboard[ROOK_BLACK] | POW2_63) & NOTPOW2_60;
+                chessboard.bit[KING_BLACK] = (chessboard.bit[KING_BLACK] | POW2_59) & NOTPOW2_61;
+                chessboard.bit[ROOK_BLACK] = (chessboard.bit[ROOK_BLACK] | POW2_63) & NOTPOW2_60;
             }
         }
     }
@@ -1137,17 +1137,17 @@ protected:
     void tryAllCastle(const u64 allpieces) {
         ASSERT_RANGE(side, 0, 1);
         if (side == WHITE) {
-            if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x6ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_0 && !isAttacked<WHITE>(1, allpieces) && !isAttacked<WHITE>(2, allpieces) && !isAttacked<WHITE>(3, allpieces)) {
+            if (POW2_3 & chessboard.bit[KING_WHITE] && !(allpieces & 0x6ULL) && chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard.bit[ROOK_WHITE] & POW2_0 && !isAttacked<WHITE>(1, allpieces) && !isAttacked<WHITE>(2, allpieces) && !isAttacked<WHITE>(3, allpieces)) {
                 pushmove<KING_SIDE_CASTLE_MOVE_MASK, WHITE>(-1, -1, NO_PROMOTION, -1);
             }
-            if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x70ULL) && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_7 && !isAttacked<WHITE>(3, allpieces) && !isAttacked<WHITE>(4, allpieces) && !isAttacked<WHITE>(5, allpieces)) {
+            if (POW2_3 & chessboard.bit[KING_WHITE] && !(allpieces & 0x70ULL) && chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard.bit[ROOK_WHITE] & POW2_7 && !isAttacked<WHITE>(3, allpieces) && !isAttacked<WHITE>(4, allpieces) && !isAttacked<WHITE>(5, allpieces)) {
                 pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK, WHITE>(-1, -1, NO_PROMOTION, -1);
             }
         } else {
-            if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK && !(allpieces & 0x600000000000000ULL) && chessboard[ROOK_BLACK] & POW2_56 && !isAttacked<BLACK>(57, allpieces) && !isAttacked<BLACK>(58, allpieces) && !isAttacked<BLACK>(59, allpieces)) {
+            if (POW2_59 & chessboard.bit[KING_BLACK] && chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK && !(allpieces & 0x600000000000000ULL) && chessboard.bit[ROOK_BLACK] & POW2_56 && !isAttacked<BLACK>(57, allpieces) && !isAttacked<BLACK>(58, allpieces) && !isAttacked<BLACK>(59, allpieces)) {
                 pushmove<KING_SIDE_CASTLE_MOVE_MASK, BLACK>(-1, -1, NO_PROMOTION, -1);
             }
-            if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK && !(allpieces & 0x7000000000000000ULL) && chessboard[ROOK_BLACK] & POW2_63 && !isAttacked<BLACK>(59, allpieces) && !isAttacked<BLACK>(60, allpieces) && !isAttacked<BLACK>(61, allpieces)) {
+            if (POW2_59 & chessboard.bit[KING_BLACK] && chessboard.bit[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK && !(allpieces & 0x7000000000000000ULL) && chessboard.bit[ROOK_BLACK] & POW2_63 && !isAttacked<BLACK>(59, allpieces) && !isAttacked<BLACK>(60, allpieces) && !isAttacked<BLACK>(61, allpieces)) {
                 pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK, BLACK>(-1, -1, NO_PROMOTION, -1);
             }
         }
@@ -1155,8 +1155,8 @@ protected:
 
     template<uchar type, int side>
     bool pushmove(const int from, const int to, int promotionPiece, int pieceFrom) {
-        ASSERT(chessboard[KING_BLACK]);
-        ASSERT(chessboard[KING_WHITE]);
+        ASSERT(chessboard.bit[KING_BLACK]);
+        ASSERT(chessboard.bit[KING_WHITE]);
         int piece_captured = SQUARE_FREE;
         bool res = false;
         if (((type & 0x3) != ENPASSANT_MOVE_MASK) && !(type & 0xc)) {
@@ -1178,7 +1178,7 @@ protected:
         ASSERT(getListSize() < MAX_MOVE);
         mos = &gen_list[listId].moveList[getListSize()];
         ++gen_list[listId].size;
-        mos->type = (uchar) chessboard[RIGHT_CASTLE_IDX] | type;
+        mos->type = (uchar) chessboard.bit[RIGHT_CASTLE_IDX] | type;
         mos->side = (char) side;
         mos->capturedPiece = piece_captured;
         if (type & 0x3) {
@@ -1199,7 +1199,7 @@ protected:
                 }
             }
         } else if (type & 0xc) {    //castle
-            ASSERT(chessboard[RIGHT_CASTLE_IDX]);
+            ASSERT(chessboard.bit[RIGHT_CASTLE_IDX]);
             mos->score = 100;
         }
         mos->used = false;
@@ -1221,12 +1221,12 @@ protected:
 
     template<int side>
     inline bool inCheck(const u64 allpieces) const {
-        return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), allpieces);
+        return isAttacked<side>(BITScanForward(chessboard.bit[KING_BLACK + side]), allpieces);
     }
 
     template<int side>
     inline bool inCheck() const {
-        return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+        return isAttacked<side>(BITScanForward(chessboard.bit[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
     }
 
 private:
@@ -1240,15 +1240,15 @@ private:
 
     void writeRandomFen(const vector<int> pieces) {
         while (1) {
-            memset(chessboard, 0, sizeof(_Tchessboard));
-            chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
-            chessboard[SIDETOMOVE_IDX] = rand() % 2;
-            chessboard[KING_BLACK] = POW2[rand() % 64];
-            chessboard[KING_WHITE] = POW2[rand() % 64];
-            u64 check = chessboard[KING_BLACK] | chessboard[KING_WHITE];
+            memset(chessboard.bit, 0, sizeof(_Tchessboard));
+            chessboard.bit[ENPASSANT_IDX] = NO_ENPASSANT;
+            chessboard.bit[SIDETOMOVE_IDX] = rand() % 2;
+            chessboard.bit[KING_BLACK] = POW2[rand() % 64];
+            chessboard.bit[KING_WHITE] = POW2[rand() % 64];
+            u64 check = chessboard.bit[KING_BLACK] | chessboard.bit[KING_WHITE];
             for (unsigned long i = 0; i < pieces.size(); i++) {
-                chessboard[pieces[i]] |= POW2[rand() % 64];
-                check |= chessboard[pieces[i]];
+                chessboard.bit[pieces[i]] |= POW2[rand() % 64];
+                check |= chessboard.bit[pieces[i]];
             }
             u64 allpieces = getBitmap<BLACK>() | getBitmap<WHITE>();
             if (bitCount(check) == (2 + (int) pieces.size()) && !inCheck<WHITE>(allpieces) && !inCheck<BLACK>(allpieces)) {
@@ -1299,16 +1299,16 @@ private:
         ASSERT_RANGE(side, 0, 1);
         int bound;
         ///knight
-        u64 attackers = KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + (side ^ 1)];
+        u64 attackers = KNIGHT_MASK[position] & chessboard.bit[KNIGHT_BLACK + (side ^ 1)];
         if (exitOnFirst && attackers)return 1;
         ///king
-        attackers |= NEAR_MASK1[position] & chessboard[KING_BLACK + (side ^ 1)];
+        attackers |= NEAR_MASK1[position] & chessboard.bit[KING_BLACK + (side ^ 1)];
         if (exitOnFirst && attackers)return 1;
         ///pawn
-        attackers |= PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + (side ^ 1)];
+        attackers |= PAWN_FORK_MASK[side][position] & chessboard.bit[PAWN_BLACK + (side ^ 1)];
         if (exitOnFirst && attackers)return 1;
         ///bishop queen
-        u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
+        u64 enemies = chessboard.bit[BISHOP_BLACK + (side ^ 1)] | chessboard.bit[QUEEN_BLACK + (side ^ 1)];
         u64 bit = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
         while (bit) {
             int bound = BITScanForward(bit);
@@ -1316,7 +1316,7 @@ private:
             if (exitOnFirst && attackers)return 1;
             RESET_LSB(bit);
         }
-        enemies = chessboard[ROOK_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
+        enemies = chessboard.bit[ROOK_BLACK + (side ^ 1)] | chessboard.bit[QUEEN_BLACK + (side ^ 1)];
         bit = Bitboard::getRankFile(position, allpieces) & enemies;
         while (bit) {
             int bound = BITScanForward(bit);

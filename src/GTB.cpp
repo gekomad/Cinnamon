@@ -262,7 +262,7 @@ int GTB::getDtm(const int side, const bool doPrint, const _Tchessboard &chessboa
     int count = 0;
     //white
     for (int piece = 1; piece < 12; piece += 2) {
-        u64 b = chessboard[piece];
+        u64 b = chessboard.bit[piece];
         while (b) {
             int position = BITScanForward(b);
             ws[count] = DECODE_POSITION[position];
@@ -276,7 +276,7 @@ int GTB::getDtm(const int side, const bool doPrint, const _Tchessboard &chessboa
     //black
     count = 0;
     for (int piece = 0; piece < 12; piece += 2) {
-        u64 b = chessboard[piece];
+        u64 b = chessboard.bit[piece];
         while (b) {
             int position = BITScanForward(b);
             bs[count] = DECODE_POSITION[position];

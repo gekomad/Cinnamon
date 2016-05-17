@@ -86,6 +86,9 @@ private:
     OpenBook *openBook = nullptr;
     bool ponderEnabled;
 
-    string getSYZYGYbestmove();
+    string getSYZYGYbestmove(const int side) {
+        return searchManager.getSYZYGYbestmove(side);
+    }
+
 };
 

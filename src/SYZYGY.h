@@ -21,6 +21,7 @@
 #include "namespaces/def.h"
 #include "ChessBoard.h"
 #include "util/Singleton.h"
+#include "syzygy/tbprobe.h"
 
 class SYZYGY : public Singleton<SYZYGY> {
     friend class Singleton<SYZYGY>;
@@ -38,14 +39,26 @@ public:
     void restart();
 
 
-    int getDtm(const _Tchessboard &c) const;
+    int getDtm(const _Tchessboard &c, const bool turn);
 
-    string getBestmove();
+    string getBestmove(const _Tchessboard &c, const bool turn);
 
 private:
+    unsigned results[TB_MAX_MOVES];
+
     SYZYGY();
+
+    int search(const _Tchessboard &c, const bool turn);
 
     string path = "/syzygy";
 
+    bool print_moves(unsigned *results, bool prev,
+                     unsigned wdl);
+
+    void move_to_str(unsigned move, char *str);
+
+    int rank(int s) { return ((s) >> 3); }
+
+    int file(int s) { return ((s) & 0x07); }
 };
 

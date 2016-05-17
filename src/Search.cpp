@@ -21,7 +21,7 @@
 #include "SearchManager.h"
 
 GTB *Search::gtb;
-SYZYGY *Search::syzygy;
+SYZYGY *Search::syzygy = nullptr;
 bool Search::runningThread;
 high_resolution_clock::time_point Search::startTime;
 
@@ -86,7 +86,7 @@ int Search::printDtm() {
     u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
     u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
     display();
-    int res = getGtb().getDtm(side, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+    int res = getGtb().getDtm(side, true, chessboard, chessboard.bit[RIGHT_CASTLE_IDX], 100);
 
     cout << " res: " << res;
     incListId();
@@ -100,7 +100,7 @@ int Search::printDtm() {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
         cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) << decodeBoardinv(move->type, move->to, getSide()) << " ";
-        res = -getGtb().getDtm(side ^ 1, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+        res = -getGtb().getDtm(side ^ 1, true, chessboard, chessboard.bit[RIGHT_CASTLE_IDX], 100);
         if (res != -INT_MAX) {
             cout << " res: " << res;
         }
@@ -153,7 +153,7 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
     if (!getRunning()) {
         return 0;
     }
-    ASSERT(chessboard[KING_BLACK + side]);
+    ASSERT(chessboard.bit[KING_BLACK + side]);
     if (!(numMovesq++ & 1023)) {
         setRunning(checkTime());
     }
@@ -170,7 +170,7 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
     }
     ///************* hash ****************
     char hashf = Hash::hashfALPHA;
-    u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
+    u64 zobristKeyR = chessboard.bit[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
 
     _TcheckHash checkHashStruct;
 
@@ -210,7 +210,7 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
     _Tmove *move;
     ASSERT(gen_list[listId].size > 0);
     _Tmove *best = &gen_list[listId].moveList[0];
-    u64 oldKey = chessboard[ZOBRISTKEY_IDX];
+    u64 oldKey = chessboard.bit[ZOBRISTKEY_IDX];
     if (checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.flags & 0x3 /*&& checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.from != checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.to*/) {// hashfEXACT or hashfBETA
         sortHashMoves(listId, checkHashStruct.phasheType[Hash::HASH_GREATER]);
     } else if (checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.flags & 0x3 /*&& checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.from != checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.to*/) {// hashfEXACT or hashfBETA
@@ -294,9 +294,9 @@ bool Search::checkInsufficientMaterial(const int nPieces) const {
     if (nPieces == 2) {
         return true;
     }
-    if (!chessboard[PAWN_BLACK] && !chessboard[PAWN_WHITE] && !chessboard[ROOK_BLACK] && !chessboard[ROOK_WHITE] && !chessboard[QUEEN_WHITE] && !chessboard[QUEEN_BLACK]) {
-        u64 allBishop = chessboard[BISHOP_BLACK] | chessboard[BISHOP_WHITE];
-        u64 allKnight = chessboard[KNIGHT_BLACK] | chessboard[KNIGHT_WHITE];
+    if (!chessboard.bit[PAWN_BLACK] && !chessboard.bit[PAWN_WHITE] && !chessboard.bit[ROOK_BLACK] && !chessboard.bit[ROOK_WHITE] && !chessboard.bit[QUEEN_WHITE] && !chessboard.bit[QUEEN_BLACK]) {
+        u64 allBishop = chessboard.bit[BISHOP_BLACK] | chessboard.bit[BISHOP_WHITE];
+        u64 allKnight = chessboard.bit[KNIGHT_BLACK] | chessboard.bit[KNIGHT_WHITE];
         if (allBishop || allKnight) {
             //insufficient material to mate
             if (!allKnight) {
@@ -338,14 +338,14 @@ bool Search::getSYZYGYAvailable() const {
     return syzygy;
 }
 
-int Search::getSYZYGYdtm() {
+int Search::getSYZYGYdtm(const int side) {
     if (!syzygy)return -1;
-    return syzygy->getDtm(chessboard);
+    return syzygy->getDtm(chessboard, side);
 }
 
-string Search::getSYZYGYbestmove() {
+string Search::getSYZYGYbestmove(const int side) {
     if (!syzygy)return "";
-    return syzygy->getBestmove();
+    return syzygy->getBestmove(chessboard, side);
 }
 
 GTB &Search::getGtb() const {
@@ -373,7 +373,7 @@ int Search::getDtm(const int side, _TpvLine *pline, const int depth, const int n
     int mateIn = INT_MAX;
     // gtb
     if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(nPieces) && depth >= gtb->getProbeDepth()) {
-        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
+        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard.bit[RIGHT_CASTLE_IDX], depth);
         if (abs(v) != INT_MAX) {
             mateIn = v;
             int res = 0;
@@ -393,7 +393,7 @@ int Search::getDtm(const int side, _TpvLine *pline, const int depth, const int n
     }
     // syzygy
     if (syzygy) {
-        syzygy->getDtm(chessboard);
+        syzygy->getDtm(chessboard, side);
     }
     return mateIn;
 }
@@ -412,13 +412,13 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
     *mateIn = getDtm(side, pline, depth, nPieces);
     if (*mateIn != INT_MAX)return *mateIn;
 
-    u64 oldKey = chessboard[ZOBRISTKEY_IDX];
+    u64 oldKey = chessboard.bit[ZOBRISTKEY_IDX];
 #ifdef DEBUG_MODE
     double betaEfficiencyCount = 0.0;
 #endif
-    ASSERT(chessboard[KING_BLACK]);
-    ASSERT(chessboard[KING_WHITE]);
-    ASSERT(chessboard[KING_BLACK + side]);
+    ASSERT(chessboard.bit[KING_BLACK]);
+    ASSERT(chessboard.bit[KING_WHITE]);
+    ASSERT(chessboard.bit[KING_BLACK + side]);
     int extension = 0;
     u64 friends = getBitmap<side>();
     u64 enemies = getBitmap<side ^ 1>();
@@ -426,7 +426,7 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
 
     int isIncheckSide = inCheck<side>(allpieces);
     if (!isIncheckSide && depth != mainDepth) {
-        if (checkInsufficientMaterial(nPieces) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
+        if (checkInsufficientMaterial(nPieces) || checkDraw(chessboard.bit[ZOBRISTKEY_IDX])) {
             if (inCheck<side ^ 1>(allpieces)) {
                 return _INFINITE - (mainDepth - depth + 1);
             }
@@ -442,7 +442,7 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
     }
 
     //************* hash ****************
-    u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
+    u64 zobristKeyR = chessboard.bit[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
 
     _TcheckHash checkHashStruct;
     int r;
@@ -607,11 +607,11 @@ void Search::updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move)
 }
 
 void Search::setChessboard(const _Tchessboard &b) {
-    memcpy(chessboard, b, sizeof(chessboard));
+    memcpy(&chessboard, &b, sizeof(_Tchessboard));
 }
 
 u64 Search::getZobristKey() const {
-    return chessboard[ZOBRISTKEY_IDX];
+    return chessboard.bit[ZOBRISTKEY_IDX];
 }
 
 int Search::getMateIn() {

@@ -35,7 +35,7 @@ TEST(syzygy, bestmove) {
 
     searchManager.loadFen("K7/B7/B7/8/8/8/7n/7k b - - 5 1");
 
-    EXPECT_EQ("Kg2", searchManager.getSYZYGYbestmove());
+    EXPECT_EQ("Kg2", searchManager.getSYZYGYbestmove(BLACK));
 
 }
 
@@ -50,7 +50,7 @@ TEST(syzygy, dtm) {
 
     searchManager.loadFen("K7/B7/B7/8/8/8/7n/7k b - - 5 1");
 
-    EXPECT_EQ(110, searchManager.getSYZYGYdtm());
+    EXPECT_EQ(110, searchManager.getSYZYGYdtm(BLACK));
 
 }
 

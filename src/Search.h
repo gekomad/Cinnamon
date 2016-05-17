@@ -80,9 +80,9 @@ public:
 
     bool getSYZYGYAvailable() const;
 
-    string getSYZYGYbestmove();
+    string getSYZYGYbestmove(const int side);
 
-    int getSYZYGYdtm();
+    int getSYZYGYdtm(const int side);
 
     STATIC_CONST int NULLMOVE_DEPTH = 3;
     STATIC_CONST int NULLMOVES_MIN_PIECE = 3;

@@ -157,10 +157,10 @@ private:
         res.bishop[WHITE] = evaluateBishop<WHITE, phase>(structureEval.allPiecesSide[BLACK], structureEval.allPiecesSide[WHITE]);
         res.queens[BLACK] = evaluateQueen<BLACK, phase>(structureEval.allPiecesSide[WHITE], structureEval.allPiecesSide[BLACK]);
         res.queens[WHITE] = evaluateQueen<WHITE, phase>(structureEval.allPiecesSide[BLACK], structureEval.allPiecesSide[WHITE]);
-        res.rooks[BLACK] = evaluateRook<BLACK, phase>(chessboard[KING_BLACK], structureEval.allPiecesSide[WHITE], structureEval.allPiecesSide[BLACK]);
-        res.rooks[WHITE] = evaluateRook<WHITE, phase>(chessboard[KING_WHITE], structureEval.allPiecesSide[BLACK], structureEval.allPiecesSide[WHITE]);
-        res.knights[BLACK] = evaluateKnight<BLACK, phase>(chessboard[WHITE], ~structureEval.allPiecesSide[BLACK]);
-        res.knights[WHITE] = evaluateKnight<WHITE, phase>(chessboard[BLACK], ~structureEval.allPiecesSide[WHITE]);
+        res.rooks[BLACK] = evaluateRook<BLACK, phase>(chessboard.bit[KING_BLACK], structureEval.allPiecesSide[WHITE], structureEval.allPiecesSide[BLACK]);
+        res.rooks[WHITE] = evaluateRook<WHITE, phase>(chessboard.bit[KING_WHITE], structureEval.allPiecesSide[BLACK], structureEval.allPiecesSide[WHITE]);
+        res.knights[BLACK] = evaluateKnight<BLACK, phase>(chessboard.bit[WHITE], ~structureEval.allPiecesSide[BLACK]);
+        res.knights[WHITE] = evaluateKnight<WHITE, phase>(chessboard.bit[BLACK], ~structureEval.allPiecesSide[WHITE]);
         res.kings[BLACK] = evaluateKing<phase>(BLACK, ~structureEval.allPiecesSide[BLACK]);
         res.kings[WHITE] = evaluateKing<phase>(WHITE, ~structureEval.allPiecesSide[WHITE]);
     }
@@ -188,7 +188,7 @@ private:
 
     template<int side>
     int lazyEvalSide() {
-        return bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN + bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK + bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP + bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT + bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
+        return bitCount(chessboard.bit[PAWN_BLACK + side]) * VALUEPAWN + bitCount(chessboard.bit[ROOK_BLACK + side]) * VALUEROOK + bitCount(chessboard.bit[BISHOP_BLACK + side]) * VALUEBISHOP + bitCount(chessboard.bit[KNIGHT_BLACK + side]) * VALUEKNIGHT + bitCount(chessboard.bit[QUEEN_BLACK + side]) * VALUEQUEEN;
     }
 
     void generateLinkRook();

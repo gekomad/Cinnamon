@@ -78,7 +78,7 @@ void IterativeDeeping::run() {
     searchManager.setRunningThread(true);
     int mply = 0;
 
-    string b = getSYZYGYbestmove();
+    string b = getSYZYGYbestmove(searchManager.getSide());
     if (!b.empty()) {
         cout << "bestmove " << b;
         ADD(checkSmp2, -1);
@@ -262,11 +262,3 @@ int IterativeDeeping::loadFen(const string fen) {
 bool IterativeDeeping::setNthread(const int i) {
     return searchManager.setNthread(i);
 }
-
-string IterativeDeeping::getSYZYGYbestmove() {
-    searchManager.getSYZYGYbestmove();
-
-
-}
-
-

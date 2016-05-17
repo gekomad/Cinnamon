@@ -314,12 +314,12 @@ bool SearchManager::getGtbAvailable() const {
     return getThread(0).getGtbAvailable();
 }
 
-string SearchManager::getSYZYGYbestmove() const {
-    return getThread(0).getSYZYGYbestmove();
+string SearchManager::getSYZYGYbestmove(const int side) const {
+    return getThread(0).getSYZYGYbestmove(side);
 }
 
-int SearchManager::getSYZYGYdtm() const {
-    return getThread(0).getSYZYGYdtm();
+int SearchManager::getSYZYGYdtm(const int side) const {
+    return getThread(0).getSYZYGYdtm(side);
 }
 
 int SearchManager::getMoveFromSan(const String &string, _Tmove *ptr) {
