@@ -133,6 +133,10 @@ public:
         return ((chessboard.bit[PAWN_BLACK + side] & bitmapPos) ? PAWN_BLACK + side : ((chessboard.bit[ROOK_BLACK + side] & bitmapPos) ? ROOK_BLACK + side : ((chessboard.bit[BISHOP_BLACK + side] & bitmapPos) ? BISHOP_BLACK + side : ((chessboard.bit[KNIGHT_BLACK + side] & bitmapPos) ? KNIGHT_BLACK + side : ((chessboard.bit[QUEEN_BLACK + side] & bitmapPos) ? QUEEN_BLACK + side : ((chessboard.bit[KING_BLACK + side] & bitmapPos) ? KING_BLACK + side : SQUARE_FREE))))));
     }
 
+    static string getCell(const int file, const int rank) {
+        return BOARD[FILE_AT[file] * 8 + rank];
+    }
+
 protected:
 
     _Tchessboard chessboard;

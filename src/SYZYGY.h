@@ -44,21 +44,22 @@ public:
     string getBestmove(const _Tchessboard &c, const bool turn);
 
 private:
-    unsigned results[TB_MAX_MOVES];
+
+
+
 
     SYZYGY();
 
-    int search(const _Tchessboard &c, const bool turn);
+    int search(const _Tchessboard &c, const bool turn,unsigned* results);
 
     string path = "/syzygy";
 
-    bool print_moves(unsigned *results, bool prev,
-                     unsigned wdl);
-
-    void move_to_str(unsigned move, char *str);
+    string pickMove(const unsigned *results,const unsigned wdl);
 
     int rank(int s) { return ((s) >> 3); }
 
     int file(int s) { return ((s) & 0x07); }
+
+    u64 decode(u64 d);
 };
 
