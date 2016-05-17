@@ -20,8 +20,8 @@
 #include "Search.h"
 #include "SearchManager.h"
 
-Tablebase *Search::gtb;
-
+GTB *Search::gtb;
+SYZYGY *Search::syzygy;
 bool Search::runningThread;
 high_resolution_clock::time_point Search::startTime;
 
@@ -79,7 +79,6 @@ Search::Search() : ponder(false), nullSearch(false) {
     lazyEvalCuts = cumulativeMovesCount = totGen = 0;
 #endif
     gtb = nullptr;
-
 }
 
 int Search::printDtm() {
@@ -335,7 +334,21 @@ bool Search::getGtbAvailable() const {
     return gtb;
 }
 
-Tablebase &Search::getGtb() const {
+bool Search::getSYZYGYAvailable() const {
+    return syzygy;
+}
+
+int Search::getSYZYGYdtm() {
+    if (!syzygy)return -1;
+    return syzygy->getDtm(chessboard);
+}
+
+string Search::getSYZYGYbestmove() {
+    if (!syzygy)return "";
+    return syzygy->getBestmove();
+}
+
+GTB &Search::getGtb() const {
     ASSERT(gtb);
     return *gtb;
 }
@@ -356,21 +369,13 @@ int Search::search(const int depth, const int alpha, const int beta) {
     return getSide() ? search<WHITE, smp>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn) : search<BLACK, smp>(depth, alpha, beta, &pvLine, bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
 }
 
-template<int side, bool smp>
-int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const int nPieces, int *mateIn) {
-    ASSERT_RANGE(depth, 0, MAX_PLY);
-    INC(cumulativeMovesCount);
-    *mateIn = INT_MAX;
-    ASSERT_RANGE(side, 0, 1);
-    if (!getRunning()) {
-        return 0;
-    }
-    int score = -_INFINITE;
-    /* gtb */
+int Search::getDtm(const int side, _TpvLine *pline, const int depth, const int nPieces) {
+    int mateIn = INT_MAX;
+    // gtb
     if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(nPieces) && depth >= gtb->getProbeDepth()) {
         int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
         if (abs(v) != INT_MAX) {
-            *mateIn = v;
+            mateIn = v;
             int res = 0;
             if (v == 0) {
                 res = 0;
@@ -386,6 +391,27 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
             return res;
         }
     }
+    // syzygy
+    if (syzygy) {
+        syzygy->getDtm(chessboard);
+    }
+    return mateIn;
+}
+
+template<int side, bool smp>
+int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const int nPieces, int *mateIn) {
+    ASSERT_RANGE(depth, 0, MAX_PLY);
+    INC(cumulativeMovesCount);
+
+    ASSERT_RANGE(side, 0, 1);
+    if (!getRunning()) {
+        return 0;
+    }
+    int score = -_INFINITE;
+    //Endgame
+    *mateIn = getDtm(side, pline, depth, nPieces);
+    if (*mateIn != INT_MAX)return *mateIn;
+
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
 #ifdef DEBUG_MODE
     double betaEfficiencyCount = 0.0;
@@ -592,8 +618,12 @@ int Search::getMateIn() {
     return mainMateIn;
 }
 
-void Search::setGtb(Tablebase &tablebase) {
+void Search::setGtb(GTB &tablebase) {
     gtb = &tablebase;
+}
+
+void Search::setSYZYGY(SYZYGY &tablebase) {
+    syzygy = &tablebase;
 }
 
 bool Search::setParameter(String param, const int value) {
@@ -687,3 +717,5 @@ bool Search::setParameter(String param, const int value) {
     return false;
 #endif
 }
+
+

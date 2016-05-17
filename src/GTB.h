@@ -23,12 +23,12 @@
 #include "ChessBoard.h"
 #include "util/Singleton.h"
 
-class Tablebase : public Singleton<Tablebase> {
-    friend class Singleton<Tablebase>;
+class GTB : public Singleton<GTB> {
+    friend class Singleton<GTB>;
 
 public:
 
-    ~Tablebase();
+    ~GTB();
 
     bool getAvailable() const;
 
@@ -57,7 +57,7 @@ public:
     int getDtm(const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth) const;
 
 private:
-    Tablebase();
+    GTB();
 
     const int DECODE_PIECE[13] = {tb_PAWN, tb_PAWN, tb_ROOK, tb_ROOK, tb_BISHOP, tb_BISHOP, tb_KNIGHT, tb_KNIGHT, tb_KING, tb_KING, tb_QUEEN, tb_QUEEN, tb_NOPIECE};
 

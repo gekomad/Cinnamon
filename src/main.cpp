@@ -19,6 +19,7 @@
 #include "Uci.h"
 #include "util/GetOpt.h"
 #include "syzygy/main.cpp"
+
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 
 #include <gtest/gtest.h>
@@ -112,7 +113,7 @@ void check() {
 }
 
 int main(int argc, char **argv) {
-    main_syzygy(argc, argv);return 0;
+//    main_syzygy(argc, argv);return 0;
     printHeader();
     check();
 #if defined(DEBUG_MODE) || defined(FULL_TEST)

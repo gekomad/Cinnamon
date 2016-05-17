@@ -91,7 +91,7 @@ endif
 
 	$(STRIP) $(EXE)
 	@echo "create static library..."
-	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o IterativeDeeping.o Eval.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
+	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o IterativeDeeping.o Eval.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o GTB.o
 
 drmemory:
 	$(MAKE) -j4 EXE=$(EXE) all
@@ -187,8 +187,8 @@ cinnamon-profiler:
 cinnamon-gprof:
 	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -g -pg -DDLOG_LEVEL=_FATAL -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " gnuprof
 
-all: main.o ChessBoard.o Eval.o test.o String.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o
-	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o ${LIBS}
+all: main.o ChessBoard.o Eval.o test.o String.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o
+	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o ${LIBS}
 
 default:
 	help
@@ -226,8 +226,8 @@ Hash.o: Hash.cpp
 OpenBook.o: OpenBook.cpp
 	$(COMP) -c OpenBook.cpp ${CFLAGS} ${ARC}
 
-Tablebase.o: Tablebase.cpp
-	$(COMP) -c Tablebase.cpp ${CFLAGS} ${ARC}
+GTB.o: GTB.cpp
+	$(COMP) -c GTB.cpp ${CFLAGS} ${ARC}
 
 String.o: util/String.cpp
 	$(COMP) -c util/String.cpp ${CFLAGS} ${ARC}

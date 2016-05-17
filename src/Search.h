@@ -25,7 +25,8 @@
 #include "namespaces/def.h"
 #include <climits>
 #include "threadPool/Thread.h"
-#include "Tablebase.h"
+#include "GTB.h"
+#include "SYZYGY.h"
 
 class Search : public Eval, public Thread<Search>, public Hash {
 
@@ -71,11 +72,17 @@ public:
 
     int printDtm();
 
-    Tablebase &getGtb() const;
+    GTB &getGtb() const;
 
     void setMainPly(const int);
 
     bool getGtbAvailable() const;
+
+    bool getSYZYGYAvailable() const;
+
+    string getSYZYGYbestmove();
+
+    int getSYZYGYdtm();
 
     STATIC_CONST int NULLMOVE_DEPTH = 3;
     STATIC_CONST int NULLMOVES_MIN_PIECE = 3;
@@ -93,7 +100,7 @@ public:
         return runningThread;
     }
 
-    void setGtb(Tablebase &tablebase);
+    void setGtb(GTB &tablebase);
 
     void setValWindow(const int valWin) {
         Search::valWindow = valWin;
@@ -118,6 +125,8 @@ public:
     unsigned totGen;
 #endif
 
+    void setSYZYGY(SYZYGY &syzygy);
+
 private:
 
     int mainMateIn;
@@ -132,7 +141,8 @@ private:
 
     static bool runningThread;
     _TpvLine pvLine;
-    static Tablebase *gtb;
+    static GTB *gtb;
+    static SYZYGY *syzygy;
     bool ponder;
 
     template<bool smp>
@@ -148,6 +158,8 @@ private:
 
     template<int side, bool smp>
     int search(int depth, int alpha, const int beta, _TpvLine *pline, const int nPieces, int *mateIn);
+
+    int getDtm(const int side, _TpvLine *pline, const int depth, const int nPieces);
 
     bool checkInsufficientMaterial(const int) const;
 

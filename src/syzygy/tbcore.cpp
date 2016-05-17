@@ -109,7 +109,13 @@ static FD open_tb(const char *str, const char *suffix) {
         fd = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL,
                   OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #endif
-        if (fd != FD_ERR) return fd;
+        printf("\nfile: %s...", file);
+        if (fd != FD_ERR) {
+            printf("ok");
+            return fd;
+        }
+        printf("ko");
+
     }
     return FD_ERR;
 }

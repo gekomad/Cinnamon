@@ -314,6 +314,14 @@ bool SearchManager::getGtbAvailable() const {
     return getThread(0).getGtbAvailable();
 }
 
+string SearchManager::getSYZYGYbestmove() const {
+    return getThread(0).getSYZYGYbestmove();
+}
+
+int SearchManager::getSYZYGYdtm() const {
+    return getThread(0).getSYZYGYdtm();
+}
+
 int SearchManager::getMoveFromSan(const String &string, _Tmove *ptr) {
 #ifdef DEBUG_MODE
     int t = getThread(0).getMoveFromSan(string, ptr);
@@ -324,7 +332,7 @@ int SearchManager::getMoveFromSan(const String &string, _Tmove *ptr) {
     return getThread(0).getMoveFromSan(string, ptr);
 }
 
-Tablebase &SearchManager::getGtb() const {
+GTB &SearchManager::getGtb() const {
     return getThread(0).getGtb();
 }
 
@@ -332,9 +340,15 @@ int SearchManager::printDtm() const {
     return getThread(0).printDtm();
 }
 
-void SearchManager::setGtb(Tablebase &tablebase) {
+void SearchManager::setGtb(GTB &tablebase) {
     for (Search *s:getPool()) {
         s->setGtb(tablebase);
+    }
+}
+
+void SearchManager::setSYZYGY(SYZYGY &tablebase) {
+    for (Search *s:getPool()) {
+        s->setSYZYGY(tablebase);
     }
 }
 
@@ -380,8 +394,16 @@ bool SearchManager::setParameter(const String param, const int value) {
 }
 
 
-Tablebase &SearchManager::createGtb() {
-    Tablebase &gtb = Tablebase::getInstance();
+GTB &SearchManager::createGtb() {
+    GTB &gtb = GTB::getInstance();
     setGtb(gtb);
     return gtb;
 }
+
+SYZYGY &SearchManager::createSYZYGY() {
+    SYZYGY &syzygy = SYZYGY::getInstance();
+    setSYZYGY(syzygy);
+    return syzygy;
+}
+
+

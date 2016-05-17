@@ -83,8 +83,9 @@ private:
     string bestmove;
 
     volatile long running;
-    Tablebase *tablebase = nullptr;
     OpenBook *openBook = nullptr;
     bool ponderEnabled;
+
+    string getSYZYGYbestmove();
 };
 

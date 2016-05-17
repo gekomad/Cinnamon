@@ -40,7 +40,8 @@ private:
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
     bool uciMode;
-    Tablebase *tablebase = nullptr;
+    GTB *gtb = nullptr;
+    SYZYGY *syzygy = nullptr;
 
     void listner(IterativeDeeping *it);
 

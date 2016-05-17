@@ -37,9 +37,11 @@ public:
 
     ~SearchManager();
 
-    Tablebase &getGtb() const;
+    GTB &getGtb() const;
 
-    Tablebase &createGtb();
+    GTB &createGtb();
+
+    SYZYGY &createSYZYGY();
 
     int loadFen(string fen = "");
 
@@ -110,11 +112,17 @@ public:
 
     bool getGtbAvailable() const;
 
+    string getSYZYGYbestmove() const;
+
+    int getSYZYGYdtm() const;
+
     int getMoveFromSan(const String &string, _Tmove *ptr);
 
     int printDtm() const;
 
-    void setGtb(Tablebase &tablebase);
+    void setGtb(GTB &tablebase);
+
+    void setSYZYGY(SYZYGY &tablebase);
 
     void pushStackMove();
 

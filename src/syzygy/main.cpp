@@ -21,11 +21,14 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+//TODO eliminare file
+
 #include <assert.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "tbprobe.h"
 
@@ -475,6 +478,7 @@ static bool print_moves(struct pos *pos, unsigned *results, bool prev,
         move_to_str(pos, results[i], str);
         printf("%s", str);
     }
+    fflush(stdout);
     return prev;
 }
 
@@ -490,12 +494,12 @@ static void print_help(const char *prog) {
     printf("\t--help\n");
     printf("\t\tPrint this helpful message.\n");
     printf("\t--path=PATH\n");
-    printf("\t\tSet the tablebase PATH string.\n");
+    printf("\t\tSet the gtb PATH string.\n");
     printf("\t--test\n");
     printf("\t\tPrint the result only.  Useful for scripts.\n");
     printf("\n");
     printf("DESCRIPTION:\n");
-    printf("\tThis program is a stand-alone Syzygy tablebase probe tool.  "
+    printf("\tThis program is a stand-alone Syzygy gtb probe tool.  "
                    "The\n");
     printf("\tprogram takes as input a FEN string representation of a "
                    "chess\n");
@@ -576,7 +580,7 @@ static int main_syzygy(int argc, char **argv) {
         path = getenv("TB_PATH");
     tb_init_syzygy(path);
     if (TB_LARGEST == 0) {
-        fprintf(stderr, "error: unable to initialize tablebase; no tablebase "
+        fprintf(stderr, "error: unable to initialize gtb; no gtb "
                 "files found\n");
         exit(EXIT_FAILURE);
     }
@@ -591,7 +595,7 @@ static int main_syzygy(int argc, char **argv) {
 
     // (2) probe the TB:
     if (tb_pop_count(pos->white | pos->black) > TB_LARGEST) {
-        fprintf(stderr, "error: unable to probe tablebase; FEN string \"%s\" "
+        fprintf(stderr, "error: unable to probe gtb; FEN string \"%s\" "
                 "has too many pieces (max=%u)\n", fen, TB_LARGEST);
         exit(EXIT_FAILURE);
     }
@@ -600,8 +604,8 @@ static int main_syzygy(int argc, char **argv) {
                                  pos->queens, pos->rooks, pos->bishops, pos->knights, pos->pawns,
                                  pos->rule50, pos->castling, pos->ep, pos->turn, results);
     if (res == TB_RESULT_FAILED) {
-        fprintf(stderr, "error: unable to probe tablebase; position "
-                "invalid, illegal or not in tablebase\n");
+        fprintf(stderr, "error: unable to probe gtb; position "
+                "invalid, illegal or not in gtb\n");
         exit(EXIT_FAILURE);
     }
 
@@ -636,15 +640,18 @@ static int main_syzygy(int argc, char **argv) {
     printf("[DrawingMoves \"");
     prev = false;
     prev = print_moves(pos, results, prev, TB_CURSED_WIN);
+    fflush(stdout);
     prev = print_moves(pos, results, prev, TB_DRAW);
+    fflush(stdout);
     prev = print_moves(pos, results, prev, TB_BLESSED_LOSS);
+    fflush(stdout);
     printf("\"]\n");
     printf("[LosingMoves \"");
     prev = false;
     print_moves(pos, results, prev, TB_LOSS);
     printf("\"]\n");
     print_PV(pos);
-
+    while (1);
     return 0;
 }
 

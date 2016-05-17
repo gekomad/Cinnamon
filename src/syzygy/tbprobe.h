@@ -162,20 +162,20 @@ extern unsigned tb_probe_root_impl(
 #define TB_RESULT_FAILED            0xFFFFFFFF
 
 /*
- * The tablebase can be probed for any position where #pieces <= TB_LARGEST.
+ * The gtb can be probed for any position where #pieces <= TB_LARGEST.
  */
 extern unsigned TB_LARGEST;
 
 /*
- * Initialize the tablebase.
+ * Initialize the gtb.
  *
  * PARAMETERS:
  * - path:
- *   The tablebase PATH string.
+ *   The gtb PATH string.
  *
  * RETURN:
  * - true=succes, false=failed.  The TB_LARGEST global will also be
- *   initialized.  If no tablebase files are found, then `true' is returned
+ *   initialized.  If no gtb files are found, then `true' is returned
  *   and TB_LARGEST is set to zero.
  */
 static inline bool tb_init_syzygy(const char *_path) {

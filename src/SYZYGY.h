@@ -16,20 +16,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if defined(DEBUG_MODE) || defined(FULL_TEST)
+#pragma once
+
+#include "namespaces/def.h"
+#include "ChessBoard.h"
+#include "util/Singleton.h"
+
+class SYZYGY : public Singleton<SYZYGY> {
+    friend class Singleton<SYZYGY>;
+
+public:
+
+    ~SYZYGY();
+
+    bool getAvailable() const;
+
+    string getPath() const;
+
+    bool setPath(const string &path);
+
+    void restart();
 
 
-#include <gtest/gtest.h>
+    int getDtm(const _Tchessboard &c) const;
 
-#include "syzygy.cpp"
-#include "pin.cpp"
-#include "gtb.cpp"
-#include "eval.cpp"
-#include "spinlockShared.cpp"
-#include "spinlock.cpp"
-#include "search.cpp"
-#include "util/fileUtil.cpp"
-#include "util/string.cpp"
-#include "perft.cpp"
+    string getBestmove();
 
-#endif
+private:
+    SYZYGY();
+
+    string path = "/syzygy";
+
+};
+

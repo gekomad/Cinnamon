@@ -30,7 +30,9 @@
 #include "tbprobe.h"
 
 #ifdef __GNUC__
+
 #include <x86intrin.h>
+
 #endif
 
 #define WHITE_KING              (TB_WPAWN + 5)
@@ -68,8 +70,7 @@
 #define BEST_NONE               0xFFFF
 #define SCORE_ILLEGAL           0x7FFF
 
-static inline unsigned popcount(uint64_t x)
-{
+static inline unsigned popcount(uint64_t x) {
     x = x - ((x >> 1) & 0x5555555555555555ull);
     x = (x & 0x3333333333333333ull) + ((x >> 2) & 0x3333333333333333ull);
     x = (x + (x >> 4)) & 0x0f0f0f0f0f0f0f0full;
@@ -645,7 +646,7 @@ static int probe_wdl_table(const struct pos *pos, int *success) {
             }
             // Memory barrier to ensure ptr->ready = 1 is not reordered.
 #ifdef __GNUC__
-            __asm__ __volatile__ ("" ::: "memory");
+            __asm__ __volatile__ (""::: "memory");
 #elif defined(_MSC_VER)
             MemoryBarrier();
 #endif

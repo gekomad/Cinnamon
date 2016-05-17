@@ -18,7 +18,6 @@
 
 #include "IterativeDeeping.h"
 
-
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), running(false), openBook(nullptr), ponderEnabled(false) {
     setUseBook(false);
     SET(checkSmp2, 0);
@@ -78,6 +77,15 @@ void IterativeDeeping::run() {
     searchManager.setRunning(2);
     searchManager.setRunningThread(true);
     int mply = 0;
+
+    string b = getSYZYGYbestmove();
+    if (!b.empty()) {
+        cout << "bestmove " << b;
+        ADD(checkSmp2, -1);
+        ASSERT(!checkSmp2);
+        LOCK_RELEASE(running);
+        return;
+    }
     if (openBook) {
         ASSERT(openBook);
         string obMove = openBook->search(searchManager.boardToFen());
@@ -254,3 +262,11 @@ int IterativeDeeping::loadFen(const string fen) {
 bool IterativeDeeping::setNthread(const int i) {
     return searchManager.setNthread(i);
 }
+
+string IterativeDeeping::getSYZYGYbestmove() {
+    searchManager.getSYZYGYbestmove();
+
+
+}
+
+

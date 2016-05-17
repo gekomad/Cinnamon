@@ -16,61 +16,61 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Tablebase.h"
+#include "GTB.h"
 
 #ifdef JS_MODE
 
-Tablebase::Tablebase() { }
+GTB::GTB() { }
 
-Tablebase::~Tablebase() { }
+GTB::~GTB() { }
 
-bool Tablebase::getAvailable() const { return false; }
+bool GTB::getAvailable() const { return false; }
 
-int Tablebase::getCache() const { return 0; }
+int GTB::getCache() const { return 0; }
 
-string Tablebase::getPath() const { return ""; }
+string GTB::getPath() const { return ""; }
 
-string Tablebase::getSchema() const { return ""; }
+string GTB::getSchema() const { return ""; }
 
-bool Tablebase::setCacheSize(const int mb) { return false; }
+bool GTB::setCacheSize(const int mb) { return false; }
 
-bool Tablebase::setPath(const string &path) { return false; }
+bool GTB::setPath(const string &path) { return false; }
 
-bool Tablebase::setScheme(const string &s) { return false; }
+bool GTB::setScheme(const string &s) { return false; }
 
-void Tablebase::restart() { }
+void GTB::restart() { }
 
-bool Tablebase::setProbeDepth(const int d) { return false; }
+bool GTB::setProbeDepth(const int d) { return false; }
 
-bool Tablebase::setInstalledPieces(const int n) { return false; }
+bool GTB::setInstalledPieces(const int n) { return false; }
 
-bool Tablebase::isInstalledPieces(const int p) const { return false; }
+bool GTB::isInstalledPieces(const int p) const { return false; }
 
-int Tablebase::getProbeDepth() const { return 0; }
+int GTB::getProbeDepth() const { return 0; }
 
-void Tablebase::print(const unsigned stm1, const unsigned info1, const unsigned pliestomate1) const { }
+void GTB::print(const unsigned stm1, const unsigned info1, const unsigned pliestomate1) const { }
 
-int Tablebase::extractDtm(const unsigned stm1, const bool doPrint, const int tb_available1, const unsigned info1, const unsigned pliestomate1) const { return 0; }
+int GTB::extractDtm(const unsigned stm1, const bool doPrint, const int tb_available1, const unsigned info1, const unsigned pliestomate1) const { return 0; }
 
-int Tablebase::getDtm(const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth) const { return 0; };
+int GTB::getDtm(const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth) const { return 0; };
 
 #else
 
-Tablebase::Tablebase() {
+GTB::GTB() {
     load();
 }
 
-Tablebase::~Tablebase() {
+GTB::~GTB() {
     tbcache_done();
     tb_done();
     paths = tbpaths_done(paths);
 }
 
-int Tablebase::getProbeDepth() const {
+int GTB::getProbeDepth() const {
     return probeDepth;
 }
 
-bool Tablebase::load() {
+bool GTB::load() {
     memset(installedPieces, 0, sizeof(installedPieces));
     if (!FileUtil::fileExists(path)) {
         debug("file not exists ", path);
@@ -118,20 +118,20 @@ bool Tablebase::load() {
     return true;
 }
 
-int Tablebase::getCache() const {
+int GTB::getCache() const {
     return cacheSize;
 }
 
-bool Tablebase::isInstalledPieces(const int p) const {
+bool GTB::isInstalledPieces(const int p) const {
     ASSERT(p < 33);
     return installedPieces[p];
 }
 
-string Tablebase::getPath() const {
+string GTB::getPath() const {
     return path;
 }
 
-string Tablebase::getSchema() const {
+string GTB::getSchema() const {
     if (scheme == tb_CP1) {
         return "cp1";
     }
@@ -147,7 +147,7 @@ string Tablebase::getSchema() const {
     return "tb_UNCOMPRESSED";
 }
 
-bool Tablebase::getAvailable() const {
+bool GTB::getAvailable() const {
     for (int i = 3; i < 6; i++)
         if (installedPieces[i]) {
             return true;
@@ -155,7 +155,7 @@ bool Tablebase::getAvailable() const {
     return false;
 }
 
-void Tablebase::print(const unsigned stm1, const unsigned info1, const unsigned pliestomate1) const {
+void GTB::print(const unsigned stm1, const unsigned info1, const unsigned pliestomate1) const {
     if (info1 == tb_DRAW) {
         cout << "Draw";
     } else if (info1 == tb_WMATE && stm1 == tb_WHITE_TO_MOVE) {
@@ -171,7 +171,7 @@ void Tablebase::print(const unsigned stm1, const unsigned info1, const unsigned 
     }
 }
 
-bool Tablebase::setCacheSize(const int mb) {
+bool GTB::setCacheSize(const int mb) {
     if (mb < 1 || mb > 1024) {
         return false;
     }
@@ -181,7 +181,7 @@ bool Tablebase::setCacheSize(const int mb) {
     return true;
 }
 
-bool Tablebase::setScheme(const string &s) {
+bool GTB::setScheme(const string &s) {
     bool res = false;
     if (s == "cp1") {
         scheme = tb_CP1;
@@ -202,12 +202,12 @@ bool Tablebase::setScheme(const string &s) {
     return res;
 }
 
-void Tablebase::restart() {
+void GTB::restart() {
     tb_restart(verbosity, scheme, paths);
     tbcache_restart(cacheSize * 1024 * 1024, wdl_fraction);
 }
 
-bool Tablebase::setProbeDepth(const int d) {
+bool GTB::setProbeDepth(const int d) {
     if (d < 0 || d > 5) {
         return false;
     }
@@ -215,7 +215,7 @@ bool Tablebase::setProbeDepth(const int d) {
     return true;
 }
 
-bool Tablebase::setInstalledPieces(const int n) {
+bool GTB::setInstalledPieces(const int n) {
     if (n < 3 || n > 5) {
         return false;
     }
@@ -223,12 +223,12 @@ bool Tablebase::setInstalledPieces(const int n) {
     return true;
 }
 
-bool Tablebase::setPath(const string &path1) {
+bool GTB::setPath(const string &path1) {
     path = path1;
     return load();
 }
 
-int Tablebase::extractDtm(const unsigned stm1, const bool doPrint, const int tb_available1, const unsigned info1, const unsigned pliestomate1) const {
+int GTB::extractDtm(const unsigned stm1, const bool doPrint, const int tb_available1, const unsigned info1, const unsigned pliestomate1) const {
     if (doPrint) {
         print(stm1, info1, pliestomate1);
     }
@@ -252,7 +252,7 @@ int Tablebase::extractDtm(const unsigned stm1, const bool doPrint, const int tb_
     return INT_MAX;
 }
 
-int Tablebase::getDtm(const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth) const {
+int GTB::getDtm(const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth) const {
     unsigned int ws[17];    /* list of squares for white */
     unsigned int bs[17];    /* list of squares for black */
     unsigned char wp[17];    /* what white pieces are on those squares */
