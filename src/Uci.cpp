@@ -98,6 +98,7 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
             searchManager.setRunning(false);
             stop = true;
+            while (it->getRunning());
         } else if (token == "ponderhit") {
             knowCommand = true;
             searchManager.startClock();
