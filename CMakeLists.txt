@@ -68,8 +68,5 @@ set(SOURCE_FILES
     src/WrapperCinnamon.h)
 
 add_executable(cinnamon ${SOURCE_FILES})
-<<<<<<< HEAD
+
 target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/src/gtb/Linux/64/libgtb.a /usr/local/lib/libgtest.a)
-=======
-target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/src/gtb/Linux/64/libgtb.a /usr/local/lib/libgtest.a)
->>>>>>> _test_/v2.1-SNAPSHOT-bis

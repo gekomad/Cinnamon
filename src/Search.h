@@ -38,6 +38,10 @@ class Search : public Eval, public Thread<Search>, public Hash {
 
 public:
 
+    typedef struct {
+        _ThashData phasheType[2];
+    } _TcheckHash;
+
     Search();
 
     Search(const Search *s) { clone(s); }
@@ -124,12 +128,6 @@ public:
 #endif
 private:
 
-    typedef struct {
-        int res;
-        bool hashFlag[2];
-        Hash::_Thash phasheType[2];
-        Hash::_Thash *rootHash[2];
-    } _TcheckHash;
 
     int valWindow = INT_MAX;
     static bool runningThread;
@@ -152,7 +150,7 @@ private:
 
     bool checkInsufficientMaterial(int);
 
-    void sortHashMoves(int listId, Hash::_Thash &);
+    void sortFromHash(const int listId, const Hash::_ThashData &phashe);
 
     template<int side, bool smp>
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);
@@ -165,61 +163,50 @@ private:
     int mainBeta;
     int mainAlpha;
 
-    template<bool type, bool smp>
-    inline bool checkHash(const bool quies, const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
-        Hash::_Thash *phashe;
+    inline int checkHash(const int type, const bool quies, const int alpha, const int beta, const int depth,
+                         const u64 zobristKeyR,
+                         _TcheckHash &checkHashStruct) {
 
-        checkHashStruct.hashFlag[type] = false;
-        phashe = &checkHashStruct.phasheType[type];
-
-
-        if (readHash<smp, type>(checkHashStruct.rootHash, zobristKeyR, phashe)) {
-            if (phashe->from != phashe->to && phashe->flags & 0x3) {    // hashfEXACT or hashfBETA
-                checkHashStruct.hashFlag[type] = true;
-            }
-            if (phashe->depth >= depth) {
+        _ThashData *phashe = &checkHashStruct.phasheType[type];
+        if (phashe->dataU = readHash(type, zobristKeyR)) {
+            if (phashe->dataS.depth >= depth) {
                 INC(probeHash);
                 if (!currentPly) {
-                    if (phashe->flags == Hash::hashfBETA) {
-                        incKillerHeuristic(phashe->from, phashe->to, 1);
+                    if (phashe->dataS.flags == Hash::hashfBETA) {
+                        incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
                     }
                 } else {
-                    switch (phashe->flags) {
+                    switch (phashe->dataS.flags) {
                         case Hash::hashfEXACT:
-                            if (phashe->score >= beta) {
+                            if (phashe->dataS.score >= beta) {
                                 INC(n_cut_hashB);
-                                checkHashStruct.res = beta;
-                                return true;
+                                return beta;
                             }
                             break;
                         case Hash::hashfBETA:
-                            if (!quies)incKillerHeuristic(phashe->from, phashe->to, 1);
-                            if (phashe->score >= beta) {
+                            if (!quies)incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
+                            if (phashe->dataS.score >= beta) {
                                 INC(n_cut_hashB);
-                                checkHashStruct.res = beta;
-                                return true;
+                                return beta;
                             }
                             break;
                         case Hash::hashfALPHA:
-                            if (phashe->score <= alpha) {
+                            if (phashe->dataS.score <= alpha) {
                                 INC(n_cut_hashA);
-                                checkHashStruct.res = alpha;
-                                return true;
+                                return alpha;
                             }
                             break;
                         default:
+                            fatal("error checkHash");
                             break;
                     }
-                    INC(cutFailed);
                 }
-                INC(cutFailed);
             }
-            INC(cutFailed);
         }
-        return false;
+        INC(cutFailed);
+        return INT_MAX;
+
     }
-
-
 };
 
 
