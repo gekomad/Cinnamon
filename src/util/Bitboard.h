@@ -36,7 +36,7 @@ public:
 
     Bitboard();
 
-    static u64 getRankFile(const int position, const u64 allpieces) {
+    static inline u64 getRankFile(const int position, const u64 allpieces) {
 //    ........            00000000
 //    ...q....            00010000
 //    ........            00010000
@@ -50,7 +50,7 @@ public:
                BITBOARD_RANK[position][rankIdx(position, allpieces)];
     }
 
-    static u64 getDiagonalAntiDiagonal(const int position, const u64 allpieces) {
+    static inline u64 getDiagonalAntiDiagonal(const int position, const u64 allpieces) {
 //    ........            00010000
 //    q.......            10100000
 //    .B......            00000000
@@ -66,8 +66,8 @@ public:
 
 private:
 
-    const static u64 MAGIC_KEY_DIAG_ANTIDIAG = 0x101010101010101ULL;
-    const static u64 MAGIC_KEY_FILE_RANK = 0x102040810204080ULL;
+    constexpr static u64 MAGIC_KEY_DIAG_ANTIDIAG = 0x101010101010101ULL;
+    constexpr static u64 MAGIC_KEY_FILE_RANK = 0x102040810204080ULL;
 
     static u64 BITBOARD_DIAGONAL[64][256];
     static u64 BITBOARD_ANTIDIAGONAL[64][256];
@@ -81,7 +81,7 @@ private:
 
     _Ttmp *tmpStruct;
 
-    vector<u64> getCombination(vector<u64> elements);
+    vector<u64> getCombination(const vector<u64> elements);
 
     static uchar rankIdx(const int position, const u64 allpieces) {
         return (allpieces >> RANK_ATx8[position]) & 0xff;
@@ -105,9 +105,9 @@ private:
 
     void popolateAntiDiagonal();
 
-    vector<u64> combinations(const vector<u64> &elems, int len, vector<int> &pos, int depth, int margin);
+    vector<u64> combinations(const vector<u64> &elems, const int len, vector<int> &pos, const int depth, const int margin);
 
-    vector<u64> combinations(const vector<u64> &elems, int len);
+    vector<u64> combinations(const vector<u64> &elems, const int len);
 
     u64 performDiagShift(const int position, const u64 allpieces);
 
@@ -130,10 +130,11 @@ private:
     u64 performColumnShift(const int position, const u64 allpieces);
 
     static mutex mutexConstructor;
-    static bool generated;
+    static bool volatile generated;
 };
 
 namespace _bitboardTmp {
+    //@formatter:off
     static constexpr array<u64,64> MASK_BIT_SET_VERT_LOWER = {
             0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
             0x0000000000000001ULL, 0x0000000000000002ULL, 0x0000000000000004ULL, 0x0000000000000008ULL, 0x0000000000000010ULL, 0x0000000000000020ULL, 0x0000000000000040ULL, 0x0000000000000080ULL,
@@ -309,5 +310,6 @@ namespace _bitboardTmp {
             0x00fe000000000000ULL, 0x00fc000000000000ULL, 0x00f8000000000000ULL, 0x00f0000000000000ULL, 0x00e0000000000000ULL, 0x00c0000000000000ULL, 0x0080000000000000ULL, 0x0000000000000000ULL,
             0xfe00000000000000ULL, 0xfc00000000000000ULL, 0xf800000000000000ULL, 0xf000000000000000ULL, 0xe000000000000000ULL, 0xc000000000000000ULL, 0x8000000000000000ULL, 0x0000000000000000ULL
     };
-
+    
+    //@formatter:on
 }

@@ -26,6 +26,8 @@
 
 using namespace std;
 
+//curiously recurring template pattern (CRTP)
+
 template<typename T>
 class Thread {
 

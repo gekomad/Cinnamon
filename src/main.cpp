@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+void check();
+
 #endif
 
 /*
@@ -42,9 +44,23 @@
 using namespace _board;
 
 void printHeader() {
-    cout << NAME;
-    cout << " UCI by Giuseppe Cannella\n";
-#if UINTPTR_MAX == 0xffffffffffffffffULL
+    cout <<
+         "                 /\"\\       \n"
+         "                /o o\\      \n"
+         "           _\\/  \\   / \\/_  \n"
+         "            \\\\._/  /_.//   \n"
+         "            `--,  ,----'   \n"
+         "              /   /        \n"
+         "    ,        /    \\        \n"
+         "   /|       (      )       \n"
+         "  / |     ,__\\    /__,     \n"
+         "  \\ \\   _//---,  ,--\\\\_    \n"
+         "   \\ \\   /\\  /  /   /\\     \n"
+         "    \\ \\.___,/  /           \n"
+         "     \\.______,/           ";
+
+    cout << NAME << " UCI chess engine by Giuseppe Cannella\n";
+#if __WORDSIZE == 64
     cout << "64-bit ";
 #else
     cout << "32-bit ";
@@ -81,15 +97,22 @@ void printHeader() {
 #endif
 #ifdef DEBUG_MODE
     cout << "DEBUG_MODE\n";
-    cout << "Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << "\n";
+    cout << "Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << endl;
 #endif
     cout << flush;
 }
 
+void check() {
+    ASSERT(sizeof(Hash::_Thash) == 16);
+    ASSERT(sizeof(_Tmove) == 16);
+
+}
+
 int main(int argc, char **argv) {
 
-    printHeader();
-#if defined(DEBUG_MODE) || defined(FULL_TEST)
+    // TODO printHeader();
+    check();
+#if defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);
     if (RUN_ALL_TESTS())return 1;
 #if defined(FULL_TEST)
@@ -102,4 +125,5 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
 

@@ -24,8 +24,8 @@ class GetOpt {
 private:
     static void help(char **argv) {
         string exe = FileUtil::getFileName(argv[0]);
-        cout << "Perft test:            " << exe << " " << PERFT_HELP << "\n";
-        cout << "Distance to mate:      " << exe << " " << DTM_HELP << "\n";
+        cout << "Perft test:            " << exe << " " << PERFT_HELP << endl;
+        cout << "Distance to mate (gtb):      " << exe << " " << DTM_HELP << endl;
         cout << "Create .pgn from .epd: " << exe << " " << EPD2PGN_HELP << endl;
         cout << "Generate puzzle epd:   " << exe << " " << PUZZLE_HELP << endl;
     }
@@ -104,9 +104,9 @@ private:
             }
             if (n > 0 && n <= m) {
                 count++;
-                cout << "[Site \"" << count << " (" << n << " pieces)\"]\n";
-                cout << date << "\n";
-                cout << "[Result \"*\"]\n";
+                cout << "[Site \"" << count << " (" << n << " pieces)\"]" << endl;
+                cout << date << endl;
+                cout << "[Result \"*\"]" << endl;
                 string fenClean, token;
                 istringstream uip(fen, ios::in);
                 uip >> token;
@@ -117,8 +117,8 @@ private:
                 fenClean += token + " ";
                 uip >> token;
                 fenClean += token;
-                cout << "[FEN \"" << fenClean << "\"]\n";
-                cout << "*" << "\n";
+                cout << "[FEN \"" << fenClean << "\"]" << endl;
+                cout << "*" << endl;
             }
         }
         cout << endl;
@@ -216,7 +216,7 @@ public:
                     }
                     return;
 
-                } else if (opt == 'd') {  // gtb dtm
+                } else if (opt == 'd') {  // lib dtm
                     if (string(optarg) != "tm") {
                         cout << "use: " << argv[0] << " " << DTM_HELP << endl;
                         return;
@@ -229,4 +229,6 @@ public:
         Uci::getInstance();
     }
 };
+
+
 
