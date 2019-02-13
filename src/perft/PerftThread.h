@@ -48,12 +48,10 @@ public:
 
 private:
 
-    static Spinlock SPINLOCK_HASH;
-
     static Spinlock spinlockPrint;
     u64 tot = 0;
 
-    template<int side, bool useHash, bool smp>
+    template<int side, bool useHash>
     u64 search(const int depthx);
 
     int from, to;

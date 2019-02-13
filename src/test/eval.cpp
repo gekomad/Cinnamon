@@ -31,4 +31,11 @@ TEST(eval, eval1) {
     EXPECT_EQ(-5, score);
 }
 
+//TEST(eval, eval2) {
+//    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+//    searchManager.loadFen("1q2k3/4r3/2P1n2p/2b2Qp1/2N5/8/1B3PPP/3R2K1 w - - 0 40");
+//    int score = searchManager.getScore(WHITE, false);
+//    EXPECT_GT(score, 400);
+//    EXPECT_LE(score, 600);
+//}
 #endif

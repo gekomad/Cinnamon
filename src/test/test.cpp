@@ -18,6 +18,18 @@
 
 #if defined(DEBUG_MODE) || defined(FULL_TEST)
 
-#include "test.h"
+
+#include <gtest/gtest.h>
+
+//#include "syzygy.cpp" TODO
+//#include "pin.cpp"
+//#include "gtb.cpp"
+//#include "eval.cpp"
+//#include "spinlockShared.cpp"
+//#include "spinlock.cpp"
+//#include "search.cpp"
+//#include "util/fileUtil.cpp"
+//#include "util/string.cpp"
+//#include "perft.cpp"
 
 #endif

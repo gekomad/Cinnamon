@@ -78,17 +78,17 @@ public:
         _assert(0);
     }
 
-    static const uchar RIGHT_KING_CASTLE_WHITE_MASK = 0x10;
-    static const uchar RIGHT_QUEEN_CASTLE_WHITE_MASK = 0x20;
-    static const uchar RIGHT_KING_CASTLE_BLACK_MASK = 0x40;
-    static const uchar RIGHT_QUEEN_CASTLE_BLACK_MASK = 0x80;
-    static const u64 CENTER_MASK = 0x1818000000ULL;
+    static constexpr uchar RIGHT_KING_CASTLE_WHITE_MASK = 0x10;
+    static constexpr uchar RIGHT_QUEEN_CASTLE_WHITE_MASK = 0x20;
+    static constexpr uchar RIGHT_KING_CASTLE_BLACK_MASK = 0x40;
+    static constexpr uchar RIGHT_QUEEN_CASTLE_BLACK_MASK = 0x80;
+    static constexpr u64 CENTER_MASK = 0x1818000000ULL;
 
-    static const int SQUARE_FREE = 12;
+    static constexpr int SQUARE_FREE = 12;
 
-    static const u64 NO_ENPASSANT = 100;
-    static const uchar KING_SIDE_CASTLE_MOVE_MASK = 0x4;
-    static const uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0x8;
+    static constexpr u64 NO_ENPASSANT = 100;
+    static constexpr uchar KING_SIDE_CASTLE_MOVE_MASK = 0x4;
+    static constexpr uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0x8;
 
     void display();
 
@@ -149,49 +149,116 @@ protected:
         uchar posKing[2];
     } _Tboard;
 
-    static const u64 A7bit = 0x80000000000000ULL;
-    static const u64 B7bit = 0x40000000000000ULL;
-    static const u64 C6bit = 0x200000000000ULL;
-    static const u64 H7bit = 0x1000000000000ULL;
-    static const u64 G7bit = 0x2000000000000ULL;
-    static const u64 F6bit = 0x40000000000ULL;
-    static const u64 A8bit = 0x8000000000000000ULL;
-    static const u64 H8bit = 0x100000000000000ULL;
-    static const u64 A2bit = 0x8000ULL;
-    static const u64 B2bit = 0x4000ULL;
-    static const u64 H2bit = 0x100ULL;
-    static const u64 G2bit = 0x200ULL;
-    static const u64 A1bit = 0x80ULL;
-    static const u64 H1bit = 0x1ULL;
-    static const u64 F1G1bit = 0x6ULL;
-    static const u64 H1H2G1bit = 0x103ULL;
-    static const u64 C1B1bit = 0x60ULL;
-    static const u64 A1A2B1bit = 0x80c0ULL;
-    static const u64 F8G8bit = 0x600000000000000ULL;
-    static const u64 H8H7G8bit = 0x301000000000000ULL;
-    static const u64 C8B8bit = 0x6000000000000000ULL;
-    static const u64 A8A7B8bit = 0xc080000000000000ULL;
-    static const u64 C6A6bit = 0xa00000000000ULL;
-    static const u64 F6H6bit = 0x50000000000ULL;
-    static const u64 A7C7bit = 0xa0000000000000ULL;
-    static const u64 H7G7bit = 0x3000000000000ULL;
-    static const u64 C3A3bit = 0xa00000ULL;
-    static const u64 F3H3bit = 0x50000ULL;
-    static const u64 A2C2bit = 0xa000ULL;
-    static const u64 H2G2bit = 0x300ULL;
+    static constexpr u64 A7bit = 0x80000000000000ULL;
+    static constexpr u64 B7bit = 0x40000000000000ULL;
+    static constexpr u64 C6bit = 0x200000000000ULL;
+    static constexpr u64 H7bit = 0x1000000000000ULL;
+    static constexpr u64 G7bit = 0x2000000000000ULL;
+    static constexpr u64 F6bit = 0x40000000000ULL;
+    static constexpr u64 A8bit = 0x8000000000000000ULL;
+    static constexpr u64 H8bit = 0x100000000000000ULL;
+    static constexpr u64 A2bit = 0x8000ULL;
+    static constexpr u64 B2bit = 0x4000ULL;
+    static constexpr u64 H2bit = 0x100ULL;
+    static constexpr u64 G2bit = 0x200ULL;
+    static constexpr u64 A1bit = 0x80ULL;
+    static constexpr u64 H1bit = 0x1ULL;
+    static constexpr u64 F1G1bit = 0x6ULL;
+    static constexpr u64 H1H2G1bit = 0x103ULL;
+    static constexpr u64 C1B1bit = 0x60ULL;
+    static constexpr u64 A1A2B1bit = 0x80c0ULL;
+    static constexpr u64 F8G8bit = 0x600000000000000ULL;
+    static constexpr u64 H8H7G8bit = 0x301000000000000ULL;
+    static constexpr u64 C8B8bit = 0x6000000000000000ULL;
+    static constexpr u64 A8A7B8bit = 0xc080000000000000ULL;
+    static constexpr u64 C6A6bit = 0xa00000000000ULL;
+    static constexpr u64 F6H6bit = 0x50000000000ULL;
+    static constexpr u64 A7C7bit = 0xa0000000000000ULL;
+    static constexpr u64 H7G7bit = 0x3000000000000ULL;
+    static constexpr u64 C3A3bit = 0xa00000ULL;
+    static constexpr u64 F3H3bit = 0x50000ULL;
+    static constexpr u64 A2C2bit = 0xa000ULL;
+    static constexpr u64 H2G2bit = 0x300ULL;
 
-    static const int E1 = 3;
-    static const int E8 = 59;
-    static const int C1 = 5;
-    static const int F1 = 2;
-    static const int C8 = 61;
-    static const int F8 = 58;
-    static const int D8 = 60;
-    static const int A8 = 63;
-    static const int H8 = 56;
-    static const int G8 = 57;
-    static const u64 BLACK_SQUARES = 0x55AA55AA55AA55AAULL;
-    static const u64 WHITE_SQUARES = 0xAA55AA55AA55AA55ULL;
+    static constexpr int H1 = 0;
+    static constexpr int H2 = 8;
+    static constexpr int H3 = 16;
+    static constexpr int H4 = 24;
+    static constexpr int H5 = 32;
+    static constexpr int H6 = 40;
+    static constexpr int H7 = 48;
+    static constexpr int H8 = 56;
+
+    static constexpr int G1 = 1;
+    static constexpr int G2 = 9;
+    static constexpr int G3 = 17;
+    static constexpr int G4 = 25;
+    static constexpr int G5 = 33;
+    static constexpr int G6 = 41;
+    static constexpr int G7 = 49;
+    static constexpr int G8 = 57;
+
+    static constexpr int F1 = 2;
+    static constexpr int F2 = 10;
+    static constexpr int F3 = 18;
+    static constexpr int F4 = 26;
+    static constexpr int F5 = 34;
+    static constexpr int F6 = 42;
+    static constexpr int F7 = 50;
+    static constexpr int F8 = 58;
+
+    static constexpr int B1 = 6;
+    static constexpr int B2 = 14;
+    static constexpr int B3 = 22;
+    static constexpr int B4 = 30;
+    static constexpr int B5 = 38;
+    static constexpr int B6 = 46;
+    static constexpr int B7 = 54;
+    static constexpr int B8 = 62;
+
+    static constexpr int A1 = 7;
+    static constexpr int A2 = 15;
+    static constexpr int A3 = 23;
+    static constexpr int A4 = 31;
+    static constexpr int A5 = 39;
+    static constexpr int A6 = 47;
+    static constexpr int A7 = 55;
+    static constexpr int A8 = 63;
+
+    static constexpr int C1 = 5;
+    static constexpr int C2 = 13;
+    static constexpr int C3 = 21;
+    static constexpr int C4 = 29;
+    static constexpr int C5 = 37;
+    static constexpr int C6 = 45;
+    static constexpr int C7 = 53;
+    static constexpr int C8 = 61;
+
+
+    static constexpr int D1 = 4;
+    static constexpr int D2 = 12;
+    static constexpr int D3 = 20;
+    static constexpr int D4 = 28;
+    static constexpr int D5 = 36;
+    static constexpr int D6 = 44;
+    static constexpr int D7 = 52;
+    static constexpr int D8 = 60;
+
+
+    static constexpr int E1 = 3;
+    static constexpr int E2 = 11;
+    static constexpr int E3 = 19;
+    static constexpr int E4 = 27;
+    static constexpr int E5 = 35;
+    static constexpr int E6 = 43;
+    static constexpr int E7 = 51;
+    static constexpr int E8 = 59;
+
+
+
+
+    static constexpr u64 BLACK_SQUARES = 0x55AA55AA55AA55AAULL;
+    static constexpr u64 WHITE_SQUARES = 0xAA55AA55AA55AA55ULL;
 
     _Tboard structureEval;
 

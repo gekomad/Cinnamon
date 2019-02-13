@@ -22,7 +22,7 @@ u64 Bitboard::BITBOARD_DIAGONAL[64][256];
 u64 Bitboard::BITBOARD_ANTIDIAGONAL[64][256];
 u64 Bitboard::BITBOARD_FILE[64][256];
 u64 Bitboard::BITBOARD_RANK[64][256];
-bool Bitboard::generated = false;
+volatile bool Bitboard::generated = false;
 mutex Bitboard::mutexConstructor;
 
 Bitboard::Bitboard() {
@@ -86,7 +86,6 @@ Bitboard::Bitboard() {
     tmpStruct = nullptr;
     generated = true;
 }
-
 
 void Bitboard::popolateDiagonal() {
     vector<u64> combinationsDiagonal;
@@ -238,7 +237,7 @@ u64 Bitboard::performDiagCapture(const int position, const u64 allpieces) {
     return k;
 }
 
-vector<u64> Bitboard::combinations(const vector<u64> &elems, int len, vector<int> &pos, int depth, int margin) {
+vector<u64> Bitboard::combinations(const vector<u64> &elems, const int len, vector<int> &pos, const int depth, const int margin) {
     vector<u64> res;
     if (depth >= len) {
         for (int ii = 0; ii < pos.size(); ++ii) {
@@ -259,7 +258,7 @@ vector<u64> Bitboard::combinations(const vector<u64> &elems, int len, vector<int
     return res;
 }
 
-vector<u64>  Bitboard::combinations(const vector<u64> &elems, int len) {
+vector<u64>  Bitboard::combinations(const vector<u64> &elems, const int len) {
     ASSERT(len > 0 && len <= elems.size());
     vector<int> positions(len, 0);
     return combinations(elems, len, positions, 0, 0);
@@ -276,7 +275,7 @@ vector<u64> Bitboard::getCombination(u64 elements) {
     return getCombination(res);
 }
 
-vector<u64> Bitboard::getCombination(vector<u64> elements) {
+vector<u64> Bitboard::getCombination(const vector<u64> elements) {
     vector<u64> res;
     vector<u64> v;
     u64 bits = 0;
@@ -290,9 +289,11 @@ vector<u64> Bitboard::getCombination(vector<u64> elements) {
                 res.push_back(bits);
                 bits = 0;
                 k = 0;
-
             }
         }
     }
     return res;
 }
+
+
+

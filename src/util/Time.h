@@ -27,8 +27,8 @@ using namespace chrono;
 
 class Time {
 public:
-    static const int HOUR_IN_SECONDS = 60 * 60;
-    static const int HOUR_IN_MINUTES = 60;
+    static constexpr int HOUR_IN_SECONDS = 60 * 60;
+    static constexpr int HOUR_IN_MINUTES = 60;
 
 
     static int diffTime(high_resolution_clock::time_point t1, high_resolution_clock::time_point t2) {
@@ -36,7 +36,8 @@ public:
         return elapsed.count();
     }
 
-    static string diffTimeToString(const high_resolution_clock::time_point start, const high_resolution_clock::time_point stop) {
+    static string
+    diffTimeToString(const high_resolution_clock::time_point start, const high_resolution_clock::time_point stop) {
         string res;
         unsigned t = Time::diffTime(stop, start) / 1000;
         unsigned days = t / 60 / 60 / 24;
@@ -65,8 +66,13 @@ public:
 
     static string getLocalTime() {
         time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
-        String gg(ctime(&current));
-        return gg.trimRight();
+        auto a= string(ctime(&current));
+        return a.substr(0, a.size()-1);
+    }
+
+    static string getLocalTimeNs() {
+        unsigned long ns = (unsigned long) (std::chrono::steady_clock::now().time_since_epoch().count());
+        return getLocalTime() + " ns: " + to_string(ns);
     }
 
     static int getYear() {
