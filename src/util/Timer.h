@@ -20,6 +20,7 @@
 
 #include "../threadPool/Thread.h"
 #include <vector>
+#include <functional>
 
 class Timer : public Thread<Timer> {
 public:

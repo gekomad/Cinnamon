@@ -60,7 +60,9 @@ void Uci::listner(IterativeDeeping *it) {
             perft->join();
             break;
         }
-        getline(cin, command);
+        if (!getline(cin, command)) {
+            break;
+        }
         istringstream uip(command, ios::in);
         getToken(uip, token);
         knowCommand = false;
@@ -96,6 +98,7 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
             searchManager.setRunning(false);
             stop = true;
+            while (it->getRunning());
         } else if (token == "ponderhit") {
             knowCommand = true;
             searchManager.startClock();
@@ -106,7 +109,6 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.display();
         } else if (token == "isready") {
             knowCommand = true;
-            searchManager.setRunning(0);
             cout << "readyok\n";
         } else if (token == "uci") {
             knowCommand = true;
