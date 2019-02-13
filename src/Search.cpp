@@ -686,16 +686,16 @@ bool Search::setParameter(String param, int value) {
         ROOK_BLOCKED = value;
     } else if (param == "ROOK_TRAPPED") {
         ROOK_TRAPPED = value;
-    } else if (param == "UNDEVELOPED") {
-        UNDEVELOPED = value;
+    } else if (param == "UNDEVELOPED_KNIGHT") {
+        UNDEVELOPED_KNIGHT   = value;
     } else if (param == "UNDEVELOPED_BISHOP") {
         UNDEVELOPED_BISHOP = value;
     } else if (param == "VAL_WINDOW") {
         VAL_WINDOW = value;
     } else if (param == "UNPROTECTED_PAWNS") {
         UNPROTECTED_PAWNS = value;
-    } else if (param == "ENEMIES_PAWNS_ALL") {
-        ENEMIES_PAWNS_ALL = value;
+    } else if (param == "ENEMIES_ALL_PAWNS") {
+        ENEMIES_ALL_PAWNS = value;
     } else if (param == "NULLMOVE_DEPTH") {
         NULLMOVE_DEPTH = value;
     } else if (param == "NULLMOVES_MIN_PIECE") {
