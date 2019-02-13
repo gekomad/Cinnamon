@@ -44,24 +44,30 @@ int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
 #endif
 
 void ChessBoard::makeZobristKey() {
-    chessboard[ZOBRISTKEY_IDX] = 0;
+    chessboard.bit[ZOBRISTKEY_IDX] = 0;
+
     for (int u = 0; u < 12; u++) {
-        u64 c = chessboard[u];
+        u64 c = chessboard.bit[u];
         while (c) {
             int position = BITScanForward(c);
             updateZobristKey(u, position);
             RESET_LSB(c);
         }
     }
-    if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
-        updateZobristKey(ENPASSANT_IDX, chessboard[ENPASSANT_IDX]);
-    }
-    u64 x2 = chessboard[RIGHT_CASTLE_IDX];
+
+    u64 x2 = chessboard.bit[RIGHT_CASTLE_IDX];
     while (x2) {
         int position = BITScanForward(x2);
-        updateZobristKey(14, position);
+        updateZobristKey(RIGHT_CASTLE_IDX, position);//12
         RESET_LSB(x2);
     }
+
+    if (chessboard.bit[ENPASSANT_IDX] != NO_ENPASSANT) {
+        updateZobristKey(ENPASSANT_IDX, chessboard.bit[ENPASSANT_IDX]);//13
+    }
+
+    updateZobristKey(SIDETOMOVE_IDX, getSide()); //14
+
 }
 
 
