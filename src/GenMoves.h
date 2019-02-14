@@ -304,15 +304,15 @@ protected:
     bool perftMode;
     int listId;
     _TmoveP *gen_list;
-    static const u64 RANK_1 = 0xff00ULL;
-    static const u64 RANK_3 = 0xff000000ULL;
-    static const u64 RANK_4 = 0xff00000000ULL;
-    static const u64 RANK_6 = 0xff000000000000ULL;
-    static const uchar STANDARD_MOVE_MASK = 0x3;
-    static const uchar ENPASSANT_MOVE_MASK = 0x1;
-    static const uchar PROMOTION_MOVE_MASK = 0x2;
-    static const int MAX_REP_COUNT = 1024;
-    static const int NO_PROMOTION = -1;
+    static constexpr u64 RANK_1 = 0xff00ULL; // TODO RANK2
+    static constexpr u64 RANK_3 = 0xff000000ULL;// TODO RANK4
+    static constexpr u64 RANK_4 = 0xff00000000ULL; // TODO RANK5
+    static constexpr u64 RANK_6 = 0xff000000000000ULL; // TODO RANK7
+    static constexpr uchar STANDARD_MOVE_MASK = 0x3;
+    static constexpr uchar ENPASSANT_MOVE_MASK = 0x1;
+    static constexpr uchar PROMOTION_MOVE_MASK = 0x2;
+    static constexpr int MAX_REP_COUNT = 1024;
+    static constexpr int NO_PROMOTION = -1;
     int repetitionMapCount;
 
     u64 *repetitionMap;
@@ -522,9 +522,9 @@ protected:
 private:
     int running;
     static bool forceCheck;
-    static const u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
-    static const u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
-    static const u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;
+    static constexpr u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
+    static constexpr u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
+    static constexpr u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;
 
     void writeRandomFen(const vector<int>);
 
