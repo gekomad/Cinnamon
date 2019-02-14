@@ -16,16 +16,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if defined(DEBUG_MODE) || defined(FULL_TEST)
+#pragma once
 
-#include <gtest/gtest.h>
-#include "tablebase.cpp"
-#include "eval.cpp"
-#include "spinlockShared.cpp"
-#include "spinlock.cpp"
-#include "search.cpp"
-#include "util/fileUtil.cpp"
-#include "util/string.cpp"
-#include "perft.cpp"
+#include <string>
+#include <iostream>
+#include "../perft/PerftThread.h"
 
-#endif
+using namespace std;
+
+class WrapperCinnamon {
+
+public:
+    vector<string> getSuccessorsFen(const string &, const int depth);
+
+    unsigned perft(const string &fen, const int depth);
+
+    bool isValid(const string &fen) const;
+};

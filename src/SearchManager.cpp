@@ -18,6 +18,8 @@
 
 #include "SearchManager.h"
 
+using namespace _logger;
+
 SearchManager::SearchManager() {
     SET(checkSmp1, 0);
 
@@ -43,6 +45,7 @@ SearchManager::SearchManager() {
             };
         }
     }
+
 }
 
 void SearchManager::search(const int mply) {
@@ -132,7 +135,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, 
             ponderMove.assign(pvvTmp);
         }
         pvv.append(" ");
-    };
+    }
     memcpy(&resultMove, lineWin.argmove, sizeof(_Tmove));
 
     return true;
@@ -201,6 +204,8 @@ void SearchManager::clearKillerHeuristic() {
         s->clearKillerHeuristic();
     }
 }
+
+
 
 void SearchManager::clearAge() {
     getThread(0).clearAge();
@@ -308,8 +313,16 @@ void SearchManager::setSide(bool i) {
     }
 }
 
-bool SearchManager::getGtbAvailable() {
+bool SearchManager::getGtbAvailable()const {
     return getThread(0).getGtbAvailable();
+}
+
+string SearchManager::getSYZYGYbestmove(const int side) const {
+    return getThread(0).getSYZYGYbestmove(side);
+}
+
+int SearchManager::getSYZYGYdtm(const int side) const {
+    return getThread(0).getSYZYGYdtm(side);
 }
 
 int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
@@ -322,7 +335,7 @@ int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
     return getThread(0).getMoveFromSan(string, ptr);
 }
 
-Tablebase &SearchManager::getGtb() {
+GTB &SearchManager::getGtb() const {
     return getThread(0).getGtb();
 }
 
@@ -330,9 +343,15 @@ int SearchManager::printDtm() {
     return getThread(0).printDtm();
 }
 
-void SearchManager::setGtb(Tablebase &tablebase) {
+void SearchManager::setGtb(GTB &tablebase) {
     for (Search *s:getPool()) {
         s->setGtb(tablebase);
+    }
+}
+
+void SearchManager::setSYZYGY(SYZYGY &tablebase) {
+    for (Search *s:getPool()) {
+        s->setSYZYGY(tablebase);
     }
 }
 
@@ -378,8 +397,20 @@ bool SearchManager::setParameter(String param, int value) {
 }
 
 
-Tablebase &SearchManager::createGtb() {
-    Tablebase &gtb = Tablebase::getInstance();
+GTB &SearchManager::createGtb() {
+    GTB &gtb = GTB::getInstance();
     setGtb(gtb);
     return gtb;
 }
+
+SYZYGY &SearchManager::createSYZYGY(string
+path) {
+SYZYGY &syzygy = SYZYGY::getInstance();
+setSYZYGY(syzygy);
+syzygy.
+setPath(path);
+return
+syzygy;
+}
+
+

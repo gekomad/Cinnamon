@@ -19,20 +19,14 @@
 #pragma once
 
 #include <sys/timeb.h>
+#include <unistd.h>
 #include "Hash.h"
 #include "Eval.h"
 #include "namespaces/def.h"
 #include <climits>
 #include "threadPool/Thread.h"
-
-#ifdef JS_MODE
-#include "js/Tablebase.h"
-#else
-
-#include "Tablebase.h"
-
-#endif
-
+#include "db/GTB.h"
+#include "db/syzygy/SYZYGY.h"
 
 class Search : public Eval, public Thread<Search>, public Hash {
 
@@ -82,11 +76,17 @@ public:
 
     int printDtm();
 
-    Tablebase &getGtb() const;
+    GTB &getGtb() const;
 
     void setMainPly(int);
 
     bool getGtbAvailable();
+
+    bool getSYZYGYAvailable() const;
+
+    string getSYZYGYbestmove(const int side);
+
+    int getSYZYGYdtm(const int side);
 
     STATIC_CONST int NULLMOVE_DEPTH = 3;
     STATIC_CONST int NULLMOVES_MIN_PIECE = 3;
@@ -104,7 +104,7 @@ public:
         return runningThread;
     }
 
-    void setGtb(Tablebase &tablebase);
+    void setGtb(GTB &tablebase);
 
     void setValWindow(int valWin) {
         Search::valWindow = valWin;
@@ -125,14 +125,19 @@ public:
 #ifdef DEBUG_MODE
     unsigned cumulativeMovesCount;
     unsigned totGen;
+
 #endif
+
+    void setSYZYGY(SYZYGY &syzygy);
+
 private:
 
 
     int valWindow = INT_MAX;
     static bool runningThread;
     _TpvLine pvLine;
-    static Tablebase *gtb;
+    static GTB *gtb;
+    static SYZYGY *syzygy;
     bool ponder;
 
     void aspirationWindow(const int depth, const int valWindow);
@@ -156,7 +161,7 @@ private:
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
-
+    int getDtm(const int side, _TpvLine *pline, const int depth, const int nPieces) const;
     int mainMateIn;
     int mainDepth;
     bool mainSmp;

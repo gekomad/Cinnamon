@@ -16,12 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <unistd.h>
+
 #include "Search.h"
 #include "SearchManager.h"
 
-Tablebase *Search::gtb;
-
+GTB *Search::gtb;
+SYZYGY *Search::syzygy = nullptr;
 bool Search::runningThread;
 high_resolution_clock::time_point Search::startTime;
 
@@ -69,7 +69,6 @@ void Search::aspirationWindow(const int depth, const int valWin) {
             valWindow = tmp;
         }
     }
-
 }
 
 Search::Search() : ponder(false), nullSearch(false) {
@@ -89,8 +88,8 @@ int Search::printDtm() {
     u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
     u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
     display();
-    int res = side ? getGtb().getDtm<WHITE, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100)
-                   : getGtb().getDtm<BLACK, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+    int res = getGtb().getDtm(side, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+
     cout << " res: " << res;
     incListId();
     generateCaptures(side, enemies, friends);
@@ -102,14 +101,13 @@ int Search::printDtm() {
     for (int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
-        cout << "\n" << decodeBoardinv(move->type, move->from, getSide()) <<
-        decodeBoardinv(move->type, move->to, getSide()) << " ";
-        res = side ? -getGtb().getDtm<BLACK, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100)
-                   : getGtb().getDtm<WHITE, true>(chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+        cout << endl << decodeBoardinv(move->type, move->from, getSide())
+        << decodeBoardinv(move->type, move->to, getSide()) << " ";
+        res = -getGtb().getDtm(side ^ 1, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
         if (res != -INT_MAX) {
             cout << " res: " << res;
         }
-        cout << "\n";
+        cout << endl;
         takeback(move, oldKey, false);
         if (res > best) {
             best = res;
@@ -349,7 +347,21 @@ bool Search::getGtbAvailable() {
     return gtb;
 }
 
-Tablebase &Search::getGtb() const {
+bool Search::getSYZYGYAvailable() const {
+    return syzygy;
+}
+
+int Search::getSYZYGYdtm(const int side) {
+    if (!syzygy)return -1;
+    return syzygy->getDtm(chessboard, side);
+}
+
+string Search::getSYZYGYbestmove(const int side) {
+    if (!syzygy)return "";
+    return syzygy->getBestmove(chessboard, side);
+}
+
+GTB &Search::getGtb() const {
     ASSERT(gtb);
     return *gtb;
 }
@@ -379,6 +391,33 @@ int Search::search(bool smp, int depth, int alpha, int beta) {
     }
 }
 
+int Search::getDtm(const int side, _TpvLine *pline, const int depth, const int nPieces) const {
+    int mateIn = INT_MAX;
+    // lib
+    if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(nPieces) &&
+        depth >= gtb->getProbeDepth()) {
+        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
+        if (abs(v) != INT_MAX) {
+            mateIn = v;
+            int res = 0;
+            if (v != 0) {
+                res = _INFINITE - (abs(v));
+                if (v < 0) {
+                    res = -res;
+                }
+            }
+            ASSERT_RANGE(res, -_INFINITE, _INFINITE);
+            ASSERT(mainDepth >= depth);
+//            cout << side << " " << (*mateIn) << " " << res << endl;
+            return res;
+        }
+    }
+    // db
+    if (syzygy) {
+        syzygy->getDtm(chessboard, side);
+    }
+    return mateIn;
+}
 
 template<int side, bool smp>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
@@ -393,7 +432,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     /* gtb */
     if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(N_PIECE) &&
         depth >= gtb->getProbeDepth()) {
-        int v = gtb->getDtm<side, false>(chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
+        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
         if (abs(v) != INT_MAX) {
             *mateIn = v;
             int res = 0;
@@ -622,8 +661,12 @@ int Search::getMateIn() {
     return mainMateIn;
 }
 
-void Search::setGtb(Tablebase &tablebase) {
+void Search::setGtb(GTB &tablebase) {
     gtb = &tablebase;
+}
+
+void Search::setSYZYGY(SYZYGY &tablebase) {
+    syzygy = &tablebase;
 }
 
 bool Search::setParameter(String param, int value) {
@@ -687,7 +730,7 @@ bool Search::setParameter(String param, int value) {
     } else if (param == "ROOK_TRAPPED") {
         ROOK_TRAPPED = value;
     } else if (param == "UNDEVELOPED_KNIGHT") {
-        UNDEVELOPED_KNIGHT   = value;
+        UNDEVELOPED_KNIGHT = value;
     } else if (param == "UNDEVELOPED_BISHOP") {
         UNDEVELOPED_BISHOP = value;
     } else if (param == "VAL_WINDOW") {
@@ -713,7 +756,7 @@ bool Search::setParameter(String param, int value) {
     }
     return res;
 #else
-    cout << param << " " << value << "\n";
+    cout << param << " " << value << endl;
     return false;
 #endif
 }

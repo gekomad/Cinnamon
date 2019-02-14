@@ -18,7 +18,8 @@
 
 #include "Uci.h"
 
-Uci::Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile) {//perft locale
+Uci::Uci(const string &fen, const int perftDepth, const int nCpu, const int perftHashSize,
+         const string &dumpFile) {//perft locale
     perft = &Perft::getInstance();
     perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile);
     runPerftAndExit = true;
@@ -53,6 +54,7 @@ void Uci::listner(IterativeDeeping *it) {
     int perftHashSize = 0;
     string dumpFile;
     static const string _BOOLEAN[] = {"false", "true"};
+
     while (!stop) {
         if (runPerftAndExit) {
             runPerftAndExit = false;
@@ -68,11 +70,9 @@ void Uci::listner(IterativeDeeping *it) {
         knowCommand = false;
 
         if (token == "perft") {
-            //compatible with ARENA (http://auriga-cinnamon.rhcloud.com)
-            int perftDepth = -1;
             string fen;
             getToken(uip, token);
-            perftDepth = stoi(token);
+            int perftDepth = stoi(token);
             if (perftDepth > MAX_PLY || perftDepth <= 0) {
                 perftDepth = 1;
             }
@@ -98,7 +98,7 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
             searchManager.setRunning(false);
             stop = true;
-            while (it->getRunning());
+            while (it->getRunning());//TODO cancellare ?
         } else if (token == "ponderhit") {
             knowCommand = true;
             searchManager.startClock();
@@ -113,27 +113,31 @@ void Uci::listner(IterativeDeeping *it) {
         } else if (token == "uci") {
             knowCommand = true;
             uciMode = true;
-            cout << "id name " << NAME << "\n";
-            cout << "id author Giuseppe Cannella\n";
-            cout << "option name Hash type spin default 64 min 1 max 1000\n";
-            cout << "option name Clear Hash type button\n";
-            cout << "option name Nullmove type check default true\n";
-            cout << "option name Book File type string default cinnamon.bin\n";
-            cout << "option name OwnBook type check default " << _BOOLEAN[it->getUseBook()] << "\n";
-            cout << "option name Ponder type check default " << _BOOLEAN[it->getPonderEnabled()] << "\n";
-            cout << "option name Threads type spin default 1 min 1 max 64\n";
-            cout << "option name TB Endgame type combo default none var Gaviota var none\n";
-            cout << "option name GaviotaTbPath type string default gtb/gtb4\n";
-            cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024\n";
-            cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4\n";
-            cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5\n";
-            cout << "option name TB probing depth type spin default 0 min 0 max 5\n";
-            cout << "option name TB Restart type button\n";
+            cout << "id name " << NAME << endl;
+            cout << "id author Giuseppe Cannella" << endl;
+            cout << "option name Hash type spin default 64 min 1 max 1000" << endl;
+            cout << "option name Clear Hash type button" << endl;
+            cout << "option name Nullmove type check default true" << endl;
+            cout << "option name Book File type string default cinnamon.bin" << endl;
+            cout << "option name OwnBook type check default " << _BOOLEAN[it->getUseBook()] << "" << endl;
+            cout << "option name Ponder type check default " << _BOOLEAN[it->getPonderEnabled()] << "" << endl;
+            cout << "option name Threads type spin default 1 min 1 max 64" << endl;
+            cout << "option name TB Endgame type combo default none var Gaviota var none" << endl;
+            cout << "option name GaviotaTbPath type string default <empty>" << endl;
+            cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024" << endl;
+            cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4" <<
+            endl;
 
-            cout << "option name PerftThreads type spin default 1 min 1 max 64\n";
-            cout << "option name PerftHashSize type spin default 0 min 0 max 100000\n";
-            cout << "option name PerftDumpFile type string\n";
-            cout << "uciok\n";
+            cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << endl;
+            cout << "option name TB probing depth type spin default 0 min 0 max 5" << endl;
+            cout << "option name TB Restart type button" << endl;
+
+            cout << "option name SyzygyPath type string default <empty>" << endl;
+
+            cout << "option name PerftThreads type spin default 1 min 1 max 64" << endl;
+            cout << "option name PerftHashSize type spin default 0 min 0 max 100000" << endl;
+            cout << "option name PerftDumpFile type string" << endl;
+            cout << "uciok" << endl;
         } else if (token == "score") {
             int side = searchManager.getSide();
             int t = searchManager.getScore(side, true);
@@ -141,7 +145,7 @@ void Uci::listner(IterativeDeeping *it) {
             if (!searchManager.getSide()) {
                 t = -t;
             }
-            cout << "Score: " << t << "\n";
+            cout << "Score: " << t << endl;
             knowCommand = true;
         } else if (token == "stop") {
             knowCommand = true;
@@ -167,8 +171,15 @@ void Uci::listner(IterativeDeeping *it) {
                     if (token == "value") {
                         getToken(uip, token);
                         knowCommand = true;
-                        tablebase = &searchManager.createGtb();
-                        tablebase->setPath(token);
+                        gtb = &searchManager.createGtb();
+                        gtb->setPath(token);
+                    }
+                } else if (token == "syzygytbpath") {
+                    getToken(uip, token);
+                    if (token == "value") {
+                        getToken(uip, token);
+                        knowCommand = true;
+                        syzygy = &searchManager.createSYZYGY(token);
                     }
                 }
 
@@ -197,7 +208,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        if (tablebase->setCacheSize(stoi(token))) {
+                        if (gtb->setCacheSize(stoi(token))) {
                             knowCommand = true;
                         };
                     }
@@ -211,7 +222,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        if (tablebase->setScheme(token)) {
+                        if (gtb->setScheme(token)) {
                             knowCommand = true;
                         };
                     }
@@ -223,7 +234,7 @@ void Uci::listner(IterativeDeeping *it) {
                             getToken(uip, token);
                             if (token == "value") {
                                 getToken(uip, token);
-                                if (tablebase->setInstalledPieces(stoi(token))) {
+                                if (gtb->setInstalledPieces(stoi(token))) {
                                     knowCommand = true;
                                 };
                             }
@@ -242,14 +253,14 @@ void Uci::listner(IterativeDeeping *it) {
                         }
                     } else if (token == "restart") {
                         knowCommand = true;
-                        tablebase->restart();
+                        gtb->restart();
                     } else if (token == "probing") {
                         getToken(uip, token);
                         if (token == "depth") {
                             getToken(uip, token);
                             if (token == "value") {
                                 getToken(uip, token);
-                                if (tablebase->setProbeDepth(stoi(token))) {
+                                if (gtb->setProbeDepth(stoi(token))) {
                                     knowCommand = true;
                                 };
                             }
@@ -399,7 +410,7 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
         }
         if (!knowCommand) {
-            cout << "Unknown command: " << command << "\n";
+            cout << "Unknown command: " << command << endl;
         };
         cout << flush;
     }

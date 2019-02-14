@@ -28,6 +28,7 @@
 #include <future>
 #include "namespaces/def.h"
 
+
 class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search> {
     friend class Singleton<SearchManager>;
 
@@ -37,9 +38,11 @@ public:
 
     ~SearchManager();
 
-    Tablebase &getGtb();
+    GTB &getGtb() const;
 
-    Tablebase &createGtb();
+    GTB &createGtb();
+
+    SYZYGY &createSYZYGY(string path);
 
     int loadFen(string fen = "");
 
@@ -58,6 +61,7 @@ public:
     bool setParameter(String param, int value);
 
     void clearKillerHeuristic();
+
 
     void clearAge();
 
@@ -101,13 +105,19 @@ public:
 
     void setSide(bool i);
 
-    bool getGtbAvailable();
+    bool getGtbAvailable() const;
+
+    string getSYZYGYbestmove(const int side) const;
+
+    int getSYZYGYdtm(const int side) const;
 
     int getMoveFromSan(String string, _Tmove *ptr);
 
     int printDtm();
 
-    void setGtb(Tablebase &tablebase);
+    void setGtb(GTB &tablebase);
+
+    void setSYZYGY(SYZYGY &tablebase);
 
     void pushStackMove();
 
@@ -178,6 +188,10 @@ public:
             i += s->totGen;
         }
         return i;
+    }
+
+    u64 getBitmap(const int n, const int side) const {
+        return getPool()[n]->getBitmap(side);
     }
 
 #endif

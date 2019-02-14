@@ -23,7 +23,7 @@ ChessBoard::ChessBoard() {
     memset(&structureEval, 0, sizeof(_Tboard));
     if ((chessboard[SIDETOMOVE_IDX] = loadFen(fenString)) == 2) {
         fatal("Bad FEN position format ", fenString);
-        std::_Exit(1);
+        std::exit(1);
     }
 }
 
@@ -177,7 +177,7 @@ char ChessBoard::decodeBoard(string a) {
             return i;
         }
     }
-    cout << "\n" << a << endl;
+    error(a);
     ASSERT(0);
     return -1;
 }
