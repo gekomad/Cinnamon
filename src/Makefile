@@ -85,7 +85,7 @@ ifeq ($(PROFILE_GCC),yes)
 	@echo "build..."
 	$(MAKE) -j EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)$(PROFILE_USE_THREAD) all
 else
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS) all
+	$(MAKE) EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS) all
 endif
 endif
 
@@ -170,16 +170,16 @@ cinnamon64-ARM:
 	$(MAKE) LIBS="$(LIBS) gtb/ARM/64/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
 
 cinnamon64-generic:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
+	$(MAKE) -j LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
 
 cinnamon64-modern:
-	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF " cinnamon64-generic
+	$(MAKE) -j ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF " cinnamon64-generic
 
 cinnamon64-modern-AMD:
-	$(MAKE) ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-modern
+	$(MAKE) -j ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-modern
 
 cinnamon64-modern-INTEL:
-	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
+	$(MAKE) -j ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
 cinnamon-profiler:
 	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -ltcmalloc -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
