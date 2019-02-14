@@ -42,7 +42,15 @@ public:
 
     GTB &createGtb();
 
-    SYZYGY &createSYZYGY(string path);
+    SYZYGY &createSYZYGY(string path) {
+        SYZYGY &syzygy = SYZYGY::getInstance();
+        syzygy.setPath(path);
+        for (Search *s:getPool()) {
+            s->setSYZYGY(syzygy);
+        }
+        return syzygy;
+    }
+
 
     int loadFen(string fen = "");
 
@@ -62,6 +70,7 @@ public:
 
     void clearKillerHeuristic();
 
+    void setKillerHeuristic(const int from, const int to, const int value);
 
     void clearAge();
 

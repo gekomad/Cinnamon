@@ -205,7 +205,11 @@ void SearchManager::clearKillerHeuristic() {
     }
 }
 
-
+void SearchManager::setKillerHeuristic(const int from, const int to, const int value) {
+//    for (Search *s:getPool()) {
+//        s->setKillerHeuristic(from, to, value);
+//    }
+}
 
 void SearchManager::clearAge() {
     getThread(0).clearAge();
@@ -313,7 +317,7 @@ void SearchManager::setSide(bool i) {
     }
 }
 
-bool SearchManager::getGtbAvailable()const {
+bool SearchManager::getGtbAvailable() const {
     return getThread(0).getGtbAvailable();
 }
 
@@ -403,14 +407,8 @@ GTB &SearchManager::createGtb() {
     return gtb;
 }
 
-SYZYGY &SearchManager::createSYZYGY(string
-path) {
-SYZYGY &syzygy = SYZYGY::getInstance();
-setSYZYGY(syzygy);
-syzygy.
-setPath(path);
-return
-syzygy;
-}
+
+
+
 
 

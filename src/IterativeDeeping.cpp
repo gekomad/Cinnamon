@@ -214,46 +214,41 @@ void IterativeDeeping::run() {
 
             resultMove.capturedPiece = searchManager.getPieceAt(resultMove.side ^ 1, POW2[resultMove.to]);
             bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
-            foundBestmove = true;
             if (!(resultMove.type & (Search::KING_SIDE_CASTLE_MOVE_MASK | Search::QUEEN_SIDE_CASTLE_MOVE_MASK))) {
                 bestmove += Search::decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
-
                 if (resultMove.promotionPiece != -1) {
                     bestmove += tolower(FEN_PIECE[(uchar) resultMove.promotionPiece]);
                 }
             }
 
-            if (sc > _INFINITE - MAX_PLY) {
+            if (abs(sc) > _INFINITE - MAX_PLY) {
                 cout << "info score mate 1 depth " << mply;
             } else {
                 cout << "info score cp " << sc << " depth " << mply - extension;
             }
             cout << " nodes " << totMoves << " time " << timeTaken;
-            cout << " nps " << (totMoves / (1 + (timeTaken / 1000)));
+            if (0)cout << " knps " << (totMoves / timeTaken);
             cout << " pv " << pvv << endl;
         }
 
-        if (abs(sc) > _INFINITE - MAX_PLY) {
-            inMate = true;
-            searchManager.setForceCheck(true);
-        }
-
-        if (!foundBestmove) {
-            searchManager.setRunning(2);
-        } else {
             if (searchManager.getForceCheck()) {
+            searchManager.setForceCheck(inMate);
                 searchManager.setRunning(1);
-            } else if (inMate) {
+
+        } else if (abs(sc) > _INFINITE - MAX_PLY) {
+            searchManager.setForceCheck(true);
                 searchManager.setRunning(2);
-            }
+
         }
         if (mply >= maxDepth + extension && (searchManager.getRunning(0) != 2 || inMate)) {
             break;
         }
 
+        if (abs(sc) > _INFINITE - MAX_PLY) {
+            inMate = true;
+        }
     }
     cout << "bestmove " << bestmove;
-    ASSERT(foundBestmove);
     if (ponderEnabled && ponderMove.size()) {
         cout << " ponder " << ponderMove;
     }
