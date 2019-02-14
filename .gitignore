@@ -14,6 +14,9 @@ cmake-build-debug
 *.dmg
 *.iso
 *.jar
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
  
 # Logs and databases #
 ######################

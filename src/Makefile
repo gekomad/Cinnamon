@@ -74,18 +74,18 @@ help:
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(LIBSTDC)$(CFLAGS)-DFULL_TEST all
+	$(MAKE) -j EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(LIBSTDC)$(CFLAGS)-DFULL_TEST all
 	$(PA)$(EXE)
 else
 ifeq ($(PROFILE_GCC),yes)
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)-fprofile-generate all
+	$(MAKE) -j EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b1 >bench.tmp
 	$(RM) *.o bench.tmp
 	@echo "build..."
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)$(PROFILE_USE_THREAD) all
+	$(MAKE) -j EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)$(PROFILE_USE_THREAD) all
 else
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS) all
+	$(MAKE) -j EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS) all
 endif
 endif
 
@@ -94,7 +94,7 @@ endif
 	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
 
 drmemory:
-	$(MAKE) -j4 EXE=$(EXE) all
+	$(MAKE) -j EXE=$(EXE) all
 
 	@echo "\n\n *** PERFT SINGLE CORE ***\n"
 	drmemory -- $(PA)$(EXE) -perft -d3
@@ -109,7 +109,7 @@ drmemory:
 	drmemory -- $(PA)$(EXE) -b4
 
 profiler:
-	$(MAKE) -j4 EXE=$(EXE) all
+	$(MAKE) -j EXE=$(EXE) all
 	@echo "\n\n **** \nsudo apt-get install google-perftools libgoogle-perftools-dev && export LD_PRELOAD=/usr/lib/libtcmalloc.so:/usr/lib/libprofiler.so\n **** \n"
 
 	@echo "\n\n *** PERFT SINGLE CORE ***\n"
@@ -133,7 +133,7 @@ profiler:
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
 gnuprof:
-	$(MAKE) -j4 EXE=$(EXE) all
+	$(MAKE) -j EXE=$(EXE) all
 
 	@echo "\n\n *** PERFT SINGLE CORE ***\n"
 	$(PA)$(EXE) -perft -d6
