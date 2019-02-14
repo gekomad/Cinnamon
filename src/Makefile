@@ -86,7 +86,7 @@ ifeq ($(PROFILE_GCC),yes)
 	@echo "build..."
 	$(MAKE) -j EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)$(PROFILE_USE_THREAD) all
 else
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS) all
+	$(MAKE) EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS) all
 endif
 endif
 
