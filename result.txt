@@ -1,11 +1,10 @@
- ----------- eval ------------
-
 ratings
 Rank Name                    Elo    +    - games score oppo. draws 
-   1 Cinnamon 2.0             53    5    5 13905   53%    33   23% 
-   2 Cinnamon 2.1-SNAPSHOT    33    5    5 13904   47%    53   23% 
+   1 Cinnamon 2.1-SNAPSHOT    20    4    3 16256   55%   -20   23% 
+   2 Cinnamon 2.0            -20    3    4 16256   45%    20   23% 
 
 los
-                       Ci Ci Uc
-Cinnamon 2.0              99 75
-Cinnamon 2.1-SNAPSHOT   0    72
+                       Ci Ci
+Cinnamon 2.1-SNAPSHOT    100
+Cinnamon 2.0            0   
+
