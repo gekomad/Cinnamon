@@ -133,7 +133,6 @@ void IterativeDeeping::run() {
 
         searchManager.setRunningThread(1);
         searchManager.setRunning(1);
-
         if (!searchManager.getRes(resultMove, ponderMove, pvv, &mateIn)) {
             debug("IterativeDeeping cmove == 0, exit");
             break;

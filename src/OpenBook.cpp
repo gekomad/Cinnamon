@@ -165,7 +165,7 @@ int OpenBook::entryFromFile(entry_t *entry) {
 
 int OpenBook::findKey(u64 key, entry_t *entry) {
     int first, last, middle;
-    static const entry_t entry_none = {0, 0, 0, 0};
+    static constexpr entry_t entry_none = {0, 0, 0, 0};
     entry_t first_entry = entry_none, last_entry, middle_entry;
     first = -1;
     if (fseek(openBookFile, -16, SEEK_END)) {
