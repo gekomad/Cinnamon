@@ -15,7 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-//TODO aggiornare home page nuovo tarrash e link a dgt
+
+//TODO testare
 #include "Endgame.h"
 
 /*
@@ -65,7 +66,9 @@ int Endgame::KQKP(int loserSide, int winnerKingPos, int loserKingPos, int pawnPo
 #endif
 
     int result = DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]];
-    if ((DISTANCE[loserKingPos][pawnPos] != 1) || (RANK_AT[pawnPos] != (loserSide == WHITE ? 6 : 1)) /*|| (0x5a5a5a5a5a5a5a5aULL & POW2(pawnPos))*/) {// 0x5a5a5a5a5a5a5a5aULL = FILE B D E F G
+    if ((DISTANCE[loserKingPos][pawnPos] != 1) || (RANK_AT[pawnPos] != (loserSide == WHITE ? 6
+                                                                                           : 1))
+        /*|| (0x5a5a5a5a5a5a5a5aULL & POW2(pawnPos))*/) {// 0x5a5a5a5a5a5a5a5aULL = FILE B D E F G
         result += _board::VALUEQUEEN - _board::VALUEPAWN;
     }
     return result;
@@ -89,13 +92,14 @@ int Endgame::KBBKN(int winnerKingPos, int loserKingPos, int knightPos) {
     pieces2[KNIGHT_BLACK] = 1;
 
     ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
-#endif
 
     ASSERT_RANGE(winnerKingPos, 0, 63);
     ASSERT_RANGE(knightPos, 0, 63);
     ASSERT_RANGE(loserKingPos, 0, 63);
+#endif
 
-    return _board::VALUEBISHOP + DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]] + (DISTANCE[loserKingPos][knightPos]) * 32;
+    return _board::VALUEBISHOP + DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]] +
+           (DISTANCE[loserKingPos][knightPos]) * 32;
     // Bonus for driving the defending king and knight apart
     // Bonus for restricting the knight's mobility
     //result += Value((8 - popcount<Max15>(pos.attacks_from<KNIGHT>(nsq))) * 8);

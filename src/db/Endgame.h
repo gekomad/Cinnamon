@@ -19,7 +19,9 @@
 #pragma once
 
 #include "../ChessBoard.h"
+#ifdef DEBUG_MODE
 #include <unordered_map>
+#endif
 
 class Endgame : public ChessBoard {
 
@@ -31,11 +33,11 @@ public:
 
 
     template<int side>
-    int getEndgameValue(const _Tboard &structureEval, const int N_PIECE) {
-        ASSERT(N_PIECE != 999);
+    int getEndgameValue(const _Tboard &structureEval, const int nPieces) {
+        ASSERT(nPieces != 999);
         ASSERT_RANGE(side, 0, 1);
 
-        switch (N_PIECE) {
+        switch (nPieces) {
             case 4 :
                 if (chessboard[QUEEN_BLACK]) {
                     if (chessboard[PAWN_WHITE]) {
@@ -197,10 +199,10 @@ private:
         pieces2[ROOK_BLACK] = 1;
 
         ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
-#endif
-
         ASSERT_RANGE(winnerKingPos, 0, 63);
         ASSERT_RANGE(loserKingPos, 0, 63);
+#endif
+
         return _board::VALUEQUEEN - _board::VALUEROOK + MateTable[loserKingPos] +
                DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]];
     }
@@ -222,10 +224,10 @@ private:
         pieces2[KNIGHT_WHITE] = 1;
 
         ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
-#endif
 
         ASSERT_RANGE(winnerKingPos, 0, 63);
         ASSERT_RANGE(loserKingPos, 0, 63);
+#endif
 
         return VALUE_KNOWN_WIN + DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]] + KBNKMateTable[loserKingPos];
     }
@@ -247,9 +249,9 @@ private:
         pieces2[BISHOP_BLACK] = 1;
 
         ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
+        ASSERT_RANGE(loserKingPos, 0, 63);
 #endif
 
-        ASSERT_RANGE(loserKingPos, 0, 63);
         return MateTable[loserKingPos];
     }
 
@@ -270,9 +272,9 @@ private:
         pieces2[KNIGHT_BLACK] = 1;
 
         ASSERT(checkNPieces(pieces1) || checkNPieces(pieces2));
+        ASSERT_RANGE(loserKingPos, 0, 63);
 #endif
 
-        ASSERT_RANGE(loserKingPos, 0, 63);
         return MateTable[loserKingPos] + penaltyKRKN[DISTANCE[loserKingPos][knightPos]];
     }
 
