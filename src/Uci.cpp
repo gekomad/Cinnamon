@@ -54,7 +54,6 @@ void Uci::listner(IterativeDeeping *it) {
     int perftHashSize = 0;
     string dumpFile;
     static const string _BOOLEAN[] = {"false", "true"};
-
     while (!stop) {
         if (runPerftAndExit) {
             runPerftAndExit = false;

@@ -28,7 +28,6 @@
 #include <future>
 #include "namespaces/def.h"
 
-
 class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search> {
     friend class Singleton<SearchManager>;
 
@@ -69,8 +68,6 @@ public:
     bool setParameter(String param, int value);
 
     void clearKillerHeuristic();
-
-    void setKillerHeuristic(const int from, const int to, const int value);
 
     void clearAge();
 
@@ -197,10 +194,6 @@ public:
             i += s->totGen;
         }
         return i;
-    }
-
-    u64 getBitmap(const int n, const int side) const {
-        return getPool()[n]->getBitmap(side);
     }
 
 #endif

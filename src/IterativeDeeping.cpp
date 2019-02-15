@@ -75,7 +75,6 @@ void IterativeDeeping::run() {
     INC(checkSmp2);
     int timeTaken = 0;
     searchManager.setRunning(2);
-
     searchManager.setRunningThread(true);
     int mply = 0;
 
@@ -120,7 +119,7 @@ void IterativeDeeping::run() {
     int mateIn = INT_MAX;
     string pvv;
     _Tmove resultMove;
-    bool foundBestmove = false;
+
 #ifdef DEBUG_MODE
     u64 totMovesPrec = -1;
 #endif
