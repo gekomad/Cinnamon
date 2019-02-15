@@ -479,7 +479,7 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
 
 #ifdef DEBUG_MODE
     if (trace) {
-        const string HEADER = "\n\t\t\t\t\tTOT (white)\t\t  WHITE\t\tBLACK\n";
+        const string HEADER = "\n\t\t\t\t\tTOT (white)  WHITE\tBLACK\n";
         if (side == WHITE) cout << "\nTotal (white)..........   " << (double) -result / 100.0 << "\n";
         else
             cout << "\nTotal (black)..........   " << (double) result / 100.0 << "\n";
