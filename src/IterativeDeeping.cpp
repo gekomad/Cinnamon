@@ -52,7 +52,6 @@ void IterativeDeeping::loadBook(string f) {
 }
 
 void IterativeDeeping::setUseBook(bool b) {
-    bool valid = true;
     if (!openBook && b) {
         openBook = OpenBook::getInstance("cinnamon.bin");
         return;

@@ -561,7 +561,7 @@ private:
     u64 getAttackers(const int position, const u64 allpieces) const {
         ASSERT_RANGE(position, 0, 63);
         ASSERT_RANGE(side, 0, 1);
-        int bound;
+
         ///knight
         u64 attackers = KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + (side ^ 1)];
         if (exitOnFirst && attackers)return 1;

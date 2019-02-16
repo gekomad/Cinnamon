@@ -168,7 +168,7 @@ private:
                          _TcheckHash &checkHashStruct) {
 
         _ThashData *phashe = &checkHashStruct.phasheType[type];
-        if (phashe->dataU = readHash(type, zobristKeyR)) {
+        if ((phashe->dataU = readHash(type, zobristKeyR))) {
             if (phashe->dataS.depth >= depth) {
                 INC(probeHash);
                 if (!currentPly) {
