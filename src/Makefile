@@ -165,10 +165,10 @@ cinnamon32-sse:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse -DHAS_BSF" cinnamon32-generic
 
 cinnamon32-ARM:
-	$(MAKE) LIBS="$(LIBS) lib/ARM/32/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
+	$(MAKE) -j2 LIBS="$(LIBS) lib/ARM/32/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
 
 cinnamon64-ARM:
-	$(MAKE) LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
+	$(MAKE) -j2 LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
 
 cinnamon64-generic:
 	$(MAKE) -j LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
