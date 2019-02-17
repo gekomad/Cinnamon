@@ -731,11 +731,7 @@ bool Search::setParameter(String param, int value) {
     } else if (param == "ROOK_TRAPPED") {
         ROOK_TRAPPED = value;
     } else if (param == "UNDEVELOPED") {
-<<<<<<< HEAD
-        UNDEVELOPED   = value;
-=======
         UNDEVELOPED = value;
->>>>>>> _terminated_/syzygy4
     } else if (param == "UNDEVELOPED_BISHOP") {
         UNDEVELOPED_BISHOP = value;
     } else if (param == "VAL_WINDOW") {

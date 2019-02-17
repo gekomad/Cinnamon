@@ -50,11 +50,7 @@ void IterativeDeeping::loadBook(const string f) {
     openBook = OpenBook::getInstance(f);
 }
 
-<<<<<<< HEAD
-void IterativeDeeping::setUseBook(bool b) {
-=======
 void IterativeDeeping::setUseBook(const bool b) {
->>>>>>> _terminated_/syzygy4
     if (!openBook && b) {
         openBook = OpenBook::getInstance("cinnamon.bin");
         return;

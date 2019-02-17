@@ -171,18 +171,6 @@ cinnamon64-ARM:
 	$(MAKE) LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
 
 cinnamon64-generic:
-<<<<<<< HEAD
-	$(MAKE) -j LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
-
-cinnamon64-modern:
-	$(MAKE) -j ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF " cinnamon64-generic
-
-cinnamon64-modern-AMD:
-	$(MAKE) -j ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-modern
-
-cinnamon64-modern-INTEL:
-	$(MAKE) -j ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
-=======
 	$(MAKE) -j LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
 
 cinnamon64-sse3:
@@ -196,7 +184,6 @@ cinnamon64-intel-i7:
 
 cinnamon64-intel-i9:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=haswell -mtune=haswell " cinnamon64-sse3
->>>>>>> _terminated_/syzygy4
 
 cinnamon-profiler:
 	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -ltcmalloc -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
