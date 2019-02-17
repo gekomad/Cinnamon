@@ -154,9 +154,8 @@ private:
         res.pawns[WHITE] = evaluatePawn<WHITE, phase>();
         res.bishop[BLACK] = evaluateBishop<BLACK, phase>(structureEval.allPiecesSide[WHITE], structureEval.allPiecesSide[BLACK]);
         res.bishop[WHITE] = evaluateBishop<WHITE, phase>(structureEval.allPiecesSide[BLACK], structureEval.allPiecesSide[WHITE]);
-        res.queens[BLACK] = evaluateQueen<BLACK, phase>(structureEval.allPiecesSide[WHITE], structureEval.allPiecesSide[BLACK]);
-        res.queens[WHITE] = evaluateQueen<WHITE, phase>(structureEval.allPiecesSide[BLACK], structureEval.allPiecesSide[WHITE]);
-        res.rooks[BLACK] = evaluateRook<BLACK, phase>(chessboard[KING_BLACK], structureEval.allPiecesSide[WHITE], structureEval.allPiecesSide[BLACK]);
+        res.queens[BLACK] = evaluateQueen<BLACK, phase>(structureEval.allPiecesSide[WHITE]);
+        res.queens[WHITE] = evaluateQueen<WHITE, phase>(structureEval.allPiecesSide[BLACK]); res.rooks[BLACK] = evaluateRook<BLACK, phase>(chessboard[KING_BLACK], structureEval.allPiecesSide[WHITE], structureEval.allPiecesSide[BLACK]);
         res.rooks[WHITE] = evaluateRook<WHITE, phase>(chessboard[KING_WHITE], structureEval.allPiecesSide[BLACK], structureEval.allPiecesSide[WHITE]);
         res.knights[BLACK] = evaluateKnight<BLACK, phase>(chessboard[WHITE], ~structureEval.allPiecesSide[BLACK]);
         res.knights[WHITE] = evaluateKnight<WHITE, phase>(chessboard[BLACK], ~structureEval.allPiecesSide[WHITE]);
@@ -174,7 +173,7 @@ private:
     int evaluateBishop(const u64, u64);
 
     template<int side, Eval::_Tphase phase>
-    int evaluateQueen(u64 enemies, u64 friends);
+    int evaluateQueen(const u64 enemies);
 
     template<int side, _Tphase phase>
     int evaluateKnight(const u64, const u64);
