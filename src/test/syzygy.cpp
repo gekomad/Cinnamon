@@ -16,20 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#if defined(FULL_TEST)
 
-#include <string>
-#include <iostream>
-#include "perft/PerftThread.h"
+#include <gtest/gtest.h>
+#include <set>
+#include "../SearchManager.h"
+#include "../IterativeDeeping.h"
+#include "../db/syzygy/SYZYGY.h"
 
-using namespace std;
+TEST(syzygy, bestmove) {
 
-class WrapperCinnamon {
+    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+    SYZYGY &tablebase = searchManager.createSYZYGY("/syzygy");
 
-public:
-    vector<string> getSuccessorsFen(const string &, const int depth);
 
-    unsigned perft(const string &fen, const int depth);
+    IterativeDeeping it;
 
-    bool isValid(const string &fen);
-};
+    searchManager.loadFen("K7/B7/B7/8/8/8/7n/7k b - - 5 1");
+
+    EXPECT_EQ("h1g2", searchManager.getSYZYGYbestmove(BLACK));
+    EXPECT_EQ("h1g2", searchManager.getSYZYGYbestmove(BLACK));
+
+    EXPECT_EQ(110, searchManager.getSYZYGYdtm(BLACK));
+    EXPECT_EQ(110, searchManager.getSYZYGYdtm(BLACK));
+}
+
+
+#endif

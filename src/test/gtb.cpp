@@ -22,11 +22,11 @@
 #include <set>
 #include "../SearchManager.h"
 #include "../IterativeDeeping.h"
-#include "../Tablebase.h"
+#include "../db/GTB.h"
 
-TEST(tablebase, test1) {
+TEST(gtb, test1) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    Tablebase &tablebase = searchManager.createGtb();
+    GTB &tablebase = searchManager.createGtb();
     if (!tablebase.setPath("/gtb4")) {
         FAIL() << "path error";
     }

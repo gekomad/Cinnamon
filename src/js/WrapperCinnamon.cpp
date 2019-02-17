@@ -29,7 +29,7 @@ unsigned WrapperCinnamon::perft(const string &fen, const int depth) {
     return a.perft(fen, depth);
 }
 
-bool WrapperCinnamon::isValid(const string &fen) {
+bool WrapperCinnamon::isValid(const string &fen) const {
     ChessBoard a;
     if (a.loadFen(fen) == -1)return false;
     return true;

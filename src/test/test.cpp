@@ -21,9 +21,9 @@
 
 #include <gtest/gtest.h>
 
-//#include "syzygy.cpp"
-//#include "pin.cpp"
-//#include "gtb.cpp"
+#include "syzygy.cpp"
+//#include "pin.cpp" TODO
+#include "gtb.cpp"
 #include "eval.cpp"
 #include "spinlockShared.cpp"
 #include "spinlock.cpp"
