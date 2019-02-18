@@ -70,7 +70,7 @@ namespace _def {
     }
 #else
     static inline int bitCount(u64 bits) {
-        return __builtin_popcount(bits)+__builtin_popcount(bits>>32);
+        return __builtin_popcountl(bits)+__builtin_popcountl(bits>>32);
     }
 #endif
 #else
