@@ -63,11 +63,16 @@ namespace _def {
 
 
 #ifdef HAS_POPCNT
+#if __WORDSIZE == 64
 
     static inline int bitCount(u64 bits) {
         return __builtin_popcountll(bits);
     }
-
+#else
+    static inline int bitCount(u64 bits) {
+        return __builtin_popcount(bits)+__builtin_popcount(bits>>32);
+    }
+#endif
 #else
 
     static inline int bitCount(u64 bits) {
