@@ -42,7 +42,7 @@ else
 	STRIP=strip.exe
 endif
 
-CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
+CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops -static "
 
 help:
 
@@ -68,25 +68,24 @@ help:
 	@echo "add:"
 	@echo " COMP=compiler                   > Use another compiler"
 	@echo " PROFILE_GCC=yes                 > PGO build"
-	@echo " FULL_TEST=yes                   > Unit test (uses libgtest-dev)"
-	@echo " LIBSTDC=-static                 > Link statically libstdc++"
+	@echo " FULL_TEST=yes                   > Unit test (uses libgtest-dev)"	
 	@echo ""
 
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(LIBSTDC)$(CFLAGS)-DFULL_TEST all
+	$(MAKE) -j EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(CFLAGS)-DFULL_TEST all
 	$(PA)$(EXE)
 else
 ifeq ($(PROFILE_GCC),yes)
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)-fprofile-generate all
+	$(MAKE) -j EXE=$(EXE) CFLAGS=$(CFLAGS)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b1 >bench.tmp
 	$(RM) *.o bench.tmp
 	@echo "build..."
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)$(PROFILE_USE_THREAD) all
+	$(MAKE) -j EXE=$(EXE) CFLAGS=$(CFLAGS)$(PROFILE_USE_THREAD) all
 else
-	$(MAKE) EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS) all
+	$(MAKE) EXE=$(EXE) CFLAGS=$(CFLAGS) all
 endif
 endif
 
