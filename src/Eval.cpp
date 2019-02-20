@@ -336,24 +336,46 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
     return result;
 }
 
+
+/**
+ * evaluate rook for color at phase
+ * 1. if no rooks returns 0
+ * 2. // pinned
+ * 3. in 7th - add ROOK_7TH_RANK for each rook in 7th
+ * 4. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING for each rook near to king and substracts ENEMY_NEAR_KING for each rook near to enemy king
+ *
+*/
 template<int side, Eval::_Tphase phase>
-int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
+int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
     INC(evaluationCount[side]);
-    int o, result = 0;
+
     u64 x = chessboard[ROOK_BLACK + side];
     if (!x) {
         return 0;
     }
+    // 2.
+    int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
+
+    // 3. in 7th
     if (phase == MIDDLE) {
-        if (!side && (o = bitCount(x & RANK_1))) {
-            ADD(SCORE_DEBUG.ROOK_7TH_RANK[side], ROOK_7TH_RANK * o);
-            result += ROOK_7TH_RANK * o;
-        }
-        if (side && (o = bitCount(x & RANK_6))) {
-            ADD(SCORE_DEBUG.ROOK_7TH_RANK[side], ROOK_7TH_RANK * o);
-            result += ROOK_7TH_RANK * o;
-        }
+        result += ROOK_7TH_RANK * bitCount(x & RANK_1_7[side]);
+        ADD(SCORE_DEBUG.ROOK_7TH_RANK[side], ROOK_7TH_RANK * bitCount(x & RANK_1_7[side]));
     }
+
+    // 4. king security
+    if (phase != OPEN) {
+        structureEval.kingSecurityDistance[side] +=
+                FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & x);
+        ADD(SCORE_DEBUG.KING_SECURITY_ROOK[side],
+            FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & x));
+
+        structureEval.kingSecurityDistance[side] -=
+                ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & x);
+        ADD(SCORE_DEBUG.KING_SECURITY_ROOK[side ^ 1],
+            -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & x));
+
+    }
+
     if (side == WHITE) {
         if (((F1G1bit & king) && (H1H2G1bit & x)) || ((C1B1bit & king) && (A1A2B1bit & x))) {
             ADD(SCORE_DEBUG.ROOK_TRAPPED[side], -ROOK_TRAPPED);
@@ -368,7 +390,8 @@ int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
     int firstRook = -1;
     int secondRook = -1;
     while (x) {
-        o = BITScanForward(x);
+        int o = BITScanForward(x);
+
         //mobility
         ASSERT(getMobilityRook(o, enemies, friends) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
         result += MOB_ROOK[phase][getMobilityRook(o, enemies, friends)];
@@ -379,14 +402,6 @@ int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
             secondRook = o;
         }
         if (phase != OPEN) {
-            structureEval.kingSecurityDistance[side] +=
-                    FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0);
-            ADD(SCORE_DEBUG.KING_SECURITY_ROOK[side],
-                FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0));
-            structureEval.kingSecurityDistance[side] -=
-                    ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? 1 : 0);
-            ADD(SCORE_DEBUG.KING_SECURITY_ROOK[side ^ 1],
-                -ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? 1 : 0));
             // Penalise if Rook is Blocked Horizontally
             if ((RANK_BOUND[o] & structureEval.allPieces) == RANK_BOUND[o]) {
                 ADD(SCORE_DEBUG.ROOK_BLOCKED[side], -ROOK_BLOCKED);

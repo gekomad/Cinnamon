@@ -152,17 +152,21 @@ private:
     void getRes(_Tresult &res) {
         res.pawns[BLACK] = evaluatePawn<BLACK, phase>();
         res.pawns[WHITE] = evaluatePawn<WHITE, phase>();
+
         res.bishop[BLACK] = evaluateBishop<BLACK, phase>(structureEval.allPiecesSide[WHITE]);
         res.bishop[WHITE] = evaluateBishop<WHITE, phase>(structureEval.allPiecesSide[BLACK]);
 
         res.queens[BLACK] = evaluateQueen<BLACK, phase>(structureEval.allPiecesSide[WHITE]);
         res.queens[WHITE] = evaluateQueen<WHITE, phase>(structureEval.allPiecesSide[BLACK]);
+
         res.rooks[BLACK] = evaluateRook<BLACK, phase>(chessboard[KING_BLACK], structureEval.allPiecesSide[WHITE],
                                                       structureEval.allPiecesSide[BLACK]);
         res.rooks[WHITE] = evaluateRook<WHITE, phase>(chessboard[KING_WHITE], structureEval.allPiecesSide[BLACK],
                                                       structureEval.allPiecesSide[WHITE]);
+
         res.knights[BLACK] = evaluateKnight<BLACK, phase>(chessboard[WHITE], ~structureEval.allPiecesSide[BLACK]);
         res.knights[WHITE] = evaluateKnight<WHITE, phase>(chessboard[BLACK], ~structureEval.allPiecesSide[WHITE]);
+
         res.kings[BLACK] = evaluateKing<phase>(BLACK, ~structureEval.allPiecesSide[BLACK]);
         res.kings[WHITE] = evaluateKing<phase>(WHITE, ~structureEval.allPiecesSide[WHITE]);
     }
