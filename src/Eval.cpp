@@ -130,62 +130,69 @@ int Eval::evaluatePawn() {
     return result;
 }
 
+/**
+ * evaluate bishop for color at phase
+ * 1. if no bishops returns 0
+ * 2. if two bishops add BONUS2BISHOP
+ * 3 *king security* - in OPEN phase substracts at kingSecurityDistance ENEMY_NEAR_KING for each bishop close to enmey king
+ * 4. undevelop - substracts UNDEVELOPED_BISHOP for each undeveloped bishop
+ * 5. mobility add MOB_BISHOP[phase][???]
+ * pinned ?
+ */
 template<int side, Eval::_Tphase phase>
-int Eval::evaluateBishop(u64 enemies, u64 friends) {
+int Eval::evaluateBishop(const u64 enemies) {
     INC(evaluationCount[side]);
-    u64 x = chessboard[BISHOP_BLACK + side];
-    if (!x) {
-        return 0;
-    }
-    int result = 0;
-    if (phase != OPEN && bitCount(x) > 1) {
+    u64 bishop = chessboard[BISHOP_BLACK + side];
+
+    // 1.
+    if (!bishop) return 0;
+
+    int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
+
+    // 2.
+    if (phase != OPEN && bitCount(bishop) > 1) {
         result += BONUS2BISHOP;
         ADD(SCORE_DEBUG.BONUS2BISHOP[side], BONUS2BISHOP);
     }
-    while (x) {
-        int o = BITScanForward(x);
-        u64 captured = getDiagCapture(o, enemies | friends, enemies);
-        ASSERT(bitCount(captured) + getDiagShiftCount(o, enemies | friends) < (int) (sizeof(MOB_BISHOP) / sizeof(int)));
-        result += MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, enemies | friends)];
-        ADD(SCORE_DEBUG.MOB_BISHOP[side],
-            MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, enemies | friends)]);
-        structureEval.kingSecurityDistance[side] +=
-                BISHOP_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0);
+
+    // 3. *king security*
+    if (phase != OPEN) {
+        structureEval.kingSecurityDistance[side] -=
+                ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & bishop);
         ADD(SCORE_DEBUG.KING_SECURITY_BISHOP[side],
-            BISHOP_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0));
+            -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & bishop));
+    }
+
+    // 4. undevelop
+    result -= UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop);
+    ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop));
+
+    while (bishop) {
+        int o = BITScanForward(bishop);
+        // 5. mobility
+        u64 captured = getDiagCapture(o, structureEval.allPieces, enemies);
+        ASSERT(bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces) <
+               (int) (sizeof(MOB_BISHOP) / sizeof(int)));
+        result += MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces)];
+        ADD(SCORE_DEBUG.MOB_BISHOP[side],
+            MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces)]);
+
+        // 6.
         if (phase != OPEN) {
-            structureEval.kingSecurityDistance[side] -=
-                    NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? ENEMY_NEAR_KING : 0;
-            ADD(SCORE_DEBUG.KING_SECURITY_BISHOP[side ^ 1],
-                -NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? ENEMY_NEAR_KING : 0);
-        } else
-            //attack center
-        if (phase == OPEN) {
-            if (side) {
-                if (o == C1 || o == F1) {
-                    ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], -UNDEVELOPED_BISHOP);
-                    result -= UNDEVELOPED_BISHOP;
-                }
-            } else {
-                if (o == C8 || o == F8) {
-                    ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], -UNDEVELOPED_BISHOP);
-                    result -= UNDEVELOPED_BISHOP;
-                }
-            }
-        } else {
-            if (BIG_DIAGONAL & POW2[o] && !(DIAGONAL[o] & structureEval.allPieces)) {
+            if (BIG_DIAGONAL & POW2[o] && !(DIAGONAL[o] & structureEval.allPieces)) { //TODO sbagliato
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
-            if (BIG_ANTIDIAGONAL & POW2[o] && !(ANTIDIAGONAL[o] & structureEval.allPieces)) {
+            if (BIG_ANTIDIAGONAL & POW2[o] && !(ANTIDIAGONAL[o] & structureEval.allPieces)) {//TODO sbagliato
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
         }
-        RESET_LSB(x);
-    };
+        RESET_LSB(bishop);
+    }
     return result;
 }
+
 
 template<int side, Eval::_Tphase phase>
 int Eval::evaluateQueen(u64 enemies, u64 friends) {
