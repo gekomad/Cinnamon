@@ -193,36 +193,54 @@ int Eval::evaluateBishop(const u64 enemies) {
     return result;
 }
 
-
+/**
+ * evaluate queen for color at phase
+ * 1. // pinned
+ * 2. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING for each queen near to king and substracts ENEMY_NEAR_KING for each queen near to enemy king
+ * 3. mobility - MOB_QUEEN[phase][position]
+ * 4. half open file - if there is a enemy pawn on same file add HALF_OPEN_FILE_Q
+ * 5. open file - if there is any pieces on same file add OPEN_FILE_Q
+ * 6. 5. bishop on queen - if there is a bishop on same diagonal add BISHOP_ON_QUEEN
+ */
 template<int side, Eval::_Tphase phase>
-int Eval::evaluateQueen(u64 enemies, u64 friends) {
+int Eval::evaluateQueen(const u64 enemies) {
     INC(evaluationCount[side]);
-    int result = 0;
     u64 queen = chessboard[QUEEN_BLACK + side];
+    int result = 0;//20 * bitCount(structureEval.pinned[side] & queen);
+
+    // 2. *king security*
+    if (phase != OPEN) {
+        structureEval.kingSecurityDistance[side] +=
+                FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & queen);
+        ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side],
+            FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & queen));
+
+        structureEval.kingSecurityDistance[side] -=
+                ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & queen);
+        ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side ^ 1],
+            -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & queen));
+    }
+
     while (queen) {
         int o = BITScanForward(queen);
-        ASSERT(getMobilityQueen(o, enemies, friends) < (int) (sizeof(MOB_QUEEN[phase]) / sizeof(int)));
-        ASSERT(structureEval.allPieces == enemies | friends);
+        ASSERT(structureEval.allPieces == structureEval.allPieces);
+        // 3. mobility
         result += MOB_QUEEN[phase][getMobilityQueen(o, enemies, structureEval.allPieces)];
         ADD(SCORE_DEBUG.MOB_QUEEN[side], MOB_QUEEN[phase][getMobilityQueen(o, enemies, structureEval.allPieces)]);
-        if (phase != OPEN) {
-            structureEval.kingSecurityDistance[side] +=
-                    FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0);
-            ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side],
-                FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0));
-            structureEval.kingSecurityDistance[side] -=
-                    ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? 1 : 0);
-            ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side ^ 1],
-                -ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? 1 : 0));
-        }
+
+        // 4. half open file
         if ((chessboard[side ^ 1] & FILE_[o])) {
             ADD(SCORE_DEBUG.HALF_OPEN_FILE_Q[side], HALF_OPEN_FILE_Q);
-            result += HALF_OPEN_FILE_Q;
+            result += HALF_OPEN_FILE_Q; //TODO + o - ?
         }
+
+        // 5. open file
         if ((FILE_[o] & structureEval.allPieces) == POW2[o]) {
             ADD(SCORE_DEBUG.OPEN_FILE_Q[side], OPEN_FILE_Q);
-            result += OPEN_FILE_Q;
+            result += OPEN_FILE_Q; //TODO + o - ?
         }
+
+        // 6. bishop on queen
         if (DIAGONAL_ANTIDIAGONAL[o] & chessboard[BISHOP_BLACK + side]) {
             ADD(SCORE_DEBUG.BISHOP_ON_QUEEN[side], BISHOP_ON_QUEEN);
             result += BISHOP_ON_QUEEN;
