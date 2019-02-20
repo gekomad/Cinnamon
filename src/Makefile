@@ -74,18 +74,18 @@ help:
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(CFLAGS)-DFULL_TEST all
+	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(CFLAGS)-DFULL_TEST all
 	$(PA)$(EXE)
 else
 ifeq ($(PROFILE_GCC),yes)
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(CFLAGS)-fprofile-generate all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b1 >bench.tmp
 	$(RM) *.o bench.tmp
 	@echo "build..."
-	$(MAKE) -j EXE=$(EXE) CFLAGS=$(CFLAGS)$(PROFILE_USE_THREAD) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(PROFILE_USE_THREAD) all
 else
-	$(MAKE) EXE=$(EXE) CFLAGS=$(CFLAGS) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS) all
 endif
 endif
 
@@ -94,7 +94,7 @@ endif
 	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o IterativeDeeping.o Eval.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o GTB.o
 
 drmemory:
-	$(MAKE) -j EXE=$(EXE) all
+	$(MAKE) -j4 EXE=$(EXE) all
 
 	@echo "\n\n *** PERFT SINGLE CORE ***\n"
 	drmemory -- $(PA)$(EXE) -perft -d3
@@ -109,7 +109,7 @@ drmemory:
 	drmemory -- $(PA)$(EXE) -b4
 
 profiler:
-	$(MAKE) -j EXE=$(EXE) all
+	$(MAKE) -j4 EXE=$(EXE) all
 	@echo "\n\n **** \nsudo apt-get install google-perftools libgoogle-perftools-dev && export LD_PRELOAD=/usr/lib/libtcmalloc.so:/usr/lib/libprofiler.so\n **** \n"
 
 	@echo "\n\n *** PERFT SINGLE CORE ***\n"
@@ -133,7 +133,7 @@ profiler:
 	google-pprof --text $(PA)$(EXE) profiler.tmp
 
 gnuprof:
-	$(MAKE) -j EXE=$(EXE) all
+	$(MAKE) -j4 EXE=$(EXE) all
 
 	@echo "\n\n *** PERFT SINGLE CORE ***\n"
 	$(PA)$(EXE) -perft -d6
@@ -164,22 +164,22 @@ cinnamon32-sse:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse -DHAS_POPCNT -DHAS_BSF" cinnamon32-generic
 
 cinnamon32-ARM:
-	$(MAKE) -j2 LIBS="$(LIBS) lib/ARM/32/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF -w" build
+	$(MAKE) LIBS="$(LIBS) lib/ARM/32/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF -w" build
 
 cinnamon64-ARM:
-	$(MAKE) -j2 LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF -w" build
+	$(MAKE) LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF -w" build
 
 cinnamon64-generic:
-	$(MAKE) -j LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
+	$(MAKE) LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
 
 cinnamon64-sse3:
-	$(MAKE) -j ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_POPCNT -DHAS_BSF " cinnamon64-generic
+	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_POPCNT -DHAS_BSF " cinnamon64-generic
 
 cinnamon64-athlon64:
-	$(MAKE) -j ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-sse3
+	$(MAKE) ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-sse3
 
 cinnamon64-intel-i7:
-	$(MAKE) -j ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-sse3
+	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-sse3
 
 cinnamon64-intel-i9:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=haswell -mtune=haswell " cinnamon64-sse3
