@@ -730,8 +730,8 @@ bool Search::setParameter(String param, int value) {
         ROOK_BLOCKED = value;
     } else if (param == "ROOK_TRAPPED") {
         ROOK_TRAPPED = value;
-    } else if (param == "UNDEVELOPED_KNIGHT") {
-        UNDEVELOPED_KNIGHT = value;
+    } else if (param == "UNDEVELOPED") {
+        UNDEVELOPED = value;
     } else if (param == "UNDEVELOPED_BISHOP") {
         UNDEVELOPED_BISHOP = value;
     } else if (param == "VAL_WINDOW") {
