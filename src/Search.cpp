@@ -27,7 +27,10 @@ high_resolution_clock::time_point Search::startTime;
 
 void Search::run() {
     if (getRunning()) {
-        aspirationWindow(mainDepth, valWindow);
+        if (mainSmp)
+            aspirationWindow<SMP_YES>(mainDepth, valWindow);
+        else
+            aspirationWindow<SMP_NO>(mainDepth, valWindow);
     }
 }
 
@@ -35,33 +38,33 @@ void Search::endRun() {
     SearchManager::getInstance().receiveObserverSearch(getId());
 }
 
+template<bool smp>
 void Search::aspirationWindow(const int depth, const int valWin) {
     valWindow = valWin;
     init();
 
     if (depth == 1) {
-        valWindow = search(SMP_NO, depth, -_INFINITE - 1, _INFINITE + 1);
+        valWindow = search<SMP_NO>(depth, -_INFINITE - 1, _INFINITE + 1);
     } else {
         ASSERT(INT_MAX != valWindow);
-        int tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
+        int tmp = search<smp>(mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
 
         if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
-
             if (tmp <= valWindow - VAL_WINDOW) {
-                tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW);
+                tmp = search<smp>(mainDepth, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW);
             } else {
-                tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 2);
+                tmp = search<smp>(mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 2);
             }
 
             if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
                 if (tmp <= valWindow - VAL_WINDOW) {
-                    tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW);
+                    tmp = search<smp>(mainDepth, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW);
                 } else {
-                    tmp = search(SMP_NO, mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 4);
+                    tmp = search<smp>(mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 4);
                 }
 
                 if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
-                    tmp = search(SMP_NO, mainDepth, -_INFINITE, _INFINITE);
+                    tmp = search<smp>(mainDepth, -_INFINITE - 1, _INFINITE + 1);
                 }
             }
         }
@@ -376,19 +379,13 @@ void Search::setMainParam(const bool smp, const int depth) {
     mainSmp = smp;
 }
 
-int Search::search(bool smp, int depth, int alpha, int beta) {
+template<bool smp>
+int Search::search(const int depth, const int alpha, const int beta) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
-    if (smp) {
-        return getSide() ? search<WHITE, SMP_YES>(depth, alpha, beta, &pvLine,
+    return getSide() ? search<WHITE, smp>(depth, alpha, beta, &pvLine,
                                                   bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn)
-                         : search<BLACK, SMP_YES>(depth, alpha, beta, &pvLine,
+                     : search<BLACK, smp>(depth, alpha, beta, &pvLine,
                                                   bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
-    } else {
-        return getSide() ? search<WHITE, SMP_NO>(depth, alpha, beta, &pvLine,
-                                                 bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn)
-                         : search<BLACK, SMP_NO>(depth, alpha, beta, &pvLine,
-                                                 bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
-    }
 }
 
 int Search::getDtm(const int side, _TpvLine *pline, const int depth, const int nPieces) const {

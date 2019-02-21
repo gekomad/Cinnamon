@@ -68,7 +68,8 @@ public:
 
     void setMainParam(const bool smp, const int depth);
 
-    int search(bool smp, int depth, int alpha, int beta);
+    template<bool mainSmp>
+    int search(const int depth, const int alpha, const int beta);
 
     void run();
 
@@ -140,6 +141,7 @@ private:
     static SYZYGY *syzygy;
     bool ponder;
 
+    template<bool smp>
     void aspirationWindow(const int depth, const int valWindow);
 
     int checkTime();
