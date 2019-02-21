@@ -84,11 +84,11 @@ public:
         return false;
     }
 
-    bool getForceCheck() {
+    bool getForceCheck() const {
         return forceCheck;
     }
 
-    void setForceCheck(bool b) {
+    void setForceCheck(bool b) const {
         forceCheck = b;
     }
 
@@ -98,12 +98,12 @@ public:
 
     int loadFen(string fen = "");
 
-    inline u64 getDiagCapture(const int position, const u64 allpieces, const u64 enemies) {
+    inline u64 getDiagCapture(const int position, const u64 allpieces, const u64 enemies) const {
         ASSERT_RANGE(position, 0, 63);
         return Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
     }
 
-    u64 getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces) {
+    u64 getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces) const {
         ASSERT_RANGE(position, 0, 63);
         u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
         return (nuovo & enemies) | (nuovo & ~allpieces);
@@ -113,7 +113,7 @@ public:
 
     void setRepetitionMapCount(int i);
 
-    inline int getDiagShiftCount(const int position, const u64 allpieces) {
+    inline int getDiagShiftCount(const int position, const u64 allpieces) const {
         ASSERT_RANGE(position, 0, 63);
         return bitCount(Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces);
     }
@@ -124,7 +124,7 @@ public:
 
     bool performDiagCapture(const int piece, const u64 enemies, const int side, const u64 allpieces);
 
-    u64 getTotMoves();
+    u64 getTotMoves() const;
 
     bool performRankFileCapture(const int piece, const u64 enemies, const int side, const u64 allpieces);
 
@@ -137,72 +137,64 @@ public:
             chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
             return false;
         }
-        int GG;
-        u64 x;
-        if (side) {
-            x = (chessboard[side] << 7) & TABCAPTUREPAWN_LEFT & enemies;
-            GG = -7;
-        } else {
-            x = (chessboard[side] >> 7) & TABCAPTUREPAWN_RIGHT & enemies;
-            GG = 7;
-        };
+        constexpr int sh = side ? -7 : 7;
+
+        u64 x = shiftForward<side, 7>(chessboard[side]) & enemies;
+
         while (x) {
             int o = BITScanForward(x);
             if ((side && o > 55) || (!side && o < 8)) {//PROMOTION
-                if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, QUEEN_BLACK + side, side)) {
+                if (pushmove<PROMOTION_MOVE_MASK>(o + sh, o, side, QUEEN_BLACK + side, side)) {
                     return true;        //queen
                 }
                 if (perftMode) {
-                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, KNIGHT_BLACK + side, side)) {
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + sh, o, side, KNIGHT_BLACK + side, side)) {
                         return true;        //knight
                     }
-                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, ROOK_BLACK + side, side)) {
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + sh, o, side, ROOK_BLACK + side, side)) {
                         return true;        //rock
                     }
-                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, BISHOP_BLACK + side, side)) {
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + sh, o, side, BISHOP_BLACK + side, side)) {
                         return true;        //bishop
                     }
                 }
-            } else if (pushmove<STANDARD_MOVE_MASK>(o + GG, o, side, NO_PROMOTION, side)) {
+            } else if (pushmove<STANDARD_MOVE_MASK>(o + sh, o, side, NO_PROMOTION, side)) {
                 return true;
             }
             RESET_LSB(x);
-        };
-        if (side) {
-            GG = -9;
-            x = (chessboard[side] << 9) & TABCAPTUREPAWN_RIGHT & enemies;
-        } else {
-            GG = 9;
-            x = (chessboard[side] >> 9) & TABCAPTUREPAWN_LEFT & enemies;
-        };
+        }
+        constexpr int sh2 = side ? -9 : 9;
+        x = shiftForward<side, 9>(chessboard[side]) & enemies;
+
         while (x) {
             int o = BITScanForward(x);
             if ((side && o > 55) || (!side && o < 8)) {    //PROMOTION
-                if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, QUEEN_BLACK + side, side)) {
+                if (pushmove<PROMOTION_MOVE_MASK>(o + sh2, o, side, QUEEN_BLACK + side, side)) {
                     return true;        //queen
                 }
                 if (perftMode) {
-                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, KNIGHT_BLACK + side, side)) {
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + sh2, o, side, KNIGHT_BLACK + side, side)) {
                         return true;        //knight
                     }
-                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, BISHOP_BLACK + side, side)) {
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + sh2, o, side, BISHOP_BLACK + side, side)) {
                         return true;        //bishop
                     }
-                    if (pushmove<PROMOTION_MOVE_MASK>(o + GG, o, side, ROOK_BLACK + side, side)) {
+                    if (pushmove<PROMOTION_MOVE_MASK>(o + sh2, o, side, ROOK_BLACK + side, side)) {
                         return true;        //rock
                     }
                 }
-            } else if (pushmove<STANDARD_MOVE_MASK>(o + GG, o, side, NO_PROMOTION, side)) {
+            } else if (pushmove<STANDARD_MOVE_MASK>(o + sh2, o, side, NO_PROMOTION, side)) {
                 return true;
             }
             RESET_LSB(x);
-        };
+        }
         //ENPASSANT
         if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
             x = ENPASSANT_MASK[side ^ 1][chessboard[ENPASSANT_IDX]] & chessboard[side];
             while (x) {
                 int o = BITScanForward(x);
-                pushmove<ENPASSANT_MOVE_MASK>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8), side, NO_PROMOTION, side);
+                pushmove<ENPASSANT_MOVE_MASK>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8),
+                                              side, NO_PROMOTION, side);
                 RESET_LSB(x);
             }
             updateZobristKey(13, chessboard[ENPASSANT_IDX]);
@@ -214,35 +206,31 @@ public:
 
     template<int side>
     void performPawnShift(const u64 xallpieces) {
-        int tt;
+
         u64 x = chessboard[side];
         if (x & PAWNS_JUMP[side]) {
             checkJumpPawn<side>(x, xallpieces);
         }
-        if (side) {
-            x <<= 8;
-            tt = -8;
-        } else {
-            tt = 8;
-            x >>= 8;
-        };
+        constexpr int sh = side ? -8 : 8;
+        x = side ? x << 8 : x >> 8;
+
         x &= xallpieces;
         while (x) {
             int o = BITScanForward(x);
-            ASSERT(getPieceAt(side, POW2[o + tt]) != SQUARE_FREE);
-            ASSERT(getBitmap(side) & POW2[o + tt]);
+            ASSERT(getPieceAt(side, POW2[o + sh]) != SQUARE_FREE);
+            ASSERT(getBitmap(side) & POW2[o + sh]);
             if (o > 55 || o < 8) {
-                pushmove<PROMOTION_MOVE_MASK>(o + tt, o, side, QUEEN_BLACK + side, side);
+                pushmove<PROMOTION_MOVE_MASK>(o + sh, o, side, QUEEN_BLACK + side, side);
                 if (perftMode) {
-                    pushmove<PROMOTION_MOVE_MASK>(o + tt, o, side, KNIGHT_BLACK + side, side);
-                    pushmove<PROMOTION_MOVE_MASK>(o + tt, o, side, BISHOP_BLACK + side, side);
-                    pushmove<PROMOTION_MOVE_MASK>(o + tt, o, side, ROOK_BLACK + side, side);
+                    pushmove<PROMOTION_MOVE_MASK>(o + sh, o, side, KNIGHT_BLACK + side, side);
+                    pushmove<PROMOTION_MOVE_MASK>(o + sh, o, side, BISHOP_BLACK + side, side);
+                    pushmove<PROMOTION_MOVE_MASK>(o + sh, o, side, ROOK_BLACK + side, side);
                 }
             } else {
-                pushmove<STANDARD_MOVE_MASK>(o + tt, o, side, NO_PROMOTION, side);
+                pushmove<STANDARD_MOVE_MASK>(o + sh, o, side, NO_PROMOTION, side);
             }
             RESET_LSB(x);
-        };
+        }
     }
 
     void clearKillerHeuristic();
@@ -305,7 +293,8 @@ protected:
     int listId;
     _TmoveP *gen_list;
     static constexpr u64 RANK_1 = 0xff00ULL; // TODO RANK2
-    static constexpr u64 RANK_3 = 0xff000000ULL;// TODO RANK4
+    static constexpr u64 RANK_3 = 0xff000000ULL;
+    // TODO RANK4
     static constexpr u64 RANK_4 = 0xff00000000ULL; // TODO RANK5
     static constexpr u64 RANK_6 = 0xff000000000000ULL; // TODO RANK7
     static constexpr uchar STANDARD_MOVE_MASK = 0x3;
@@ -335,9 +324,25 @@ protected:
 
     int getMobilityRook(const int position, const u64 enemies, const u64 friends);
 
-    int getMobilityPawns(const int side, const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces);
 
-    int getMobilityCastle(const int side, const u64 allpieces);
+    template<int side>
+    int getMobilityPawns(const int ep, const u64 ped_friends, const u64 enemies, const u64 xallpieces) const {
+
+        ASSERT_RANGE(side, 0, 1);
+
+        const int enp = (ep == NO_ENPASSANT) ? 0 : bitCount(ENPASSANT_MASK[side ^ 1][ep] & chessboard[side]);
+
+        const u64 forward = (shiftForward<side, 8>(ped_friends)) & xallpieces;
+
+        const int moves = bitCount(forward) + bitCount(
+                shiftForward<side, 8>(shiftForward<side, 8>(ped_friends & TABJUMPPAWN) & xallpieces) & xallpieces) +
+                          bitCount(shiftForward<side, 7>(chessboard[side]) & enemies) +
+                          bitCount(shiftForward<side, 9>(chessboard[side]) & enemies);
+
+        return moves + enp;
+    }
+
+    int getMobilityCastle(const int side, const u64 allpieces) const;
 
     int getMobilityQueen(const int position, const u64 enemies, const u64 allpieces);
 
@@ -377,7 +382,8 @@ protected:
                 ASSERT(chessboard[KING_BLACK]);
                 ASSERT(chessboard[KING_WHITE]);
 
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                                          getBitmap<BLACK>() | getBitmap<WHITE>());
                 chessboard[pieceFrom] = from1;
                 if (pieceTo != SQUARE_FREE) {
                     chessboard[pieceTo] = to1;
@@ -396,7 +402,8 @@ protected:
                     chessboard[pieceTo] &= NOTPOW2[to];
                 }
                 chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                                          getBitmap<BLACK>() | getBitmap<WHITE>());
                 if (pieceTo != SQUARE_FREE) {
                     chessboard[pieceTo] = to1;
                 }
@@ -414,7 +421,8 @@ protected:
                 } else {
                     chessboard[side ^ 1] &= NOTPOW2[to + 8];
                 }
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                                          getBitmap<BLACK>() | getBitmap<WHITE>());
                 chessboard[side ^ 1] = to1;
                 chessboard[side] = from1;;
                 break;
@@ -480,7 +488,9 @@ protected:
                     ASSERT_RANGE(to, 0, 63);
                     ASSERT_RANGE(from, 0, 63);
                     mos->score = killerHeuristic[from][to];
-                    mos->score += (PIECES_VALUE[piece_captured] >= PIECES_VALUE[pieceFrom]) ? (PIECES_VALUE[piece_captured] - PIECES_VALUE[pieceFrom]) * 2 : PIECES_VALUE[piece_captured];
+                    mos->score += (PIECES_VALUE[piece_captured] >= PIECES_VALUE[pieceFrom]) ?
+                                  (PIECES_VALUE[piece_captured] - PIECES_VALUE[pieceFrom]) * 2
+                                                                                            : PIECES_VALUE[piece_captured];
                     //mos->score += (MOV_ORD[pieceFrom][to] - MOV_ORD[pieceFrom][from]);
                 }
             }
@@ -523,8 +533,6 @@ private:
     int running;
     static bool forceCheck;
     static constexpr u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
-    static constexpr u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
-    static constexpr u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;
 
     void writeRandomFen(const vector<int>);
 

@@ -202,8 +202,6 @@ namespace _board {
 
     static constexpr array<u64,2> PAWNS_JUMP = {0xFF000000000000ULL, 0xFF00ULL};
     static constexpr array<u64,2> RANK_1_8 = {0xff00000000000000ULL, 0xffULL};
-    static constexpr array<u64,2> NO_FILE_LEFT = {0xFEFEFEFEFEFEFEFEULL,0x7F7F7F7F7F7F7F7FULL};
-    static constexpr array<u64,2> NO_FILE_RIGHT = {0x7F7F7F7F7F7F7F7FULL,0xFEFEFEFEFEFEFEFEULL};
 
     static constexpr array<u64,2> PAWNS_7_2 = {0xFF00ULL, 0xFF000000000000ULL};
 

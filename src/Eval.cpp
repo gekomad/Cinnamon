@@ -42,52 +42,91 @@ void Eval::openFile() {
     }
 }
 
+/**
+ * evaluate pawns for color at phase
+ * 1. if no pawns returns -NO_PAWNS
+ * 2. calcalates the mobility
+ * 3. if other side has all pawns substracts ENEMIES_ALL_PAWNS
+ * 4. add ATTACK_KING * number of attacking pawn to other king
+ * 5. space - in OPEN phase PAWN_CENTER * CENTER_MASK
+ * 6. // pinned - in END phase substracts 20 * each pinned pawn
+ * 7. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING * each pawn near to king and substracts ENEMY_NEAR_KING * each enemy pawn near to king
+ * 8. pawn in race - if pawn is in 7' add PAWN_7H. If pawn can go forward add PAWN_IN_RACE for each pawn
+ * 9. unprotected - no friends pawn protect it
+ * 10. blocked - pawn can't go on
+ * 11. isolated - there aren't friend pawns on the two sides - subtracts PAWN_ISOLATED for each pawn
+ * 12. doubled - there aren't friend pawns on the two sides - subtracts DOUBLED_PAWNS for each pawn. If it is isolated too substracts DOUBLED_ISOLATED_PAWNS
+ * 13. backward - if there isn't friend pawns on sides or on sides in 1 rank below subtracts BACKWARD_PAWN
+ * 14. passed - if there isn't friend pawns forward and forward on sides until 8' rank add PAWN_PASSED[side][pos]
+
+ */
 template<int side, Eval::_Tphase phase>
 int Eval::evaluatePawn() {
     INC(evaluationCount[side]);
-    u64 ped_friends = chessboard[side];
+    const u64 ped_friends = chessboard[side];
     if (!ped_friends) {
         ADD(SCORE_DEBUG.NO_PAWNS[side], -NO_PAWNS);
         return -NO_PAWNS;
     }
     structureEval.isolated[side] = 0;
-    int result = MOB_PAWNS[getMobilityPawns(side, chessboard[ENPASSANT_IDX], ped_friends,
-                                            side == WHITE ? structureEval.allPiecesSide[BLACK]
-                                                          : structureEval.allPiecesSide[WHITE],
-                                            ~structureEval.allPiecesSide[BLACK] | ~structureEval.allPiecesSide[WHITE])];
+
+    const int x=getMobilityPawns<side>(chessboard[ENPASSANT_IDX], ped_friends,
+                                  side == WHITE ? structureEval.allPiecesSide[BLACK]
+                                                : structureEval.allPiecesSide[WHITE],
+                                  ~structureEval.allPiecesSide[BLACK] |
+                                  ~structureEval.allPiecesSide[WHITE]);
+    int result = MOB_PAWNS[x];
     ADD(SCORE_DEBUG.MOB_PAWNS[side], result);
     if (bitCount(chessboard[side ^ 1]) == 8) {
         result -= ENEMIES_PAWNS_ALL;
         ADD(SCORE_DEBUG.ENEMIES_PAWNS_ALL[side], -ENEMIES_PAWNS_ALL);
     }
+
+    // 4.
     result += ATTACK_KING * bitCount(ped_friends & structureEval.kingAttackers[side ^ 1]);
     ADD(SCORE_DEBUG.ATTACK_KING_PAWN[side],
         ATTACK_KING * bitCount(ped_friends & structureEval.kingAttackers[side ^ 1]));
-    //space
+
+    // 5. space
     if (phase == OPEN) {
         result += PAWN_CENTER * bitCount(ped_friends & CENTER_MASK);
         ADD(SCORE_DEBUG.PAWN_CENTER[side], PAWN_CENTER * bitCount(ped_friends & CENTER_MASK));
     }
+    // 6. pinned
+//    if (phase == END) {
+//        result -= 20 * bitCount(structureEval.pinned[side] & ped_friends);
+//    }
+
+
+    // 7.
+    if (phase != OPEN) {
+        structureEval.kingSecurityDistance[side] +=
+                FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & ped_friends);
+
+        structureEval.kingSecurityDistance[side] -=
+                ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & ped_friends);
+    }
+
+    // 8.  pawn in race
+    if (phase != OPEN) {
+        const u64 pawnsIn7 = PAWNS_7_2[side] & ped_friends;
+        result += PAWN_7H * bitCount(pawnsIn7);
+        ADD(SCORE_DEBUG.PAWN_7H[side], PAWN_7H * bitCount(pawnsIn7));
+
+        // TODO se casa in 8 non è attaccabile add bonus
+        const u64 pawnsIn8 = (shiftForward<side, 8>(pawnsIn7) & (~structureEval.allPieces) ||
+                              structureEval.allPiecesSide[side ^ 1] &
+                              (shiftForward<side, 7>(pawnsIn7) |
+                               shiftForward<side, 9>(pawnsIn7))) & RANK_1_8[side];
+        result += PAWN_IN_RACE * (bitCount(pawnsIn8));
+        ADD(SCORE_DEBUG.PAWN_IN_RACE[side], PAWN_IN_RACE * (bitCount(pawnsIn8)));
+    }
+
     u64 p = ped_friends;
     while (p) {
         int o = BITScanForward(p);
         u64 pos = POW2[o];
-        if (phase != OPEN) {
-            structureEval.kingSecurityDistance[side] +=
-                    FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & pos ? 1 : 0);
-            structureEval.kingSecurityDistance[side] -=
-                    ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & pos ? 1 : 0);
-            ///  pawn in race
-            if (PAWNS_7_2[side] & pos) {
-                result += PAWN_7H;
-                ADD(SCORE_DEBUG.PAWN_7H[side], PAWN_7H);
-                if (((shiftForward<side, 8>(pos) & (~structureEval.allPieces)) ||
-                     (structureEval.allPiecesSide[side ^ 1] & PAWN_FORK_MASK[side][o]))) {
-                    result += PAWN_IN_RACE;
-                    ADD(SCORE_DEBUG.PAWN_IN_RACE[side], PAWN_IN_RACE);
-                }
-            }
-        }
+
         /// blocked
         result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[side ^ 1])) &&
                   (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? PAWN_BLOCKED : 0;
@@ -114,7 +153,7 @@ int Eval::evaluatePawn() {
                 ADD(SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[side], -DOUBLED_ISOLATED_PAWNS);
                 result -= DOUBLED_ISOLATED_PAWNS;
             }
-        };
+        }
         /// backward
         if (!(ped_friends & PAWN_BACKWARD_MASK[side][o])) {
             ADD(SCORE_DEBUG.BACKWARD_PAWN[side], -BACKWARD_PAWN);
@@ -584,9 +623,11 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         setw(10) << (double) (SCORE_DEBUG.PAWN_CENTER[BLACK]) / 100.0 << "\n";
         cout << "|       7h:                       " << setw(10) << (double) (SCORE_DEBUG.PAWN_7H[WHITE]) / 100.0 <<
         setw(10) << (double) (SCORE_DEBUG.PAWN_7H[BLACK]) / 100.0 << "\n";
-        cout << "|       in race:                  " << setw(10) << (double) (SCORE_DEBUG.PAWN_IN_RACE[WHITE]) / 100.0 <<
+        cout << "|       in race:                  " << setw(10) <<
+        (double) (SCORE_DEBUG.PAWN_IN_RACE[WHITE]) / 100.0 <<
         setw(10) << (double) (SCORE_DEBUG.PAWN_IN_RACE[BLACK]) / 100.0 << "\n";
-        cout << "|       blocked:                  " << setw(10) << (double) (SCORE_DEBUG.PAWN_BLOCKED[WHITE]) / 100.0 <<
+        cout << "|       blocked:                  " << setw(10) <<
+        (double) (SCORE_DEBUG.PAWN_BLOCKED[WHITE]) / 100.0 <<
         setw(10) << (double) (SCORE_DEBUG.PAWN_BLOCKED[BLACK]) / 100.0 << "\n";
         cout << "|       unprotected:              " << setw(10) <<
         (double) (SCORE_DEBUG.UNPROTECTED_PAWNS[WHITE]) / 100.0 << setw(10) <<
@@ -640,7 +681,8 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         cout << "|       open diag:                " << setw(10) <<
         (double) (SCORE_DEBUG.OPEN_DIAG_BISHOP[WHITE]) / 100.0 << setw(10) <<
         (double) (SCORE_DEBUG.OPEN_DIAG_BISHOP[BLACK]) / 100.0 << "\n";
-        cout << "|       bonus 2 bishops:          " << setw(10) << (double) (SCORE_DEBUG.BONUS2BISHOP[WHITE]) / 100.0 <<
+        cout << "|       bonus 2 bishops:          " << setw(10) <<
+        (double) (SCORE_DEBUG.BONUS2BISHOP[WHITE]) / 100.0 <<
         setw(10) << (double) (SCORE_DEBUG.BONUS2BISHOP[BLACK]) / 100.0 << "\n";
 
         cout << HEADER;
@@ -650,11 +692,13 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         cout << "|       7th:                      " << setw(10) <<
         (double) (SCORE_DEBUG.ROOK_7TH_RANK[WHITE]) / 100.0 << setw(10) <<
         (double) (SCORE_DEBUG.ROOK_7TH_RANK[BLACK]) / 100.0 << "\n";
-        cout << "|       trapped:                  " << setw(10) << (double) (SCORE_DEBUG.ROOK_TRAPPED[WHITE]) / 100.0 <<
+        cout << "|       trapped:                  " << setw(10) <<
+        (double) (SCORE_DEBUG.ROOK_TRAPPED[WHITE]) / 100.0 <<
         setw(10) << (double) (SCORE_DEBUG.ROOK_TRAPPED[BLACK]) / 100.0 << "\n";
         cout << "|       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_ROOK[WHITE]) / 100.0 <<
         setw(10) << (double) (SCORE_DEBUG.MOB_ROOK[BLACK]) / 100.0 << "\n";
-        cout << "|       blocked:                  " << setw(10) << (double) (SCORE_DEBUG.ROOK_BLOCKED[WHITE]) / 100.0 <<
+        cout << "|       blocked:                  " << setw(10) <<
+        (double) (SCORE_DEBUG.ROOK_BLOCKED[WHITE]) / 100.0 <<
         setw(10) << (double) (SCORE_DEBUG.ROOK_BLOCKED[BLACK]) / 100.0 << "\n";
         cout << "|       open file:                " << setw(10) <<
         (double) (SCORE_DEBUG.ROOK_OPEN_FILE[WHITE]) / 100.0 << setw(10) <<
