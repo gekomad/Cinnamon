@@ -29,7 +29,7 @@ Eval::~Eval() {
 template<int side>
 void Eval::openFile() {
     u64 side_rooks = chessboard[ROOK_BLACK + side];
-    structureEval.openFile = 0;
+    structureEval.openFile = 1;
     structureEval.semiOpenFile[side] = 0;
     while (side_rooks) {
         int o = BITScanForward(side_rooks);
