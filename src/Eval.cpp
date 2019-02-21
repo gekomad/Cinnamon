@@ -130,92 +130,117 @@ int Eval::evaluatePawn() {
     return result;
 }
 
+/**
+ * evaluate bishop for color at phase
+ * 1. if no bishops returns 0
+ * 2. if two bishops add BONUS2BISHOP
+ * 3 *king security* - in OPEN phase substracts at kingSecurityDistance ENEMY_NEAR_KING for each bishop close to enmey king
+ * 4. undevelop - substracts UNDEVELOPED_BISHOP for each undeveloped bishop
+ * 5. mobility add MOB_BISHOP[phase][???]
+ * pinned ?
+ */
 template<int side, Eval::_Tphase phase>
-int Eval::evaluateBishop(u64 enemies, u64 friends) {
+int Eval::evaluateBishop(const u64 enemies) {
     INC(evaluationCount[side]);
-    u64 x = chessboard[BISHOP_BLACK + side];
-    if (!x) {
-        return 0;
-    }
-    int result = 0;
-    if (phase != OPEN && bitCount(x) > 1) {
+    u64 bishop = chessboard[BISHOP_BLACK + side];
+
+    // 1.
+    if (!bishop) return 0;
+
+    int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
+
+    // 2.
+    if (phase != OPEN && bitCount(bishop) > 1) {
         result += BONUS2BISHOP;
         ADD(SCORE_DEBUG.BONUS2BISHOP[side], BONUS2BISHOP);
     }
-    while (x) {
-        int o = BITScanForward(x);
-        u64 captured = getDiagCapture(o, enemies | friends, enemies);
-        ASSERT(bitCount(captured) + getDiagShiftCount(o, enemies | friends) < (int) (sizeof(MOB_BISHOP) / sizeof(int)));
-        result += MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, enemies | friends)];
-        ADD(SCORE_DEBUG.MOB_BISHOP[side],
-            MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, enemies | friends)]);
-        structureEval.kingSecurityDistance[side] +=
-                BISHOP_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0);
+
+    // 3. *king security*
+    if (phase != OPEN) {
+        structureEval.kingSecurityDistance[side] -=
+                ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & bishop);
         ADD(SCORE_DEBUG.KING_SECURITY_BISHOP[side],
-            BISHOP_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0));
+            -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & bishop));
+    }
+
+    // 4. undevelop
+    result -= UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop);
+    ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop));
+
+    while (bishop) {
+        int o = BITScanForward(bishop);
+        // 5. mobility
+        u64 captured = getDiagCapture(o, structureEval.allPieces, enemies);
+        ASSERT(bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces) <
+               (int) (sizeof(MOB_BISHOP) / sizeof(int)));
+        result += MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces)];
+        ADD(SCORE_DEBUG.MOB_BISHOP[side],
+            MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces)]);
+
+        // 6.
         if (phase != OPEN) {
-            structureEval.kingSecurityDistance[side] -=
-                    NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? ENEMY_NEAR_KING : 0;
-            ADD(SCORE_DEBUG.KING_SECURITY_BISHOP[side ^ 1],
-                -NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? ENEMY_NEAR_KING : 0);
-        } else
-            //attack center
-        if (phase == OPEN) {
-            if (side) {
-                if (o == C1 || o == F1) {
-                    ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], -UNDEVELOPED_BISHOP);
-                    result -= UNDEVELOPED_BISHOP;
-                }
-            } else {
-                if (o == C8 || o == F8) {
-                    ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], -UNDEVELOPED_BISHOP);
-                    result -= UNDEVELOPED_BISHOP;
-                }
-            }
-        } else {
-            if (BIG_DIAGONAL & POW2[o] && !(DIAGONAL[o] & structureEval.allPieces)) {
+            if (BIG_DIAGONAL & POW2[o] && !(DIAGONAL[o] & structureEval.allPieces)) { //TODO sbagliato
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
-            if (BIG_ANTIDIAGONAL & POW2[o] && !(ANTIDIAGONAL[o] & structureEval.allPieces)) {
+            if (BIG_ANTIDIAGONAL & POW2[o] && !(ANTIDIAGONAL[o] & structureEval.allPieces)) {//TODO sbagliato
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
         }
-        RESET_LSB(x);
-    };
+        RESET_LSB(bishop);
+    }
     return result;
 }
 
+/**
+ * evaluate queen for color at phase
+ * 1. // pinned
+ * 2. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING for each queen near to king and substracts ENEMY_NEAR_KING for each queen near to enemy king
+ * 3. mobility - MOB_QUEEN[phase][position]
+ * 4. half open file - if there is a enemy pawn on same file add HALF_OPEN_FILE_Q
+ * 5. open file - if there is any pieces on same file add OPEN_FILE_Q
+ * 6. 5. bishop on queen - if there is a bishop on same diagonal add BISHOP_ON_QUEEN
+ */
 template<int side, Eval::_Tphase phase>
-int Eval::evaluateQueen(u64 enemies, u64 friends) {
+int Eval::evaluateQueen(const u64 enemies) {
     INC(evaluationCount[side]);
-    int result = 0;
     u64 queen = chessboard[QUEEN_BLACK + side];
+    int result = 0;//20 * bitCount(structureEval.pinned[side] & queen);
+
+    // 2. *king security*
+    if (phase != OPEN) {
+        structureEval.kingSecurityDistance[side] +=
+                FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & queen);
+        ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side],
+            FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & queen));
+
+        structureEval.kingSecurityDistance[side] -=
+                ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & queen);
+        ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side ^ 1],
+            -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & queen));
+    }
+
     while (queen) {
         int o = BITScanForward(queen);
-        ASSERT(getMobilityQueen(o, enemies, friends) < (int) (sizeof(MOB_QUEEN[phase]) / sizeof(int)));
-        ASSERT(structureEval.allPieces == enemies | friends);
+        ASSERT(structureEval.allPieces == structureEval.allPieces);
+        // 3. mobility
         result += MOB_QUEEN[phase][getMobilityQueen(o, enemies, structureEval.allPieces)];
         ADD(SCORE_DEBUG.MOB_QUEEN[side], MOB_QUEEN[phase][getMobilityQueen(o, enemies, structureEval.allPieces)]);
-        if (phase != OPEN) {
-            structureEval.kingSecurityDistance[side] +=
-                    FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0);
-            ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side],
-                FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0));
-            structureEval.kingSecurityDistance[side] -=
-                    ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? 1 : 0);
-            ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side ^ 1],
-                -ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? 1 : 0));
-        }
+
+        // 4. half open file
         if ((chessboard[side ^ 1] & FILE_[o])) {
             ADD(SCORE_DEBUG.HALF_OPEN_FILE_Q[side], HALF_OPEN_FILE_Q);
-            result += HALF_OPEN_FILE_Q;
+            result += HALF_OPEN_FILE_Q; //TODO + o - ?
         }
+
+        // 5. open file
         if ((FILE_[o] & structureEval.allPieces) == POW2[o]) {
             ADD(SCORE_DEBUG.OPEN_FILE_Q[side], OPEN_FILE_Q);
-            result += OPEN_FILE_Q;
+            result += OPEN_FILE_Q; //TODO + o - ?
         }
+
+        // 6. bishop on queen
         if (DIAGONAL_ANTIDIAGONAL[o] & chessboard[BISHOP_BLACK + side]) {
             ADD(SCORE_DEBUG.BISHOP_ON_QUEEN[side], BISHOP_ON_QUEEN);
             result += BISHOP_ON_QUEEN;
@@ -225,90 +250,132 @@ int Eval::evaluateQueen(u64 enemies, u64 friends) {
     return result;
 }
 
+/**
+ * evaluate knight for color at phase
+ * 1. // pinned
+ * 2. undevelop - substracts UNDEVELOPED_KNIGHT for each undeveloped knight
+ * 3. trapped TODO
+ * 4. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING for each knight near to king and substracts ENEMY_NEAR_KING for each knight near to enemy king
+ * 5. mobility
+*/
+
 template<int side, Eval::_Tphase phase>
-int Eval::evaluateKnight(const u64 enemiesPawns, const u64 squares) {
+int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
     INC(evaluationCount[side]);
-    int result = 0;
-    u64 x = chessboard[KNIGHT_BLACK + side];
+    u64 knight = chessboard[KNIGHT_BLACK + side];
+    //if (!x) return 0;TODO
+
+    // 1. pinned
+    int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
+
+    // 2. undevelop
     if (phase == OPEN) {
-        result -= side ? bitCount(x & 0x42ULL) * UNDEVELOPED : bitCount(x & 0x4200000000000000ULL) * UNDEVELOPED;
+        result -= bitCount(knight & KNIGHT_HOME[side]) * UNDEVELOPED_KNIGHT;
         ADD(SCORE_DEBUG.UNDEVELOPED_KNIGHT[side],
-            side ? -bitCount(x & 0x42ULL) * UNDEVELOPED : -bitCount(x & 0x4200000000000000ULL) * UNDEVELOPED);
+            bitCount(knight & KNIGHT_HOME[side]) * UNDEVELOPED_KNIGHT);
     }
+
+    // 3. trapped
     if (side == WHITE) {
-        if ((A7bit & x) && (B7bit & enemiesPawns) && (C6A6bit & enemiesPawns)) {
+        if ((A7bit & knight) && (B7bit & enemiesPawns) && (C6A6bit & enemiesPawns)) {
             ADD(SCORE_DEBUG.KNIGHT_TRAPPED[side], -KNIGHT_TRAPPED);
             result -= KNIGHT_TRAPPED;
         }
-        if ((H7bit & x) && (G7bit & enemiesPawns) && (F6H6bit & enemiesPawns)) {
+        if ((H7bit & knight) && (G7bit & enemiesPawns) && (F6H6bit & enemiesPawns)) {
             ADD(SCORE_DEBUG.KNIGHT_TRAPPED[side], -KNIGHT_TRAPPED);
             result -= KNIGHT_TRAPPED;
         }
-        if ((A8bit & x) && (A7C7bit & enemiesPawns)) {
+        if ((A8bit & knight) && (A7C7bit & enemiesPawns)) {
             ADD(SCORE_DEBUG.KNIGHT_TRAPPED[side], -KNIGHT_TRAPPED);
             result -= KNIGHT_TRAPPED;
         }
-        if ((H8bit & x) && (H7G7bit & enemiesPawns)) {
+        if ((H8bit & knight) && (H7G7bit & enemiesPawns)) {
             ADD(SCORE_DEBUG.KNIGHT_TRAPPED[side], -KNIGHT_TRAPPED);
             result -= KNIGHT_TRAPPED;
         }
     } else {
-        if ((A2bit & x) && (B2bit & enemiesPawns) && (C3A3bit & enemiesPawns)) {
+        if ((A2bit & knight) && (B2bit & enemiesPawns) && (C3A3bit & enemiesPawns)) {
             ADD(SCORE_DEBUG.KNIGHT_TRAPPED[side], -KNIGHT_TRAPPED);
             result -= KNIGHT_TRAPPED;
         }
-        if ((H2bit & x) && (G2bit & enemiesPawns) && (F3H3bit & enemiesPawns)) {
+        if ((H2bit & knight) && (G2bit & enemiesPawns) && (F3H3bit & enemiesPawns)) {
             ADD(SCORE_DEBUG.KNIGHT_TRAPPED[side], -KNIGHT_TRAPPED);
             result -= KNIGHT_TRAPPED;
         }
-        if ((A1bit & x) && (A2C2bit & enemiesPawns)) {
+        if ((A1bit & knight) && (A2C2bit & enemiesPawns)) {
             ADD(SCORE_DEBUG.KNIGHT_TRAPPED[side], -KNIGHT_TRAPPED);
             result -= KNIGHT_TRAPPED;
         }
-        if ((H1bit & x) && (H2G2bit & enemiesPawns)) {
+        if ((H1bit & knight) && (H2G2bit & enemiesPawns)) {
             ADD(SCORE_DEBUG.KNIGHT_TRAPPED[side], -KNIGHT_TRAPPED);
             result -= KNIGHT_TRAPPED;
         }
     }
-    while (x) {
-        int pos = BITScanForward(x);
-        if (phase != OPEN) {
-            structureEval.kingSecurityDistance[side] +=
-                    FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[pos] ? 1 : 0);
-            ADD(SCORE_DEBUG.KING_SECURITY_KNIGHT[side],
-                FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[pos] ? 1 : 0));
-            structureEval.kingSecurityDistance[side] -=
-                    ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[pos] ? 1 : 0);
-            ADD(SCORE_DEBUG.KING_SECURITY_KNIGHT[side ^ 1],
-                -ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[pos] ? 1 : 0));
-        }
-        //mobility
-        ASSERT(bitCount(squares & KNIGHT_MASK[pos]) < (int) (sizeof(MOB_KNIGHT) / sizeof(int)));
-        result += MOB_KNIGHT[bitCount(squares & KNIGHT_MASK[pos])];
-        ADD(SCORE_DEBUG.MOB_KNIGHT[side], MOB_KNIGHT[bitCount(squares & KNIGHT_MASK[pos])]);
-        RESET_LSB(x);
+
+    // 4. king security
+    if (phase != OPEN) {
+        structureEval.kingSecurityDistance[side] +=
+                FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & knight);
+        ADD(SCORE_DEBUG.KING_SECURITY_KNIGHT[side],
+            FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & knight));
+
+        structureEval.kingSecurityDistance[side] -=
+                ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & knight);
+        ADD(SCORE_DEBUG.KING_SECURITY_KNIGHT[side ^ 1],
+            -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & knight));
+    }
+    while (knight) {
+        int pos = BITScanForward(knight);
+
+        // 5. mobility
+        ASSERT(bitCount(notMyBits & KNIGHT_MASK[pos]) < (int) (sizeof(MOB_KNIGHT) / sizeof(int)));
+        result += MOB_KNIGHT[bitCount(notMyBits & KNIGHT_MASK[pos])];
+        ADD(SCORE_DEBUG.MOB_KNIGHT[side], MOB_KNIGHT[bitCount(notMyBits & KNIGHT_MASK[pos])]);
+        RESET_LSB(knight);
     };
     return result;
 }
 
+
+/**
+ * evaluate rook for color at phase
+ * 1. if no rooks returns 0
+ * 2. // pinned
+ * 3. in 7th - add ROOK_7TH_RANK for each rook in 7th
+ * 4. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING for each rook near to king and substracts ENEMY_NEAR_KING for each rook near to enemy king
+ *
+*/
 template<int side, Eval::_Tphase phase>
-int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
+int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
     INC(evaluationCount[side]);
-    int o, result = 0;
+
     u64 x = chessboard[ROOK_BLACK + side];
     if (!x) {
         return 0;
     }
+    // 2.
+    int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
+
+    // 3. in 7th
     if (phase == MIDDLE) {
-        if (!side && (o = bitCount(x & RANK_1))) {
-            ADD(SCORE_DEBUG.ROOK_7TH_RANK[side], ROOK_7TH_RANK * o);
-            result += ROOK_7TH_RANK * o;
-        }
-        if (side && (o = bitCount(x & RANK_6))) {
-            ADD(SCORE_DEBUG.ROOK_7TH_RANK[side], ROOK_7TH_RANK * o);
-            result += ROOK_7TH_RANK * o;
-        }
+        result += ROOK_7TH_RANK * bitCount(x & RANK_1_7[side]);
+        ADD(SCORE_DEBUG.ROOK_7TH_RANK[side], ROOK_7TH_RANK * bitCount(x & RANK_1_7[side]));
     }
+
+    // 4. king security
+    if (phase != OPEN) {
+        structureEval.kingSecurityDistance[side] +=
+                FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & x);
+        ADD(SCORE_DEBUG.KING_SECURITY_ROOK[side],
+            FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & x));
+
+        structureEval.kingSecurityDistance[side] -=
+                ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & x);
+        ADD(SCORE_DEBUG.KING_SECURITY_ROOK[side ^ 1],
+            -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & x));
+
+    }
+
     if (side == WHITE) {
         if (((F1G1bit & king) && (H1H2G1bit & x)) || ((C1B1bit & king) && (A1A2B1bit & x))) {
             ADD(SCORE_DEBUG.ROOK_TRAPPED[side], -ROOK_TRAPPED);
@@ -323,7 +390,8 @@ int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
     int firstRook = -1;
     int secondRook = -1;
     while (x) {
-        o = BITScanForward(x);
+        int o = BITScanForward(x);
+
         //mobility
         ASSERT(getMobilityRook(o, enemies, friends) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
         result += MOB_ROOK[phase][getMobilityRook(o, enemies, friends)];
@@ -334,14 +402,6 @@ int Eval::evaluateRook(const u64 king, u64 enemies, u64 friends) {
             secondRook = o;
         }
         if (phase != OPEN) {
-            structureEval.kingSecurityDistance[side] +=
-                    FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0);
-            ADD(SCORE_DEBUG.KING_SECURITY_ROOK[side],
-                FRIEND_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side]] & POW2[o] ? 1 : 0));
-            structureEval.kingSecurityDistance[side] -=
-                    ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? 1 : 0);
-            ADD(SCORE_DEBUG.KING_SECURITY_ROOK[side ^ 1],
-                -ENEMY_NEAR_KING * (NEAR_MASK2[structureEval.posKing[side ^ 1]] & POW2[o] ? 1 : 0));
             // Penalise if Rook is Blocked Horizontally
             if ((RANK_BOUND[o] & structureEval.allPieces) == RANK_BOUND[o]) {
                 ADD(SCORE_DEBUG.ROOK_BLOCKED[side], -ROOK_BLOCKED);
