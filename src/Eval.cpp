@@ -68,6 +68,11 @@ int Eval::evaluatePawn() {
         result += PAWN_CENTER * bitCount(ped_friends & CENTER_MASK);
         ADD(SCORE_DEBUG.PAWN_CENTER[side], PAWN_CENTER * bitCount(ped_friends & CENTER_MASK));
     }
+    // 6. pinned
+//    if (phase == END) {
+//        result -= 20 * bitCount(structureEval.pinned[side] & ped_friends);
+//    }
+
     u64 p = ped_friends;
     while (p) {
         int o = BITScanForward(p);
@@ -499,7 +504,16 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
     structureEval.posKing[WHITE] = (uchar) BITScanForward(chessboard[KING_WHITE]);
     structureEval.kingAttackers[WHITE] = getAllAttackers<WHITE>(structureEval.posKing[WHITE], structureEval.allPieces);
     structureEval.kingAttackers[BLACK] = getAllAttackers<BLACK>(structureEval.posKing[BLACK], structureEval.allPieces);
-
+//    if (phase == END) {
+//
+//        structureEval.pinned[BLACK] = getPinned<BLACK>(structureEval.allPieces, structureEval.allPiecesSide[BLACK],
+//                                                       structureEval.posKing[BLACK]);
+//
+//        structureEval.pinned[WHITE] = getPinned<WHITE>(structureEval.allPieces, structureEval.allPiecesSide[WHITE],
+//                                                       structureEval.posKing[WHITE]);
+//    } else {
+//        structureEval.pinned[BLACK] = structureEval.pinned[WHITE] = 0;
+//    }
     openFile<WHITE>();
     openFile<BLACK>();
     int bonus_attack_king_black = 0;

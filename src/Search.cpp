@@ -154,7 +154,7 @@ Search::~Search() {
     deleteGtb();
 }
 
-template<int side, bool smp>
+template<int side>
 int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIECE, int depth) {
     if (!getRunning()) {
         return 0;
@@ -230,7 +230,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
             continue;
         }
 /************ end Delta Pruning *************/
-        int val = -quiescence<side ^ 1, smp>(-beta, -alpha, move->promotionPiece, N_PIECE - 1, depth - 1);
+        int val = -quiescence<side ^ 1>(-beta, -alpha, move->promotionPiece, N_PIECE - 1, depth - 1);
         score = max(score, val);
         takeback(move, oldKey, false);
         if (score > alpha) {
@@ -382,9 +382,9 @@ void Search::setMainParam(const bool smp, const int depth) {
 template<bool smp>
 int Search::search(const int depth, const int alpha, const int beta) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
-    return getSide() ? search<WHITE, smp>(depth, alpha, beta, &pvLine,
+    return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine,
                                                   bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn)
-                     : search<BLACK, smp>(depth, alpha, beta, &pvLine,
+                     : search<BLACK>(depth, alpha, beta, &pvLine,
                                                   bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
 }
 
@@ -416,7 +416,7 @@ int Search::getDtm(const int side, _TpvLine *pline, const int depth, const int n
     return mateIn;
 }
 
-template<int side, bool smp>
+template<int side>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
     INC(cumulativeMovesCount);
@@ -469,7 +469,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     depth += extension;
     if (depth == 0) {
-        return quiescence<side, smp>(alpha, beta, -1, N_PIECE, 0);
+        return quiescence<side>(alpha, beta, -1, N_PIECE, 0);
     }
 
     //************* hash ****************
@@ -497,7 +497,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     if (!is_incheck_side && !nullSearch && depth >= NULLMOVE_DEPTH &&
         (n_pieces_side = getNpiecesNoPawnNoKing<side>()) >= NULLMOVES_MIN_PIECE) {
         nullSearch = true;
-        int nullScore = -search<side ^ 1, smp>(
+        int nullScore = -search<side ^ 1>(
                 depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (n_pieces_side < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) -
                 1, -beta, -beta + 1, &line, N_PIECE, mateIn);
         nullSearch = false;
@@ -584,7 +584,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         if (countMove > 4 && !is_incheck_side && depth >= 3 && move->capturedPiece == SQUARE_FREE &&
             move->promotionPiece == NO_PROMOTION) {
             currentPly++;
-            val = -search<side ^ 1, smp>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn);
+            val = -search<side ^ 1>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
         }
@@ -593,13 +593,13 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             int lwb = max(alpha, score);
             int upb = (doMws ? (lwb + 1) : beta);
             currentPly++;
-            val = -search<side ^ 1, smp>(depth - 1, -upb, -lwb, &line,
+            val = -search<side ^ 1>(depth - 1, -upb, -lwb, &line,
                                          move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
             if (doMws && (lwb < val) && (val < beta)) {
                 currentPly++;
-                val = -search<side ^ 1, smp>(depth - 1, -beta, -val + 1, &line,
+                val = -search<side ^ 1>(depth - 1, -beta, -val + 1, &line,
                                              move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
                 currentPly--;
             }

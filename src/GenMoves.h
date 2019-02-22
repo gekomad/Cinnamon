@@ -60,6 +60,12 @@ public:
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
         u64 allpieces = enemies | friends;
+        if (perftMode) {
+            int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
+            pinned = getPinned<side>(allpieces, friends, kingPosition);
+            isInCheck = isAttacked<side>(kingPosition, allpieces);
+        }
+
         if (performPawnCapture<side>(enemies)) {
             return true;
         }
@@ -202,7 +208,8 @@ public:
             x = ENPASSANT_MASK[side ^ 1][chessboard[ENPASSANT_IDX]] & chessboard[side];
             while (x) {
                 int o = BITScanForward(x);
-                pushmove<ENPASSANT_MOVE_MASK>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8), side, NO_PROMOTION, side);
+                pushmove<ENPASSANT_MOVE_MASK>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8),
+                                              side, NO_PROMOTION, side);
                 RESET_LSB(x);
             }
             updateZobristKey(13, chessboard[ENPASSANT_IDX]);
@@ -296,16 +303,43 @@ public:
 
     _Tmove *getNextMove();
 
+    template<int side>
+    u64 getPinned(const u64 allpieces, const u64 friends, const int kingPosition) const {
+        //TODO non funziona il perft fallisce forse su enpassant
+        u64 result = 0;
+        const u64 *s = LINK_SQUARE[kingPosition];
+        constexpr int xside = side ^1;
+        u64 attacked = DIAGONAL_ANTIDIAGONAL[kingPosition] &
+                       (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
+        attacked |=
+                RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
+        while (attacked) {
+            const int pos = BITScanForward(attacked);
+            const u64 b = *(s + pos) & allpieces;
+#ifdef DEBUG_MODE
+            u64 x = *(s + pos) & (allpieces & NOTPOW2[kingPosition]);
+            ASSERT(b == x);
+#endif
+            if (!(b & (b - 1))) {
+                result |= b & friends;
+            }
+            RESET_LSB(attacked);
+        }
+        return result;
+    }
+
 #ifdef DEBUG_MODE
     unsigned nCutAB, nNullMoveCut, nCutFp, nCutRazor;
     double betaEfficiency;
 #endif
 protected:
+    u64 pinned;
     bool perftMode;
     int listId;
     _TmoveP *gen_list;
     static constexpr u64 RANK_1 = 0xff00ULL; // TODO RANK2
-    static constexpr u64 RANK_3 = 0xff000000ULL;// TODO RANK4
+    static constexpr u64 RANK_3 = 0xff000000ULL;
+    // TODO RANK4
     static constexpr u64 RANK_4 = 0xff00000000ULL; // TODO RANK5
     static constexpr u64 RANK_6 = 0xff000000000000ULL; // TODO RANK7
     static constexpr uchar STANDARD_MOVE_MASK = 0x3;
@@ -347,20 +381,11 @@ protected:
 
     int killerHeuristic[64][64];
 
-    template<int side, uchar type>
-    bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
 #ifdef DEBUG_MODE
-        _Tchessboard a;
-        memcpy(&a, chessboard, sizeof(_Tchessboard));
-#endif
-        ASSERT_RANGE(from, 0, 63);
-        ASSERT_RANGE(to, 0, 63);
-        ASSERT_RANGE(side, 0, 1);
-        ASSERT_RANGE(pieceFrom, 0, 12);
-        ASSERT_RANGE(pieceTo, 0, 12);
-        ASSERT(perftMode || forceCheck);
-        ASSERT(!(type & 0xc));
-        bool result = 0;
+
+    template<int side, uchar type>
+    bool inCheckSlow(const int from, const int to, const int pieceFrom, const int pieceTo,const int promotionPiece) {
+        bool result = false;
         switch (type & 0x3) {
             case STANDARD_MOVE_MASK: {
                 u64 from1, to1 = -1;
@@ -377,7 +402,8 @@ protected:
                 ASSERT(chessboard[KING_BLACK]);
                 ASSERT(chessboard[KING_WHITE]);
 
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                                          getBitmap<BLACK>() | getBitmap<WHITE>());
                 chessboard[pieceFrom] = from1;
                 if (pieceTo != SQUARE_FREE) {
                     chessboard[pieceTo] = to1;
@@ -396,7 +422,8 @@ protected:
                     chessboard[pieceTo] &= NOTPOW2[to];
                 }
                 chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                                          getBitmap<BLACK>() | getBitmap<WHITE>());
                 if (pieceTo != SQUARE_FREE) {
                     chessboard[pieceTo] = to1;
                 }
@@ -414,7 +441,109 @@ protected:
                 } else {
                     chessboard[side ^ 1] &= NOTPOW2[to + 8];
                 }
-                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                                          getBitmap<BLACK>() | getBitmap<WHITE>());
+                chessboard[side ^ 1] = to1;
+                chessboard[side] = from1;;
+                break;
+            }
+            default:
+            _assert(0);
+        }
+
+        return result;
+    }
+
+#endif
+    
+    template<int side, uchar type>
+    bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
+#ifdef DEBUG_MODE
+        _Tchessboard a;
+        memcpy(&a, chessboard, sizeof(_Tchessboard));
+#endif
+        ASSERT_RANGE(from, 0, 63);
+        ASSERT_RANGE(to, 0, 63);
+        ASSERT_RANGE(side, 0, 1);
+        ASSERT_RANGE(pieceFrom, 0, 12);
+        ASSERT_RANGE(pieceTo, 0, 12);
+        ASSERT(perftMode || forceCheck);
+        ASSERT(!(type & 0xc));
+        if (perftMode) {
+
+            if ((KING_BLACK + side) != pieceFrom && !isInCheck) {
+                if (!(pinned & POW2[from]) || (LINES[from][to] & chessboard[KING_BLACK + side])) {
+                    ASSERT(!(inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)));
+                    return false;
+                } else {
+                    ASSERT ((inCheckSlow<side, type>(from, to, pieceFrom, pieceTo, promotionPiece)));
+                    return true;
+                }
+            }
+
+        }
+//#ifdef DEBUG_MODE
+//        _Tchessboard a;
+//        memcpy(&a, chessboard, sizeof(_Tchessboard));
+//#endif
+        bool result = 0;
+        switch (type & 0x3) {
+            case STANDARD_MOVE_MASK: {
+                u64 from1, to1 = -1;
+                ASSERT(pieceFrom != SQUARE_FREE);
+                ASSERT(pieceTo != KING_BLACK);
+                ASSERT(pieceTo != KING_WHITE);
+                from1 = chessboard[pieceFrom];
+                if (pieceTo != SQUARE_FREE) {
+                    to1 = chessboard[pieceTo];
+                    chessboard[pieceTo] &= NOTPOW2[to];
+                };
+                chessboard[pieceFrom] &= NOTPOW2[from];
+                chessboard[pieceFrom] |= POW2[to];
+                ASSERT(chessboard[KING_BLACK]);
+                ASSERT(chessboard[KING_WHITE]);
+
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                                          getBitmap<BLACK>() | getBitmap<WHITE>());
+                chessboard[pieceFrom] = from1;
+                if (pieceTo != SQUARE_FREE) {
+                    chessboard[pieceTo] = to1;
+                };
+                break;
+            }
+            case PROMOTION_MOVE_MASK: {
+                u64 to1 = 0;
+                if (pieceTo != SQUARE_FREE) {
+                    to1 = chessboard[pieceTo];
+                }
+                u64 from1 = chessboard[pieceFrom];
+                u64 p1 = chessboard[promotionPiece];
+                chessboard[pieceFrom] &= NOTPOW2[from];
+                if (pieceTo != SQUARE_FREE) {
+                    chessboard[pieceTo] &= NOTPOW2[to];
+                }
+                chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                                          getBitmap<BLACK>() | getBitmap<WHITE>());
+                if (pieceTo != SQUARE_FREE) {
+                    chessboard[pieceTo] = to1;
+                }
+                chessboard[pieceFrom] = from1;
+                chessboard[promotionPiece] = p1;
+                break;
+            }
+            case ENPASSANT_MOVE_MASK: {
+                u64 to1 = chessboard[side ^ 1];
+                u64 from1 = chessboard[side];
+                chessboard[side] &= NOTPOW2[from];
+                chessboard[side] |= POW2[to];
+                if (side) {
+                    chessboard[side ^ 1] &= NOTPOW2[to - 8];
+                } else {
+                    chessboard[side ^ 1] &= NOTPOW2[to + 8];
+                }
+                result = isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                                          getBitmap<BLACK>() | getBitmap<WHITE>());
                 chessboard[side ^ 1] = to1;
                 chessboard[side] = from1;;
                 break;
@@ -480,7 +609,9 @@ protected:
                     ASSERT_RANGE(to, 0, 63);
                     ASSERT_RANGE(from, 0, 63);
                     mos->score = killerHeuristic[from][to];
-                    mos->score += (PIECES_VALUE[piece_captured] >= PIECES_VALUE[pieceFrom]) ? (PIECES_VALUE[piece_captured] - PIECES_VALUE[pieceFrom]) * 2 : PIECES_VALUE[piece_captured];
+                    mos->score += (PIECES_VALUE[piece_captured] >= PIECES_VALUE[pieceFrom]) ?
+                                  (PIECES_VALUE[piece_captured] - PIECES_VALUE[pieceFrom]) * 2
+                                                                                            : PIECES_VALUE[piece_captured];
                     //mos->score += (MOV_ORD[pieceFrom][to] - MOV_ORD[pieceFrom][from]);
                 }
             }
@@ -521,6 +652,7 @@ protected:
 
 private:
     int running;
+    bool isInCheck;
     static bool forceCheck;
     static constexpr u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
     static constexpr u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;

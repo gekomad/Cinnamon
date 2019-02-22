@@ -18,11 +18,10 @@
 
 #if defined(FULL_TEST)
 
-
 #include <gtest/gtest.h>
 
 #include "syzygy.cpp"
-//#include "pin.cpp" TODO
+#include "pin.cpp"
 #include "gtb.cpp"
 #include "eval.cpp"
 #include "spinlockShared.cpp"

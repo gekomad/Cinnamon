@@ -152,14 +152,14 @@ private:
 
     bool checkDraw(u64);
 
-    template<int side, bool smp>
+    template<int side>
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
 
     bool checkInsufficientMaterial(int);
 
     void sortFromHash(const int listId, const Hash::_ThashData &phashe);
 
-    template<int side, bool smp>
+    template<int side>
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);

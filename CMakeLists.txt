@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(cinnamon)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Og -D_FORTIFY_SOURCE=2  -pthread -pedantic -std=c++11 -DDEBUG_MODE -DFULL_TESTx")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DFULL_TEST -pthread -pedantic -std=c++11 -DDEBUG_MODE -DFULL_TESTx")
 
 set(SOURCE_FILES
         src/lib/gtb-probe.h
