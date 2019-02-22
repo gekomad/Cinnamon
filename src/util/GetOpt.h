@@ -34,7 +34,8 @@ private:
         if (string(optarg) != "erft") {
             help(argv);
             return;
-        };
+        }
+
         int nCpu = 0;
         int perftDepth = 0;
         string fen;

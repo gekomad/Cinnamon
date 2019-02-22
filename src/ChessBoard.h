@@ -186,7 +186,7 @@ protected:
         u64 semiOpenFile[2];
         u64 isolated[2];
         u64 allPiecesNoPawns[2];
-        //u64 pinned[2]; anche x regina?
+        u64 pinned[2];
         int kingSecurityDistance[2];
         uchar posKing[2];
     } _Tboard;

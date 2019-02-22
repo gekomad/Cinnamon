@@ -98,8 +98,7 @@ u64 PerftThread::search(const int depthx) {
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
 
-        if ((zobristKeyR == (phashe->key ^ phashe->nMoves))) {
-
+        if (zobristKeyR == (phashe->key ^ phashe->nMoves)) {
             partialTot += phashe->nMoves;
             return phashe->nMoves;
         }

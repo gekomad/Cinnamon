@@ -396,7 +396,8 @@ protected:
                 if (pieceTo != SQUARE_FREE) {
                     to1 = chessboard[pieceTo];
                     chessboard[pieceTo] &= NOTPOW2[to];
-                };
+                }
+
                 chessboard[pieceFrom] &= NOTPOW2[from];
                 chessboard[pieceFrom] |= POW2[to];
                 ASSERT(chessboard[KING_BLACK]);
@@ -407,7 +408,7 @@ protected:
                 chessboard[pieceFrom] = from1;
                 if (pieceTo != SQUARE_FREE) {
                     chessboard[pieceTo] = to1;
-                };
+                }
                 break;
             }
             case PROMOTION_MOVE_MASK: {

@@ -35,7 +35,7 @@ Uci::Uci() {
     startListner();
 }
 
-Uci::~Uci() { }
+Uci::~Uci() {}
 
 void Uci::getToken(istringstream &uip, String &token) {
     token.clear();
@@ -75,7 +75,7 @@ void Uci::listner(IterativeDeeping *it) {
             if (perftDepth > MAX_PLY || perftDepth <= 0) {
                 perftDepth = 1;
             }
-            int hashDepth = searchManager.getHashSize();
+            const int hashDepth = searchManager.getHashSize();
             searchManager.setHashSize(0);
             if (fen.empty()) {
                 fen = searchManager.getFen();
@@ -87,13 +87,10 @@ void Uci::listner(IterativeDeeping *it) {
             perft->start();
             perft->join();
             knowCommand = true;
-        }
-
-        else if (token == "dump") {
+        } else if (token == "dump") {
             knowCommand = true;
             if (perft)perft->dump();
-        }
-        else if (token == "quit") {
+        } else if (token == "quit") {
             knowCommand = true;
             searchManager.setRunning(false);
             stop = true;
@@ -125,7 +122,7 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name GaviotaTbPath type string default <empty>" << endl;
             cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024" << endl;
             cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4" <<
-            endl;
+                 endl;
 
             cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << endl;
             cout << "option name TB probing depth type spin default 0 min 0 max 5" << endl;
@@ -180,9 +177,7 @@ void Uci::listner(IterativeDeeping *it) {
                         knowCommand = true;
                         syzygy = &searchManager.createSYZYGY(token);
                     }
-                }
-
-                else if (token == "perftthreads") {
+                } else if (token == "perftthreads") {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
@@ -261,7 +256,7 @@ void Uci::listner(IterativeDeeping *it) {
                                 getToken(uip, token);
                                 if (gtb->setProbeDepth(stoi(token))) {
                                     knowCommand = true;
-                                };
+                                }
                             }
                         }
                     }
@@ -317,11 +312,13 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.setRepetitionMapCount(0);
             getToken(uip, token);
             _Tmove move;
+
             if (token == "startpos") {
                 it->setUseBook(it->getUseBook());
                 searchManager.loadFen();
                 getToken(uip, token);
             }
+
             if (token == "fen") {
                 string fen;
                 while (token != "moves" && !uip.eof()) {
@@ -334,6 +331,7 @@ void Uci::listner(IterativeDeeping *it) {
                 searchManager.setSide(x);
                 searchManager.pushStackMove();
             }
+
             if (token == "moves") {
                 while (!uip.eof()) {
                     uip >> token;
@@ -385,18 +383,23 @@ void Uci::listner(IterativeDeeping *it) {
                     searchManager.setPonder(true);
                 }
             }
+
             if (!forceTime) {
                 if (searchManager.getSide() == WHITE) {
                     winc -= (int) (winc * 0.1);
                     searchManager.setMaxTimeMillsec(winc + wtime / 40);
                     if (btime > wtime) {
-                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() - (int) (searchManager.getMaxTimeMillsec() * ((135.0 - wtime * 100.0 / btime) / 100.0)));
+                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
+                                                        (int) (searchManager.getMaxTimeMillsec() *
+                                                               ((135.0 - wtime * 100.0 / btime) / 100.0)));
                     }
                 } else {
                     binc -= (int) (binc * 0.1);
                     searchManager.setMaxTimeMillsec(binc + btime / 40);
                     if (wtime > btime) {
-                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() - (int) (searchManager.getMaxTimeMillsec() * ((135.0 - btime * 100.0 / wtime) / 100.0)));
+                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
+                                                        (int) (searchManager.getMaxTimeMillsec() *
+                                                               ((135.0 - btime * 100.0 / wtime) / 100.0)));
                     }
                 }
                 lastTime = searchManager.getMaxTimeMillsec();
@@ -410,7 +413,7 @@ void Uci::listner(IterativeDeeping *it) {
         }
         if (!knowCommand) {
             cout << "Unknown command: " << command << endl;
-        };
+        }
         cout << flush;
     }
 }

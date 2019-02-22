@@ -61,7 +61,7 @@ int Hash::getHashSize() const {
 void Hash::setHashSize(int mb) {
     dispose();
     if (mb) {
-        int tmp = mb * 1024 * 1000 / (sizeof(_Thash) * 2);
+        const int tmp = mb * 1024 * 1000 / (sizeof(_Thash) * 2);
         hashArray[HASH_GREATER] = (_Thash *) calloc(tmp, sizeof(_Thash));
         if (!hashArray[HASH_GREATER]) {
             fatal("info string error - no memory");
