@@ -137,8 +137,18 @@ public:
 
     bool setNthread(int);
 
-#ifdef DEBUG_MODE
+#if defined(FULL_TEST)
+    u64 getBitmap(const int n, const int side) const {
+        return getPool()[n]->getBitmap(side);
+    }
 
+    template<int side>
+    u64 getPinned(const u64 allpieces, const u64 friends, const int kingPosition) const {
+        return getThread(0).getPinned<side>(allpieces, friends, kingPosition);
+    }
+#endif
+
+#ifdef DEBUG_MODE
 
     unsigned getCumulativeMovesCount() {
         unsigned i = 0;

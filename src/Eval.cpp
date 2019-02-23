@@ -81,7 +81,7 @@ int Eval::evaluatePawn() {
     ADD(SCORE_DEBUG.ATTACK_KING_PAWN[side],
         ATTACK_KING * bitCount(ped_friends & structureEval.kingAttackers[side ^ 1]));
 
-    // 5. space
+// 5. space
     if (phase == OPEN) {
         result += PAWN_CENTER * bitCount(ped_friends & CENTER_MASK);
         ADD(SCORE_DEBUG.PAWN_CENTER[side], PAWN_CENTER * bitCount(ped_friends & CENTER_MASK));
@@ -93,13 +93,14 @@ int Eval::evaluatePawn() {
 
 
     // 7.
-    if (phase != OPEN) {
-        structureEval.kingSecurityDistance[side] +=
+        if (phase != OPEN) {
+            structureEval.kingSecurityDistance[side] +=
                 FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & ped_friends);
 
-        structureEval.kingSecurityDistance[side] -=
+            structureEval.kingSecurityDistance[side] -=
                 ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & ped_friends);
     }
+            ///  pawn in race
 
     // 8.  pawn in race
     if (phase != OPEN) {
@@ -114,7 +115,8 @@ int Eval::evaluatePawn() {
                                shiftForward<side, 9>(pawnsIn7)));
         result += PAWN_IN_RACE * (bitCount(pawnsIn8));
         ADD(SCORE_DEBUG.PAWN_IN_RACE[side], PAWN_IN_RACE * (bitCount(pawnsIn8)));
-    }
+     }
+
 
     u64 p = ped_friends;
     while (p) {
@@ -532,7 +534,16 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
     structureEval.posKing[WHITE] = (uchar) BITScanForward(chessboard[KING_WHITE]);
     structureEval.kingAttackers[WHITE] = getAllAttackers<WHITE>(structureEval.posKing[WHITE], structureEval.allPieces);
     structureEval.kingAttackers[BLACK] = getAllAttackers<BLACK>(structureEval.posKing[BLACK], structureEval.allPieces);
-
+//    if (phase == END) {
+//
+//        structureEval.pinned[BLACK] = getPinned<BLACK>(structureEval.allPieces, structureEval.allPiecesSide[BLACK],
+//                                                       structureEval.posKing[BLACK]);
+//
+//        structureEval.pinned[WHITE] = getPinned<WHITE>(structureEval.allPieces, structureEval.allPiecesSide[WHITE],
+//                                                       structureEval.posKing[WHITE]);
+//    } else {
+//        structureEval.pinned[BLACK] = structureEval.pinned[WHITE] = 0;
+//    }
     openFile<WHITE>();
     openFile<BLACK>();
     int bonus_attack_king_black = 0;
@@ -608,9 +619,8 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
 
         cout << HEADER;
         cout << "|Pawn:             " << setw(10) << (double) (Tresult.pawns[WHITE] - Tresult.pawns[BLACK]) / 100.0 <<
-             setw(15) << (double) (Tresult.pawns[WHITE]) / 100.0 << setw(10) << (double) (Tresult.pawns[BLACK]) / 100.0
-             <<
-             "\n";
+        setw(15) << (double) (Tresult.pawns[WHITE]) / 100.0 << setw(10) << (double) (Tresult.pawns[BLACK]) / 100.0 <<
+        "\n";
         cout << "|       attack king:              " << setw(10) <<
              (double) (SCORE_DEBUG.ATTACK_KING_PAWN[WHITE]) / 100.0 << setw(10) <<
              (double) (SCORE_DEBUG.ATTACK_KING_PAWN[BLACK]) / 100.0 << "\n";
