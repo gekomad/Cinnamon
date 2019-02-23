@@ -163,7 +163,9 @@ private:
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
+
     int getDtm(const int side, _TpvLine *pline, const int depth, const int nPieces) const;
+
     int mainMateIn;
     int mainDepth;
     bool mainSmp;

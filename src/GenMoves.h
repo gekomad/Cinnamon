@@ -291,7 +291,6 @@ public:
 
     template<int side>
     u64 getPinned(const u64 allpieces, const u64 friends, const int kingPosition) const {
-        //TODO non funziona il perft fallisce forse su enpassant
         u64 result = 0;
         const u64 *s = LINK_SQUARE[kingPosition];
         constexpr int xside = side ^1;
@@ -323,11 +322,10 @@ protected:
     bool perftMode;
     int listId;
     _TmoveP *gen_list;
-    static constexpr u64 RANK_1 = 0xff00ULL; // TODO RANK2
+    static constexpr u64 RANK_2 = 0xff00ULL;
     static constexpr u64 RANK_3 = 0xff000000ULL;
-    // TODO RANK4
-    static constexpr u64 RANK_4 = 0xff00000000ULL; // TODO RANK5
-    static constexpr u64 RANK_6 = 0xff000000000000ULL; // TODO RANK7
+    static constexpr u64 RANK_5 = 0xff00000000ULL;
+    static constexpr u64 RANK_7 = 0xff000000000000ULL;
     static constexpr uchar STANDARD_MOVE_MASK = 0x3;
     static constexpr uchar ENPASSANT_MOVE_MASK = 0x1;
     static constexpr uchar PROMOTION_MOVE_MASK = 0x2;
@@ -349,7 +347,7 @@ protected:
     }
 
     template<int side>
-    u64 getAllAttackers(const int position,const u64 allpieces) const {
+    u64 getAllAttackers(const int position, const u64 allpieces) const {
         return getAttackers<side, false>(position, allpieces);
     }
 
@@ -368,7 +366,7 @@ protected:
 #ifdef DEBUG_MODE
 
     template<int side, uchar type>
-    bool inCheckSlow(const int from, const int to, const int pieceFrom, const int pieceTo,const int promotionPiece) {
+    bool inCheckSlow(const int from, const int to, const int pieceFrom, const int pieceTo, const int promotionPiece) {
         bool result = false;
         switch (type & 0x3) {
             case STANDARD_MOVE_MASK: {
@@ -439,7 +437,7 @@ protected:
     }
 
 #endif
-    
+
     template<int side, uchar type>
     bool inCheck(const int from, const int to, const int pieceFrom, const int pieceTo, int promotionPiece) {
 #ifdef DEBUG_MODE
@@ -550,7 +548,7 @@ protected:
 
 
     template<uchar type>
-    bool pushmove(const int from, const int to, const int side,const int promotionPiece,const int pieceFrom) {
+    bool pushmove(const int from, const int to, const int side, const int promotionPiece, const int pieceFrom) {
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
         int piece_captured = SQUARE_FREE;

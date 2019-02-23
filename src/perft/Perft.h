@@ -81,7 +81,7 @@ public:
     }
 
 private:
-    Perft() : ThreadPool(1) { };
+    Perft() : ThreadPool(1) {};
 
     _TPerftRes perftRes;
     high_resolution_clock::time_point start1;

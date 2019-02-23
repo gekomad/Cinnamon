@@ -105,7 +105,7 @@ int Search::printDtm() {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
         cout << endl << decodeBoardinv(move->type, move->from, getSide())
-        << decodeBoardinv(move->type, move->to, getSide()) << " ";
+             << decodeBoardinv(move->type, move->to, getSide()) << " ";
         res = -getGtb().getDtm(side ^ 1, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
         if (res != -INT_MAX) {
             cout << " res: " << res;
@@ -383,9 +383,9 @@ template<bool smp>
 int Search::search(const int depth, const int alpha, const int beta) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
     return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine,
-                                                  bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn)
+                                     bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn)
                      : search<BLACK>(depth, alpha, beta, &pvLine,
-                                                  bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
+                                     bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
 }
 
 int Search::getDtm(const int side, _TpvLine *pline, const int depth, const int nPieces) const {
@@ -594,13 +594,13 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             int upb = (doMws ? (lwb + 1) : beta);
             currentPly++;
             val = -search<side ^ 1>(depth - 1, -upb, -lwb, &line,
-                                         move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
+                                    move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
             if (doMws && (lwb < val) && (val < beta)) {
                 currentPly++;
                 val = -search<side ^ 1>(depth - 1, -beta, -val + 1, &line,
-                                             move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
+                                        move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
                 currentPly--;
             }
         }

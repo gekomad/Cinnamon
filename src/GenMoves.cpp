@@ -389,7 +389,7 @@ void GenMoves::takeback(_Tmove *move, const u64 oldkey, bool rep) {
 }
 
 
-bool GenMoves::makemove(const _Tmove *move,const bool rep,const bool checkInCheck) {
+bool GenMoves::makemove(const _Tmove *move, const bool rep, const bool checkInCheck) {
     ASSERT(move);
     ASSERT(bitCount(chessboard[KING_WHITE]) == 1 && bitCount(chessboard[KING_BLACK]) == 1);
     int pieceFrom = SQUARE_FREE, posTo, posFrom, movecapture = SQUARE_FREE;
@@ -453,13 +453,13 @@ bool GenMoves::makemove(const _Tmove *move,const bool rep,const bool checkInChec
                 break;
                 //en passant
             case PAWN_WHITE:
-                if ((RANK_1 & POW2[posFrom]) && (RANK_3 & POW2[posTo])) {
+                if ((RANK_2 & POW2[posFrom]) && (RANK_3 & POW2[posTo])) {
                     chessboard[ENPASSANT_IDX] = posTo;
                     updateZobristKey(13, chessboard[ENPASSANT_IDX]);
                 }
                 break;
             case PAWN_BLACK:
-                if ((RANK_6 & POW2[posFrom]) && (RANK_4 & POW2[posTo])) {
+                if ((RANK_7 & POW2[posFrom]) && (RANK_5 & POW2[posTo])) {
                     chessboard[ENPASSANT_IDX] = posTo;
                     updateZobristKey(13, chessboard[ENPASSANT_IDX]);
                 }

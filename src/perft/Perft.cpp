@@ -225,7 +225,7 @@ void Perft::endRun() {
 
     if (t) {
         cout << " (" << (perftRes.totMoves / t) / 1000 - ((perftRes.totMoves / t) / 1000) % 1000 <<
-        "k nodes per seconds" << ")";
+             "k nodes per seconds" << ")";
     }
     cout << endl;
     dump();

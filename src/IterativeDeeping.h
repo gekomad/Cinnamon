@@ -41,7 +41,7 @@ public:
 
     void run();
 
-    void endRun() { };
+    void endRun() {};
 
     bool getPonderEnabled() const;
 

@@ -93,14 +93,14 @@ int Eval::evaluatePawn() {
 
 
     // 7.
-        if (phase != OPEN) {
-            structureEval.kingSecurityDistance[side] +=
+    if (phase != OPEN) {
+        structureEval.kingSecurityDistance[side] +=
                 FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & ped_friends);
 
-            structureEval.kingSecurityDistance[side] -=
+        structureEval.kingSecurityDistance[side] -=
                 ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & ped_friends);
     }
-            ///  pawn in race
+    ///  pawn in race
 
     // 8.  pawn in race
     if (phase != OPEN) {
@@ -115,7 +115,7 @@ int Eval::evaluatePawn() {
                                shiftForward<side, 9>(pawnsIn7)));
         result += PAWN_IN_RACE * (bitCount(pawnsIn8));
         ADD(SCORE_DEBUG.PAWN_IN_RACE[side], PAWN_IN_RACE * (bitCount(pawnsIn8)));
-     }
+    }
 
 
     u64 p = ped_friends;
@@ -619,8 +619,9 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
 
         cout << HEADER;
         cout << "|Pawn:             " << setw(10) << (double) (Tresult.pawns[WHITE] - Tresult.pawns[BLACK]) / 100.0 <<
-        setw(15) << (double) (Tresult.pawns[WHITE]) / 100.0 << setw(10) << (double) (Tresult.pawns[BLACK]) / 100.0 <<
-        "\n";
+             setw(15) << (double) (Tresult.pawns[WHITE]) / 100.0 << setw(10) << (double) (Tresult.pawns[BLACK]) / 100.0
+             <<
+             "\n";
         cout << "|       attack king:              " << setw(10) <<
              (double) (SCORE_DEBUG.ATTACK_KING_PAWN[WHITE]) / 100.0 << setw(10) <<
              (double) (SCORE_DEBUG.ATTACK_KING_PAWN[BLACK]) / 100.0 << "\n";

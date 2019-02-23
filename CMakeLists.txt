@@ -45,14 +45,14 @@ set(SOURCE_FILES
         src/IterativeDeeping.cpp
         src/IterativeDeeping.h
         src/main.cpp
-        src/OpenBook.cpp
-        src/OpenBook.h
         src/Search.cpp
         src/Search.h
         src/SearchManager.cpp
         src/SearchManager.h
-        src/Tablebase.cpp
-        src/Tablebase.h
+        src/db/OpenBook.cpp
+        src/db/OpenBook.h
+        src/db/Tablebase.cpp
+        src/db/Tablebase.h
         src/db/GTB.cpp
         src/db/syzygy/SYZYGY.cpp
         src/db/syzygy/tbprobe.cpp

@@ -49,18 +49,18 @@ public:
             uchar entryAge;
             uchar flags;
 
-            __dataS() { };
+            __dataS() {};
 
             __dataS(const short score, const char depth, const uchar from, const uchar to, const uchar entryAge,
                     const uchar flags) :
-                    score(score), depth(depth), from(from), to(to), entryAge(entryAge), flags(flags) { };
+                    score(score), depth(depth), from(from), to(to), entryAge(entryAge), flags(flags) {};
         } dataS;
 
-        _ThashData() { };
+        _ThashData() {};
 
         _ThashData(const short score, const char depth, const uchar from, const uchar to, const uchar entryAge,
                    const uchar flags) :
-                dataS(score, depth, from, to, entryAge, flags) { };
+                dataS(score, depth, from, to, entryAge, flags) {};
     } __Tdata;
 
     typedef struct {
