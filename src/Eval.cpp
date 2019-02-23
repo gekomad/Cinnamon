@@ -70,7 +70,7 @@ int Eval::evaluatePawn() {
     structureEval.isolated[side] = 0;
 
     int result = 0;
-    ADD(SCORE_DEBUG.MOB_PAWNS[side], result);
+
     if (bitCount(chessboard[side ^ 1]) == 8) {
         result -= ENEMIES_PAWNS_ALL;
         ADD(SCORE_DEBUG.ENEMIES_PAWNS_ALL[side], -ENEMIES_PAWNS_ALL);
@@ -611,8 +611,6 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
              setw(15) << (double) (Tresult.pawns[WHITE]) / 100.0 << setw(10) << (double) (Tresult.pawns[BLACK]) / 100.0
              <<
              "\n";
-        cout << "|       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_PAWNS[WHITE]) / 100.0 <<
-             setw(10) << (double) (SCORE_DEBUG.MOB_PAWNS[BLACK]) / 100.0 << "\n";
         cout << "|       attack king:              " << setw(10) <<
              (double) (SCORE_DEBUG.ATTACK_KING_PAWN[WHITE]) / 100.0 << setw(10) <<
              (double) (SCORE_DEBUG.ATTACK_KING_PAWN[BLACK]) / 100.0 << "\n";

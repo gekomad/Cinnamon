@@ -84,7 +84,6 @@ protected:
         int OPEN_DIAG_BISHOP[2];
         int BONUS2BISHOP[2];
 
-        int MOB_PAWNS[2];
         int ATTACK_KING_PAWN[2];
         int PAWN_CENTER[2];
         int PAWN_7H[2];
