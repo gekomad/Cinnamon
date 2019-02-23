@@ -189,6 +189,7 @@ protected:
         //u64 pinned[2]; anche x regina?
         int kingSecurityDistance[2];
         uchar posKing[2];
+        u64 king[2];
     } _Tboard;
 
     static constexpr u64 A7bit = 0x80000000000000ULL;

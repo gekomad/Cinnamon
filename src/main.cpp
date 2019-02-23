@@ -108,8 +108,83 @@ void check() {
 
 }
 
-int main(int argc, char **argv) {
+int get8Rank(int i) {
+    while (1) {
+        if ((i + 8) > 63)return i;
+        i += 8;
+    }
+}
 
+int get1Rank(int i) {
+    while (1) {
+        if ((i - 8) < 0)return i;
+        i -= 8;
+    }
+}
+
+int getLungCol1(int i) {
+    int y = 0;
+
+    while (1) {
+        if (i <= 0)break;
+        i -= 8;
+        y++;
+    }
+    return y;
+
+}
+
+int getLungCol(int i) {
+    int y = 0;
+
+    while (1) {
+        if (i > 63)break;
+        i += 8;
+        y++;
+    }
+    return y;
+
+}
+
+int main(int argc, char **argv) {
+//TODO
+//    //white
+//    for (int y = 0; y < 64; y++) {
+//        auto l = getLungCol(y) - 1;
+//        auto r8 = get8Rank(y);
+//        auto r1 = get1Rank(y);
+//        auto col = LINK_SQUARE[y][r8] | POW2[y] | POW2[r8];
+//        u64 square = col;
+//        auto x = min(l, 7 - r1);
+//        for (int t = 1; t <= x; t++) {
+//            square |= (col << t);
+//        }
+//        x = min(l, r1);
+//        for (int t = 1; t <= x; t++) {
+//            square |= (col >> t);
+//        }
+//        //cout << "0x" << hex << square << "ULL,\n";
+//    }
+//
+//    //black
+//    for (int y = 0; y < 64; y++) {
+//        auto l = getLungCol1(y) - 1;
+//        auto r8 = get8Rank(y);
+//        auto r1 = get1Rank(y);
+//        auto col = LINK_SQUARE[y][r1] | POW2[y] | POW2[r1];
+//        u64 square = col;
+//        auto x = min(l, 7 - r1);
+//        for (int t = 1; t <= x; t++) {
+//            square |= (col << t);
+//        }
+//        x = min(l, r1);
+//        for (int t = 1; t <= x; t++) {
+//            square |= (col >> t);
+//        }
+//        cout << "0x" << hex << square << "ULL,\n";
+//    }
+//    cout << 1;
+//
     // TODO printHeader();
     check();
 #if defined(FULL_TEST)

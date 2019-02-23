@@ -100,9 +100,8 @@ int Eval::evaluatePawn() {
         structureEval.kingSecurityDistance[side] -=
                 ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & ped_friends);
     }
-    ///  pawn in race
 
-    // 8.  pawn in race
+    // 8.  pawn in 8th
     if (phase != OPEN) {
         const u64 pawnsIn7 = PAWNS_7_2[side] & ped_friends;
         result += PAWN_7H * bitCount(pawnsIn7);
@@ -122,6 +121,15 @@ int Eval::evaluatePawn() {
     while (p) {
         int o = BITScanForward(p);
         u64 pos = POW2[o];
+
+        ///  pawn in race
+        if (structureEval.allPiecesNoPawns[side ^ 1] == structureEval.king[side ^ 1])
+            if (!(RULE_OF_SQUARE[side][o] & structureEval.king[side ^ 1])) {
+
+                result += PAWN_IN_RACE;
+
+                ADD(SCORE_DEBUG.PAWN_IN_RACE[side], PAWN_IN_RACE);
+            }
 
         /// blocked
         result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[side ^ 1])) &&
@@ -474,13 +482,14 @@ int Eval::evaluateKing(int side, u64 squares) {
         ADD(SCORE_DEBUG.DISTANCE_KING[side], DISTANCE_KING_OPENING[pos_king]);
         result = DISTANCE_KING_OPENING[pos_king];
     }
-    u64 POW2_king = POW2[pos_king];
+
     //mobility
     ASSERT(bitCount(squares & NEAR_MASK1[pos_king]) < (int) (sizeof(MOB_KING[phase]) / sizeof(int)));
     result += MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])];
     ADD(SCORE_DEBUG.MOB_KING[side], MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])]);
     if (phase != OPEN) {
-        if ((structureEval.openFile & POW2_king) || (structureEval.semiOpenFile[side ^ 1] & POW2_king)) {
+        if ((structureEval.openFile & structureEval.king[side]) ||
+            (structureEval.semiOpenFile[side ^ 1] & structureEval.king[side])) {
             ADD(SCORE_DEBUG.END_OPENING_KING[side], -END_OPENING);
             result -= END_OPENING;
             if (bitCount(RANK[pos_king]) < 4) {
@@ -532,6 +541,8 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
     structureEval.allPieces = structureEval.allPiecesSide[BLACK] | structureEval.allPiecesSide[WHITE];
     structureEval.posKing[BLACK] = (uchar) BITScanForward(chessboard[KING_BLACK]);
     structureEval.posKing[WHITE] = (uchar) BITScanForward(chessboard[KING_WHITE]);
+    structureEval.king[BLACK] = chessboard[KING_BLACK];
+    structureEval.king[WHITE] = chessboard[KING_WHITE];
     structureEval.kingAttackers[WHITE] = getAllAttackers<WHITE>(structureEval.posKing[WHITE], structureEval.allPieces);
     structureEval.kingAttackers[BLACK] = getAllAttackers<BLACK>(structureEval.posKing[BLACK], structureEval.allPieces);
 //    if (phase == END) {
@@ -629,9 +640,12 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
              setw(10) << (double) (SCORE_DEBUG.PAWN_CENTER[BLACK]) / 100.0 << "\n";
         cout << "|       7h:                       " << setw(10) << (double) (SCORE_DEBUG.PAWN_7H[WHITE]) / 100.0 <<
              setw(10) << (double) (SCORE_DEBUG.PAWN_7H[BLACK]) / 100.0 << "\n";
-        cout << "|       in race:                  " << setw(10) <<
+        cout << "|       in 8th:                   " << setw(10) <<
              (double) (SCORE_DEBUG.PAWN_IN_8[WHITE]) / 100.0 <<
              setw(10) << (double) (SCORE_DEBUG.PAWN_IN_8[BLACK]) / 100.0 << "\n";
+        cout << "|       in race:                  " << setw(10) <<
+             (double) (SCORE_DEBUG.PAWN_IN_RACE[WHITE]) / 100.0 <<
+             setw(10) << (double) (SCORE_DEBUG.PAWN_IN_RACE[BLACK]) / 100.0 << "\n";
         cout << "|       blocked:                  " << setw(10) <<
              (double) (SCORE_DEBUG.PAWN_BLOCKED[WHITE]) / 100.0 <<
              setw(10) << (double) (SCORE_DEBUG.PAWN_BLOCKED[BLACK]) / 100.0 << "\n";
