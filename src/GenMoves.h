@@ -60,6 +60,7 @@ public:
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
         const u64 allpieces = enemies | friends;
+
         if (perftMode) {
             int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
             pinned = getPinned<side>(allpieces, friends, kingPosition);
@@ -638,8 +639,6 @@ private:
     bool isInCheck;
     static bool forceCheck;
     static constexpr u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
-    static constexpr u64 TABCAPTUREPAWN_RIGHT = 0xFEFEFEFEFEFEFEFEULL;
-    static constexpr u64 TABCAPTUREPAWN_LEFT = 0x7F7F7F7F7F7F7F7FULL;
 
     void writeRandomFen(const vector<int>);
 
