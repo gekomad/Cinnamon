@@ -121,16 +121,16 @@ int Eval::evaluatePawn() {
     while (p) {
         int o = BITScanForward(p);
         u64 pos = POW2[o];
+        if (phase == END) {
+            ///  pawn in race
+            if (structureEval.allPiecesNoPawns[side ^ 1] == structureEval.king[side ^ 1])
+                if (!(RULE_OF_SQUARE[side][o] & structureEval.king[side ^ 1])) {
 
-        ///  pawn in race
-        if (structureEval.allPiecesNoPawns[side ^ 1] == structureEval.king[side ^ 1])
-            if (!(RULE_OF_SQUARE[side][o] & structureEval.king[side ^ 1])) {
+                    result += PAWN_IN_RACE;
 
-                result += PAWN_IN_RACE;
-
-                ADD(SCORE_DEBUG.PAWN_IN_RACE[side], PAWN_IN_RACE);
-            }
-
+                    ADD(SCORE_DEBUG.PAWN_IN_RACE[side], PAWN_IN_RACE);
+                }
+        }
         /// blocked
         result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[side ^ 1])) &&
                   (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? PAWN_BLOCKED : 0;
