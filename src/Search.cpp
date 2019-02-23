@@ -713,8 +713,8 @@ bool Search::setParameter(String param, int value) {
         PAWN_7H = value;
     } else if (param == "PAWN_CENTER") {
         PAWN_CENTER = value;
-    } else if (param == "PAWN_IN_RACE") {
-        PAWN_IN_RACE = value;
+    } else if (param == "PAWN_IN_8") {
+        PAWN_IN_8 = value;
     } else if (param == "PAWN_ISOLATED") {
         PAWN_ISOLATED = value;
     } else if (param == "PAWN_NEAR_KING") {

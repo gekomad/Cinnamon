@@ -113,8 +113,8 @@ int Eval::evaluatePawn() {
                               structureEval.allPiecesSide[side ^ 1] &
                               (shiftForward<side, 7>(pawnsIn7) |
                                shiftForward<side, 9>(pawnsIn7)));
-        result += PAWN_IN_RACE * (bitCount(pawnsIn8));
-        ADD(SCORE_DEBUG.PAWN_IN_RACE[side], PAWN_IN_RACE * (bitCount(pawnsIn8)));
+        result += PAWN_IN_8 * (bitCount(pawnsIn8));
+        ADD(SCORE_DEBUG.PAWN_IN_8[side], PAWN_IN_8 * (bitCount(pawnsIn8)));
     }
 
 
@@ -630,8 +630,8 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
         cout << "|       7h:                       " << setw(10) << (double) (SCORE_DEBUG.PAWN_7H[WHITE]) / 100.0 <<
              setw(10) << (double) (SCORE_DEBUG.PAWN_7H[BLACK]) / 100.0 << "\n";
         cout << "|       in race:                  " << setw(10) <<
-             (double) (SCORE_DEBUG.PAWN_IN_RACE[WHITE]) / 100.0 <<
-             setw(10) << (double) (SCORE_DEBUG.PAWN_IN_RACE[BLACK]) / 100.0 << "\n";
+             (double) (SCORE_DEBUG.PAWN_IN_8[WHITE]) / 100.0 <<
+             setw(10) << (double) (SCORE_DEBUG.PAWN_IN_8[BLACK]) / 100.0 << "\n";
         cout << "|       blocked:                  " << setw(10) <<
              (double) (SCORE_DEBUG.PAWN_BLOCKED[WHITE]) / 100.0 <<
              setw(10) << (double) (SCORE_DEBUG.PAWN_BLOCKED[BLACK]) / 100.0 << "\n";
