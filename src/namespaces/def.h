@@ -22,6 +22,7 @@
 #include "../util/Time.h"
 #include "../util/FileUtil.h"
 #include "debug.h"
+#include <array>
 
 using namespace _debug;
 
@@ -140,7 +141,16 @@ namespace _def {
 
     template<int side, int shift>
     static inline u64 shiftForward(const u64 bits) {
-        return side == WHITE ? bits << shift : bits >> shift;
+        static constexpr array<u64,2> NO_FILE_LEFT = {0xFEFEFEFEFEFEFEFEULL,0x7F7F7F7F7F7F7F7FULL};
+        static constexpr array<u64,2> NO_FILE_RIGHT = {0x7F7F7F7F7F7F7F7FULL,0xFEFEFEFEFEFEFEFEULL};
+
+        auto a = side == WHITE ? bits << shift : bits >> shift;
+        if (shift == 7)
+            return a & NO_FILE_LEFT[side];
+        if (shift == 9)
+            return a & NO_FILE_RIGHT[side];
+        return a;
+
     }
 
     static inline int BITScanForwardUnset(const u64 bb) {

@@ -84,7 +84,6 @@ protected:
         int OPEN_DIAG_BISHOP[2];
         int BONUS2BISHOP[2];
 
-        int MOB_PAWNS[2];
         int ATTACK_KING_PAWN[2];
         int PAWN_CENTER[2];
         int PAWN_7H[2];
@@ -235,9 +234,6 @@ namespace _eval {
     static constexpr int MOB_CASTLE[3][3] = {{-50, 30, 50},
                                              {-1,  10, 10},
                                              {0,   0,  0}};
-
-    static constexpr int MOB_PAWNS[34] = {-1, 2, 3, 4, 5, 10, 12, 14, 18, 22, 25, 30, 32, 34, 36, 38, 40, 42, 44, 46,
-                                          48, 50, 52, 54, 56, 58, 60, 70, 75, 80, 90, 95, 100, 110};
 
     static constexpr int BONUS_ATTACK_KING[18] = {-1, 2, 8, 64, 128, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512,
                                                   512, 512, 512};
