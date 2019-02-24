@@ -627,7 +627,8 @@ void GenMoves::writeRandomFen(const vector<int> pieces) {
             check |= chessboard[pieces[i]];
         }
 
-        if (bitCount(check) == (2 + (int) pieces.size()) && !inCheck<WHITE>() && !inCheck<BLACK>()) {
+        if (bitCount(check) == (2 + (int) pieces.size()) && !inCheck<WHITE>() && !inCheck<BLACK>() &&
+            !(0xff000000000000ffULL & (chessboard[0] | chessboard[1]))) {
             cout << boardToFen() << "\n";
             loadFen(boardToFen());
             return;
