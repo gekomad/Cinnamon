@@ -101,27 +101,20 @@ int Eval::evaluatePawn() {
                 ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & ped_friends);
     }
 
-    // 8.  pawn in 8th
-    if (phase != OPEN) {
-        const u64 pawnsIn7 = PAWNS_7_2[side] & ped_friends;
-        result += PAWN_IN_7TH * bitCount(pawnsIn7);
-        ADD(SCORE_DEBUG.PAWN_7H[side], PAWN_IN_7TH * bitCount(pawnsIn7));
-
-        // TODO se casa in 8 non è attaccabile add bonus
-        const u64 pawnsIn8 = (shiftForward<side, 8>(pawnsIn7) & (~structureEval.allPieces) ||
-                              structureEval.allPiecesSide[side ^ 1] &
-                              (shiftForward<side, 7>(pawnsIn7) |
-                               shiftForward<side, 9>(pawnsIn7)));
-        result += PAWN_IN_8TH * (bitCount(pawnsIn8));
-        ADD(SCORE_DEBUG.PAWN_IN_8TH[side], PAWN_IN_8TH * (bitCount(pawnsIn8)));
-    }
-
-
     u64 p = ped_friends;
     while (p) {
         int o = BITScanForward(p);
         u64 pos = POW2[o];
+        if (phase == END) {
+            ///  pawn in race
+            if (structureEval.allPiecesNoPawns[side ^ 1] == POW2[structureEval.posKing[side ^ 1]])
+                if (!(RULE_OF_SQUARE[side][o] & POW2[structureEval.posKing[side ^ 1]])) {
 
+                    result += PAWN_IN_RACE;
+
+                    ADD(SCORE_DEBUG.PAWN_IN_RACE[side], PAWN_IN_RACE);
+                }
+        }
         /// blocked
         result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[side ^ 1])) &&
                   (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? PAWN_BLOCKED : 0;
@@ -583,7 +576,7 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
 #ifdef DEBUG_MODE
     if (trace) {
         const string HEADER = "\n|\t\t\t\t\tTOT (white)\t\t  WHITE\t\tBLACK\n";
-        double total_white=(double) -result / 100.0;
+        double total_white = (double) -result / 100.0;
         cout << "\n|Total (white)..........   " << total_white << "\n";
         cout << "|PHASE: ";
         if (phase == OPEN) {
@@ -627,11 +620,8 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
              (double) (SCORE_DEBUG.ATTACK_KING_PAWN[BLACK]) / 100.0 << "\n";
         cout << "|       center:                   " << setw(10) << (double) (SCORE_DEBUG.PAWN_CENTER[WHITE]) / 100.0 <<
              setw(10) << (double) (SCORE_DEBUG.PAWN_CENTER[BLACK]) / 100.0 << "\n";
-        cout << "|       in 7th:                   " << setw(10) << (double) (SCORE_DEBUG.PAWN_7H[WHITE]) / 100.0 <<
-             setw(10) << (double) (SCORE_DEBUG.PAWN_7H[BLACK]) / 100.0 << "\n";
-        cout << "|       in 8th:                   " << setw(10) <<
-             (double) (SCORE_DEBUG.PAWN_IN_8TH[WHITE]) / 100.0 <<
-             setw(10) << (double) (SCORE_DEBUG.PAWN_IN_8TH[BLACK]) / 100.0 << "\n";
+        cout << "|       in race:                  " << setw(10) << (double) (SCORE_DEBUG.PAWN_IN_RACE[WHITE]) / 100.0
+             << setw(10) << (double) (SCORE_DEBUG.PAWN_IN_RACE[BLACK]) / 100.0 << "\n";
         cout << "|       blocked:                  " << setw(10) <<
              (double) (SCORE_DEBUG.PAWN_BLOCKED[WHITE]) / 100.0 <<
              setw(10) << (double) (SCORE_DEBUG.PAWN_BLOCKED[BLACK]) / 100.0 << "\n";

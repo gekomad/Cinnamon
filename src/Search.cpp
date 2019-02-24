@@ -709,12 +709,10 @@ bool Search::setParameter(String param, int value) {
         OPEN_FILE = value;
     } else if (param == "OPEN_FILE_Q") {
         OPEN_FILE_Q = value;
-    } else if (param == "PAWN_IN_7TH") {
-        PAWN_IN_7TH = value;
     } else if (param == "PAWN_CENTER") {
         PAWN_CENTER = value;
-    } else if (param == "PAWN_IN_8TH") {
-        PAWN_IN_8TH = value;
+    } else if (param == "PAWN_IN_RACE") {
+        PAWN_IN_RACE = value;
     } else if (param == "PAWN_ISOLATED") {
         PAWN_ISOLATED = value;
     } else if (param == "PAWN_NEAR_KING") {
