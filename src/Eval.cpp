@@ -584,7 +584,8 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
 #ifdef DEBUG_MODE
     if (trace) {
         const string HEADER = "\n|\t\t\t\t\tTOT (white)\t\t  WHITE\t\tBLACK\n";
-        cout << "\n|Total (white)..........   " << (double) -result / 100.0 << "\n";
+        double total_white=(double) -result / 100.0;
+        cout << "\n|Total (white)..........   " << total_white << "\n";
         cout << "|PHASE: ";
         if (phase == OPEN) {
             cout << " OPEN\n";
@@ -742,6 +743,8 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
              (double) (SCORE_DEBUG.PAWN_NEAR_KING[BLACK]) / 100.0 << "\n";
 //      cout << "|       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_KING[BLACK]) / 100.0 << "\n";
         cout << endl;
+
+
     }
 #endif
     return side ? -result : result;
