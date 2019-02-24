@@ -50,7 +50,7 @@ void Eval::openFile() {
  * 5. space - in OPEN phase PAWN_CENTER * CENTER_MASK
  * 6. // pinned - in END phase substracts 20 * each pinned pawn
  * 7. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING * each pawn near to king and substracts ENEMY_NEAR_KING * each enemy pawn near to king
- * 8. pawn in race - if pawn is in 7' add PAWN_7H. If pawn can go forward add PAWN_IN_RACE for each pawn
+ * 8. pawn in 8th - if pawn is in 7' add PAWN_7H. If pawn can go forward add PAWN_IN_8TH for each pawn
  * 9. unprotected - no friends pawn protect it
  * 10. blocked - pawn can't go on
  * 11. isolated - there aren't friend pawns on the two sides - subtracts PAWN_ISOLATED for each pawn
@@ -100,21 +100,20 @@ int Eval::evaluatePawn() {
         structureEval.kingSecurityDistance[side] -=
                 ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & ped_friends);
     }
-    ///  pawn in race
 
-    // 8.  pawn in race
+    // 8.  pawn in 8th
     if (phase != OPEN) {
         const u64 pawnsIn7 = PAWNS_7_2[side] & ped_friends;
-        result += PAWN_7H * bitCount(pawnsIn7);
-        ADD(SCORE_DEBUG.PAWN_7H[side], PAWN_7H * bitCount(pawnsIn7));
+        result += PAWN_IN_7TH * bitCount(pawnsIn7);
+        ADD(SCORE_DEBUG.PAWN_7H[side], PAWN_IN_7TH * bitCount(pawnsIn7));
 
         // TODO se casa in 8 non è attaccabile add bonus
         const u64 pawnsIn8 = (shiftForward<side, 8>(pawnsIn7) & (~structureEval.allPieces) ||
                               structureEval.allPiecesSide[side ^ 1] &
                               (shiftForward<side, 7>(pawnsIn7) |
                                shiftForward<side, 9>(pawnsIn7)));
-        result += PAWN_IN_RACE * (bitCount(pawnsIn8));
-        ADD(SCORE_DEBUG.PAWN_IN_RACE[side], PAWN_IN_RACE * (bitCount(pawnsIn8)));
+        result += PAWN_IN_8TH * (bitCount(pawnsIn8));
+        ADD(SCORE_DEBUG.PAWN_IN_8TH[side], PAWN_IN_8TH * (bitCount(pawnsIn8)));
     }
 
 
@@ -628,11 +627,11 @@ int Eval::getScore(const int side, const int N_PIECE, const int alpha, const int
              (double) (SCORE_DEBUG.ATTACK_KING_PAWN[BLACK]) / 100.0 << "\n";
         cout << "|       center:                   " << setw(10) << (double) (SCORE_DEBUG.PAWN_CENTER[WHITE]) / 100.0 <<
              setw(10) << (double) (SCORE_DEBUG.PAWN_CENTER[BLACK]) / 100.0 << "\n";
-        cout << "|       7h:                       " << setw(10) << (double) (SCORE_DEBUG.PAWN_7H[WHITE]) / 100.0 <<
+        cout << "|       in 7th:                   " << setw(10) << (double) (SCORE_DEBUG.PAWN_7H[WHITE]) / 100.0 <<
              setw(10) << (double) (SCORE_DEBUG.PAWN_7H[BLACK]) / 100.0 << "\n";
-        cout << "|       in race:                  " << setw(10) <<
-             (double) (SCORE_DEBUG.PAWN_IN_RACE[WHITE]) / 100.0 <<
-             setw(10) << (double) (SCORE_DEBUG.PAWN_IN_RACE[BLACK]) / 100.0 << "\n";
+        cout << "|       in 8th:                   " << setw(10) <<
+             (double) (SCORE_DEBUG.PAWN_IN_8TH[WHITE]) / 100.0 <<
+             setw(10) << (double) (SCORE_DEBUG.PAWN_IN_8TH[BLACK]) / 100.0 << "\n";
         cout << "|       blocked:                  " << setw(10) <<
              (double) (SCORE_DEBUG.PAWN_BLOCKED[WHITE]) / 100.0 <<
              setw(10) << (double) (SCORE_DEBUG.PAWN_BLOCKED[BLACK]) / 100.0 << "\n";

@@ -54,9 +54,9 @@ protected:
     STATIC_CONST int DOUBLED_ISOLATED_PAWNS = 14;
     STATIC_CONST int DOUBLED_PAWNS = 5;
     STATIC_CONST int ENEMIES_PAWNS_ALL = 8;
-    STATIC_CONST int PAWN_7H = 32;
+    STATIC_CONST int PAWN_IN_7TH = 32;
     STATIC_CONST int PAWN_CENTER = 15;
-    STATIC_CONST int PAWN_IN_RACE = 114;
+    STATIC_CONST int PAWN_IN_8TH = 114;
     STATIC_CONST int PAWN_ISOLATED = 3;
     STATIC_CONST int PAWN_NEAR_KING = 2;
     STATIC_CONST int PAWN_BLOCKED = 5;
@@ -87,7 +87,7 @@ protected:
         int ATTACK_KING_PAWN[2];
         int PAWN_CENTER[2];
         int PAWN_7H[2];
-        int PAWN_IN_RACE[2];
+        int PAWN_IN_8TH[2];
         int PAWN_BLOCKED[2];
         int UNPROTECTED_PAWNS[2];
         int PAWN_ISOLATED[2];
