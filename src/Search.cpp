@@ -170,7 +170,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     }
     ///************* hash ****************
     char hashf = Hash::hashfALPHA;
-    u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
+    u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX];
 
     _TcheckHash checkHashStruct;
 
@@ -473,7 +473,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
 
     //************* hash ****************
-    u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
+    u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX];
 
     _TcheckHash checkHashStruct;
     int r;

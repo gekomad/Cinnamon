@@ -66,7 +66,7 @@ void ChessBoard::makeZobristKey() {
         updateZobristKey(ENPASSANT_IDX, chessboard[ENPASSANT_IDX]);//13
     }
 
-    updateZobristKey(SIDETOMOVE_IDX, getSide()); //14
+//    updateZobristKey(SIDETOMOVE_IDX, getSide()); //14
 
 }
 

@@ -95,7 +95,7 @@ u64 PerftThread::search(const int depthx) {
     _ThashPerft *phashe = nullptr;
 
     if (useHash) {
-        zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
+        zobristKeyR = chessboard[ZOBRISTKEY_IDX];
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
 
         if ((zobristKeyR == (phashe->key ^ phashe->nMoves))) {
