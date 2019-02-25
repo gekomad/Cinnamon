@@ -105,7 +105,7 @@ int Search::printDtm() {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
         cout << endl << decodeBoardinv(move->type, move->from, getSide())
-             << decodeBoardinv(move->type, move->to, getSide()) << " ";
+        << decodeBoardinv(move->type, move->to, getSide()) << " ";
         res = -getGtb().getDtm(side ^ 1, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
         if (res != -INT_MAX) {
             cout << " res: " << res;
@@ -164,13 +164,13 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
         setRunning(checkTime());
     }
 
-    int score = getScore(side, N_PIECE, alpha, beta, false);
+    const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
+    int score = getScore(zobristKeyR, side, N_PIECE, alpha, beta, false);
     if (score >= beta) {
         return beta;
     }
     ///************* hash ****************
     char hashf = Hash::hashfALPHA;
-    u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
 
     _TcheckHash checkHashStruct;
 

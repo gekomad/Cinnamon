@@ -274,7 +274,7 @@ int SearchManager::getScore(int side, const bool trace) {
 #ifdef DEBUG_MODE
     N_PIECE = bitCount(getThread(0).getBitmap<WHITE>() | getThread(0).getBitmap<BLACK>());
 #endif
-    return getThread(0).getScore(side, N_PIECE, -_INFINITE, _INFINITE, trace);
+    return getThread(0).getScore(0xffffffffffffffffULL, side, N_PIECE, -_INFINITE, _INFINITE, trace);
 }
 
 void SearchManager::clearHash() {
