@@ -208,7 +208,7 @@ int Eval::evaluateBishop(const u64 enemies) {
     ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop));
 
     while (bishop) {
-        int pos = BITScanForward(bishop);
+        const int pos = BITScanForward(bishop);
         // 5. mobility
         u64 captured = getDiagCapture(pos, structureEval.allPieces, enemies);
         ASSERT(bitCount(captured) + getDiagShiftCount(pos, structureEval.allPieces) <
