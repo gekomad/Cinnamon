@@ -78,10 +78,8 @@ namespace _def {
 
     static inline int bitCount(u64 bits) {
         int count = 0;
-        while (bits) {
+        for (; bits; RESET_LSB(bits))
             count++;
-            RESET_LSB(bits);
-        }
         return count;
     }
 

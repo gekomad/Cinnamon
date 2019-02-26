@@ -47,19 +47,16 @@ void ChessBoard::makeZobristKey() {
     chessboard[ZOBRISTKEY_IDX] = 0;
 
     for (int u = 0; u < 12; u++) {
-        u64 c = chessboard[u];
-        while (c) {
-            int position = BITScanForward(c);
+        for (u64 c = chessboard[u]; c; RESET_LSB(c)){
+            const int position = BITScanForward(c);
             updateZobristKey(u, position);
-            RESET_LSB(c);
         }
     }
 
-    u64 x2 = chessboard[RIGHT_CASTLE_IDX];
-    while (x2) {
-        int position = BITScanForward(x2);
+
+    for (u64 x2 = chessboard[RIGHT_CASTLE_IDX]; x2; RESET_LSB(x2)){
+        const int position = BITScanForward(x2);
         updateZobristKey(RIGHT_CASTLE_IDX, position);//12
-        RESET_LSB(x2);
     }
 
     if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {

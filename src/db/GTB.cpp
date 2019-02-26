@@ -262,13 +262,11 @@ int GTB::getDtm(const int side, const bool doPrint, const _Tchessboard &chessboa
     int count = 0;
     //white
     for (int piece = 1; piece < 12; piece += 2) {
-        u64 b = chessboard[piece];
-        while (b) {
+        for (u64 b = chessboard[piece]; b; RESET_LSB(b)) {
             int position = BITScanForward(b);
             ws[count] = DECODE_POSITION[position];
             wp[count] = DECODE_PIECE[piece];
             count++;
-            RESET_LSB(b);
         }
     }
     ws[count] = tb_NOSQUARE;    /* it marks the end of list */
@@ -276,13 +274,11 @@ int GTB::getDtm(const int side, const bool doPrint, const _Tchessboard &chessboa
     //black
     count = 0;
     for (int piece = 0; piece < 12; piece += 2) {
-        u64 b = chessboard[piece];
-        while (b) {
+        for (u64 b = chessboard[piece]; b; RESET_LSB(b)) {
             int position = BITScanForward(b);
             bs[count] = DECODE_POSITION[position];
             bp[count] = DECODE_PIECE[piece];
             count++;
-            RESET_LSB(b);
         }
     }
     bs[count] = tb_NOSQUARE;

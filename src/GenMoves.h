@@ -147,8 +147,7 @@ public:
         constexpr int sh = side ? -7 : 7;
 
         u64 x = shiftForward<side, 7>(chessboard[side]) & enemies;
-
-        while (x) {
+        for (; x; RESET_LSB(x)) {
             const int o = BITScanForward(x);
             if ((side && o > 55) || (!side && o < 8)) {//PROMOTION
                 if (pushmove<PROMOTION_MOVE_MASK>(o + sh, o, side, QUEEN_BLACK + side, side)) {
@@ -168,12 +167,11 @@ public:
             } else if (pushmove<STANDARD_MOVE_MASK>(o + sh, o, side, NO_PROMOTION, side)) {
                 return true;
             }
-            RESET_LSB(x);
         }
         constexpr int sh2 = side ? -9 : 9;
         x = shiftForward<side, 9>(chessboard[side]) & enemies;
 
-        while (x) {
+        for (; x; RESET_LSB(x)) {
             const int o = BITScanForward(x);
             if ((side && o > 55) || (!side && o < 8)) {    //PROMOTION
                 if (pushmove<PROMOTION_MOVE_MASK>(o + sh2, o, side, QUEEN_BLACK + side, side)) {
@@ -193,16 +191,15 @@ public:
             } else if (pushmove<STANDARD_MOVE_MASK>(o + sh2, o, side, NO_PROMOTION, side)) {
                 return true;
             }
-            RESET_LSB(x);
         }
         //ENPASSANT
         if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
             x = ENPASSANT_MASK[side ^ 1][chessboard[ENPASSANT_IDX]] & chessboard[side];
-            while (x) {
+            for (; x; RESET_LSB(x)) {
                 const int o = BITScanForward(x);
                 pushmove<ENPASSANT_MOVE_MASK>(o, (side ? chessboard[ENPASSANT_IDX] + 8 : chessboard[ENPASSANT_IDX] - 8),
                                               side, NO_PROMOTION, side);
-                RESET_LSB(x);
+
             }
             updateZobristKey(13, chessboard[ENPASSANT_IDX]);
             chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
@@ -222,7 +219,7 @@ public:
         x = side ? x << 8 : x >> 8;
 
         x &= xallpieces;
-        while (x) {
+        for (; x; RESET_LSB(x)) {
             const int o = BITScanForward(x);
             ASSERT(getPieceAt(side, POW2[o + sh]) != SQUARE_FREE);
             ASSERT(getBitmap(side) & POW2[o + sh]);
@@ -236,7 +233,6 @@ public:
             } else {
                 pushmove<STANDARD_MOVE_MASK>(o + sh, o, side, NO_PROMOTION, side);
             }
-            RESET_LSB(x);
         }
     }
 
@@ -298,7 +294,7 @@ public:
                        (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
         attacked |=
                 RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
-        while (attacked) {
+        for (; attacked; RESET_LSB(attacked)) {
             const int pos = BITScanForward(attacked);
             const u64 b = *(s + pos) & allpieces;
 #ifdef DEBUG_MODE
@@ -308,7 +304,6 @@ public:
             if (!(b & (b - 1))) {
                 result |= b & friends;
             }
-            RESET_LSB(attacked);
         }
         return result;
     }
@@ -648,10 +643,9 @@ private:
         } else {
             x = (((x >> 8) & xallpieces) >> 8) & xallpieces;
         }
-        while (x) {
+        for (; x; RESET_LSB(x)) {
             const int o = BITScanForward(x);
             pushmove<STANDARD_MOVE_MASK>(o + (side ? -16 : 16), o, side, NO_PROMOTION, side);
-            RESET_LSB(x);
         }
     }
 
@@ -686,19 +680,17 @@ private:
         ///bishop queen
         u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
         u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
-        while (nuovo) {
+        for (; nuovo; RESET_LSB(nuovo)) {
             const int bound = BITScanForward(nuovo);
             attackers |= POW2[bound];
             if (exitOnFirst && attackers)return 1;
-            RESET_LSB(nuovo);
         }
         enemies = chessboard[ROOK_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
         nuovo = Bitboard::getRankFile(position, allpieces) & enemies;
-        while (nuovo) {
+        for (; nuovo; RESET_LSB(nuovo)) {
             const int bound = BITScanForward(nuovo);
             attackers |= POW2[bound];
             if (exitOnFirst && attackers)return 1;
-            RESET_LSB(nuovo);
         }
         return attackers;
     }

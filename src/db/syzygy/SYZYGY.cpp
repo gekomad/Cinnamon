@@ -143,10 +143,9 @@ u64 SYZYGY::decode(u64 c) {
             63, 62, 61, 60, 59, 58, 57, 56};
 
     u64 res = 0;
-    while (c) {
+    for (; c; RESET_LSB(c)) {
         int position = BITScanForward(c);
         res |= POW2[_decode[position]];
-        RESET_LSB(c);
     }
     return res;
 }

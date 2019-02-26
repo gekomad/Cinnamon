@@ -267,10 +267,9 @@ vector<u64>  Bitboard::combinations(const vector<u64> &elems, const int len) {
 
 vector<u64> Bitboard::getCombination(u64 elements) {
     vector<u64> res;
-    while (elements) {
-        int o = BITScanForward(elements);
+    for (; elements; RESET_LSB(elements)){
+        const int o = BITScanForward(elements);
         res.push_back(o);
-        RESET_LSB(elements);
     }
     return getCombination(res);
 }

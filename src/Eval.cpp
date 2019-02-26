@@ -33,17 +33,15 @@ Eval::~Eval() {
 
 template<int side>
 void Eval::openFile() {
-    u64 side_rooks = chessboard[ROOK_BLACK + side];
     structureEval.openFile = 0;
     structureEval.semiOpenFile[side] = 0;
-    while (side_rooks) {
-        int o = BITScanForward(side_rooks);
-        if (!(FILE_[o] & (chessboard[WHITE] | chessboard[BLACK]))) {
+
+    for (u64 side_rooks = chessboard[ROOK_BLACK + side]; side_rooks; RESET_LSB(side_rooks)) {
+        const int o = BITScanForward(side_rooks);
+        if (!(FILE_[o] & (chessboard[WHITE] | chessboard[BLACK])))
             structureEval.openFile |= FILE_[o];
-        } else if (FILE_[o] & chessboard[side ^ 1]) {
+        else if (FILE_[o] & chessboard[side ^ 1])
             structureEval.semiOpenFile[side] |= FILE_[o];
-        }
-        RESET_LSB(side_rooks);
     }
 }
 
@@ -121,9 +119,7 @@ int Eval::evaluatePawn() {
         ADD(SCORE_DEBUG.PAWN_IN_8TH[side], PAWN_IN_8TH * (bitCount(pawnsIn8)));
     }
 
-
-    u64 p = ped_friends;
-    while (p) {
+    for (u64 p = ped_friends; p; RESET_LSB(p)){
         int o = BITScanForward(p);
         u64 pos = POW2[o];
 
@@ -164,7 +160,6 @@ int Eval::evaluatePawn() {
             ADD(SCORE_DEBUG.PAWN_PASSED[side], PAWN_PASSED[side][o]);
             result += PAWN_PASSED[side][o];
         }
-        RESET_LSB(p);
     }
     return result;
 }
@@ -206,7 +201,7 @@ int Eval::evaluateBishop(const u64 enemies) {
     result -= UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop);
     ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop));
 
-    while (bishop) {
+    for (; bishop; RESET_LSB(bishop)){
         int o = BITScanForward(bishop);
         // 5. mobility
         u64 captured = getDiagCapture(o, structureEval.allPieces, enemies);
@@ -227,7 +222,6 @@ int Eval::evaluateBishop(const u64 enemies) {
                 result += OPEN_FILE;
             }
         }
-        RESET_LSB(bishop);
     }
     return result;
 }
@@ -260,8 +254,8 @@ int Eval::evaluateQueen(const u64 enemies) {
             -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & queen));
     }
 
-    while (queen) {
-        int o = BITScanForward(queen);
+    for (; queen; RESET_LSB(queen)){
+        const int o = BITScanForward(queen);
         ASSERT(structureEval.allPieces == structureEval.allPieces);
         // 3. mobility
         result += MOB_QUEEN[phase][getMobilityQueen(o, enemies, structureEval.allPieces)];
@@ -284,8 +278,7 @@ int Eval::evaluateQueen(const u64 enemies) {
             ADD(SCORE_DEBUG.BISHOP_ON_QUEEN[side], BISHOP_ON_QUEEN);
             result += BISHOP_ON_QUEEN;
         }
-        RESET_LSB(queen);
-    };
+    }
     return result;
 }
 
@@ -363,15 +356,14 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
         ADD(SCORE_DEBUG.KING_SECURITY_KNIGHT[side ^ 1],
             -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & knight));
     }
-    while (knight) {
+    for (; knight; RESET_LSB(knight)){
         int pos = BITScanForward(knight);
 
         // 5. mobility
         ASSERT(bitCount(notMyBits & KNIGHT_MASK[pos]) < (int) (sizeof(MOB_KNIGHT) / sizeof(int)));
         result += MOB_KNIGHT[bitCount(notMyBits & KNIGHT_MASK[pos])];
         ADD(SCORE_DEBUG.MOB_KNIGHT[side], MOB_KNIGHT[bitCount(notMyBits & KNIGHT_MASK[pos])]);
-        RESET_LSB(knight);
-    };
+    }
     return result;
 }
 
@@ -428,9 +420,8 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
     }
     int firstRook = -1;
     int secondRook = -1;
-    while (x) {
-        int o = BITScanForward(x);
-
+    for (; x; RESET_LSB(x)){
+        const int o = BITScanForward(x);
         //mobility
         ASSERT(getMobilityRook(o, enemies, friends) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
         result += MOB_ROOK[phase][getMobilityRook(o, enemies, friends)];
@@ -455,8 +446,8 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
             ADD(SCORE_DEBUG.ROOK_OPEN_FILE[side], OPEN_FILE);
             result += OPEN_FILE;
         }
-        RESET_LSB(x);
-    };
+    }
+
     if (firstRook != -1 && secondRook != -1) {
         if ((!(LINK_ROOKS[firstRook][secondRook] & structureEval.allPieces))) {
             ADD(SCORE_DEBUG.CONNECTED_ROOKS[side], CONNECTED_ROOKS);
