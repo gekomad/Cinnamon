@@ -33,7 +33,7 @@ public:
 
     virtual ~Eval();
 
-    int getScore(const int side, const int N_PIECE, const int alpha, const int beta, const bool trace);
+    short getScore(const u64 key, const int side, const int N_PIECE, const int alpha, const int beta, const bool trace);
 
     template<int side>
     int lazyEval() {
@@ -129,6 +129,16 @@ protected:
 #endif
 
 private:
+    static constexpr int hashSize = 65536;
+    static constexpr u64 keyMask = 0xffffffffffff0000ULL;
+    static constexpr u64 valueMask = 0xffffULL;
+    static constexpr short noHashValue = (short) 0xffff;
+
+    static u64 *evalHash;
+
+    inline void storeHashValue(const u64 key, const short value);
+
+    inline short getHashValue(const u64 key) const;
 
     enum _Tphase {
         OPEN, MIDDLE, END
