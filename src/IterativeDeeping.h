@@ -23,7 +23,7 @@
 #include "util/String.h"
 #include "SearchManager.h"
 #include "threadPool/Thread.h"
-#include "OpenBook.h"
+#include "db/OpenBook.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -41,32 +41,31 @@ public:
 
     void run();
 
-    void endRun() { };
+    void endRun() {};
 
-    bool getPonderEnabled();
+    bool getPonderEnabled() const;
 
-    bool getGtbAvailable();
+    bool getGtbAvailable() const;
 
-    bool getUseBook();
+    bool getUseBook() const;
 
-    void setUseBook(bool b);
+    void setUseBook(const bool b);
 
-    void enablePonder(bool);
+    void enablePonder(const bool);
 
-    void setMaxDepth(int);
+    void setMaxDepth(const int);
 
-    void loadBook(string);
+    void loadBook(const string);
 
     bool setParameter(String param, int value);
 
-    int loadFen(string fen = "");
+    int loadFen(const string fen = "");
 
-    bool setNthread(int i);
+    bool setNthread(const int i);
 
     int getRunning() const {
         return running;
     }
-
 
     const string &getBestmove() const {
         return bestmove;
@@ -76,6 +75,7 @@ private:
 
 #ifdef DEBUG_MODE
     //for statistics
+
     atomic_int checkSmp2;
 #endif
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
@@ -83,8 +83,12 @@ private:
     string bestmove;
 
     volatile long running;
-    Tablebase *tablebase = nullptr;
     OpenBook *openBook = nullptr;
     bool ponderEnabled;
+
+    string getSYZYGYbestmove(const int side) {
+        return searchManager.getSYZYGYbestmove(side);
+    }
+
 };
 

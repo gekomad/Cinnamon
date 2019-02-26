@@ -19,7 +19,6 @@
 #include "PerftThread.h"
 #include "Perft.h"
 
-Spinlock PerftThread::SPINLOCK_HASH;
 Spinlock PerftThread::spinlockPrint;
 
 PerftThread::PerftThread() { perftMode = true; }
@@ -34,8 +33,8 @@ void PerftThread::setParam(const string &fen1, const int from1, const int to1, _
 
 unsigned PerftThread::perft(const string &fen, const int depth) {
     loadFen(fen);
-    if (getSide()) return search<WHITE, false, false>(depth);
-    return search<BLACK, false, false>(depth);
+    if (getSide()) return search<WHITE, false>(depth);
+    return search<BLACK, false>(depth);
 }
 
 vector<string> PerftThread::getSuccessorsFen(const string &fen1, const int depth) {
@@ -85,11 +84,10 @@ vector<string> PerftThread::getSuccessorsFen(const int depthx) {
 }
 
 
-template<int side, bool useHash, bool smp>
+template<int side, bool useHash>
 u64 PerftThread::search(const int depthx) {
     checkWait();
     if (depthx == 0) {
-        partialTot++;
         return 1;
     }
     u64 zobristKeyR;
@@ -98,15 +96,13 @@ u64 PerftThread::search(const int depthx) {
 
     if (useHash) {
         zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
-        if (smp)SPINLOCK_HASH.lock();
         phashe = &(tPerftRes->hash[depthx][zobristKeyR % tPerftRes->sizeAtDepth[depthx]]);
-        if (zobristKeyR == phashe->key) {
+
+        if ((zobristKeyR == (phashe->key ^ phashe->nMoves))) {
+
             partialTot += phashe->nMoves;
-            u64 r = phashe->nMoves;
-            if (smp)SPINLOCK_HASH.unlock();
-            return r;
+            return phashe->nMoves;
         }
-        if (smp)SPINLOCK_HASH.unlock();
     }
     int listcount;
     _Tmove *move;
@@ -125,15 +121,13 @@ u64 PerftThread::search(const int depthx) {
         move = getMove(ii);
         u64 keyold = chessboard[ZOBRISTKEY_IDX];
         makemove(move, false, false);
-        n_perft += search<side ^ 1, useHash, smp>(depthx - 1);
-        takeback(move, keyold, false);
+        n_perft += search<side ^ 1, useHash>(depthx - 1);
+        takeback(move, keyold,false);
     }
     decListId();
     if (useHash) {
-        if (smp) SPINLOCK_HASH.lock();
-        phashe->key = zobristKeyR;
+        phashe->key = (zobristKeyR ^ n_perft);
         phashe->nMoves = n_perft;
-        if (smp) SPINLOCK_HASH.unlock();
     }
     return n_perft;
 }
@@ -147,36 +141,27 @@ void PerftThread::run() {
     _Tmove *move;
     incListId();
     resetList();
-    u64 friends = chessboard[SIDETOMOVE_IDX] ? getBitmap<WHITE>() : getBitmap<BLACK>();
-    u64 enemies = chessboard[SIDETOMOVE_IDX] ? getBitmap<BLACK>() : getBitmap<WHITE>();
+    const u64 friends = chessboard[SIDETOMOVE_IDX] ? getBitmap<WHITE>() : getBitmap<BLACK>();
+    const u64 enemies = chessboard[SIDETOMOVE_IDX] ? getBitmap<BLACK>() : getBitmap<WHITE>();
     generateCaptures(chessboard[SIDETOMOVE_IDX], enemies, friends);
     generateMoves(chessboard[SIDETOMOVE_IDX], friends | enemies);
 
     makeZobristKey();
-    u64 keyold = chessboard[ZOBRISTKEY_IDX];
+    const u64 keyold = chessboard[ZOBRISTKEY_IDX];
     for (int ii = from; ii <= to - 1; ii++) {
         u64 n_perft = 0;
         move = getMove(ii);
         makemove(move, false, false);
-        bool fhash = tPerftRes->hash != nullptr ? true : false;
+        bool fhash = tPerftRes->hash != nullptr;
         bool side = (chessboard[SIDETOMOVE_IDX] ^ 1);
-        bool smp = tPerftRes->nCpu == 1 ? false : true;
 
         if (fhash) {
-            if (side == WHITE) {
-                n_perft = smp ? search<WHITE, USE_HASH_YES, true>(tPerftRes->depth - 1) : search<WHITE, USE_HASH_YES, false>(tPerftRes->depth - 1);
+            n_perft = side == WHITE ? search<WHITE, USE_HASH_YES>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_YES>(tPerftRes->depth - 1);
             } else {
-                n_perft = smp ? search<BLACK, USE_HASH_YES, true>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_YES, false>(tPerftRes->depth - 1);
-            }
-        } else {//no hash
-            if (side == WHITE) {
-                n_perft = smp ? search<WHITE, USE_HASH_NO, true>(tPerftRes->depth - 1) : search<WHITE, USE_HASH_NO, false>(tPerftRes->depth - 1);
-            } else {
-                n_perft = smp ? search<BLACK, USE_HASH_NO, true>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_NO, false>(tPerftRes->depth - 1);
-            }
+            n_perft = side == WHITE ? search<WHITE, USE_HASH_NO>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_NO>(tPerftRes->depth - 1);
         }
 
-        takeback(move, keyold, false);
+        takeback(move, keyold,false);
         char y;
         char x = FEN_PIECE[chessboard[SIDETOMOVE_IDX] ? getPieceAt<WHITE>(POW2[move->from]) : getPieceAt<BLACK>(POW2[move->from])];
         if (x == 'p' || x == 'P') {
@@ -189,7 +174,7 @@ void PerftThread::run() {
         }
 
         if (fhash)spinlockPrint.lock();
-        cout << "\n";
+        cout << endl;
         string h;
         if ((decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
             //castle

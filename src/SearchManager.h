@@ -37,9 +37,19 @@ public:
 
     ~SearchManager();
 
-    Tablebase &getGtb();
+    GTB &getGtb() const;
 
-    Tablebase &createGtb();
+    GTB &createGtb();
+
+    SYZYGY &createSYZYGY(string path) {
+        SYZYGY &syzygy = SYZYGY::getInstance();
+        syzygy.setPath(path);
+        for (Search *s:getPool()) {
+            s->setSYZYGY(syzygy);
+        }
+        return syzygy;
+    }
+
 
     int loadFen(string fen = "");
 
@@ -101,13 +111,19 @@ public:
 
     void setSide(bool i);
 
-    bool getGtbAvailable();
+    bool getGtbAvailable() const;
+
+    string getSYZYGYbestmove(const int side) const;
+
+    int getSYZYGYdtm(const int side) const;
 
     int getMoveFromSan(String string, _Tmove *ptr);
 
     int printDtm();
 
-    void setGtb(Tablebase &tablebase);
+    void setGtb(GTB &tablebase);
+
+    void setSYZYGY(SYZYGY &tablebase);
 
     void pushStackMove();
 
@@ -121,8 +137,18 @@ public:
 
     bool setNthread(int);
 
-#ifdef DEBUG_MODE
+#if defined(FULL_TEST)
+    u64 getBitmap(const int n, const int side) const {
+        return getPool()[n]->getBitmap(side);
+    }
 
+    template<int side>
+    u64 getPinned(const u64 allpieces, const u64 friends, const int kingPosition) const {
+        return getThread(0).getPinned<side>(allpieces, friends, kingPosition);
+    }
+#endif
+
+#ifdef DEBUG_MODE
 
     unsigned getCumulativeMovesCount() {
         unsigned i = 0;

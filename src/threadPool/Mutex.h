@@ -20,8 +20,11 @@
 
 
 #if defined(_WIN32)
+//mutex on windows is slow
+//https://msdn.microsoft.com/en-us/library/ms682530%28VS.85%29.aspx
 
 #include <windows.h>
+
 
 class Mutex {
 public:

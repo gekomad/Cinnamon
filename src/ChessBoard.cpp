@@ -23,7 +23,7 @@ ChessBoard::ChessBoard() {
     memset(&structureEval, 0, sizeof(_Tboard));
     if ((chessboard[SIDETOMOVE_IDX] = loadFen(fenString)) == 2) {
         fatal("Bad FEN position format ", fenString);
-        std::_Exit(1);
+        std::exit(1);
     }
 }
 
@@ -45,6 +45,7 @@ int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
 
 void ChessBoard::makeZobristKey() {
     chessboard[ZOBRISTKEY_IDX] = 0;
+
     for (int u = 0; u < 12; u++) {
         u64 c = chessboard[u];
         while (c) {
@@ -53,15 +54,20 @@ void ChessBoard::makeZobristKey() {
             RESET_LSB(c);
         }
     }
-    if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
-        updateZobristKey(ENPASSANT_IDX, chessboard[ENPASSANT_IDX]);
-    }
+
     u64 x2 = chessboard[RIGHT_CASTLE_IDX];
     while (x2) {
         int position = BITScanForward(x2);
-        updateZobristKey(14, position);
+        updateZobristKey(RIGHT_CASTLE_IDX, position);//12
         RESET_LSB(x2);
     }
+
+    if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
+        updateZobristKey(ENPASSANT_IDX, chessboard[ENPASSANT_IDX]);//13
+    }
+
+    updateZobristKey(SIDETOMOVE_IDX, getSide()); //14
+
 }
 
 
@@ -86,7 +92,8 @@ void ChessBoard::display() {
             cout << "\n   ----+---+---+---+---+---+---+----\n";
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
-        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(POW2[63 - t])]) == '-' ? ' ' : x;
+        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(
+                POW2[63 - t])]) == '-' ? ' ' : x;
         x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     };
@@ -159,7 +166,8 @@ string ChessBoard::boardToFen() const {
         fen.append(" -");
     } else {
         fen.append(" ");
-        chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(BOARD[chessboard[ENPASSANT_IDX] - 8]);
+        chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(
+                BOARD[chessboard[ENPASSANT_IDX] - 8]);
     }
     fen.append(" 0 1");
     return fen;
@@ -171,7 +179,7 @@ char ChessBoard::decodeBoard(string a) {
             return i;
         }
     }
-    cout << "\n" << a << endl;
+    error(a);
     ASSERT(0);
     return -1;
 }

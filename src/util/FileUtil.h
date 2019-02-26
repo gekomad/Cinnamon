@@ -25,7 +25,7 @@ using namespace std;
 
 class FileUtil {
 public:
-    static bool fileExists(string filename) {
+    static bool fileExists(const string &filename) {
         ifstream inData;
         inData.open(filename);
         if (!inData) {

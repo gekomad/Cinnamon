@@ -50,8 +50,8 @@ int isvalid(char *fen) {
 int main(int argc, char **argv) {
     cout << NAME;
     cout << " UCI by Giuseppe Cannella\n";
-    cout << "version compiled " << __DATE__ << " with emscripten - " << __VERSION__ << "\n";
-    cout << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\n";
+    cout << "version compiled " << __DATE__ << " with emscripten - " << __VERSION__ << endl;
+    cout << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>" << endl << endl;
     u = new Uci();
     return 0;
 }
