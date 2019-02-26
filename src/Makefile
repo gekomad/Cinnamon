@@ -18,12 +18,11 @@ COMP=g++
 
 ifndef SystemRoot
 	# *nix
-	LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
-
 	ifeq ($(shell uname -s),Darwin)
 		LIBS= -static-libgcc -static-libstdc++ -lpthread
 		OS=OSX
 	else
+	    LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -static
 		PROFILE_USE_THREAD=" -fprofile-correction -fprofile-use "		
 		OS=Linux
 	endif
@@ -42,7 +41,7 @@ else
 	STRIP=strip.exe
 endif
 
-CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops -static "
+CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
 
 help:
 
