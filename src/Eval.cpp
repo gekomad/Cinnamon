@@ -177,6 +177,7 @@ int Eval::evaluatePawn() {
  * 4. undevelop - substracts UNDEVELOPED_BISHOP for each undeveloped bishop
  * 5. mobility add MOB_BISHOP[phase][???]
  * pinned ?
+ * 7. outposts
  */
 template<int side, Eval::_Tphase phase>
 int Eval::evaluateBishop(const u64 enemies) {
@@ -207,24 +208,42 @@ int Eval::evaluateBishop(const u64 enemies) {
     ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop));
 
     while (bishop) {
-        int o = BITScanForward(bishop);
+        int pos = BITScanForward(bishop);
         // 5. mobility
-        u64 captured = getDiagCapture(o, structureEval.allPieces, enemies);
-        ASSERT(bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces) <
+        u64 captured = getDiagCapture(pos, structureEval.allPieces, enemies);
+        ASSERT(bitCount(captured) + getDiagShiftCount(pos, structureEval.allPieces) <
                (int) (sizeof(MOB_BISHOP) / sizeof(int)));
-        result += MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces)];
+        result += MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(pos, structureEval.allPieces)];
         ADD(SCORE_DEBUG.MOB_BISHOP[side],
-            MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces)]);
+            MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(pos, structureEval.allPieces)]);
 
         // 6.
         if (phase != OPEN) {
-            if (BIG_DIAGONAL & POW2[o] && !(DIAGONAL[o] & structureEval.allPieces)) { //TODO sbagliato
+            if (BIG_DIAGONAL & POW2[pos] && !(DIAGONAL[pos] & structureEval.allPieces)) { //TODO sbagliato
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
-            if (BIG_ANTIDIAGONAL & POW2[o] && !(ANTIDIAGONAL[o] & structureEval.allPieces)) {//TODO sbagliato
+            if (BIG_ANTIDIAGONAL & POW2[pos] && !(ANTIDIAGONAL[pos] & structureEval.allPieces)) {//TODO sbagliato
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
+            }
+        }
+
+        // 7. outposts
+        //bishop in center
+        auto p = BISHOP_OUTPOST[side][pos];
+        constexpr int xside = side ^1;
+        //enemy pawn doesn't attack bishop
+        if (p && !(PAWN_FORK_MASK[side ^ 1][pos] & chessboard[side ^ 1])) {
+            //friend paws defends bishop
+            if (PAWN_FORK_MASK[side ^ 1][pos] & chessboard[side]) {
+                result += p;
+                if (!(chessboard[KNIGHT_BLACK + xside]) &&
+                    !(chessboard[BISHOP_BLACK + xside] & ChessBoard::colors(pos))) {
+//                    display();
+//                    cout <<"side "<<side<<endl;
+                    result += p;
+                }
             }
         }
         RESET_LSB(bishop);
