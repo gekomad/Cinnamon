@@ -503,7 +503,7 @@ int Eval::evaluateKing(int side, u64 squares) {
 }
 
 void Eval::storeHashValue(const u64 key, const short value) {
-    evalHash[key % hashSize] = (key & keyMask) | (value & valueMask);
+    evalHash[key % hashSize] = (key & keyMask) | (value & valueMask); //TODO lockless
     ASSERT(value == getHashValue(key));
 }
 
