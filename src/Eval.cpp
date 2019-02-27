@@ -119,7 +119,7 @@ int Eval::evaluatePawn() {
         ADD(SCORE_DEBUG.PAWN_IN_8TH[side], PAWN_IN_8TH * (bitCount(pawnsIn8)));
     }
 
-    for (u64 p = ped_friends; p; RESET_LSB(p)){
+    for (u64 p = ped_friends; p; RESET_LSB(p)) {
         int o = BITScanForward(p);
         u64 pos = POW2[o];
 
@@ -171,6 +171,7 @@ int Eval::evaluatePawn() {
  * 3 *king security* - in OPEN phase substracts at kingSecurityDistance ENEMY_NEAR_KING for each bishop close to enmey king
  * 4. undevelop - substracts UNDEVELOPED_BISHOP for each undeveloped bishop
  * 5. mobility add MOB_BISHOP[phase][???]
+ * 6. if only one bishop and pawns on same square color substracts n_pawns * BISHOP_PAWN_ON_SAME_COLOR
  * pinned ?
  */
 template<int side, Eval::_Tphase phase>
@@ -182,11 +183,17 @@ int Eval::evaluateBishop(const u64 enemies) {
     if (!bishop) return 0;
 
     int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
+    const int nBishop = bitCount(bishop);
 
-    // 2.
-    if (phase != OPEN && bitCount(bishop) > 1) {
-        result += BONUS2BISHOP;
-        ADD(SCORE_DEBUG.BONUS2BISHOP[side], BONUS2BISHOP);
+    // 6.
+    if (nBishop == 1) {
+        result -= BISHOP_PAWN_ON_SAME_COLOR * bitCount(chessboard[side] & ChessBoard::colors(BITScanForward(bishop)));
+    } else {
+        // 2.
+        if (phase != OPEN && nBishop > 1) {
+            result += BONUS2BISHOP;
+            ADD(SCORE_DEBUG.BONUS2BISHOP[side], BONUS2BISHOP);
+        }
     }
 
     // 3. *king security*
@@ -198,11 +205,13 @@ int Eval::evaluateBishop(const u64 enemies) {
     }
 
     // 4. undevelop
-    result -= UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop);
-    ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop));
+    if (phase != END) {
+        result -= UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop);
+        ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop));
+    }
 
-    for (; bishop; RESET_LSB(bishop)){
-        int o = BITScanForward(bishop);
+    for (; bishop; RESET_LSB(bishop)) {
+        const int o = BITScanForward(bishop);
         // 5. mobility
         u64 captured = getDiagCapture(o, structureEval.allPieces, enemies);
         ASSERT(bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces) <
@@ -254,7 +263,7 @@ int Eval::evaluateQueen(const u64 enemies) {
             -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & queen));
     }
 
-    for (; queen; RESET_LSB(queen)){
+    for (; queen; RESET_LSB(queen)) {
         const int o = BITScanForward(queen);
         ASSERT(structureEval.allPieces == structureEval.allPieces);
         // 3. mobility
@@ -356,7 +365,7 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
         ADD(SCORE_DEBUG.KING_SECURITY_KNIGHT[side ^ 1],
             -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & knight));
     }
-    for (; knight; RESET_LSB(knight)){
+    for (; knight; RESET_LSB(knight)) {
         int pos = BITScanForward(knight);
 
         // 5. mobility
@@ -420,7 +429,7 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
     }
     int firstRook = -1;
     int secondRook = -1;
-    for (; x; RESET_LSB(x)){
+    for (; x; RESET_LSB(x)) {
         const int o = BITScanForward(x);
         //mobility
         ASSERT(getMobilityRook(o, enemies, friends) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
