@@ -73,16 +73,16 @@ int Eval::evaluatePawn() {
     structureEval.isolated[side] = 0;
 
     int result = 0;
-
-    if (bitCount(chessboard[side ^ 1]) == 8) {
+    constexpr int xside = side ^1;
+    if (bitCount(chessboard[xside]) == 8) {
         result -= ENEMIES_PAWNS_ALL;
         ADD(SCORE_DEBUG.ENEMIES_PAWNS_ALL[side], -ENEMIES_PAWNS_ALL);
     }
 
     // 4.
-    result += ATTACK_KING * bitCount(ped_friends & structureEval.kingAttackers[side ^ 1]);
+    result += ATTACK_KING * bitCount(ped_friends & structureEval.kingAttackers[xside]);
     ADD(SCORE_DEBUG.ATTACK_KING_PAWN[side],
-        ATTACK_KING * bitCount(ped_friends & structureEval.kingAttackers[side ^ 1]));
+        ATTACK_KING * bitCount(ped_friends & structureEval.kingAttackers[xside]));
 
 // 5. space
     if (phase == OPEN) {
@@ -101,7 +101,7 @@ int Eval::evaluatePawn() {
                 FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & ped_friends);
 
         structureEval.kingSecurityDistance[side] -=
-                ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & ped_friends);
+                ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[xside]] & ped_friends);
     }
 
     // 8.  pawn in 8th
@@ -112,28 +112,28 @@ int Eval::evaluatePawn() {
 
         // TODO se casa in 8 non è attaccabile add bonus
         const u64 pawnsIn8 = (shiftForward<side, 8>(pawnsIn7) & (~structureEval.allPieces) ||
-                              structureEval.allPiecesSide[side ^ 1] &
+                              structureEval.allPiecesSide[xside] &
                               (shiftForward<side, 7>(pawnsIn7) |
                                shiftForward<side, 9>(pawnsIn7)));
         result += PAWN_IN_8TH * (bitCount(pawnsIn8));
         ADD(SCORE_DEBUG.PAWN_IN_8TH[side], PAWN_IN_8TH * (bitCount(pawnsIn8)));
     }
 
-    for (u64 p = ped_friends; p; RESET_LSB(p)){
-        int o = BITScanForward(p);
+    for (u64 p = ped_friends; p; RESET_LSB(p)) {
+        const int o = BITScanForward(p);
         u64 pos = POW2[o];
 
         /// blocked
-        result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[side ^ 1])) &&
+        result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[xside])) &&
                   (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? PAWN_BLOCKED : 0;
-        ADD(SCORE_DEBUG.PAWN_BLOCKED[side], (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[side ^ 1])) &&
+        ADD(SCORE_DEBUG.PAWN_BLOCKED[side], (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[xside])) &&
                                             (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? -PAWN_BLOCKED
                                                                                                      : 0);
         /// unprotected
         if (!(ped_friends & PAWN_PROTECTED_MASK[side][o])) {
             result -= UNPROTECTED_PAWNS;
             ADD(SCORE_DEBUG.UNPROTECTED_PAWNS[side], -UNPROTECTED_PAWNS);
-        };
+        }
         /// isolated
         if (!(ped_friends & PAWN_ISOLATED_MASK[o])) {
             result -= PAWN_ISOLATED;
@@ -156,7 +156,7 @@ int Eval::evaluatePawn() {
             result -= BACKWARD_PAWN;
         }
         /// passed
-        if (!(chessboard[side ^ 1] & PAWN_PASSED_MASK[side][o])) {
+        if (!(chessboard[xside] & PAWN_PASSED_MASK[side][o])) {
             ADD(SCORE_DEBUG.PAWN_PASSED[side], PAWN_PASSED[side][o]);
             result += PAWN_PASSED[side][o];
         }
@@ -198,11 +198,13 @@ int Eval::evaluateBishop(const u64 enemies) {
     }
 
     // 4. undevelop
-    result -= UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop);
-    ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop));
+    if (phase != END) {
+        result -= UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop);
+        ADD(SCORE_DEBUG.UNDEVELOPED_BISHOP[side], UNDEVELOPED_BISHOP * bitCount(BISHOP_HOME[side] & bishop));
+    }
 
-    for (; bishop; RESET_LSB(bishop)){
-        int o = BITScanForward(bishop);
+    for (; bishop; RESET_LSB(bishop)) {
+        const int o = BITScanForward(bishop);
         // 5. mobility
         u64 captured = getDiagCapture(o, structureEval.allPieces, enemies);
         ASSERT(bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces) <
@@ -254,7 +256,7 @@ int Eval::evaluateQueen(const u64 enemies) {
             -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & queen));
     }
 
-    for (; queen; RESET_LSB(queen)){
+    for (; queen; RESET_LSB(queen)) {
         const int o = BITScanForward(queen);
         ASSERT(structureEval.allPieces == structureEval.allPieces);
         // 3. mobility
@@ -356,8 +358,8 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
         ADD(SCORE_DEBUG.KING_SECURITY_KNIGHT[side ^ 1],
             -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & knight));
     }
-    for (; knight; RESET_LSB(knight)){
-        int pos = BITScanForward(knight);
+    for (; knight; RESET_LSB(knight)) {
+        const int pos = BITScanForward(knight);
 
         // 5. mobility
         ASSERT(bitCount(notMyBits & KNIGHT_MASK[pos]) < (int) (sizeof(MOB_KNIGHT) / sizeof(int)));
@@ -374,7 +376,7 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
  * 2. // pinned
  * 3. in 7th - add ROOK_7TH_RANK for each rook in 7th
  * 4. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING for each rook near to king and substracts ENEMY_NEAR_KING for each rook near to enemy king
- *
+ * 5. add OPEN_FILE if the rook is on open file
 */
 template<int side, Eval::_Tphase phase>
 int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
@@ -420,7 +422,7 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
     }
     int firstRook = -1;
     int secondRook = -1;
-    for (; x; RESET_LSB(x)){
+    for (; x; RESET_LSB(x)) {
         const int o = BITScanForward(x);
         //mobility
         ASSERT(getMobilityRook(o, enemies, friends) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
@@ -438,6 +440,8 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
                 result -= ROOK_BLOCKED;
             };
         }
+
+        // .5
         if (!(chessboard[side] & FILE_[o])) {
             ADD(SCORE_DEBUG.ROOK_OPEN_FILE[side], OPEN_FILE);
             result += OPEN_FILE;
