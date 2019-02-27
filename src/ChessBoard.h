@@ -110,6 +110,11 @@ public:
 
 #endif
 
+    static u64 colors(int pos) {
+        if (POW2[pos] & 0x55aa55aa55aa55aaULL)return 0x55aa55aa55aa55aaULL;
+        return 0xaa55aa55aa55aa55ULL;
+    }
+
     template<int side>
     u64 getBitmap() const {
         return chessboard[PAWN_BLACK + side] | chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] |
