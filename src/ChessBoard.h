@@ -205,14 +205,11 @@ protected:
     static constexpr u64 G2bit = 0x200ULL;
     static constexpr u64 A1bit = 0x80ULL;
     static constexpr u64 H1bit = 0x1ULL;
-    static constexpr u64 F1G1bit = 0x6ULL;
-    static constexpr u64 H1H2G1bit = 0x103ULL;
-    static constexpr u64 C1B1bit = 0x60ULL;
-    static constexpr u64 A1A2B1bit = 0x80c0ULL;
-    static constexpr u64 F8G8bit = 0x600000000000000ULL;
-    static constexpr u64 H8H7G8bit = 0x301000000000000ULL;
-    static constexpr u64 C8B8bit = 0x6000000000000000ULL;
-    static constexpr u64 A8A7B8bit = 0xc080000000000000ULL;
+    static constexpr u64 F1G1bit[2] = {0x600000000000000ULL,0x6ULL};
+    static constexpr u64 H1H2G1bit[2] = {0x301000000000000ULL,0x103ULL};
+    static constexpr u64 C1B1bit[2] = {0x6000000000000000ULL,0x60ULL};
+    static constexpr u64 A1A2B1bit[2] = {0xc080000000000000ULL,0x80c0ULL};
+
     static constexpr u64 C6A6bit = 0xa00000000000ULL;
     static constexpr u64 F6H6bit = 0x50000000000ULL;
     static constexpr u64 A7C7bit = 0xa0000000000000ULL;
