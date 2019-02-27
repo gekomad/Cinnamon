@@ -17,6 +17,7 @@
 */
 
 #include "Eval.h"
+#include "ChessBoard.h"
 
 using namespace _eval;
 u64 *Eval::evalHash;
@@ -94,7 +95,6 @@ int Eval::evaluatePawn() {
 //        result -= 20 * bitCount(structureEval.pinned[side] & ped_friends);
 //    }
 
-
     // 7.
     if (phase != OPEN) {
         structureEval.kingSecurityDistance[side] +=
@@ -119,21 +119,22 @@ int Eval::evaluatePawn() {
         ADD(SCORE_DEBUG.PAWN_IN_8TH[side], PAWN_IN_8TH * (bitCount(pawnsIn8)));
     }
 
+    // .9 unprotected
+    const auto unprotected = (~(ped_friends & structureEval.pawnDefend[side]) & ped_friends);
+    result -= bitCount(unprotected) * UNPROTECTED_PAWNS;
+    ADD(SCORE_DEBUG.UNPROTECTED_PAWNS[side], -bitCount(unprotected) * UNPROTECTED_PAWNS);
+
     for (u64 p = ped_friends; p; RESET_LSB(p)) {
         const int o = BITScanForward(p);
         u64 pos = POW2[o];
 
         /// blocked
-        result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[xside])) &&
-                  (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? PAWN_BLOCKED : 0;
-        ADD(SCORE_DEBUG.PAWN_BLOCKED[side], (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[xside])) &&
-                                            (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? -PAWN_BLOCKED
-                                                                                                     : 0);
-        /// unprotected
-        if (!(ped_friends & PAWN_PROTECTED_MASK[side][o])) {
-            result -= UNPROTECTED_PAWNS;
-            ADD(SCORE_DEBUG.UNPROTECTED_PAWNS[side], -UNPROTECTED_PAWNS);
-        }
+        const auto mobPawn = (PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[xside]) &&
+                             (structureEval.allPieces & (shiftForward<side, 8>(pos)));
+        structureEval.attack[side] |= mobPawn;
+        result -= (!mobPawn) ? PAWN_BLOCKED : 0;
+        ADD(SCORE_DEBUG.PAWN_BLOCKED[side], (!mobPawn ? -PAWN_BLOCKED : 0));
+
         /// isolated
         if (!(ped_friends & PAWN_ISOLATED_MASK[o])) {
             result -= PAWN_ISOLATED;
@@ -141,7 +142,7 @@ int Eval::evaluatePawn() {
             structureEval.isolated[side] |= pos;
         }
         /// doubled
-        if (NOTPOW2[o] & FILE_[o] & ped_friends) {
+        if (shiftForward<side, 8>(pos) & ped_friends) {
             result -= DOUBLED_PAWNS;
             ADD(SCORE_DEBUG.DOUBLED_PAWNS[side], -DOUBLED_PAWNS);
             /// doubled and isolated
@@ -155,11 +156,7 @@ int Eval::evaluatePawn() {
             ADD(SCORE_DEBUG.BACKWARD_PAWN[side], -BACKWARD_PAWN);
             result -= BACKWARD_PAWN;
         }
-        /// passed
-        if (!(chessboard[xside] & PAWN_PASSED_MASK[side][o])) {
-            ADD(SCORE_DEBUG.PAWN_PASSED[side], PAWN_PASSED[side][o]);
-            result += PAWN_PASSED[side][o];
-        }
+
     }
     return result;
 }
@@ -207,11 +204,12 @@ int Eval::evaluateBishop(const u64 enemies) {
         const int o = BITScanForward(bishop);
         // 5. mobility
         u64 captured = getDiagCapture(o, structureEval.allPieces, enemies);
-        ASSERT(bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces) <
+        ASSERT(bitCount(captured) + bitCount(getDiagShift(o, structureEval.allPieces)) <
                (int) (sizeof(MOB_BISHOP) / sizeof(int)));
-        result += MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces)];
-        ADD(SCORE_DEBUG.MOB_BISHOP[side],
-            MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces)]);
+        const auto shift = getDiagShift(o, structureEval.allPieces);
+        structureEval.attack[side] |= (captured | shift);
+        result += MOB_BISHOP[phase][bitCount(captured) + bitCount(shift)];
+        ADD(SCORE_DEBUG.MOB_BISHOP[side], MOB_BISHOP[phase][bitCount(captured) + bitCount(shift)]);
 
         // 6.
         if (phase != OPEN) {
@@ -260,8 +258,10 @@ int Eval::evaluateQueen(const u64 enemies) {
         const int o = BITScanForward(queen);
         ASSERT(structureEval.allPieces == structureEval.allPieces);
         // 3. mobility
-        result += MOB_QUEEN[phase][getMobilityQueen(o, enemies, structureEval.allPieces)];
-        ADD(SCORE_DEBUG.MOB_QUEEN[side], MOB_QUEEN[phase][getMobilityQueen(o, enemies, structureEval.allPieces)]);
+        const auto mobQueen = getMobilityQueen(o, enemies, structureEval.allPieces);
+        result += MOB_QUEEN[phase][mobQueen];
+        structureEval.attack[side] |= mobQueen;
+        ADD(SCORE_DEBUG.MOB_QUEEN[side], MOB_QUEEN[phase][mobQueen]);
 
         // 4. half open file
         if ((chessboard[side ^ 1] & FILE_[o])) {
@@ -363,7 +363,9 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
 
         // 5. mobility
         ASSERT(bitCount(notMyBits & KNIGHT_MASK[pos]) < (int) (sizeof(MOB_KNIGHT) / sizeof(int)));
-        result += MOB_KNIGHT[bitCount(notMyBits & KNIGHT_MASK[pos])];
+        const auto mobKnight = notMyBits & KNIGHT_MASK[pos];
+        structureEval.attack[side] |= mobKnight;
+        result += MOB_KNIGHT[bitCount(mobKnight)];
         ADD(SCORE_DEBUG.MOB_KNIGHT[side], MOB_KNIGHT[bitCount(notMyBits & KNIGHT_MASK[pos])]);
     }
     return result;
@@ -432,8 +434,10 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
         const int o = BITScanForward(rook);
         //mobility
         ASSERT(getMobilityRook(o, enemies, friends) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
-        result += MOB_ROOK[phase][getMobilityRook(o, enemies, friends)];
-        ADD(SCORE_DEBUG.MOB_ROOK[side], MOB_ROOK[phase][getMobilityRook(o, enemies, friends)]);
+        const auto mobRook = getMobilityRook(o, enemies, friends);
+        structureEval.attack[side] |= mobRook;
+        result += MOB_ROOK[phase][bitCount(mobRook)];
+        ADD(SCORE_DEBUG.MOB_ROOK[side], MOB_ROOK[phase][mobRook]);
 
         if (phase != OPEN) {
             // .8 Penalise if Rook is Blocked Horizontally
@@ -471,7 +475,9 @@ int Eval::evaluateKing(int side, u64 squares) {
     u64 POW2_king = POW2[pos_king];
     //mobility
     ASSERT(bitCount(squares & NEAR_MASK1[pos_king]) < (int) (sizeof(MOB_KING[phase]) / sizeof(int)));
-    result += MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])];
+    const auto mobKing = squares & NEAR_MASK1[pos_king];
+    structureEval.attack[side] |= mobKing;
+    result += MOB_KING[phase][bitCount(mobKing)];
     ADD(SCORE_DEBUG.MOB_KING[side], MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])]);
     if (phase != OPEN) {
         if ((structureEval.openFile & POW2_king) || (structureEval.semiOpenFile[side ^ 1] & POW2_king)) {
@@ -503,6 +509,37 @@ short Eval::getHashValue(const u64 key) const {
         return (short) (kv & valueMask);
 
     return noHashValue;
+}
+
+template<int side>
+int Eval::evaluatePassedPawn() {
+    /// passed at end of main eavluation score because I need all attacked squares
+    const auto xside = side ^1;
+    int result = 0;
+    for (u64 p = chessboard[side]; p; RESET_LSB(p)) {
+
+        if (!(chessboard[xside] & PAWN_PASSED_MASK[side][o])) {
+            if (phase == END) {
+                if (friendKing near)result += bonus;
+                if (enemyKing near)result -= bonus;
+                if (ranks_4_7 && friendKing_is_avanti)result += bonus;
+            }
+            if (!(IN_FRONT_TO_PAWN[side][o] & structureEval.attack[xside]))add bigbonus; else if (!(case_avanti &
+                                                                                                    structureEval.attack[xside]))
+                result += bonus;
+            if (IN_FRONT_TO_PAWN[side][o] && structureEval.attack[side] || IN_FRONT_TO_PAWN[side][o]
+            is_difesa_da_rook_queen_dietro_il_pedone)) result += bonus;
+            (un
+            po
+                    meno
+            di
+                    quell
+            oprecedente)
+//            ADD(SCORE_DEBUG.PAWN_PASSED[side], PAWN_PASSED[side][o]);
+//            result += PAWN_PASSED[side][o];
+        }
+    }
+    return result;
 }
 
 short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int alpha, const int beta,
@@ -546,6 +583,17 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
     structureEval.posKing[WHITE] = (uchar) BITScanForward(chessboard[KING_WHITE]);
     structureEval.kingAttackers[WHITE] = getAllAttackers<WHITE>(structureEval.posKing[WHITE], structureEval.allPieces);
     structureEval.kingAttackers[BLACK] = getAllAttackers<BLACK>(structureEval.posKing[BLACK], structureEval.allPieces);
+    structureEval.attack[BLACK] = 0;
+    structureEval.attack[WHITE] = 0;
+
+    structureEval.pawnDefend[BLACK] = //TODO utilizzare anche in outposts
+            (shiftForward<BLACK, 7>(chessboard[PAWN_BLACK]) & structureEval.allPiecesSide[BLACK]) |
+            (shiftForward<BLACK, 9>(chessboard[PAWN_BLACK]) & structureEval.allPiecesSide[BLACK]);
+
+    structureEval.pawnDefend[WHITE] =
+            (shiftForward<WHITE, 7>(chessboard[PAWN_WHITE]) & structureEval.allPiecesSide[WHITE]) |
+            (shiftForward<WHITE, 9>(chessboard[PAWN_WHITE]) & structureEval.allPiecesSide[WHITE]);
+
 //    if (phase == END) {
 //
 //        structureEval.pinned[BLACK] = getPinned<BLACK>(structureEval.allPieces, structureEval.allPiecesSide[BLACK],
@@ -581,17 +629,22 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
 
     ASSERT(getMobilityCastle(WHITE, structureEval.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)));
     ASSERT(getMobilityCastle(BLACK, structureEval.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)));
-    int mobWhite = MOB_CASTLE[phase][getMobilityCastle(WHITE, structureEval.allPieces)];
-    int mobBlack = MOB_CASTLE[phase][getMobilityCastle(BLACK, structureEval.allPieces)];
-    int attack_king_white = ATTACK_KING * bitCount(structureEval.kingAttackers[BLACK]);
-    int attack_king_black = ATTACK_KING * bitCount(structureEval.kingAttackers[WHITE]);
+    const int mobWhite = MOB_CASTLE[phase][getMobilityCastle(WHITE, structureEval.allPieces)];
+    const int mobBlack = MOB_CASTLE[phase][getMobilityCastle(BLACK, structureEval.allPieces)];
+    const int attack_king_white = ATTACK_KING * bitCount(structureEval.kingAttackers[BLACK]);
+    const int attack_king_black = ATTACK_KING * bitCount(structureEval.kingAttackers[WHITE]);
     side == WHITE ? lazyscore_black -= 5 : lazyscore_white += 5;
-    int result = (mobBlack + attack_king_black + bonus_attack_king_black + lazyscore_black + Tresult.pawns[BLACK] +
-                  Tresult.knights[BLACK] + Tresult.bishop[BLACK] + Tresult.rooks[BLACK] + Tresult.queens[BLACK] +
-                  Tresult.kings[BLACK]) -
-                 (mobWhite + attack_king_white + bonus_attack_king_white + lazyscore_white + Tresult.pawns[WHITE] +
-                  Tresult.knights[WHITE] + Tresult.bishop[WHITE] + Tresult.rooks[WHITE] + Tresult.queens[WHITE] +
-                  Tresult.kings[WHITE]);
+
+    // evaluate passed pawn here because I need all attacked squares
+    const int passedPawnBlack = evaluatePassedPawn<BLACK>();
+    const int passedPawnWhite = evaluatePassedPawn<WHITE>();
+    const int result =
+            (mobBlack + attack_king_black + bonus_attack_king_black + lazyscore_black + Tresult.pawns[BLACK] +
+             Tresult.knights[BLACK] + Tresult.bishop[BLACK] + Tresult.rooks[BLACK] + Tresult.queens[BLACK] +
+             Tresult.kings[BLACK] + passedPawnBlack) -
+            (mobWhite + attack_king_white + bonus_attack_king_white + lazyscore_white + Tresult.pawns[WHITE] +
+             Tresult.knights[WHITE] + Tresult.bishop[WHITE] + Tresult.rooks[WHITE] + Tresult.queens[WHITE] +
+             Tresult.kings[WHITE] + passedPawnWhite);
 
 #ifdef DEBUG_MODE
     if (trace) {

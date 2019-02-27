@@ -181,6 +181,8 @@ protected:
     typedef struct {
         u64 allPieces;
         u64 kingAttackers[2];
+        u64 attack[2];
+        u64 pawnDefend[2];
         u64 allPiecesSide[2];
         u64 openFile;
         u64 semiOpenFile[2];

@@ -120,9 +120,9 @@ public:
 
     void setRepetitionMapCount(const int i);
 
-    inline int getDiagShiftCount(const int position, const u64 allpieces) const {
+    inline u64 getDiagShift(const int position, const u64 allpieces) const {
         ASSERT_RANGE(position, 0, 63);
-        return bitCount(Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces);
+        return Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces;
     }
 
     bool performKingShiftCapture(const int side, const u64 enemies);
@@ -346,11 +346,11 @@ protected:
         return getAttackers<side, false>(position, allpieces);
     }
 
-    int getMobilityRook(const int position, const u64 enemies, const u64 friends);
+    u64 getMobilityRook(const int position, const u64 enemies, const u64 friends);
 
     int getMobilityCastle(const int side, const u64 allpieces) const;
 
-    int getMobilityQueen(const int position, const u64 enemies, const u64 allpieces);
+    u64 getMobilityQueen(const int position, const u64 enemies, const u64 allpieces);
 
     void initKillerHeuristic();
 
@@ -649,7 +649,7 @@ private:
         }
     }
 
-    int performRankFileCaptureAndShiftCount(const int position, const u64 enemies, const u64 allpieces);
+    u64 performRankFileCaptureAndShift(const int position, const u64 enemies, const u64 allpieces);
 
     void popStackMove() {
         ASSERT(repetitionMapCount > 0);
