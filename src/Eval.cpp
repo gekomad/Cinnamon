@@ -230,7 +230,6 @@ int Eval::evaluateBishop(const u64 enemies) {
         }
 
         // 7. outposts
-        //bishop in center
         auto p = BISHOP_OUTPOST[side][pos];
         constexpr int xside = side ^1;
         //enemy pawn doesn't attack bishop
@@ -315,6 +314,7 @@ int Eval::evaluateQueen(const u64 enemies) {
  * 3. trapped TODO
  * 4. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING for each knight near to king and substracts ENEMY_NEAR_KING for each knight near to enemy king
  * 5. mobility
+ * 6. outposts
 */
 
 template<int side, Eval::_Tphase phase>
@@ -389,6 +389,24 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
         ASSERT(bitCount(notMyBits & KNIGHT_MASK[pos]) < (int) (sizeof(MOB_KNIGHT) / sizeof(int)));
         result += MOB_KNIGHT[bitCount(notMyBits & KNIGHT_MASK[pos])];
         ADD(SCORE_DEBUG.MOB_KNIGHT[side], MOB_KNIGHT[bitCount(notMyBits & KNIGHT_MASK[pos])]);
+
+        // 6. outposts
+        auto p = KNIGHT_OUTPOST[side][pos];
+        constexpr int xside = side ^1;
+        //enemy pawn doesn't attack knight
+        if (p && !(PAWN_FORK_MASK[side ^ 1][pos] & chessboard[side ^ 1])) {
+            //friend paws defends knight
+            if (PAWN_FORK_MASK[side ^ 1][pos] & chessboard[side]) {
+                result += p;
+                if (!(chessboard[KNIGHT_BLACK + xside]) &&
+                    !(chessboard[BISHOP_BLACK + xside] & ChessBoard::colors(pos))) {
+//                    display();
+//                    cout <<"side "<<side<<endl;
+                    result += p;
+                }
+            }
+        }
+
         RESET_LSB(knight);
     };
     return result;
