@@ -21,7 +21,7 @@
 #include <fstream>
 #include "../Eval.h"
 
-class OpenBook : public Singleton<OpenBook> {
+class OpenBook: public Singleton<OpenBook> {
     friend class Singleton<OpenBook>;
 
 public:

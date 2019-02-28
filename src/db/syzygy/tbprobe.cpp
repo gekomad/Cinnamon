@@ -121,7 +121,7 @@ unsigned TB_LARGEST = 0;
 #define lsb(b) TB_CUSTOM_LSB(b)
 #else
 
-static inline unsigned lsb(uint64_t b) {return BITScanForward(b);}
+static inline unsigned lsb(uint64_t b) { return BITScanForward(b); }
 
 //static inline unsigned lsb(uint64_t b) {
 //    size_t idx;
@@ -229,66 +229,66 @@ static uint64_t diag_attacks_table[64][64];
 static uint64_t anti_attacks_table[64][64];
 
 static const unsigned square2diag_table[64] =
-        {
-                0, 1, 2, 3, 4, 5, 6, 7,
-                14, 0, 1, 2, 3, 4, 5, 6,
-                13, 14, 0, 1, 2, 3, 4, 5,
-                12, 13, 14, 0, 1, 2, 3, 4,
-                11, 12, 13, 14, 0, 1, 2, 3,
-                10, 11, 12, 13, 14, 0, 1, 2,
-                9, 10, 11, 12, 13, 14, 0, 1,
-                8, 9, 10, 11, 12, 13, 14, 0
-        };
+    {
+        0, 1, 2, 3, 4, 5, 6, 7,
+        14, 0, 1, 2, 3, 4, 5, 6,
+        13, 14, 0, 1, 2, 3, 4, 5,
+        12, 13, 14, 0, 1, 2, 3, 4,
+        11, 12, 13, 14, 0, 1, 2, 3,
+        10, 11, 12, 13, 14, 0, 1, 2,
+        9, 10, 11, 12, 13, 14, 0, 1,
+        8, 9, 10, 11, 12, 13, 14, 0
+    };
 
 static const unsigned square2anti_table[64] =
-        {
-                8, 9, 10, 11, 12, 13, 14, 0,
-                9, 10, 11, 12, 13, 14, 0, 1,
-                10, 11, 12, 13, 14, 0, 1, 2,
-                11, 12, 13, 14, 0, 1, 2, 3,
-                12, 13, 14, 0, 1, 2, 3, 4,
-                13, 14, 0, 1, 2, 3, 4, 5,
-                14, 0, 1, 2, 3, 4, 5, 6,
-                0, 1, 2, 3, 4, 5, 6, 7
-        };
+    {
+        8, 9, 10, 11, 12, 13, 14, 0,
+        9, 10, 11, 12, 13, 14, 0, 1,
+        10, 11, 12, 13, 14, 0, 1, 2,
+        11, 12, 13, 14, 0, 1, 2, 3,
+        12, 13, 14, 0, 1, 2, 3, 4,
+        13, 14, 0, 1, 2, 3, 4, 5,
+        14, 0, 1, 2, 3, 4, 5, 6,
+        0, 1, 2, 3, 4, 5, 6, 7
+    };
 
 static const uint64_t diag2board_table[15] =
-        {
-                0x8040201008040201ull,
-                0x0080402010080402ull,
-                0x0000804020100804ull,
-                0x0000008040201008ull,
-                0x0000000080402010ull,
-                0x0000000000804020ull,
-                0x0000000000008040ull,
-                0x0000000000000080ull,
-                0x0100000000000000ull,
-                0x0201000000000000ull,
-                0x0402010000000000ull,
-                0x0804020100000000ull,
-                0x1008040201000000ull,
-                0x2010080402010000ull,
-                0x4020100804020100ull,
-        };
+    {
+        0x8040201008040201ull,
+        0x0080402010080402ull,
+        0x0000804020100804ull,
+        0x0000008040201008ull,
+        0x0000000080402010ull,
+        0x0000000000804020ull,
+        0x0000000000008040ull,
+        0x0000000000000080ull,
+        0x0100000000000000ull,
+        0x0201000000000000ull,
+        0x0402010000000000ull,
+        0x0804020100000000ull,
+        0x1008040201000000ull,
+        0x2010080402010000ull,
+        0x4020100804020100ull,
+    };
 
 static const uint64_t anti2board_table[15] =
-        {
-                0x0102040810204080ull,
-                0x0204081020408000ull,
-                0x0408102040800000ull,
-                0x0810204080000000ull,
-                0x1020408000000000ull,
-                0x2040800000000000ull,
-                0x4080000000000000ull,
-                0x8000000000000000ull,
-                0x0000000000000001ull,
-                0x0000000000000102ull,
-                0x0000000000010204ull,
-                0x0000000001020408ull,
-                0x0000000102040810ull,
-                0x0000010204081020ull,
-                0x0001020408102040ull,
-        };
+    {
+        0x0102040810204080ull,
+        0x0204081020408000ull,
+        0x0408102040800000ull,
+        0x0810204080000000ull,
+        0x1020408000000000ull,
+        0x2040800000000000ull,
+        0x4080000000000000ull,
+        0x8000000000000000ull,
+        0x0000000000000001ull,
+        0x0000000000000102ull,
+        0x0000000000010204ull,
+        0x0000000001020408ull,
+        0x0000000102040810ull,
+        0x0000010204081020ull,
+        0x0001020408102040ull,
+    };
 
 static inline size_t diag2index(uint64_t b, unsigned d) {
     b *= 0x0101010101010101ull;
@@ -552,29 +552,29 @@ static uint64_t calc_key(const struct pos *pos, bool mirror) {
         black = tmp;
     }
     return popcount(white & pos->queens) * PRIME_WHITE_QUEEN +
-           popcount(white & pos->rooks) * PRIME_WHITE_ROOK +
-           popcount(white & pos->bishops) * PRIME_WHITE_BISHOP +
-           popcount(white & pos->knights) * PRIME_WHITE_KNIGHT +
-           popcount(white & pos->pawns) * PRIME_WHITE_PAWN +
-           popcount(black & pos->queens) * PRIME_BLACK_QUEEN +
-           popcount(black & pos->rooks) * PRIME_BLACK_ROOK +
-           popcount(black & pos->bishops) * PRIME_BLACK_BISHOP +
-           popcount(black & pos->knights) * PRIME_BLACK_KNIGHT +
-           popcount(black & pos->pawns) * PRIME_BLACK_PAWN;
+        popcount(white & pos->rooks) * PRIME_WHITE_ROOK +
+        popcount(white & pos->bishops) * PRIME_WHITE_BISHOP +
+        popcount(white & pos->knights) * PRIME_WHITE_KNIGHT +
+        popcount(white & pos->pawns) * PRIME_WHITE_PAWN +
+        popcount(black & pos->queens) * PRIME_BLACK_QUEEN +
+        popcount(black & pos->rooks) * PRIME_BLACK_ROOK +
+        popcount(black & pos->bishops) * PRIME_BLACK_BISHOP +
+        popcount(black & pos->knights) * PRIME_BLACK_KNIGHT +
+        popcount(black & pos->pawns) * PRIME_BLACK_PAWN;
 }
 
 static uint64_t calc_key_from_pcs(int *pcs, int mirror) {
     mirror = (mirror ? 8 : 0);
     return pcs[WHITE_QUEEN ^ mirror] * PRIME_WHITE_QUEEN +
-           pcs[WHITE_ROOK ^ mirror] * PRIME_WHITE_ROOK +
-           pcs[WHITE_BISHOP ^ mirror] * PRIME_WHITE_BISHOP +
-           pcs[WHITE_KNIGHT ^ mirror] * PRIME_WHITE_KNIGHT +
-           pcs[WHITE_PAWN ^ mirror] * PRIME_WHITE_PAWN +
-           pcs[BLACK_QUEEN ^ mirror] * PRIME_BLACK_QUEEN +
-           pcs[BLACK_ROOK ^ mirror] * PRIME_BLACK_ROOK +
-           pcs[BLACK_BISHOP ^ mirror] * PRIME_BLACK_BISHOP +
-           pcs[BLACK_KNIGHT ^ mirror] * PRIME_BLACK_KNIGHT +
-           pcs[BLACK_PAWN ^ mirror] * PRIME_BLACK_PAWN;
+        pcs[WHITE_ROOK ^ mirror] * PRIME_WHITE_ROOK +
+        pcs[WHITE_BISHOP ^ mirror] * PRIME_WHITE_BISHOP +
+        pcs[WHITE_KNIGHT ^ mirror] * PRIME_WHITE_KNIGHT +
+        pcs[WHITE_PAWN ^ mirror] * PRIME_WHITE_PAWN +
+        pcs[BLACK_QUEEN ^ mirror] * PRIME_BLACK_QUEEN +
+        pcs[BLACK_ROOK ^ mirror] * PRIME_BLACK_ROOK +
+        pcs[BLACK_BISHOP ^ mirror] * PRIME_BLACK_BISHOP +
+        pcs[BLACK_KNIGHT ^ mirror] * PRIME_BLACK_KNIGHT +
+        pcs[BLACK_PAWN ^ mirror] * PRIME_BLACK_PAWN;
 }
 
 static uint64_t get_pieces(const struct pos *pos, uint8_t code) {
@@ -866,7 +866,7 @@ static uint16_t *gen_captures_or_promotions(const struct pos *pos,
                                             uint16_t *moves) {
     uint64_t occ = pos->white | pos->black;
     uint64_t us = (pos->turn ? pos->white : pos->black),
-            them = (pos->turn ? pos->black : pos->white);
+        them = (pos->turn ? pos->black : pos->white);
     uint64_t b, att;
     {
         unsigned from = lsb(pos->kings & us);
@@ -982,7 +982,7 @@ static uint16_t *gen_pawn_ep_captures(const struct pos *pos, uint16_t *moves) {
 static uint16_t *gen_moves(const struct pos *pos, uint16_t *moves) {
     uint64_t occ = pos->white | pos->black;
     uint64_t us = (pos->turn ? pos->white : pos->black),
-            them = (pos->turn ? pos->black : pos->white);
+        them = (pos->turn ? pos->black : pos->white);
     uint64_t b, att;
 
     {
@@ -1067,7 +1067,7 @@ static bool is_en_passant(const struct pos *pos, uint16_t move) {
 static bool is_legal(const struct pos *pos) {
     uint64_t occ = pos->white | pos->black;
     uint64_t us = (pos->turn ? pos->black : pos->white),
-            them = (pos->turn ? pos->white : pos->black);
+        them = (pos->turn ? pos->white : pos->black);
     uint64_t king = pos->kings & us;
     unsigned sq = lsb(king);
     if (king_attacks(sq) & (pos->kings & them))
@@ -1093,7 +1093,7 @@ static bool is_legal(const struct pos *pos) {
 static bool is_check(const struct pos *pos) {
     uint64_t occ = pos->white | pos->black;
     uint64_t us = (pos->turn ? pos->white : pos->black),
-            them = (pos->turn ? pos->black : pos->white);
+        them = (pos->turn ? pos->black : pos->white);
     uint64_t king = pos->kings & us;
     unsigned sq = lsb(king);
     uint64_t ratt = rook_attacks(sq, occ);
@@ -1172,7 +1172,7 @@ static bool is_valid(const struct pos *pos) {
         return false;
     if ((pos->white | pos->black) !=
         (pos->kings | pos->queens | pos->rooks | pos->bishops | pos->knights |
-         pos->pawns))
+            pos->pawns))
         return false;
     return is_legal(pos);
 }
@@ -1219,7 +1219,7 @@ static bool do_move(struct pos *pos, const struct pos *pos0, uint16_t move) {
             (pawn_attacks(from + 8, true) & pos0->pawns & pos0->black) != 0)
             pos->ep = from + 8;
         else if (rank(from) == 6 && rank(to) == 4 &&
-                 (pawn_attacks(from - 8, false) & pos0->pawns & pos0->white) != 0)
+            (pawn_attacks(from - 8, false) & pos0->pawns & pos0->white) != 0)
             pos->ep = from - 8;
         else if (to == pos0->ep) {
             unsigned ep_to = (pos0->turn ? to + 8 : to - 8);
@@ -1406,9 +1406,9 @@ static int probe_dtz_no_ep(const struct pos *pos, int *success) {
 }
 
 static const int wdl_to_dtz[] =
-        {
-                -1, -101, 0, 101, 1
-        };
+    {
+        -1, -101, 0, 101, 1
+    };
 
 /*
  * Probe the DTZ table for a particular position.
@@ -1640,30 +1640,30 @@ bool tb_init_impl(const char *path) {
 }
 
 unsigned tb_probe_wdl_impl(
-        uint64_t white,
-        uint64_t black,
-        uint64_t kings,
-        uint64_t queens,
-        uint64_t rooks,
-        uint64_t bishops,
-        uint64_t knights,
-        uint64_t pawns,
-        unsigned ep,
-        bool turn) {
+    uint64_t white,
+    uint64_t black,
+    uint64_t kings,
+    uint64_t queens,
+    uint64_t rooks,
+    uint64_t bishops,
+    uint64_t knights,
+    uint64_t pawns,
+    unsigned ep,
+    bool turn) {
     struct pos pos =
-            {
-                    white,
-                    black,
-                    kings,
-                    queens,
-                    rooks,
-                    bishops,
-                    knights,
-                    pawns,
-                    0,
-                    (uint8_t) ep,
-                    turn
-            };
+        {
+            white,
+            black,
+            kings,
+            queens,
+            rooks,
+            bishops,
+            knights,
+            pawns,
+            0,
+            (uint8_t) ep,
+            turn
+        };
     int success;
     int v = probe_wdl(&pos, &success);
     if (success == 0)
@@ -1672,32 +1672,32 @@ unsigned tb_probe_wdl_impl(
 }
 
 unsigned tb_probe_root_impl(
-        uint64_t white,
-        uint64_t black,
-        uint64_t kings,
-        uint64_t queens,
-        uint64_t rooks,
-        uint64_t bishops,
-        uint64_t knights,
-        uint64_t pawns,
-        unsigned rule50,
-        unsigned ep,
-        bool turn,
-        unsigned *results) {
+    uint64_t white,
+    uint64_t black,
+    uint64_t kings,
+    uint64_t queens,
+    uint64_t rooks,
+    uint64_t bishops,
+    uint64_t knights,
+    uint64_t pawns,
+    unsigned rule50,
+    unsigned ep,
+    bool turn,
+    unsigned *results) {
     struct pos pos =
-            {
-                    white,
-                    black,
-                    kings,
-                    queens,
-                    rooks,
-                    bishops,
-                    knights,
-                    pawns,
-                    (uint8_t) rule50,
-                    (uint8_t) ep,
-                    turn
-            };
+        {
+            white,
+            black,
+            kings,
+            queens,
+            rooks,
+            bishops,
+            knights,
+            pawns,
+            (uint8_t) rule50,
+            (uint8_t) ep,
+            turn
+        };
     int dtz;
     if (!is_valid(&pos))
         return TB_RESULT_FAILED;

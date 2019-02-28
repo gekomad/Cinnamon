@@ -64,30 +64,30 @@ typedef uint8_t bool;
 extern bool tb_init_impl(const char *_path);
 
 extern unsigned tb_probe_wdl_impl(
-        uint64_t _white,
-        uint64_t _black,
-        uint64_t _kings,
-        uint64_t _queens,
-        uint64_t _rooks,
-        uint64_t _bishops,
-        uint64_t _knights,
-        uint64_t _pawns,
-        unsigned _ep,
-        bool _turn);
+    uint64_t _white,
+    uint64_t _black,
+    uint64_t _kings,
+    uint64_t _queens,
+    uint64_t _rooks,
+    uint64_t _bishops,
+    uint64_t _knights,
+    uint64_t _pawns,
+    unsigned _ep,
+    bool _turn);
 
 extern unsigned tb_probe_root_impl(
-        uint64_t _white,
-        uint64_t _black,
-        uint64_t _kings,
-        uint64_t _queens,
-        uint64_t _rooks,
-        uint64_t _bishops,
-        uint64_t _knights,
-        uint64_t _pawns,
-        unsigned _rule50,
-        unsigned _ep,
-        bool _turn,
-        unsigned *_results);
+    uint64_t _white,
+    uint64_t _black,
+    uint64_t _kings,
+    uint64_t _queens,
+    uint64_t _rooks,
+    uint64_t _bishops,
+    uint64_t _knights,
+    uint64_t _pawns,
+    unsigned _rule50,
+    unsigned _ep,
+    bool _turn,
+    unsigned *_results);
 
 /****************************************************************************/
 /* MAIN API                                                                 */
@@ -207,18 +207,18 @@ static inline bool tb_init_syzygy(const char *_path) {
  * - This function is thread safe assuming TB_NO_THREADS is disabled.
  */
 static inline unsigned tb_probe_wdl(
-        uint64_t _white,
-        uint64_t _black,
-        uint64_t _kings,
-        uint64_t _queens,
-        uint64_t _rooks,
-        uint64_t _bishops,
-        uint64_t _knights,
-        uint64_t _pawns,
-        unsigned _rule50,
-        unsigned _castling,
-        unsigned _ep,
-        bool _turn) {
+    uint64_t _white,
+    uint64_t _black,
+    uint64_t _kings,
+    uint64_t _queens,
+    uint64_t _rooks,
+    uint64_t _bishops,
+    uint64_t _knights,
+    uint64_t _pawns,
+    unsigned _rule50,
+    unsigned _castling,
+    unsigned _ep,
+    bool _turn) {
     if (_castling != 0)
         return TB_RESULT_FAILED;
     if (_rule50 != 0)
@@ -273,19 +273,19 @@ static inline unsigned tb_probe_wdl(
  *   be called once at the root per search.
  */
 static inline unsigned tb_probe_root(
-        uint64_t _white,
-        uint64_t _black,
-        uint64_t _kings,
-        uint64_t _queens,
-        uint64_t _rooks,
-        uint64_t _bishops,
-        uint64_t _knights,
-        uint64_t _pawns,
-        unsigned _rule50,
-        unsigned _castling,
-        unsigned _ep,
-        bool _turn,
-        unsigned *_results) {
+    uint64_t _white,
+    uint64_t _black,
+    uint64_t _kings,
+    uint64_t _queens,
+    uint64_t _rooks,
+    uint64_t _bishops,
+    uint64_t _knights,
+    uint64_t _pawns,
+    unsigned _rule50,
+    unsigned _castling,
+    unsigned _ep,
+    bool _turn,
+    unsigned *_results) {
     if (_castling != 0)
         return TB_RESULT_FAILED;
     return tb_probe_root_impl(_white, _black, _kings, _queens, _rooks,

@@ -47,14 +47,14 @@ void ChessBoard::makeZobristKey() {
     chessboard[ZOBRISTKEY_IDX] = 0;
 
     for (int u = 0; u < 12; u++) {
-        for (u64 c = chessboard[u]; c; RESET_LSB(c)){
+        for (u64 c = chessboard[u]; c; RESET_LSB(c)) {
             const int position = BITScanForward(c);
             updateZobristKey(u, position);
         }
     }
 
 
-    for (u64 x2 = chessboard[RIGHT_CASTLE_IDX]; x2; RESET_LSB(x2)){
+    for (u64 x2 = chessboard[RIGHT_CASTLE_IDX]; x2; RESET_LSB(x2)) {
         const int position = BITScanForward(x2);
         updateZobristKey(RIGHT_CASTLE_IDX, position);//12
     }
@@ -90,7 +90,7 @@ void ChessBoard::display() {
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
         x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(
-                POW2[63 - t])]) == '-' ? ' ' : x;
+            POW2[63 - t])]) == '-' ? ' ' : x;
         x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     };
@@ -164,7 +164,7 @@ string ChessBoard::boardToFen() const {
     } else {
         fen.append(" ");
         chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(
-                BOARD[chessboard[ENPASSANT_IDX] - 8]);
+            BOARD[chessboard[ENPASSANT_IDX] - 8]);
     }
     fen.append(" 0 1");
     return fen;

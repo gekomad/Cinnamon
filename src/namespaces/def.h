@@ -139,8 +139,8 @@ namespace _def {
 
     template<int side, int shift>
     static inline u64 shiftForward(const u64 bits) {
-        static constexpr array<u64,2> NO_FILE_LEFT = {0xFEFEFEFEFEFEFEFEULL,0x7F7F7F7F7F7F7F7FULL};
-        static constexpr array<u64,2> NO_FILE_RIGHT = {0x7F7F7F7F7F7F7F7FULL,0xFEFEFEFEFEFEFEFEULL};
+        static constexpr array<u64, 2> NO_FILE_LEFT = {0xFEFEFEFEFEFEFEFEULL, 0x7F7F7F7F7F7F7F7FULL};
+        static constexpr array<u64, 2> NO_FILE_RIGHT = {0x7F7F7F7F7F7F7F7FULL, 0xFEFEFEFEFEFEFEFEULL};
 
         auto a = side == WHITE ? bits << shift : bits >> shift;
         if (shift == 7)

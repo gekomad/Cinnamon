@@ -23,7 +23,7 @@
 #include <unordered_map>
 #endif
 
-class Endgame : public ChessBoard {
+class Endgame: public ChessBoard {
 
 public:
 
@@ -114,19 +114,19 @@ private:
     constexpr int VALUE_KNOWN_WIN = 15000;    //TODO stockfish
     constexpr int penaltyKRKN[8] = {0, 10, 14, 20, 30, 42, 58, 80};    //TODO stockfish
     constexpr int KBNKMateTable[64] = {    //TODO stockfish
-            200, 190, 180, 170, 170, 180, 190, 200,
-            190, 180, 170, 160, 160, 170, 180, 190,
-            180, 170, 155, 140, 140, 155, 170, 180,
-            170, 160, 140, 120, 120, 140, 160, 170,
-            170, 160, 140, 120, 120, 140, 160, 170,
-            180, 170, 155, 140, 140, 155, 170, 180,
-            190, 180, 170, 160, 160, 170, 180, 190,
-            200, 190, 180, 170, 170, 180, 190, 200};
+        200, 190, 180, 170, 170, 180, 190, 200,
+        190, 180, 170, 160, 160, 170, 180, 190,
+        180, 170, 155, 140, 140, 155, 170, 180,
+        170, 160, 140, 120, 120, 140, 160, 170,
+        170, 160, 140, 120, 120, 140, 160, 170,
+        180, 170, 155, 140, 140, 155, 170, 180,
+        190, 180, 170, 160, 160, 170, 180, 190,
+        200, 190, 180, 170, 170, 180, 190, 200};
 
     const int MateTable[64] = {    //TODO stockfish
-            100, 90, 80, 70, 70, 80, 90, 100, 90, 70, 60, 50, 50, 60, 70, 90, 80, 60, 40, 30, 30, 40, 60, 80, 70, 50,
-            30, 20, 20, 30, 50, 70, 70, 50, 30, 20, 20, 30, 50, 70, 80, 60, 40, 30, 30, 40, 60, 80, 90, 70, 60, 50, 50,
-            60, 70, 90, 100, 90, 80, 70, 70, 80, 90, 100,};
+        100, 90, 80, 70, 70, 80, 90, 100, 90, 70, 60, 50, 50, 60, 70, 90, 80, 60, 40, 30, 30, 40, 60, 80, 70, 50,
+        30, 20, 20, 30, 50, 70, 70, 50, 30, 20, 20, 30, 50, 70, 80, 60, 40, 30, 30, 40, 60, 80, 90, 70, 60, 50, 50,
+        60, 70, 90, 100, 90, 80, 70, 70, 80, 90, 100,};
 
 
     template<int loserSide>
@@ -173,8 +173,8 @@ private:
             const int queeningSq = BITScanForward(FILE_[pawnPos] & RANK_1_8[loserSide ^ 1]);
 
             return 200 - 8 * (DISTANCE[winnerKingPos][pawnPos + DELTA_S]
-                              - DISTANCE[loserKingPos][pawnPos + DELTA_S]
-                              - DISTANCE[pawnPos][queeningSq]);
+                - DISTANCE[loserKingPos][pawnPos + DELTA_S]
+                - DISTANCE[pawnPos][queeningSq]);
         }
     }
 
@@ -204,7 +204,7 @@ private:
 #endif
 
         return _board::VALUEQUEEN - _board::VALUEROOK + MateTable[loserKingPos] +
-               DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]];
+            DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]];
     }
 
     int KBNK(int winnerKingPos, int loserKingPos) {

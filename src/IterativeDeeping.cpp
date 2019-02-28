@@ -149,7 +149,7 @@ void IterativeDeeping::run() {
         }
 #ifdef DEBUG_MODE
         int totStoreHash = searchManager.getPool()[0]->nRecordHashA + searchManager.getPool()[0]->nRecordHashB +
-                           searchManager.getPool()[0]->nRecordHashE + 1;
+            searchManager.getPool()[0]->nRecordHashE + 1;
         int percStoreHashA = searchManager.getPool()[0]->nRecordHashA * 100 / totStoreHash;
         int percStoreHashB = searchManager.getPool()[0]->nRecordHashB * 100 / totStoreHash;
         int percStoreHashE = searchManager.getPool()[0]->nRecordHashE * 100 / totStoreHash;
@@ -160,10 +160,10 @@ void IterativeDeeping::run() {
         cout << "info string tot moves: " << totMoves << endl;
         unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
         cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" <<
-             percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
+            percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
 
         cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) <<
-             "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "%)" << endl;
+            "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "%)" << endl;
 
         u64 nps = 0;
         if (timeTaken) {
@@ -183,7 +183,7 @@ void IterativeDeeping::run() {
         }
         if (totMovesPrec != -1)
             cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2) <<
-                 ((double) totMoves / (double) totMovesPrec) << endl;
+                ((double) totMoves / (double) totMovesPrec) << endl;
         totMovesPrec = totMoves;
         cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds)" << endl;
         cout << "info string alphaBeta cut: " << nCutAB << endl;

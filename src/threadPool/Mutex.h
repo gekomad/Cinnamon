@@ -44,7 +44,7 @@ private:
 
 #include <mutex>
 
-class Mutex : public mutex {
+class Mutex: public mutex {
 
 };
 

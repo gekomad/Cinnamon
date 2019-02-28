@@ -35,7 +35,7 @@ Uci::Uci() {
     startListner();
 }
 
-Uci::~Uci() {}
+Uci::~Uci() { }
 
 void Uci::getToken(istringstream &uip, String &token) {
     token.clear();
@@ -122,7 +122,7 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name GaviotaTbPath type string default <empty>" << endl;
             cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024" << endl;
             cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4" <<
-                 endl;
+                endl;
 
             cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << endl;
             cout << "option name TB probing depth type spin default 0 min 0 max 5" << endl;
@@ -386,16 +386,16 @@ void Uci::listner(IterativeDeeping *it) {
                     searchManager.setMaxTimeMillsec(winc + wtime / 40);
                     if (btime > wtime) {
                         searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
-                                                        (int) (searchManager.getMaxTimeMillsec() *
-                                                               ((135.0 - wtime * 100.0 / btime) / 100.0)));
+                            (int) (searchManager.getMaxTimeMillsec() *
+                                ((135.0 - wtime * 100.0 / btime) / 100.0)));
                     }
                 } else {
                     binc -= (int) (binc * 0.1);
                     searchManager.setMaxTimeMillsec(binc + btime / 40);
                     if (wtime > btime) {
                         searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
-                                                        (int) (searchManager.getMaxTimeMillsec() *
-                                                               ((135.0 - btime * 100.0 / wtime) / 100.0)));
+                            (int) (searchManager.getMaxTimeMillsec() *
+                                ((135.0 - btime * 100.0 / wtime) / 100.0)));
                     }
                 }
                 lastTime = searchManager.getMaxTimeMillsec();

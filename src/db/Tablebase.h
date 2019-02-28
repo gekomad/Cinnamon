@@ -23,7 +23,7 @@
 #include "../ChessBoard.h"
 #include "../util/Singleton.h"
 
-class Tablebase : public Singleton<Tablebase> {
+class Tablebase: public Singleton<Tablebase> {
     friend class Singleton<Tablebase>;
 
 public:

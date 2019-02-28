@@ -105,7 +105,7 @@ int Search::printDtm() {
         move = &gen_list[listId].moveList[i];
         makemove(move, false, false);
         cout << endl << decodeBoardinv(move->type, move->from, getSide())
-        << decodeBoardinv(move->type, move->to, getSide()) << " ";
+            << decodeBoardinv(move->type, move->to, getSide()) << " ";
         res = -getGtb().getDtm(side ^ 1, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
         if (res != -INT_MAX) {
             cout << " res: " << res;
@@ -214,7 +214,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
         0x3 /*&& checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.from != checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.to*/) {// hashfEXACT or hashfBETA
         sortFromHash(listId, checkHashStruct.phasheType[Hash::HASH_GREATER]);
     } else if (checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.flags &
-               0x3 /*&& checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.from != checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.to*/) {// hashfEXACT or hashfBETA
+        0x3 /*&& checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.from != checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.to*/) {// hashfEXACT or hashfBETA
         sortFromHash(listId, checkHashStruct.phasheType[Hash::HASH_ALWAYS]);
     }
     while ((move = getNextMove(&gen_list[listId]))) {
@@ -498,7 +498,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         (n_pieces_side = getNpiecesNoPawnNoKing<side>()) >= NULLMOVES_MIN_PIECE) {
         nullSearch = true;
         int nullScore = -search<side ^ 1>(
-                depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (n_pieces_side < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) -
+            depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (n_pieces_side < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) -
                 1, -beta, -beta + 1, &line, N_PIECE, mateIn);
         nullSearch = false;
         if (nullScore >= beta) {
@@ -557,7 +557,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         0x3 /*&& checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.from != checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.to*/) {// hashfEXACT or hashfBETA
         sortFromHash(listId, checkHashStruct.phasheType[Hash::HASH_GREATER]);
     } else if (checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.flags &
-               0x3 /* && checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.from != checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.to*/) {// hashfEXACT or hashfBETA
+        0x3 /* && checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.from != checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.to*/) {// hashfEXACT or hashfBETA
         sortFromHash(listId, checkHashStruct.phasheType[Hash::HASH_ALWAYS]);
     }
     INC(totGen);

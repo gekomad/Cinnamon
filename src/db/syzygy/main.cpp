@@ -40,13 +40,13 @@
 #define board(s)                ((uint64_t)1 << (s))
 
 static const char *wdl_to_str[5] =
-        {
-                "0-1",
-                "1/2-1/2",
-                "1/2-1/2",
-                "1/2-1/2",
-                "1-0"
-        };
+    {
+        "0-1",
+        "1/2-1/2",
+        "1/2-1/2",
+        "1/2-1/2",
+        "1-0"
+    };
 
 struct pos {
     uint64_t white;
@@ -260,7 +260,7 @@ static bool parse_FEN(struct pos *pos, const char *fen) {
 static bool is_check(const struct pos *pos) {
     uint64_t occ = pos->white | pos->black;
     uint64_t us = (pos->turn ? pos->white : pos->black),
-            them = (pos->turn ? pos->black : pos->white);
+        them = (pos->turn ? pos->black : pos->white);
     uint64_t king = pos->kings & us;
     unsigned sq = tb_lsb(king);
     uint64_t ratt = tb_rook_attacks(sq, occ);
@@ -393,7 +393,7 @@ static void do_move(struct pos *pos, unsigned move) {
             (tb_pawn_attacks(from + 8, true) & pos->pawns & pos->black) != 0)
             ep = from + 8;
         else if (rank(from) == 6 && rank(to) == 4 &&
-                 (tb_pawn_attacks(from - 8, false) & pos->pawns & pos->white) != 0)
+            (tb_pawn_attacks(from - 8, false) & pos->pawns & pos->white) != 0)
             ep = from - 8;
         else if (TB_GET_EP(move)) {
             unsigned ep_to = (pos->turn ? to + 8 : to - 8);
@@ -500,34 +500,34 @@ static void print_help(const char *prog) {
     printf("\n");
     printf("DESCRIPTION:\n");
     printf("\tThis program is a stand-alone Syzygy lib probe tool.  "
-                   "The\n");
+               "The\n");
     printf("\tprogram takes as input a FEN string representation of a "
-                   "chess\n");
+               "chess\n");
     printf("\tposition and outputs a PGN representation of the probe "
-                   "result.\n");
+               "result.\n");
     printf("\n");
     printf("\tIn addition to the standard fields, the output PGN "
-                   "represents the\n");
+               "represents the\n");
     printf("\tfollowing information:\n");
     printf("\t- Result: \"1-0\" (white wins), \"1/2-1/2\" (draw), or "
-                   "\"0-1\" (black wins)\n");
+               "\"0-1\" (black wins)\n");
     printf("\t- The Win-Draw-Loss (WDL) value for the next move: \"Win\", "
-                   "\"Draw\",\n");
+               "\"Draw\",\n");
     printf("\t  \"Loss\", \"CursedWin\" (win but 50-move draw) or "
-                   "\"BlessedLoss\" (loss\n");
+               "\"BlessedLoss\" (loss\n");
     printf("\t  but 50-move draw)\n");
     printf("\t- The Distance-To-Zero (DTZ) value (in plys) for the next "
-                   "move\n");
+               "move\n");
     printf("\t- WinningMoves: The list of all winning moves\n");
     printf("\t- DrawingMoves: The list of all drawing moves\n");
     printf("\t- LosingMoves: The list of all losing moves\n");
     printf("\n");
     printf("\tThe PGN contains a pseudo \"principle variation\" of "
-                   "Syzygy vs. Syzygy\n");
+               "Syzygy vs. Syzygy\n");
     printf("\tfor the input position.  Each PV move is rational with "
-                   "respect to\n");
+               "respect to\n");
     printf("\tpreserving the WDL value.  The PV does not represent the "
-                   "shortest\n");
+               "shortest\n");
     printf("\tmate nor the most natural human moves.\n");
     printf("\n");
 }
@@ -542,12 +542,12 @@ static void print_help(const char *prog) {
 
 static int main_syzygy(int argc, char **argv) {
     static struct option long_options[] =
-            {
-                    {"help", 0, 0, OPTION_HELP},
-                    {"path", 1, 0, OPTION_PATH},
-                    {"test", 0, 0, OPTION_TEST},
-                    {NULL,   0, 0, 0}
-            };
+        {
+            {"help", 0, 0, OPTION_HELP},
+            {"path", 1, 0, OPTION_PATH},
+            {"test", 0, 0, OPTION_TEST},
+            {NULL, 0, 0, 0}
+        };
     const char *path = NULL;
     bool test = false;
     while (true) {
@@ -581,7 +581,7 @@ static int main_syzygy(int argc, char **argv) {
     tb_init_syzygy(path);
     if (TB_LARGEST == 0) {
         fprintf(stderr, "error: unable to initialize lib; no lib "
-                "files found\n");
+            "files found\n");
         exit(EXIT_FAILURE);
     }
 
@@ -596,7 +596,7 @@ static int main_syzygy(int argc, char **argv) {
     // (2) probe the TB:
     if (tb_pop_count(pos->white | pos->black) > TB_LARGEST) {
         fprintf(stderr, "error: unable to probe lib; FEN string \"%s\" "
-                "has too many pieces (max=%u)\n", fen, TB_LARGEST);
+            "has too many pieces (max=%u)\n", fen, TB_LARGEST);
         exit(EXIT_FAILURE);
     }
     unsigned results[TB_MAX_MOVES];
@@ -605,7 +605,7 @@ static int main_syzygy(int argc, char **argv) {
                                  pos->rule50, pos->castling, pos->ep, pos->turn, results);
     if (res == TB_RESULT_FAILED) {
         fprintf(stderr, "error: unable to probe lib; position "
-                "invalid, illegal or not in lib\n");
+            "invalid, illegal or not in lib\n");
         exit(EXIT_FAILURE);
     }
 
@@ -616,13 +616,13 @@ static int main_syzygy(int argc, char **argv) {
         return 0;
     }
     const char *wdl_to_name_str[5] =
-            {
-                    "Loss",
-                    "BlessedLoss",
-                    "Draw",
-                    "CursedWin",
-                    "Win"
-            };
+        {
+            "Loss",
+            "BlessedLoss",
+            "Draw",
+            "CursedWin",
+            "Win"
+        };
     printf("[Event \"\"]\n");
     printf("[Site \"\"]\n");
     printf("[Date \"??\"]\n");

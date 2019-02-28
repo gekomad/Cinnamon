@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <iomanip>
 
-class IterativeDeeping : public Thread<IterativeDeeping> {
+class IterativeDeeping: public Thread<IterativeDeeping> {
 
 public:
 
@@ -41,7 +41,7 @@ public:
 
     void run();
 
-    void endRun() {};
+    void endRun() { };
 
     bool getPonderEnabled() const;
 

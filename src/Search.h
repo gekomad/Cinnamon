@@ -28,7 +28,7 @@
 #include "db/GTB.h"
 #include "db/syzygy/SYZYGY.h"
 
-class Search : public Eval, public Thread<Search>, public Hash {
+class Search: public Eval, public Thread<Search>, public Hash {
 
 public:
 
