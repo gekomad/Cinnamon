@@ -111,7 +111,7 @@ bool GenMoves::generateCaptures(const int side, const u64 enemies, const u64 fri
 int GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
     return performRankFileCaptureAndShiftCount(position, enemies, allpieces) +
-           bitCount(getDiagShiftAndCapture(position, enemies, allpieces));
+        bitCount(getDiagShiftAndCapture(position, enemies, allpieces));
 }
 
 int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
@@ -514,11 +514,11 @@ int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
     static const string MATCH_QUEENSIDE_BLACK = "O-O-O e8c8";
     static const string MATCH_KINGSIDE_BLACK = "O-O e8g8";
     if (((MATCH_QUEENSIDE_WHITE.find(fenStr) != string::npos ||
-          MATCH_KINGSIDE_WHITE.find(fenStr) != string::npos) &&
-         getPieceAt<WHITE>(POW2[E1]) == KING_WHITE) ||
+        MATCH_KINGSIDE_WHITE.find(fenStr) != string::npos) &&
+        getPieceAt<WHITE>(POW2[E1]) == KING_WHITE) ||
         ((MATCH_QUEENSIDE_BLACK.find(fenStr) != string::npos ||
-          MATCH_KINGSIDE_BLACK.find(fenStr) != string::npos) &&
-         getPieceAt<BLACK>(POW2[E8]) == KING_BLACK)) {
+            MATCH_KINGSIDE_BLACK.find(fenStr) != string::npos) &&
+            getPieceAt<BLACK>(POW2[E8]) == KING_BLACK)) {
         if (MATCH_QUEENSIDE.find(fenStr) != string::npos) {
             move->type = QUEEN_SIDE_CASTLE_MOVE_MASK;
             move->from = QUEEN_SIDE_CASTLE_MOVE_MASK;

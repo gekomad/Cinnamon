@@ -33,7 +33,7 @@ typedef __int128_t i128;
     typedef unsigned long long i128;
 #endif
 
-class String : public string {
+class String: public string {
 public:
     String(const string &s) : string(s) { };
 

@@ -24,7 +24,7 @@
 #include <string.h>
 #include "util/String.h"
 
-class Uci : public Singleton<Uci> {
+class Uci: public Singleton<Uci> {
     friend class Singleton<Uci>;
 
 public:

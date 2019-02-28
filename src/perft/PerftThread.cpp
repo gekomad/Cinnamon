@@ -122,7 +122,7 @@ u64 PerftThread::search(const int depthx) {
         u64 keyold = chessboard[ZOBRISTKEY_IDX];
         makemove(move, false, false);
         n_perft += search<side ^ 1, useHash>(depthx - 1);
-        takeback(move, keyold,false);
+        takeback(move, keyold, false);
     }
     decListId();
     if (useHash) {
@@ -156,14 +156,17 @@ void PerftThread::run() {
         bool side = (chessboard[SIDETOMOVE_IDX] ^ 1);
 
         if (fhash) {
-            n_perft = side == WHITE ? search<WHITE, USE_HASH_YES>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_YES>(tPerftRes->depth - 1);
-            } else {
-            n_perft = side == WHITE ? search<WHITE, USE_HASH_NO>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_NO>(tPerftRes->depth - 1);
+            n_perft = side == WHITE ? search<WHITE, USE_HASH_YES>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_YES>(
+                tPerftRes->depth - 1);
+        } else {
+            n_perft = side == WHITE ? search<WHITE, USE_HASH_NO>(tPerftRes->depth - 1) : search<BLACK, USE_HASH_NO>(
+                tPerftRes->depth - 1);
         }
 
-        takeback(move, keyold,false);
+        takeback(move, keyold, false);
         char y;
-        char x = FEN_PIECE[chessboard[SIDETOMOVE_IDX] ? getPieceAt<WHITE>(POW2[move->from]) : getPieceAt<BLACK>(POW2[move->from])];
+        char x = FEN_PIECE[chessboard[SIDETOMOVE_IDX] ? getPieceAt<WHITE>(POW2[move->from])
+                                                      : getPieceAt<BLACK>(POW2[move->from])];
         if (x == 'p' || x == 'P') {
             x = ' ';
         }
@@ -180,7 +183,8 @@ void PerftThread::run() {
             //castle
             h = decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
         } else {
-            h = h + x + decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) + y + decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
+            h = h + x + decodeBoardinv(move->type, move->from, chessboard[SIDETOMOVE_IDX]) + y
+                + decodeBoardinv(move->type, move->to, chessboard[SIDETOMOVE_IDX]);
         }
         cout << setw(6) << h;
         cout << setw(20) << n_perft;

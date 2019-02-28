@@ -96,46 +96,46 @@ extern char *tb_restart(int verbosity, int compression_scheme, const char **path
 extern void tb_done(void);
 
 extern int /*bool*/    tb_probe_hard
-        (unsigned stm,
-         unsigned epsq,
-         unsigned castles,
-         const unsigned *inp_wSQ,
-         const unsigned *inp_bSQ,
-         const unsigned char *inp_wPC,
-         const unsigned char *inp_bPC,
-                /*@out@*/ unsigned *tbinfo,
-                /*@out@*/ unsigned *plies);
+    (unsigned stm,
+     unsigned epsq,
+     unsigned castles,
+     const unsigned *inp_wSQ,
+     const unsigned *inp_bSQ,
+     const unsigned char *inp_wPC,
+     const unsigned char *inp_bPC,
+        /*@out@*/ unsigned *tbinfo,
+        /*@out@*/ unsigned *plies);
 
 extern int /*bool*/    tb_probe_soft
-        (unsigned stm,
-         unsigned epsq,
-         unsigned castles,
-         const unsigned *inp_wSQ,
-         const unsigned *inp_bSQ,
-         const unsigned char *inp_wPC,
-         const unsigned char *inp_bPC,
-                /*@out@*/ unsigned *tbinfo,
-                /*@out@*/ unsigned *plies);
+    (unsigned stm,
+     unsigned epsq,
+     unsigned castles,
+     const unsigned *inp_wSQ,
+     const unsigned *inp_bSQ,
+     const unsigned char *inp_wPC,
+     const unsigned char *inp_bPC,
+        /*@out@*/ unsigned *tbinfo,
+        /*@out@*/ unsigned *plies);
 
 extern int /*bool*/    tb_probe_WDL_hard
-        (unsigned stm,
-         unsigned epsq,
-         unsigned castles,
-         const unsigned *inp_wSQ,
-         const unsigned *inp_bSQ,
-         const unsigned char *inp_wPC,
-         const unsigned char *inp_bPC,
-                /*@out@*/ unsigned *tbinfo);
+    (unsigned stm,
+     unsigned epsq,
+     unsigned castles,
+     const unsigned *inp_wSQ,
+     const unsigned *inp_bSQ,
+     const unsigned char *inp_wPC,
+     const unsigned char *inp_bPC,
+        /*@out@*/ unsigned *tbinfo);
 
 extern int /*bool*/    tb_probe_WDL_soft
-        (unsigned stm,
-         unsigned epsq,
-         unsigned castles,
-         const unsigned *inp_wSQ,
-         const unsigned *inp_bSQ,
-         const unsigned char *inp_wPC,
-         const unsigned char *inp_bPC,
-                /*@out@*/ unsigned *tbinfo);
+    (unsigned stm,
+     unsigned epsq,
+     unsigned castles,
+     const unsigned *inp_wSQ,
+     const unsigned *inp_bSQ,
+     const unsigned char *inp_wPC,
+     const unsigned char *inp_bPC,
+        /*@out@*/ unsigned *tbinfo);
 
 extern int /*bool*/    tb_is_initialized(void);
 

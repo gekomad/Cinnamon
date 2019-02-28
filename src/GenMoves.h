@@ -22,7 +22,7 @@
 #include "util/Bitboard.h"
 #include <vector>
 
-class GenMoves : public ChessBoard {
+class GenMoves: public ChessBoard {
 
 public:
     static const int MAX_MOVE = 130;
@@ -291,9 +291,9 @@ public:
         const u64 *s = LINK_SQUARE[kingPosition];
         constexpr int xside = side ^1;
         u64 attacked = DIAGONAL_ANTIDIAGONAL[kingPosition] &
-                       (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
+            (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
         attacked |=
-                RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
+            RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
         for (; attacked; RESET_LSB(attacked)) {
             const int pos = BITScanForward(attacked);
             const u64 b = *(s + pos) & allpieces;

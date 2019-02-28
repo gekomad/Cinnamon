@@ -28,7 +28,7 @@
 #include <future>
 #include "namespaces/def.h"
 
-class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search> {
+class SearchManager: public Singleton<SearchManager>, public ThreadPool<Search> {
     friend class Singleton<SearchManager>;
 
 public:

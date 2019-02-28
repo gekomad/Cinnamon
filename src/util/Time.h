@@ -66,8 +66,8 @@ public:
 
     static string getLocalTime() {
         time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
-        auto a= string(ctime(&current));
-        return a.substr(0, a.size()-1);
+        auto a = string(ctime(&current));
+        return a.substr(0, a.size() - 1);
     }
 
     static string getLocalTimeNs() {
