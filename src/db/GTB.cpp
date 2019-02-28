@@ -228,7 +228,11 @@ bool GTB::setPath(const string &path1) {
     return load();
 }
 
-int GTB::extractDtm(const unsigned stm1, const bool doPrint, const int tb_available1, const unsigned info1, const unsigned pliestomate1) const {
+int GTB::extractDtm(const unsigned stm1,
+                    const bool doPrint,
+                    const int tb_available1,
+                    const unsigned info1,
+                    const unsigned pliestomate1) const {
     if (doPrint) {
         print(stm1, info1, pliestomate1);
     }
@@ -252,7 +256,11 @@ int GTB::extractDtm(const unsigned stm1, const bool doPrint, const int tb_availa
     return INT_MAX;
 }
 
-int GTB::getDtm(const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth) const {
+int GTB::getDtm(const int side,
+                const bool doPrint,
+                const _Tchessboard &chessboard,
+                const uchar rightCastle,
+                const int depth) const {
     unsigned int ws[17];    /* list of squares for white */
     unsigned int bs[17];    /* list of squares for black */
     unsigned char wp[17];    /* what white pieces are on those squares */

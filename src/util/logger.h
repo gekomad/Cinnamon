@@ -46,7 +46,7 @@ namespace _logger {
 
     static const string LOG_LEVEL_STRING[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF", "LOG"};
 
-    class Logger : public Singleton<Logger>, public ofstream {
+    class Logger: public Singleton<Logger>, public ofstream {
         friend class Singleton<Logger>;
 
     public:

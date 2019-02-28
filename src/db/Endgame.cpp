@@ -99,7 +99,7 @@ int Endgame::KBBKN(int winnerKingPos, int loserKingPos, int knightPos) {
 #endif
 
     return _board::VALUEBISHOP + DistanceBonus[DISTANCE[winnerKingPos][loserKingPos]] +
-           (DISTANCE[loserKingPos][knightPos]) * 32;
+        (DISTANCE[loserKingPos][knightPos]) * 32;
     // Bonus for driving the defending king and knight apart
     // Bonus for restricting the knight's mobility
     //result += Value((8 - popcount<Max15>(pos.attacks_from<KNIGHT>(nsq))) * 8);

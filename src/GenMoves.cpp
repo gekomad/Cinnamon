@@ -41,7 +41,7 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
 
     for (u64 x2 = chessboard[piece]; x2; RESET_LSB(x2)) {
         const int position = BITScanForward(x2);
-        u64 rankFile = getRankFile(position, allpieces) & enemies;;
+        u64 rankFile = rankFileRadar(position, allpieces) & enemies;;
         for (; rankFile; RESET_LSB(rankFile)) {
             if (pushmove<STANDARD_MOVE_MASK>(position, BITScanForward(rankFile), side, NO_PROMOTION, piece)) {
                 return true;
@@ -51,19 +51,12 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
     return false;
 }
 
-u64 GenMoves::performRankFileCaptureAndShift(const int position, const u64 enemies, const u64 allpieces) {
-    ASSERT_RANGE(position, 0, 63);
-    u64 rankFile = getRankFile(position, allpieces);
-    rankFile = (rankFile & enemies) | (rankFile & ~allpieces);
-    return rankFile;
-}
-
 bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {
     ASSERT_RANGE(piece, 0, 11);
     ASSERT_RANGE(side, 0, 1);
     for (u64 x2 = chessboard[piece]; x2; RESET_LSB(x2)) {
         const int position = BITScanForward(x2);
-        u64 diag = getDiagonalAntiDiagonal(position, allpieces) & enemies;
+        u64 diag = diagAntidiagRadar(position, allpieces) & enemies;
         for (; diag; RESET_LSB(diag)) {
             if (pushmove<STANDARD_MOVE_MASK>(position, BITScanForward(diag), side, NO_PROMOTION, piece)) {
                 return true;
@@ -79,7 +72,7 @@ void GenMoves::performRankFileShift(const int piece, const int side, const u64 a
 
     for (u64 x2 = chessboard[piece]; x2; RESET_LSB(x2)) {
         const int position = BITScanForward(x2);
-        u64 rankFile = getRankFile(position, allpieces) & ~allpieces;
+        u64 rankFile = rankFileRadar(position, allpieces) & ~allpieces;
         for (; rankFile; RESET_LSB(rankFile)) {
             pushmove<STANDARD_MOVE_MASK>(position, BITScanForward(rankFile), side, NO_PROMOTION, piece);
         }
@@ -91,7 +84,7 @@ void GenMoves::performDiagShift(const int piece, const int side, const u64 allpi
     ASSERT_RANGE(side, 0, 1);
     for (u64 x2 = chessboard[piece]; x2; RESET_LSB(x2)) {
         const int position = BITScanForward(x2);
-        u64 diag = getDiagonalAntiDiagonal(position, allpieces) & ~allpieces;
+        u64 diag = diagAntidiagRadar(position, allpieces) & ~allpieces;
         for (; diag; RESET_LSB(diag)) {
             pushmove<STANDARD_MOVE_MASK>(position, BITScanForward(diag), side, NO_PROMOTION, piece);
         }
@@ -106,17 +99,6 @@ void GenMoves::generateMoves(const int side, const u64 allpieces) {
 bool GenMoves::generateCaptures(const int side, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(side, 0, 1);
     return side ? generateCaptures<WHITE>(enemies, friends) : generateCaptures<BLACK>(enemies, friends);
-}
-
-u64 GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 allpieces) {
-    ASSERT_RANGE(position, 0, 63);
-    return performRankFileCaptureAndShift(position, enemies, allpieces) |
-           getDiagShiftAndCapture(position, enemies, allpieces);
-}
-
-u64 GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
-    ASSERT_RANGE(position, 0, 63);
-    return performRankFileCaptureAndShift(position, enemies, enemies | friends);
 }
 
 void GenMoves::setPerft(const bool b) {
@@ -514,11 +496,11 @@ int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
     static const string MATCH_QUEENSIDE_BLACK = "O-O-O e8c8";
     static const string MATCH_KINGSIDE_BLACK = "O-O e8g8";
     if (((MATCH_QUEENSIDE_WHITE.find(fenStr) != string::npos ||
-          MATCH_KINGSIDE_WHITE.find(fenStr) != string::npos) &&
-         getPieceAt<WHITE>(POW2[E1]) == KING_WHITE) ||
+        MATCH_KINGSIDE_WHITE.find(fenStr) != string::npos) &&
+        getPieceAt<WHITE>(POW2[E1]) == KING_WHITE) ||
         ((MATCH_QUEENSIDE_BLACK.find(fenStr) != string::npos ||
-          MATCH_KINGSIDE_BLACK.find(fenStr) != string::npos) &&
-         getPieceAt<BLACK>(POW2[E8]) == KING_BLACK)) {
+            MATCH_KINGSIDE_BLACK.find(fenStr) != string::npos) &&
+            getPieceAt<BLACK>(POW2[E8]) == KING_BLACK)) {
         if (MATCH_QUEENSIDE.find(fenStr) != string::npos) {
             move->type = QUEEN_SIDE_CASTLE_MOVE_MASK;
             move->from = QUEEN_SIDE_CASTLE_MOVE_MASK;

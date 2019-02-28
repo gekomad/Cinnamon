@@ -126,42 +126,51 @@ void Bitboard::popolateAntiDiagonal() {
         combinationsAntiDiagonal = getCombination(_board::ANTIDIAGONAL[pos]);
         for (u64 allpieces:combinationsAntiDiagonal) {
             uchar idx = antiDiagonalIdx(pos, allpieces);
-            BITBOARD_ANTIDIAGONAL[pos][idx] = performAntiDiagShift(pos, allpieces) | performAntiDiagCapture(pos, allpieces);
+            BITBOARD_ANTIDIAGONAL[pos][idx] =
+                performAntiDiagShift(pos, allpieces) | performAntiDiagCapture(pos, allpieces);
         }
     }
 }
 
 u64 Bitboard::performDiagShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_UP[position];
-    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_LOWER[position];
+    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)]
+              : _bitboardTmp::MASK_BIT_SET_LEFT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT_DOWN[position];
-    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_LEFT_UPPER[position];
+    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)]
+           : _bitboardTmp::MASK_BIT_SET_LEFT_UPPER[position];
     return k;
 
 }
 
 u64 Bitboard::performColumnShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_UP[position];
-    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_VERT_LOWER[position];
+    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)]
+              : _bitboardTmp::MASK_BIT_SET_VERT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_DOWN[position];
-    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_VERT_UPPER[position];
+    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)]
+           : _bitboardTmp::MASK_BIT_SET_VERT_UPPER[position];
     return k;
 }
 
 
 u64 Bitboard::performRankShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT[position];
-    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_LEFT[position];
+    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)]
+              : _bitboardTmp::MASK_BIT_SET_ORIZ_LEFT[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_LEFT[position];
-    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_ORIZ_RIGHT[position];
+    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)]
+           : _bitboardTmp::MASK_BIT_SET_ORIZ_RIGHT[position];
     return k;
 }
 
 u64 Bitboard::performAntiDiagShift(const int position, const u64 allpieces) {
     u64 q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_UP[position];
-    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
+    u64 k = q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanReverse(q)]
+              : _bitboardTmp::MASK_BIT_SET_RIGHT_LOWER[position];
     q = allpieces & _bitboardTmp::MASK_BIT_UNSET_RIGHT_DOWN[position];
-    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)] : _bitboardTmp::MASK_BIT_SET_RIGHT_UPPER[position];
+    k |= q ? tmpStruct->MASK_BIT_SET_NOBOUND_TMP[position][BITScanForward(q)]
+           : _bitboardTmp::MASK_BIT_SET_RIGHT_UPPER[position];
     return k;
 }
 
@@ -237,7 +246,11 @@ u64 Bitboard::performDiagCapture(const int position, const u64 allpieces) {
     return k;
 }
 
-vector<u64> Bitboard::combinations(const vector<u64> &elems, const int len, vector<int> &pos, const int depth, const int margin) {
+vector<u64> Bitboard::combinations(const vector<u64> &elems,
+                                   const int len,
+                                   vector<int> &pos,
+                                   const int depth,
+                                   const int margin) {
     vector<u64> res;
     if (depth >= len) {
         for (int ii = 0; ii < pos.size(); ++ii) {
@@ -267,7 +280,7 @@ vector<u64>  Bitboard::combinations(const vector<u64> &elems, const int len) {
 
 vector<u64> Bitboard::getCombination(u64 elements) {
     vector<u64> res;
-    for (; elements; RESET_LSB(elements)){
+    for (; elements; RESET_LSB(elements)) {
         const int o = BITScanForward(elements);
         res.push_back(o);
     }

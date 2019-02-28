@@ -22,7 +22,7 @@
 #include "util/Bitboard.h"
 #include <vector>
 
-class GenMoves : public ChessBoard {
+class GenMoves: public ChessBoard {
 
 public:
     static const int MAX_MOVE = 130;
@@ -105,25 +105,9 @@ public:
 
     int loadFen(string fen = "");
 
-    inline u64 getDiagCapture(const int position, const u64 allpieces, const u64 enemies) const {
-        ASSERT_RANGE(position, 0, 63);
-        return Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
-    }
-
-    u64 getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces) const {
-        ASSERT_RANGE(position, 0, 63);
-        u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
-        return (nuovo & enemies) | (nuovo & ~allpieces);
-    }
-
     void takeback(_Tmove *move, const u64 oldkey, bool rep);
 
     void setRepetitionMapCount(const int i);
-
-    inline u64 getDiagShift(const int position, const u64 allpieces) const {
-        ASSERT_RANGE(position, 0, 63);
-        return Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces;
-    }
 
     bool performKingShiftCapture(const int side, const u64 enemies);
 
@@ -291,9 +275,9 @@ public:
         const u64 *s = LINK_SQUARE[kingPosition];
         constexpr int xside = side ^1;
         u64 attacked = DIAGONAL_ANTIDIAGONAL[kingPosition] &
-                       (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
+            (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
         attacked |=
-                RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
+            RANK_FILE[kingPosition] & (chessboard[QUEEN_BLACK + xside] | chessboard[ROOK_BLACK + xside]);
         for (; attacked; RESET_LSB(attacked)) {
             const int pos = BITScanForward(attacked);
             const u64 b = *(s + pos) & allpieces;
@@ -346,11 +330,7 @@ protected:
         return getAttackers<side, false>(position, allpieces);
     }
 
-    u64 getMobilityRook(const int position, const u64 enemies, const u64 friends);
-
     int getMobilityCastle(const int side, const u64 allpieces) const;
-
-    u64 getMobilityQueen(const int position, const u64 enemies, const u64 allpieces);
 
     void initKillerHeuristic();
 
@@ -649,8 +629,6 @@ private:
         }
     }
 
-    u64 performRankFileCaptureAndShift(const int position, const u64 enemies, const u64 allpieces);
-
     void popStackMove() {
         ASSERT(repetitionMapCount > 0);
         if (--repetitionMapCount && repetitionMap[repetitionMapCount - 1] == 0) {
@@ -679,14 +657,14 @@ private:
         if (exitOnFirst && attackers)return 1;
         ///bishop queen
         u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
-        u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
+        u64 nuovo = Bitboard::diagAntidiagRadar(position, allpieces) & enemies;
         for (; nuovo; RESET_LSB(nuovo)) {
             const int bound = BITScanForward(nuovo);
             attackers |= POW2[bound];
             if (exitOnFirst && attackers)return 1;
         }
         enemies = chessboard[ROOK_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
-        nuovo = Bitboard::getRankFile(position, allpieces) & enemies;
+        nuovo = Bitboard::rankFileRadar(position, allpieces) & enemies;
         for (; nuovo; RESET_LSB(nuovo)) {
             const int bound = BITScanForward(nuovo);
             attackers |= POW2[bound];

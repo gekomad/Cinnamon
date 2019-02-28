@@ -22,7 +22,7 @@
 #include <vector>
 #include <functional>
 
-class Timer : public Thread<Timer> {
+class Timer: public Thread<Timer> {
 public:
 
     Timer(int seconds1);

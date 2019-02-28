@@ -18,7 +18,7 @@
 
 #include "String.h"
 
-bool String::endsWith(const string &ending) const{
+bool String::endsWith(const string &ending) const {
     if (ending.size() > this->size()) return false;
     return std::equal(ending.rbegin(), ending.rend(), this->rbegin());
 }
@@ -30,12 +30,14 @@ String &String::trim() {
 }
 
 String &String::trimLeft() {
-    this->erase(this->begin(), std::find_if(this->begin(), this->end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+    this->erase(this->begin(),
+                std::find_if(this->begin(), this->end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
     return *this;
 }
 
 String &String::trimRight() {
-    this->erase(std::find_if(this->rbegin(), this->rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), this->end());
+    this->erase(std::find_if(this->rbegin(), this->rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(),
+                this->end());
     return *this;
 }
 
