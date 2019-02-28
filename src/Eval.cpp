@@ -171,6 +171,7 @@ int Eval::evaluatePawn() {
  * 3 *king security* - in OPEN phase substracts at kingSecurityDistance ENEMY_NEAR_KING for each bishop close to enmey king
  * 4. undevelop - substracts UNDEVELOPED_BISHOP for each undeveloped bishop
  * 5. mobility add MOB_BISHOP[phase][???]
+ * 6. if only one bishop and pawns on same square color substracts n_pawns * BISHOP_PAWN_ON_SAME_COLOR
  * pinned ?
  * 7. outposts
  */
@@ -183,11 +184,17 @@ int Eval::evaluateBishop(const u64 enemies) {
     if (!bishop) return 0;
 
     int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
+    const int nBishop = bitCount(bishop);
 
     // 2.
-    if (phase != OPEN && bitCount(bishop) > 1) {
+    if (nBishop == 1) {
+        result -= BISHOP_PAWN_ON_SAME_COLOR * bitCount(chessboard[side] & ChessBoard::colors(BITScanForward(bishop)));
+    } else {
+        // 2.
+        if (phase != OPEN && nBishop > 1) {
         result += BONUS2BISHOP;
         ADD(SCORE_DEBUG.BONUS2BISHOP[side], BONUS2BISHOP);
+        }
     }
 
     // 3. *king security*
