@@ -379,6 +379,7 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
  * 5. add OPEN_FILE/HALF_OPEN_FILE if the rook is on open/semiopen file
  * 6. trapped
  * 7. 2 linked towers
+ * 8. Penalise if Rook is Blocked Horizontally
 */
 template<int side, Eval::_Tphase phase>
 int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
@@ -412,16 +413,9 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
     }
 
     // .6
-    if (side == WHITE) {
-        if (((F1G1bit & king) && (H1H2G1bit & rook)) || ((C1B1bit & king) && (A1A2B1bit & rook))) {
+    if (((F1G1bit[side] & king) && (H1H2G1bit[side] & rook)) || ((C1B1bit[side] & king) && (A1A2B1bit[side] & rook))) {
             ADD(SCORE_DEBUG.ROOK_TRAPPED[side], -ROOK_TRAPPED);
             result -= ROOK_TRAPPED;
-        }
-    } else {
-        if (((F8G8bit & king) && (H8H7G8bit & rook)) || ((C8B8bit & king) && (A8A7B8bit & rook))) {
-            ADD(SCORE_DEBUG.ROOK_TRAPPED[side], -ROOK_TRAPPED);
-            result -= ROOK_TRAPPED;
-        }
     }
 
     // .7
@@ -442,7 +436,7 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
         ADD(SCORE_DEBUG.MOB_ROOK[side], MOB_ROOK[phase][getMobilityRook(o, enemies, friends)]);
 
         if (phase != OPEN) {
-            // Penalise if Rook is Blocked Horizontally
+            // .8 Penalise if Rook is Blocked Horizontally
             if ((RANK_BOUND[o] & structureEval.allPieces) == RANK_BOUND[o]) {
                 ADD(SCORE_DEBUG.ROOK_BLOCKED[side], -ROOK_BLOCKED);
                 result -= ROOK_BLOCKED;
@@ -451,13 +445,12 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
 
         // .5
         if (!(chessboard[side] & FILE_[o])) {
-            if (!(chessboard[xside] & FILE_[o])) {
                 ADD(SCORE_DEBUG.ROOK_OPEN_FILE[side], OPEN_FILE);
                 result += OPEN_FILE;
-            } else {
-                ADD(SCORE_DEBUG.ROOK_OPEN_FILE[side], HALF_OPEN_FILE);
-                result += HALF_OPEN_FILE;
             }
+        if (!(chessboard[side ^ 1] & FILE_[o])) {
+            ADD(SCORE_DEBUG.ROOK_OPEN_FILE[side], OPEN_FILE);
+            result += OPEN_FILE;
         }
     }
     return result;
