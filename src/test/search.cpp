@@ -61,29 +61,6 @@ TEST(search, test2) {
     EXPECT_NE("d6d3", it.getBestmove());
 }
 
-TEST(search, test3) {
-    IterativeDeeping it;
-    it.loadFen("rn2kbnr/ppq2ppp/2p1p3/3p1b2/2PP4/1QN1P3/PP3PPP/R1B1KBNR w KQkq - 0 6");
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    searchManager.setMaxTimeMillsec(1000);
-    it.setMaxDepth(2);
-    it.start();
-    it.join();
-    EXPECT_NE("e3e4", it.getBestmove());
-    it.setMaxDepth(3);
-    it.start();
-    it.join();
-    EXPECT_NE("e3e4", it.getBestmove());
-    it.setMaxDepth(4);
-    it.start();
-    it.join();
-    EXPECT_NE("e3e4", it.getBestmove());
-    it.setMaxDepth(5);
-    it.start();
-    it.join();
-    EXPECT_NE("e3e4", it.getBestmove());
-}
-
 TEST(search, twoCore) {
     const set<string> v = {"d2d4", "e2e4", "e2e3"};
     IterativeDeeping it;

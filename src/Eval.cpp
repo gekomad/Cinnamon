@@ -204,11 +204,12 @@ int Eval::evaluateBishop(const u64 enemies, const u64 friends) {
         const int o = BITScanForward(bishop);
         // 5. mobility
         const u64 radar = diagAntidiagRadar(o, structureEval.allPieces);
-        ASSERT(bitCount(captured) + bitCount(getDiagShift(o, structureEval.allPieces)) <
-            (int) (sizeof(MOB_BISHOP) / sizeof(int)));
 
         structureEval.radar[side] |= radar;
         const auto enemyCaptured = radar & enemies;
+        ASSERT(bitCount(enemyCaptured) + bitCount(radar & (~structureEval.allPiecesSide[side])) <
+            (int) (sizeof(MOB_BISHOP) / sizeof(int)));
+
         result += MOB_BISHOP[phase][bitCount(enemyCaptured) + bitCount(radar & (~structureEval.allPiecesSide[side]))];
         ADD(SCORE_DEBUG.MOB_BISHOP[side],
             MOB_BISHOP[phase][bitCount(enemyCaptured) + bitCount(radar & (~structureEval.allPiecesSide[side]))]);
@@ -438,10 +439,10 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
         const int o = BITScanForward(rook);
         //mobility
 
-        ASSERT(bitCount(getMobilityRook(o, enemies, friends)) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
         const auto radar = rankFileRadar(o, enemies | friends);
         structureEval.radar[side] |= radar;
         const auto mobRook = radar & ~friends;
+        ASSERT(bitCount(mobRook) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
         result += MOB_ROOK[phase][bitCount(mobRook)];
         ADD(SCORE_DEBUG.MOB_ROOK[side], MOB_ROOK[phase][bitCount(mobRook)]);
 
