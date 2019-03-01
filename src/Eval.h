@@ -84,6 +84,7 @@ protected:
         int UNDEVELOPED_BISHOP[2];
         int OPEN_DIAG_BISHOP[2];
         int BONUS2BISHOP[2];
+        int BISHOP_PAWN_ON_SAME_COLOR[2];
 
         int ATTACK_KING_PAWN[2];
         int PAWN_CENTER[2];
@@ -126,24 +127,25 @@ protected:
         int ROOK_OPEN_FILE[2];
         int CONNECTED_ROOKS[2];
     } _TSCORE_DEBUG;
-    _TSCORE_DEBUG SCORE_DEBUG;
+    _TSCORE_DEBUG SCORE_DEBUG[2];
 #endif
 
 private:
+    static constexpr int MAX_VALUE = VALUEROOK * 2 + VALUEBISHOP * 2 + VALUEKNIGHT * 2 + VALUEQUEEN;
+
     static constexpr int hashSize = 65536;
     static constexpr u64 keyMask = 0xffffffffffff0000ULL;
     static constexpr u64 valueMask = 0xffffULL;
     static constexpr short noHashValue = (short) 0xffff;
+
+    static constexpr char MG = 0;
+    static constexpr char EG = 1;
 
     static u64 *evalHash;
 
     inline void storeHashValue(const u64 key, const short value);
 
     inline short getHashValue(const u64 key) const;
-
-    enum _Tphase {
-        OPEN, MIDDLE, END
-    };
 
     typedef struct {
         int pawns[2];
@@ -158,7 +160,7 @@ private:
     int evaluationCount[2];
 #endif
 
-    template<_Tphase phase>
+
     void getRes(_Tresult &res) {
         res.pawns[BLACK] = evaluatePawn<BLACK, phase>();
         res.pawns[WHITE] = evaluatePawn<WHITE, phase>();
@@ -184,23 +186,22 @@ private:
     template<int side>
     void openFile();
 
-    template<int side, _Tphase phase>
-    int evaluatePawn();
+    template<int side>
+    pair<short, short> evaluatePawn();
 
-    template<int side, _Tphase phase>
-    int evaluateBishop(const u64);
+    template<int side>
+    pair<short, short>  evaluateBishop(const u64);
 
-    template<int side, Eval::_Tphase phase>
-    int evaluateQueen(const u64 enemies);
+    template<int side>
+    pair<short, short>  evaluateQueen(const u64 enemies);
 
-    template<int side, _Tphase phase>
-    int evaluateKnight(const u64, const u64);
+    template<int side>
+    pair<short, short> evaluateKnight(const u64, const u64);
 
-    template<int side, Eval::_Tphase phase>
-    int evaluateRook(const u64, u64 enemies, u64 friends);
+    template<int side>
+    pair<short, short> evaluateRook(const u64, u64 enemies, u64 friends);
 
-    template<_Tphase phase>
-    int evaluateKing(int side, u64 squares);
+    pair<short, short> evaluateKing(int side, u64 squares);
 
     template<int side>
     int lazyEvalSide() {

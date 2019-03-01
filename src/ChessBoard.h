@@ -192,7 +192,7 @@ protected:
         u64 isolated[2];
         u64 allPiecesNoPawns[2];
         //u64 pinned[2]; anche x regina?
-        int kingSecurityDistance[2];
+        int kingSecurityDistanceEG[2];
         uchar posKing[2];
     } _Tboard;
 
