@@ -937,78 +937,77 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
         p(SCORE_DEBUG[MG].OPEN_DIAG_BISHOP[WHITE], SCORE_DEBUG[MG].OPEN_DIAG_BISHOP[BLACK]);
         p(SCORE_DEBUG[EG].OPEN_DIAG_BISHOP[WHITE], SCORE_DEBUG[EG].OPEN_DIAG_BISHOP[BLACK]);
 
-        cout << "\n|bonus 2 bishops\t\t";
+        cout << "\n|bonus 2 bishops\t";
         p(0xffffffffffffffffULL, 0);
         p(SCORE_DEBUG[MG].BONUS2BISHOP[WHITE], SCORE_DEBUG[MG].BONUS2BISHOP[BLACK]);
         p(SCORE_DEBUG[EG].BONUS2BISHOP[WHITE], SCORE_DEBUG[EG].BONUS2BISHOP[BLACK]);
 
-//        cout << HEADER;
-        cout << "\n|Rook:             " << setw(10) << (tresult[MG].rooks[WHITE] - tresult[MG].rooks[BLACK]) / 100.0
-            << setw(15) << (tresult[MG].rooks[WHITE]) / 100.0 << setw(10) << (tresult[MG].rooks[BLACK]) / 100.0 <<
-            (tresult[MG].rooks[WHITE] - tresult[MG].rooks[BLACK]) / 100.0 << setw(15)
-            << (tresult[MG].rooks[WHITE]) / 100.0 << setw(10) << (tresult[MG].rooks[BLACK]) / 100.0 << endl;
+        cout << "\n|ROOK\t\t\t\t|";
+        p((tresult[MG].rooks[WHITE] - tresult[MG].rooks[BLACK]), (tresult[EG].rooks[WHITE] - tresult[EG].rooks[BLACK]));
+        p(tresult[MG].rooks[WHITE], tresult[EG].rooks[BLACK]);
+        p(tresult[EG].rooks[BLACK], tresult[EG].rooks[BLACK]);
 
-        cout << "|       7th:                      " << setw(10) << (SCORE_DEBUG[MG].ROOK_7TH_RANK[WHITE]) / 100.0
-            << setw(10) << (SCORE_DEBUG[MG].ROOK_7TH_RANK[BLACK]) / 100.0 <<
-            setw(10) << (SCORE_DEBUG[MG].ROOK_7TH_RANK[WHITE]) / 100.0 << setw(10)
-            << (SCORE_DEBUG[MG].ROOK_7TH_RANK[BLACK]) / 100.0 << endl;
+        cout << "\n|7th\t\t\t\t";
+        p(0xffffffffffffffffULL, 0);
+        p(SCORE_DEBUG[MG].ROOK_7TH_RANK[WHITE], SCORE_DEBUG[MG].ROOK_7TH_RANK[BLACK]);
+        p(SCORE_DEBUG[EG].ROOK_7TH_RANK[WHITE], SCORE_DEBUG[EG].ROOK_7TH_RANK[BLACK]);
 
-        cout << "|       trapped:                  " << setw(10) << (SCORE_DEBUG[MG].ROOK_TRAPPED[WHITE]) / 100.0
-            << setw(10) << (SCORE_DEBUG[MG].ROOK_TRAPPED[BLACK]) / 100.0 <<
-            setw(10) << (SCORE_DEBUG[MG].ROOK_TRAPPED[WHITE]) / 100.0 << setw(10)
-            << (SCORE_DEBUG[MG].ROOK_TRAPPED[BLACK]) / 100.0 << endl;
+        cout << "\n|trapped\t\t\t";
+        p(0xffffffffffffffffULL, 0);
+        p(SCORE_DEBUG[MG].ROOK_TRAPPED[WHITE], SCORE_DEBUG[MG].ROOK_TRAPPED[BLACK]);
+        p(SCORE_DEBUG[EG].ROOK_TRAPPED[WHITE], SCORE_DEBUG[EG].ROOK_TRAPPED[BLACK]);
 
-        cout << "|       mobility:                 " << setw(10) << (SCORE_DEBUG[MG].MOB_ROOK[WHITE]) / 100.0
-            << setw(10) << (SCORE_DEBUG[MG].MOB_ROOK[BLACK]) / 100.0 <<
-            setw(10) << (SCORE_DEBUG[MG].MOB_ROOK[WHITE]) / 100.0 << setw(10)
-            << (SCORE_DEBUG[MG].MOB_ROOK[BLACK]) / 100.0 << endl;
+        cout << "\n|mobility\t\t\t";
+        p(0xffffffffffffffffULL, 0);
+        p(SCORE_DEBUG[MG].MOB_ROOK[WHITE], SCORE_DEBUG[MG].MOB_ROOK[BLACK]);
+        p(SCORE_DEBUG[EG].MOB_ROOK[WHITE], SCORE_DEBUG[EG].MOB_ROOK[BLACK]);
 
-        cout << "|       blocked:                  " << setw(10) << (SCORE_DEBUG[MG].ROOK_BLOCKED[WHITE]) / 100.0
-            << setw(10) << (SCORE_DEBUG[MG].ROOK_BLOCKED[BLACK]) / 100.0 <<
-            setw(10) << (SCORE_DEBUG[MG].ROOK_BLOCKED[WHITE]) / 100.0 << setw(10)
-            << (SCORE_DEBUG[MG].ROOK_BLOCKED[BLACK]) / 100.0 << endl;
+        cout << "\n|blocked\t\t\t";
+        p(0xffffffffffffffffULL, 0);
+        p(SCORE_DEBUG[MG].ROOK_BLOCKED[WHITE], SCORE_DEBUG[MG].ROOK_BLOCKED[BLACK]);
+        p(SCORE_DEBUG[EG].ROOK_BLOCKED[WHITE], SCORE_DEBUG[EG].ROOK_BLOCKED[BLACK]);
 
-        cout << "|       open file:                " << setw(10) << (SCORE_DEBUG[MG].ROOK_OPEN_FILE[WHITE]) / 100.0
-            << setw(10) << (SCORE_DEBUG[MG].ROOK_OPEN_FILE[BLACK]) / 100.0 <<
-            setw(10) << (SCORE_DEBUG[MG].ROOK_OPEN_FILE[WHITE]) / 100.0 << setw(10)
-            << (SCORE_DEBUG[MG].ROOK_OPEN_FILE[BLACK]) / 100.0 << endl;
+        cout << "\n|open file\t\t\t";
+        p(0xffffffffffffffffULL, 0);
+        p(SCORE_DEBUG[MG].ROOK_OPEN_FILE[WHITE], SCORE_DEBUG[MG].ROOK_OPEN_FILE[BLACK]);
+        p(SCORE_DEBUG[EG].ROOK_OPEN_FILE[WHITE], SCORE_DEBUG[EG].ROOK_OPEN_FILE[BLACK]);
 
-        cout << "|       connected:                " << setw(10) << (SCORE_DEBUG[MG].CONNECTED_ROOKS[WHITE]) / 100.0
-            << setw(10) << (SCORE_DEBUG[MG].CONNECTED_ROOKS[BLACK]) / 100.0 <<
-            setw(10) << (SCORE_DEBUG[MG].CONNECTED_ROOKS[WHITE]) / 100.0 << setw(10)
-            << (SCORE_DEBUG[MG].CONNECTED_ROOKS[BLACK]) / 100.0 << endl;
+        cout << "\n|connected\t\t\t";
+        p(0xffffffffffffffffULL, 0);
+        p(SCORE_DEBUG[MG].CONNECTED_ROOKS[WHITE], SCORE_DEBUG[MG].CONNECTED_ROOKS[BLACK]);
+        p(SCORE_DEBUG[EG].CONNECTED_ROOKS[WHITE], SCORE_DEBUG[EG].CONNECTED_ROOKS[BLACK]);
 
-//        cout << HEADER;
-        cout << "|Queen:            " << setw(10) << (tresult[MG].queens[WHITE] - tresult[MG].queens[BLACK]) / 100.0
-            << setw(15) << (tresult[MG].queens[WHITE]) / 100.0 << setw(10) << (tresult[MG].queens[BLACK]) / 100.0 <<
-            setw(10) << (tresult[MG].queens[WHITE] - tresult[MG].queens[BLACK]) / 100.0 << setw(15)
-            << (tresult[MG].queens[WHITE]) / 100.0 << setw(10) << (tresult[MG].queens[BLACK]) / 100.0 << endl;
+        cout << "\n|QUEEN\t\t\t\t|";
+        p((tresult[MG].queens[WHITE] - tresult[MG].queens[BLACK]),
+          (tresult[EG].queens[WHITE] - tresult[EG].queens[BLACK]));
+        p(tresult[MG].queens[WHITE], tresult[MG].queens[BLACK]);
+        p(tresult[EG].queens[WHITE], tresult[EG].queens[BLACK]);
 
-        cout << "|       mobility:                 " << setw(10) << (SCORE_DEBUG[MG].MOB_QUEEN[WHITE]) / 100.0
-            << setw(10) << (SCORE_DEBUG[MG].MOB_QUEEN[BLACK]) / 100.0 <<
-            setw(10) << (SCORE_DEBUG[MG].MOB_QUEEN[WHITE]) / 100.0 << setw(10)
-            << (SCORE_DEBUG[MG].MOB_QUEEN[BLACK]) / 100.0 << endl;
 
-        cout << "|       bishop on queen:          " << setw(10) << (SCORE_DEBUG[MG].BISHOP_ON_QUEEN[WHITE]) / 100.0
-            << setw(10) << (SCORE_DEBUG[MG].BISHOP_ON_QUEEN[BLACK]) / 100.0 <<
-            setw(10) << (SCORE_DEBUG[MG].BISHOP_ON_QUEEN[WHITE]) / 100.0 << setw(10)
-            << (SCORE_DEBUG[MG].BISHOP_ON_QUEEN[BLACK]) / 100.0 << endl;
+        cout << "\n|mobility\t\t\t";
+        p(0xffffffffffffffffULL, 0);
+        p(SCORE_DEBUG[MG].MOB_QUEEN[WHITE], SCORE_DEBUG[MG].MOB_QUEEN[BLACK]);
+        p(SCORE_DEBUG[MG].MOB_QUEEN[WHITE], SCORE_DEBUG[MG].MOB_QUEEN[BLACK]);
 
-//        cout << HEADER;
-        cout << "|King:             " << setw(10) << (tresult[MG].kings[WHITE] - tresult[MG].kings[BLACK]) / 100.0
+        cout << "\n|bishop on queen";
+        p(0xffffffffffffffffULL, 0);
+        p(SCORE_DEBUG[MG].BISHOP_ON_QUEEN[WHITE], SCORE_DEBUG[MG].BISHOP_ON_QUEEN[BLACK]);
+        p(SCORE_DEBUG[MG].BISHOP_ON_QUEEN[WHITE], SCORE_DEBUG[MG].BISHOP_ON_QUEEN[BLACK]);
+        
+        cout << "\n|King:             " << setw(10) << (tresult[MG].kings[WHITE] - tresult[MG].kings[BLACK]) / 100.0
             << setw(15) << (tresult[MG].kings[WHITE]) / 100.0 << setw(10) << (tresult[MG].kings[BLACK]) / 100.0 <<
             setw(10) << (tresult[MG].kings[WHITE] - tresult[MG].kings[BLACK]) / 100.0 << setw(15)
             << (tresult[MG].kings[WHITE]) / 100.0 << setw(10) << (tresult[MG].kings[BLACK]) / 100.0 << endl;
-        cout << "|       distance:                 " << setw(10) << (SCORE_DEBUG[MG].DISTANCE_KING[WHITE]) / 100.0
+        cout << "\n|       distance:                 " << setw(10) << (SCORE_DEBUG[MG].DISTANCE_KING[WHITE]) / 100.0
             << setw(10) << (SCORE_DEBUG[MG].DISTANCE_KING[BLACK]) / 100.0 <<
             setw(10) << (SCORE_DEBUG[MG].DISTANCE_KING[WHITE]) / 100.0 << setw(10)
             << (SCORE_DEBUG[MG].DISTANCE_KING[BLACK]) / 100.0 << endl;
-        cout << "|       open file:                " << setw(10) << (SCORE_DEBUG[MG].END_OPENING_KING[WHITE]) / 100.0
+        cout << "\n|       open file:                " << setw(10) << (SCORE_DEBUG[MG].END_OPENING_KING[WHITE]) / 100.0
             << setw(10) << (SCORE_DEBUG[MG].END_OPENING_KING[BLACK]) / 100.0 <<
             setw(10) << (SCORE_DEBUG[MG].END_OPENING_KING[WHITE]) / 100.0 << setw(10)
             << (SCORE_DEBUG[MG].END_OPENING_KING[BLACK]) / 100.0 << endl;
 
-        cout << "|       pawn near:                " << setw(10) << (SCORE_DEBUG[MG].PAWN_NEAR_KING[WHITE]) / 100.0
+        cout << "\n|       pawn near:                " << setw(10) << (SCORE_DEBUG[MG].PAWN_NEAR_KING[WHITE]) / 100.0
             << setw(10) << (SCORE_DEBUG[MG].PAWN_NEAR_KING[BLACK]) / 100.0 <<
             setw(10) << (SCORE_DEBUG[MG].PAWN_NEAR_KING[WHITE]) / 100.0 << setw(10)
             << (SCORE_DEBUG[MG].PAWN_NEAR_KING[BLACK]) / 100.0 << endl;
