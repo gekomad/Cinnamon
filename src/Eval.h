@@ -79,60 +79,58 @@ protected:
     STATIC_CONST int UNDEVELOPED_BISHOP = 4;
 #ifdef DEBUG_MODE
     typedef struct {
-        int BAD_BISHOP[2];
-        int MOB_BISHOP[2];
-        int UNDEVELOPED_BISHOP[2];
-        int OPEN_DIAG_BISHOP[2];
-        int BONUS2BISHOP[2];
-        int BISHOP_PAWN_ON_SAME_COLOR[2];
+        double BAD_BISHOP[2];
+        double MOB_BISHOP[2];
+        double UNDEVELOPED_BISHOP[2];
+        double OPEN_DIAG_BISHOP[2];
+        double BONUS2BISHOP[2];
+        double BISHOP_PAWN_ON_SAME_COLOR[2];
 
-        int ATTACK_KING_PAWN[2];
-        int PAWN_CENTER[2];
-        int PAWN_7H[2];
-        int PAWN_IN_8TH[2];
-        int PAWN_BLOCKED[2];
-        int UNPROTECTED_PAWNS[2];
-        int PAWN_ISOLATED[2];
-        int DOUBLED_PAWNS[2];
-        int DOUBLED_ISOLATED_PAWNS[2];
-        int BACKWARD_PAWN[2];
-        int FORK_SCORE[2];
-        int PAWN_PASSED[2];
-        int ENEMIES_PAWNS_ALL[2];
-        int NO_PAWNS[2];
+        double ATTACK_KING_PAWN[2];
+        double PAWN_CENTER[2];
+        double PAWN_7H[2];
+        double PAWN_IN_8TH[2];
+        double PAWN_BLOCKED[2];
+        double UNPROTECTED_PAWNS[2];
+        double PAWN_ISOLATED[2];
+        double DOUBLED_PAWNS[2];
+        double DOUBLED_ISOLATED_PAWNS[2];
+        double BACKWARD_PAWN[2];
+        double FORK_SCORE[2];
+        double PAWN_PASSED[2];
+        double ENEMIES_PAWNS_ALL[2];
+        double NO_PAWNS[2];
 
-        int KING_SECURITY_BISHOP[2];
-        int KING_SECURITY_QUEEN[2];
-        int KING_SECURITY_KNIGHT[2];
-        int KING_SECURITY_ROOK[2];
-        int DISTANCE_KING[2];
-        int END_OPENING_KING[2];
-        int PAWN_NEAR_KING[2];
-        int MOB_KING[2];
+        double KING_SECURITY_BISHOP[2];
+        double KING_SECURITY_QUEEN[2];
+        double KING_SECURITY_KNIGHT[2];
+        double KING_SECURITY_ROOK[2];
+        double DISTANCE_KING[2];
+        double END_OPENING_KING[2];
+        double PAWN_NEAR_KING[2];
+        double MOB_KING[2];
 
-        int MOB_QUEEN[2];
-        int OPEN_FILE_Q[2];
-        int BISHOP_ON_QUEEN[2];
-        int HALF_OPEN_FILE_Q[2];
+        double MOB_QUEEN[2];
+        double OPEN_FILE_Q[2];
+        double BISHOP_ON_QUEEN[2];
+        double HALF_OPEN_FILE_Q[2];
 
-        int UNDEVELOPED_KNIGHT[2];
-        int KNIGHT_TRAPPED[2];
-        int MOB_KNIGHT[2];
+        double UNDEVELOPED_KNIGHT[2];
+        double KNIGHT_TRAPPED[2];
+        double MOB_KNIGHT[2];
 
 
-        int ROOK_7TH_RANK[2];
-        int ROOK_TRAPPED[2];
-        int MOB_ROOK[2];
-        int ROOK_BLOCKED[2];
-        int ROOK_OPEN_FILE[2];
-        int CONNECTED_ROOKS[2];
+        double ROOK_7TH_RANK[2];
+        double ROOK_TRAPPED[2];
+        double MOB_ROOK[2];
+        double ROOK_BLOCKED[2];
+        double ROOK_OPEN_FILE[2];
+        double CONNECTED_ROOKS[2];
     } _TSCORE_DEBUG;
     _TSCORE_DEBUG SCORE_DEBUG[2];
 #endif
 
 private:
-    static constexpr int MAX_VALUE = VALUEROOK * 2 + VALUEBISHOP * 2 + VALUEKNIGHT * 2 + VALUEQUEEN;
-
     static constexpr int hashSize = 65536;
     static constexpr u64 keyMask = 0xffffffffffff0000ULL;
     static constexpr u64 valueMask = 0xffffULL;
@@ -148,39 +146,85 @@ private:
     inline short getHashValue(const u64 key) const;
 
     typedef struct {
-        int pawns[2];
-        int bishop[2];
-        int queens[2];
-        int rooks[2];
-        int knights[2];
-        int kings[2];
+        double pawns[2];
+        double bishop[2];
+        double queens[2];
+        double rooks[2];
+        double knights[2];
+        double kings[2];
     } _Tresult;
 
 #ifdef DEBUG_MODE
     int evaluationCount[2];
+    void p(double, double);
 #endif
 
 
-    void getRes(_Tresult &res) {
-        res.pawns[BLACK] = evaluatePawn<BLACK, phase>();
-        res.pawns[WHITE] = evaluatePawn<WHITE, phase>();
+    void getScores(_Tresult res[2]) {
+        {
+            const auto x1 = evaluatePawn<BLACK>();
+            res[MG].pawns[BLACK] = x1.first;
+            res[EG].pawns[BLACK] = x1.second;
 
-        res.bishop[BLACK] = evaluateBishop<BLACK, phase>(structureEval.allPiecesSide[WHITE]);
-        res.bishop[WHITE] = evaluateBishop<WHITE, phase>(structureEval.allPiecesSide[BLACK]);
+            const auto x2 = evaluatePawn<WHITE>();
+            res[MG].pawns[WHITE] = x2.first;
+            res[EG].pawns[WHITE] = x2.second;
+        }
 
-        res.queens[BLACK] = evaluateQueen<BLACK, phase>(structureEval.allPiecesSide[WHITE]);
-        res.queens[WHITE] = evaluateQueen<WHITE, phase>(structureEval.allPiecesSide[BLACK]);
+        {
+            const auto x1 = evaluateBishop<BLACK>(structureEval.allPiecesSide[WHITE]);
+            res[MG].bishop[BLACK] = x1.first;
+            res[EG].bishop[BLACK] = x1.second;
 
-        res.rooks[BLACK] = evaluateRook<BLACK, phase>(chessboard[KING_BLACK], structureEval.allPiecesSide[WHITE],
-                                                      structureEval.allPiecesSide[BLACK]);
-        res.rooks[WHITE] = evaluateRook<WHITE, phase>(chessboard[KING_WHITE], structureEval.allPiecesSide[BLACK],
-                                                      structureEval.allPiecesSide[WHITE]);
+            const auto x2 = evaluateBishop<WHITE>(structureEval.allPiecesSide[BLACK]);
+            res[MG].bishop[WHITE] = x2.first;
+            res[EG].bishop[WHITE] = x2.second;
+        }
 
-        res.knights[BLACK] = evaluateKnight<BLACK, phase>(chessboard[WHITE], ~structureEval.allPiecesSide[BLACK]);
-        res.knights[WHITE] = evaluateKnight<WHITE, phase>(chessboard[BLACK], ~structureEval.allPiecesSide[WHITE]);
+        {
+            const auto x1 = evaluateQueen<BLACK>(structureEval.allPiecesSide[WHITE]);
+            res[MG].queens[BLACK] = x1.first;
+            res[EG].queens[BLACK] = x1.second;
 
-        res.kings[BLACK] = evaluateKing<phase>(BLACK, ~structureEval.allPiecesSide[BLACK]);
-        res.kings[WHITE] = evaluateKing<phase>(WHITE, ~structureEval.allPiecesSide[WHITE]);
+            const auto x2 = evaluateQueen<WHITE>(structureEval.allPiecesSide[BLACK]);
+            res[MG].queens[WHITE] = x2.first;
+            res[EG].queens[WHITE] = x2.second;
+        }
+
+        {
+            const auto x1 = evaluateRook<BLACK>(chessboard[KING_BLACK],
+                                                structureEval.allPiecesSide[WHITE],
+                                                structureEval.allPiecesSide[BLACK]);
+            res[MG].rooks[BLACK] = x1.first;
+            res[EG].rooks[BLACK] = x1.second;
+
+            const auto x2 = evaluateRook<WHITE>(chessboard[KING_WHITE],
+                                                structureEval.allPiecesSide[BLACK],
+                                                structureEval.allPiecesSide[WHITE]);
+            res[MG].rooks[WHITE] = x2.first;
+            res[EG].rooks[WHITE] = x2.second;
+        }
+
+        {
+            const auto x1 = evaluateKnight<BLACK>(chessboard[WHITE], ~structureEval.allPiecesSide[BLACK]);
+            res[MG].knights[BLACK] = x1.first;
+            res[EG].knights[BLACK] = x1.second;
+
+            const auto x2 = evaluateKnight<WHITE>(chessboard[BLACK], ~structureEval.allPiecesSide[WHITE]);
+            res[MG].knights[WHITE] = x2.first;
+            res[EG].knights[WHITE] = x2.second;
+
+        }
+
+        {
+            const auto x1 = evaluateKing(BLACK, ~structureEval.allPiecesSide[BLACK]);
+            res[MG].kings[BLACK] = x1.first;
+            res[EG].kings[BLACK] = x1.second;
+
+            const auto x2 = evaluateKing(WHITE, ~structureEval.allPiecesSide[WHITE]);
+            res[MG].kings[WHITE] = x2.first;
+            res[EG].kings[WHITE] = x2.second;
+        }
     }
 
     template<int side>
@@ -190,10 +234,10 @@ private:
     pair<short, short> evaluatePawn();
 
     template<int side>
-    pair<short, short>  evaluateBishop(const u64);
+    pair<short, short> evaluateBishop(const u64);
 
     template<int side>
-    pair<short, short>  evaluateQueen(const u64 enemies);
+    pair<short, short> evaluateQueen(const u64 enemies);
 
     template<int side>
     pair<short, short> evaluateKnight(const u64, const u64);
@@ -256,15 +300,13 @@ namespace _eval {
          0, 0, 0, 0, 0, 0, 0, 0}
     };
     static constexpr int
-        MOB_QUEEN[3][29] = {{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                            {-10, -9, -5, 0, 3, 6, 7, 10, 11, 12, 15, 18, 28, 30, 32, 35, 40, 50, 51, 52, 53, 54, 55,
-                             56, 57, 58, 59, 60, 61},
-                            {-20, -15, -10, 0, 1, 3, 4, 9, 11, 12, 15, 18, 28, 30, 32, 33, 34, 36, 37, 39, 40, 41, 42,
-                             43, 44, 45, 56, 47, 48}};
+        MOB_QUEEN[2][29] = {{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                            {-15, -11, -7, 0, 2, 5, 5, 10, 11, 12, 15, 18, 28, 30, 32, 34, 37, 42, 43, 45, 46, 47, 48,
+                             50, 52, 52, 53, 55, 57}};
 
-    static constexpr int MOB_ROOK[3][15] = {{-1, 0, 1, 4, 5, 6, 7, 9, 12, 14, 19, 22, 23, 24, 25},
-                                            {-9, -8, 1, 8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 51, 52},
-                                            {-15, -10, -5, 0, 9, 11, 16, 22, 30, 32, 40, 45, 50, 51, 52}};
+    static constexpr int MOB_ROOK[2][15] = {{-1, 0, 1, 4, 5, 6, 7, 9, 12, 14, 19, 22, 23, 24, 25},
+                                            {-12, -9, 3, 4, 9, 10, 15, 21, 29, 31, 40, 45, 50, 51, 52}
+    };
 
     static constexpr int MOB_KNIGHT[9] = {-8,
                                           -4,
@@ -276,17 +318,14 @@ namespace _eval {
                                           35,
                                           40};
 
-    static constexpr int MOB_BISHOP[3][14] = {{-8, -7, 2, 8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 50},
-                                              {-20, -10, -4, 0, 5, 10, 15, 20, 28, 30, 40, 45, 50, 50},
-                                              {-20, -10, -4, 0, 3, 8, 13, 18, 25, 30, 40, 45, 50, 50}};
+    static constexpr int MOB_BISHOP[2][14] = {{-8, -7, 2, 8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 50},
+                                              {-20, -10, -4, 0, 5, 10, 15, 20, 28, 30, 40, 45, 50, 50}};
 
-    static constexpr int MOB_KING[3][9] = {{1, 2, 2, 1, 0, 0, 0, 0, 0},
-                                           {-5, 0, 5, 5, 5, 0, 0, 0, 0},
-                                           {-50, -30, -10, 10, 25, 40, 50, 55, 60}};
+    static constexpr int MOB_KING[2][9] = {{1, 2, 2, 1, 0, 0, 0, 0, 0},
+                                           {-25, 15, 5, 7, 15, 20, 25, 26, 30}};
 
-    static constexpr int MOB_CASTLE[3][3] = {{-50, 30, 50},
-                                             {-1, 10, 10},
-                                             {0, 0, 0}};
+    static constexpr int MOB_CASTLE[2][3] = {{-50, 30, 50},
+                                             {-1, 10, 10}};
 
     static constexpr int BONUS_ATTACK_KING[18] = {-1, 2, 8, 64, 128, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512,
                                                   512, 512, 512};
