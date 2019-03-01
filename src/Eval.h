@@ -156,7 +156,20 @@ private:
 
 #ifdef DEBUG_MODE
     int evaluationCount[2];
-    void p(double, double);
+
+    void p() {
+        cout << "|\t      \t      \t|";
+    }
+
+    void p(double d1, double d2) {
+        std::cout << std::fixed;
+        std::cout << std::setprecision(2);
+        std::cout << "\t";
+        std::cout << d1 / 100.0;
+        std::cout << "\t";
+        std::cout << d2 / 100.0;
+        std::cout << "\t|";
+    }
 #endif
 
 

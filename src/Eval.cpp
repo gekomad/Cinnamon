@@ -649,24 +649,6 @@ short Eval::getHashValue(const u64 key) const {
     return noHashValue;
 }
 
-void Eval::p(double d1, double d2) {
-    if (d1 == 0xffffffffffffffffULL) {
-        cout << "|\t      \t      \t|";
-    } else {
-        std::cout << std::fixed;
-        std::cout << std::setprecision(2);
-//        if (d1 >= 0.0)cout << " ";
-        std::cout << "\t";
-        std::cout << d1 / 100.0;
-
-        std::cout << "\t";
-//        if (d2 >= 0.0)cout << " ";
-        std::cout << d2 / 100.0;
-
-        std::cout << "\t|";
-    }
-}
-
 short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int alpha, const int beta,
                      const bool trace) {
 
@@ -686,6 +668,9 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
     }
 
 #ifdef DEBUG_MODE
+
+
+
     evaluationCount[WHITE] = evaluationCount[BLACK] = 0;
     memset(&SCORE_DEBUG, 0, sizeof(_TSCORE_DEBUG));
 #endif
@@ -811,78 +796,78 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
 
 
         cout << "\n|attack king\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].ATTACK_KING_PAWN[WHITE], SCORE_DEBUG[MG].ATTACK_KING_PAWN[BLACK]);
         p(SCORE_DEBUG[EG].ATTACK_KING_PAWN[WHITE], SCORE_DEBUG[EG].ATTACK_KING_PAWN[BLACK]);
 
         cout << "\n|1 bishop pawn s/c\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].BISHOP_PAWN_ON_SAME_COLOR[WHITE], SCORE_DEBUG[MG].BISHOP_PAWN_ON_SAME_COLOR[BLACK]);
         p(SCORE_DEBUG[EG].BISHOP_PAWN_ON_SAME_COLOR[WHITE], SCORE_DEBUG[EG].BISHOP_PAWN_ON_SAME_COLOR[BLACK]);
 
 
         cout << "\n|center\t\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].PAWN_CENTER[WHITE], SCORE_DEBUG[MG].PAWN_CENTER[BLACK]);
         p(SCORE_DEBUG[EG].PAWN_CENTER[WHITE], SCORE_DEBUG[EG].PAWN_CENTER[BLACK]);
 
         cout << "\n|in 7th\t\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].PAWN_7H[WHITE], SCORE_DEBUG[MG].PAWN_7H[BLACK]);
         p(SCORE_DEBUG[EG].PAWN_7H[WHITE], SCORE_DEBUG[EG].PAWN_7H[BLACK]);
         cout << "\n|in 8th\t\t\t\t";
 
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].PAWN_IN_8TH[WHITE], SCORE_DEBUG[MG].PAWN_IN_8TH[BLACK]);
         p(SCORE_DEBUG[EG].PAWN_IN_8TH[WHITE], SCORE_DEBUG[EG].PAWN_IN_8TH[BLACK]);
 
         cout << "\n|blocked\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].PAWN_BLOCKED[WHITE], SCORE_DEBUG[MG].PAWN_BLOCKED[BLACK]);
         p(SCORE_DEBUG[EG].PAWN_BLOCKED[WHITE], SCORE_DEBUG[EG].PAWN_BLOCKED[BLACK]);
 
         cout << "\n|unprotected\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].UNPROTECTED_PAWNS[WHITE], SCORE_DEBUG[MG].UNPROTECTED_PAWNS[BLACK]);
         p(SCORE_DEBUG[EG].UNPROTECTED_PAWNS[WHITE], SCORE_DEBUG[EG].UNPROTECTED_PAWNS[BLACK]);
 
         cout << "\n|isolated\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].PAWN_ISOLATED[WHITE], SCORE_DEBUG[MG].PAWN_ISOLATED[BLACK]);
         p(SCORE_DEBUG[EG].PAWN_ISOLATED[WHITE], SCORE_DEBUG[EG].PAWN_ISOLATED[BLACK]);
 
         cout << "\n|double\t\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].DOUBLED_PAWNS[WHITE], SCORE_DEBUG[MG].DOUBLED_PAWNS[BLACK]);
         p(SCORE_DEBUG[EG].DOUBLED_PAWNS[WHITE], SCORE_DEBUG[EG].DOUBLED_PAWNS[BLACK]);
 
         cout << "\n|double isolated\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].DOUBLED_ISOLATED_PAWNS[WHITE], SCORE_DEBUG[MG].DOUBLED_ISOLATED_PAWNS[BLACK]);
         p(SCORE_DEBUG[EG].DOUBLED_ISOLATED_PAWNS[WHITE], SCORE_DEBUG[EG].DOUBLED_ISOLATED_PAWNS[BLACK]);
 
         cout << "\n|backward\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].BACKWARD_PAWN[WHITE], SCORE_DEBUG[MG].BACKWARD_PAWN[BLACK]);
         p(SCORE_DEBUG[EG].BACKWARD_PAWN[WHITE], SCORE_DEBUG[EG].BACKWARD_PAWN[BLACK]);
 
         cout << "\n|fork\t\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].FORK_SCORE[WHITE], SCORE_DEBUG[MG].FORK_SCORE[BLACK]);
         p(SCORE_DEBUG[EG].FORK_SCORE[WHITE], SCORE_DEBUG[EG].FORK_SCORE[BLACK]);
 
         cout << "\n|passed\t\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].PAWN_PASSED[WHITE], SCORE_DEBUG[MG].PAWN_PASSED[BLACK]);
         p(SCORE_DEBUG[EG].PAWN_PASSED[WHITE], SCORE_DEBUG[EG].PAWN_PASSED[BLACK]);
 
         cout << "\n|all enemies\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].ENEMIES_PAWNS_ALL[WHITE], SCORE_DEBUG[MG].ENEMIES_PAWNS_ALL[BLACK]);
         p(SCORE_DEBUG[EG].ENEMIES_PAWNS_ALL[WHITE], SCORE_DEBUG[EG].ENEMIES_PAWNS_ALL[BLACK]);
 
         cout << "\n|none\t\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].NO_PAWNS[WHITE], SCORE_DEBUG[MG].NO_PAWNS[BLACK]);
         p(SCORE_DEBUG[EG].NO_PAWNS[WHITE], SCORE_DEBUG[EG].NO_PAWNS[BLACK]);
 
@@ -895,17 +880,17 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
         p(tresult[EG].knights[WHITE], tresult[EG].knights[BLACK]);
 
         cout << "\n|undevelop\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].UNDEVELOPED_KNIGHT[WHITE], SCORE_DEBUG[MG].UNDEVELOPED_KNIGHT[BLACK]);
         p(SCORE_DEBUG[EG].UNDEVELOPED_KNIGHT[WHITE], SCORE_DEBUG[EG].UNDEVELOPED_KNIGHT[BLACK]);
 
         cout << "\n|trapped\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].KNIGHT_TRAPPED[WHITE], SCORE_DEBUG[MG].KNIGHT_TRAPPED[BLACK]);
         p(SCORE_DEBUG[EG].KNIGHT_TRAPPED[WHITE], SCORE_DEBUG[EG].KNIGHT_TRAPPED[BLACK]);
 
         cout << "\n|mobility\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].MOB_KNIGHT[WHITE], SCORE_DEBUG[MG].MOB_KNIGHT[BLACK]);
         p(SCORE_DEBUG[EG].MOB_KNIGHT[WHITE], SCORE_DEBUG[EG].MOB_KNIGHT[BLACK]);
 
@@ -918,27 +903,27 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
         p(tresult[EG].bishop[WHITE], tresult[EG].bishop[BLACK]);
 
         cout << "\n|bad\t\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].BAD_BISHOP[WHITE], SCORE_DEBUG[MG].BAD_BISHOP[BLACK]);
         p(SCORE_DEBUG[EG].BAD_BISHOP[WHITE], SCORE_DEBUG[EG].BAD_BISHOP[BLACK]);
 
         cout << "\n|mobility\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].MOB_BISHOP[WHITE], SCORE_DEBUG[MG].MOB_BISHOP[BLACK]);
         p(SCORE_DEBUG[EG].MOB_BISHOP[WHITE], SCORE_DEBUG[EG].MOB_BISHOP[BLACK]);
 
         cout << "\n|undevelop\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].UNDEVELOPED_BISHOP[WHITE], SCORE_DEBUG[MG].UNDEVELOPED_BISHOP[BLACK]);
         p(SCORE_DEBUG[EG].UNDEVELOPED_BISHOP[WHITE], SCORE_DEBUG[EG].UNDEVELOPED_BISHOP[BLACK]);
 
         cout << "\n|open diag\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].OPEN_DIAG_BISHOP[WHITE], SCORE_DEBUG[MG].OPEN_DIAG_BISHOP[BLACK]);
         p(SCORE_DEBUG[EG].OPEN_DIAG_BISHOP[WHITE], SCORE_DEBUG[EG].OPEN_DIAG_BISHOP[BLACK]);
 
         cout << "\n|bonus 2 bishops\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].BONUS2BISHOP[WHITE], SCORE_DEBUG[MG].BONUS2BISHOP[BLACK]);
         p(SCORE_DEBUG[EG].BONUS2BISHOP[WHITE], SCORE_DEBUG[EG].BONUS2BISHOP[BLACK]);
 
@@ -948,32 +933,32 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
         p(tresult[EG].rooks[BLACK], tresult[EG].rooks[BLACK]);
 
         cout << "\n|7th\t\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].ROOK_7TH_RANK[WHITE], SCORE_DEBUG[MG].ROOK_7TH_RANK[BLACK]);
         p(SCORE_DEBUG[EG].ROOK_7TH_RANK[WHITE], SCORE_DEBUG[EG].ROOK_7TH_RANK[BLACK]);
 
         cout << "\n|trapped\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].ROOK_TRAPPED[WHITE], SCORE_DEBUG[MG].ROOK_TRAPPED[BLACK]);
         p(SCORE_DEBUG[EG].ROOK_TRAPPED[WHITE], SCORE_DEBUG[EG].ROOK_TRAPPED[BLACK]);
 
         cout << "\n|mobility\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].MOB_ROOK[WHITE], SCORE_DEBUG[MG].MOB_ROOK[BLACK]);
         p(SCORE_DEBUG[EG].MOB_ROOK[WHITE], SCORE_DEBUG[EG].MOB_ROOK[BLACK]);
 
         cout << "\n|blocked\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].ROOK_BLOCKED[WHITE], SCORE_DEBUG[MG].ROOK_BLOCKED[BLACK]);
         p(SCORE_DEBUG[EG].ROOK_BLOCKED[WHITE], SCORE_DEBUG[EG].ROOK_BLOCKED[BLACK]);
 
         cout << "\n|open file\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].ROOK_OPEN_FILE[WHITE], SCORE_DEBUG[MG].ROOK_OPEN_FILE[BLACK]);
         p(SCORE_DEBUG[EG].ROOK_OPEN_FILE[WHITE], SCORE_DEBUG[EG].ROOK_OPEN_FILE[BLACK]);
 
         cout << "\n|connected\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].CONNECTED_ROOKS[WHITE], SCORE_DEBUG[MG].CONNECTED_ROOKS[BLACK]);
         p(SCORE_DEBUG[EG].CONNECTED_ROOKS[WHITE], SCORE_DEBUG[EG].CONNECTED_ROOKS[BLACK]);
 
@@ -985,12 +970,12 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
 
 
         cout << "\n|mobility\t\t\t";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].MOB_QUEEN[WHITE], SCORE_DEBUG[MG].MOB_QUEEN[BLACK]);
         p(SCORE_DEBUG[MG].MOB_QUEEN[WHITE], SCORE_DEBUG[MG].MOB_QUEEN[BLACK]);
 
         cout << "\n|bishop on queen";
-        p(0xffffffffffffffffULL, 0);
+        p();
         p(SCORE_DEBUG[MG].BISHOP_ON_QUEEN[WHITE], SCORE_DEBUG[MG].BISHOP_ON_QUEEN[BLACK]);
         p(SCORE_DEBUG[MG].BISHOP_ON_QUEEN[WHITE], SCORE_DEBUG[MG].BISHOP_ON_QUEEN[BLACK]);
         
