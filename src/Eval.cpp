@@ -417,8 +417,6 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
                 result += p;
                 if (!(chessboard[KNIGHT_BLACK + xside]) &&
                     !(chessboard[BISHOP_BLACK + xside] & ChessBoard::colors(pos))) {
-//                    display();
-//                    cout <<"side "<<side<<endl;
                     result += p;
                 }
             }
@@ -642,24 +640,12 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
         bonus_attack_king_black = BONUS_ATTACK_KING[bitCount(structureEval.kingAttackers[WHITE])];
         bonus_attack_king_white = BONUS_ATTACK_KING[bitCount(structureEval.kingAttackers[BLACK])];
     }
-   // display();
-//    cout << structureEval.kingAttackers[WHITE] << " "
-//        << getAllAttackers<WHITE>(structureEval.posKing[WHITE], structureEval.allPieces) << endl;
 
-    ASSERT(structureEval.kingAttackers[WHITE]
-               == getAllAttackers<WHITE>(structureEval.posKing[WHITE], structureEval.allPieces));
-
-
-    if(structureEval.kingAttackers[BLACK]
-        != getAllAttackers<BLACK>(structureEval.posKing[BLACK], structureEval.allPieces)) {
-        cout << structureEval.kingAttackers[BLACK] << " "
-            << getAllAttackers<BLACK>(structureEval.posKing[BLACK], structureEval.allPieces) << endl;
-
-        display();
-        getRes<OPEN>(Tresult);
-    }
-    ASSERT(structureEval.kingAttackers[BLACK]
-               == getAllAttackers<BLACK>(structureEval.posKing[BLACK], structureEval.allPieces));
+//    ASSERT(structureEval.kingAttackers[WHITE]
+//               == getAllAttackers<WHITE>(structureEval.posKing[WHITE], structureEval.allPieces));
+//
+//    ASSERT(structureEval.kingAttackers[BLACK]
+//               == getAllAttackers<BLACK>(structureEval.posKing[BLACK], structureEval.allPieces));
 
     ASSERT(getMobilityCastle(WHITE, structureEval.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)));
     ASSERT(getMobilityCastle(BLACK, structureEval.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)));

@@ -114,7 +114,7 @@ u64 GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 
         getDiagShiftAndCapture(position, enemies, allpieces);
 }
 
-int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
+u64 GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(position, 0, 63);
     return performRankFileCaptureAndShift(position, enemies, enemies | friends);
 }

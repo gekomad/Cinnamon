@@ -341,12 +341,12 @@ protected:
         return getAttackers<side, true>(position, allpieces);
     }
 
-    template<int side>
-    u64 getAllAttackers(const int position, const u64 allpieces) const {
-        return getAttackers<side, false>(position, allpieces);
-    }
+//    template<int side>
+//    u64 getAllAttackers(const int position, const u64 allpieces) const {
+//        return getAttackers<side, false>(position, allpieces);
+//    }
 
-    int getMobilityRook(const int position, const u64 enemies, const u64 friends);
+    u64 getMobilityRook(const int position, const u64 enemies, const u64 friends);
 
     int getMobilityCastle(const int side, const u64 allpieces) const;
 
