@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-//TODO aggiornare home page nuovo tarrash e link a dgt
+
 #include "Uci.h"
 #include "util/GetOpt.h"
 
@@ -60,7 +60,7 @@ void printHeader() {
             "     \\.______,/           ";
 
     cout << NAME << " UCI chess engine by Giuseppe Cannella\n";
-    cout << "22ccde737a5de0f5bff9668c6534dbb9e20f98e5\n";
+    cout << "c8ab8b0a4a91cd9d8c5b08500167ff85e2cf136f\n";
 #if UINTPTR_MAX == 0xffffffffffffffffULL
     cout << "64-bit ";
 #else
