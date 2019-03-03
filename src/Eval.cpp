@@ -125,10 +125,7 @@ int Eval::evaluatePawn() {
             structureEval.kingAttackers[xside] |= pos;
             result += ATTACK_KING;
         }
-
-        ADD(SCORE_DEBUG.ATTACK_KING_PAWN[side],
-            ATTACK_KING * bitCount(ped_friends & structureEval.kingAttackers[xside]));
-
+       
         /// blocked
         result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[xside])) &&
             (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? PAWN_BLOCKED : 0;
