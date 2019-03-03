@@ -40,17 +40,7 @@ public:
     GTB &getGtb() const;
 
     GTB &createGtb();
-
-    SYZYGY &createSYZYGY(string path) {
-        SYZYGY &syzygy = SYZYGY::getInstance();
-        syzygy.setPath(path);
-        for (Search *s:getPool()) {
-            s->setSYZYGY(syzygy);
-        }
-        return syzygy;
-    }
-
-
+    
     int loadFen(string fen = "");
 
     int getPieceAt(int side, u64 i);
@@ -113,17 +103,11 @@ public:
 
     bool getGtbAvailable() const;
 
-    string getSYZYGYbestmove(const int side) const;
-
-    int getSYZYGYdtm(const int side) const;
-
     int getMoveFromSan(String string, _Tmove *ptr);
 
     int printDtm();
 
     void setGtb(GTB &tablebase);
-
-    void setSYZYGY(SYZYGY &tablebase);
 
     void pushStackMove();
 

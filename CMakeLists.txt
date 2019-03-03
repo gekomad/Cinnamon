@@ -54,9 +54,6 @@ set(SOURCE_FILES
         src/db/Tablebase.cpp
         src/db/Tablebase.h
         src/db/GTB.cpp
-        src/db/syzygy/SYZYGY.cpp
-        src/db/syzygy/tbprobe.cpp
-        src/db/syzygy/main.cpp
         src/Uci.cpp
         src/Uci.h
         )

@@ -41,7 +41,6 @@ private:
 
     bool uciMode;
     GTB *gtb = nullptr;
-    SYZYGY *syzygy = nullptr;
 
     void listner(IterativeDeeping *it);
 

@@ -21,7 +21,7 @@
 #include "SearchManager.h"
 
 GTB *Search::gtb;
-SYZYGY *Search::syzygy = nullptr;
+
 bool Search::runningThread;
 high_resolution_clock::time_point Search::startTime;
 
@@ -350,19 +350,7 @@ bool Search::getGtbAvailable() {
     return gtb;
 }
 
-bool Search::getSYZYGYAvailable() const {
-    return syzygy;
-}
 
-int Search::getSYZYGYdtm(const int side) {
-    if (!syzygy)return -1;
-    return syzygy->getDtm(chessboard, side);
-}
-
-string Search::getSYZYGYbestmove(const int side) {
-    if (!syzygy)return "";
-    return syzygy->getBestmove(chessboard, side);
-}
 
 GTB &Search::getGtb() const {
     ASSERT(gtb);
@@ -410,9 +398,7 @@ int Search::getDtm(const int side, _TpvLine *pline, const int depth, const int n
         }
     }
     // db
-    if (syzygy) {
-        syzygy->getDtm(chessboard, side);
-    }
+
     return mateIn;
 }
 
@@ -663,9 +649,7 @@ void Search::setGtb(GTB &tablebase) {
     gtb = &tablebase;
 }
 
-void Search::setSYZYGY(SYZYGY &tablebase) {
-    syzygy = &tablebase;
-}
+
 
 bool Search::setParameter(String param, int value) {
 #if defined(CLOP) || defined(DEBUG_MODE)

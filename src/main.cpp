@@ -45,26 +45,28 @@ using namespace _board;
 
 void printHeader() {
     cout <<
-         "                 /\"\\       \n"
-         "                /o o\\      \n"
-         "           _\\/  \\   / \\/_  \n"
-         "            \\\\._/  /_.//   \n"
-         "            `--,  ,----'   \n"
-         "              /   /        \n"
-         "    ,        /    \\        \n"
-         "   /|       (      )       \n"
-         "  / |     ,__\\    /__,     \n"
-         "  \\ \\   _//---,  ,--\\\\_    \n"
-         "   \\ \\   /\\  /  /   /\\     \n"
-         "    \\ \\.___,/  /           \n"
-         "     \\.______,/           ";
+        "                 /\"\\       \n"
+            "                /o o\\      \n"
+            "           _\\/  \\   / \\/_  \n"
+            "            \\\\._/  /_.//   \n"
+            "            `--,  ,----'   \n"
+            "              /   /        \n"
+            "    ,        /    \\        \n"
+            "   /|       (      )       \n"
+            "  / |     ,__\\    /__,     \n"
+            "  \\ \\   _//---,  ,--\\\\_    \n"
+            "   \\ \\   /\\  /  /   /\\     \n"
+            "    \\ \\.___,/  /           \n"
+            "     \\.______,/           ";
 
     cout << NAME << " UCI chess engine by Giuseppe Cannella\n";
-#if __WORDSIZE == 64
+    cout << "22ccde737a5de0f5bff9668c6534dbb9e20f98e5\n";
+#if UINTPTR_MAX == 0xffffffffffffffffULL
     cout << "64-bit ";
 #else
     cout << "32-bit ";
 #endif
+
 #ifdef HAS_POPCNT
     cout << "popcnt ";
 #endif
@@ -110,7 +112,7 @@ void check() {
 
 int main(int argc, char **argv) {
 
-    // TODO printHeader();
+    printHeader();
     check();
 #if defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);

@@ -128,7 +128,6 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name TB probing depth type spin default 0 min 0 max 5" << endl;
             cout << "option name TB Restart type button" << endl;
 
-            cout << "option name SyzygyPath type string default <empty>" << endl;
 
             cout << "option name PerftThreads type spin default 1 min 1 max 64" << endl;
             cout << "option name PerftHashSize type spin default 0 min 0 max 100000" << endl;
@@ -170,14 +169,7 @@ void Uci::listner(IterativeDeeping *it) {
                         gtb = &searchManager.createGtb();
                         gtb->setPath(token);
                     }
-                } else if (token == "syzygytbpath") {
-                    getToken(uip, token);
-                    if (token == "value") {
-                        getToken(uip, token);
-                        knowCommand = true;
-                        syzygy = &searchManager.createSYZYGY(token);
-                    }
-                } else if (token == "perftthreads") {
+                }  else if (token == "perftthreads") {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);

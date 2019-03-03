@@ -26,7 +26,6 @@
 #include <climits>
 #include "threadPool/Thread.h"
 #include "db/GTB.h"
-#include "db/syzygy/SYZYGY.h"
 
 class Search: public Eval, public Thread<Search>, public Hash {
 
@@ -83,12 +82,6 @@ public:
 
     bool getGtbAvailable();
 
-    bool getSYZYGYAvailable() const;
-
-    string getSYZYGYbestmove(const int side);
-
-    int getSYZYGYdtm(const int side);
-
     STATIC_CONST int NULLMOVE_DEPTH = 3;
     STATIC_CONST int NULLMOVES_MIN_PIECE = 3;
     STATIC_CONST int NULLMOVES_R1 = 2;
@@ -129,8 +122,6 @@ public:
 
 #endif
 
-    void setSYZYGY(SYZYGY &syzygy);
-
 private:
 
 
@@ -138,7 +129,7 @@ private:
     static bool runningThread;
     _TpvLine pvLine;
     static GTB *gtb;
-    static SYZYGY *syzygy;
+
     bool ponder;
 
     template<bool smp>

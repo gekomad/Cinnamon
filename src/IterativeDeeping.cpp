@@ -78,15 +78,7 @@ void IterativeDeeping::run() {
     searchManager.setRunningThread(true);
     int mply = 0;
 
-    string b = getSYZYGYbestmove(searchManager.getSide());
-    if (!b.empty()) {
-        cout << "bestmove " << b;
-        cout << endl;
-        ADD(checkSmp2, -1);
-        ASSERT(!checkSmp2);
-        LOCK_RELEASE(running);
-        return;
-    }
+
     if (openBook) {
         ASSERT(openBook);
         string obMove = openBook->search(searchManager.boardToFen());
