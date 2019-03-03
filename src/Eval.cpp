@@ -247,7 +247,6 @@ int Eval::evaluateBishop(const u64 enemies) {
                 }
             }
         }
-        RESET_LSB(bishop);
     }
     return result;
 }
