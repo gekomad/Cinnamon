@@ -60,7 +60,8 @@ void printHeader() {
          "     \\.______,/           ";
 
     cout << NAME << " UCI chess engine by Giuseppe Cannella\n";
-#if __WORDSIZE == 64
+
+#if UINTPTR_MAX == 0xffffffffffffffffULL
     cout << "64-bit ";
 #else
     cout << "32-bit ";
