@@ -263,7 +263,7 @@ namespace _board {
         0x0028448201000000ULL, 0x0050880402010000ULL, 0x00a0100804020100ULL, 0x0040201008040201ULL
     };
 
-    static constexpr array<char, 64> FILE_AT =
+    static constexpr array<char, 64> FILE_AT =//TODO inizia da 1
         {0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4,
          5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7};
 
@@ -275,7 +275,7 @@ namespace _board {
          0x30ULL, 0x30ULL, 0x30ULL, 0x30ULL, 0x30ULL, 0x30ULL, 0x38ULL, 0x38ULL, 0x38ULL, 0x38ULL, 0x38ULL, 0x38ULL,
          0x38ULL, 0x38ULL};
 
-    static constexpr array<char, 64> RANK_AT =
+    static constexpr array<char, 64> RANK_AT = //TODO inizia da 1
         {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4,
          4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7};
 
