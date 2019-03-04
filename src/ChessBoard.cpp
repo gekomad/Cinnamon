@@ -87,7 +87,7 @@ void ChessBoard::display() {
         char x = ' ';
         if (t % 8 == 0) {
             cout << "\n   ----+---+---+---+---+---+---+----\n";
-            cout << " " << 8 - RANK_AT[t] << " | ";
+            cout << " " << 9 - RANK_AT[t] << " | ";
         }
         x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(
             POW2[63 - t])]) == '-' ? ' ' : x;

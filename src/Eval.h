@@ -77,6 +77,7 @@ protected:
     STATIC_CONST int ROOK_TRAPPED = 6;
     STATIC_CONST int UNDEVELOPED_KNIGHT = 4;
     STATIC_CONST int UNDEVELOPED_BISHOP = 4;
+    STATIC_CONST int FRIEND_ON_PASSED_PAWN = 5;
 #ifdef DEBUG_MODE
     typedef struct {
         int BAD_BISHOP[2];
@@ -200,7 +201,7 @@ private:
     int evaluateRook(const u64, u64 enemies, u64 friends);
 
     template<_Tphase phase>
-    int evaluateKing(int side, u64 squares);
+    int evaluateKing(int side, u64 notMyBits);
 
     template<int side>
     int lazyEvalSide() {

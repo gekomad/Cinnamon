@@ -189,9 +189,11 @@ protected:
         u64 allPiecesSide[2];
         u64 openFile;
         u64 semiOpenFile[2];
-        u64 isolated[2];
+        u64 isolated[2]; //TODO eliminare?
+        u64 passedPawn[2]; //TODO eliminare?
         u64 allPiecesNoPawns[2];
         u64 posKingBit[2];
+        u64 radar[2];
         //u64 pinned[2]; anche x regina?
         int kingSecurity[2];
         uchar posKing[2];
