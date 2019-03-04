@@ -60,7 +60,7 @@ void printHeader() {
             "     \\.______,/           ";
 
     cout << NAME << " UCI chess engine by Giuseppe Cannella\n";
-    
+
 #if UINTPTR_MAX == 0xffffffffffffffffULL
     cout << "64-bit ";
 #else
