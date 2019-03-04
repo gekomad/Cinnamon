@@ -17,7 +17,6 @@
 */
 
 #include "Eval.h"
-#include "ChessBoard.h"
 
 using namespace _eval;
 u64 *Eval::evalHash;
@@ -53,7 +52,7 @@ void Eval::openFile() {
  * 4. add ATTACK_KING * number of attacking pawn to other king
  * 5. space - in OPEN phase PAWN_CENTER * CENTER_MASK
  * 6. // pinned - in END phase substracts 20 * each pinned pawn
- * 7. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING * each pawn near to king and substracts ENEMY_NEAR_KING * each enemy pawn near to king
+ * 7. *king security* - in OPEN phase add at kingSecurity FRIEND_NEAR_KING * each pawn near to king and substracts ENEMY_NEAR_KING * each enemy pawn near to king
  * 8. pawn in 8th - if pawn is in 7' add PAWN_7H. If pawn can go forward add PAWN_IN_8TH for each pawn
  * 9. unprotected - no friends pawn protect it
  * 10. blocked - pawn can't go on
@@ -94,10 +93,10 @@ int Eval::evaluatePawn() {
 
     // 7.
     if (phase != OPEN) {
-        structureEval.kingSecurityDistance[side] +=
+        structureEval.kingSecurity[side] +=
             FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & ped_friends);
 
-        structureEval.kingSecurityDistance[side] -=
+        structureEval.kingSecurity[side] -=
             ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[xside]] & ped_friends);
     }
 
@@ -171,7 +170,7 @@ int Eval::evaluatePawn() {
  * evaluate bishop for color at phase
  * 1. if no bishops returns 0
  * 2. if two bishops add BONUS2BISHOP
- * 3 *king security* - in OPEN phase substracts at kingSecurityDistance ENEMY_NEAR_KING for each bishop close to enmey king
+ * 3 *king security* - in OPEN phase substracts at kingSecurity ENEMY_NEAR_KING for each bishop close to enmey king
  * 4. undevelop - substracts UNDEVELOPED_BISHOP for each undeveloped bishop
  * 5. mobility add MOB_BISHOP[phase][???]
  * 6. if only one bishop and pawns on same square color substracts n_pawns * BISHOP_PAWN_ON_SAME_COLOR
@@ -202,7 +201,7 @@ int Eval::evaluateBishop(const u64 enemies) {
 
     // 3. *king security*
     if (phase != OPEN) {
-        structureEval.kingSecurityDistance[side] -=
+        structureEval.kingSecurity[side] -=
             ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & bishop);
         ADD(SCORE_DEBUG.KING_SECURITY_BISHOP[side],
             -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & bishop));
@@ -263,7 +262,7 @@ int Eval::evaluateBishop(const u64 enemies) {
 /**
  * evaluate queen for color at phase
  * 1. // pinned
- * 2. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING for each queen near to king and substracts ENEMY_NEAR_KING for each queen near to enemy king
+ * 2. *king security* - in OPEN phase add at kingSecurity FRIEND_NEAR_KING for each queen near to king and substracts ENEMY_NEAR_KING for each queen near to enemy king
  * 3. mobility - MOB_QUEEN[phase][position]
  * 4. half open file - if there is a enemy pawn on same file add HALF_OPEN_FILE_Q
  * 5. open file - if there is any pieces on same file add OPEN_FILE_Q
@@ -277,12 +276,12 @@ int Eval::evaluateQueen(const u64 enemies) {
 
     // 2. *king security*
     if (phase != OPEN) {
-        structureEval.kingSecurityDistance[side] +=
+        structureEval.kingSecurity[side] +=
             FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & queen);
         ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side],
             FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & queen));
 
-        structureEval.kingSecurityDistance[side] -=
+        structureEval.kingSecurity[side] -=
             ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & queen);
         ADD(SCORE_DEBUG.KING_SECURITY_QUEEN[side ^ 1],
             -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & queen));
@@ -324,7 +323,7 @@ int Eval::evaluateQueen(const u64 enemies) {
  * 1. // pinned
  * 2. undevelop - substracts UNDEVELOPED_KNIGHT for each undeveloped knight
  * 3. trapped TODO
- * 4. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING for each knight near to king and substracts ENEMY_NEAR_KING for each knight near to enemy king
+ * 4. *king security* - in OPEN phase add at kingSecurity FRIEND_NEAR_KING for each knight near to king and substracts ENEMY_NEAR_KING for each knight near to enemy king
  * 5. mobility
  * 6. outposts
 */
@@ -384,12 +383,12 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
 
     // 4. king security
     if (phase != OPEN) {
-        structureEval.kingSecurityDistance[side] +=
+        structureEval.kingSecurity[side] +=
             FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & knight);
         ADD(SCORE_DEBUG.KING_SECURITY_KNIGHT[side],
             FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & knight));
 
-        structureEval.kingSecurityDistance[side] -=
+        structureEval.kingSecurity[side] -=
             ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & knight);
         ADD(SCORE_DEBUG.KING_SECURITY_KNIGHT[side ^ 1],
             -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side ^ 1]] & knight));
@@ -428,7 +427,7 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
  * 1. if no rooks returns 0
  * 2. // pinned
  * 3. in middle if in 7th - add ROOK_7TH_RANK for each rook in 7th
- * 4. *king security* - in OPEN phase add at kingSecurityDistance FRIEND_NEAR_KING for each rook near to king and substracts ENEMY_NEAR_KING for each rook near to enemy king
+ * 4. *king security* - in OPEN phase add at kingSecurity FRIEND_NEAR_KING for each rook near to king and substracts ENEMY_NEAR_KING for each rook near to enemy king
  * 5. add OPEN_FILE/HALF_OPEN_FILE if the rook is on open/semiopen file
  * 6. trapped
  * 7. 2 linked towers
@@ -453,12 +452,12 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
 
     // 4. king security
     if (phase != OPEN) {
-        structureEval.kingSecurityDistance[side] +=
+        structureEval.kingSecurity[side] +=
             FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & rook);
         ADD(SCORE_DEBUG.KING_SECURITY_ROOK[side],
             FRIEND_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[side]] & rook));
 
-        structureEval.kingSecurityDistance[side] -=
+        structureEval.kingSecurity[side] -=
             ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[xside]] & rook);
         ADD(SCORE_DEBUG.KING_SECURITY_ROOK[xside],
             -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[xside]] & rook));
@@ -544,7 +543,7 @@ int Eval::evaluateKing(int side, u64 squares) {
         ADD(SCORE_DEBUG.PAWN_NEAR_KING[side], -PAWN_NEAR_KING);
         result -= PAWN_NEAR_KING;
     }
-    result += structureEval.kingSecurityDistance[side];
+    result += structureEval.kingSecurity[side];
     return result;
 }
 
@@ -583,7 +582,7 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
     evaluationCount[WHITE] = evaluationCount[BLACK] = 0;
     memset(&SCORE_DEBUG, 0, sizeof(_TSCORE_DEBUG));
 #endif
-    memset(structureEval.kingSecurityDistance, 0, sizeof(structureEval.kingSecurityDistance));
+    memset(structureEval.kingSecurity, 0, sizeof(structureEval.kingSecurity));
     int npieces = getNpiecesNoPawnNoKing<WHITE>() + getNpiecesNoPawnNoKing<BLACK>();
     _Tphase phase;
     if (npieces < 4) {
