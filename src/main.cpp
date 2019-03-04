@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-//TODO aggiornare home page nuovo tarrash e link a dgt
+
 #include "Uci.h"
 #include "util/GetOpt.h"
 
