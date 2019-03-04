@@ -22,8 +22,8 @@ using namespace _eval;
 u64 *Eval::evalHash;
 
 Eval::Eval() {
-    if (evalHash == nullptr);
-    evalHash = (u64 *) calloc(hashSize, sizeof(u64));
+    if (evalHash == nullptr)
+        evalHash = (u64 *) calloc(hashSize, sizeof(u64));
 }
 
 Eval::~Eval() {
