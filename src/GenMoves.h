@@ -120,9 +120,9 @@ public:
 
     void setRepetitionMapCount(const int i);
 
-    inline int getDiagShiftCount(const int position, const u64 allpieces) const {
+    inline u64 getDiagShift(const int position, const u64 allpieces) const {
         ASSERT_RANGE(position, 0, 63);
-        return bitCount(Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces);
+        return Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces;
     }
 
     bool performKingShiftCapture(const int side, const u64 enemies);

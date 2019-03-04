@@ -60,7 +60,7 @@ void Eval::openFile() {
  * 12. doubled - there aren't friend pawns on the two sides - subtracts DOUBLED_PAWNS for each pawn. If it is isolated too substracts DOUBLED_ISOLATED_PAWNS
  * 13. backward - if there isn't friend pawns on sides or on sides in 1 rank below subtracts BACKWARD_PAWN
  * 14. passed - if there isn't friend pawns forward and forward on sides until 8' rank add PAWN_PASSED[side][pos]
-
+ * 15. attack area around king
  */
 template<int side, Eval::_Tphase phase>
 int Eval::evaluatePawn() {
@@ -124,7 +124,12 @@ int Eval::evaluatePawn() {
             structureEval.kingAttackers[xside] |= pos;
             result += ATTACK_KING;
         }
-       
+
+        // 15.
+        if (structureEval.kingArea[xside] & PAWN_FORK_MASK[side][o]) {
+            result += ATTACK_KING_AREA;
+        }
+
         /// blocked
         result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[xside])) &&
             (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? PAWN_BLOCKED : 0;
@@ -176,6 +181,7 @@ int Eval::evaluatePawn() {
  * 6. if only one bishop and pawns on same square color substracts n_pawns * BISHOP_PAWN_ON_SAME_COLOR
  * pinned ?
  * 7. outposts
+ * 8. attack king area
  */
 template<int side, Eval::_Tphase phase>
 int Eval::evaluateBishop(const u64 enemies) {
@@ -217,17 +223,22 @@ int Eval::evaluateBishop(const u64 enemies) {
         const int o = BITScanForward(bishop);
         // 5. mobility
 
-        u64 captured = getDiagCapture(o, structureEval.allPieces, enemies);
-        ASSERT(bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces) <
-            (int) (sizeof(MOB_BISHOP) / sizeof(int)));
+        const u64 captured = getDiagCapture(o, structureEval.allPieces, enemies);
+        const u64 shift = getDiagShift(o, structureEval.allPieces);
+        const u64 mob = captured | shift;
+        ASSERT(bitCount(mob) < (int) (sizeof(MOB_BISHOP) / sizeof(int)));
 
         if (captured & structureEval.posKingBit[side ^ 1]) {
             structureEval.kingAttackers[side ^ 1] |= POW2[o];
         }
 
-        result += MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces)];
-        ADD(SCORE_DEBUG.MOB_BISHOP[side],
-            MOB_BISHOP[phase][bitCount(captured) + getDiagShiftCount(o, structureEval.allPieces)]);
+        result += MOB_BISHOP[phase][bitCount(mob)];
+        ADD(SCORE_DEBUG.MOB_BISHOP[side], MOB_BISHOP[phase][bitCount(mob)]);
+
+        // .8
+        if (structureEval.kingArea[side ^ 1] & mob) {
+            result += ATTACK_KING_AREA;
+        }
 
         // 6.
         if (phase != OPEN) {
@@ -266,7 +277,8 @@ int Eval::evaluateBishop(const u64 enemies) {
  * 3. mobility - MOB_QUEEN[phase][position]
  * 4. half open file - if there is a enemy pawn on same file add HALF_OPEN_FILE_Q
  * 5. open file - if there is any pieces on same file add OPEN_FILE_Q
- * 6. 5. bishop on queen - if there is a bishop on same diagonal add BISHOP_ON_QUEEN
+ * 6. bishop on queen - if there is a bishop on same diagonal add BISHOP_ON_QUEEN
+ * 7. attack  king area
  */
 template<int side, Eval::_Tphase phase>
 int Eval::evaluateQueen(const u64 enemies) {
@@ -291,12 +303,18 @@ int Eval::evaluateQueen(const u64 enemies) {
         const int o = BITScanForward(queen);
         ASSERT(structureEval.allPieces == structureEval.allPieces);
         // 3. mobility
-        u64 x = getMobilityQueen(o, enemies, structureEval.allPieces);
-        result += MOB_QUEEN[phase][bitCount(x)];
-        ADD(SCORE_DEBUG.MOB_QUEEN[side], MOB_QUEEN[phase][bitCount(x)]);
+        const u64 mob = getMobilityQueen(o, enemies, structureEval.allPieces);
+        result += MOB_QUEEN[phase][bitCount(mob)];
+        ADD(SCORE_DEBUG.MOB_QUEEN[side], MOB_QUEEN[phase][bitCount(mob)]);
 
-        if (x & structureEval.posKingBit[side ^ 1])
+        if (mob & structureEval.posKingBit[side ^ 1])
             structureEval.kingAttackers[side ^ 1] |= POW2[o];
+
+        // .8
+        if (structureEval.kingArea[side ^ 1] & mob) {
+            result += ATTACK_KING_AREA;
+        }
+
         // 4. half open file
         if ((chessboard[side ^ 1] & FILE_[o])) {
             ADD(SCORE_DEBUG.HALF_OPEN_FILE_Q[side], HALF_OPEN_FILE_Q);
@@ -314,6 +332,11 @@ int Eval::evaluateQueen(const u64 enemies) {
             ADD(SCORE_DEBUG.BISHOP_ON_QUEEN[side], BISHOP_ON_QUEEN);
             result += BISHOP_ON_QUEEN;
         }
+
+        // .7
+        if (structureEval.kingArea[side ^ 1] & mob) {
+            result += ATTACK_KING_AREA;
+        }
     }
     return result;
 }
@@ -326,6 +349,7 @@ int Eval::evaluateQueen(const u64 enemies) {
  * 4. *king security* - in OPEN phase add at kingSecurity FRIEND_NEAR_KING for each knight near to king and substracts ENEMY_NEAR_KING for each knight near to enemy king
  * 5. mobility
  * 6. outposts
+ * 7. attack area king
 */
 
 template<int side, Eval::_Tphase phase>
@@ -403,6 +427,11 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
         if (mob & structureEval.posKingBit[side ^ 1]) structureEval.kingAttackers[side ^ 1] |= POW2[pos];
         ADD(SCORE_DEBUG.MOB_KNIGHT[side], MOB_KNIGHT[bitCount(mob)]);
 
+        // .7
+        if (structureEval.kingArea[side ^ 1] & mob) {
+            result += ATTACK_KING_AREA;
+        }
+
         // 6. outposts
         auto p = KNIGHT_OUTPOST[side][pos];
         constexpr int xside = side ^1;
@@ -432,6 +461,7 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
  * 6. trapped
  * 7. 2 linked towers
  * 8. Penalise if Rook is Blocked Horizontally
+ * 9. attack king area
 */
 template<int side, Eval::_Tphase phase>
 int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
@@ -507,39 +537,56 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
             ADD(SCORE_DEBUG.ROOK_OPEN_FILE[side], OPEN_FILE);
             result += OPEN_FILE;
         }
+
+        // .9
+        if (structureEval.kingArea[side ^ 1] & mob) {
+            result += ATTACK_KING_AREA;
+        }
+
     }
     return result;
 }
 
+/**
+ * 1. attack king area
+ */
 template<Eval::_Tphase phase>
-int Eval::evaluateKing(int side, u64 squares) {
+int Eval::evaluateKing(int side, u64 notMyBits) {
     ASSERT(evaluationCount[side] == 5);
     int result = 0;
-    uchar pos_king = structureEval.posKing[side];
+    const uchar posKing = structureEval.posKing[side];
     if (phase == END) {
-        ADD(SCORE_DEBUG.DISTANCE_KING[side], DISTANCE_KING_ENDING[pos_king]);
-        result = DISTANCE_KING_ENDING[pos_king];
+        ADD(SCORE_DEBUG.DISTANCE_KING[side], DISTANCE_KING_ENDING[posKing]);
+        result = DISTANCE_KING_ENDING[posKing];
     } else {
-        ADD(SCORE_DEBUG.DISTANCE_KING[side], DISTANCE_KING_OPENING[pos_king]);
-        result = DISTANCE_KING_OPENING[pos_king];
+        ADD(SCORE_DEBUG.DISTANCE_KING[side], DISTANCE_KING_OPENING[posKing]);
+        result = DISTANCE_KING_OPENING[posKing];
     }
-    u64 POW2_king = POW2[pos_king];
+
     //mobility
-    ASSERT(bitCount(squares & NEAR_MASK1[pos_king]) < (int) (sizeof(MOB_KING[phase]) / sizeof(int)));
-    result += MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])];
-    ADD(SCORE_DEBUG.MOB_KING[side], MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])]);
+    const u64 mob = notMyBits & NEAR_MASK1[posKing];
+    ASSERT(bitCount(mob) < (int) (sizeof(MOB_KING[phase]) / sizeof(int)));
+    result += MOB_KING[phase][bitCount(mob)];
+
+    // .1
+    if (structureEval.kingArea[side ^ 1] & mob) {
+        result += ATTACK_KING_AREA;
+    }
+
+    ADD(SCORE_DEBUG.MOB_KING[side], MOB_KING[phase][bitCount(mob)]);
     if (phase != OPEN) {
-        if ((structureEval.openFile & POW2_king) || (structureEval.semiOpenFile[side ^ 1] & POW2_king)) {
+        if ((structureEval.openFile & structureEval.posKingBit[side])
+            || (structureEval.semiOpenFile[side ^ 1] & structureEval.posKingBit[side])) {
             ADD(SCORE_DEBUG.END_OPENING_KING[side], -END_OPENING);
             result -= END_OPENING;
-            if (bitCount(RANK[pos_king]) < 4) {
+            if (bitCount(RANK[posKing]) < 4) {
                 ADD(SCORE_DEBUG.END_OPENING_KING[side], -END_OPENING);
                 result -= END_OPENING;
             }
         }
     }
-    ASSERT(pos_king < 64);
-    if (!(NEAR_MASK1[pos_king] & chessboard[side])) {
+    ASSERT(posKing < 64);
+    if (!(NEAR_MASK1[posKing] & chessboard[side])) {
         ADD(SCORE_DEBUG.PAWN_NEAR_KING[side], -PAWN_NEAR_KING);
         result -= PAWN_NEAR_KING;
     }
@@ -602,6 +649,8 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
     structureEval.posKingBit[BLACK] = POW2[structureEval.posKing[BLACK]];
     structureEval.posKingBit[WHITE] = POW2[structureEval.posKing[WHITE]];
     structureEval.kingAttackers[WHITE] = structureEval.kingAttackers[BLACK] = 0;
+    structureEval.kingArea[BLACK] = NEAR_MASK1[structureEval.posKing[BLACK]];
+    structureEval.kingArea[WHITE] = NEAR_MASK1[structureEval.posKing[WHITE]];
 
 //    if (phase == END) {
 //
