@@ -126,7 +126,7 @@ int Eval::evaluatePawn() {
         }
 
         // 15.
-        if (structureEval.kingArea[xside] & PAWN_FORK_MASK[side][o]) {
+        if (phase == END && (structureEval.kingArea[xside] & PAWN_FORK_MASK[side][o])) {
             result += ATTACK_KING_AREA;
         }
 
@@ -236,7 +236,7 @@ int Eval::evaluateBishop(const u64 enemies) {
         ADD(SCORE_DEBUG.MOB_BISHOP[side], MOB_BISHOP[phase][bitCount(mob)]);
 
         // .8
-        if (structureEval.kingArea[side ^ 1] & mob) {
+        if (phase == END && (structureEval.kingArea[side ^ 1] & mob)) {
             result += ATTACK_KING_AREA;
         }
 
@@ -311,7 +311,7 @@ int Eval::evaluateQueen(const u64 enemies) {
             structureEval.kingAttackers[side ^ 1] |= POW2[o];
 
         // .8
-        if (structureEval.kingArea[side ^ 1] & mob) {
+        if (phase == END && (structureEval.kingArea[side ^ 1] & mob)) {
             result += ATTACK_KING_AREA;
         }
 
@@ -334,7 +334,7 @@ int Eval::evaluateQueen(const u64 enemies) {
         }
 
         // .7
-        if (structureEval.kingArea[side ^ 1] & mob) {
+        if (phase == END && (structureEval.kingArea[side ^ 1] & mob)) {
             result += ATTACK_KING_AREA;
         }
     }
@@ -428,7 +428,7 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
         ADD(SCORE_DEBUG.MOB_KNIGHT[side], MOB_KNIGHT[bitCount(mob)]);
 
         // .7
-        if (structureEval.kingArea[side ^ 1] & mob) {
+        if (phase == END && (structureEval.kingArea[side ^ 1] & mob)) {
             result += ATTACK_KING_AREA;
         }
 
@@ -539,7 +539,7 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
         }
 
         // .9
-        if (structureEval.kingArea[side ^ 1] & mob) {
+        if (phase == END && (structureEval.kingArea[side ^ 1] & mob)) {
             result += ATTACK_KING_AREA;
         }
 
@@ -569,7 +569,7 @@ int Eval::evaluateKing(int side, u64 notMyBits) {
     result += MOB_KING[phase][bitCount(mob)];
 
     // .1
-    if (structureEval.kingArea[side ^ 1] & mob) {
+    if (phase == END && (structureEval.kingArea[side ^ 1] & mob)) {
         result += ATTACK_KING_AREA;
     }
 
