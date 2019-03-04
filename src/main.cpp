@@ -60,13 +60,12 @@ void printHeader() {
             "     \\.______,/           ";
 
     cout << NAME << " UCI chess engine by Giuseppe Cannella\n";
-    cout << "c8ab8b0a4a91cd9d8c5b08500167ff85e2cf136f\n";
+    
 #if UINTPTR_MAX == 0xffffffffffffffffULL
     cout << "64-bit ";
 #else
     cout << "32-bit ";
 #endif
-
 #ifdef HAS_POPCNT
     cout << "popcnt ";
 #endif

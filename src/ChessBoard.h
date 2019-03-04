@@ -191,9 +191,11 @@ protected:
         u64 semiOpenFile[2];
         u64 isolated[2];
         u64 allPiecesNoPawns[2];
+        u64 posKingBit[2];
         //u64 pinned[2]; anche x regina?
         int kingSecurityDistance[2];
         uchar posKing[2];
+
     } _Tboard;
 
     static constexpr u64 A7bit = 0x80000000000000ULL;
