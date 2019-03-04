@@ -22,8 +22,8 @@ using namespace _eval;
 u64 *Eval::evalHash;
 
 Eval::Eval() {
-    if (evalHash == nullptr);
-    evalHash = (u64 *) calloc(hashSize, sizeof(u64));
+    if (evalHash == nullptr)
+        evalHash = (u64 *) calloc(hashSize, sizeof(u64));
 }
 
 Eval::~Eval() {
@@ -106,7 +106,6 @@ int Eval::evaluatePawn() {
         result += PAWN_IN_7TH * bitCount(pawnsIn7);
         ADD(SCORE_DEBUG.PAWN_7H[side], PAWN_IN_7TH * bitCount(pawnsIn7));
 
-        // TODO se casa in 8 non è attaccabile add bonus
         const u64 pawnsIn8 = (shiftForward<side, 8>(pawnsIn7) & (~structureEval.allPieces) ||
             structureEval.allPiecesSide[xside] &
                 (shiftForward<side, 7>(pawnsIn7) |
@@ -124,7 +123,7 @@ int Eval::evaluatePawn() {
             structureEval.kingAttackers[xside] |= pos;
             result += ATTACK_KING;
         }
-       
+
         /// blocked
         result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[xside])) &&
             (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? PAWN_BLOCKED : 0;
@@ -231,11 +230,11 @@ int Eval::evaluateBishop(const u64 enemies) {
 
         // 6.
         if (phase != OPEN) {
-            if (BIG_DIAGONAL & POW2[o] && !(DIAGONAL[o] & structureEval.allPieces)) { //TODO sbagliato
+            if (BIG_DIAGONAL & POW2[o] && !(DIAGONAL[o] & structureEval.allPieces)) {
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
-            if (BIG_ANTIDIAGONAL & POW2[o] && !(ANTIDIAGONAL[o] & structureEval.allPieces)) {//TODO sbagliato
+            if (BIG_ANTIDIAGONAL & POW2[o] && !(ANTIDIAGONAL[o] & structureEval.allPieces)) {
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
@@ -300,13 +299,13 @@ int Eval::evaluateQueen(const u64 enemies) {
         // 4. half open file
         if ((chessboard[side ^ 1] & FILE_[o])) {
             ADD(SCORE_DEBUG.HALF_OPEN_FILE_Q[side], HALF_OPEN_FILE_Q);
-            result += HALF_OPEN_FILE_Q; //TODO + o - ?
+            result += HALF_OPEN_FILE_Q;
         }
 
         // 5. open file
         if ((FILE_[o] & structureEval.allPieces) == POW2[o]) {
             ADD(SCORE_DEBUG.OPEN_FILE_Q[side], OPEN_FILE_Q);
-            result += OPEN_FILE_Q; //TODO + o - ?
+            result += OPEN_FILE_Q;
         }
 
         // 6. bishop on queen
@@ -322,7 +321,7 @@ int Eval::evaluateQueen(const u64 enemies) {
  * evaluate knight for color at phase
  * 1. // pinned
  * 2. undevelop - substracts UNDEVELOPED_KNIGHT for each undeveloped knight
- * 3. trapped TODO
+ * 3. trapped
  * 4. *king security* - in OPEN phase add at kingSecurity FRIEND_NEAR_KING for each knight near to king and substracts ENEMY_NEAR_KING for each knight near to enemy king
  * 5. mobility
  * 6. outposts
@@ -332,7 +331,6 @@ template<int side, Eval::_Tphase phase>
 int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
     INC(evaluationCount[side]);
     u64 knight = chessboard[KNIGHT_BLACK + side];
-    //if (!x) return 0;TODO
 
     // 1. pinned
     int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
@@ -548,7 +546,7 @@ int Eval::evaluateKing(int side, u64 squares) {
 }
 
 void Eval::storeHashValue(const u64 key, const short value) {
-    evalHash[key % hashSize] = (key & keyMask) | (value & valueMask); //TODO lockless
+    evalHash[key % hashSize] = (key & keyMask) | (value & valueMask);
     ASSERT(value == getHashValue(key));
 }
 
