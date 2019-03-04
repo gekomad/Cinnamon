@@ -51,11 +51,11 @@ bool GenMoves::performRankFileCapture(const int piece, const u64 enemies, const 
     return false;
 }
 
-int GenMoves::performRankFileCaptureAndShiftCount(const int position, const u64 enemies, const u64 allpieces) {
+u64 GenMoves::performRankFileCaptureAndShift(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
     u64 rankFile = getRankFile(position, allpieces);
     rankFile = (rankFile & enemies) | (rankFile & ~allpieces);
-    return bitCount(rankFile);
+    return rankFile;
 }
 
 bool GenMoves::performDiagCapture(const int piece, const u64 enemies, const int side, const u64 allpieces) {
@@ -108,15 +108,15 @@ bool GenMoves::generateCaptures(const int side, const u64 enemies, const u64 fri
     return side ? generateCaptures<WHITE>(enemies, friends) : generateCaptures<BLACK>(enemies, friends);
 }
 
-int GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 allpieces) {
+u64 GenMoves::getMobilityQueen(const int position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63);
-    return performRankFileCaptureAndShiftCount(position, enemies, allpieces) +
-        bitCount(getDiagShiftAndCapture(position, enemies, allpieces));
+    return performRankFileCaptureAndShift(position, enemies, allpieces) +
+        getDiagShiftAndCapture(position, enemies, allpieces);
 }
 
-int GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
+u64 GenMoves::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(position, 0, 63);
-    return performRankFileCaptureAndShiftCount(position, enemies, enemies | friends);
+    return performRankFileCaptureAndShift(position, enemies, enemies | friends);
 }
 
 void GenMoves::setPerft(const bool b) {
