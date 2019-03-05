@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.5)
-project(cinnamon)
+#only for debug
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -pedantic -std=c++11 -DDEBUG_MODE -DFULL_TESTx")
+cmake_minimum_required(VERSION 3.5)
+project(debug)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -pedantic -std=c++11 -DDEBUG_MODE -DFULL_TESTx")
 
 set(SOURCE_FILES
         src/lib/gtb-probe.h
@@ -61,6 +63,6 @@ set(SOURCE_FILES
         src/Uci.h
         )
 
-add_executable(cinnamon ${SOURCE_FILES})
+add_executable(debug ${SOURCE_FILES})
 
-target_link_libraries(cinnamon ${CMAKE_SOURCE_DIR}/src/lib/Linux/64/libgtb.a /usr/local/lib/libgtest.a)
+target_link_libraries(debug ${CMAKE_SOURCE_DIR}/src/lib/Linux/64/libgtb.a /usr/local/lib/libgtest.a)
