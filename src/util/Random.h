@@ -39,7 +39,7 @@ public:
     static int getRandom(const int from, const int to) {
 #ifdef _WIN32
         std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch());
-        std::mt19937 mt(static_cast<unsigned int>(ns.count()));
+        std::mt19937 mt(static_cast<unsigned int>(ns._count()));
 #else
         std::random_device rd;
         std::mt19937 mt(rd());

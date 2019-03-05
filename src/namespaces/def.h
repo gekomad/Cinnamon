@@ -46,6 +46,12 @@ namespace _def {
 
 #define _assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< ":"<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::exit(1);};
 
+#ifdef BENCH_MODE
+#define BENCH(a) a
+#else
+#define BENCH(a)
+#endif
+
 #ifdef DEBUG_MODE
 #define ASSERT(a) _assert(a)
 #define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;_assert(0)};}

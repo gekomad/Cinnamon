@@ -21,6 +21,16 @@
 using namespace _eval;
 u64 *Eval::evalHash;
 
+#ifdef BENCH_MODE
+Time Eval::evalTime;
+Time Eval::bishopTime;
+Time Eval::pawnTime;
+Time Eval::kingTime;
+Time Eval::rookTime;
+Time Eval::knightTime;
+Time Eval::queenTime;
+#endif
+
 Eval::Eval() {
     if (evalHash == nullptr)
         evalHash = (u64 *) calloc(hashSize, sizeof(u64));
@@ -124,7 +134,7 @@ int Eval::evaluatePawn() {
             structureEval.kingAttackers[xside] |= pos;
             result += ATTACK_KING;
         }
-       
+
         /// blocked
         result -= (!(PAWN_FORK_MASK[side][o] & structureEval.allPiecesSide[xside])) &&
             (structureEval.allPieces & (shiftForward<side, 8>(pos))) ? PAWN_BLOCKED : 0;
@@ -562,11 +572,12 @@ short Eval::getHashValue(const u64 key) const {
 
 short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int alpha, const int beta,
                      const bool trace) {
-
+    BENCH(evalTime.start());
     const short hashValue = getHashValue(key);
-    if (hashValue != noHashValue)
+    if (hashValue != noHashValue) {
+        BENCH(evalTime.stop());
         return side ? -hashValue : hashValue;
-
+    }
     int lazyscore_white = lazyEvalSide<WHITE>();
     int lazyscore_black = lazyEvalSide<BLACK>();
     int lazyscore = lazyscore_black - lazyscore_white;
@@ -575,6 +586,7 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
     }
     if (lazyscore > (beta + FUTIL_MARGIN) || lazyscore < (alpha - FUTIL_MARGIN)) {
         INC(lazyEvalCuts);
+        BENCH(evalTime.stop());
         return lazyscore;
     }
 
@@ -823,6 +835,7 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
     }
 #endif
     storeHashValue(key, result);
+    BENCH(evalTime.stop());
     return side ? -result : result;
 }
 

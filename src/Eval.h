@@ -33,6 +33,16 @@ public:
 
     virtual ~Eval();
 
+#ifdef BENCH_MODE
+    static Time evalTime;
+    static Time bishopTime;
+    static Time pawnTime;
+    static Time kingTime;
+    static Time rookTime;
+    static Time knightTime;
+    static Time queenTime;
+#endif
+
     short getScore(const u64 key, const int side, const int N_PIECE, const int alpha, const int beta, const bool trace);
 
     template<int side>
@@ -43,6 +53,7 @@ public:
 #ifdef DEBUG_MODE
     unsigned lazyEvalCuts;
 #endif
+
 protected:
     STATIC_CONST int FUTIL_MARGIN = 154;
     STATIC_CONST int EXT_FUTILY_MARGIN = 392;
@@ -160,25 +171,35 @@ private:
 
     template<_Tphase phase>
     void getRes(_Tresult &res) {
+
+        BENCH(pawnTime.start());
         res.pawns[BLACK] = evaluatePawn<BLACK, phase>();
         res.pawns[WHITE] = evaluatePawn<WHITE, phase>();
+        BENCH(pawnTime.stop());
 
+        BENCH(bishopTime.start());
         res.bishop[BLACK] = evaluateBishop<BLACK, phase>(structureEval.allPiecesSide[WHITE]);
         res.bishop[WHITE] = evaluateBishop<WHITE, phase>(structureEval.allPiecesSide[BLACK]);
+        BENCH(bishopTime.stop());
 
+        BENCH(queenTime.start());
         res.queens[BLACK] = evaluateQueen<BLACK, phase>(structureEval.allPiecesSide[WHITE]);
         res.queens[WHITE] = evaluateQueen<WHITE, phase>(structureEval.allPiecesSide[BLACK]);
-
+        BENCH(queenTime.stop());
+        BENCH(rookTime.start());
         res.rooks[BLACK] = evaluateRook<BLACK, phase>(chessboard[KING_BLACK], structureEval.allPiecesSide[WHITE],
                                                       structureEval.allPiecesSide[BLACK]);
         res.rooks[WHITE] = evaluateRook<WHITE, phase>(chessboard[KING_WHITE], structureEval.allPiecesSide[BLACK],
                                                       structureEval.allPiecesSide[WHITE]);
-
+        BENCH(rookTime.stop());
+        BENCH(knightTime.start());
         res.knights[BLACK] = evaluateKnight<BLACK, phase>(chessboard[WHITE], ~structureEval.allPiecesSide[BLACK]);
         res.knights[WHITE] = evaluateKnight<WHITE, phase>(chessboard[BLACK], ~structureEval.allPiecesSide[WHITE]);
-
+        BENCH(knightTime.stop());
+        BENCH(kingTime.start());
         res.kings[BLACK] = evaluateKing<phase>(BLACK, ~structureEval.allPiecesSide[BLACK]);
         res.kings[WHITE] = evaluateKing<phase>(WHITE, ~structureEval.allPiecesSide[WHITE]);
+        BENCH(kingTime.stop());
     }
 
     template<int side>
@@ -368,7 +389,7 @@ namespace _eval {
                                                   45, 45, 45, 45, 45, 45, 45, 45,
                                                   70, 70, 70, 70, 70, 70, 70, 70,
                                                   90, 90, 90, 90, 90, 90, 90, 90,
-                                                   0, 0, 0, 0, 0, 0, 0, 0}};
+                                                  0, 0, 0, 0, 0, 0, 0, 0}};
 
     static constexpr u64 PAWN_ISOLATED_MASK[64] = {0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL,
                                                    0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL,

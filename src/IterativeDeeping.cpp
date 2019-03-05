@@ -246,6 +246,19 @@ void IterativeDeeping::run() {
             inMate = true;
         }
     }
+
+#ifdef BENCH_MODE
+
+    cout << "info string pawnTime eval avg: " << Eval::pawnTime.avgAndReset() << " ns." << endl;
+    cout << "info string bishopTime eval avg: " << Eval::bishopTime.avgAndReset() << " ns." << endl;
+    cout << "info string knightTime eval avg: " << Eval::knightTime.avgAndReset() << " ns." << endl;
+    cout << "info string rookTime eval avg: " << Eval::rookTime.avgAndReset() << " ns." << endl;
+    cout << "info string queenTime eval avg: " << Eval::queenTime.avgAndReset() << " ns." << endl;
+    cout << "info string kingTime eval avg: " << Eval::kingTime.avgAndReset() << " ns." << endl;
+    cout << "info string evalTime TOT avg: " << Eval::evalTime.avgAndReset() << " ns." << endl;
+
+#endif
+
     cout << "bestmove " << bestmove;
     if (ponderEnabled && ponderMove.size()) {
         cout << " ponder " << ponderMove;

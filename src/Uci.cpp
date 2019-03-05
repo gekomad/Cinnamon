@@ -298,7 +298,7 @@ void Uci::listner(IterativeDeeping *it) {
                         it->enablePonder(token == "true");
                         knowCommand = true;
                     }
-                } else if (token == "clear") {
+                } else if (token == "reset") {
                     getToken(uip, token);
                     if (token == "hash") {
                         knowCommand = true;

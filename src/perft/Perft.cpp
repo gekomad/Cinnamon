@@ -190,7 +190,7 @@ void Perft::run() {
     cout << setw(8) << "#";
     cout << endl;
 
-    start1 = std::chrono::high_resolution_clock::now();
+    time.resetAndStart();
     p->incListId();
     u64 friends = side ? p->getBitmap<WHITE>() : p->getBitmap<BLACK>();
     u64 enemies = side ? p->getBitmap<BLACK>() : p->getBitmap<WHITE>();
@@ -216,12 +216,12 @@ void Perft::run() {
 }
 
 void Perft::endRun() {
-    auto end1 = std::chrono::high_resolution_clock::now();
-    int t = Time::diffTime(end1, start1) / 1000;
+    time.stop();
+    int t = time.getMill() / 1000;
 
     cout << endl << endl << "Perft moves: " << perftRes.totMoves;
-    string timetot = Time::diffTimeToString(start1, end1);
-    cout << " in " << timetot;
+
+    cout << " in " << t<<" seconds";
 
     if (t) {
         cout << " (" << (perftRes.totMoves / t) / 1000 - ((perftRes.totMoves / t) / 1000) % 1000 <<

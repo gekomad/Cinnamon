@@ -26,10 +26,49 @@ using namespace std;
 using namespace chrono;
 
 class Time {
+
+private:
+    int _count = 0;
+    std::chrono::time_point<std::chrono::system_clock> _start;
+    int64_t _tot = 0;
 public:
+
+    Time() { }
     static constexpr int HOUR_IN_SECONDS = 60 * 60;
     static constexpr int HOUR_IN_MINUTES = 60;
 
+    void resetAndStart() {
+        reset();
+        start();
+    }
+
+    void start() {
+        _count++;
+        _start = std::chrono::system_clock::now();
+    }
+
+    void stop() {
+        std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
+        _tot += std::chrono::duration_cast<std::chrono::nanoseconds>(end - _start).count();
+    }
+
+    int64_t avg() {
+        return _count == 0 ? 0 : _tot / _count;
+    }
+
+    int64_t avgAndReset() {
+        int64_t a = _count == 0 ? 0 : _tot / _count;
+        reset();
+        return a;
+    }
+
+    unsigned long getMill() {
+        return _tot / 1000000;
+    }
+
+    void reset() {
+        _tot = _count = 0;
+    }
 
     static int diffTime(high_resolution_clock::time_point t1, high_resolution_clock::time_point t2) {
         std::chrono::duration<double, std::milli> elapsed = t1 - t2;

@@ -3,8 +3,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(debug)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -pedantic -std=c++11 -DDEBUG_MODE -DFULL_TESTx")
-
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_BSF -Ofast -pthread -pedantic -std=c++11 -DBENCH_MODE ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_BSF -g     -pthread -pedantic -std=c++11 -DDEBUG_MODE -DFULL_TESTx ")
 set(SOURCE_FILES
         src/lib/gtb-probe.h
         src/namespaces/board.h
