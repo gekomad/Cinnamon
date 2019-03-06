@@ -186,6 +186,7 @@ int Eval::evaluatePawn() {
  * 6. if only one bishop and pawns on same square color substracts n_pawns * BISHOP_PAWN_ON_SAME_COLOR
  * pinned ?
  * 7. outposts
+ * 8. bishop on big diagonal
  */
 template<int side, Eval::_Tphase phase>
 int Eval::evaluateBishop(const u64 enemies) {
@@ -241,11 +242,11 @@ int Eval::evaluateBishop(const u64 enemies) {
 
         // 6.
         if (phase != OPEN) {
-            if (BIG_DIAGONAL & POW2[o] && !(DIAGONAL[o] & structureEval.allPieces)) { //TODO sbagliato
+            if ((BIG_DIAGONAL & structureEval.allPieces) == POW2[o]) {
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
-            if (BIG_ANTIDIAGONAL & POW2[o] && !(ANTIDIAGONAL[o] & structureEval.allPieces)) {//TODO sbagliato
+            if ((BIG_ANTIDIAGONAL & structureEval.allPieces) == POW2[o]) {
                 ADD(SCORE_DEBUG.OPEN_DIAG_BISHOP[side], OPEN_FILE);
                 result += OPEN_FILE;
             }
@@ -342,7 +343,7 @@ template<int side, Eval::_Tphase phase>
 int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
     INC(evaluationCount[side]);
     u64 knight = chessboard[KNIGHT_BLACK + side];
-    //if (!x) return 0;TODO
+    if (!knight) return 0;
 
     // 1. pinned
     int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
