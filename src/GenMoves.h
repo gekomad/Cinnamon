@@ -628,7 +628,7 @@ protected:
 
 
 private:
-    int running;
+    volatile int running;
     bool isInCheck;
     static bool forceCheck;
     static constexpr u64 TABJUMPPAWN = 0xFF00000000FF00ULL;

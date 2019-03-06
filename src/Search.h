@@ -66,7 +66,7 @@ public:
         return pvLine;
     }
 
-    void setMainParam(const bool smp, const int depth);
+    void setMainParam(const bool smp, const int depth, const int nodesBetweenTimeChecks1);
 
     template<bool mainSmp>
     int search(const int depth, const int alpha, const int beta);
@@ -169,8 +169,8 @@ private:
     int mainMateIn;
     int mainDepth;
     bool mainSmp;
-    int mainBeta;
-    int mainAlpha;
+    int nextTimeCheck =100000;
+    int nodesBetweenTimeChecks = 1000000;
 
     inline int checkHash(const int type, const bool quies, const int alpha, const int beta, const int depth,
                          const u64 zobristKeyR,

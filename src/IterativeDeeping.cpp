@@ -111,7 +111,8 @@ void IterativeDeeping::run() {
     searchManager.clearAge();
     searchManager.setForceCheck(false);
 
-    auto start1 = std::chrono::high_resolution_clock::now();
+    auto time = Time();
+    time.start();
     bool inMate = false;
     int extension = 0;
     string ponderMove;
@@ -119,7 +120,7 @@ void IterativeDeeping::run() {
     int mateIn = INT_MAX;
     string pvv;
     _Tmove resultMove;
-
+    int nodesPerSecond = 100000;
 #ifdef DEBUG_MODE
     u64 totMovesPrec = -1;
 #endif
@@ -128,7 +129,7 @@ void IterativeDeeping::run() {
         ++mply;
         searchManager.init();
 
-        searchManager.search(mply);
+        searchManager.search(mply, nodesPerSecond);
 
         searchManager.setRunningThread(1);
         searchManager.setRunning(1);
@@ -139,9 +140,10 @@ void IterativeDeeping::run() {
 
         searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
 
-        auto end1 = std::chrono::high_resolution_clock::now();
-        timeTaken = Time::diffTime(end1, start1) + 1;
+        time.stop();
+        timeTaken = time.getMill();
         totMoves += searchManager.getTotMoves();
+        if(timeTaken)nodesPerSecond = (totMoves * 1000) / timeTaken;
 
         sc = resultMove.score;
         if (resultMove.score > _INFINITE - MAX_PLY) {
@@ -225,7 +227,7 @@ void IterativeDeeping::run() {
                 cout << "info score cp " << sc << " depth " << mply - extension;
             }
             cout << " nodes " << totMoves << " time " << timeTaken;
-            if (0)cout << " knps " << (totMoves / timeTaken);
+            if (timeTaken)cout << " knps " << (totMoves / timeTaken);
             cout << " pv " << pvv << endl;
         }
 

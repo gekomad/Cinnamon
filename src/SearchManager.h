@@ -79,7 +79,7 @@ public:
 
     void setRunningThread(bool r);
 
-    void search(int mply);
+    void search(const int mply, const int nodesPerSecond);
 
     void setRunning(int i);
 
@@ -212,9 +212,9 @@ private:
 
     SearchManager();
 
-    void lazySMP(const int mply);
+    void lazySMP(const int mply, const int nodesPerSecond);
 
-    void singleSearch(int mply);
+    void singleSearch(int mply,const int nodesBetweenTimeChecks);
 
     int mateIn;
     int valWindow = INT_MAX;
@@ -224,7 +224,7 @@ private:
 
     void setMainPly(const int r);
 
-    void startThread(const bool smpMode, Search &thread, const int depth);
+    void startThread(const bool smpMode, Search &thread, const int depth,const int nodesBetweenTimeChecks);
 
     void stopAllThread();
 

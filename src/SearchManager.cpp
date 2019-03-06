@@ -45,23 +45,23 @@ SearchManager::SearchManager() {
             };
         }
     }
-
 }
 
-void SearchManager::search(const int mply) {
+void SearchManager::search(const int mply, const int nodesPerSecond) {
+    int nodesBetweenTimeChecks = nodesPerSecond / (10 * max(getNthread(), 1));
     if (getNthread() > 1 && mply > 3) {
-        lazySMP(mply);
+        lazySMP(mply, nodesBetweenTimeChecks);
     } else {
-        singleSearch(mply);
+        singleSearch(mply, nodesBetweenTimeChecks);
     }
 }
 
-void SearchManager::singleSearch(const int mply) {
+void SearchManager::singleSearch(const int mply, const int nodesBetweenTimeChecks) {
     debug("start singleSearch -------------------------------");
     lineWin.cmove = -1;
     setMainPly(mply);
     ASSERT(!getBitCount());
-    getThread(0).setMainParam(SMP_NO, mply);
+    getThread(0).setMainParam(SMP_NO, mply, nodesBetweenTimeChecks);
     getThread(0).run();
     valWindow = getThread(0).getValWindow();
     if (getThread(0).getRunning()) {
@@ -73,7 +73,7 @@ void SearchManager::singleSearch(const int mply) {
     debug("end singleSearch -------------------------------");
 }
 
-void SearchManager::lazySMP(const int mply) {
+void SearchManager::lazySMP(const int mply, const int nodesBetweenTimeChecks) {
     ASSERT (mply > 1);
     lineWin.cmove = -1;
     setMainPly(mply);
@@ -84,14 +84,14 @@ void SearchManager::lazySMP(const int mply) {
     for (int ii = 0; ii < getNthread(); ii++) {
         Search &idThread1 = getNextThread();
         idThread1.setRunning(1);
-        startThread(SMP_YES, idThread1, mply + (ii % 2));
+        startThread(SMP_YES, idThread1, mply + (ii % 2), nodesBetweenTimeChecks);
     }
     joinAll();
     debug("end lazySMP ---------------------------");
 
     ASSERT(!getBitCount());
     if (lineWin.cmove <= 0) {
-        singleSearch(mply);
+        singleSearch(mply, nodesBetweenTimeChecks);
     }
 }
 
@@ -154,11 +154,14 @@ int SearchManager::loadFen(string fen) {
     return res;
 }
 
-void SearchManager::startThread(const bool smpMode, Search &thread, const int depth) {
+void SearchManager::startThread(const bool smpMode,
+                                Search &thread,
+                                const int depth,
+                                const int nodesBetweenTimeChecks) {
 
     debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId()));
 
-    thread.setMainParam(smpMode, depth);
+    thread.setMainParam(smpMode, depth, nodesBetweenTimeChecks);
 
     thread.start();
 }

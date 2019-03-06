@@ -160,9 +160,6 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
         return 0;
     }
     ASSERT(chessboard[KING_BLACK + side]);
-    if (!(numMovesq++ & 1023)) {
-        setRunning(checkTime());
-    }
 
     const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
     int score = getScore(zobristKeyR, side, N_PIECE, alpha, beta, false);
@@ -373,10 +370,14 @@ void Search::deleteGtb() {
     gtb = nullptr;
 }
 
-void Search::setMainParam(const bool smp, const int depth) {
+void Search::setMainParam(const bool smp,
+                          const int depth,
+                          const int nodesBetweenTimeChecks1) {
     memset(&pvLine, 0, sizeof(_TpvLine));
     mainDepth = depth;
     mainSmp = smp;
+    nextTimeCheck = nodesBetweenTimeChecks1;
+    nodesBetweenTimeChecks = nodesBetweenTimeChecks1;
 }
 
 template<bool smp>
@@ -485,7 +486,9 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     };
     ///********** end hash ***************
 
-    if (!(numMoves & 1023)) {
+    // thread #0 checks time
+    if (getId() == 0 && --nextTimeCheck <= 0) {
+        nextTimeCheck = nodesBetweenTimeChecks;
         setRunning(checkTime());
     }
     ++numMoves;
