@@ -383,7 +383,7 @@ void Uci::listner(IterativeDeeping *it) {
             if (!forceTime) {
                 if (searchManager.getSide() == WHITE) {
                     winc -= (int) (winc * 0.1);
-                    searchManager.setMaxTimeMillsec(winc + wtime / 40);
+                    searchManager.setMaxTimeMillsec(winc + wtime / 36);
                     if (btime > wtime) {
                         searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
                             (int) (searchManager.getMaxTimeMillsec() *
@@ -391,7 +391,7 @@ void Uci::listner(IterativeDeeping *it) {
                     }
                 } else {
                     binc -= (int) (binc * 0.1);
-                    searchManager.setMaxTimeMillsec(binc + btime / 40);
+                    searchManager.setMaxTimeMillsec(binc + btime / 36);
                     if (wtime > btime) {
                         searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
                             (int) (searchManager.getMaxTimeMillsec() *
