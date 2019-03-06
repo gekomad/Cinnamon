@@ -311,13 +311,13 @@ int Eval::evaluateQueen(const u64 enemies) {
         // 4. half open file
         if ((chessboard[side ^ 1] & FILE_[o])) {
             ADD(SCORE_DEBUG.HALF_OPEN_FILE_Q[side], HALF_OPEN_FILE_Q);
-            result += HALF_OPEN_FILE_Q; //TODO + o - ?
+            result += HALF_OPEN_FILE_Q;
         }
 
         // 5. open file
         if ((FILE_[o] & structureEval.allPieces) == POW2[o]) {
             ADD(SCORE_DEBUG.OPEN_FILE_Q[side], OPEN_FILE_Q);
-            result += OPEN_FILE_Q; //TODO + o - ?
+            result += OPEN_FILE_Q;
         }
 
         // 6. bishop on queen
@@ -559,7 +559,7 @@ int Eval::evaluateKing(int side, u64 squares) {
 }
 
 void Eval::storeHashValue(const u64 key, const short value) {
-    evalHash[key % hashSize] = (key & keyMask) | (value & valueMask); //TODO lockless
+    evalHash[key % hashSize] = (key & keyMask) | (value & valueMask);
     ASSERT(value == getHashValue(key));
 }
 

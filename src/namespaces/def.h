@@ -70,7 +70,7 @@ namespace _def {
 
 
 #ifdef HAS_POPCNT
-#if __WORDSIZE == 64
+#ifdef HAS_64BIT
 
     static inline int bitCount(u64 bits) {
         return __builtin_popcountll(bits);
@@ -93,7 +93,7 @@ namespace _def {
 
 
 #ifdef HAS_BSF
-#if __WORDSIZE == 64
+#ifdef HAS_64BIT
 
     static inline int BITScanForward(u64 bits) {
         return __builtin_ffsll(bits) - 1;

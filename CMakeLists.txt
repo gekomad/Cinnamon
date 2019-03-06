@@ -1,5 +1,7 @@
-#only for debug
-
+message("*****************************")
+message("Only for debug.")
+message("Use 'make' in src directory.")
+message("*****************************\n\n")
 cmake_minimum_required(VERSION 3.5)
 project(debug)
 
@@ -58,7 +60,6 @@ set(SOURCE_FILES
         src/db/GTB.cpp
         src/db/syzygy/SYZYGY.cpp
         src/db/syzygy/tbprobe.cpp
-        src/db/syzygy/main.cpp
         src/Uci.cpp
         src/Uci.h
         )

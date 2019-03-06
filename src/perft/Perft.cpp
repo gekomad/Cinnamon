@@ -221,7 +221,7 @@ void Perft::endRun() {
 
     cout << endl << endl << "Perft moves: " << perftRes.totMoves;
 
-    cout << " in " << t<<" seconds";
+    cout << " in " << t << " seconds";
 
     if (t) {
         cout << " (" << (perftRes.totMoves / t) / 1000 - ((perftRes.totMoves / t) / 1000) % 1000 <<

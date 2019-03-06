@@ -12,7 +12,7 @@ or any UCI-compatible GUI. Cinnamon is also a javascript library to play with
 
 Version
 ----------
-1.2c-smp.x
+2.1
 
 Features
 ----------

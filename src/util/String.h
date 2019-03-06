@@ -25,7 +25,7 @@
 #include <string.h>
 
 using namespace std;
-#if __WORDSIZE == 64
+#ifdef HAS_64BIT
 //64 bit
 typedef __int128_t i128;
 #else

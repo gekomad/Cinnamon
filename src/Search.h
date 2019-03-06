@@ -169,8 +169,6 @@ private:
     int mainMateIn;
     int mainDepth;
     bool mainSmp;
-    int mainBeta;
-    int mainAlpha;
 
     inline int checkHash(const int type, const bool quies, const int alpha, const int beta, const int depth,
                          const u64 zobristKeyR,

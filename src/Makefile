@@ -166,10 +166,10 @@ cinnamon32-ARM:
 	$(MAKE) LIBS="$(LIBS) lib/ARM/32/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF -w" build
 
 cinnamon64-ARM:
-	$(MAKE) LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF -w" build
+	$(MAKE) LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_64BIT -m64 -DHAS_BSF -w" build
 
 cinnamon64-generic:
-	$(MAKE) LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
+	$(MAKE) LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -DHAS_64BIT -m64" build
 
 cinnamon64-sse3:
 	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_POPCNT -DHAS_BSF " cinnamon64-generic
