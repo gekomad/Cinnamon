@@ -247,13 +247,13 @@ u64 Bitboard::performDiagCapture(const int position, const u64 allpieces) {
 }
 
 vector<u64> Bitboard::combinations(const vector<u64> &elems,
-                                   const int len,
+                                   const unsigned len,
                                    vector<int> &pos,
-                                   const int depth,
+                                   const unsigned depth,
                                    const int margin) {
     vector<u64> res;
     if (depth >= len) {
-        for (int ii = 0; ii < pos.size(); ++ii) {
+        for (unsigned ii = 0; ii < pos.size(); ++ii) {
             res.push_back(elems[pos[ii]]);
         }
         return res;
@@ -262,7 +262,7 @@ vector<u64> Bitboard::combinations(const vector<u64> &elems,
     if ((elems.size() - margin) < (len - depth))
         return res;
 
-    for (int ii = margin; ii < elems.size(); ++ii) {
+    for (unsigned ii = margin; ii < elems.size(); ++ii) {
         pos[depth] = ii;
         vector<u64> A = combinations(elems, len, pos, depth + 1, ii + 1);
         res.insert(res.end(), A.begin(), A.end());
@@ -271,7 +271,7 @@ vector<u64> Bitboard::combinations(const vector<u64> &elems,
     return res;
 }
 
-vector<u64>  Bitboard::combinations(const vector<u64> &elems, const int len) {
+vector<u64>  Bitboard::combinations(const vector<u64> &elems, const unsigned len) {
     ASSERT(len > 0 && len <= elems.size());
     vector<int> positions(len, 0);
     return combinations(elems, len, positions, 0, 0);
@@ -292,9 +292,9 @@ vector<u64> Bitboard::getCombination(const vector<u64> elements) {
     vector<u64> v;
     u64 bits = 0;
 
-    for (int len = 1; len < elements.size() + 1; len++) {
+    for (unsigned len = 1; len < elements.size() + 1; len++) {
         v = combinations(elements, len);
-        int k = 0;
+        unsigned k = 0;
         for (int rr:v) {
             bits |= POW2[rr];
             if (++k == len) {

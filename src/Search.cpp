@@ -282,9 +282,9 @@ int Search::getMaxTimeMillsec() {
     return maxTimeMillsec;
 }
 
-void Search::sortFromHash(const int listId, const Hash::_ThashData &phashe) {
-    for (int r = 0; r < gen_list[listId].size; r++) {
-        _Tmove *mos = &gen_list[listId].moveList[r];
+void Search::sortFromHash(const int l, const Hash::_ThashData &phashe) {
+    for (int r = 0; r < gen_list[l].size; r++) {
+        _Tmove *mos = &gen_list[l].moveList[r];
 
         if (phashe.dataS.from == mos->from && phashe.dataS.to == mos->to) {
             mos->score = _INFINITE / 2;

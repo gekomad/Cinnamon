@@ -27,7 +27,7 @@
 TEST(syzygy, bestmove) {
 
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    SYZYGY &tablebase = searchManager.createSYZYGY("/syzygy");
+    searchManager.createSYZYGY("/syzygy");
 
 
     IterativeDeeping it;

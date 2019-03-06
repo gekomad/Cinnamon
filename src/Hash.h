@@ -51,9 +51,9 @@ public:
 
             __dataS() { };
 
-            __dataS(const short score, const char depth, const uchar from, const uchar to, const uchar entryAge,
-                    const uchar flags) :
-                score(score), depth(depth), from(from), to(to), entryAge(entryAge), flags(flags) { };
+            __dataS(const short sc, const char d, const uchar fr, const uchar t, const uchar ea,
+                    const uchar fl) :
+                score(sc), depth(d), from(fr), to(t), entryAge(ea), flags(fl) { };
         } dataS;
 
         _ThashData() { };

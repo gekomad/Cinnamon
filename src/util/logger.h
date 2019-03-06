@@ -28,9 +28,9 @@ using namespace std;
 
 namespace _logger {
 
-    static enum LOG_LEVEL {
+    enum LOG_LEVEL {
         _TRACE = 0, _DEBUG = 1, _INFO = 2, _WARN = 3, _ERROR = 4, _FATAL = 5, _OFF = 6
-    } _LOG_LEVEL;
+    };
 
 #if !defined DLOG_LEVEL
 #if defined DEBUG_MODE

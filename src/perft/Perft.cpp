@@ -92,11 +92,6 @@ bool Perft::load() {
     cout << " depth: " << perftRes.depth << endl;
     cout << " nCpu: " << perftRes.nCpu << endl;
 
-    const u64 kHash = 1024 * 1024 * mbSizeHash / POW2[depthHash];
-    u64 sizeAtDepthHash[255];
-    for (int i = 1; i <= depthHash; i++) {
-        sizeAtDepthHash[i] = kHash * POW2[i - 1] / sizeof(_ThashPerft);
-    }
     for (int i = 1; i <= depthHash; i++) {
         f.read(reinterpret_cast<char *>(perftRes.hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
     }

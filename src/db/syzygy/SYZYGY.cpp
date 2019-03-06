@@ -44,9 +44,9 @@ bool SYZYGY::getAvailable() const { return false; }
 
 string SYZYGY::getPath() const { return ""; }
 
-bool SYZYGY::setPath(const string &path) {
-    SYZYGY::path = path;
-    tb_init_syzygy(path.c_str());
+bool SYZYGY::setPath(const string &path1) {
+    SYZYGY::path = path1;
+    tb_init_syzygy(path1.c_str());
     return TB_LARGEST;
 }
 
@@ -56,7 +56,7 @@ int SYZYGY::getDtm(const _Tchessboard &c, const bool turn) {
     unsigned results[TB_MAX_MOVES];
 
     int res = search(c, turn, results);
-    if (res != TB_RESULT_FAILED) {
+    if (res != (int)TB_RESULT_FAILED) {
         return TB_GET_DTZ(res);
     }
     return INT_MAX;
@@ -71,7 +71,7 @@ string SYZYGY::decodePos(string &s) {
 string SYZYGY::getBestmove(const _Tchessboard &c, const bool turn) {
     unsigned results[TB_MAX_MOVES];
     int res = search(c, turn, results);
-    if (res == TB_RESULT_FAILED) {
+    if (res == (int)TB_RESULT_FAILED) {
         return "";
     }
 

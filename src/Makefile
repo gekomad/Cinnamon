@@ -41,7 +41,7 @@ else
 	STRIP=strip.exe
 endif
 
-CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
+CFLAGS=" -std=c++11 -flto -Wextra -Wshadow -Wall -Wcast-qual -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
 
 help:
 

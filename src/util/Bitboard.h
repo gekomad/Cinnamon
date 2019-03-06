@@ -106,9 +106,9 @@ private:
     void popolateAntiDiagonal();
 
     vector<u64>
-        combinations(const vector<u64> &elems, const int len, vector<int> &pos, const int depth, const int margin);
+        combinations(const vector<u64> &elems, const unsigned len, vector<int> &pos, const unsigned depth, const int margin);
 
-    vector<u64> combinations(const vector<u64> &elems, const int len);
+    vector<u64> combinations(const vector<u64> &elems, const unsigned len);
 
     u64 performDiagShift(const int position, const u64 allpieces);
 

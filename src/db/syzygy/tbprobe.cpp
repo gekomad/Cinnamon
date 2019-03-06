@@ -290,15 +290,15 @@ static const uint64_t anti2board_table[15] =
         0x0001020408102040ull,
     };
 
-static inline size_t diag2index(uint64_t b, unsigned d) {
+static inline size_t diag2index(uint64_t b) {
     b *= 0x0101010101010101ull;
     b >>= 56;
     b >>= 1;
     return (size_t) b;
 }
 
-static inline size_t anti2index(uint64_t b, unsigned a) {
-    return diag2index(b, a);
+static inline size_t anti2index(uint64_t b) {
+    return diag2index(b);
 }
 
 #define diag(s)                 square2diag_table[(s)]
@@ -311,8 +311,8 @@ static uint64_t bishop_attacks(unsigned sq, uint64_t occ) {
     unsigned d = diag(sq), a = anti(sq);
     uint64_t d_occ = occ & (diag2board(d) & ~BOARD_EDGE);
     uint64_t a_occ = occ & (anti2board(a) & ~BOARD_EDGE);
-    size_t d_idx = diag2index(d_occ, d);
-    size_t a_idx = anti2index(a_occ, a);
+    size_t d_idx = diag2index(d_occ);
+    size_t a_idx = anti2index(a_occ);
     uint64_t d_attacks = diag_attacks_table[sq][d_idx];
     uint64_t a_attacks = anti_attacks_table[sq][a_idx];
     return d_attacks | a_attacks;
@@ -1288,8 +1288,8 @@ static int probe_wdl(const struct pos *pos, int *success) {
     int v1 = -3;
     uint16_t moves0[2];      // Max=2 possible en-passant captures.
     uint16_t *moves = moves0;
-    uint16_t *end = gen_pawn_ep_captures(pos, moves);
-    for (; moves < end; moves++) {
+    uint16_t *end1 = gen_pawn_ep_captures(pos, moves);
+    for (; moves < end1; moves++) {
         struct pos pos1;
         if (!do_move(&pos1, pos, *moves))
             continue;
@@ -1304,15 +1304,15 @@ static int probe_wdl(const struct pos *pos, int *success) {
             v = v1;
         else if (v == 0) {
             // Check whether there is at least one legal non-ep move.
-            uint16_t moves0[MAX_MOVES];
-            uint16_t *moves = moves0;
-            uint16_t *end = gen_moves(pos, moves);
+            uint16_t moves0x[MAX_MOVES];
+            uint16_t *moves3 = moves0x;
+            uint16_t *end2 = gen_moves(pos, moves3);
             bool found = false;
-            for (; moves < end; moves++) {
-                if (is_en_passant(pos, *moves))
+            for (; moves < end2; moves3++) {
+                if (is_en_passant(pos, *moves3))
                     continue;
                 struct pos pos1;
-                if (do_move(&pos1, pos, *moves)) {
+                if (do_move(&pos1, pos, *moves3)) {
                     found = true;
                     break;
                 }
@@ -1482,15 +1482,15 @@ static int probe_dtz(const struct pos *pos, int *success) {
         else if (v1 >= 0)
             v = v1;
         else {
-            uint16_t moves0[MAX_MOVES];
-            uint16_t *moves = moves0;
-            uint16_t *end = gen_moves(pos, moves);
+            uint16_t moves01[MAX_MOVES];
+            uint16_t *moves1 = moves01;
+            uint16_t *end1 = gen_moves(pos, moves1);
             bool found = false;
-            for (; moves < end; moves++) {
-                if (is_en_passant(pos, *moves))
+            for (; moves1 < end1; moves++) {
+                if (is_en_passant(pos, *moves1))
                     continue;
                 struct pos pos1;
-                if (do_move(&pos1, pos, *moves)) {
+                if (do_move(&pos1, pos, *moves1)) {
                     found = true;
                     break;
                 }

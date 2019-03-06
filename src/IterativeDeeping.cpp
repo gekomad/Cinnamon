@@ -78,9 +78,9 @@ void IterativeDeeping::run() {
     searchManager.setRunningThread(true);
     int mply = 0;
 
-    string b = getSYZYGYbestmove(searchManager.getSide());
-    if (!b.empty()) {
-        cout << "bestmove " << b;
+    string b1 = getSYZYGYbestmove(searchManager.getSide());
+    if (!b1.empty()) {
+        cout << "bestmove " << b1;
         cout << endl;
         ADD(checkSmp2, -1);
         ASSERT(!checkSmp2);
@@ -121,7 +121,7 @@ void IterativeDeeping::run() {
     _Tmove resultMove;
 
 #ifdef DEBUG_MODE
-    u64 totMovesPrec = -1;
+    u64 totMovesPrec = 0xffffffffffffffffULL;
 #endif
     while (searchManager.getRunning(0)) {
         totMoves = 0;
@@ -181,7 +181,7 @@ void IterativeDeeping::run() {
         if (nCutAB) {
             cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%" << endl;
         }
-        if (totMovesPrec != -1)
+        if (totMovesPrec != 0xffffffffffffffffULL)
             cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2) <<
                 ((double) totMoves / (double) totMovesPrec) << endl;
         totMovesPrec = totMoves;
