@@ -48,8 +48,7 @@ public:
     }
 
     void stop() {
-        std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
-        _tot += std::chrono::duration_cast<std::chrono::nanoseconds>(end - _start).count();
+        _tot += std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now() - _start).count();
     }
 
     int64_t avg() {
@@ -57,7 +56,7 @@ public:
     }
 
     int64_t avgAndReset() {
-        int64_t a = _count == 0 ? 0 : _tot / _count;
+        const int64_t a = _count == 0 ? 0 : _tot / _count;
         reset();
         return a;
     }
@@ -70,8 +69,8 @@ public:
         _tot = _count = 0;
     }
 
-    static int diffTime(high_resolution_clock::time_point t1, high_resolution_clock::time_point t2) {
-        std::chrono::duration<double, std::milli> elapsed = t1 - t2;
+    static int diffTime(const high_resolution_clock::time_point t1, const high_resolution_clock::time_point t2) {
+        const std::chrono::duration<double, std::milli> elapsed = t1 - t2;
         return elapsed.count();
     }
 

@@ -80,7 +80,6 @@ int Eval::evaluatePawn() {
         ADD(SCORE_DEBUG.NO_PAWNS[side], -NO_PAWNS);
         return -NO_PAWNS;
     }
-    structureEval.isolated[side] = 0;
 
     int result = 0;
     constexpr int xside = side ^1;
@@ -126,6 +125,7 @@ int Eval::evaluatePawn() {
     }
 
     for (u64 p = ped_friends; p; RESET_LSB(p)) {
+        bool isolated = false;
         const int o = BITScanForward(p);
         u64 pos = POW2[o];
 
@@ -150,14 +150,14 @@ int Eval::evaluatePawn() {
         if (!(ped_friends & PAWN_ISOLATED_MASK[o])) {
             result -= PAWN_ISOLATED;
             ADD(SCORE_DEBUG.PAWN_ISOLATED[side], -PAWN_ISOLATED);
-            structureEval.isolated[side] |= pos;
+            isolated = true;
         }
         /// doubled
         if (NOTPOW2[o] & FILE_[o] & ped_friends) {
             result -= DOUBLED_PAWNS;
             ADD(SCORE_DEBUG.DOUBLED_PAWNS[side], -DOUBLED_PAWNS);
             /// doubled and isolated
-            if (!(structureEval.isolated[side] & pos)) {
+            if (isolated) {
                 ADD(SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[side], -DOUBLED_ISOLATED_PAWNS);
                 result -= DOUBLED_ISOLATED_PAWNS;
             }
