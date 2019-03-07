@@ -115,13 +115,21 @@ int Eval::evaluatePawn() {
         result += PAWN_IN_7TH * bitCount(pawnsIn7);
         ADD(SCORE_DEBUG.PAWN_7H[side], PAWN_IN_7TH * bitCount(pawnsIn7));
 
-        // TODO se casa in 8 non è attaccabile add bonus
-        const u64 pawnsIn8 = (shiftForward<side, 8>(pawnsIn7) & (~structureEval.allPieces) ||
-            structureEval.allPiecesSide[xside] &
-                (shiftForward<side, 7>(pawnsIn7) |
-                    shiftForward<side, 9>(pawnsIn7)));
-        result += PAWN_IN_8TH * (bitCount(pawnsIn8));
+        const u64 pawnsIn8 = (shiftForward<side, 8>(pawnsIn7) & (~structureEval.allPieces) |
+            structureEval.allPiecesSide[xside] & (shiftForward<side, 7>(pawnsIn7) | shiftForward<side, 9>(pawnsIn7)));
+
+        result += PAWN_IN_8TH * bitCount(pawnsIn8); //try to decrease PAWN_IN_8TH
         ADD(SCORE_DEBUG.PAWN_IN_8TH[side], PAWN_IN_8TH * (bitCount(pawnsIn8)));
+
+        // pawns in 8th not attacked TODO ripristinare
+//        for (u64 p = pawnsIn8; p; RESET_LSB(p)) {
+//            const int o = BITScanForward(p);
+//            if (!isAttacked<side>(o, structureEval.allPieces)) {
+//                result += PAWN_IN_8TH_SAVE;
+//                display();
+//                ADD(SCORE_DEBUG.PAWN_IN_8TH[side], PAWN_IN_8TH_SAVE);
+//            }
+//        }
     }
 
     for (u64 p = ped_friends; p; RESET_LSB(p)) {

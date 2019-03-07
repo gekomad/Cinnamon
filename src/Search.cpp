@@ -695,8 +695,6 @@ bool Search::setParameter(String param, int value) {
         ENEMY_NEAR_KING = value;
     } else if (param == "FRIEND_NEAR_KING") {
         FRIEND_NEAR_KING = value;
-    } else if (param == "BISHOP_NEAR_KING") {
-        BISHOP_NEAR_KING = value;
     } else if (param == "HALF_OPEN_FILE_Q") {
         HALF_OPEN_FILE_Q = value;
     } else if (param == "KNIGHT_TRAPPED") {
