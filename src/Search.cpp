@@ -452,10 +452,22 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     ASSERT(chessboard[KING_BLACK + side]);
     int extension = 0;
     int is_incheck_side = inCheck<side>();
-    if (!is_incheck_side && N_PIECE < 6 && depth != mainDepth) {
-        auto endGameValue = Endgame::getEndgameValue(side, N_PIECE, chessboard);
-        if (endGameValue != INT_MAX) {
-            return endGameValue;
+
+    if (!is_incheck_side && depth != mainDepth) {
+        if (checkDraw(chessboard[ZOBRISTKEY_IDX])) {
+            if (inCheck<side ^ 1>()) {
+                return _INFINITE - (mainDepth - depth + 1);
+            }
+            return -lazyEval<side>() * 2;
+        }
+        if (N_PIECE < 6) {
+            auto endGameValue = Endgame::getEndgameValue(side, N_PIECE, chessboard);
+            if (endGameValue != INT_MAX) {
+                if (inCheck<side ^ 1>()) {
+                    return _INFINITE - (mainDepth - depth + 1);
+                }
+                return endGameValue;
+            }
         }
     }
     if (is_incheck_side) {
