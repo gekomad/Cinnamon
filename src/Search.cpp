@@ -300,6 +300,7 @@ bool Search::checkInsufficientMaterial(int nPieces) {
             if (chessboard[BISHOP_BLACK] || chessboard[BISHOP_WHITE])return true;
             //KNK
             if (chessboard[KNIGHT_BLACK] || chessboard[KNIGHT_WHITE])return true;
+            break;
         case 4 :
             //KBKB
             if (chessboard[BISHOP_BLACK] && chessboard[BISHOP_WHITE])return true;
@@ -311,6 +312,7 @@ bool Search::checkInsufficientMaterial(int nPieces) {
             //KNNK
             if (bitCount(chessboard[KNIGHT_BLACK]) == 2)return true;
             if (bitCount(chessboard[KNIGHT_WHITE]) == 2)return true;
+            break;
         default:
             return false;
     }
