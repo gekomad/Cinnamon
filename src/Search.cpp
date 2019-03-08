@@ -161,7 +161,7 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     }
 
     const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
-    int score = getScore(zobristKeyR, side, N_PIECE, alpha, beta, false);
+    int score = getScore(zobristKeyR, side, alpha, beta, false);
     if (score >= beta) {
         return beta;
     }
@@ -289,37 +289,37 @@ void Search::sortFromHash(const int listId, const Hash::_ThashData &phashe) {
     }
 }
 
-bool Search::checkInsufficientMaterial(int N_PIECE) {
-    //regexp: KN?B*KB*
-    if (N_PIECE > 6) {
-        return false;
-    }
-    // KK
-    if (N_PIECE == 2) {
-        return true;
-    }
-    if (!chessboard[PAWN_BLACK] && !chessboard[PAWN_WHITE] && !chessboard[ROOK_BLACK] && !chessboard[ROOK_WHITE] &&
-        !chessboard[QUEEN_WHITE] && !chessboard[QUEEN_BLACK]) {
-        u64 allBishop = chessboard[BISHOP_BLACK] | chessboard[BISHOP_WHITE];
-        u64 allKnight = chessboard[KNIGHT_BLACK] | chessboard[KNIGHT_WHITE];
-        if (allBishop || allKnight) {
-            //insufficient material to mate
-            if (!allKnight) {
-                //regexp: KB+KB*
-                if ((bitCount(allBishop) == 1) ||
-                    ((allBishop & BLACK_SQUARES) == allBishop || (allBishop & WHITE_SQUARES) == allBishop)) {
-                    return true;
-                }
-            } else {
-                //KNKN*
-                if (!allBishop && bitCount(allKnight) < 3) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
+//bool Search::checkInsufficientMaterial(int N_PIECE) {
+//    //regexp: KN?B*KB*
+//    if (N_PIECE > 6) {
+//        return false;
+//    }
+//    // KK
+//    if (N_PIECE == 2) {
+//        return true;
+//    }
+//    if (!chessboard[PAWN_BLACK] && !chessboard[PAWN_WHITE] && !chessboard[ROOK_BLACK] && !chessboard[ROOK_WHITE] &&
+//        !chessboard[QUEEN_WHITE] && !chessboard[QUEEN_BLACK]) {
+//        u64 allBishop = chessboard[BISHOP_BLACK] | chessboard[BISHOP_WHITE];
+//        u64 allKnight = chessboard[KNIGHT_BLACK] | chessboard[KNIGHT_WHITE];
+//        if (allBishop || allKnight) {
+//            //insufficient material to mate
+//            if (!allKnight) {
+//                //regexp: KB+KB*
+//                if ((bitCount(allBishop) == 1) ||
+//                    ((allBishop & BLACK_SQUARES) == allBishop || (allBishop & WHITE_SQUARES) == allBishop)) {
+//                    return true;
+//                }
+//            } else {
+//                //KNKN*
+//                if (!allBishop && bitCount(allKnight) < 3) {
+//                    return true;
+//                }
+//            }
+//        }
+//    }
+//    return false;
+//}
 
 bool Search::checkDraw(u64 key) {
     int o = 0;
@@ -452,12 +452,10 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     ASSERT(chessboard[KING_BLACK + side]);
     int extension = 0;
     int is_incheck_side = inCheck<side>();
-    if (!is_incheck_side && depth != mainDepth) {
-        if (checkInsufficientMaterial(N_PIECE) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
-            if (inCheck<side ^ 1>()) {
-                return _INFINITE - (mainDepth - depth + 1);
-            }
-            return -lazyEval<side>() * 2;
+    if (!is_incheck_side && N_PIECE < 6 && depth != mainDepth) {
+        auto endGameValue = Endgame::getEndgameValue(side, N_PIECE, chessboard);
+        if (endGameValue != INT_MAX) {
+            return endGameValue;
         }
     }
     if (is_incheck_side) {

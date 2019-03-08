@@ -178,11 +178,6 @@ public:
         return BOARD[FILE_AT[file] * 8 + rank];
     }
 
-
-protected:
-
-    _Tchessboard chessboard;
-
     typedef struct {
         u64 allPieces;
         u64 kingAttackers[2];
@@ -196,6 +191,11 @@ protected:
         uchar posKing[2];
 
     } _Tboard;
+
+protected:
+
+    _Tchessboard chessboard;
+
 
     static constexpr u64 A7bit = 0x80000000000000ULL;
     static constexpr u64 B7bit = 0x40000000000000ULL;

@@ -27,6 +27,7 @@
 #include "threadPool/Thread.h"
 #include "db/GTB.h"
 #include "db/syzygy/SYZYGY.h"
+#include "db/Endgame.h"
 
 class Search: public Eval, public Thread<Search>, public Hash {
 
@@ -154,8 +155,6 @@ private:
 
     template<int side>
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
-
-    bool checkInsufficientMaterial(int);
 
     void sortFromHash(const int listId, const Hash::_ThashData &phashe);
 

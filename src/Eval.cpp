@@ -579,7 +579,7 @@ short Eval::getHashValue(const u64 key) const {
     return noHashValue;
 }
 
-short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int alpha, const int beta,
+short Eval::getScore(const u64 key, const int side, const int alpha, const int beta,
                      const bool trace) {
     BENCH(evalTime.start());
     const short hashValue = getHashValue(key);

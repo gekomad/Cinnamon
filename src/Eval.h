@@ -43,7 +43,7 @@ public:
     static Time queenTime;
 #endif
 
-    short getScore(const u64 key, const int side, const int N_PIECE, const int alpha, const int beta, const bool trace);
+    short getScore(const u64 key, const int side, const int alpha, const int beta, const bool trace);
 
     template<int side>
     int lazyEval() {
