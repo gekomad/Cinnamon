@@ -463,7 +463,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         if (N_PIECE < 6) {
             auto endGameValue = Endgame::getEndgameValue(side, N_PIECE, chessboard);
             if (endGameValue != INT_MAX) {
-                if (inCheck<side ^ 1>()) {
+                if (inCheck<side ^ 1>()) { //TODO eliminare
                     return _INFINITE - (mainDepth - depth + 1);
                 }
                 return endGameValue;
