@@ -72,17 +72,17 @@ namespace _def {
 #ifdef HAS_POPCNT
 #ifdef HAS_64BIT
 
-    static inline int bitCount(u64 bits) {
+    static inline int bitCount(const u64 bits) {
         return __builtin_popcountll(bits);
     }
 #else
-    static inline int bitCount(u64 bits) {
+    static inline int bitCount(const u64 bits) {
         return __builtin_popcountl(bits)+__builtin_popcountl(bits>>32);
     }
 #endif
 #else
 
-    static inline int bitCount(u64 bits) {
+    static inline int bitCount(u64 bits) {  
         int count = 0;
         for (; bits; RESET_LSB(bits))
             count++;
@@ -95,20 +95,20 @@ namespace _def {
 #ifdef HAS_BSF
 #ifdef HAS_64BIT
 
-    static inline int BITScanForward(u64 bits) {
+    static inline int BITScanForward(const u64 bits) {
         return __builtin_ffsll(bits) - 1;
     }
 
-    static inline int BITScanReverse(u64 bits) {
+    static inline int BITScanReverse(const u64 bits) {
         return 63 - __builtin_clzll(bits);
     }
 
 #else
-    static inline int BITScanForward(u64 bits) {
+    static inline int BITScanForward(const u64 bits) {
         return ((unsigned) bits) ? __builtin_ffs(bits) - 1 : __builtin_ffs(bits >> 32) + 31;
     }
 
-    static inline int BITScanReverse(u64 bits) {
+    static inline int BITScanReverse(const u64 bits) {
         return ((unsigned)(bits >> 32)) ? 63 - __builtin_clz(bits >> 32) : 31 - __builtin_clz(bits);
     }
 #endif

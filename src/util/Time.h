@@ -42,12 +42,12 @@ public:
         start();
     }
 
-    void start() {
+    inline void start() {
         _count++;
         _start = std::chrono::system_clock::now();
     }
 
-    void stop() {
+    inline void stop() {
         _tot += std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now() - _start).count();
     }
 
@@ -60,6 +60,11 @@ public:
         reset();
         return a;
     }
+
+    unsigned long getNano() {
+        return _tot;
+    }
+
 
     unsigned long getMill() {
         return _tot / 1000000;

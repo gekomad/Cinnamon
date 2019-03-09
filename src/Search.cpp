@@ -86,7 +86,53 @@ void Search::clone(const Search *s) {
     memcpy(chessboard, s->chessboard, sizeof(_Tchessboard));
 }
 
-int Search::printDtm() {
+int Search::printDtmSyzygy() {
+    int side = getSide();
+    u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
+    u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
+    display();
+
+//    int res = syzygy->getDtm(chessboard, side);
+//    if (res == INT_MAX) {
+//        cout << "Position not found" << endl;
+//        return res;
+//    }
+
+    incListId();
+    generateCaptures(side, enemies, friends);
+    generateMoves(side, friends | enemies);
+    _Tmove *move;
+    u64 oldKey = 0;
+
+    int best = -_INFINITE;
+    for (int i = 0; i < getListSize(); i++) {
+        move = &gen_list[listId].moveList[i];
+        if (!makemove(move, false, true)) {
+            takeback(move, oldKey, false);
+            continue;
+        };
+        cout << decodeBoardinv(move->type, move->from, getSide())
+            << decodeBoardinv(move->type, move->to, getSide()) << " ";
+        int res = -syzygy->getDtm(chessboard, side ^ 1);
+        if (res != -INT_MAX) {
+            cout << " res: " << res << endl;
+        }
+        takeback(move, oldKey, false);
+        if (res > best) {
+            best = res;
+        }
+    }
+    if (best > 0) {
+        best = _INFINITE - best;
+    } else if (best < 0) {
+        best = -(_INFINITE - best);
+    }
+    cout << endl;
+    decListId();
+    return best;
+}
+
+int Search::printDtmGtb() {
     int side = getSide();
     u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
     u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
@@ -99,18 +145,21 @@ int Search::printDtm() {
     generateMoves(side, friends | enemies);
     _Tmove *move;
     u64 oldKey = 0;
-    cout << "\n succ. \n";
+
     int best = -_INFINITE;
     for (int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
-        makemove(move, false, false);
+        if (!makemove(move, false, true)) {
+            takeback(move, oldKey, false);
+            continue;
+        };
         cout << endl << decodeBoardinv(move->type, move->from, getSide())
             << decodeBoardinv(move->type, move->to, getSide()) << " ";
         res = -getGtb().getDtm(side ^ 1, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
         if (res != -INT_MAX) {
             cout << " res: " << res;
         }
-        cout << endl;
+
         takeback(move, oldKey, false);
         if (res > best) {
             best = res;
@@ -122,6 +171,7 @@ int Search::printDtm() {
         best = -(_INFINITE - best);
     }
     cout << endl;
+
     decListId();
     return best;
 }
@@ -355,10 +405,10 @@ int Search::getSYZYGYdtm(const int side) {
     return syzygy->getDtm(chessboard, side);
 }
 
-string Search::getSYZYGYbestmove(const int side) {
-    if (!syzygy)return "";
-    return syzygy->getBestmove(chessboard, side);
-}
+//string Search::getSYZYGYbestmove(const int side) {
+//    if (!syzygy)return "";
+//    return syzygy->getBestmove(chessboard, side);
+//}
 
 GTB &Search::getGtb() const {
     ASSERT(gtb);
@@ -384,33 +434,28 @@ int Search::search(const int depth, const int alpha, const int beta) {
                                      bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
 }
 
-int Search::getDtm(const int side, _TpvLine *pline, const int depth, const int nPieces) const {
-    int mateIn = INT_MAX;
-    // lib
-    if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(nPieces) &&
-        depth >= gtb->getProbeDepth()) {
-        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
-        if (abs(v) != INT_MAX) {
-            mateIn = v;
-            int res = 0;
-            if (v != 0) {
-                res = _INFINITE - (abs(v));
-                if (v < 0) {
-                    res = -res;
-                }
-            }
-            ASSERT_RANGE(res, -_INFINITE, _INFINITE);
-            ASSERT(mainDepth >= depth);
-//            cout << side << " " << (*mateIn) << " " << res << endl;
-            return res;
-        }
-    }
-    // db
-    if (syzygy) {
-        syzygy->getDtm(chessboard, side);
-    }
-    return mateIn;
-}
+//int Search::getDtm1(const int side, _TpvLine *pline, const int depth, const int nPieces) const {
+//    int mateIn = INT_MAX;
+//    // lib
+//    if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(nPieces) &&
+//        depth >= gtb->getProbeDepth()) {
+//        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
+//        if (abs(v) != INT_MAX) {
+//            mateIn = v;
+//            int res = 0;
+//            if (v != 0) {
+//                res = _INFINITE - (abs(v));
+//                if (v < 0) {
+//                    res = -res;
+//                }
+//            }
+//            ASSERT_RANGE(res, -_INFINITE, _INFINITE);
+//            ASSERT(mainDepth >= depth);
+//            return res;
+//        }
+//    }
+//    return mateIn;
+//}
 
 template<int side>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
@@ -422,11 +467,23 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         return 0;
     }
     int score = -_INFINITE;
-    /* gtb */
-    if (gtb && pline->cmove && maxTimeMillsec > 1000 && gtb->isInstalledPieces(N_PIECE) &&
-        depth >= gtb->getProbeDepth()) {
 
-        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], depth);
+    if (syzygy && depth != mainDepth /* && TODO syzygy->isInstalledPieces(N_PIECE) e no castle*/) {
+        auto v = syzygy->getDtm(chessboard, side);
+        if (abs(v) != INT_MAX) {
+            auto res = _INFINITE - (abs(v));
+            if (v < 0) {
+                res = -res;
+            }
+            return res;
+        }
+    }
+
+    if (gtb && depth != mainDepth && mainDepth > 1
+        && gtb->isInstalledPieces(N_PIECE) && abs(score) < (_INFINITE-MAX_PLY)
+        && depth >= gtb->getProbeDepth()) {
+//        cout << "aaaa probe x\n";
+        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], 100);
         if (abs(v) != INT_MAX) {
             *mateIn = v;
             int res = 0;
@@ -440,8 +497,16 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             }
             ASSERT_RANGE(res, -_INFINITE, _INFINITE);
             ASSERT(mainDepth >= depth);
+            cout << "aaaaaaaaaaaaaaaaaaaaaaaaa probe ok\n";
             return res;
         }
+//        else {
+//            cout << "aaaa probe ko\n";
+//            if (!inCheck<side>() && !inCheck<side^1>()) {
+//                display();
+//                cout << "eeeee\n";
+//            }
+//        }
     }
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
 #ifdef DEBUG_MODE
@@ -451,7 +516,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     ASSERT(chessboard[KING_WHITE]);
     ASSERT(chessboard[KING_BLACK + side]);
     int extension = 0;
-    int is_incheck_side = inCheck<side>();
+    const int is_incheck_side = inCheck<side>();
     if (!is_incheck_side && depth != mainDepth) {
         if (checkInsufficientMaterial(N_PIECE) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
             if (inCheck<side ^ 1>()) {

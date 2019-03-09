@@ -170,12 +170,12 @@ void Uci::listner(IterativeDeeping *it) {
                         gtb = &searchManager.createGtb();
                         gtb->setPath(token);
                     }
-                } else if (token == "syzygytbpath") {
+                } else if (token == "syzygypath") {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
                         knowCommand = true;
-                        syzygy = &searchManager.createSYZYGY(token);
+                        syzygy = searchManager.createSYZYGY(token);
                     }
                 } else if (token == "perftthreads") {
                     getToken(uip, token);

@@ -633,20 +633,21 @@ bool GenMoves::generatePuzzle(const string type) {
     const int TOT = 5000;
     vector<int> pieces;
 
-    int side = BLACK;
     for (unsigned k = 0; k < TOT; k++) {
+        int side = WHITE;
         pieces.clear();
-        char c = toupper(type.at(0));
-        _assert(c == 'K');
+        _assert(toupper(type.at(0)) == 'K');
         for (unsigned i = 1; i < type.size(); i++) {
-            c = toupper(type.at(i));
-            if (!(c == 'K' || c == 'R' || c == 'P' || c == 'Q' || c == 'B' || c == 'N')) {
+            const char up = toupper(type.at(i));
+            if (!(up == 'K' || up == 'R' || up == 'P' || up == 'Q' || up == 'B' || up == 'N')) {
+                cout << "format error" << endl;
                 return false;
             };
-            if (c == 'K') {
-                side = WHITE;
+            if (up == 'K') {
+                side = BLACK;
             } else {
-                pieces.push_back(PIECES[c] + side);
+                auto x=PIECES[type.at(i)] + side;
+                pieces.push_back(x);
             }
         }
 

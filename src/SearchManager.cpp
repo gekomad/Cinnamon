@@ -315,9 +315,9 @@ bool SearchManager::getGtbAvailable() const {
     return getThread(0).getGtbAvailable();
 }
 
-string SearchManager::getSYZYGYbestmove(const int side) const {
-    return getThread(0).getSYZYGYbestmove(side);
-}
+//string SearchManager::getSYZYGYbestmove(const int side) const {
+//    return getThread(0).getSYZYGYbestmove(side);
+//}
 
 int SearchManager::getSYZYGYdtm(const int side) const {
     return getThread(0).getSYZYGYdtm(side);
@@ -337,8 +337,12 @@ GTB &SearchManager::getGtb() const {
     return getThread(0).getGtb();
 }
 
-int SearchManager::printDtm() {
-    return getThread(0).printDtm();
+int SearchManager::printDtmGtb() {
+    return getThread(0).printDtmGtb();
+}
+
+int SearchManager::printDtmSyzygy() {
+    return getThread(0).printDtmSyzygy();
 }
 
 void SearchManager::setGtb(GTB &tablebase) {

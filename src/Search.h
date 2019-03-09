@@ -75,7 +75,8 @@ public:
 
     void endRun();
 
-    int printDtm();
+    int printDtmGtb();
+    int printDtmSyzygy();
 
     GTB &getGtb() const;
 
@@ -85,7 +86,7 @@ public:
 
     bool getSYZYGYAvailable() const;
 
-    string getSYZYGYbestmove(const int side);
+//    string getSYZYGYbestmove(const int side);
 
     int getSYZYGYdtm(const int side);
 
@@ -164,7 +165,7 @@ private:
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
-    int getDtm(const int side, _TpvLine *pline, const int depth, const int nPieces) const;
+//    int getDtm1(const int side, _TpvLine *pline, const int depth, const int nPieces) const;
 
     int mainMateIn;
     int mainDepth;

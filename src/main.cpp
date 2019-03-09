@@ -23,8 +23,6 @@
 
 #include <gtest/gtest.h>
 
-void check();
-
 #endif
 
 /*
@@ -102,17 +100,99 @@ void printHeader() {
 #endif
     cout << flush;
 }
+static inline int BITScanForwardTODO(u64 bb) {
+    //  @author Matt Taylor (2003)
+    static constexpr int lsb_64_table[64] = {63, 30, 3, 32, 59, 14, 11, 33, 60, 24, 50, 9, 55, 19, 21, 34, 61, 29,
+                                             2, 53, 51, 23, 41, 18, 56, 28, 1, 43, 46, 27, 0, 35, 62, 31, 58, 4, 5,
+                                             49, 54, 6, 15, 52, 12, 40, 7, 42, 45, 16, 25, 57, 48, 13, 10, 39, 8,
+                                             44, 20, 47, 38, 22, 17, 37, 36, 26};
+    bb ^= bb - 1;
+    unsigned folded = (int) bb ^(bb >> 32);
+    return lsb_64_table[folded * 0x78291ACF >> 26];
+}
+void benchTODO() {
+    using namespace _random;
+    Time time;
+    u64 r;
+    const unsigned K = 30000000;
+    const unsigned tot = K * 64;
 
-void check() {
-    ASSERT(sizeof(Hash::_Thash) == 16);
-    ASSERT(sizeof(_Tmove) == 16);
+    ////
+    r = 0;
+    time.resetAndStart();
+    for (unsigned t = 0; t < K; t++)
+        for (unsigned j = 0; j < 64; j++) {
+            r += 1;
+        }
+    time.stop();
+    cout << "plus:\t\ttime: " << time.getNano() / tot << " nano: " << time.getNano() << "\t\tres: " << r << endl;
+
+    ////
+    r = 0;
+    time.resetAndStart();
+    for (unsigned t = 0; t < K; t++)
+        for (unsigned j = 0; j < 64; j++) {
+            r += BITScanForward(RANDOM_KEY[0][j]);
+        }
+    time.stop();
+    cout << "BITScanForward:\ttime: " << time.getNano() / tot << " nano: " << time.getNano() << "\tres: " << r << endl;
+    ////
+    r = 0;
+    time.resetAndStart();
+    for (unsigned t = 0; t < K; t++)
+        for (unsigned j = 0; j < 64; j++) {
+            r += BITScanForwardTODO(RANDOM_KEY[0][j]);
+        }
+    time.stop();
+    cout << "BITScanForward2:\ttime: " << time.getNano() / tot << " nano: " << time.getNano() << "\tres: " << r << endl;
+    ////
+    r = 0;
+    time.resetAndStart();
+    for (unsigned t = 0; t < K; t++)
+        for (unsigned j = 0; j < 64; j++) {
+            r += BITScanReverse(RANDOM_KEY[0][j]);
+        }
+    time.stop();
+    cout << "BITScanReverse:\ttime: " << time.getNano() / tot << " nano: " << time.getNano() << "\tres: " << r << endl;
+
+    ////
+    r = 0;
+    time.resetAndStart();
+    for (int t = 0; t < K; t++)
+        for (int j = 0; j < 64; j++) {
+            r += shiftForward<WHITE, 7>(RANDOM_KEY[0][j]);
+        }
+    time.stop();
+    cout << "shiftForward7:\ttime: " << time.getNano() / tot << " nano: " << time.getNano() << "\t\tres: " << r << endl;
+    ////
+    r = 0;
+    time.resetAndStart();
+    for (unsigned t = 0; t < K; t++)
+        for (unsigned j = 0; j < 64; j++) {
+            r += shiftForward<WHITE, 8>(RANDOM_KEY[0][j]);
+        }
+    time.stop();
+    cout << "shiftForward8:\ttime: " << time.getNano() / tot << " nano: " << time.getNano() << "\t\tres: " << r << endl;
+    ////
+    time.resetAndStart();
+    r = 0;
+    for (unsigned t = 0; t < K; t++)
+        for (unsigned j = 0; j < 64; j++) {
+            r += bitCount(RANDOM_KEY[0][j]);
+        }
+    time.stop();
+    cout << "bitCount:\ttime: " << time.getNano() / tot << " nano: " << time.getNano() << "\tres: " << r << endl;
 
 }
 
 int main(int argc, char **argv) {
+    ASSERT(sizeof(Hash::_Thash) == 16);
+    ASSERT(sizeof(_Tmove) == 16);
+//    benchTODO();
+//    return 0;
 
-    // TODO printHeader();
-    check();
+  printHeader();
+
 #if defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);
     if (RUN_ALL_TESTS())return 1;

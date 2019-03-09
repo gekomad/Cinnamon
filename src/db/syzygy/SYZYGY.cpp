@@ -53,9 +53,7 @@ bool SYZYGY::setPath(const string &path) {
 void SYZYGY::restart() { }
 
 int SYZYGY::getDtm(const _Tchessboard &c, const bool turn) {
-    unsigned results[TB_MAX_MOVES];
-
-    int res = search(c, turn, results);
+    int res = search(c, turn);
     if (res != TB_RESULT_FAILED) {
         return TB_GET_DTZ(res);
     }
@@ -68,31 +66,31 @@ string SYZYGY::decodePos(string &s) {
     return a1 + a2;
 }
 
-string SYZYGY::getBestmove(const _Tchessboard &c, const bool turn) {
-    unsigned results[TB_MAX_MOVES];
-    int res = search(c, turn, results);
-    if (res == TB_RESULT_FAILED) {
-        return "";
-    }
+//string SYZYGY::getBestmove(const _Tchessboard &c, const bool turn) {
+//
+//    int res = search(c, turn);
+//    if (res == TB_RESULT_FAILED) {
+//        return "";
+//    }
+//
+//    string bestmove = pickMove(results, TB_WIN);
+//    if (!bestmove.empty())return decodePos(bestmove);
+//
+//    bestmove = pickMove(results, TB_CURSED_WIN);
+//    if (!bestmove.empty())return decodePos(bestmove);
+//
+//    bestmove = pickMove(results, TB_DRAW);
+//    if (!bestmove.empty())return decodePos(bestmove);
+//
+//    bestmove = pickMove(results, TB_BLESSED_LOSS);
+//    if (!bestmove.empty())return decodePos(bestmove);
+//
+//    bestmove = pickMove(results, TB_LOSS);
+//
+//    return decodePos(bestmove);
+//}
 
-    string bestmove = pickMove(results, TB_WIN);
-    if (!bestmove.empty())return decodePos(bestmove);
-
-    bestmove = pickMove(results, TB_CURSED_WIN);
-    if (!bestmove.empty())return decodePos(bestmove);
-
-    bestmove = pickMove(results, TB_DRAW);
-    if (!bestmove.empty())return decodePos(bestmove);
-
-    bestmove = pickMove(results, TB_BLESSED_LOSS);
-    if (!bestmove.empty())return decodePos(bestmove);
-
-    bestmove = pickMove(results, TB_LOSS);
-
-    return decodePos(bestmove);
-}
-
-int SYZYGY::search(const _Tchessboard &c, const bool turn, unsigned *results) {
+int SYZYGY::search(const _Tchessboard &c, const bool turn) {
     u64 white = decode(ChessBoard::getBitmap<WHITE>(c));
     u64 black = decode(ChessBoard::getBitmap<BLACK>(c));
     u64 kings = decode(c[KING_BLACK] | c[KING_WHITE]);
@@ -105,9 +103,9 @@ int SYZYGY::search(const _Tchessboard &c, const bool turn, unsigned *results) {
     unsigned castling = 0;//TODO
     u64 ep = 0;//TODO
 
-    return tb_probe_root(white, black, kings,
+    return tb_probe_wdl(white, black, kings,
                          queens, rooks, bishops, knights, pawns,
-                         rule50, castling, ep, turn, results);
+                         rule50, castling, ep, turn);
 }
 
 string SYZYGY::pickMove(const unsigned *results, const unsigned wdl) {

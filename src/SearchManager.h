@@ -41,13 +41,17 @@ public:
 
     GTB &createGtb();
 
-    SYZYGY &createSYZYGY(string path) {
-        SYZYGY &syzygy = SYZYGY::getInstance();
-        syzygy.setPath(path);
-        for (Search *s:getPool()) {
-            s->setSYZYGY(syzygy);
-        }
-        return syzygy;
+    SYZYGY *createSYZYGY(string path) {
+        SYZYGY *syzygy = &SYZYGY::getInstance();
+        if (syzygy->setPath(path)) {
+            for (Search *s:getPool()) {
+                s->setSYZYGY(*syzygy);
+            }
+            return syzygy;
+        } else {
+            cout << "error: unable to initialize lib; no lib files found" << endl;
+            return nullptr;
+        };
     }
 
 
@@ -113,13 +117,14 @@ public:
 
     bool getGtbAvailable() const;
 
-    string getSYZYGYbestmove(const int side) const;
+//    string getSYZYGYbestmove(const int side) const;
 
     int getSYZYGYdtm(const int side) const;
 
     int getMoveFromSan(String string, _Tmove *ptr);
 
-    int printDtm();
+    int printDtmGtb();
+    int printDtmSyzygy();
 
     void setGtb(GTB &tablebase);
 

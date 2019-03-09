@@ -46,7 +46,7 @@ public:
 
     int getDtm(const _Tchessboard &c, const bool turn);
 
-    string getBestmove(const _Tchessboard &c, const bool turn);
+//    string getBestmove(const _Tchessboard &c, const bool turn);
 
 private:
 
@@ -129,7 +129,7 @@ private:
 
     SYZYGY();
 
-    int search(const _Tchessboard &c, const bool turn, unsigned *results);
+    int search(const _Tchessboard &c, const bool turn);
 
     string path = "";
 

@@ -20,7 +20,7 @@
 
 #include <string>
 #include <iostream>
-#include "../perft/PerftThread.h"
+#include "perft/PerftThread.h"
 
 using namespace std;
 
