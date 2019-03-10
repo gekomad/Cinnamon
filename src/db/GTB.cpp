@@ -40,13 +40,9 @@ bool GTB::setScheme(const string &s) { return false; }
 
 void GTB::restart() { }
 
-bool GTB::setProbeDepth(const int d) { return false; }
-
 bool GTB::setInstalledPieces(const int n) { return false; }
 
 bool GTB::isInstalledPieces(const int p) const { return false; }
-
-int GTB::getProbeDepth() const { return 0; }
 
 void GTB::print(const unsigned stm1, const unsigned info1, const unsigned pliestomate1) const { }
 
@@ -66,9 +62,6 @@ GTB::~GTB() {
     paths = tbpaths_done(paths);
 }
 
-int GTB::getProbeDepth() const {
-    return probeDepth;
-}
 
 bool GTB::load() {
     if (path.size() == 0)return false;
@@ -206,14 +199,6 @@ bool GTB::setScheme(const string &s) {
 void GTB::restart() {
     tb_restart(verbosity, scheme, paths);
     tbcache_restart(cacheSize * 1024 * 1024, wdl_fraction);
-}
-
-bool GTB::setProbeDepth(const int d) {
-    if (d < 0 || d > 5) {
-        return false;
-    }
-    probeDepth = d;
-    return true;
 }
 
 bool GTB::setInstalledPieces(const int n) {

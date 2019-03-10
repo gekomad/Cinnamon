@@ -48,7 +48,12 @@ SearchManager::SearchManager() {
 
 }
 
+string SearchManager::probeRootTB() {
+    return getThread(0).probeRootTB();
+}
+
 void SearchManager::search(const int mply) {
+
     if (getNthread() > 1 && mply > 3) {
         lazySMP(mply);
     } else {

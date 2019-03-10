@@ -129,7 +129,7 @@ private:
 
     SYZYGY();
 
-    int search(const _Tchessboard &c, const bool turn);
+    int search(const _Tchessboard &c, const bool turn, unsigned *results);
 
     string path = "";
 

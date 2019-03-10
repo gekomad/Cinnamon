@@ -101,7 +101,7 @@ public:
     void setRunningThread(bool t) {
         runningThread = t;
     }
-
+    string probeRootTB();
     bool getRunningThread() const {
         return runningThread;
     }
@@ -155,7 +155,10 @@ private:
 
     template<int side>
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
+//    int probeTB(const int side, const int N_PIECE);
 
+//    int probeGtb(const int side, const int N_PIECE);
+//    int probeSyzygy(const int side);
     bool checkInsufficientMaterial(int);
 
     void sortFromHash(const int listId, const Hash::_ThashData &phashe);

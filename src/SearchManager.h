@@ -84,7 +84,7 @@ public:
     void setRunningThread(bool r);
 
     void search(int mply);
-
+    string probeRootTB();
     void setRunning(int i);
 
     int getRunning(int i);

@@ -46,13 +46,9 @@ public:
 
     void restart();
 
-    bool setProbeDepth(const int d);
-
     bool setInstalledPieces(const int n);
 
     bool isInstalledPieces(const int p) const;
-
-    int getProbeDepth() const;
 
     int getDtm
         (const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth)

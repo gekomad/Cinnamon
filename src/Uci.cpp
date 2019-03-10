@@ -125,7 +125,7 @@ void Uci::listner(IterativeDeeping *it) {
                 endl;
 
             cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << endl;
-            cout << "option name TB probing depth type spin default 0 min 0 max 5" << endl;
+
             cout << "option name TB Restart type button" << endl;
 
             cout << "option name SyzygyPath type string default <empty>" << endl;
@@ -248,17 +248,6 @@ void Uci::listner(IterativeDeeping *it) {
                     } else if (token == "restart") {
                         knowCommand = true;
                         gtb->restart();
-                    } else if (token == "probing") {
-                        getToken(uip, token);
-                        if (token == "depth") {
-                            getToken(uip, token);
-                            if (token == "value") {
-                                getToken(uip, token);
-                                if (gtb->setProbeDepth(stoi(token))) {
-                                    knowCommand = true;
-                                };
-                            }
-                        }
                     }
                 } else if (token == "hash") {
                     getToken(uip, token);
