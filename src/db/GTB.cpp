@@ -67,7 +67,7 @@ bool GTB::load() {
     if (path.size() == 0)return false;
     memset(installedPieces, 0, sizeof(installedPieces));
     if (!FileUtil::fileExists(path)) {
-        cout <<"file not found "<< path<<endl;
+        cout << "file not found " << path << endl;
         return false;
     }
     tbstats_reset();
@@ -242,11 +242,12 @@ int GTB::extractDtm(const unsigned stm1,
     return INT_MAX;
 }
 
-int GTB::getDtm(const int side,
+int GTB::getDtm(const int xside,
                 const bool doPrint,
                 const _Tchessboard &chessboard,
                 const uchar rightCastle,
                 const int depth) const {
+    const int side = xside ;
     unsigned int ws[17];    /* list of squares for white */
     unsigned int bs[17];    /* list of squares for black */
     unsigned char wp[17];    /* what white pieces are on those squares */
@@ -284,11 +285,11 @@ int GTB::getDtm(const int side,
     tb_castling |= rightCastle & ChessBoard::RIGHT_QUEEN_CASTLE_BLACK_MASK ? tb_BOOO : 0;
     int tb_available = 0;
     if (depth > 8) {
-        tb_available = tb_probe_hard(side ^ 1, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
+        tb_available = tb_probe_hard(side, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
     } else if (depth >= probeDepth) {
-        tb_available = tb_probe_soft(side ^ 1, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
+        tb_available = tb_probe_soft(side, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
     }
-    return extractDtm(side ^ 1, doPrint, tb_available, info, pliestomate);
+    return extractDtm(side, doPrint, tb_available, info, pliestomate);
 }
 
 #endif
