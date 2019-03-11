@@ -247,7 +247,9 @@ int GTB::getDtm(const int xside,
                 const _Tchessboard &chessboard,
                 const uchar rightCastle,
                 const int depth) const {
+
     const int side = xside^1 ;
+
     unsigned int ws[17];    /* list of squares for white */
     unsigned int bs[17];    /* list of squares for black */
     unsigned char wp[17];    /* what white pieces are on those squares */
