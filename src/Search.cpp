@@ -19,12 +19,13 @@
 
 #include "Search.h"
 #include "SearchManager.h"
+#include "db/bitbase/kpk.h"
 
 GTB *Search::gtb;
 SYZYGY *Search::syzygy = nullptr;
 bool Search::runningThread;
 high_resolution_clock::time_point Search::startTime;
-
+using namespace _bitbase;
 void Search::run() {
     if (getRunning()) {
         if (mainSmp)
@@ -510,14 +511,28 @@ string Search::probeRootTB() {
     return "";
 }
 
-//int Search::probeTB(const int side, const int N_PIECE) {
+int Search::probeTB(const int side, const int N_PIECE, const int depth) const {
+    // kpk
+    if (N_PIECE == 3 && depth != mainDepth) {
+        auto posPawn = chessboard[PAWN_BLACK] | chessboard[PAWN_WHITE];
+        if (posPawn) {
+            if (isWin(side,
+                      BITScanForward(chessboard[KING_WHITE]),
+                      BITScanForward(chessboard[KING_BLACK]),
+                      BITScanForward(posPawn)))
+                return _INFINITE - (mainDepth - depth + 1);
+            else
+                return -(mainDepth - depth + 1);
+        }
+
+    }
 //    int v = probeGtb(side, N_PIECE);
 //    if (abs(v) != INT_MAX) return v;
 //    v = probeSyzygy(side);
 //    if (abs(v) != INT_MAX) return v;
-//
-//    return INT_MAX;
-//}
+
+    return INT_MAX;
+}
 
 //int Search::probeSyzygy(const int side) {
 //    if (syzygy  /* && TODO syzygy->isInstalledPieces(N_PIECE) e no castle*/) {
@@ -569,13 +584,13 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     if (!getRunning()) {
         return 0;
     }
+
+    const int v = probeTB(side, N_PIECE, depth);
+    if (v != INT_MAX) {
+        return v;
+    }
+
     int score = -_INFINITE;
-
-
-//    const int v = probeTB(side, N_PIECE);
-//    if (abs(v) != INT_MAX) {
-//        return v;
-//    }
 
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
 #ifdef DEBUG_MODE

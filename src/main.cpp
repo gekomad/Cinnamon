@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 //TODO aggiornare home page nuovo tarrash e link a dgt
+//#include "db/bitbase/kpk.h"
 #include "Uci.h"
 #include "util/GetOpt.h"
 
@@ -188,6 +189,9 @@ void benchTODO() {
 int main(int argc, char **argv) {
     ASSERT(sizeof(Hash::_Thash) == 16);
     ASSERT(sizeof(_Tmove) == 16);
+//    auto k=KPK().getInstance();
+//    k.init();
+//    return 0;
 //    benchTODO();
 //    return 0;
 
