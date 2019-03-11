@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 //TODO aggiornare home page nuovo tarrash e link a dgt
-//#include "db/bitbase/kpk.h"
+#include "db/bitbase/kpk.h"
 #include "Uci.h"
 #include "util/GetOpt.h"
 
