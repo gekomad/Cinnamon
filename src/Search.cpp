@@ -429,8 +429,54 @@ int Search::search(const int depth, const int alpha, const int beta) {
 }
 
 string Search::probeRootTB() {
+    const auto tot = bitCount(getBitmap<WHITE>() | getBitmap<BLACK>());
+    // kpk
+    if (tot == 3) {
+        auto posPawn = chessboard[PAWN_BLACK] | chessboard[PAWN_WHITE];
+        if (posPawn) {
+            int side = getSide();
+            u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
+            u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
+            display();
+
+            incListId();
+            generateCaptures(side, enemies, friends);
+            generateMoves(side, friends | enemies);
+
+            u64 oldKey = 0;
+
+            int bestRes = -_INFINITE;
+            _Tmove *bestMove;
+            for (int i = 0; i < getListSize(); i++) {
+                _Tmove *move = &gen_list[listId].moveList[i];
+                if (!makemove(move, false, true)) {
+                    takeback(move, oldKey, false);
+                    continue;
+                };
+
+                auto res = isWin(getSide(),
+                                 BITScanForward(chessboard[KING_WHITE]),
+                                 BITScanForward(chessboard[KING_BLACK]),
+                                 BITScanForward(posPawn));
+
+
+                if (res != -INT_MAX && res > bestRes) {
+                    bestRes = res;
+                    bestMove = move;
+                }
+                takeback(move, oldKey, false);
+            }
+            auto best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
+                string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
+
+            decListId();
+
+            return best;
+
+        }
+
+    }
     if (gtb) {
-        const auto tot = bitCount(getBitmap<WHITE>() | getBitmap<BLACK>());
         if (gtb->isInstalledPieces(tot)) {
             int side = getSide();
             u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
