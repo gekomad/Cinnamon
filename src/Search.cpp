@@ -339,36 +339,33 @@ void Search::sortFromHash(const int listId, const Hash::_ThashData &phashe) {
     }
 }
 
-bool Search::checkInsufficientMaterial(int N_PIECE) {
+bool Search::checkInsufficientMaterial(int nPieces) {
     //regexp: KN?B*KB*
-    if (N_PIECE > 6) {
-        return false;
+    switch (nPieces) {
+        case 2 :
+            //KK
+            return true;
+        case 3:
+            //KBK
+            if (chessboard[BISHOP_BLACK] || chessboard[BISHOP_WHITE])return true;
+            //KNK
+            if (chessboard[KNIGHT_BLACK] || chessboard[KNIGHT_WHITE])return true;
+            break;
+        case 4 :
+            //KBKB
+            if (chessboard[BISHOP_BLACK] && chessboard[BISHOP_WHITE])return true;
+            //KNKN
+            if (chessboard[KNIGHT_BLACK] && chessboard[KNIGHT_WHITE])return true;
+            //KBKN
+            if (chessboard[BISHOP_BLACK] && chessboard[KNIGHT_WHITE])return true;
+            if (chessboard[BISHOP_WHITE] && chessboard[KNIGHT_BLACK])return true;
+            //KNNK
+            if (bitCount(chessboard[KNIGHT_BLACK]) == 2)return true;
+            if (bitCount(chessboard[KNIGHT_WHITE]) == 2)return true;
+            break;
+        default:
+            return false;
     }
-    // KK
-    if (N_PIECE == 2) {
-        return true;
-    }
-    if (!chessboard[PAWN_BLACK] && !chessboard[PAWN_WHITE] && !chessboard[ROOK_BLACK] && !chessboard[ROOK_WHITE] &&
-        !chessboard[QUEEN_WHITE] && !chessboard[QUEEN_BLACK]) {
-        u64 allBishop = chessboard[BISHOP_BLACK] | chessboard[BISHOP_WHITE];
-        u64 allKnight = chessboard[KNIGHT_BLACK] | chessboard[KNIGHT_WHITE];
-        if (allBishop || allKnight) {
-            //insufficient material to mate
-            if (!allKnight) {
-                //regexp: KB+KB*
-                if ((bitCount(allBishop) == 1) ||
-                    ((allBishop & BLACK_SQUARES) == allBishop || (allBishop & WHITE_SQUARES) == allBishop)) {
-                    return true;
-                }
-            } else {
-                //KNKN*
-                if (!allBishop && bitCount(allKnight) < 3) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
 }
 
 bool Search::checkDraw(u64 key) {
@@ -650,9 +647,9 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             currentPly--;
         }
         if (val > alpha) {
-            int doMws = (score > -_INFINITE + MAX_PLY);
-            int lwb = max(alpha, score);
-            int upb = (doMws ? (lwb + 1) : beta);
+            const int doMws = (score > -_INFINITE + MAX_PLY);
+            const int lwb = max(alpha, score);
+            const int upb = (doMws ? (lwb + 1) : beta);
             currentPly++;
             val = -search<side ^ 1>(depth - 1, -upb, -lwb, &line,
                                     move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
