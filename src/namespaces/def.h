@@ -96,11 +96,15 @@ namespace _def {
 #ifdef HAS_64BIT
 
     static inline int BITScanForward(const u64 bits) {
-        return __builtin_ffsll(bits) - 1;
+        size_t idx;
+        __asm__("bsfq %1, %0": "=r"(idx): "rm"(bits));
+        return idx;
     }
 
     static inline int BITScanReverse(const u64 bits) {
-        return 63 - __builtin_clzll(bits);
+        size_t idx;
+        __asm__("bsrq %1, %0": "=r"(idx): "rm"(bits));
+        return idx;
     }
 
 #else
