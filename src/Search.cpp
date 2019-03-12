@@ -366,6 +366,7 @@ bool Search::checkInsufficientMaterial(int nPieces) {
         default:
             return false;
     }
+    return false;
 }
 
 bool Search::checkDraw(u64 key) {
@@ -477,7 +478,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
 
     if (gtb && depth != mainDepth && mainDepth > 1
-        && gtb->isInstalledPieces(N_PIECE) && abs(score) < (_INFINITE-MAX_PLY)
+        && gtb->isInstalledPieces(N_PIECE) && abs(score) < (_INFINITE - MAX_PLY)
         && depth >= gtb->getProbeDepth()) {
 //        cout << "aaaa probe x\n";
         int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], 100);

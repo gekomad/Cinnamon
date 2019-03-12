@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.5)
 project(debug)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNDEBUG -DHAS_POPCNT -fsigned-char -fno-exceptions -fno-rtti -funroll-loops -DHAS_BSF -DHAS_64BIT -Ofast -pthread -pedantic -std=c++11 -DBENCH_MODEx ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_BSF -DHAS_POPCNT -DHAS_64BIT -g -pthread -pedantic -std=c++11 -DDEBUG_MODEx -DFULL_TESTx ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAS_BSF -DHAS_POPCNT -DHAS_64BIT -g -pthread -pedantic -std=c++11 -DDEBUG_MODE -DFULL_TESTx ")
 set(SOURCE_FILES
         src/lib/gtb-probe.h
         src/namespaces/board.h

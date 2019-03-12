@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
 //    benchTODO();
 //    return 0;
 
-  printHeader();
+//  printHeader();
 
 #if defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);

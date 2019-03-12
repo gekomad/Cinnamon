@@ -237,22 +237,22 @@ int ChessBoard::loadFen(string fen) {
         switch (castle.at(e)) {
             case 'K':
                 updateZobristKey(RIGHT_CASTLE_IDX, 4);
-                ASSERT(BITScanForward(4 == RIGHT_KING_CASTLE_WHITE_MASK));
+                ASSERT(4 == BITScanForward(RIGHT_KING_CASTLE_WHITE_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_WHITE_MASK;
                 break;
             case 'k':
                 updateZobristKey(RIGHT_CASTLE_IDX, 6);
-                ASSERT(BITScanForward(6 == RIGHT_KING_CASTLE_BLACK_MASK));
+                ASSERT(6 == BITScanForward(RIGHT_KING_CASTLE_BLACK_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_BLACK_MASK;
                 break;
             case 'Q':
                 updateZobristKey(RIGHT_CASTLE_IDX, 5);
-                ASSERT(BITScanForward(5 == RIGHT_QUEEN_CASTLE_WHITE_MASK));
+                ASSERT(5 == BITScanForward(RIGHT_QUEEN_CASTLE_WHITE_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_WHITE_MASK;
                 break;
             case 'q':
                 updateZobristKey(RIGHT_CASTLE_IDX, 7);
-                ASSERT(BITScanForward(7 == RIGHT_QUEEN_CASTLE_BLACK_MASK));
+                ASSERT(7 == BITScanForward(RIGHT_QUEEN_CASTLE_BLACK_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_BLACK_MASK;
                 break;
             default:;
