@@ -340,6 +340,7 @@ void Uci::listner(IterativeDeeping *it) {
 
         } else if (token == "go") {
             it->setMaxDepth(MAX_PLY);
+            searchManager.unsetSearchMoves();
             int wtime = 200000; //5 min
             int btime = 200000;
             int winc = 0;
@@ -376,6 +377,13 @@ void Uci::listner(IterativeDeeping *it) {
                 } else if (token == "infinite") {
                     searchManager.setMaxTimeMillsec(0x7FFFFFFF);
                     forceTime = true;
+                } else if (token == "searchmoves") {
+                    vector<string> searchmoves;
+                    while (!uip.eof()) {
+                        uip >> token;
+                        searchmoves.push_back(token);
+                    }
+                    searchManager.setSearchMoves(searchmoves);
                 } else if (token == "ponder") {
                     searchManager.setPonder(true);
                 }

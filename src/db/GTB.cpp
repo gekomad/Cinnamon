@@ -74,7 +74,7 @@ bool GTB::load() {
     if (path.size() == 0)return false;
     memset(installedPieces, 0, sizeof(installedPieces));
     if (!FileUtil::fileExists(path)) {
-        cout <<"file not found "<< path<<endl;
+        cout << "file not found " << path << endl;
         return false;
     }
     tbstats_reset();

@@ -19,6 +19,7 @@
 
 #include "Search.h"
 #include "SearchManager.h"
+#include "namespaces/board.h"
 
 GTB *Search::gtb;
 SYZYGY *Search::syzygy = nullptr;
@@ -27,10 +28,10 @@ high_resolution_clock::time_point Search::startTime;
 
 void Search::run() {
     if (getRunning()) {
-        if (mainSmp)
-            aspirationWindow<SMP_YES>(mainDepth, valWindow);
+        if (checkMoves)
+            aspirationWindow<true>(mainDepth, valWindow);
         else
-            aspirationWindow<SMP_NO>(mainDepth, valWindow);
+            aspirationWindow<false>(mainDepth, valWindow);
     }
 }
 
@@ -38,33 +39,33 @@ void Search::endRun() {
     SearchManager::getInstance().receiveObserverSearch(getId());
 }
 
-template<bool smp>
+template<bool searchMoves>
 void Search::aspirationWindow(const int depth, const int valWin) {
     valWindow = valWin;
     init();
 
     if (depth == 1) {
-        valWindow = search<SMP_NO>(depth, -_INFINITE - 1, _INFINITE + 1);
+        valWindow = search<searchMoves>(depth, -_INFINITE - 1, _INFINITE + 1);
     } else {
         ASSERT(INT_MAX != valWindow);
-        int tmp = search<smp>(mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
+        int tmp = search<searchMoves>(mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW);
 
         if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
             if (tmp <= valWindow - VAL_WINDOW) {
-                tmp = search<smp>(mainDepth, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW);
+                tmp = search<searchMoves>(mainDepth, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW);
             } else {
-                tmp = search<smp>(mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 2);
+                tmp = search<searchMoves>(mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 2);
             }
 
             if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
                 if (tmp <= valWindow - VAL_WINDOW) {
-                    tmp = search<smp>(mainDepth, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW);
+                    tmp = search<searchMoves>(mainDepth, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW);
                 } else {
-                    tmp = search<smp>(mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 4);
+                    tmp = search<searchMoves>(mainDepth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 4);
                 }
 
                 if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
-                    tmp = search<smp>(mainDepth, -_INFINITE - 1, _INFINITE + 1);
+                    tmp = search<searchMoves>(mainDepth, -_INFINITE - 1, _INFINITE + 1);
                 }
             }
         }
@@ -417,19 +418,19 @@ void Search::deleteGtb() {
     gtb = nullptr;
 }
 
-void Search::setMainParam(const bool smp, const int depth) {
+void Search::setMainParam(const int depth, const bool checkM) {
     memset(&pvLine, 0, sizeof(_TpvLine));
     mainDepth = depth;
-    mainSmp = smp;
+    checkMoves = checkM;
 }
 
-template<bool smp>
+template<bool searchMoves>
 int Search::search(const int depth, const int alpha, const int beta) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
-    return getSide() ? search<WHITE>(depth, alpha, beta, &pvLine,
-                                     bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn)
-                     : search<BLACK>(depth, alpha, beta, &pvLine,
-                                     bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
+    return getSide() ? search<WHITE, searchMoves>(depth, alpha, beta, &pvLine,
+                                                  bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn)
+                     : search<BLACK, searchMoves>(depth, alpha, beta, &pvLine,
+                                                  bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn);
 }
 
 //int Search::getDtm1(const int side, _TpvLine *pline, const int depth, const int nPieces) const {
@@ -455,7 +456,17 @@ int Search::search(const int depth, const int alpha, const int beta) {
 //    return mateIn;
 //}
 
-template<int side>
+template<bool checkMoves>
+bool Search::checkSearchMoves(_Tmove *move) {
+    if (!checkMoves)return true;
+    int m = move->to | (move->from << 8);
+    if (std::find(searchMoves.begin(), searchMoves.end(), m) != searchMoves.end()) {
+        return true;
+    }
+    return false;
+}
+
+template<int side, bool checkMoves>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
     INC(cumulativeMovesCount);
@@ -495,7 +506,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             }
             ASSERT_RANGE(res, -_INFINITE, _INFINITE);
             ASSERT(mainDepth >= depth);
-            cout << "aaaaaaaaaaaaaaaaaaaaaaaaa probe ok\n";
+
             return res;
         }
 //        else {
@@ -556,7 +567,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     if (!is_incheck_side && !nullSearch && depth >= NULLMOVE_DEPTH &&
         (n_pieces_side = getNpiecesNoPawnNoKing<side>()) >= NULLMOVES_MIN_PIECE) {
         nullSearch = true;
-        int nullScore = -search<side ^ 1>(
+        int nullScore = -search<side ^ 1, checkMoves>(
             depth - (NULLMOVES_R1 + (depth > (NULLMOVES_R2 + (n_pieces_side < NULLMOVES_R3 ? NULLMOVES_R4 : 0)))) -
                 1, -beta, -beta + 1, &line, N_PIECE, mateIn);
         nullSearch = false;
@@ -627,6 +638,8 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     while ((move = getNextMove(&gen_list[listId]))) {
         countMove++;
         INC(betaEfficiencyCount);
+        if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth)continue;
+
         if (!makemove(move, true, checkInCheck)) {
             takeback(move, oldKey, true);
             continue;
@@ -643,7 +656,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         if (countMove > 4 && !is_incheck_side && depth >= 3 && move->capturedPiece == SQUARE_FREE &&
             move->promotionPiece == NO_PROMOTION) {
             currentPly++;
-            val = -search<side ^ 1>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn);
+            val = -search<side ^ 1, checkMoves>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
         }
@@ -652,14 +665,14 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             const int lwb = max(alpha, score);
             const int upb = (doMws ? (lwb + 1) : beta);
             currentPly++;
-            val = -search<side ^ 1>(depth - 1, -upb, -lwb, &line,
-                                    move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
+            val = -search<side ^ 1, checkMoves>(depth - 1, -upb, -lwb, &line,
+                                                move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
             ASSERT(val != INT_MAX);
             currentPly--;
             if (doMws && (lwb < val) && (val < beta)) {
                 currentPly++;
-                val = -search<side ^ 1>(depth - 1, -beta, -val + 1, &line,
-                                        move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
+                val = -search<side ^ 1, checkMoves>(depth - 1, -beta, -val + 1, &line,
+                                                    move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1, mateIn);
                 currentPly--;
             }
         }
@@ -724,6 +737,10 @@ void Search::setGtb(GTB &tablebase) {
 
 void Search::setSYZYGY(SYZYGY &tablebase) {
     syzygy = &tablebase;
+}
+
+void Search::setSearchMoves(vector<int> &s) {
+    searchMoves = s;
 }
 
 bool Search::setParameter(String param, int value) {
@@ -815,3 +832,6 @@ bool Search::setParameter(String param, int value) {
     return false;
 #endif
 }
+
+
+

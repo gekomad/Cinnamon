@@ -104,8 +104,8 @@ int SYZYGY::search(const _Tchessboard &c, const bool turn) {
     u64 ep = 0;//TODO
 
     return tb_probe_wdl(white, black, kings,
-                         queens, rooks, bishops, knights, pawns,
-                         rule50, castling, ep, turn);
+                        queens, rooks, bishops, knights, pawns,
+                        rule50, castling, ep, turn);
 }
 
 string SYZYGY::pickMove(const unsigned *results, const unsigned wdl) {

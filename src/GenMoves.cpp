@@ -646,7 +646,7 @@ bool GenMoves::generatePuzzle(const string type) {
             if (up == 'K') {
                 side = BLACK;
             } else {
-                auto x=PIECES[type.at(i)] + side;
+                auto x = PIECES[type.at(i)] + side;
                 pieces.push_back(x);
             }
         }
