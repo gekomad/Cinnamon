@@ -519,14 +519,27 @@ string Search::probeRootTB() {
 int Search::probeTB(const int side, const int N_PIECE, const int depth) const {
     // kpk
     if (N_PIECE == 3 && depth != mainDepth) {
-        auto posPawn = chessboard[PAWN_BLACK] | chessboard[PAWN_WHITE];
-        if (posPawn) {
-            display();
+
+        if (chessboard[PAWN_BLACK]) {
+            //    display();
             const auto res = _INFINITE - (mainDepth - depth + 1);
             const int kw = BITScanForward(chessboard[KING_WHITE]);
             const int kb = BITScanForward(chessboard[KING_BLACK]);
-            const int p = BITScanForward(posPawn);
-            auto win = isWin(side, kw, kb, p);
+            const int p = BITScanForward(chessboard[PAWN_BLACK]);
+            auto win = isWin<BLACK>(side, kw, kb, p);
+            if (win)
+                return res;
+            else
+                return -res;
+        }
+        if (chessboard[PAWN_WHITE]) {
+            //    display();
+            const auto res = _INFINITE - (mainDepth - depth + 1);
+            const int kw = BITScanForward(chessboard[KING_WHITE]);
+            const int kb = BITScanForward(chessboard[KING_BLACK]);
+            const int p = BITScanForward(chessboard[PAWN_WHITE]);
+            auto win = isWin<WHITE>(side, kw, kb, p);
+            display();
             if (win)
                 return res;
             else
