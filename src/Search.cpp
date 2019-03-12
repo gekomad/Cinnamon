@@ -448,7 +448,7 @@ string Search::probeRootTB() {
 
             u64 oldKey = 0;
 
-            int bestRes = -_INFINITE;
+            int bestRes = _INFINITE;
             _Tmove *bestMove;
             for (int i = 0; i < getListSize(); i++) {
                 _Tmove *move = &gen_list[listId].moveList[i];
@@ -458,14 +458,20 @@ string Search::probeRootTB() {
                 };
 //                cout << endl << decodeBoardinv(move->type, move->from, getSide())
 //                    << decodeBoardinv(move->type, move->to, getSide()) << " ";
-                const auto res = -getGtb().getDtm(side ^ 1, false, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
-//                if (res != -INT_MAX) {
-//                    cout << " res: " << res;
-//                }
+                auto res = -getGtb().getDtm(side ^ 1, false, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
 
-                if (res != -INT_MAX && res > bestRes) {
-                    bestRes = res;
-                    bestMove = move;
+                if (res != -INT_MAX) {
+//                    cout << " res: " << res;
+
+                    if (res == -GTB_DRAW && bestRes==_INFINITE) {
+                        bestRes = res;
+                        bestMove = move;
+                    }
+                    else
+                    if (res != -GTB_DRAW && res < bestRes) {
+                        bestRes = res;
+                        bestMove = move;
+                    }
                 }
                 takeback(move, oldKey, false);
             }
@@ -518,6 +524,7 @@ string Search::probeRootTB() {
 
 int Search::probeTB(const int side, const int N_PIECE, const int depth) const {
     // kpk
+
     if (N_PIECE == 3 && depth != mainDepth) {
 
         if (chessboard[PAWN_BLACK]) {
@@ -530,7 +537,7 @@ int Search::probeTB(const int side, const int N_PIECE, const int depth) const {
             if (win)
                 return res;
             else
-                return -res;
+                return -depth;
         }
         if (chessboard[PAWN_WHITE]) {
             //    display();
@@ -539,15 +546,15 @@ int Search::probeTB(const int side, const int N_PIECE, const int depth) const {
             const int kb = BITScanForward(chessboard[KING_BLACK]);
             const int p = BITScanForward(chessboard[PAWN_WHITE]);
             auto win = isWin<WHITE>(side, kw, kb, p);
-            display();
+
             if (win)
                 return res;
             else
-                return -res;
+                return -depth;
         }
 
     }
-//    int v = probeGtb(side, N_PIECE);
+//    int v = probeGtb(side, N_PIECE, depth);
 //    if (abs(v) != INT_MAX) return v;
 //    v = probeSyzygy(side);
 //    if (abs(v) != INT_MAX) return v;
@@ -570,32 +577,29 @@ int Search::probeTB(const int side, const int N_PIECE, const int depth) const {
 //    return INT_MAX;
 //}
 
-//int Search::probeGtb(const int side, const int N_PIECE) {//TODO eliminare
-//    if (gtb  //depth != mainDepth  && mainDepth > 1
-//        && gtb->isInstalledPieces(N_PIECE) //&& abs(score) < (_INFINITE-MAX_PLY)
-//        ) {
-////        cout << "aaaa probe x\n";
-//        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], 100);
-//        if (abs(v) != INT_MAX) {
-//            int res = 0;
-//            if (v == 0) {
-//                res = 0;
-//            } else {
-//                res = _INFINITE - (abs(v));
-//                if (v < 0) {
-//                    res = -res;
-//                }
-//            }
-//            ASSERT_RANGE(res, -_INFINITE, _INFINITE);
-//            ASSERT(mainDepth >= depth);
-//
-//            return res;
-//        }
-//        return v;
-//
-//    }
-//    return INT_MAX;
-//}
+int Search::probeGtb(const int side, const int N_PIECE, const int depth) const {//TODO eliminare
+    if (gtb && depth != mainDepth && gtb->isInstalledPieces(N_PIECE)) {
+        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], 100);
+
+        if (abs(v) != INT_MAX) {
+            int res = 0;
+            if (v == GTB_DRAW) {//draw
+                res = depth;
+            } else {
+                res = _INFINITE - (abs(v) + (mainDepth - depth + 1));
+            }
+            if (v < 0) {
+                res = -res;
+            }
+            ASSERT_RANGE(res, -_INFINITE, _INFINITE);
+            ASSERT(mainDepth >= depth);
+            return res;
+        }
+        return INT_MAX;
+
+    }
+    return INT_MAX;
+}
 template<int side>
 int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn) {
     ASSERT_RANGE(depth, 0, MAX_PLY);

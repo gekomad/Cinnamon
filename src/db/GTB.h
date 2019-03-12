@@ -22,7 +22,7 @@
 #include "../namespaces/def.h"
 #include "../ChessBoard.h"
 #include "../util/Singleton.h"
-
+#define GTB_DRAW 999999
 class GTB: public Singleton<GTB> {
     friend class Singleton<GTB>;
 
