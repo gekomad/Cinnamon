@@ -636,10 +636,9 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     int countMove = 0;
     char hashf = Hash::hashfALPHA;
     while ((move = getNextMove(&gen_list[listId]))) {
+        if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth)continue;
         countMove++;
         INC(betaEfficiencyCount);
-        if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth)continue;
-
         if (!makemove(move, true, checkInCheck)) {
             takeback(move, oldKey, true);
             continue;
