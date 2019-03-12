@@ -217,7 +217,7 @@ public:
 private:
 
     SearchManager();
-    bool checkSearchMoves = false;
+
     void lazySMP(const int mply);
 
     void singleSearch(int mply);

@@ -62,7 +62,7 @@ void SearchManager::singleSearch(const int mply) {
     lineWin.cmove = -1;
     setMainPly(mply);
     ASSERT(!getBitCount());
-    getThread(0).setMainParam(mply, checkSearchMoves);
+    getThread(0).setMainParam(mply);
     getThread(0).run();
     valWindow = getThread(0).getValWindow();
     if (getThread(0).getRunning()) {
@@ -159,7 +159,7 @@ void SearchManager::startThread(Search &thread, const int depth) {
 
     debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId()));
 
-    thread.setMainParam(depth, checkSearchMoves);
+    thread.setMainParam(depth);
 
     thread.start();
 }
@@ -255,20 +255,21 @@ void SearchManager::setMaxTimeMillsec(int i) {
 }
 
 void SearchManager::unsetSearchMoves() {
-    checkSearchMoves = false;
+    for (Search *s:getPool()) {
+        s->unsetSearchMoves();
+    }
 }
 
-void SearchManager::setSearchMoves(vector<string> &searchmoves) {
-    checkSearchMoves = true;
-    vector<int> moveInt;
+void SearchManager::setSearchMoves(vector<string> &searchMov) {
     _Tmove move;
-    for (std::vector<string>::iterator it = searchmoves.begin(); it != searchmoves.end(); ++it) {
+    vector<int> searchMoves;
+    for (std::vector<string>::iterator it = searchMov.begin(); it != searchMov.end(); ++it) {
         getMoveFromSan(*it, &move);
         const int x = move.to | (int) (move.from << 8);
-        moveInt.push_back(x);
+        searchMoves.push_back(x);
     }
     for (Search *s:getPool()) {
-        s->setSearchMoves(moveInt);
+        s->setSearchMoves(searchMoves);
     }
 }
 

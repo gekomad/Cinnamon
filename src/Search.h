@@ -66,7 +66,7 @@ public:
         return pvLine;
     }
 
-    void setMainParam(const int depth, const bool searchMoves);
+    void setMainParam(const int depth);
 
     template<bool searchMoves>
     int search(const int depth, const int alpha, const int beta);
@@ -131,11 +131,11 @@ public:
 #endif
 
     void setSYZYGY(SYZYGY &syzygy);
-
+    void unsetSearchMoves();
     void setSearchMoves(vector<int> &v);
 private:
 
-    vector<int> searchMoves;
+    vector<int> searchMovesVector;
     int valWindow = INT_MAX;
     static bool runningThread;
     _TpvLine pvLine;
@@ -171,9 +171,6 @@ private:
 
     int mainMateIn;
     int mainDepth;
-
-    bool checkMoves;
-
     inline int checkHash(const int type, const bool quies, const int alpha, const int beta, const int depth,
                          const u64 zobristKeyR,
                          _TcheckHash &checkHashStruct) {

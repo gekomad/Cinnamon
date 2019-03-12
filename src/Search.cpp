@@ -28,7 +28,7 @@ high_resolution_clock::time_point Search::startTime;
 
 void Search::run() {
     if (getRunning()) {
-        if (checkMoves)
+        if (searchMovesVector.size())
             aspirationWindow<true>(mainDepth, valWindow);
         else
             aspirationWindow<false>(mainDepth, valWindow);
@@ -418,10 +418,9 @@ void Search::deleteGtb() {
     gtb = nullptr;
 }
 
-void Search::setMainParam(const int depth, const bool checkM) {
+void Search::setMainParam(const int depth) {
     memset(&pvLine, 0, sizeof(_TpvLine));
     mainDepth = depth;
-    checkMoves = checkM;
 }
 
 template<bool searchMoves>
@@ -460,7 +459,7 @@ template<bool checkMoves>
 bool Search::checkSearchMoves(_Tmove *move) {
     if (!checkMoves)return true;
     int m = move->to | (move->from << 8);
-    if (std::find(searchMoves.begin(), searchMoves.end(), m) != searchMoves.end()) {
+    if (std::find(searchMovesVector.begin(), searchMovesVector.end(), m) != searchMovesVector.end()) {
         return true;
     }
     return false;
@@ -738,8 +737,12 @@ void Search::setSYZYGY(SYZYGY &tablebase) {
     syzygy = &tablebase;
 }
 
+void Search::unsetSearchMoves() {
+    searchMovesVector.clear();
+}
+
 void Search::setSearchMoves(vector<int> &s) {
-    searchMoves = s;
+    searchMovesVector = s;
 }
 
 bool Search::setParameter(String param, int value) {
