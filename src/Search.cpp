@@ -389,16 +389,6 @@ bool Search::getSYZYGYAvailable() const {
     return syzygy;
 }
 
-//int Search::getSYZYGYdtm(const int side) {
-//    if (!syzygy)return -1;
-//    return syzygy->getDtm(chessboard, side);
-//}
-
-//string Search::getSYZYGYbestmove(const int side) {
-//    if (!syzygy)return "";
-//    return syzygy->getBestmove(chessboard, side);
-//}
-
 GTB &Search::getGtb() const {
     ASSERT(gtb);
     return *gtb;
@@ -503,8 +493,9 @@ string Search::probeRootTB() {
         _Tmove *move;
         u64 oldKey = 0;
 
-        int bestRes = side == WHITE ? -_INFINITE : _INFINITE;
-        _Tmove *bestMove;
+        int bestRes = INT_MAX;
+        _Tmove *bestMove = nullptr;
+        _Tmove *drawMove = nullptr;
         for (int i = 0; i < getListSize(); i++) {
             move = &gen_list[listId].moveList[i];
             if (!makemove(move, false, true)) {
@@ -514,11 +505,33 @@ string Search::probeRootTB() {
 //            cout << decodeBoardinv(move->type, move->from, getSide())
 //                << decodeBoardinv(move->type, move->to, getSide()) << " ";
 
-            int res = syzygy->getDtm(chessboard, side ^ 1);
+            auto dtm = syzygy->getDtm(chessboard, side ^ 1);
 
-            if (res != -INT_MAX && ((side == WHITE && res > bestRes) || (side == BLACK && res < bestRes))) {
-                bestRes = res;
-                bestMove = move;
+            if (dtm != INT_MAX) {
+//                    cout << " res: " << res;
+
+                if (dtm == 0) {
+                    drawMove = move;
+                } else if (bestRes == INT_MAX) {
+                    bestRes = dtm;
+                    bestMove = move;
+                }
+                else if (dtm < 0 && bestRes < 0 && dtm > bestRes) {
+                    bestRes = dtm;
+                    bestMove = move;
+                }
+                else if (dtm < 0 && bestRes > 0) {
+                    bestRes = dtm;
+                    bestMove = move;
+                }
+                else if (dtm > 0 && bestRes > 0 && dtm < bestRes) {
+                    bestRes = bestRes;
+                    bestMove = move;
+                }
+//                    else if (dtm > 0 && bestRes < 0 && dtm > bestRes && bestRes != INT_MAX) {
+//                        bestRes = dtm;
+//                        bestMove = move;
+//                    }
             }
             takeback(move, oldKey, false);
         }

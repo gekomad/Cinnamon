@@ -44,7 +44,7 @@ public:
     void restart();
 
 
-    unsigned getDtm(const _Tchessboard &c, const bool turn);
+    int getDtm(const _Tchessboard &c, const bool turn);
 
 //    string getBestmove(const _Tchessboard &c, const bool turn);
 

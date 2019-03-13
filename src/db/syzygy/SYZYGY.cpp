@@ -54,8 +54,8 @@ bool SYZYGY::setPath(const string &path) {
 
 void SYZYGY::restart() { }
 
-unsigned SYZYGY::getDtm(const _Tchessboard &c, const bool turn) {
-    unsigned res = search(c, turn);
+int SYZYGY::getDtm(const _Tchessboard &c, const bool turn) {
+    int res = search(c, turn);
     return res != INT_MAX ? res : INT_MAX;
 }
 
@@ -106,7 +106,7 @@ int SYZYGY::search(const _Tchessboard &c, const bool turn) {
     p.turn = turn;
 
     int success;
-    auto a = probe_dtz(&p, &success);
+    int a = probe_dtz(&p, &success);
     return success != 0 ? a : INT_MAX;
 }
 
