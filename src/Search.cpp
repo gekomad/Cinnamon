@@ -464,11 +464,11 @@ string Search::probeRootTB() {
 //                    cout << " res: " << res;
 
                     if (res == -GTB_DRAW && bestRes == _INFINITE) {
-                        bestRes = res;
+                        bestRes = 0;
                         bestMove = move;
                     }
-                    else if (res != -GTB_DRAW && res < bestRes) {
-                        bestRes = res;
+                    else if (res != -GTB_DRAW && (res - GTB_OFFSET < bestRes)) {
+                        bestRes = res - GTB_OFFSET;
                         bestMove = move;
                     }
                 }
@@ -476,7 +476,7 @@ string Search::probeRootTB() {
             }
             auto best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
                 string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
-
+            if (bestMove->promotionPiece != -1)best += "q";
             decListId();
 
             return best;
@@ -610,10 +610,10 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         return 0;
     }
 
-    const int v = probeTB(side, N_PIECE, depth);
-    if (v != INT_MAX) {
-        return v;
-    }
+//    const int v = probeTB(side, N_PIECE, depth);
+//    if (v != INT_MAX) {
+//        return v;
+//    }
 
     *mateIn = INT_MAX;
     int score = -_INFINITE;
