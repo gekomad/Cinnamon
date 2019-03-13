@@ -51,9 +51,7 @@ public:
 
     bool isInstalledPieces(const int p) const;
 
-    int getDtm
-        (const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth)
-        const;
+    int getDtm(const int side, const bool doPrint, const _Tchessboard &chessboard, const int depth) const;
 
 private:
     GTB();

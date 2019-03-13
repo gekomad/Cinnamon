@@ -3039,7 +3039,7 @@ public:
                     chessboard[PAWN_BLACK + pawncolor] = POW2[p];
 //                    if (kw == 23 && kb == 43 && p == 37)
 //                       cout <<"TODOOOOOO";
-                    const auto res = gtb.getDtm(side, false, chessboard, 0, 100);
+                    const auto res = gtb.getDtm(side, false, chessboard, 100);
                     if (res != GTB_DRAW && (res - GTB_OFFSET) >= 0 && abs(res) != INT_MAX) {
                         if (pawncolor == WHITE) kpkBitbaseWhite[side][kw][kb] |= POW2[p]; else
                             kpkBitbaseBlack[side][kw][kb] |= POW2[p];

@@ -133,7 +133,7 @@ int Search::printDtmGtb() {
     u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
     display();
     cout << "current: ";
-    getGtb().getDtm(side, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+    getGtb().getDtm(side, true, chessboard, 100);
     fflush(stdout);
     incListId();
     generateCaptures(side, enemies, friends);
@@ -152,7 +152,7 @@ int Search::printDtmGtb() {
         cout << endl << decodeBoardinv(move->type, move->from, getSide())
             << decodeBoardinv(move->type, move->to, getSide()) << " ";
 
-        auto res = -getGtb().getDtm(side ^ 1, true, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+        auto res = -getGtb().getDtm(side ^ 1, true, chessboard, 100);
 
         if (res != -INT_MAX) {
             cout << " res: " << res;
@@ -434,7 +434,7 @@ int Search::search(const int depth, const int alpha, const int beta) {
 }
 
 string Search::probeRootTB() {
-    if (gtb) {//TODO non funziona per la promozione del pedone
+    if (gtb) {
         const auto tot = bitCount(getBitmap<WHITE>() | getBitmap<BLACK>());
         if (gtb->isInstalledPieces(tot)) {
             int side = getSide();
@@ -448,32 +448,52 @@ string Search::probeRootTB() {
 
             u64 oldKey = 0;
 
-            int bestRes = _INFINITE;
-            _Tmove *bestMove;
+            int bestRes = INT_MAX;
+            _Tmove *bestMove = nullptr;
+            _Tmove *drawMove = nullptr;
             for (int i = 0; i < getListSize(); i++) {
                 _Tmove *move = &gen_list[listId].moveList[i];
                 if (!makemove(move, false, true)) {
                     takeback(move, oldKey, false);
                     continue;
-                };
+                }
 //                cout << endl << decodeBoardinv(move->type, move->from, getSide())
 //                    << decodeBoardinv(move->type, move->to, getSide()) << " ";
-                auto res = -getGtb().getDtm(side ^ 1, false, chessboard, chessboard[RIGHT_CASTLE_IDX], 100);
+                auto dtm = getGtb().getDtm(side ^ 1, false, chessboard, 100);
 
-                if (res != -INT_MAX) {
+                if (dtm != INT_MAX) {
 //                    cout << " res: " << res;
 
-                    if (res == -GTB_DRAW && bestRes == _INFINITE) {
-                        bestRes = 0;
+                    if (dtm == GTB_DRAW) {
+                        drawMove = move;
+                    } else if (bestRes == INT_MAX) {
+                        bestRes = dtm;
                         bestMove = move;
                     }
-                    else if (res != -GTB_DRAW && (res - GTB_OFFSET < bestRes)) {
-                        bestRes = res - GTB_OFFSET;
+                    else if (dtm < 0 && bestRes < 0 && dtm > bestRes) {
+                        bestRes = dtm;
                         bestMove = move;
                     }
+                    else if (dtm < 0 && bestRes > 0) {
+                        bestRes = dtm;
+                        bestMove = move;
+                    }
+                    else if (dtm > 0 && bestRes > 0 && dtm < bestRes) {
+                        bestRes = bestRes;
+                        bestMove = move;
+                    }
+//                    else if (dtm > 0 && bestRes < 0 && dtm > bestRes && bestRes != INT_MAX) {
+//                        bestRes = dtm;
+//                        bestMove = move;
+//                    }
                 }
                 takeback(move, oldKey, false);
             }
+            if (bestRes > 0 && drawMove) {
+                bestMove = drawMove;
+            }
+
+            ASSERT(bestMove != nullptr)
             auto best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
                 string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
             if (bestMove->promotionPiece != -1)best += "q";
@@ -578,12 +598,12 @@ int Search::probeTB(const int side, const int N_PIECE, const int depth) const {
 
 int Search::probeGtb(const int side, const int N_PIECE, const int depth) const {//TODO eliminare
     if (gtb && depth != mainDepth && gtb->isInstalledPieces(N_PIECE)) {
-        int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], 100);
+        int v = gtb->getDtm(side, false, chessboard, 100);
 
         if (abs(v) != INT_MAX) {
             // display();
             int res = 0;
-            if (v == GTB_DRAW) {//draw
+            if (v == GTB_DRAW) {
                 res = depth;
             } else {
                 res = _INFINITE - (abs(v + GTB_OFFSET));

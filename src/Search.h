@@ -157,7 +157,7 @@ private:
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
     int probeTB(const int side, const int N_PIECE, const int depth) const;
 
-    int probeGtb(const int side, const int N_PIECE, const int depth)const;
+    int probeGtb(const int side, const int N_PIECE, const int depth) const;
 //    int probeSyzygy(const int side);
     bool checkInsufficientMaterial(int);
 
