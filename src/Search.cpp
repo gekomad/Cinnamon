@@ -414,75 +414,76 @@ int Search::search(const int depth, const int alpha, const int beta) {
 }
 
 string Search::probeRootTB() {
-    if (gtb) {
-        const auto tot = bitCount(getBitmap<WHITE>() | getBitmap<BLACK>());
-        if (gtb->isInstalledPieces(tot)) {
-            int side = getSide();
-            u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
-            u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-            display();
+    const auto tot = bitCount(getBitmap<WHITE>() | getBitmap<BLACK>());
+    if (gtb && gtb->isInstalledPieces(tot)) {
 
-            incListId();
-            generateCaptures(side, enemies, friends);
-            generateMoves(side, friends | enemies);
 
-            u64 oldKey = 0;
+        int side = getSide();
+        u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
+        u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
+        display();
 
-            int bestRes = INT_MAX;
-            _Tmove *bestMove = nullptr;
-            _Tmove *drawMove = nullptr;
-            for (int i = 0; i < getListSize(); i++) {
-                _Tmove *move = &gen_list[listId].moveList[i];
-                if (!makemove(move, false, true)) {
-                    takeback(move, oldKey, false);
-                    continue;
-                }
+        incListId();
+        generateCaptures(side, enemies, friends);
+        generateMoves(side, friends | enemies);
+
+        u64 oldKey = 0;
+
+        int bestRes = INT_MAX;
+        _Tmove *bestMove = nullptr;
+        _Tmove *drawMove = nullptr;
+        for (int i = 0; i < getListSize(); i++) {
+            _Tmove *move = &gen_list[listId].moveList[i];
+            if (!makemove(move, false, true)) {
+                takeback(move, oldKey, false);
+                continue;
+            }
 //                cout << endl << decodeBoardinv(move->type, move->from, getSide())
 //                    << decodeBoardinv(move->type, move->to, getSide()) << " ";
-                auto dtm = getGtb().getDtm(side ^ 1, false, chessboard, 100);
+            auto dtm = getGtb().getDtm(side ^ 1, false, chessboard, 100);
 
-                if (dtm != INT_MAX) {
+            if (dtm != INT_MAX) {
 //                    cout << " res: " << res;
 
-                    if (dtm == GTB_DRAW) {
-                        drawMove = move;
-                    } else if (bestRes == INT_MAX) {
-                        bestRes = dtm;
-                        bestMove = move;
-                    }
-                    else if (dtm < 0 && bestRes < 0 && dtm > bestRes) {
-                        bestRes = dtm;
-                        bestMove = move;
-                    }
-                    else if (dtm < 0 && bestRes > 0) {
-                        bestRes = dtm;
-                        bestMove = move;
-                    }
-                    else if (dtm > 0 && bestRes > 0 && dtm < bestRes) {
-                        bestRes = bestRes;
-                        bestMove = move;
-                    }
+                if (dtm == GTB_DRAW) {
+                    drawMove = move;
+                } else if (bestRes == INT_MAX) {
+                    bestRes = dtm;
+                    bestMove = move;
+                }
+                else if (dtm < 0 && bestRes < 0 && dtm > bestRes) {
+                    bestRes = dtm;
+                    bestMove = move;
+                }
+                else if (dtm < 0 && bestRes > 0) {
+                    bestRes = dtm;
+                    bestMove = move;
+                }
+                else if (dtm > 0 && bestRes > 0 && dtm < bestRes) {
+                    bestRes = bestRes;
+                    bestMove = move;
+                }
 //                    else if (dtm > 0 && bestRes < 0 && dtm > bestRes && bestRes != INT_MAX) {
 //                        bestRes = dtm;
 //                        bestMove = move;
 //                    }
-                }
-                takeback(move, oldKey, false);
             }
-            if (bestRes > 0 && drawMove) {
-                bestMove = drawMove;
-            }
-
-            ASSERT(bestMove != nullptr)
-            auto best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
-                string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
-            if (bestMove->promotionPiece != -1)best += "q";
-            decListId();
-
-            return best;
+            takeback(move, oldKey, false);
         }
+        if (bestRes > 0 && drawMove) {
+            bestMove = drawMove;
+        }
+
+        ASSERT(bestMove != nullptr)
+        auto best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
+            string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
+        if (bestMove->promotionPiece != -1)best += "q";
+        decListId();
+
+        return best;
+
     }
-    if (syzygy) {
+    if (syzygy && syzygy->isInstalledPieces(tot)) {
         int side = getSide();
         u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
         u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
@@ -860,6 +861,28 @@ void Search::setGtb(GTB &tablebase) {
 
 void Search::setSYZYGY(SYZYGY &tablebase) {
     syzygy = &tablebase;
+    if (getId() == 0) {
+        //7 man
+        loadFen("8/3n4/7Q/1B6/7b/1P1K4/8/3k4 w - - 0 1");
+        int res = syzygy->getDtm(chessboard, WHITE);
+        if (res != INT_MAX)syzygy->setInstalledPieces(7);
+        //6 man
+        loadFen("8/3n4/7Q/1B6/8/1P1K4/8/3k4 w - - 0 1");
+        res = syzygy->getDtm(chessboard, WHITE);
+        if (res != INT_MAX)syzygy->setInstalledPieces(6);
+        //5 man
+        loadFen("8/3n4/7Q/8/8/1P1K4/8/3k4 w - - 0 1");
+        res = syzygy->getDtm(chessboard, WHITE);
+        if (res != INT_MAX)syzygy->setInstalledPieces(5);
+        //4 man
+        loadFen("8/3n4/8/8/8/1P1K4/8/3k4 w - - 0 1");
+        res = syzygy->getDtm(chessboard, WHITE);
+        if (res != INT_MAX)syzygy->setInstalledPieces(4);
+        //3 man
+        loadFen("8/8/3P4/8/8/3K4/8/3k4 w - - 0 1");
+        res = syzygy->getDtm(chessboard, WHITE);
+        if (res != INT_MAX)syzygy->setInstalledPieces(3);
+    }
 }
 
 bool Search::setParameter(String param, int value) {

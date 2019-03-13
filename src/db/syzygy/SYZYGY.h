@@ -47,10 +47,16 @@ public:
     int getDtm(const _Tchessboard &c, const bool turn);
 
 //    string getBestmove(const _Tchessboard &c, const bool turn);
+    void setInstalledPieces(const int i) {
+        installedPieces[i] = true;
+    }
 
+    bool isInstalledPieces(const int i) const {
+        return installedPieces[i];
+    }
 private:
 
-
+    bool installedPieces[10] = {false};
     const map<string, string> mapBoardPos = {
         {"h1", "h8"},
         {"h2", "h7"},
