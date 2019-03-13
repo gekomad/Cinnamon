@@ -75,8 +75,8 @@ public:
 
     void endRun();
 
-    int printDtmGtb();
-    int printDtmSyzygy();
+    void printDtmGtb();
+    void printDtmSyzygy();
 
     GTB &getGtb() const;
 
@@ -88,7 +88,7 @@ public:
 
 //    string getSYZYGYbestmove(const int side);
 
-    int getSYZYGYdtm(const int side);
+//    int getSYZYGYdtm(const int side);
 
     STATIC_CONST int NULLMOVE_DEPTH = 3;
     STATIC_CONST int NULLMOVES_MIN_PIECE = 3;

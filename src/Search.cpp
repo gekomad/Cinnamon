@@ -88,7 +88,7 @@ void Search::clone(const Search *s) {
     memcpy(chessboard, s->chessboard, sizeof(_Tchessboard));
 }
 
-int Search::printDtmSyzygy() {
+void Search::printDtmSyzygy() {
     int side = getSide();
     u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
     u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
@@ -99,7 +99,7 @@ int Search::printDtmSyzygy() {
     _Tmove *move;
     u64 oldKey = 0;
 
-    int best = -_INFINITE;
+
     for (int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
         if (!makemove(move, false, true)) {
@@ -110,24 +110,22 @@ int Search::printDtmSyzygy() {
             << decodeBoardinv(move->type, move->to, getSide()) << " ";
         int res = -syzygy->getDtm(chessboard, side ^ 1);
         if (res != -INT_MAX) {
-            cout << " res: " << res << endl;
+
+            if (res == 0)cout << " draw dtm: " << abs(res) << endl;
+            else if (res < 0)
+                cout << " loss dtm: " << abs(res) << endl;
+            else
+                cout << " win dtm: " << abs(res) << endl;
+
         }
         takeback(move, oldKey, false);
-        if (res > best) {
-            best = res;
-        }
-    }
-    if (best > 0) {
-        best = _INFINITE - best;
-    } else if (best < 0) {
-        best = -(_INFINITE - best);
     }
     cout << endl;
     decListId();
-    return best;
+
 }
 
-int Search::printDtmGtb() {
+void Search::printDtmGtb() {
     int side = getSide();
     u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
     u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
@@ -141,7 +139,6 @@ int Search::printDtmGtb() {
     _Tmove *move;
     u64 oldKey = 0;
 
-    int best = -_INFINITE;
     for (int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
         if (!makemove(move, false, true)) {
@@ -159,20 +156,13 @@ int Search::printDtmGtb() {
         }
 
         takeback(move, oldKey, false);
-        if (res > best) {
-            best = res;
-        }
-        fflush(stdout);
+
     }
-    if (best > 0) {
-        best = _INFINITE - best;
-    } else if (best < 0) {
-        best = -(_INFINITE - best);
-    }
+
     cout << endl;
 
     decListId();
-    return best;
+
 }
 
 void Search::setNullMove(bool b) {
@@ -399,10 +389,10 @@ bool Search::getSYZYGYAvailable() const {
     return syzygy;
 }
 
-int Search::getSYZYGYdtm(const int side) {
-    if (!syzygy)return -1;
-    return syzygy->getDtm(chessboard, side);
-}
+//int Search::getSYZYGYdtm(const int side) {
+//    if (!syzygy)return -1;
+//    return syzygy->getDtm(chessboard, side);
+//}
 
 //string Search::getSYZYGYbestmove(const int side) {
 //    if (!syzygy)return "";
@@ -523,7 +513,8 @@ string Search::probeRootTB() {
             };
 //            cout << decodeBoardinv(move->type, move->from, getSide())
 //                << decodeBoardinv(move->type, move->to, getSide()) << " ";
-            int res = -syzygy->getDtm(chessboard, side ^ 1);
+
+            int res = syzygy->getDtm(chessboard, side ^ 1);
 
             if (res != -INT_MAX && ((side == WHITE && res > bestRes) || (side == BLACK && res < bestRes))) {
                 bestRes = res;

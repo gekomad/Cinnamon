@@ -10,10 +10,10 @@
  * the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -92,23 +92,10 @@ static inline unsigned popcount(uint64_t x) {
 #define MOVE_STALEMATE          0xFFFF
 #define MOVE_CHECKMATE          0xFFFE
 
-struct pos {
-    uint64_t white;
-    uint64_t black;
-    uint64_t kings;
-    uint64_t queens;
-    uint64_t rooks;
-    uint64_t bishops;
-    uint64_t knights;
-    uint64_t pawns;
-    uint8_t rule50;
-    uint8_t ep;
-    bool turn;
-};
+
 
 static bool do_move(struct pos *pos, const struct pos *pos0, uint16_t move);
 
-static int probe_dtz(const struct pos *pos, int *success);
 
 unsigned TB_LARGEST = 0;
 
@@ -1437,7 +1424,7 @@ static const int wdl_to_dtz[] =
  * In short, if a move is available resulting in dtz + 50-move-counter <= 99,
  * then do not accept moves leading to dtz + 50-move-counter == 100.
  */
-static int probe_dtz(const struct pos *pos, int *success) {
+ int probe_dtz(const struct pos *pos, int *success) {
     *success = 1;
     int v = probe_dtz_no_ep(pos, success);
     if (*success == 0)

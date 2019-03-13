@@ -62,6 +62,21 @@ typedef uint8_t bool;
  * Internal definitions.  Do not call these functions directly.
  */
 extern bool tb_init_impl(const char *_path);
+extern  int probe_dtz(const struct pos *pos, int *success);
+
+struct pos {
+    uint64_t white;
+    uint64_t black;
+    uint64_t kings;
+    uint64_t queens;
+    uint64_t rooks;
+    uint64_t bishops;
+    uint64_t knights;
+    uint64_t pawns;
+    uint8_t rule50;
+    uint8_t ep;
+    bool turn;
+};
 
 extern unsigned tb_probe_wdl_impl(
     uint64_t _white,

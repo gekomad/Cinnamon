@@ -119,12 +119,12 @@ public:
 
 //    string getSYZYGYbestmove(const int side) const;
 
-    int getSYZYGYdtm(const int side) const;
+//    int getSYZYGYdtm(const int side) const;
 
     int getMoveFromSan(String string, _Tmove *ptr);
 
-    int printDtmGtb();
-    int printDtmSyzygy();
+    void printDtmGtb();
+    void printDtmSyzygy();
 
     void setGtb(GTB &tablebase);
 

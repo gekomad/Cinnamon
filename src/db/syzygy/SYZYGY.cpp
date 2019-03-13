@@ -17,6 +17,8 @@
 */
 
 #include "SYZYGY.h"
+#include "tbprobe.h"
+
 
 #ifdef JS_MODE
 bool SYZYGY::getAvailable() const{return false;}
@@ -52,14 +54,9 @@ bool SYZYGY::setPath(const string &path) {
 
 void SYZYGY::restart() { }
 
-int SYZYGY::getDtm(const _Tchessboard &c, const bool turn) {
-    unsigned results[TB_MAX_MOVES];
-
-    int res = search(c, turn, results);
-    if (res != TB_RESULT_FAILED) {
-        return TB_GET_DTZ(res);
-    }
-    return INT_MAX;
+unsigned SYZYGY::getDtm(const _Tchessboard &c, const bool turn) {
+    unsigned res = search(c, turn);
+    return res != INT_MAX ? res : INT_MAX;
 }
 
 string SYZYGY::decodePos(string &s) {
@@ -92,22 +89,25 @@ string SYZYGY::decodePos(string &s) {
 //    return decodePos(bestmove);
 //}
 
-int SYZYGY::search(const _Tchessboard &c, const bool turn ,unsigned *results) {
-    u64 white = decode(ChessBoard::getBitmap<WHITE>(c));
-    u64 black = decode(ChessBoard::getBitmap<BLACK>(c));
-    u64 kings = decode(c[KING_BLACK] | c[KING_WHITE]);
-    u64 queens = decode(c[QUEEN_BLACK] | c[QUEEN_WHITE]);
-    u64 rooks = decode(c[ROOK_BLACK] | c[ROOK_WHITE]);
-    u64 bishops = decode(c[BISHOP_BLACK] | c[BISHOP_WHITE]);
-    u64 knights = decode(c[KNIGHT_BLACK] | c[KNIGHT_WHITE]);
-    u64 pawns = decode(c[PAWN_BLACK] | c[PAWN_WHITE]);
-    unsigned rule50 = 0;//TODO
-    unsigned castling = 0;//TODO
-    u64 ep = 0;//TODO
+int SYZYGY::search(const _Tchessboard &c, const bool turn) {
 
-    return tb_probe_root(white, black, kings,
-                         queens, rooks, bishops, knights, pawns,
-                         rule50, castling, ep, turn, results);
+    pos p;
+
+    p.white = decode(ChessBoard::getBitmap<WHITE>(c));
+    p.black = decode(ChessBoard::getBitmap<BLACK>(c));
+    p.kings = decode(c[KING_BLACK] | c[KING_WHITE]);
+    p.queens = decode(c[QUEEN_BLACK] | c[QUEEN_WHITE]);
+    p.rooks = decode(c[ROOK_BLACK] | c[ROOK_WHITE]);
+    p.bishops = decode(c[BISHOP_BLACK] | c[BISHOP_WHITE]);
+    p.knights = decode(c[KNIGHT_BLACK] | c[KNIGHT_WHITE]);
+    p.pawns = decode(c[PAWN_BLACK] | c[PAWN_WHITE]);
+    p.rule50 = 0;
+    p.ep = 0;
+    p.turn = turn;
+
+    int success;
+    auto a = probe_dtz(&p, &success);
+    return success != 0 ? a : INT_MAX;
 }
 
 string SYZYGY::pickMove(const unsigned *results, const unsigned wdl) {
