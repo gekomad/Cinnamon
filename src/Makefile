@@ -259,5 +259,5 @@ WrapperCinnamon.o: WrapperCinnamon.cpp
 	$(COMP) -c WrapperCinnamon.cpp ${CFLAGS} ${ARC}
 
 clean:
-	$(RM) *.o $(EXE) *.gcda libCinnamon.a cinnamon.js
+	$(RM) *.o $(EXE) *.gcda libCinnamon.a cinnamon.js util/*.o js/*.o perft/*.o test/*.o db/*.o
 
