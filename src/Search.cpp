@@ -463,12 +463,11 @@ string Search::probeRootTB() {
                 if (res != -INT_MAX) {
 //                    cout << " res: " << res;
 
-                    if (res == -GTB_DRAW && bestRes==_INFINITE) {
+                    if (res == -GTB_DRAW && bestRes == _INFINITE) {
                         bestRes = res;
                         bestMove = move;
                     }
-                    else
-                    if (res != -GTB_DRAW && res < bestRes) {
+                    else if (res != -GTB_DRAW && res < bestRes) {
                         bestRes = res;
                         bestMove = move;
                     }
@@ -525,37 +524,37 @@ string Search::probeRootTB() {
 int Search::probeTB(const int side, const int N_PIECE, const int depth) const {
     // kpk
 
-    if (N_PIECE == 3 && depth != mainDepth) {
-
-        if (chessboard[PAWN_BLACK]) {
-            //    display();
-            const auto res = _INFINITE - (mainDepth - depth + 1);
-            const int kw = BITScanForward(chessboard[KING_WHITE]);
-            const int kb = BITScanForward(chessboard[KING_BLACK]);
-            const int p = BITScanForward(chessboard[PAWN_BLACK]);
-            auto win = isWin<BLACK>(side, kw, kb, p);
-            if (win)
-                return res;
-            else
-                return -depth;
-        }
-        if (chessboard[PAWN_WHITE]) {
-            //    display();
-            const auto res = _INFINITE - (mainDepth - depth + 1);
-            const int kw = BITScanForward(chessboard[KING_WHITE]);
-            const int kb = BITScanForward(chessboard[KING_BLACK]);
-            const int p = BITScanForward(chessboard[PAWN_WHITE]);
-            auto win = isWin<WHITE>(side, kw, kb, p);
-
-            if (win)
-                return res;
-            else
-                return -depth;
-        }
-
-    }
-//    int v = probeGtb(side, N_PIECE, depth);
-//    if (abs(v) != INT_MAX) return v;
+//    if (N_PIECE == 3 && depth != mainDepth) {
+//
+//        if (chessboard[PAWN_BLACK]) {
+//            //    display();
+//            const auto res = _INFINITE - (mainDepth - depth + 1);
+//            const int kw = BITScanForward(chessboard[KING_WHITE]);
+//            const int kb = BITScanForward(chessboard[KING_BLACK]);
+//            const int p = BITScanForward(chessboard[PAWN_BLACK]);
+//            auto win = isWin<BLACK>(side, kw, kb, p);
+//            if (win)
+//                return res;
+//            else
+//                return -depth;
+//        }
+//        if (chessboard[PAWN_WHITE]) {
+//            //    display();
+//            const auto res = _INFINITE - (mainDepth - depth + 1);
+//            const int kw = BITScanForward(chessboard[KING_WHITE]);
+//            const int kb = BITScanForward(chessboard[KING_BLACK]);
+//            const int p = BITScanForward(chessboard[PAWN_WHITE]);
+//            auto win = isWin<WHITE>(side, kw, kb, p);
+//
+//            if (win)
+//                return res;
+//            else
+//                return -depth;
+//        }
+//
+//    }
+    int v = probeGtb(side, N_PIECE, depth);
+    if (abs(v) != INT_MAX) return v;
 //    v = probeSyzygy(side);
 //    if (abs(v) != INT_MAX) return v;
 
@@ -582,11 +581,12 @@ int Search::probeGtb(const int side, const int N_PIECE, const int depth) const {
         int v = gtb->getDtm(side, false, chessboard, (uchar) chessboard[RIGHT_CASTLE_IDX], 100);
 
         if (abs(v) != INT_MAX) {
+            // display();
             int res = 0;
             if (v == GTB_DRAW) {//draw
                 res = depth;
             } else {
-                res = _INFINITE - (abs(v) + (mainDepth - depth + 1));
+                res = _INFINITE - (abs(v + GTB_OFFSET));
             }
             if (v < 0) {
                 res = -res;

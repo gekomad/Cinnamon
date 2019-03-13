@@ -227,16 +227,16 @@ int GTB::extractDtm(const unsigned stm1,
             return GTB_DRAW;//TODO
         }
         if (info1 == tb_WMATE && stm1 == tb_WHITE_TO_MOVE) {
-            return pliestomate1;
+            return pliestomate1 + GTB_OFFSET;
         }
         if (info1 == tb_BMATE && stm1 == tb_BLACK_TO_MOVE) {
-            return pliestomate1;
+            return pliestomate1 + GTB_OFFSET;
         }
         if (info1 == tb_WMATE && stm1 == tb_BLACK_TO_MOVE) {
-            return -pliestomate1;
+            return -pliestomate1 - GTB_OFFSET;
         }
         if (info1 == tb_BMATE && stm1 == tb_WHITE_TO_MOVE) {
-            return -pliestomate1;
+            return -pliestomate1 - GTB_OFFSET;
         }
     }
     return INT_MAX;
@@ -248,7 +248,7 @@ int GTB::getDtm(const int xside,
                 const uchar rightCastle,
                 const int depth) const {
 
-    const int side = xside^1 ;
+    const int side = xside ^1;
 
     unsigned int ws[17];    /* list of squares for white */
     unsigned int bs[17];    /* list of squares for black */

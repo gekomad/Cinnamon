@@ -23,6 +23,7 @@
 #include "../ChessBoard.h"
 #include "../util/Singleton.h"
 #define GTB_DRAW 999999
+#define GTB_OFFSET 1000
 class GTB: public Singleton<GTB> {
     friend class Singleton<GTB>;
 
