@@ -460,7 +460,7 @@ string Search::probeRootTB() {
                     bestMove = move;
                 }
                 else if (dtm > 0 && bestRes > 0 && dtm < bestRes) {
-                    bestRes = bestRes;
+
                     bestMove = move;
                 }
 //                    else if (dtm > 0 && bestRes < 0 && dtm > bestRes && bestRes != INT_MAX) {
@@ -484,30 +484,32 @@ string Search::probeRootTB() {
 
     }
     if (syzygy && syzygy->isInstalledPieces(tot)) {
+
+
         int side = getSide();
         u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
         u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
         display();
+
         incListId();
         generateCaptures(side, enemies, friends);
         generateMoves(side, friends | enemies);
-        _Tmove *move;
+
         u64 oldKey = 0;
 
         int bestRes = INT_MAX;
         _Tmove *bestMove = nullptr;
         _Tmove *drawMove = nullptr;
         for (int i = 0; i < getListSize(); i++) {
-            move = &gen_list[listId].moveList[i];
+            _Tmove *move = &gen_list[listId].moveList[i];
             if (!makemove(move, false, true)) {
                 takeback(move, oldKey, false);
                 continue;
-            };
-//            cout << decodeBoardinv(move->type, move->from, getSide())
-//                << decodeBoardinv(move->type, move->to, getSide()) << " ";
+            }
+//                cout << endl << decodeBoardinv(move->type, move->from, getSide())
+//                    << decodeBoardinv(move->type, move->to, getSide()) << " ";
 
             auto dtm = syzygy->getDtm(chessboard, side ^ 1);
-
             if (dtm != INT_MAX) {
 //                    cout << " res: " << res;
 
@@ -526,7 +528,7 @@ string Search::probeRootTB() {
                     bestMove = move;
                 }
                 else if (dtm > 0 && bestRes > 0 && dtm < bestRes) {
-                    bestRes = bestRes;
+
                     bestMove = move;
                 }
 //                    else if (dtm > 0 && bestRes < 0 && dtm > bestRes && bestRes != INT_MAX) {
@@ -536,12 +538,18 @@ string Search::probeRootTB() {
             }
             takeback(move, oldKey, false);
         }
+        if (bestRes > 0 && drawMove) {
+            bestMove = drawMove;
+        }
 
+        ASSERT(bestMove != nullptr)
         auto best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
             string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
-
+        if (bestMove->promotionPiece != -1)best += "q";
         decListId();
+
         return best;
+
     }
     return "";
 }
