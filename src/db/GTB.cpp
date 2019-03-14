@@ -40,13 +40,9 @@ bool GTB::setScheme(const string &s) { return false; }
 
 void GTB::restart() { }
 
-bool GTB::setProbeDepth(const int d) { return false; }
-
 bool GTB::setInstalledPieces(const int n) { return false; }
 
 bool GTB::isInstalledPieces(const int p) const { return false; }
-
-int GTB::getProbeDepth() const { return 0; }
 
 void GTB::print(const unsigned stm1, const unsigned info1, const unsigned pliestomate1) const { }
 
@@ -66,9 +62,6 @@ GTB::~GTB() {
     paths = tbpaths_done(paths);
 }
 
-int GTB::getProbeDepth() const {
-    return probeDepth;
-}
 
 bool GTB::load() {
     if (path.size() == 0)return false;
@@ -208,18 +201,7 @@ void GTB::restart() {
     tbcache_restart(cacheSize * 1024 * 1024, wdl_fraction);
 }
 
-bool GTB::setProbeDepth(const int d) {
-    if (d < 0 || d > 5) {
-        return false;
-    }
-    probeDepth = d;
-    return true;
-}
-
 bool GTB::setInstalledPieces(const int n) {
-    if (n < 3 || n > 5) {
-        return false;
-    }
     installedPieces[n] = true;
     return true;
 }
@@ -239,29 +221,31 @@ int GTB::extractDtm(const unsigned stm1,
     }
     if (tb_available1) {
         if (info1 == tb_DRAW) {
-            return 0;
+            return GTB_DRAW;//TODO
         }
         if (info1 == tb_WMATE && stm1 == tb_WHITE_TO_MOVE) {
-            return pliestomate1;
+            return pliestomate1 + GTB_OFFSET;
         }
         if (info1 == tb_BMATE && stm1 == tb_BLACK_TO_MOVE) {
-            return pliestomate1;
+            return pliestomate1 + GTB_OFFSET;
         }
         if (info1 == tb_WMATE && stm1 == tb_BLACK_TO_MOVE) {
-            return -pliestomate1;
+            return -pliestomate1 - GTB_OFFSET;
         }
         if (info1 == tb_BMATE && stm1 == tb_WHITE_TO_MOVE) {
-            return -pliestomate1;
+            return -pliestomate1 - GTB_OFFSET;
         }
     }
     return INT_MAX;
 }
 
-int GTB::getDtm(const int side,
+int GTB::getDtm(const int xside,
                 const bool doPrint,
                 const _Tchessboard &chessboard,
-                const uchar rightCastle,
                 const int depth) const {
+
+    const int side = xside ^1;
+    const uchar rightCastle = chessboard[RIGHT_CASTLE_IDX];
     unsigned int ws[17];    /* list of squares for white */
     unsigned int bs[17];    /* list of squares for black */
     unsigned char wp[17];    /* what white pieces are on those squares */
@@ -299,11 +283,11 @@ int GTB::getDtm(const int side,
     tb_castling |= rightCastle & ChessBoard::RIGHT_QUEEN_CASTLE_BLACK_MASK ? tb_BOOO : 0;
     int tb_available = 0;
     if (depth > 8) {
-        tb_available = tb_probe_hard(side ^ 1, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
+        tb_available = tb_probe_hard(side, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
     } else if (depth >= probeDepth) {
-        tb_available = tb_probe_soft(side ^ 1, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
+        tb_available = tb_probe_soft(side, tb_NOSQUARE, tb_castling, ws, bs, wp, bp, &info, &pliestomate);
     }
-    return extractDtm(side ^ 1, doPrint, tb_available, info, pliestomate);
+    return extractDtm(side, doPrint, tb_available, info, pliestomate);
 }
 
 #endif

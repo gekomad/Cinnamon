@@ -118,17 +118,15 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name OwnBook type check default " << _BOOLEAN[it->getUseBook()] << "" << endl;
             cout << "option name Ponder type check default " << _BOOLEAN[it->getPonderEnabled()] << "" << endl;
             cout << "option name Threads type spin default 1 min 1 max 64" << endl;
-            cout << "option name TB Endgame type combo default none var Gaviota var none" << endl;
+
             cout << "option name GaviotaTbPath type string default <empty>" << endl;
             cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024" << endl;
             cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4" <<
                 endl;
 
             cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << endl;
-            cout << "option name TB probing depth type spin default 0 min 0 max 5" << endl;
             cout << "option name TB Restart type button" << endl;
-
-            cout << "option name SyzygyPath type string default <empty>" << endl;
+//            cout << "option name SyzygyPath type string default <empty>" << endl;
 
             cout << "option name PerftThreads type spin default 1 min 1 max 64" << endl;
             cout << "option name PerftHashSize type spin default 0 min 0 max 100000" << endl;
@@ -233,32 +231,9 @@ void Uci::listner(IterativeDeeping *it) {
                                 };
                             }
                         }
-                    } else if (token == "endgame") {
-                        getToken(uip, token);
-                        if (token == "value") {
-                            getToken(uip, token);
-                            knowCommand = true;
-                            if (token == "none") {
-                                searchManager.deleteGtb();
-                                knowCommand = true;
-                            } else if (token == "gaviota") {
-                                knowCommand = true;
-                            }
-                        }
                     } else if (token == "restart") {
                         knowCommand = true;
                         gtb->restart();
-                    } else if (token == "probing") {
-                        getToken(uip, token);
-                        if (token == "depth") {
-                            getToken(uip, token);
-                            if (token == "value") {
-                                getToken(uip, token);
-                                if (gtb->setProbeDepth(stoi(token))) {
-                                    knowCommand = true;
-                                };
-                            }
-                        }
                     }
                 } else if (token == "hash") {
                     getToken(uip, token);

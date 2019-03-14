@@ -49,7 +49,12 @@ SearchManager::SearchManager() {
 
 }
 
+string SearchManager::probeRootTB() {
+    return getThread(0).probeRootTB();
+}
+
 void SearchManager::search(const int mply) {
+
     if (getNthread() > 1 && mply > 3) {
         lazySMP(mply);
     } else {
@@ -339,9 +344,9 @@ bool SearchManager::getGtbAvailable() const {
 //    return getThread(0).getSYZYGYbestmove(side);
 //}
 
-int SearchManager::getSYZYGYdtm(const int side) const {
-    return getThread(0).getSYZYGYdtm(side);
-}
+//int SearchManager::getSYZYGYdtm(const int side) const {
+//    return getThread(0).getSYZYGYdtm(side);
+//}
 
 int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
 #ifdef DEBUG_MODE
@@ -357,12 +362,12 @@ GTB &SearchManager::getGtb() const {
     return getThread(0).getGtb();
 }
 
-int SearchManager::printDtmGtb() {
-    return getThread(0).printDtmGtb();
+void SearchManager::printDtmGtb() {
+    getThread(0).printDtmGtb();
 }
 
-int SearchManager::printDtmSyzygy() {
-    return getThread(0).printDtmSyzygy();
+void SearchManager::printDtmSyzygy() {
+    getThread(0).printDtmSyzygy();
 }
 
 void SearchManager::setGtb(GTB &tablebase) {
@@ -371,11 +376,11 @@ void SearchManager::setGtb(GTB &tablebase) {
     }
 }
 
-void SearchManager::setSYZYGY(SYZYGY &tablebase) {
-    for (Search *s:getPool()) {
-        s->setSYZYGY(tablebase);
-    }
-}
+//void SearchManager::setSYZYGY(SYZYGY &tablebase) {
+//    for (Search *s:getPool()) {
+//        s->setSYZYGY(tablebase);
+//    }
+//}
 
 void SearchManager::pushStackMove() {
     for (Search *s:getPool()) {

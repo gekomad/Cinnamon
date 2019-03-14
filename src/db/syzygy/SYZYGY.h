@@ -47,10 +47,17 @@ public:
     int getDtm(const _Tchessboard &c, const bool turn);
 
 //    string getBestmove(const _Tchessboard &c, const bool turn);
+    void setInstalledPieces(const int i) {
+        installedPieces[i] = true;
+    }
+
+    bool isInstalledPieces(const int i) const {
+        return installedPieces[i];
+    }
 
 private:
 
-
+    bool installedPieces[33] = {false};
     const map<string, string> mapBoardPos = {
         {"h1", "h8"},
         {"h2", "h7"},
@@ -125,7 +132,7 @@ private:
         {"e7", "e2"},
         {"e8", "e1"}};
 
-    string decodePos(string &s);
+//    string decodePos(string &s);
 
     SYZYGY();
 
@@ -133,7 +140,7 @@ private:
 
     string path = "";
 
-    string pickMove(const unsigned *results, const unsigned wdl);
+//    string pickMove(const unsigned *results, const unsigned wdl);
 
     int rank(int s) { return ((s) >> 3); }
 

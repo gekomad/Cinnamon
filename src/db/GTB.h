@@ -22,7 +22,8 @@
 #include "../namespaces/def.h"
 #include "../ChessBoard.h"
 #include "../util/Singleton.h"
-
+#define GTB_DRAW 999999
+#define GTB_OFFSET 1000
 class GTB: public Singleton<GTB> {
     friend class Singleton<GTB>;
 
@@ -46,17 +47,11 @@ public:
 
     void restart();
 
-    bool setProbeDepth(const int d);
-
     bool setInstalledPieces(const int n);
 
     bool isInstalledPieces(const int p) const;
 
-    int getProbeDepth() const;
-
-    int getDtm
-        (const int side, const bool doPrint, const _Tchessboard &chessboard, const uchar rightCastle, const int depth)
-        const;
+    int getDtm(const int side, const bool doPrint, const _Tchessboard &chessboard, const int depth) const;
 
 private:
     GTB();

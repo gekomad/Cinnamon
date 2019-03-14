@@ -17,7 +17,7 @@
 */
 
 #include "SYZYGY.h"
-
+#include "../../GenMoves.h"
 #ifdef JS_MODE
 bool SYZYGY::getAvailable() const{return false;}
 
@@ -47,6 +47,29 @@ string SYZYGY::getPath() const { return ""; }
 bool SYZYGY::setPath(const string &path) {
     SYZYGY::path = path;
     tb_init_syzygy(path.c_str());
+
+    GenMoves a;
+    //7 man
+    a.loadFen("8/3n4/7Q/1B6/7b/1P1K4/8/3k4 w - - 0 1");
+    _Tchessboard &chessboard = a.getChessboard();
+    int res = getDtm(chessboard, WHITE);
+    if (res != INT_MAX)setInstalledPieces(7);
+    //6 man
+    a.loadFen("8/3n4/7Q/1B6/8/1P1K4/8/3k4 w - - 0 1");
+    res = getDtm(chessboard, WHITE);
+    if (res != INT_MAX)setInstalledPieces(6);
+    //5 man
+    a.loadFen("8/3n4/7Q/8/8/1P1K4/8/3k4 w - - 0 1");
+    res = getDtm(chessboard, WHITE);
+    if (res != INT_MAX)setInstalledPieces(5);
+    //4 man
+    a.loadFen("8/3n4/8/8/8/1P1K4/8/3k4 w - - 0 1");
+    res = getDtm(chessboard, WHITE);
+    if (res != INT_MAX)setInstalledPieces(4);
+    //3 man
+    a.loadFen("8/8/3P4/8/8/3K4/8/3k4 w - - 0 1");
+    res = getDtm(chessboard, WHITE);
+    if (res != INT_MAX)setInstalledPieces(3);
     return TB_LARGEST;
 }
 
@@ -54,17 +77,14 @@ void SYZYGY::restart() { }
 
 int SYZYGY::getDtm(const _Tchessboard &c, const bool turn) {
     int res = search(c, turn);
-    if (res != TB_RESULT_FAILED) {
-        return TB_GET_DTZ(res);
-    }
-    return INT_MAX;
+    return res != INT_MAX ? res : INT_MAX;
 }
 
-string SYZYGY::decodePos(string &s) {
-    auto a1 = mapBoardPos.find(s.substr(0, 2))->second;
-    auto a2 = mapBoardPos.find(s.substr(2, 4))->second;
-    return a1 + a2;
-}
+//string SYZYGY::decodePos(string &s) {
+//    auto a1 = mapBoardPos.find(s.substr(0, 2))->second;
+//    auto a2 = mapBoardPos.find(s.substr(2, 4))->second;
+//    return a1 + a2;
+//}
 
 //string SYZYGY::getBestmove(const _Tchessboard &c, const bool turn) {
 //
@@ -91,42 +111,45 @@ string SYZYGY::decodePos(string &s) {
 //}
 
 int SYZYGY::search(const _Tchessboard &c, const bool turn) {
-    u64 white = decode(ChessBoard::getBitmap<WHITE>(c));
-    u64 black = decode(ChessBoard::getBitmap<BLACK>(c));
-    u64 kings = decode(c[KING_BLACK] | c[KING_WHITE]);
-    u64 queens = decode(c[QUEEN_BLACK] | c[QUEEN_WHITE]);
-    u64 rooks = decode(c[ROOK_BLACK] | c[ROOK_WHITE]);
-    u64 bishops = decode(c[BISHOP_BLACK] | c[BISHOP_WHITE]);
-    u64 knights = decode(c[KNIGHT_BLACK] | c[KNIGHT_WHITE]);
-    u64 pawns = decode(c[PAWN_BLACK] | c[PAWN_WHITE]);
-    unsigned rule50 = 0;//TODO
-    unsigned castling = 0;//TODO
-    u64 ep = 0;//TODO
 
-    return tb_probe_wdl(white, black, kings,
-                        queens, rooks, bishops, knights, pawns,
-                        rule50, castling, ep, turn);
+    pos p;
+
+    p.white = decode(ChessBoard::getBitmap<WHITE>(c));
+    p.black = decode(ChessBoard::getBitmap<BLACK>(c));
+    p.kings = decode(c[KING_BLACK] | c[KING_WHITE]);
+    p.queens = decode(c[QUEEN_BLACK] | c[QUEEN_WHITE]);
+    p.rooks = decode(c[ROOK_BLACK] | c[ROOK_WHITE]);
+    p.bishops = decode(c[BISHOP_BLACK] | c[BISHOP_WHITE]);
+    p.knights = decode(c[KNIGHT_BLACK] | c[KNIGHT_WHITE]);
+    p.pawns = decode(c[PAWN_BLACK] | c[PAWN_WHITE]);
+    p.rule50 = 0;
+    p.ep = 0;
+    p.turn = turn;
+
+    int success;
+    int a = probe_dtz(&p, &success);
+    return success != 0 ? a : INT_MAX;
 }
 
-string SYZYGY::pickMove(const unsigned *results, const unsigned wdl) {
-    for (unsigned i = 0; results[i] != TB_RESULT_FAILED; i++) {
-        if (TB_GET_WDL(results[i]) != wdl)
-            continue;
-
-        unsigned from = TB_GET_FROM(results[i]);
-        unsigned to = TB_GET_TO(results[i]);
-        unsigned r = rank(from);
-        unsigned f = file(from);
-
-        unsigned r1 = rank(to);
-        unsigned f1 = file(to);
-
-        return ChessBoard::getCell(f, r).append(ChessBoard::getCell(f1, r1));
-
-    }
-
-    return "";
-}
+//string SYZYGY::pickMove(const unsigned *results, const unsigned wdl) {
+//    for (unsigned i = 0; results[i] != TB_RESULT_FAILED; i++) {
+//        if (TB_GET_WDL(results[i]) != wdl)
+//            continue;
+//
+//        unsigned from = TB_GET_FROM(results[i]);
+//        unsigned to = TB_GET_TO(results[i]);
+//        unsigned r = rank(from);
+//        unsigned f = file(from);
+//
+//        unsigned r1 = rank(to);
+//        unsigned f1 = file(to);
+//
+//        return ChessBoard::getCell(f, r).append(ChessBoard::getCell(f1, r1));
+//
+//    }
+//
+//    return "";
+//}
 
 u64 SYZYGY::decode(u64 c) {
 

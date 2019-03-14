@@ -79,6 +79,7 @@ void IterativeDeeping::run() {
     int mply = 0;
 
 
+    //openbook
     if (openBook) {
         ASSERT(openBook);
         string obMove = openBook->search(searchManager.boardToFen());
@@ -92,6 +93,14 @@ void IterativeDeeping::run() {
             LOCK_RELEASE(running);
             return;
         }
+    }
+
+    //Tablebase
+    string tb=searchManager.probeRootTB();
+    if (!tb.empty()){
+        cout << "bestmove " << tb << endl;
+        LOCK_RELEASE(running);
+        return;
     }
     int sc = 0;
     unsigned totMoves;

@@ -75,8 +75,8 @@ public:
 
     void endRun();
 
-    int printDtmGtb();
-    int printDtmSyzygy();
+    void printDtmGtb();
+    void printDtmSyzygy();
 
     GTB &getGtb() const;
 
@@ -88,7 +88,7 @@ public:
 
 //    string getSYZYGYbestmove(const int side);
 
-    int getSYZYGYdtm(const int side);
+//    int getSYZYGYdtm(const int side);
 
     STATIC_CONST int NULLMOVE_DEPTH = 3;
     STATIC_CONST int NULLMOVES_MIN_PIECE = 3;
@@ -101,7 +101,7 @@ public:
     void setRunningThread(bool t) {
         runningThread = t;
     }
-
+    string probeRootTB();
     bool getRunningThread() const {
         return runningThread;
     }
@@ -156,8 +156,13 @@ private:
 
     template<int side, bool checkMoves>
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
+    int probeTB(const int side, const int N_PIECE, const int depth) const;
+
     template<bool checkMoves>
     bool checkSearchMoves(_Tmove *move);
+
+    int probeGtb(const int side, const int N_PIECE, const int depth) const;
+
     bool checkInsufficientMaterial(int);
 
     void sortFromHash(const int listId, const Hash::_ThashData &phashe);
