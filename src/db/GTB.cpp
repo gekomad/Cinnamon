@@ -202,9 +202,6 @@ void GTB::restart() {
 }
 
 bool GTB::setInstalledPieces(const int n) {
-    if (n < 3 || n > 5) {
-        return false;
-    }
     installedPieces[n] = true;
     return true;
 }
