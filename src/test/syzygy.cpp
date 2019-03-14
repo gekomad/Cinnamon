@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+
 
 #if defined(FULL_TEST)
 
@@ -27,7 +27,7 @@
 TEST(syzygy, bestmove) {
 
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    SYZYGY &tablebase = searchManager.createSYZYGY("/syzygy");
+    searchManager.createSYZYGY("/syzygy");
 
 
     IterativeDeeping it;
@@ -43,3 +43,4 @@ TEST(syzygy, bestmove) {
 
 
 #endif
+*/
