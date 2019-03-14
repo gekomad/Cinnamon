@@ -483,8 +483,8 @@ string Search::probeRootTB() {
         return best;
 
     }
-    if (syzygy && syzygy->isInstalledPieces(tot)) {
 
+    if (syzygy && syzygy->isInstalledPieces(tot)) {
 
         int side = getSide();
         u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
@@ -869,29 +869,10 @@ void Search::setGtb(GTB &tablebase) {
 
 void Search::setSYZYGY(SYZYGY &tablebase) {
     syzygy = &tablebase;
-    if (getId() == 0) {
-        //7 man
-        loadFen("8/3n4/7Q/1B6/7b/1P1K4/8/3k4 w - - 0 1");
-        int res = syzygy->getDtm(chessboard, WHITE);
-        if (res != INT_MAX)syzygy->setInstalledPieces(7);
-        //6 man
-        loadFen("8/3n4/7Q/1B6/8/1P1K4/8/3k4 w - - 0 1");
-        res = syzygy->getDtm(chessboard, WHITE);
-        if (res != INT_MAX)syzygy->setInstalledPieces(6);
-        //5 man
-        loadFen("8/3n4/7Q/8/8/1P1K4/8/3k4 w - - 0 1");
-        res = syzygy->getDtm(chessboard, WHITE);
-        if (res != INT_MAX)syzygy->setInstalledPieces(5);
-        //4 man
-        loadFen("8/3n4/8/8/8/1P1K4/8/3k4 w - - 0 1");
-        res = syzygy->getDtm(chessboard, WHITE);
-        if (res != INT_MAX)syzygy->setInstalledPieces(4);
-        //3 man
-        loadFen("8/8/3P4/8/8/3K4/8/3k4 w - - 0 1");
-        res = syzygy->getDtm(chessboard, WHITE);
-        if (res != INT_MAX)syzygy->setInstalledPieces(3);
-    }
 }
+
+
+
 
 bool Search::setParameter(String param, int value) {
 #if defined(CLOP) || defined(DEBUG_MODE)

@@ -128,7 +128,7 @@ public:
 
     void setGtb(GTB &tablebase);
 
-    void setSYZYGY(SYZYGY &tablebase);
+//    void setSYZYGY(SYZYGY &tablebase);
 
     void pushStackMove();
 

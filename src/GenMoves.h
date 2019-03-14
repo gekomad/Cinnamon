@@ -39,6 +39,10 @@ public:
 
     void generateMoves(const int side, const u64);
 
+    _Tchessboard &getChessboard() {
+        return chessboard;
+    }
+
     template<int side>
     void generateMoves(const u64 allpieces) {
         ASSERT_RANGE(side, 0, 1);

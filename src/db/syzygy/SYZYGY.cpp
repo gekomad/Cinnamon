@@ -17,9 +17,7 @@
 */
 
 #include "SYZYGY.h"
-#include "tbprobe.h"
-
-
+#include "../../GenMoves.h"
 #ifdef JS_MODE
 bool SYZYGY::getAvailable() const{return false;}
 
@@ -49,6 +47,29 @@ string SYZYGY::getPath() const { return ""; }
 bool SYZYGY::setPath(const string &path) {
     SYZYGY::path = path;
     tb_init_syzygy(path.c_str());
+
+    GenMoves a;
+    //7 man
+    a.loadFen("8/3n4/7Q/1B6/7b/1P1K4/8/3k4 w - - 0 1");
+    _Tchessboard &chessboard = a.getChessboard();
+    int res = getDtm(chessboard, WHITE);
+    if (res != INT_MAX)setInstalledPieces(7);
+    //6 man
+    a.loadFen("8/3n4/7Q/1B6/8/1P1K4/8/3k4 w - - 0 1");
+    res = getDtm(chessboard, WHITE);
+    if (res != INT_MAX)setInstalledPieces(6);
+    //5 man
+    a.loadFen("8/3n4/7Q/8/8/1P1K4/8/3k4 w - - 0 1");
+    res = getDtm(chessboard, WHITE);
+    if (res != INT_MAX)setInstalledPieces(5);
+    //4 man
+    a.loadFen("8/3n4/8/8/8/1P1K4/8/3k4 w - - 0 1");
+    res = getDtm(chessboard, WHITE);
+    if (res != INT_MAX)setInstalledPieces(4);
+    //3 man
+    a.loadFen("8/8/3P4/8/8/3K4/8/3k4 w - - 0 1");
+    res = getDtm(chessboard, WHITE);
+    if (res != INT_MAX)setInstalledPieces(3);
     return TB_LARGEST;
 }
 
@@ -59,11 +80,11 @@ int SYZYGY::getDtm(const _Tchessboard &c, const bool turn) {
     return res != INT_MAX ? res : INT_MAX;
 }
 
-string SYZYGY::decodePos(string &s) {
-    auto a1 = mapBoardPos.find(s.substr(0, 2))->second;
-    auto a2 = mapBoardPos.find(s.substr(2, 4))->second;
-    return a1 + a2;
-}
+//string SYZYGY::decodePos(string &s) {
+//    auto a1 = mapBoardPos.find(s.substr(0, 2))->second;
+//    auto a2 = mapBoardPos.find(s.substr(2, 4))->second;
+//    return a1 + a2;
+//}
 
 //string SYZYGY::getBestmove(const _Tchessboard &c, const bool turn) {
 //
@@ -110,25 +131,25 @@ int SYZYGY::search(const _Tchessboard &c, const bool turn) {
     return success != 0 ? a : INT_MAX;
 }
 
-string SYZYGY::pickMove(const unsigned *results, const unsigned wdl) {
-    for (unsigned i = 0; results[i] != TB_RESULT_FAILED; i++) {
-        if (TB_GET_WDL(results[i]) != wdl)
-            continue;
-
-        unsigned from = TB_GET_FROM(results[i]);
-        unsigned to = TB_GET_TO(results[i]);
-        unsigned r = rank(from);
-        unsigned f = file(from);
-
-        unsigned r1 = rank(to);
-        unsigned f1 = file(to);
-
-        return ChessBoard::getCell(f, r).append(ChessBoard::getCell(f1, r1));
-
-    }
-
-    return "";
-}
+//string SYZYGY::pickMove(const unsigned *results, const unsigned wdl) {
+//    for (unsigned i = 0; results[i] != TB_RESULT_FAILED; i++) {
+//        if (TB_GET_WDL(results[i]) != wdl)
+//            continue;
+//
+//        unsigned from = TB_GET_FROM(results[i]);
+//        unsigned to = TB_GET_TO(results[i]);
+//        unsigned r = rank(from);
+//        unsigned f = file(from);
+//
+//        unsigned r1 = rank(to);
+//        unsigned f1 = file(to);
+//
+//        return ChessBoard::getCell(f, r).append(ChessBoard::getCell(f1, r1));
+//
+//    }
+//
+//    return "";
+//}
 
 u64 SYZYGY::decode(u64 c) {
 

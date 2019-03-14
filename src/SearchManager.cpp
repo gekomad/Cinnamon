@@ -356,11 +356,11 @@ void SearchManager::setGtb(GTB &tablebase) {
     }
 }
 
-void SearchManager::setSYZYGY(SYZYGY &tablebase) {
-    for (Search *s:getPool()) {
-        s->setSYZYGY(tablebase);
-    }
-}
+//void SearchManager::setSYZYGY(SYZYGY &tablebase) {
+//    for (Search *s:getPool()) {
+//        s->setSYZYGY(tablebase);
+//    }
+//}
 
 void SearchManager::pushStackMove() {
     for (Search *s:getPool()) {
