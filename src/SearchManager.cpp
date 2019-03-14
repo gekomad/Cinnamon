@@ -17,6 +17,7 @@
 */
 
 #include "SearchManager.h"
+#include "namespaces/board.h"
 
 using namespace _logger;
 
@@ -61,7 +62,7 @@ void SearchManager::singleSearch(const int mply) {
     lineWin.cmove = -1;
     setMainPly(mply);
     ASSERT(!getBitCount());
-    getThread(0).setMainParam(SMP_NO, mply);
+    getThread(0).setMainParam(mply);
     getThread(0).run();
     valWindow = getThread(0).getValWindow();
     if (getThread(0).getRunning()) {
@@ -84,7 +85,7 @@ void SearchManager::lazySMP(const int mply) {
     for (int ii = 0; ii < getNthread(); ii++) {
         Search &idThread1 = getNextThread();
         idThread1.setRunning(1);
-        startThread(SMP_YES, idThread1, mply + (ii % 2));
+        startThread(idThread1, mply + (ii % 2));
     }
     joinAll();
     debug("end lazySMP ---------------------------");
@@ -154,11 +155,11 @@ int SearchManager::loadFen(string fen) {
     return res;
 }
 
-void SearchManager::startThread(const bool smpMode, Search &thread, const int depth) {
+void SearchManager::startThread(Search &thread, const int depth) {
 
     debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId()));
 
-    thread.setMainParam(smpMode, depth);
+    thread.setMainParam(depth);
 
     thread.start();
 }
@@ -250,6 +251,25 @@ void SearchManager::setHashSize(int s) {
 void SearchManager::setMaxTimeMillsec(int i) {
     for (Search *s:getPool()) {
         s->setMaxTimeMillsec(i);
+    }
+}
+
+void SearchManager::unsetSearchMoves() {
+    for (Search *s:getPool()) {
+        s->unsetSearchMoves();
+    }
+}
+
+void SearchManager::setSearchMoves(vector<string> &searchMov) {
+    _Tmove move;
+    vector<int> searchMoves;
+    for (std::vector<string>::iterator it = searchMov.begin(); it != searchMov.end(); ++it) {
+        getMoveFromSan(*it, &move);
+        const int x = move.to | (int) (move.from << 8);
+        searchMoves.push_back(x);
+    }
+    for (Search *s:getPool()) {
+        s->setSearchMoves(searchMoves);
     }
 }
 

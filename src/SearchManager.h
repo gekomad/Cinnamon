@@ -96,7 +96,8 @@ public:
     void setHashSize(int s);
 
     void setMaxTimeMillsec(int i);
-
+    void unsetSearchMoves();
+    void setSearchMoves(vector<string> &searchmoves);
     void setPonder(bool i);
 
     int getSide();
@@ -229,7 +230,7 @@ private:
 
     void setMainPly(const int r);
 
-    void startThread(const bool smpMode, Search &thread, const int depth);
+    void startThread(Search &thread, const int depth);
 
     void stopAllThread();
 

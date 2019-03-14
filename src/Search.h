@@ -66,9 +66,9 @@ public:
         return pvLine;
     }
 
-    void setMainParam(const bool smp, const int depth);
+    void setMainParam(const int depth);
 
-    template<bool mainSmp>
+    template<bool searchMoves>
     int search(const int depth, const int alpha, const int beta);
 
     void run();
@@ -131,10 +131,11 @@ public:
 #endif
 
     void setSYZYGY(SYZYGY &syzygy);
-
+    void unsetSearchMoves();
+    void setSearchMoves(vector<int> &v);
 private:
 
-
+    vector<int> searchMovesVector;
     int valWindow = INT_MAX;
     static bool runningThread;
     _TpvLine pvLine;
@@ -142,7 +143,7 @@ private:
     static SYZYGY *syzygy;
     bool ponder;
 
-    template<bool smp>
+    template<bool searchMoves>
     void aspirationWindow(const int depth, const int valWindow);
 
     int checkTime();
@@ -153,9 +154,10 @@ private:
 
     bool checkDraw(u64);
 
-    template<int side>
+    template<int side, bool checkMoves>
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
-
+    template<bool checkMoves>
+    bool checkSearchMoves(_Tmove *move);
     bool checkInsufficientMaterial(int);
 
     void sortFromHash(const int listId, const Hash::_ThashData &phashe);
@@ -169,8 +171,6 @@ private:
 
     int mainMateIn;
     int mainDepth;
-    bool mainSmp;
-
     inline int checkHash(const int type, const bool quies, const int alpha, const int beta, const int depth,
                          const u64 zobristKeyR,
                          _TcheckHash &checkHashStruct) {
