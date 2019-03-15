@@ -234,8 +234,8 @@ OpenBook.o: db/OpenBook.cpp
 SYZYGY.o: db/syzygy/SYZYGY.cpp
 	$(COMP) -c db/syzygy/SYZYGY.cpp ${CFLAGS} ${ARC}
 
-tbprobe.o: db/syzygy/tbprobe.cpp
-	$(COMP) -c db/syzygy/tbprobe.cpp ${CFLAGS} ${ARC}
+tbprobe.o: db/syzygy/tbprobe.c
+	$(COMP) -c db/syzygy/tbprobe.c ${CFLAGS} ${ARC}
 
 GTB.o: db/GTB.cpp
 	$(COMP) -c db/GTB.cpp ${CFLAGS} ${ARC}

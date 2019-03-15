@@ -32,9 +32,7 @@ extern "C"
 #endif
 
 #ifndef TB_NO_STDINT
-
 #include <stdint.h>
-
 #else
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -47,9 +45,7 @@ typedef long long int64_t;
 #endif
 
 #ifndef TB_NO_STDBOOL
-
 #include <stdbool.h>
-
 #else
 #ifndef __cplusplus
 typedef uint8_t bool;
@@ -62,22 +58,6 @@ typedef uint8_t bool;
  * Internal definitions.  Do not call these functions directly.
  */
 extern bool tb_init_impl(const char *_path);
-extern  int probe_dtz(const struct pos *pos, int *success);
-
-struct pos {
-    uint64_t white;
-    uint64_t black;
-    uint64_t kings;
-    uint64_t queens;
-    uint64_t rooks;
-    uint64_t bishops;
-    uint64_t knights;
-    uint64_t pawns;
-    uint8_t rule50;
-    uint8_t ep;
-    bool turn;
-};
-
 extern unsigned tb_probe_wdl_impl(
     uint64_t _white,
     uint64_t _black,
@@ -89,7 +69,6 @@ extern unsigned tb_probe_wdl_impl(
     uint64_t _pawns,
     unsigned _ep,
     bool _turn);
-
 extern unsigned tb_probe_root_impl(
     uint64_t _white,
     uint64_t _black,
@@ -177,25 +156,25 @@ extern unsigned tb_probe_root_impl(
 #define TB_RESULT_FAILED            0xFFFFFFFF
 
 /*
- * The lib can be probed for any position where #pieces <= TB_LARGEST.
+ * The tablebase can be probed for any position where #pieces <= TB_LARGEST.
  */
 extern unsigned TB_LARGEST;
 
 /*
- * Initialize the lib.
+ * Initialize the tablebase.
  *
  * PARAMETERS:
  * - path:
- *   The lib PATH string.
+ *   The tablebase PATH string.
  *
  * RETURN:
  * - true=succes, false=failed.  The TB_LARGEST global will also be
- *   initialized.  If no lib files are found, then `true' is returned
+ *   initialized.  If no tablebase files are found, then `true' is returned
  *   and TB_LARGEST is set to zero.
  */
-static inline bool tb_init_syzygy(const char *_path) {
-    return tb_init_impl(_path);
-}
+//static inline bool tb_init(const char *_path) {
+//    return tb_init_impl(_path);
+//}
 
 /*
  * Probe the Win-Draw-Loss (WDL) table.
@@ -320,21 +299,13 @@ static inline unsigned tb_probe_root(
 #ifndef TB_NO_HELPER_API
 
 extern unsigned tb_pop_count(uint64_t _bb);
-
 extern unsigned tb_lsb(uint64_t _bb);
-
 extern uint64_t tb_pop_lsb(uint64_t _bb);
-
 extern uint64_t tb_king_attacks(unsigned _square);
-
 extern uint64_t tb_queen_attacks(unsigned _square, uint64_t _occ);
-
 extern uint64_t tb_rook_attacks(unsigned _square, uint64_t _occ);
-
 extern uint64_t tb_bishop_attacks(unsigned _square, uint64_t _occ);
-
 extern uint64_t tb_knight_attacks(unsigned _square);
-
 extern uint64_t tb_pawn_attacks(unsigned _square, bool _color);
 
 #endif

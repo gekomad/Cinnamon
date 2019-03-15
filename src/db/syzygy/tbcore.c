@@ -8,28 +8,19 @@
 */
 
 #include <stdio.h>
-
 #ifndef TB_NO_STDINT
-
 #include <stdint.h>
-
 #endif
-
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
 #ifndef _WIN32
-
 #include <unistd.h>
 #include <sys/mman.h>
-
 #endif
-
 #include "tbcore.h"
-#include "tbprobe.h"
-
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #if !defined(DECOMP64) && defined(_LP64)
 // use 64-bit decompression if OS is 64-bit
 // (appears not to work so commented out for now)
@@ -54,6 +45,10 @@
 
 #define TB_WPAWN TB_PAWN
 #define TB_BPAWN (TB_PAWN | 8)
+
+#ifndef TB_NO_THREADS
+static LOCK_T TB_MUTEX;
+#endif
 
 #ifdef TB_CUSTOM_BSWAP32
 #define internal_bswap32(x) TB_CUSTOM_BSWAP32(x)
@@ -83,11 +78,8 @@ static struct TBHashEntry TB_hash[1 << TBHASHBITS][HSHMAX];
 static struct DTZTableEntry DTZ_table[DTZ_ENTRIES];
 
 static void init_indices(void);
-
 static uint64_t calc_key_from_pcs(int *pcs, int mirror);
-
 static void free_wdl_entry(struct TBEntry *entry);
-
 static void free_dtz_entry(struct TBEntry *entry);
 
 static FD open_tb(const char *str, const char *suffix) {
@@ -104,12 +96,9 @@ static FD open_tb(const char *str, const char *suffix) {
         fd = open(file, O_RDONLY);
 #else
         fd = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL,
-                  OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #endif
-//        printf("\nfile: %s...", file);
-        if (fd != FD_ERR) {
-            return fd;
-        }
+        if (fd != FD_ERR) return fd;
     }
     return FD_ERR;
 }
@@ -138,32 +127,30 @@ static char *map_file(const char *name, const char *suffix, uint64 *mapping) {
     }
 #else
     DWORD size_low, size_high;
-    size_low = GetFileSize(fd, &size_high);
-  //  *size = ((uint64)size_high) << 32 | ((uint64)size_low);
-    HANDLE map = CreateFileMapping(fd, NULL, PAGE_READONLY, size_high, size_low,
-                    NULL);
-    if (map == NULL) {
-      printf("CreateFileMapping() failed.\n");
-      exit(1);
-    }
-    *mapping = (uint64)map;
-    char *data = (char *)MapViewOfFile(map, FILE_MAP_READ, 0, 0, 0);
-    if (data == NULL) {
-      printf("MapViewOfFile() failed, name = %s%s, error = %lu.\n", name, suffix, GetLastError());
-      exit(1);
-    }
+  size_low = GetFileSize(fd, &size_high);
+//  *size = ((uint64)size_high) << 32 | ((uint64)size_low);
+  HANDLE map = CreateFileMapping(fd, NULL, PAGE_READONLY, size_high, size_low,
+                  NULL);
+  if (map == NULL) {
+    printf("CreateFileMapping() failed.\n");
+    exit(1);
+  }
+  *mapping = (uint64)map;
+  char *data = (char *)MapViewOfFile(map, FILE_MAP_READ, 0, 0, 0);
+  if (data == NULL) {
+    printf("MapViewOfFile() failed, name = %s%s, error = %lu.\n", name, suffix, GetLastError());
+    exit(1);
+  }
 #endif
     close_tb(fd);
     return data;
 }
 
 #ifndef _WIN32
-
 static void unmap_file(char *data, uint64 size) {
     if (!data) return;
     munmap(data, size);
 }
-
 #else
 static void unmap_file(char *data, uint64 mapping)
 {
@@ -743,18 +730,17 @@ static void init_indices(void) {
 
 #ifdef CONNECTED_KINGS
     for (i = 0; i < 5; i++) {
-      int s = 0;
-      for (j = 0; j < 10; j++) {
-        multidx[i][j] = s;
-        s += (i == 0) ? 1 : binomial[i - 1][mtwist[invtriangle[j]]];
-      }
-      mfactor[i] = s;
+    int s = 0;
+    for (j = 0; j < 10; j++) {
+      multidx[i][j] = s;
+      s += (i == 0) ? 1 : binomial[i - 1][mtwist[invtriangle[j]]];
     }
+    mfactor[i] = s;
+  }
 #endif
 }
 
 #ifndef CONNECTED_KINGS
-
 static uint64 encode_piece(struct TBEntry_piece *ptr, ubyte *norm, int *pos, int *factor) {
     uint64 idx;
     int i, j, k, m, l, p;
@@ -832,7 +818,6 @@ static uint64 encode_piece(struct TBEntry_piece *ptr, ubyte *norm, int *pos, int
 
     return idx;
 }
-
 #else
 static uint64 encode_piece(struct TBEntry_piece *ptr, ubyte *norm, int *pos, int *factor)
 {
@@ -1050,9 +1035,9 @@ static uint64 calc_factors_piece(int *factor, int num, int order, ubyte *norm, u
             f *= pivfac[enc_type];
 #else
             if (enc_type < 4)
-          f *= pivfac[enc_type];
-            else
-          f *= mfactor[enc_type - 2];
+    f *= pivfac[enc_type];
+      else
+    f *= mfactor[enc_type - 2];
 #endif
         } else {
             factor[i] = f;
@@ -1263,7 +1248,7 @@ static struct PairsData *setup_pairs(unsigned char *data,
         d->base[i] = (d->base[i + 1] + d->offset[i] - d->offset[i + 1]) / 2;
 #ifdef DECOMP64
     for (i = 0; i < h; i++)
-      d->base[i] <<= 64 - (min_len + i);
+    d->base[i] <<= 64 - (min_len + i);
 #else
     for (i = 0; i < h; i++)
         d->base[i] <<= 32 - (min_len + i);
@@ -1508,22 +1493,22 @@ static ubyte decompress_pairs(struct PairsData *d, uint64 idx) {
 
 #ifdef DECOMP64
     uint64 code = internal_bswap64(*((uint64 *)ptr));
-    ptr += 2;
-    bitcnt = 0; // number of "empty bits" in code
-    for (;;) {
-      int l = m;
-      while (code < base[l]) l++;
-      sym = offset[l] + ((code - base[l]) >> (64 - l));
-      if (litidx < (int)symlen[sym] + 1) break;
-      litidx -= (int)symlen[sym] + 1;
-      code <<= l;
-      bitcnt += l;
-      if (bitcnt >= 32) {
-        bitcnt -= 32;
-        uint32 data = *ptr++;
-        code |= ((uint64)(internal_bswap32(data))) << bitcnt;
-      }
+  ptr += 2;
+  bitcnt = 0; // number of "empty bits" in code
+  for (;;) {
+    int l = m;
+    while (code < base[l]) l++;
+    sym = offset[l] + ((code - base[l]) >> (64 - l));
+    if (litidx < (int)symlen[sym] + 1) break;
+    litidx -= (int)symlen[sym] + 1;
+    code <<= l;
+    bitcnt += l;
+    if (bitcnt >= 32) {
+      bitcnt -= 32;
+      uint32 data = *ptr++;
+      code |= ((uint64)(internal_bswap32(data))) << bitcnt;
     }
+  }
 #else
     uint32 next = 0;
     uint32 data = *ptr++;
@@ -1639,4 +1624,3 @@ static void free_dtz_entry(struct TBEntry *entry) {
 
 static int wdl_to_map[5] = {1, 3, 0, 2, 0};
 static ubyte pa_flags[5] = {8, 0, 0, 0, 4};
-

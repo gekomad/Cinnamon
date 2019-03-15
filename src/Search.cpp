@@ -92,13 +92,13 @@ void Search::printDtmSyzygy() {
     int side = getSide();
     u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
     u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-    display();
+
     incListId();
     generateCaptures(side, enemies, friends);
     generateMoves(side, friends | enemies);
     _Tmove *move;
     u64 oldKey = 0;
-
+    display();
 
     for (int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
@@ -108,19 +108,21 @@ void Search::printDtmSyzygy() {
         };
         cout << decodeBoardinv(move->type, move->from, getSide())
             << decodeBoardinv(move->type, move->to, getSide()) << " ";
-        int res = -syzygy->getDtm(chessboard, side ^ 1);
-        if (res != -INT_MAX) {
 
-            if (res == 0)cout << " draw dtm: " << abs(res) << endl;
-            else if (res < 0)
-                cout << " loss dtm: " << abs(res) << endl;
+        unsigned res = syzygy->getWDL(chessboard, side ^ 1);
+        if (res != TB_RESULT_FAILED) {
+
+            if (res == TB_DRAW)cout << " draw dtm: " << endl;
+            else if (res == TB_LOSS || res == TB_BLESSED_LOSS)
+                cout << " win dtm: " << endl;
             else
-                cout << " win dtm: " << abs(res) << endl;
+                cout << " loss dtm: " << endl;
 
-        }
+        } else cout << " none" << endl;
         takeback(move, oldKey, false);
     }
     cout << endl;
+
     decListId();
 
 }
@@ -413,6 +415,7 @@ int Search::search(const int depth, const int alpha, const int beta) {
 string Search::probeRootTB() {
     const auto tot = bitCount(getBitmap<WHITE>() | getBitmap<BLACK>());
     const int side = getSide();
+    string best = "";
     if (gtb && gtb->isInstalledPieces(tot)) {
         u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
         u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
@@ -470,7 +473,7 @@ string Search::probeRootTB() {
         }
 
         ASSERT(bestMove != nullptr)
-        auto best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
+        best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
             string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
         if (bestMove->promotionPiece != -1)best += "q";
         decListId();
@@ -479,7 +482,7 @@ string Search::probeRootTB() {
 
     }
 
-    if (syzygy && syzygy->isInstalledPieces(tot)) {
+    if (syzygy && syzygy->getInstalledPieces() >= tot) {
         u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
         u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
         //display();
@@ -490,9 +493,8 @@ string Search::probeRootTB() {
 
         u64 oldKey = 0;
 
-        int bestRes = INT_MAX;
         _Tmove *bestMove = nullptr;
-        _Tmove *drawMove = nullptr;
+
         for (int i = 0; i < getListSize(); i++) {
             _Tmove *move = &gen_list[listId].moveList[i];
             if (!makemove(move, false, true)) {
@@ -502,45 +504,23 @@ string Search::probeRootTB() {
 //                cout << endl << decodeBoardinv(move->type, move->from, getSide())
 //                    << decodeBoardinv(move->type, move->to, getSide()) << " ";
 
-            auto dtm = syzygy->getDtm(chessboard, side ^ 1);
-            if (dtm != INT_MAX) {
-//                    cout << " res: " << res;
+            auto dtm = syzygy->getWDL(chessboard, side ^ 1);
 
-                if (dtm == 0) {
-                    drawMove = move;
-                } else if (bestRes == INT_MAX) {
-                    bestRes = dtm;
-                    bestMove = move;
-                }
-                else if (dtm < 0 && bestRes < 0 && dtm > bestRes) {
-                    bestRes = dtm;
-                    bestMove = move;
-                }
-                else if (dtm < 0 && bestRes > 0) {
-                    bestRes = dtm;
-                    bestMove = move;
-                }
-                else if (dtm > 0 && bestRes > 0 && dtm < bestRes) {
-
-                    bestMove = move;
-                }
-//                    else if (dtm > 0 && bestRes < 0 && dtm > bestRes && bestRes != INT_MAX) {
-//                        bestRes = dtm;
-//                        bestMove = move;
-//                    }
+            if (dtm != TB_RESULT_FAILED && (dtm == TB_LOSS || dtm == TB_BLESSED_LOSS)) {
+                bestMove = move;
+                takeback(move, oldKey, false);
+                break;
             }
+
             takeback(move, oldKey, false);
         }
-        if (bestRes > 0 && drawMove) {
-            bestMove = drawMove;
+
+        if (bestMove != nullptr) {
+            best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
+                string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
+            if (bestMove->promotionPiece != -1)best += "q";
         }
-
-        ASSERT(bestMove != nullptr)
-        auto best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
-            string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
-        if (bestMove->promotionPiece != -1)best += "q";
         decListId();
-
         return best;
 
     }
@@ -550,7 +530,7 @@ string Search::probeRootTB() {
 
         u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
         u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-       // display();
+        // display();
 
         incListId();
         generateCaptures(side, enemies, friends);

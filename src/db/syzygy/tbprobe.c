@@ -30,9 +30,7 @@
 #include "tbprobe.h"
 
 #ifdef __GNUC__
-
-//#include <x86intrin.h>
-#include "../../namespaces/def.h"
+#include <x86intrin.h>
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 
@@ -70,13 +68,16 @@
 
 #define BEST_NONE               0xFFFF
 #define SCORE_ILLEGAL           0x7FFF
-using namespace _def;
-static inline unsigned popcount(uint64_t x) {
+
+
+static inline unsigned popcount(uint64_t x)
+{
     x = x - ((x >> 1) & 0x5555555555555555ull);
     x = (x & 0x3333333333333333ull) + ((x >> 2) & 0x3333333333333333ull);
     x = (x + (x >> 4)) & 0x0f0f0f0f0f0f0f0full;
     return (x * 0x0101010101010101ull) >> 56;
 }
+
 
 #define poplsb(x)               ((x) & ((x) - 1))
 
@@ -93,30 +94,37 @@ static inline unsigned popcount(uint64_t x) {
 #define MOVE_STALEMATE          0xFFFF
 #define MOVE_CHECKMATE          0xFFFE
 
-
+struct pos {
+    uint64_t white;
+    uint64_t black;
+    uint64_t kings;
+    uint64_t queens;
+    uint64_t rooks;
+    uint64_t bishops;
+    uint64_t knights;
+    uint64_t pawns;
+    uint8_t rule50;
+    uint8_t ep;
+    bool turn;
+};
 
 static bool do_move(struct pos *pos, const struct pos *pos0, uint16_t move);
-
+static int probe_dtz(const struct pos *pos, int *success);
 
 unsigned TB_LARGEST = 0;
-
-#include "tbcore.cpp"
+#include "tbcore.c"
 
 #define rank(s)                 ((s) >> 3)
-#define _file(s)                 ((s) & 0x07)
+#define file(s)                 ((s) & 0x07)
 #define board(s)                ((uint64_t)1 << (s))
 #ifdef TB_CUSTOM_LSB
 #define lsb(b) TB_CUSTOM_LSB(b)
 #else
-
-static inline unsigned lsb(uint64_t b) { return BITScanForward(b); }
-
-//static inline unsigned lsb(uint64_t b) {
-//    size_t idx;
-//    __asm__("bsfq %1, %0": "=r"(idx): "rm"(b));
-//    return idx;
-//}
-
+static inline unsigned lsb(uint64_t b) {
+    size_t idx;
+    __asm__("bsfq %1, %0": "=r"(idx): "rm"(b));
+    return idx;
+}
 #endif
 #define square(r, f)            (8 * (r) + (f))
 
@@ -132,7 +140,7 @@ static uint64_t king_attacks_table[64];
 static void king_attacks_init(void) {
     for (unsigned s = 0; s < 64; s++) {
         unsigned r = rank(s);
-        unsigned f = _file(s);
+        unsigned f = file(s);
         uint64_t b = 0;
         if (r != 0 && f != 0)
             b |= board(square(r - 1, f - 1));
@@ -168,7 +176,7 @@ static uint64_t knight_attacks_table[64];
 static void knight_attacks_init(void) {
     for (unsigned s = 0; s < 64; s++) {
         int r1, r = rank(s);
-        int f1, f = _file(s);
+        int f1, f = file(s);
         uint64_t b = 0;
         r1 = r - 1;
         f1 = f - 2;
@@ -311,7 +319,7 @@ static void bishop_attacks_init(void) {
         unsigned idx1 = idx << 1;
         for (unsigned s = 0; s < 64; s++) {
             int r = rank(s);
-            int f = _file(s);
+            int f = file(s);
             uint64_t b = 0;
             for (int i = -1; f + i >= 0 && r + i >= 0; i--) {
                 unsigned occ = (1 << (f + i));
@@ -333,7 +341,7 @@ static void bishop_attacks_init(void) {
         unsigned idx1 = idx << 1;
         for (unsigned s = 0; s < 64; s++) {
             int r = rank(s);
-            int f = _file(s);
+            int f = file(s);
             uint64_t b = 0;
             for (int i = -1; f + i >= 0 && r - i <= 7; i--) {
                 unsigned occ = (1 << (f + i));
@@ -381,7 +389,7 @@ static inline size_t file2index(uint64_t b, unsigned f) {
 
 static uint64_t rook_attacks(unsigned sq, uint64_t occ) {
     occ &= ~board(sq);
-    unsigned r = rank(sq), f = _file(sq);
+    unsigned r = rank(sq), f = file(sq);
     uint64_t r_occ = occ & (rank2board(r) & ~BOARD_RANK_EDGE);
     uint64_t f_occ = occ & (file2board(f) & ~BOARD_FILE_EDGE);
     size_t r_idx = rank2index(r_occ, r);
@@ -471,7 +479,7 @@ static uint64_t pawn_attacks_table[2][64];
 static void pawn_attacks_init(void) {
     for (unsigned s = 0; s < 64; s++) {
         int r = rank(s);
-        int f = _file(s);
+        int f = file(s);
 
         uint64_t b = 0;
         if (r != 7) {
@@ -1044,13 +1052,14 @@ static bool is_en_passant(const struct pos *pos, uint16_t move) {
         return false;
     if (to != pos->ep)
         return false;
-    if ((board(from) & us & pos->pawns) != 0)
+    if ((board(from) & us & pos->pawns) == 0)
         return false;
     return true;
 }
 
 /*
- * Test if the given position is legal (can the king be captured?)
+ * Test if the given position is legal.
+ * (Pawns on backrank? Can the king be captured?)
  */
 static bool is_legal(const struct pos *pos) {
     uint64_t occ = pos->white | pos->black;
@@ -1158,6 +1167,8 @@ static bool is_valid(const struct pos *pos) {
         return false;
     if ((pos->knights & pos->pawns) != 0)
         return false;
+    if (pos->pawns & BOARD_FILE_EDGE)
+        return false;
     if ((pos->white | pos->black) !=
         (pos->kings | pos->queens | pos->rooks | pos->bishops | pos->knights |
             pos->pawns))
@@ -1210,7 +1221,7 @@ static bool do_move(struct pos *pos, const struct pos *pos0, uint16_t move) {
             (pawn_attacks(from - 8, false) & pos0->pawns & pos0->white) != 0)
             pos->ep = from - 8;
         else if (to == pos0->ep) {
-            unsigned ep_to = (pos0->turn ? to + 8 : to - 8);
+            unsigned ep_to = (pos0->turn ? to - 8 : to + 8);
             uint64_t ep_mask = ~board(ep_to);
             pos->white &= ep_mask;
             pos->black &= ep_mask;
@@ -1281,7 +1292,7 @@ static int probe_wdl(const struct pos *pos, int *success) {
         struct pos pos1;
         if (!do_move(&pos1, pos, *moves))
             continue;
-        int v0 = -probe_ab(pos, -2, 2, success);
+        int v0 = -probe_ab(&pos1, -2, 2, success);
         if (*success == 0)
             return 0;
         if (v0 > v1)
@@ -1332,7 +1343,9 @@ static int probe_dtz_no_ep(const struct pos *pos, int *success) {
             struct pos pos1;
             if (!do_move(&pos1, pos, *moves))
                 continue;
-            int v = -probe_ab(&pos1, -2, -wdl + 1, success);
+            int v = (pos1.ep == 0 ?
+                     -probe_ab(&pos1, -2, -wdl + 1, success) :
+                     -probe_wdl(&pos1, success));
             if (*success == 0)
                 return 0;
             if (v == wdl)
@@ -1425,7 +1438,7 @@ static const int wdl_to_dtz[] =
  * In short, if a move is available resulting in dtz + 50-move-counter <= 99,
  * then do not accept moves leading to dtz + 50-move-counter == 100.
  */
- int probe_dtz(const struct pos *pos, int *success) {
+static int probe_dtz(const struct pos *pos, int *success) {
     *success = 1;
     int v = probe_dtz_no_ep(pos, success);
     if (*success == 0)
@@ -1442,7 +1455,7 @@ static const int wdl_to_dtz[] =
         struct pos pos1;
         if (!do_move(&pos1, pos, *moves))
             continue;
-        int v0 = -probe_ab(pos, -2, 2, success);
+        int v0 = -probe_ab(&pos1, -2, 2, success);
         if (*success == 0)
             return 0;
         if (v0 > v1)
@@ -1745,4 +1758,3 @@ uint64_t tb_pawn_attacks(unsigned sq, bool color) {
 }
 
 #endif      /* TB_NO_HELPER_API */
-

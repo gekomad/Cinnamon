@@ -6,9 +6,7 @@
 #define TBCORE_H
 
 #ifndef _WIN32
-
 #include <pthread.h>
-
 #define SEP_CHAR ':'
 #define FD int
 #define FD_ERR -1
@@ -172,4 +170,3 @@ struct DTZTableEntry {
 };
 
 #endif
-
