@@ -55,9 +55,6 @@
 #define TB_WPAWN TB_PAWN
 #define TB_BPAWN (TB_PAWN | 8)
 
-static LOCK_T TB_MUTEX;
-
-
 #ifdef TB_CUSTOM_BSWAP32
 #define internal_bswap32(x) TB_CUSTOM_BSWAP32(x)
 #else

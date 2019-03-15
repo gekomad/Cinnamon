@@ -59,8 +59,8 @@ vector<string> PerftThread::getSuccessorsFen(const int depthx) {
     incListId();
     u64 friends = getBitmap<side>();
     u64 enemies = getBitmap<side ^ 1>();
-    bool b = generateCaptures<side>(enemies, friends);
-    ASSERT(!b);
+    generateCaptures<side>(enemies, friends);
+
     generateMoves<side>(friends | enemies);
     listcount = getListSize();
     if (!listcount) {
@@ -109,8 +109,8 @@ u64 PerftThread::search(const int depthx) {
     incListId();
     u64 friends = getBitmap<side>();
     u64 enemies = getBitmap<side ^ 1>();
-    bool b = generateCaptures<side>(enemies, friends);
-    ASSERT(!b);
+    generateCaptures<side>(enemies, friends);
+
     generateMoves<side>(friends | enemies);
     listcount = getListSize();
     if (!listcount) {

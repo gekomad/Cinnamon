@@ -33,6 +33,7 @@
 
 //#include <x86intrin.h>
 #include "../../namespaces/def.h"
+#pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 
 #define WHITE_KING              (TB_WPAWN + 5)

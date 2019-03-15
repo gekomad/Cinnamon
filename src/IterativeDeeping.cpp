@@ -182,7 +182,7 @@ void IterativeDeeping::run() {
         if (nCutAB) {
             cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%" << endl;
         }
-        if (totMovesPrec != -1)
+        if (totMovesPrec != 0xffffffffffffffffULL)
             cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2) <<
                 ((double) totMoves / (double) totMovesPrec) << endl;
         totMovesPrec = totMoves;

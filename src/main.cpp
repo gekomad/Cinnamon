@@ -159,8 +159,8 @@ void benchTODO() {
     ////
     r = 0;
     time.resetAndStart();
-    for (int t = 0; t < K; t++)
-        for (int j = 0; j < 64; j++) {
+    for (unsigned t = 0; t < K; t++)
+        for (unsigned j = 0; j < 64; j++) {
             r += shiftForward<WHITE, 7>(RANDOM_KEY[0][j]);
         }
     time.stop();

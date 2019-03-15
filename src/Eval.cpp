@@ -115,8 +115,8 @@ int Eval::evaluatePawn() {
         result += PAWN_IN_7TH * bitCount(pawnsIn7);
         ADD(SCORE_DEBUG.PAWN_7H[side], PAWN_IN_7TH * bitCount(pawnsIn7));
 
-        const u64 pawnsIn8 = (shiftForward<side, 8>(pawnsIn7) & (~structureEval.allPieces) |
-            structureEval.allPiecesSide[xside] & (shiftForward<side, 7>(pawnsIn7) | shiftForward<side, 9>(pawnsIn7)));
+        const u64 pawnsIn8 = (shiftForward<side, 8>(pawnsIn7) & (~structureEval.allPieces)) |
+            (structureEval.allPiecesSide[xside] & (shiftForward<side, 7>(pawnsIn7) | shiftForward<side, 9>(pawnsIn7)));
 
         result += PAWN_IN_8TH * bitCount(pawnsIn8); //try to decrease PAWN_IN_8TH
         ADD(SCORE_DEBUG.PAWN_IN_8TH[side], PAWN_IN_8TH * (bitCount(pawnsIn8)));

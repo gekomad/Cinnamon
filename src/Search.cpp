@@ -19,15 +19,14 @@
 
 #include "Search.h"
 #include "SearchManager.h"
-//#include "db/bitbase/kpk.h"
-
+#include "db/bitbase/kpk.h"
 #include "namespaces/board.h"
 
 GTB *Search::gtb;
 SYZYGY *Search::syzygy = nullptr;
 bool Search::runningThread;
 high_resolution_clock::time_point Search::startTime;
-//using namespace _bitbase;
+using namespace _bitbase;
 void Search::run() {
     if (getRunning()) {
         if (searchMovesVector.size())
@@ -413,13 +412,11 @@ int Search::search(const int depth, const int alpha, const int beta) {
 
 string Search::probeRootTB() {
     const auto tot = bitCount(getBitmap<WHITE>() | getBitmap<BLACK>());
+    const int side = getSide();
     if (gtb && gtb->isInstalledPieces(tot)) {
-
-
-        int side = getSide();
         u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
         u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-        display();
+        //display();
 
         incListId();
         generateCaptures(side, enemies, friends);
@@ -483,11 +480,9 @@ string Search::probeRootTB() {
     }
 
     if (syzygy && syzygy->isInstalledPieces(tot)) {
-
-        int side = getSide();
         u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
         u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-        display();
+        //display();
 
         incListId();
         generateCaptures(side, enemies, friends);
@@ -549,10 +544,69 @@ string Search::probeRootTB() {
         return best;
 
     }
+
+    //kpk -> try draw
+    if (tot == 3 && chessboard[side] == 0 && chessboard[side ^ 1]) {
+
+        u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
+        u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
+       // display();
+
+        incListId();
+        generateCaptures(side, enemies, friends);
+        generateMoves(side, friends | enemies);
+
+        u64 oldKey = 0;
+        string best = "";
+
+        _Tmove *bestMove = nullptr;
+
+        for (int i = 0; i < getListSize(); i++) {
+            if (bestMove)break;
+            _Tmove *move = &gen_list[listId].moveList[i];
+            if (!makemove(move, true, true)) {// TODO no rep=true
+                takeback(move, oldKey, false);
+                continue;
+            }
+            //  display();
+//                cout << endl << decodeBoardinv(move->type, move->from, getSide())
+//                    << decodeBoardinv(move->type, move->to, getSide()) << " ";
+//            template<int pawnColor>
+//            inline bool isDraw(const int side, const int kw, const int kb, const int pawn) {
+
+            const int kw = BITScanForward(chessboard[KING_WHITE]);
+            const int kb = BITScanForward(chessboard[KING_BLACK]);
+            const int
+                pawnPos =
+                side == WHITE ? BITScanForward(chessboard[PAWN_BLACK]) : BITScanForward(chessboard[PAWN_WHITE]);
+
+            if (kw == B4 && kb == G4 && pawnPos == E4 && side == BLACK)
+                cout << "TODO";
+
+            auto draw =
+                side == BLACK ? isDraw<WHITE>(side ^ 1, kw, kb, pawnPos) : isDraw<BLACK>(side ^ 1, kw, kb, pawnPos);
+
+            if (draw) {
+//                cout << "found " << (int) move->from << " " << (int) move->to << endl;
+//                fflush(stdout);
+                bestMove = move;
+            }
+
+            takeback(move, oldKey, false);
+        }
+
+        if (bestMove)
+            best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
+                string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
+
+        decListId();
+
+        return best;
+    }
     return "";
 }
 
-int Search::probeTB(const int side, const int N_PIECE, const int depth) const {
+int Search::probeTB(const int side, const int N_PIECE, const int depth) const {//TODO eliminare
     // kpk
 
 //    if (N_PIECE == 3 && depth != mainDepth) {
