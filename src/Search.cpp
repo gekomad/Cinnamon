@@ -494,6 +494,7 @@ string Search::probeRootTB() {
         u64 oldKey = 0;
 
         _Tmove *bestMove = nullptr;
+        _Tmove *drawMove = nullptr;
 
         for (int i = 0; i < getListSize(); i++) {
             _Tmove *move = &gen_list[listId].moveList[i];
@@ -506,16 +507,20 @@ string Search::probeRootTB() {
 
             auto dtm = syzygy->getWDL(chessboard, side ^ 1);
 
-//            if (dtm != TB_RESULT_FAILED && (dtm == TB_LOSS || dtm == TB_BLESSED_LOSS)) {
-            if (dtm != TB_RESULT_FAILED && (dtm == TB_WIN || dtm == TB_CURSED_WIN)) {
+            if (dtm != TB_RESULT_FAILED && (dtm == TB_LOSS || dtm == TB_BLESSED_LOSS)) {
+//            if (dtm != TB_RESULT_FAILED && (dtm == TB_WIN || dtm == TB_CURSED_WIN)) {
                 bestMove = move;
                 takeback(move, oldKey, false);
                 break;
             }
 
+            if (dtm != TB_RESULT_FAILED && dtm == TB_DRAW) {
+                drawMove = move;
+            }
+
             takeback(move, oldKey, false);
         }
-
+        if (bestMove == nullptr) bestMove = drawMove;
         if (bestMove != nullptr) {
             best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
                 string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
@@ -561,8 +566,6 @@ string Search::probeRootTB() {
                 pawnPos =
                 side == WHITE ? BITScanForward(chessboard[PAWN_BLACK]) : BITScanForward(chessboard[PAWN_WHITE]);
 
-            if (kw == B4 && kb == G4 && pawnPos == E4 && side == BLACK)
-                cout << "TODO";
 
             auto draw =
                 side == BLACK ? isDraw<WHITE>(side ^ 1, kw, kb, pawnPos) : isDraw<BLACK>(side ^ 1, kw, kb, pawnPos);

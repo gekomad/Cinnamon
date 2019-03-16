@@ -221,7 +221,7 @@ int GTB::extractDtm(const unsigned stm1,
     }
     if (tb_available1) {
         if (info1 == tb_DRAW) {
-            return GTB_DRAW;//TODO
+            return GTB_DRAW;
         }
         if (info1 == tb_WMATE && stm1 == tb_WHITE_TO_MOVE) {
             return pliestomate1 + GTB_OFFSET;

@@ -94,7 +94,7 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
             searchManager.setRunning(false);
             stop = true;
-            while (it->getRunning());//TODO cancellare ?
+            while (it->getRunning());
         } else if (token == "ponderhit") {
             knowCommand = true;
             searchManager.startClock();
@@ -126,7 +126,7 @@ void Uci::listner(IterativeDeeping *it) {
 
             cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << endl;
             cout << "option name TB Restart type button" << endl;
-            cout << "option name SyzygyPath type string default <empty>" << endl;
+            //cout << "option name SyzygyPath type string default <empty>" << endl;
 
             cout << "option name PerftThreads type spin default 1 min 1 max 64" << endl;
             cout << "option name PerftHashSize type spin default 0 min 0 max 100000" << endl;
