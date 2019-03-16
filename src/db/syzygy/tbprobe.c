@@ -70,8 +70,7 @@
 #define SCORE_ILLEGAL           0x7FFF
 
 
-static inline unsigned popcount(uint64_t x)
-{
+static inline unsigned popcount(uint64_t x) {
     x = x - ((x >> 1) & 0x5555555555555555ull);
     x = (x & 0x3333333333333333ull) + ((x >> 2) & 0x3333333333333333ull);
     x = (x + (x >> 4)) & 0x0f0f0f0f0f0f0f0full;
@@ -117,15 +116,9 @@ unsigned TB_LARGEST = 0;
 #define rank(s)                 ((s) >> 3)
 #define file(s)                 ((s) & 0x07)
 #define board(s)                ((uint64_t)1 << (s))
-#ifdef TB_CUSTOM_LSB
-#define lsb(b) TB_CUSTOM_LSB(b)
-#else
-static inline unsigned lsb(uint64_t b) {
-    size_t idx;
-    __asm__("bsfq %1, %0": "=r"(idx): "rm"(b));
-    return idx;
-}
-#endif
+
+#define lsb(bits) ( ((unsigned) bits) ? __builtin_ffs(bits) - 1 : __builtin_ffs(bits >> 32) + 31)
+
 #define square(r, f)            (8 * (r) + (f))
 
 #ifdef TB_KING_ATTACKS
