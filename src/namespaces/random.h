@@ -26,6 +26,5 @@ using namespace _def;
 namespace _random {
     static constexpr u64 RANDSIDE[2] = {0x1cf0862fa4118029ULL, 0xd2a5cab966b3d6cULL};
 
-#include
-     "random.inc"
+#include "random.inc"
 }

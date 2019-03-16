@@ -413,10 +413,6 @@ string Search::probeRootTB() {
 
                     bestMove = move;
                 }
-//                    else if (dtm > 0 && bestRes < 0 && dtm > bestRes && bestRes != INT_MAX) {
-//                        bestRes = dtm;
-//                        bestMove = move;
-//                    }
             }
             takeback(move, oldKey, false);
         }
@@ -505,11 +501,6 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     if (!getRunning()) {
         return 0;
     }
-
-//    const int v = probeTB(side, N_PIECE, depth);
-//    if (v != INT_MAX) {
-//        return v;
-//    }
 
     *mateIn = INT_MAX;
     int score = -_INFINITE;
@@ -621,10 +612,10 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     ASSERT(gen_list[listId].size > 0);
     _Tmove *best = &gen_list[listId].moveList[0];
     if (checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.flags &
-        0x3 /*&& checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.from != checkHashStruct.phasheType[Hash::HASH_GREATER].dataS.to*/) {// hashfEXACT or hashfBETA
+        0x3) {// hashfEXACT or hashfBETA
         sortFromHash(listId, checkHashStruct.phasheType[Hash::HASH_GREATER]);
     } else if (checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.flags &
-        0x3 /* && checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.from != checkHashStruct.phasheType[Hash::HASH_ALWAYS].dataS.to*/) {// hashfEXACT or hashfBETA
+        0x3) {// hashfEXACT or hashfBETA
         sortFromHash(listId, checkHashStruct.phasheType[Hash::HASH_ALWAYS]);
     }
     INC(totGen);

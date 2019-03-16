@@ -345,11 +345,6 @@ protected:
         return getAttackers<side, true>(position, allpieces);
     }
 
-//    template<int side>
-//    u64 getAllAttackers(const int position, const u64 allpieces) const {
-//        return getAttackers<side, false>(position, allpieces);
-//    }
-
     u64 getMobilityRook(const int position, const u64 enemies, const u64 friends);
 
     int getMobilityCastle(const int side, const u64 allpieces) const;
@@ -463,10 +458,7 @@ protected:
             }
 
         }
-//#ifdef DEBUG_MODE
-//        _Tchessboard a;
-//        memcpy(&a, chessboard, sizeof(_Tchessboard));
-//#endif
+
         bool result = 0;
         switch (type & 0x3) {
             case STANDARD_MOVE_MASK: {

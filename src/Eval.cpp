@@ -61,7 +61,6 @@ void Eval::openFile() {
  * 3. if other side has all pawns substracts ENEMIES_ALL_PAWNS
  * 4. add ATTACK_KING * number of attacking pawn to other king
  * 5. space - in OPEN phase PAWN_CENTER * CENTER_MASK
- * 6. // pinned - in END phase substracts 20 * each pinned pawn
  * 7. *king security* - in OPEN phase add at kingSecurity FRIEND_NEAR_KING * each pawn near to king and substracts ENEMY_NEAR_KING * each enemy pawn near to king
  * 8. pawn in 8th - if pawn is in 7' add PAWN_7H. If pawn can go forward add PAWN_IN_8TH for each pawn
  * 9. unprotected - no friends pawn protect it
@@ -89,16 +88,11 @@ int Eval::evaluatePawn() {
     }
 
 
-// 5. space
+    // 5. space
     if (phase == OPEN) {
         result += PAWN_CENTER * bitCount(ped_friends & CENTER_MASK);
         ADD(SCORE_DEBUG.PAWN_CENTER[side], PAWN_CENTER * bitCount(ped_friends & CENTER_MASK));
     }
-    // 6. pinned
-//    if (phase == END) {
-//        result -= 20 * bitCount(structureEval.pinned[side] & ped_friends);
-//    }
-
 
     // 7.
     if (phase != OPEN) {
@@ -183,7 +177,6 @@ int Eval::evaluatePawn() {
  * 4. undevelop - substracts UNDEVELOPED_BISHOP for each undeveloped bishop
  * 5. mobility add MOB_BISHOP[phase][???]
  * 6. if only one bishop and pawns on same square color substracts n_pawns * BISHOP_PAWN_ON_SAME_COLOR
- * pinned ?
  * 7. outposts
  * 8. bishop on big diagonal
  */
@@ -195,7 +188,7 @@ int Eval::evaluateBishop(const u64 enemies) {
     // 1.
     if (!bishop) return 0;
 
-    int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
+    int result = 0;
     const int nBishop = bitCount(bishop);
 
     // 2.
@@ -271,7 +264,6 @@ int Eval::evaluateBishop(const u64 enemies) {
 
 /**
  * evaluate queen for color at phase
- * 1. // pinned
  * 2. *king security* - in OPEN phase add at kingSecurity FRIEND_NEAR_KING for each queen near to king and substracts ENEMY_NEAR_KING for each queen near to enemy king
  * 3. mobility - MOB_QUEEN[phase][position]
  * 4. half open file - if there is a enemy pawn on same file add HALF_OPEN_FILE_Q
@@ -282,7 +274,7 @@ template<int side, Eval::_Tphase phase>
 int Eval::evaluateQueen(const u64 enemies) {
     INC(evaluationCount[side]);
     u64 queen = chessboard[QUEEN_BLACK + side];
-    int result = 0;//20 * bitCount(structureEval.pinned[side] & queen);
+    int result = 0;
 
     // 2. *king security*
     if (phase != OPEN) {
@@ -330,7 +322,6 @@ int Eval::evaluateQueen(const u64 enemies) {
 
 /**
  * evaluate knight for color at phase
- * 1. // pinned
  * 2. undevelop - substracts UNDEVELOPED_KNIGHT for each undeveloped knight
  * 4. *king security* - in OPEN phase add at kingSecurity FRIEND_NEAR_KING for each knight near to king and substracts ENEMY_NEAR_KING for each knight near to enemy king
  * 5. mobility
@@ -343,8 +334,7 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
     u64 knight = chessboard[KNIGHT_BLACK + side];
     if (!knight) return 0;
 
-    // 1. pinned
-    int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
+    int result = 0;
 
     // 2. undevelop
     if (phase == OPEN) {
@@ -434,7 +424,6 @@ int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
 /**
  * evaluate rook for color at phase
  * 1. if no rooks returns 0
- * 2. // pinned
  * 3. in middle if in 7th - add ROOK_7TH_RANK for each rook in 7th
  * 4. *king security* - in OPEN phase add at kingSecurity FRIEND_NEAR_KING for each rook near to king and substracts ENEMY_NEAR_KING for each rook near to enemy king
  * 5. add OPEN_FILE/HALF_OPEN_FILE if the rook is on open/semiopen file
@@ -451,7 +440,7 @@ int Eval::evaluateRook(const u64 king, const u64 enemies, const u64 friends) {
 
     const int nRooks = bitCount(rook);
     // 2.
-    int result = 0;//20 * bitCount(structureEval.pinned[side] & x);
+    int result = 0;
     constexpr int xside = side ^1;
     // 3. in 7th
     if (phase == MIDDLE) {
@@ -614,16 +603,6 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
     structureEval.posKingBit[WHITE] = POW2[structureEval.posKing[WHITE]];
     structureEval.kingAttackers[WHITE] = structureEval.kingAttackers[BLACK] = 0;
 
-//    if (phase == END) {
-//
-//        structureEval.pinned[BLACK] = getPinned<BLACK>(structureEval.allPieces, structureEval.allPiecesSide[BLACK],
-//                                                       structureEval.posKing[BLACK]);
-//
-//        structureEval.pinned[WHITE] = getPinned<WHITE>(structureEval.allPieces, structureEval.allPiecesSide[WHITE],
-//                                                       structureEval.posKing[WHITE]);
-//    } else {
-//        structureEval.pinned[BLACK] = structureEval.pinned[WHITE] = 0;
-//    }
     openFile<WHITE>();
     openFile<BLACK>();
 
@@ -647,12 +626,6 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
         bonus_attack_king_black = BONUS_ATTACK_KING[bitCount(structureEval.kingAttackers[WHITE])];
         bonus_attack_king_white = BONUS_ATTACK_KING[bitCount(structureEval.kingAttackers[BLACK])];
     }
-
-//    ASSERT(structureEval.kingAttackers[WHITE]
-//               == getAllAttackers<WHITE>(structureEval.posKing[WHITE], structureEval.allPieces));
-//
-//    ASSERT(structureEval.kingAttackers[BLACK]
-//               == getAllAttackers<BLACK>(structureEval.posKing[BLACK], structureEval.allPieces));
 
     ASSERT(getMobilityCastle(WHITE, structureEval.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)));
     ASSERT(getMobilityCastle(BLACK, structureEval.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)));
@@ -828,7 +801,7 @@ short Eval::getScore(const u64 key, const int side, const int N_PIECE, const int
         cout << "|       pawn near:                " << setw(10) <<
             (double) (SCORE_DEBUG.PAWN_NEAR_KING[WHITE]) / 100.0 << setw(10) <<
             (double) (SCORE_DEBUG.PAWN_NEAR_KING[BLACK]) / 100.0 << "\n";
-//      cout << "|       mobility:                 " << setw(10) << (double) (SCORE_DEBUG.MOB_KING[WHITE]) / 100.0 << setw(10) << (double) (SCORE_DEBUG.MOB_KING[BLACK]) / 100.0 << "\n";
+
         cout << endl;
 
     }
