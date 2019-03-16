@@ -174,10 +174,10 @@ cinnamon64-modern:
 	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_POPCNT -DHAS_BSF " cinnamon64-generic
 
 cinnamon64-modern-AMD:
-	$(MAKE) ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-sse3
+	$(MAKE) ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-modern
 
 cinnamon64-modern-INTEL:
-	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-sse3
+	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
 cinnamon-profiler:
 	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -ltcmalloc -DHAS_POPCNT -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
@@ -249,5 +249,5 @@ WrapperCinnamon.o: WrapperCinnamon.cpp
 	$(COMP) -c WrapperCinnamon.cpp ${CFLAGS} ${ARC}
 
 clean:
-	$(RM) *.o $(EXE) *.gcda libCinnamon.a cinnamon.js util/*.o js/*.o perft/*.o test/*.o db/*.o
+	$(RM) *.o $(EXE) *.gcda libCinnamon.a cinnamon.js
 
