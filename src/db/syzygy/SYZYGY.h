@@ -46,13 +46,13 @@ public:
     unsigned getWDL(const _Tchessboard &c, const bool turn);
 
     void setInstalledPieces(const int i) {
-        installedPieces= i;
+        installedPieces = i;
     }
 
     int getInstalledPieces() const {
         return installedPieces;
     }
-    string getBestmove(const _Tchessboard &c, const bool turn,unsigned* results);
+    string getBestmove(const _Tchessboard &c, const bool turn, unsigned *results);
 private:
 
     int installedPieces = 0;

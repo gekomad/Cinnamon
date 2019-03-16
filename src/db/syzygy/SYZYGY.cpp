@@ -110,7 +110,7 @@ unsigned SYZYGY::getWDL(const _Tchessboard &c, const bool turn) {
                                   decode(c[KNIGHT_BLACK] | c[KNIGHT_WHITE]),
                                   decode(c[PAWN_BLACK] | c[PAWN_WHITE]),
                                   0,
-                                  0,0,
+                                  0, 0,
                                   turn);
 
     return a;
