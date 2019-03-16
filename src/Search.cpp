@@ -23,7 +23,7 @@
 #include "namespaces/board.h"
 
 GTB *Search::gtb;
-SYZYGY *Search::syzygy = nullptr;
+
 bool Search::runningThread;
 high_resolution_clock::time_point Search::startTime;
 using namespace _bitbase;
@@ -86,45 +86,6 @@ Search::Search() : ponder(false), nullSearch(false) {
 
 void Search::clone(const Search *s) {
     memcpy(chessboard, s->chessboard, sizeof(_Tchessboard));
-}
-
-void Search::printDtmSyzygy() {
-    int side = getSide();
-    u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
-    u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-
-    incListId();
-    generateCaptures(side, enemies, friends);
-    generateMoves(side, friends | enemies);
-    _Tmove *move;
-    u64 oldKey = 0;
-    display();
-
-    for (int i = 0; i < getListSize(); i++) {
-        move = &gen_list[listId].moveList[i];
-        if (!makemove(move, false, true)) {
-            takeback(move, oldKey, false);
-            continue;
-        };
-        cout << decodeBoardinv(move->type, move->from, getSide())
-            << decodeBoardinv(move->type, move->to, getSide()) << " ";
-
-        unsigned res = syzygy->getWDL(chessboard, side ^ 1);
-        if (res != TB_RESULT_FAILED) {
-
-            if (res == TB_DRAW)cout << " draw dtm: " << endl;
-            else if (res == TB_LOSS || res == TB_BLESSED_LOSS)
-                cout << " win dtm: " << endl;
-            else
-                cout << " loss dtm: " << endl;
-
-        } else cout << " none" << endl;
-        takeback(move, oldKey, false);
-    }
-    cout << endl;
-
-    decListId();
-
 }
 
 void Search::printDtmGtb() {
@@ -385,10 +346,6 @@ bool Search::getGtbAvailable() {
     return gtb;
 }
 
-bool Search::getSYZYGYAvailable() const {
-    return syzygy;
-}
-
 GTB &Search::getGtb() const {
     ASSERT(gtb);
     return *gtb;
@@ -419,7 +376,6 @@ string Search::probeRootTB() {
     if (gtb && gtb->isInstalledPieces(tot)) {
         u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
         u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-        //display();
 
         incListId();
         generateCaptures(side, enemies, friends);
@@ -436,13 +392,9 @@ string Search::probeRootTB() {
                 takeback(move, oldKey, false);
                 continue;
             }
-//                cout << endl << decodeBoardinv(move->type, move->from, getSide())
-//                    << decodeBoardinv(move->type, move->to, getSide()) << " ";
             auto dtm = getGtb().getDtm(side ^ 1, false, chessboard, 100);
 
             if (dtm != INT_MAX) {
-//                    cout << " res: " << res;
-
                 if (dtm == GTB_DRAW) {
                     drawMove = move;
                 } else if (bestRes == INT_MAX) {
@@ -482,55 +434,6 @@ string Search::probeRootTB() {
 
     }
 
-    if (syzygy && syzygy->getInstalledPieces() >= tot) {
-        u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
-        u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-        //display();
-
-        incListId();
-        generateCaptures(side, enemies, friends);
-        generateMoves(side, friends | enemies);
-
-        u64 oldKey = 0;
-
-        _Tmove *bestMove = nullptr;
-        _Tmove *drawMove = nullptr;
-
-        for (int i = 0; i < getListSize(); i++) {
-            _Tmove *move = &gen_list[listId].moveList[i];
-            if (!makemove(move, false, true)) {
-                takeback(move, oldKey, false);
-                continue;
-            }
-//                cout << endl << decodeBoardinv(move->type, move->from, getSide())
-//                    << decodeBoardinv(move->type, move->to, getSide()) << " ";
-
-            auto dtm = syzygy->getWDL(chessboard, side ^ 1);
-
-            if (dtm != TB_RESULT_FAILED && (dtm == TB_LOSS || dtm == TB_BLESSED_LOSS)) {
-//            if (dtm != TB_RESULT_FAILED && (dtm == TB_WIN || dtm == TB_CURSED_WIN)) {
-                bestMove = move;
-                takeback(move, oldKey, false);
-                break;
-            }
-
-            if (dtm != TB_RESULT_FAILED && dtm == TB_DRAW) {
-                drawMove = move;
-            }
-
-            takeback(move, oldKey, false);
-        }
-        if (bestMove == nullptr) bestMove = drawMove;
-        if (bestMove != nullptr) {
-            best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
-                string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
-            if (bestMove->promotionPiece != -1)best += "q";
-        }
-        decListId();
-        return best;
-
-    }
-
     //kpk -> try draw
     if (tot == 3 && chessboard[side] == 0 && chessboard[side ^ 1]) {
 
@@ -550,15 +453,10 @@ string Search::probeRootTB() {
         for (int i = 0; i < getListSize(); i++) {
             if (bestMove)break;
             _Tmove *move = &gen_list[listId].moveList[i];
-            if (!makemove(move, true, true)) {// TODO no rep=true
+            if (!makemove(move, true, true)) {
                 takeback(move, oldKey, false);
                 continue;
             }
-            //  display();
-//                cout << endl << decodeBoardinv(move->type, move->from, getSide())
-//                    << decodeBoardinv(move->type, move->to, getSide()) << " ";
-//            template<int pawnColor>
-//            inline bool isDraw(const int side, const int kw, const int kb, const int pawn) {
 
             const int kw = BITScanForward(chessboard[KING_WHITE]);
             const int kb = BITScanForward(chessboard[KING_BLACK]);
@@ -571,8 +469,6 @@ string Search::probeRootTB() {
                 side == BLACK ? isDraw<WHITE>(side ^ 1, kw, kb, pawnPos) : isDraw<BLACK>(side ^ 1, kw, kb, pawnPos);
 
             if (draw) {
-//                cout << "found " << (int) move->from << " " << (int) move->to << endl;
-//                fflush(stdout);
                 bestMove = move;
             }
 
@@ -590,61 +486,6 @@ string Search::probeRootTB() {
     return "";
 }
 
-int Search::probeTB(const int side, const int N_PIECE, const int depth) const {//TODO eliminare
-    // kpk
-
-//    if (N_PIECE == 3 && depth != mainDepth) {
-//
-//        if (chessboard[PAWN_BLACK]) {
-//            //    display();
-//            const auto res = _INFINITE - (mainDepth - depth + 1);
-//            const int kw = BITScanForward(chessboard[KING_WHITE]);
-//            const int kb = BITScanForward(chessboard[KING_BLACK]);
-//            const int p = BITScanForward(chessboard[PAWN_BLACK]);
-//            auto win = isWin<BLACK>(side, kw, kb, p);
-//            if (win)
-//                return res;
-//            else
-//                return -depth;
-//        }
-//        if (chessboard[PAWN_WHITE]) {
-//            //    display();
-//            const auto res = _INFINITE - (mainDepth - depth + 1);
-//            const int kw = BITScanForward(chessboard[KING_WHITE]);
-//            const int kb = BITScanForward(chessboard[KING_BLACK]);
-//            const int p = BITScanForward(chessboard[PAWN_WHITE]);
-//            auto win = isWin<WHITE>(side, kw, kb, p);
-//
-//            if (win)
-//                return res;
-//            else
-//                return -depth;
-//        }
-//
-//    }
-    int v = probeGtb(side, N_PIECE, depth);
-    if (abs(v) != INT_MAX) return v;
-//    v = probeSyzygy(side);
-//    if (abs(v) != INT_MAX) return v;
-
-    return INT_MAX;
-}
-
-//int Search::probeSyzygy(const int side) {
-//    if (syzygy  /* && TODO syzygy->isInstalledPieces(N_PIECE) e no castle*/) {
-//        auto v = syzygy->getDtm(chessboard, side);
-//        if (abs(v) != INT_MAX) {
-//            auto res = _INFINITE - (abs(v));
-//            if (v < 0) {
-//                res = -res;
-//            }
-//            return res;
-//        }
-//        return v;
-//    }
-//    return INT_MAX;
-//}
-
 template<bool checkMoves>
 bool Search::checkSearchMoves(_Tmove *move) {
     if (!checkMoves)return true;
@@ -653,31 +494,6 @@ bool Search::checkSearchMoves(_Tmove *move) {
         return true;
     }
     return false;
-}
-
-int Search::probeGtb(const int side, const int N_PIECE, const int depth) const {//TODO eliminare
-    if (gtb && depth != mainDepth && gtb->isInstalledPieces(N_PIECE)) {
-        int v = gtb->getDtm(side, false, chessboard, 100);
-
-        if (abs(v) != INT_MAX) {
-            // display();
-            int res = 0;
-            if (v == GTB_DRAW) {
-                res = depth;
-            } else {
-                res = _INFINITE - (abs(v + GTB_OFFSET));
-            }
-            if (v < 0) {
-                res = -res;
-            }
-            ASSERT_RANGE(res, -_INFINITE, _INFINITE);
-            ASSERT(mainDepth >= depth);
-            return res;
-        }
-        return INT_MAX;
-
-    }
-    return INT_MAX;
 }
 
 template<int side, bool checkMoves>
@@ -913,10 +729,6 @@ int Search::getMateIn() {
 
 void Search::setGtb(GTB &tablebase) {
     gtb = &tablebase;
-}
-
-void Search::setSYZYGY(SYZYGY &tablebase) {
-    syzygy = &tablebase;
 }
 
 void Search::unsetSearchMoves() {

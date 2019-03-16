@@ -56,8 +56,6 @@ set(SOURCE_FILES
         src/db/OpenBook.cpp
         src/db/OpenBook.h
         src/db/GTB.cpp
-        src/db/syzygy/SYZYGY.cpp
-        src/db/syzygy/tbprobe.c
         src/Uci.cpp
         src/Uci.h
         )

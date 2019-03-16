@@ -96,8 +96,8 @@ void IterativeDeeping::run() {
     }
 
     //Tablebase
-    string tb=searchManager.probeRootTB();
-    if (!tb.empty()){
+    string tb = searchManager.probeRootTB();
+    if (!tb.empty()) {
         cout << "bestmove " << tb << endl;
         LOCK_RELEASE(running);
         return;

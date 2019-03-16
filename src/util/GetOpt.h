@@ -22,7 +22,6 @@ static const string EPD2PGN_HELP = "-epd2pgn -f epd_file [-m max_pieces]";
 static const string
     PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb) [-F dump file]] [-f \"fen position\"]";
 static const string DTM_GTB_HELP = "-dtm-gtb -f \"fen position\" -p path [-s scheme] [-i installed pieces]";
-static const string DTM_SYZYGY_HELP = "-dtm-syzygy -f \"fen position\" -p path";
 static const string PUZZLE_HELP = "-puzzle_epd -t KxyKnm ex: KRKP | KQKP | KBBKN | KQKR | KRKB | KRKN";
 
 class GetOpt {
@@ -33,7 +32,6 @@ private:
         string exe = FileUtil::getFileName(argv[0]);
         cout << "Perft test:            " << exe << " " << PERFT_HELP << endl;
         cout << "DTM (gtb):             " << exe << " " << DTM_GTB_HELP << endl;
-        cout << "DTM (syzygy):          " << exe << " " << DTM_SYZYGY_HELP << endl;
         cout << "Create .pgn from .epd: " << exe << " " << EPD2PGN_HELP << endl;
         cout << "Generate puzzle epd:   " << exe << " " << PUZZLE_HELP << endl;
     }
@@ -166,29 +164,6 @@ private:
         searchManager.printDtmGtb();
     }
 
-    static void dtmSyzygy(int argc, char **argv) {
-        SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-
-        string fen, token;
-        IterativeDeeping it;
-        int opt;
-        SYZYGY *s = nullptr;
-        while ((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
-            if (opt == 'f') {    //fen
-                fen = optarg;
-            } else if (opt == 'p') { //path
-                token = optarg;
-                s = searchManager.createSYZYGY(token);
-            }
-        }
-        if (!s) {
-            cout << "error TB not found" << endl;
-            return;
-        }
-        searchManager.loadFen(fen);
-        searchManager.printDtmSyzygy();
-    }
-
 public:
 
     static void parse(int argc, char **argv) {
@@ -247,13 +222,9 @@ public:
                     }
                     return;
 
-                } else if (opt == 'd') {  // lib dtm
+                } else if (opt == 'd') {
                     if (string(optarg) == "tm-gtb") {
                         dtmGtb(argc, argv);
-                        return;
-                    };
-                    if (string(optarg) == "tm-syzygy") {
-                        dtmSyzygy(argc, argv);
                         return;
                     };
 

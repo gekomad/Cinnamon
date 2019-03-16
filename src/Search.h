@@ -26,7 +26,6 @@
 #include <climits>
 #include "threadPool/Thread.h"
 #include "db/GTB.h"
-#include "db/syzygy/SYZYGY.h"
 
 class Search: public Eval, public Thread<Search>, public Hash {
 
@@ -76,19 +75,12 @@ public:
     void endRun();
 
     void printDtmGtb();
-    void printDtmSyzygy();
 
     GTB &getGtb() const;
 
     void setMainPly(int);
 
     bool getGtbAvailable();
-
-    bool getSYZYGYAvailable() const;
-
-//    string getSYZYGYbestmove(const int side);
-
-//    int getSYZYGYdtm(const int side);
 
     STATIC_CONST int NULLMOVE_DEPTH = 3;
     STATIC_CONST int NULLMOVES_MIN_PIECE = 3;
@@ -130,7 +122,6 @@ public:
 
 #endif
 
-    void setSYZYGY(SYZYGY &syzygy);
     void unsetSearchMoves();
     void setSearchMoves(vector<int> &v);
 private:
@@ -140,7 +131,6 @@ private:
     static bool runningThread;
     _TpvLine pvLine;
     static GTB *gtb;
-    static SYZYGY *syzygy;
     bool ponder;
 
     template<bool searchMoves>
@@ -156,12 +146,9 @@ private:
 
     template<int side, bool checkMoves>
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
-    int probeTB(const int side, const int N_PIECE, const int depth) const;
 
     template<bool checkMoves>
     bool checkSearchMoves(_Tmove *move);
-
-    int probeGtb(const int side, const int N_PIECE, const int depth) const;
 
     bool checkInsufficientMaterial(int);
 

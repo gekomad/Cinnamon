@@ -20,9 +20,7 @@
 
 #include <gtest/gtest.h>
 
-//#include "syzygy.cpp"
 #include "pin.cpp"
-//#include "gtb.cpp"
 #include "eval.cpp"
 #include "spinlockShared.cpp"
 #include "spinlock.cpp"

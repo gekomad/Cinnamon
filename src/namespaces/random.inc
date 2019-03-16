@@ -1,4 +1,3 @@
-//@formatter:off
 static constexpr u64 RANDOM_KEY[15][64] = {
 {
         0x9D39247E33776D41ULL, 0x2AF7398005AAA5C7ULL, 0x44DB015024623547ULL, 0x9C15F73E62A76AE2ULL,
@@ -257,4 +256,4 @@ static constexpr u64 RANDOM_KEY[15][64] = {
         0x1aabf407a2699570ULL, 0xb33deaaa8dad8d4ULL,  0xf1090f47ab5d1858ULL, 0xd3bf77b21b8fdcd8ULL}
 
 };
-//@formatter:on
+
