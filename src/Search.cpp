@@ -506,7 +506,8 @@ string Search::probeRootTB() {
 
             auto dtm = syzygy->getWDL(chessboard, side ^ 1);
 
-            if (dtm != TB_RESULT_FAILED && (dtm == TB_LOSS || dtm == TB_BLESSED_LOSS)) {
+//            if (dtm != TB_RESULT_FAILED && (dtm == TB_LOSS || dtm == TB_BLESSED_LOSS)) {
+            if (dtm != TB_RESULT_FAILED && (dtm == TB_WIN || dtm == TB_CURSED_WIN)) {
                 bestMove = move;
                 takeback(move, oldKey, false);
                 break;
