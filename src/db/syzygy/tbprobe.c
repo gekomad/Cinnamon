@@ -30,7 +30,6 @@
 #include "tbprobe.h"
 
 #ifdef __GNUC__
-#include <x86intrin.h>
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
 
