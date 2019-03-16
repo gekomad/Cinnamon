@@ -63,12 +63,11 @@ Cinnamon requires C++11 or greater, use unique Makefile to compile for many arch
     make cinnamon64-modern-AMD       > 64-bit optimized for modern Amd cpu
     make cinnamon64-modern           > 64-bit with popcnt bsf sse3 support
     make cinnamon64-generic          > Unspecified 64-bit
+    make cinnamon64-ARM              > Optimized for ARM cpu
 
     make cinnamon32-modern           > 32-bit with sse support
     make cinnamon32-generic          > Unspecified 32-bit
-
-    make cinnamon-native             > Optimized for native cpu (also Raspberry Pi)
-    make cinnamon-CLOP               > Enable CLOP parameter tuning
+    make cinnamon32-ARM              > Optimized for ARM cpu
 
     g++ is the default compiler, add COMP=yourcompiler to use another compiler
      example: make cinnamon64-modern-INTEL COMP=clang++
