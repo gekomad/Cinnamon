@@ -47,14 +47,13 @@ help:
 
 	@echo "Makefile for cross-compile Linux/Windows/OSX/ARM/Javascript"
 	@echo ""
-	@echo "make cinnamon64-intel-i7         > 64-bit optimized for Intel i7 cpu"
-	@echo "make cinnamon64-intel-i9         > 64-bit optimized for Intel i9 cpu"
-	@echo "make cinnamon64-athlon64         > 64-bit optimized for Amd cpu"
-	@echo "make cinnamon64-sse3             > 64-bit with popcnt bsf sse3 support"
+	@echo "make cinnamon64-modern-INTEL     > 64-bit optimized for modern Intel cpu"
+	@echo "make cinnamon64-modern-AMD       > 64-bit optimized for modern Amd cpu"
+	@echo "make cinnamon64-modern           > 64-bit with popcnt bsf sse3 support"
 	@echo "make cinnamon64-generic          > Unspecified 64-bit"
 	@echo "make cinnamon64-ARM              > Optimized for ARM cpu"
 	@echo ""
-	@echo "make cinnamon32-sse              > 32-bit with sse support"
+	@echo "make cinnamon32-modern           > 32-bit with sse support"
 	@echo "make cinnamon32-generic          > Unspecified 32-bit"
 	@echo "make cinnamon32-ARM              > Optimized for ARM cpu"
 	@echo ""
@@ -159,7 +158,7 @@ cinnamon-drmemory:
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) lib/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
 
-cinnamon32-sse:
+cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse -DHAS_POPCNT -DHAS_BSF" cinnamon32-generic
 
 cinnamon32-ARM:
@@ -171,17 +170,14 @@ cinnamon64-ARM:
 cinnamon64-generic:
 	$(MAKE) LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -DHAS_64BIT -m64" build
 
-cinnamon64-sse3:
+cinnamon64-modern:
 	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_POPCNT -DHAS_BSF " cinnamon64-generic
 
-cinnamon64-athlon64:
-	$(MAKE) ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-sse3
+cinnamon64-modern-AMD:
+	$(MAKE) ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-modern
 
-cinnamon64-intel-i7:
-	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-sse3
-
-cinnamon64-intel-i9:
-	$(MAKE) ARC="$(ARC) -msse4.2 -march=haswell -mtune=haswell " cinnamon64-sse3
+cinnamon64-modern-INTEL:
+	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
 cinnamon-profiler:
 	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -ltcmalloc -DHAS_POPCNT -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
@@ -189,8 +185,8 @@ cinnamon-profiler:
 cinnamon-gprof:
 	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -g -pg -DHAS_POPCNT -DDLOG_LEVEL=_FATAL -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " gnuprof
 
-all: main.o ChessBoard.o tbprobe.o SYZYGY.o Eval.o test.o String.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o
-	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o GenMoves.o tbprobe.o SYZYGY.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o ${LIBS}
+all: main.o ChessBoard.o Eval.o test.o String.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o
+	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o ${LIBS}
 
 default:
 	help
@@ -231,12 +227,6 @@ Hash.o: Hash.cpp
 OpenBook.o: db/OpenBook.cpp
 	$(COMP) -c db/OpenBook.cpp ${CFLAGS} ${ARC}
 
-SYZYGY.o: db/syzygy/SYZYGY.cpp
-	$(COMP) -c db/syzygy/SYZYGY.cpp ${CFLAGS} ${ARC}
-
-tbprobe.o: db/syzygy/tbprobe.c
-	$(COMP) -c db/syzygy/tbprobe.c ${CFLAGS} ${ARC}
-
 GTB.o: db/GTB.cpp
 	$(COMP) -c db/GTB.cpp ${CFLAGS} ${ARC}
 
@@ -259,5 +249,5 @@ WrapperCinnamon.o: WrapperCinnamon.cpp
 	$(COMP) -c WrapperCinnamon.cpp ${CFLAGS} ${ARC}
 
 clean:
-	$(RM) *.o $(EXE) *.gcda libCinnamon.a cinnamon.js util/*.o js/*.o perft/*.o test/*.o db/*.o
+	$(RM) *.o $(EXE) *.gcda libCinnamon.a cinnamon.js
 
