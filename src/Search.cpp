@@ -543,7 +543,6 @@ string Search::probeRootTB() {
         generateMoves(side, friends | enemies);
 
         u64 oldKey = 0;
-        string best = "";
 
         _Tmove *bestMove = nullptr;
 

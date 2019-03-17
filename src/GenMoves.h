@@ -583,7 +583,7 @@ protected:
             mos->pieceFrom = pieceFrom;
             mos->promotionPiece = (char) promotionPiece;
             if (!perftMode) {
-                if (res == true) {
+                if (res) {
                     mos->score = _INFINITE;
                 } else {
                     ASSERT_RANGE(pieceFrom, 0, 11);

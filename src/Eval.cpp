@@ -308,7 +308,6 @@ int Eval::evaluateQueen(const u64 enemies) {
 
     for (; queen; RESET_LSB(queen)) {
         const int o = BITScanForward(queen);
-        ASSERT(structureEval.allPieces == structureEval.allPieces);
         // 3. mobility
         u64 x = getMobilityQueen(o, enemies, structureEval.allPieces);
         result += MOB_QUEEN[phase][bitCount(x)];
