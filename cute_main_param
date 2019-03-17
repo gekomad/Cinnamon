@@ -1,0 +1,4 @@
+export first="/home/geko/cinnamon20 proto=uci "
+export second_param=option.Threads=4
+export concurrency=1
+
