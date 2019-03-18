@@ -185,8 +185,8 @@ cinnamon-profiler:
 cinnamon-gprof:
 	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -g -pg -DHAS_POPCNT -DDLOG_LEVEL=_FATAL -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " gnuprof
 
-all: main.o ChessBoard.o Eval.o test.o String.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o
-	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o ${LIBS}
+all: main.o ChessBoard.o tbprobe.o SYZYGY.o Eval.o test.o String.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o
+	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o GenMoves.o tbprobe.o SYZYGY.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o ${LIBS}
 
 default:
 	help
@@ -226,6 +226,12 @@ Hash.o: Hash.cpp
 
 OpenBook.o: db/OpenBook.cpp
 	$(COMP) -c db/OpenBook.cpp ${CFLAGS} ${ARC}
+
+SYZYGY.o: db/syzygy/SYZYGY.cpp
+	$(COMP) -c db/syzygy/SYZYGY.cpp ${CFLAGS} ${ARC}
+
+tbprobe.o: db/syzygy/tbprobe.c
+	$(COMP) -c db/syzygy/tbprobe.c ${CFLAGS} ${ARC}
 
 GTB.o: db/GTB.cpp
 	$(COMP) -c db/GTB.cpp ${CFLAGS} ${ARC}
