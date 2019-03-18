@@ -26,7 +26,7 @@
 using namespace _def;
 namespace _board {
 
-    static const string NAME = "Cinnamon 2.1-60_perc";
+    static const string NAME = "Cinnamon 2.2-50_perc";
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     static constexpr int MAX_PLY = 96;
