@@ -18,7 +18,8 @@
 
 #include "Uci.h"
 
-Uci::Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile) {//perft locale
+Uci::Uci(const string &fen, const int perftDepth, const int nCpu, const int perftHashSize,
+         const string &dumpFile) {//perft locale
     perft = &Perft::getInstance();
     perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile);
     runPerftAndExit = true;
@@ -68,11 +69,9 @@ void Uci::listner(IterativeDeeping *it) {
         knowCommand = false;
 
         if (token == "perft") {
-            //compatible with ARENA (http://auriga-cinnamon.rhcloud.com)
-            int perftDepth = -1;
             string fen;
             getToken(uip, token);
-            perftDepth = stoi(token);
+            int perftDepth = stoi(token);
             if (perftDepth > MAX_PLY || perftDepth <= 0) {
                 perftDepth = 1;
             }
@@ -88,13 +87,10 @@ void Uci::listner(IterativeDeeping *it) {
             perft->start();
             perft->join();
             knowCommand = true;
-        }
-
-        else if (token == "dump") {
+        } else if (token == "dump") {
             knowCommand = true;
             if (perft)perft->dump();
-        }
-        else if (token == "quit") {
+        } else if (token == "quit") {
             knowCommand = true;
             searchManager.setRunning(false);
             stop = true;
@@ -113,27 +109,28 @@ void Uci::listner(IterativeDeeping *it) {
         } else if (token == "uci") {
             knowCommand = true;
             uciMode = true;
-            cout << "id name " << NAME << "\n";
-            cout << "id author Giuseppe Cannella\n";
-            cout << "option name Hash type spin default 64 min 1 max 1000\n";
-            cout << "option name Clear Hash type button\n";
-            cout << "option name Nullmove type check default true\n";
-            cout << "option name Book File type string default cinnamon.bin\n";
-            cout << "option name OwnBook type check default " << _BOOLEAN[it->getUseBook()] << "\n";
-            cout << "option name Ponder type check default " << _BOOLEAN[it->getPonderEnabled()] << "\n";
-            cout << "option name Threads type spin default 1 min 1 max 64\n";
-            cout << "option name TB Endgame type combo default none var Gaviota var none\n";
-            cout << "option name GaviotaTbPath type string default gtb/gtb4\n";
-            cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024\n";
-            cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4\n";
-            cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5\n";
-            cout << "option name TB probing depth type spin default 0 min 0 max 5\n";
-            cout << "option name TB Restart type button\n";
+            cout << "id name " << NAME << endl;
+            cout << "id author Giuseppe Cannella" << endl;
+            cout << "option name Hash type spin default 64 min 1 max 1000" << endl;
+            cout << "option name Clear Hash type button" << endl;
+            cout << "option name Nullmove type check default true" << endl;
+            cout << "option name Book File type string default cinnamon.bin" << endl;
+            cout << "option name OwnBook type check default " << _BOOLEAN[it->getUseBook()] << "" << endl;
+            cout << "option name Ponder type check default " << _BOOLEAN[it->getPonderEnabled()] << "" << endl;
+            cout << "option name Threads type spin default 1 min 1 max 64" << endl;
 
-            cout << "option name PerftThreads type spin default 1 min 1 max 64\n";
-            cout << "option name PerftHashSize type spin default 0 min 0 max 100000\n";
-            cout << "option name PerftDumpFile type string\n";
-            cout << "uciok\n";
+            cout << "option name GaviotaTbPath type string default <empty>" << endl;
+            cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024" << endl;
+            cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4" <<
+                endl;
+
+            cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << endl;
+            cout << "option name TB Restart type button" << endl;
+
+            cout << "option name PerftThreads type spin default 1 min 1 max 64" << endl;
+            cout << "option name PerftHashSize type spin default 0 min 0 max 100000" << endl;
+            cout << "option name PerftDumpFile type string" << endl;
+            cout << "uciok" << endl;
         } else if (token == "score") {
             int side = searchManager.getSide();
             int t = searchManager.getScore(side, true);
@@ -141,7 +138,7 @@ void Uci::listner(IterativeDeeping *it) {
             if (!searchManager.getSide()) {
                 t = -t;
             }
-            cout << "Score: " << t << "\n";
+            cout << "Score: " << t << endl;
             knowCommand = true;
         } else if (token == "stop") {
             knowCommand = true;
@@ -167,12 +164,10 @@ void Uci::listner(IterativeDeeping *it) {
                     if (token == "value") {
                         getToken(uip, token);
                         knowCommand = true;
-                        tablebase = &searchManager.createGtb();
-                        tablebase->setPath(token);
+                        gtb = &searchManager.createGtb();
+                        gtb->setPath(token);
                     }
-                }
-
-                else if (token == "perftthreads") {
+                } else if (token == "perftthreads") {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
@@ -197,7 +192,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        if (tablebase->setCacheSize(stoi(token))) {
+                        if (gtb->setCacheSize(stoi(token))) {
                             knowCommand = true;
                         };
                     }
@@ -211,7 +206,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        if (tablebase->setScheme(token)) {
+                        if (gtb->setScheme(token)) {
                             knowCommand = true;
                         };
                     }
@@ -223,37 +218,14 @@ void Uci::listner(IterativeDeeping *it) {
                             getToken(uip, token);
                             if (token == "value") {
                                 getToken(uip, token);
-                                if (tablebase->setInstalledPieces(stoi(token))) {
+                                if (gtb->setInstalledPieces(stoi(token))) {
                                     knowCommand = true;
                                 };
-                            }
-                        }
-                    } else if (token == "endgame") {
-                        getToken(uip, token);
-                        if (token == "value") {
-                            getToken(uip, token);
-                            knowCommand = true;
-                            if (token == "none") {
-                                searchManager.deleteGtb();
-                                knowCommand = true;
-                            } else if (token == "gaviota") {
-                                knowCommand = true;
                             }
                         }
                     } else if (token == "restart") {
                         knowCommand = true;
-                        tablebase->restart();
-                    } else if (token == "probing") {
-                        getToken(uip, token);
-                        if (token == "depth") {
-                            getToken(uip, token);
-                            if (token == "value") {
-                                getToken(uip, token);
-                                if (tablebase->setProbeDepth(stoi(token))) {
-                                    knowCommand = true;
-                                };
-                            }
-                        }
+                        gtb->restart();
                     }
                 } else if (token == "hash") {
                     getToken(uip, token);
@@ -335,6 +307,7 @@ void Uci::listner(IterativeDeeping *it) {
 
         } else if (token == "go") {
             it->setMaxDepth(MAX_PLY);
+            searchManager.unsetSearchMoves();
             int wtime = 200000; //5 min
             int btime = 200000;
             int winc = 0;
@@ -371,6 +344,13 @@ void Uci::listner(IterativeDeeping *it) {
                 } else if (token == "infinite") {
                     searchManager.setMaxTimeMillsec(0x7FFFFFFF);
                     forceTime = true;
+                } else if (token == "searchmoves") {
+                    vector<string> searchmoves;
+                    while (!uip.eof()) {
+                        uip >> token;
+                        searchmoves.push_back(token);
+                    }
+                    searchManager.setSearchMoves(searchmoves);
                 } else if (token == "ponder") {
                     searchManager.setPonder(true);
                 }
@@ -378,15 +358,19 @@ void Uci::listner(IterativeDeeping *it) {
             if (!forceTime) {
                 if (searchManager.getSide() == WHITE) {
                     winc -= (int) (winc * 0.1);
-                    searchManager.setMaxTimeMillsec(winc + wtime / 40);
+                    searchManager.setMaxTimeMillsec(winc + wtime / 36);
                     if (btime > wtime) {
-                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() - (int) (searchManager.getMaxTimeMillsec() * ((135.0 - wtime * 100.0 / btime) / 100.0)));
+                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
+                            (int) (searchManager.getMaxTimeMillsec() *
+                                ((135.0 - wtime * 100.0 / btime) / 100.0)));
                     }
                 } else {
                     binc -= (int) (binc * 0.1);
-                    searchManager.setMaxTimeMillsec(binc + btime / 40);
+                    searchManager.setMaxTimeMillsec(binc + btime / 36);
                     if (wtime > btime) {
-                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() - (int) (searchManager.getMaxTimeMillsec() * ((135.0 - btime * 100.0 / wtime) / 100.0)));
+                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
+                            (int) (searchManager.getMaxTimeMillsec() *
+                                ((135.0 - btime * 100.0 / wtime) / 100.0)));
                     }
                 }
                 lastTime = searchManager.getMaxTimeMillsec();
@@ -399,7 +383,7 @@ void Uci::listner(IterativeDeeping *it) {
             knowCommand = true;
         }
         if (!knowCommand) {
-            cout << "Unknown command: " << command << "\n";
+            cout << "Unknown command: " << command << endl;
         };
         cout << flush;
     }

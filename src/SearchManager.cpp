@@ -17,6 +17,9 @@
 */
 
 #include "SearchManager.h"
+#include "namespaces/board.h"
+
+using namespace _logger;
 
 SearchManager::SearchManager() {
     SET(checkSmp1, 0);
@@ -43,9 +46,15 @@ SearchManager::SearchManager() {
             };
         }
     }
+
+}
+
+string SearchManager::probeRootTB() {
+    return getThread(0).probeRootTB();
 }
 
 void SearchManager::search(const int mply) {
+
     if (getNthread() > 1 && mply > 3) {
         lazySMP(mply);
     } else {
@@ -58,7 +67,7 @@ void SearchManager::singleSearch(const int mply) {
     lineWin.cmove = -1;
     setMainPly(mply);
     ASSERT(!getBitCount());
-    getThread(0).setMainParam(SMP_NO, mply);
+    getThread(0).setMainParam(mply);
     getThread(0).run();
     valWindow = getThread(0).getValWindow();
     if (getThread(0).getRunning()) {
@@ -81,7 +90,7 @@ void SearchManager::lazySMP(const int mply) {
     for (int ii = 0; ii < getNthread(); ii++) {
         Search &idThread1 = getNextThread();
         idThread1.setRunning(1);
-        startThread(SMP_YES, idThread1, mply + (ii % 2));
+        startThread(idThread1, mply + (ii % 2));
     }
     joinAll();
     debug("end lazySMP ---------------------------");
@@ -132,7 +141,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, 
             ponderMove.assign(pvvTmp);
         }
         pvv.append(" ");
-    };
+    }
     memcpy(&resultMove, lineWin.argmove, sizeof(_Tmove));
 
     return true;
@@ -151,11 +160,11 @@ int SearchManager::loadFen(string fen) {
     return res;
 }
 
-void SearchManager::startThread(const bool smpMode, Search &thread, const int depth) {
+void SearchManager::startThread(Search &thread, const int depth) {
 
     debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId()));
 
-    thread.setMainParam(smpMode, depth);
+    thread.setMainParam(depth);
 
     thread.start();
 }
@@ -250,6 +259,25 @@ void SearchManager::setMaxTimeMillsec(int i) {
     }
 }
 
+void SearchManager::unsetSearchMoves() {
+    for (Search *s:getPool()) {
+        s->unsetSearchMoves();
+    }
+}
+
+void SearchManager::setSearchMoves(vector<string> &searchMov) {
+    _Tmove move;
+    vector<int> searchMoves;
+    for (std::vector<string>::iterator it = searchMov.begin(); it != searchMov.end(); ++it) {
+        getMoveFromSan(*it, &move);
+        const int x = move.to | (int) (move.from << 8);
+        searchMoves.push_back(x);
+    }
+    for (Search *s:getPool()) {
+        s->setSearchMoves(searchMoves);
+    }
+}
+
 void SearchManager::setPonder(bool i) {
     for (Search *s:getPool()) {
         s->setPonder(i);
@@ -271,7 +299,7 @@ int SearchManager::getScore(int side, const bool trace) {
 #ifdef DEBUG_MODE
     N_PIECE = bitCount(getThread(0).getBitmap<WHITE>() | getThread(0).getBitmap<BLACK>());
 #endif
-    return getThread(0).getScore(side, N_PIECE, -_INFINITE, _INFINITE, trace);
+    return getThread(0).getScore(0xffffffffffffffffULL, side, N_PIECE, -_INFINITE, _INFINITE, trace);
 }
 
 void SearchManager::clearHash() {
@@ -308,7 +336,7 @@ void SearchManager::setSide(bool i) {
     }
 }
 
-bool SearchManager::getGtbAvailable() {
+bool SearchManager::getGtbAvailable() const {
     return getThread(0).getGtbAvailable();
 }
 
@@ -322,15 +350,15 @@ int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
     return getThread(0).getMoveFromSan(string, ptr);
 }
 
-Tablebase &SearchManager::getGtb() {
+GTB &SearchManager::getGtb() const {
     return getThread(0).getGtb();
 }
 
-int SearchManager::printDtm() {
-    return getThread(0).printDtm();
+void SearchManager::printDtmGtb() {
+    getThread(0).printDtmGtb();
 }
 
-void SearchManager::setGtb(Tablebase &tablebase) {
+void SearchManager::setGtb(GTB &tablebase) {
     for (Search *s:getPool()) {
         s->setGtb(tablebase);
     }
@@ -378,8 +406,14 @@ bool SearchManager::setParameter(String param, int value) {
 }
 
 
-Tablebase &SearchManager::createGtb() {
-    Tablebase &gtb = Tablebase::getInstance();
+GTB &SearchManager::createGtb() {
+    GTB &gtb = GTB::getInstance();
     setGtb(gtb);
     return gtb;
 }
+
+
+
+
+
+

@@ -25,7 +25,7 @@
 #include <string.h>
 
 using namespace std;
-#if UINTPTR_MAX == 0xffffffffffffffff
+#ifdef HAS_64BIT
 //64 bit
 typedef __int128_t i128;
 #else
@@ -33,7 +33,7 @@ typedef __int128_t i128;
     typedef unsigned long long i128;
 #endif
 
-class String : public string {
+class String: public string {
 public:
     String(const string &s) : string(s) { };
 
@@ -41,7 +41,7 @@ public:
 
     String() { }
 
-    bool endsWith(const string &ending);
+    bool endsWith(const string &ending) const;
 
     String &trim();
 

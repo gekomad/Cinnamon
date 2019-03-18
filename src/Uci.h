@@ -24,7 +24,7 @@
 #include <string.h>
 #include "util/String.h"
 
-class Uci : public Singleton<Uci> {
+class Uci: public Singleton<Uci> {
     friend class Singleton<Uci>;
 
 public:
@@ -40,7 +40,7 @@ private:
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
     bool uciMode;
-    Tablebase *tablebase = nullptr;
+    GTB *gtb = nullptr;
 
     void listner(IterativeDeeping *it);
 

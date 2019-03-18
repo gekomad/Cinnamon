@@ -28,7 +28,7 @@
 #include <future>
 #include "namespaces/def.h"
 
-class SearchManager : public Singleton<SearchManager>, public ThreadPool<Search> {
+class SearchManager: public Singleton<SearchManager>, public ThreadPool<Search> {
     friend class Singleton<SearchManager>;
 
 public:
@@ -37,9 +37,9 @@ public:
 
     ~SearchManager();
 
-    Tablebase &getGtb();
+    GTB &getGtb() const;
 
-    Tablebase &createGtb();
+    GTB &createGtb();
 
     int loadFen(string fen = "");
 
@@ -70,7 +70,7 @@ public:
     void setRunningThread(bool r);
 
     void search(int mply);
-
+    string probeRootTB();
     void setRunning(int i);
 
     int getRunning(int i);
@@ -82,7 +82,8 @@ public:
     void setHashSize(int s);
 
     void setMaxTimeMillsec(int i);
-
+    void unsetSearchMoves();
+    void setSearchMoves(vector<string> &searchmoves);
     void setPonder(bool i);
 
     int getSide();
@@ -101,13 +102,13 @@ public:
 
     void setSide(bool i);
 
-    bool getGtbAvailable();
+    bool getGtbAvailable() const;
 
     int getMoveFromSan(String string, _Tmove *ptr);
 
-    int printDtm();
+    void printDtmGtb();
 
-    void setGtb(Tablebase &tablebase);
+    void setGtb(GTB &tablebase);
 
     void pushStackMove();
 
@@ -121,8 +122,18 @@ public:
 
     bool setNthread(int);
 
-#ifdef DEBUG_MODE
+#if defined(FULL_TEST)
+    u64 getBitmap(const int n, const int side) const {
+        return getPool()[n]->getBitmap(side);
+    }
 
+    template<int side>
+    u64 getPinned(const u64 allpieces, const u64 friends, const int kingPosition) const {
+        return getThread(0).getPinned<side>(allpieces, friends, kingPosition);
+    }
+#endif
+
+#ifdef DEBUG_MODE
 
     unsigned getCumulativeMovesCount() {
         unsigned i = 0;
@@ -198,7 +209,7 @@ private:
 
     void setMainPly(const int r);
 
-    void startThread(const bool smpMode, Search &thread, const int depth);
+    void startThread(Search &thread, const int depth);
 
     void stopAllThread();
 

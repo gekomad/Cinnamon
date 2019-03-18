@@ -19,24 +19,21 @@
 #pragma once
 
 #include <sys/timeb.h>
+#include <unistd.h>
 #include "Hash.h"
 #include "Eval.h"
 #include "namespaces/def.h"
 #include <climits>
 #include "threadPool/Thread.h"
+#include "db/GTB.h"
 
-#ifdef JS_MODE
-#include "js/Tablebase.h"
-#else
-
-#include "Tablebase.h"
-
-#endif
-
-
-class Search : public Eval, public Thread<Search>, public Hash {
+class Search: public Eval, public Thread<Search>, public Hash {
 
 public:
+
+    typedef struct {
+        _ThashData phasheType[2];
+    } _TcheckHash;
 
     Search();
 
@@ -68,17 +65,18 @@ public:
         return pvLine;
     }
 
-    void setMainParam(const bool smp, const int depth);
+    void setMainParam(const int depth);
 
-    int search(bool smp, int depth, int alpha, int beta);
+    template<bool searchMoves>
+    int search(const int depth, const int alpha, const int beta);
 
     void run();
 
     void endRun();
 
-    int printDtm();
+    void printDtmGtb();
 
-    Tablebase &getGtb() const;
+    GTB &getGtb() const;
 
     void setMainPly(int);
 
@@ -95,12 +93,12 @@ public:
     void setRunningThread(bool t) {
         runningThread = t;
     }
-
+    string probeRootTB();
     bool getRunningThread() const {
         return runningThread;
     }
 
-    void setGtb(Tablebase &tablebase);
+    void setGtb(GTB &tablebase);
 
     void setValWindow(int valWin) {
         Search::valWindow = valWin;
@@ -121,22 +119,21 @@ public:
 #ifdef DEBUG_MODE
     unsigned cumulativeMovesCount;
     unsigned totGen;
+
 #endif
+
+    void unsetSearchMoves();
+    void setSearchMoves(vector<int> &v);
 private:
 
-    typedef struct {
-        int res;
-        bool hashFlag[2];
-        Hash::_Thash phasheType[2];
-        Hash::_Thash *rootHash[2];
-    } _TcheckHash;
-
+    vector<int> searchMovesVector;
     int valWindow = INT_MAX;
     static bool runningThread;
     _TpvLine pvLine;
-    static Tablebase *gtb;
+    static GTB *gtb;
     bool ponder;
 
+    template<bool searchMoves>
     void aspirationWindow(const int depth, const int valWindow);
 
     int checkTime();
@@ -147,79 +144,69 @@ private:
 
     bool checkDraw(u64);
 
-    template<int side, bool smp>
+    template<int side, bool checkMoves>
     int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
+
+    template<bool checkMoves>
+    bool checkSearchMoves(_Tmove *move);
 
     bool checkInsufficientMaterial(int);
 
-    void sortHashMoves(int listId, Hash::_Thash &);
+    void sortFromHash(const int listId, const Hash::_ThashData &phashe);
 
-    template<int side, bool smp>
+    template<int side>
     int quiescence(int alpha, int beta, const char promotionPiece, int, int depth);
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
+//    int getDtm1(const int side, _TpvLine *pline, const int depth, const int nPieces) const;
+
     int mainMateIn;
     int mainDepth;
-    bool mainSmp;
-    int mainBeta;
-    int mainAlpha;
+    inline int checkHash(const int type, const bool quies, const int alpha, const int beta, const int depth,
+                         const u64 zobristKeyR,
+                         _TcheckHash &checkHashStruct) {
 
-    template<bool type, bool smp>
-    FORCEINLINE bool checkHash(const bool quies, const int alpha, const int beta, const int depth, const u64 zobristKeyR, _TcheckHash &checkHashStruct) {
-        Hash::_Thash *phashe;
-
-        checkHashStruct.hashFlag[type] = false;
-        phashe = &checkHashStruct.phasheType[type];
-
-
-        if (readHash<smp, type>(checkHashStruct.rootHash, zobristKeyR, phashe)) {
-            if (phashe->from != phashe->to && phashe->flags & 0x3) {    // hashfEXACT or hashfBETA
-                checkHashStruct.hashFlag[type] = true;
-            }
-            if (phashe->depth >= depth) {
+        _ThashData *phashe = &checkHashStruct.phasheType[type];
+        if ((phashe->dataU = readHash(type, zobristKeyR))) {
+            if (phashe->dataS.depth >= depth) {
                 INC(probeHash);
                 if (!currentPly) {
-                    if (phashe->flags == Hash::hashfBETA) {
-                        incKillerHeuristic(phashe->from, phashe->to, 1);
+                    if (phashe->dataS.flags == Hash::hashfBETA) {
+                        incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
                     }
                 } else {
-                    switch (phashe->flags) {
+                    switch (phashe->dataS.flags) {
                         case Hash::hashfEXACT:
-                            if (phashe->score >= beta) {
+                            if (phashe->dataS.score >= beta) {
                                 INC(n_cut_hashB);
-                                checkHashStruct.res = beta;
-                                return true;
+                                return beta;
                             }
                             break;
                         case Hash::hashfBETA:
-                            if (!quies)incKillerHeuristic(phashe->from, phashe->to, 1);
-                            if (phashe->score >= beta) {
+                            if (!quies)incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
+                            if (phashe->dataS.score >= beta) {
                                 INC(n_cut_hashB);
-                                checkHashStruct.res = beta;
-                                return true;
+                                return beta;
                             }
                             break;
                         case Hash::hashfALPHA:
-                            if (phashe->score <= alpha) {
+                            if (phashe->dataS.score <= alpha) {
                                 INC(n_cut_hashA);
-                                checkHashStruct.res = alpha;
-                                return true;
+                                return alpha;
                             }
                             break;
                         default:
+                            fatal("error checkHash");
                             break;
                     }
-                    INC(cutFailed);
                 }
-                INC(cutFailed);
             }
-            INC(cutFailed);
         }
-        return false;
+        INC(cutFailed);
+        return INT_MAX;
+
     }
-
-
 };
 
 

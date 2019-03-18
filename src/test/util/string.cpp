@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if defined(DEBUG_MODE) || defined(FULL_TEST)
+#if defined(FULL_TEST)
 
 #include <gtest/gtest.h>
 #include "../../util/String.h"

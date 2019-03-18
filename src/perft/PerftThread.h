@@ -27,7 +27,7 @@
 #include <unistd.h>
 #include "../util/Timer.h"
 
-class PerftThread : public Thread<PerftThread>, public GenMoves {
+class PerftThread: public Thread<PerftThread>, public GenMoves {
 public:
 
     void setParam(const string &fen, const int from, const int to, _TPerftRes *);
@@ -48,12 +48,10 @@ public:
 
 private:
 
-    static Spinlock SPINLOCK_HASH;
-
     static Spinlock spinlockPrint;
     u64 tot = 0;
 
-    template<int side, bool useHash, bool smp>
+    template<int side, bool useHash>
     u64 search(const int depthx);
 
     int from, to;

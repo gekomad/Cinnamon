@@ -23,7 +23,7 @@ ChessBoard::ChessBoard() {
     memset(&structureEval, 0, sizeof(_Tboard));
     if ((chessboard[SIDETOMOVE_IDX] = loadFen(fenString)) == 2) {
         fatal("Bad FEN position format ", fenString);
-        std::_Exit(1);
+        std::exit(1);
     }
 }
 
@@ -45,23 +45,26 @@ int ChessBoard::getPieceAt(int side, u64 bitmapPos) {
 
 void ChessBoard::makeZobristKey() {
     chessboard[ZOBRISTKEY_IDX] = 0;
+
     for (int u = 0; u < 12; u++) {
-        u64 c = chessboard[u];
-        while (c) {
-            int position = BITScanForward(c);
+        for (u64 c = chessboard[u]; c; RESET_LSB(c)) {
+            const int position = BITScanForward(c);
             updateZobristKey(u, position);
-            RESET_LSB(c);
         }
     }
+
+
+    for (u64 x2 = chessboard[RIGHT_CASTLE_IDX]; x2; RESET_LSB(x2)) {
+        const int position = BITScanForward(x2);
+        updateZobristKey(RIGHT_CASTLE_IDX, position);//12
+    }
+
     if (chessboard[ENPASSANT_IDX] != NO_ENPASSANT) {
-        updateZobristKey(ENPASSANT_IDX, chessboard[ENPASSANT_IDX]);
+        updateZobristKey(ENPASSANT_IDX, chessboard[ENPASSANT_IDX]);//13
     }
-    u64 x2 = chessboard[RIGHT_CASTLE_IDX];
-    while (x2) {
-        int position = BITScanForward(x2);
-        updateZobristKey(14, position);
-        RESET_LSB(x2);
-    }
+
+    updateZobristKey(SIDETOMOVE_IDX, getSide()); //14
+
 }
 
 
@@ -78,7 +81,7 @@ int ChessBoard::getPieceByChar(char c) {
 }
 
 
-void ChessBoard::display() {
+void ChessBoard::display() const {
     cout << "\n     a   b   c   d   e   f   g   h";
     for (int t = 0; t <= 63; t++) {
         char x = ' ';
@@ -86,7 +89,8 @@ void ChessBoard::display() {
             cout << "\n   ----+---+---+---+---+---+---+----\n";
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
-        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(POW2[63 - t])]) == '-' ? ' ' : x;
+        x = (x = (x = FEN_PIECE[getPieceAt<WHITE>(POW2[63 - t])]) != '-' ? x : FEN_PIECE[getPieceAt<BLACK>(
+            POW2[63 - t])]) == '-' ? ' ' : x;
         x != ' ' ? cout << x : POW2[t] & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     };
@@ -159,7 +163,8 @@ string ChessBoard::boardToFen() const {
         fen.append(" -");
     } else {
         fen.append(" ");
-        chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(BOARD[chessboard[ENPASSANT_IDX] - 8]);
+        chessboard[SIDETOMOVE_IDX] ? fen.append(BOARD[chessboard[ENPASSANT_IDX] + 8]) : fen.append(
+            BOARD[chessboard[ENPASSANT_IDX] - 8]);
     }
     fen.append(" 0 1");
     return fen;
@@ -171,7 +176,7 @@ char ChessBoard::decodeBoard(string a) {
             return i;
         }
     }
-    cout << "\n" << a << endl;
+    error(a);
     ASSERT(0);
     return -1;
 }
@@ -232,22 +237,22 @@ int ChessBoard::loadFen(string fen) {
         switch (castle.at(e)) {
             case 'K':
                 updateZobristKey(RIGHT_CASTLE_IDX, 4);
-                ASSERT(BITScanForward(4 == RIGHT_KING_CASTLE_WHITE_MASK));
+                ASSERT(4 == BITScanForward(RIGHT_KING_CASTLE_WHITE_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_WHITE_MASK;
                 break;
             case 'k':
                 updateZobristKey(RIGHT_CASTLE_IDX, 6);
-                ASSERT(BITScanForward(6 == RIGHT_KING_CASTLE_BLACK_MASK));
+                ASSERT(6 == BITScanForward(RIGHT_KING_CASTLE_BLACK_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_KING_CASTLE_BLACK_MASK;
                 break;
             case 'Q':
                 updateZobristKey(RIGHT_CASTLE_IDX, 5);
-                ASSERT(BITScanForward(5 == RIGHT_QUEEN_CASTLE_WHITE_MASK));
+                ASSERT(5 == BITScanForward(RIGHT_QUEEN_CASTLE_WHITE_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_WHITE_MASK;
                 break;
             case 'q':
                 updateZobristKey(RIGHT_CASTLE_IDX, 7);
-                ASSERT(BITScanForward(7 == RIGHT_QUEEN_CASTLE_BLACK_MASK));
+                ASSERT(7 == BITScanForward(RIGHT_QUEEN_CASTLE_BLACK_MASK));
                 chessboard[RIGHT_CASTLE_IDX] |= RIGHT_QUEEN_CASTLE_BLACK_MASK;
                 break;
             default:;

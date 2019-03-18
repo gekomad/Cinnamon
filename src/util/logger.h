@@ -28,9 +28,9 @@ using namespace std;
 
 namespace _logger {
 
-    static enum LOG_LEVEL {
+    enum LOG_LEVEL {
         _TRACE = 0, _DEBUG = 1, _INFO = 2, _WARN = 3, _ERROR = 4, _FATAL = 5, _OFF = 6
-    } _LOG_LEVEL;
+    };
 
 #if !defined DLOG_LEVEL
 #if defined DEBUG_MODE
@@ -46,7 +46,7 @@ namespace _logger {
 
     static const string LOG_LEVEL_STRING[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF", "LOG"};
 
-    class Logger : public Singleton<Logger>, public ofstream {
+    class Logger: public Singleton<Logger>, public ofstream {
         friend class Singleton<Logger>;
 
     public:
@@ -57,10 +57,10 @@ namespace _logger {
         template<LOG_LEVEL type, typename T, typename... Args>
         void _log(T t, Args... args) {
             _CoutSyncSpinlock.lock();
-            cout << Time::getLocalTime() << " " << LOG_LEVEL_STRING[type] << " ";
-            *this << Time::getLocalTime() << " " << LOG_LEVEL_STRING[type] << " ";
+            cout << Time::getLocalTimeNs() << " " << LOG_LEVEL_STRING[type] << " ";
+            *this << Time::getLocalTimeNs() << " " << LOG_LEVEL_STRING[type] << " ";
             __log(t, args...);
-            cout << "\n";
+            cout << endl;
             *this << endl;
             _CoutSyncSpinlock.unlock();
         }

@@ -18,12 +18,11 @@ COMP=g++
 
 ifndef SystemRoot
 	# *nix
-	LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive
-
 	ifeq ($(shell uname -s),Darwin)
 		LIBS= -static-libgcc -static-libstdc++ -lpthread
 		OS=OSX
 	else
+	    LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -static
 		PROFILE_USE_THREAD=" -fprofile-correction -fprofile-use "		
 		OS=Linux
 	endif
@@ -42,7 +41,7 @@ else
 	STRIP=strip.exe
 endif
 
-CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
+CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Wall -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
 
 help:
 
@@ -52,11 +51,11 @@ help:
 	@echo "make cinnamon64-modern-AMD       > 64-bit optimized for modern Amd cpu"
 	@echo "make cinnamon64-modern           > 64-bit with popcnt bsf sse3 support"
 	@echo "make cinnamon64-generic          > Unspecified 64-bit"
-	@echo "make cinnamon64-ARM              > Optimized for arm cpu"
+	@echo "make cinnamon64-ARM              > Optimized for ARM cpu"
 	@echo ""
 	@echo "make cinnamon32-modern           > 32-bit with sse support"
 	@echo "make cinnamon32-generic          > Unspecified 32-bit"
-	@echo "make cinnamon32-ARM              > Optimized for arm cpu"
+	@echo "make cinnamon32-ARM              > Optimized for ARM cpu"
 	@echo ""
 	@echo "make cinnamon-js                 > Javascript build"
 	@echo ""
@@ -67,31 +66,30 @@ help:
 	@echo "add:"
 	@echo " COMP=compiler                   > Use another compiler"
 	@echo " PROFILE_GCC=yes                 > PGO build"
-	@echo " FULL_TEST=yes                   > Unit test"
-	@echo " LIBSTDC=-static                 > Link statically libstdc++"
+	@echo " FULL_TEST=yes                   > Unit test (uses libgtest-dev)"	
 	@echo ""
 
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(LIBSTDC)$(CFLAGS)-DFULL_TEST all
+	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=-DDEBUG_MODE$(CFLAGS)-DFULL_TEST all
 	$(PA)$(EXE)
 else
 ifeq ($(PROFILE_GCC),yes)
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)-fprofile-generate all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)-fprofile-generate all
 	@echo "optimize..."
 	$(PA)$(EXE) -b1 >bench.tmp
 	$(RM) *.o bench.tmp
 	@echo "build..."
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS)$(PROFILE_USE_THREAD) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(PROFILE_USE_THREAD) all
 else
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(LIBSTDC)$(CFLAGS) all
+	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS) all
 endif
 endif
 
 	$(STRIP) $(EXE)
 	@echo "create static library..."
-	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o Tablebase.o
+	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o IterativeDeeping.o Eval.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o GTB.o
 
 drmemory:
 	$(MAKE) -j4 EXE=$(EXE) all
@@ -152,28 +150,28 @@ gnuprof:
 	gprof $(PA)$(EXE)
 
 cinnamon-js:
-	em++ -std=c++11 -DJS_MODE -DDLOG_LEVEL=_FATAL util/Bitboard.cpp -fsigned-char ChessBoard.cpp Eval.cpp GenMoves.cpp Hash.cpp IterativeDeeping.cpp js/main.cpp OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Timer.cpp perft/PerftThread.cpp -w -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
+	em++ -std=c++11 -DJS_MODE -DDLOG_LEVEL=_FATAL util/Bitboard.cpp -fsigned-char ChessBoard.cpp Eval.cpp Hash.cpp IterativeDeeping.cpp js/main.cpp OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Timer.cpp perft/PerftThread.cpp -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
 
 cinnamon-drmemory:
-	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/32/libgtb.a" CFLAGS="-pthread -std=c++11 -g -fsigned-char -fno-inline -fno-omit-frame-pointer -m32 " drmemory
+	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive lib/$(OS)/32/libgtb.a" CFLAGS="-pthread -std=c++11 -DHAS_BSF -DHAS_POPCNT -g -fsigned-char -fno-inline -fno-omit-frame-pointer -m32 " drmemory
 
 cinnamon32-generic:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/32/libgtb.a" ARC="$(ARC) -m32 -w" build
+	$(MAKE) LIBS="$(LIBS) lib/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
 
 cinnamon32-modern:
-	$(MAKE) ARC="$(ARC) -mfpmath=sse -DHAS_BSF" cinnamon32-generic
+	$(MAKE) ARC="$(ARC) -mfpmath=sse -DHAS_POPCNT -DHAS_BSF" cinnamon32-generic
 
 cinnamon32-ARM:
-	$(MAKE) LIBS="$(LIBS) gtb/ARM/32/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
+	$(MAKE) LIBS="$(LIBS) lib/ARM/32/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF" build
 
 cinnamon64-ARM:
-	$(MAKE) LIBS="$(LIBS) gtb/ARM/64/libgtb.a" ARC="$(ARC) -fno-gcse -DHAS_BSF -w" build
+	$(MAKE) LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_64BIT -m64 -DHAS_BSF" build
 
 cinnamon64-generic:
-	$(MAKE) LIBS="$(LIBS) gtb/$(OS)/64/libgtb.a" ARC="$(ARC) -m64" build
+	$(MAKE) LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -DHAS_64BIT -m64" build
 
 cinnamon64-modern:
-	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF " cinnamon64-generic
+	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_POPCNT -DHAS_BSF " cinnamon64-generic
 
 cinnamon64-modern-AMD:
 	$(MAKE) ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-modern
@@ -182,13 +180,13 @@ cinnamon64-modern-INTEL:
 	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
 
 cinnamon-profiler:
-	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -ltcmalloc -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
+	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -ltcmalloc -DHAS_POPCNT -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
 
 cinnamon-gprof:
-	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -g -pg -DDLOG_LEVEL=_FATAL -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " gnuprof
+	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -g -pg -DHAS_POPCNT -DDLOG_LEVEL=_FATAL -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " gnuprof
 
-all: main.o ChessBoard.o Eval.o GenMoves.o test.o String.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o
-	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o GenMoves.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o Tablebase.o ${LIBS}
+all: main.o ChessBoard.o Eval.o test.o String.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o
+	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o ${LIBS}
 
 default:
 	help
@@ -198,9 +196,6 @@ ChessBoard.o: ChessBoard.cpp
 
 Eval.o: Eval.cpp
 	$(COMP) -c Eval.cpp ${CFLAGS} ${ARC}
-
-GenMoves.o: GenMoves.cpp
-	$(COMP) -c GenMoves.cpp ${CFLAGS} ${ARC}
 
 IterativeDeeping.o: IterativeDeeping.cpp
 	$(COMP) -c IterativeDeeping.cpp ${CFLAGS} ${ARC}
@@ -223,14 +218,17 @@ SearchManager.o: SearchManager.cpp
 Uci.o: Uci.cpp
 	$(COMP) -c Uci.cpp ${CFLAGS} ${ARC}
 
+GenMoves.o: GenMoves.cpp
+	$(COMP) -c GenMoves.cpp ${CFLAGS} ${ARC}
+
 Hash.o: Hash.cpp
 	$(COMP) -c Hash.cpp ${CFLAGS} ${ARC}
 
-OpenBook.o: OpenBook.cpp
-	$(COMP) -c OpenBook.cpp ${CFLAGS} ${ARC}
+OpenBook.o: db/OpenBook.cpp
+	$(COMP) -c db/OpenBook.cpp ${CFLAGS} ${ARC}
 
-Tablebase.o: Tablebase.cpp
-	$(COMP) -c Tablebase.cpp ${CFLAGS} ${ARC}
+GTB.o: db/GTB.cpp
+	$(COMP) -c db/GTB.cpp ${CFLAGS} ${ARC}
 
 String.o: util/String.cpp
 	$(COMP) -c util/String.cpp ${CFLAGS} ${ARC}

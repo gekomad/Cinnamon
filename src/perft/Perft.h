@@ -29,12 +29,12 @@
 #include "_TPerftRes.h"
 #include <signal.h>
 
-class Perft : public Thread<Perft>, public ThreadPool<PerftThread>, public Singleton<Perft> {
+class Perft: public Thread<Perft>, public ThreadPool<PerftThread>, public Singleton<Perft> {
     friend class Singleton<Perft>;
 
 public:
 
-    void setParam(string fen, int depth, int nCpu, int mbSize, string dumpFile);
+    void setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1);
 
     ~Perft();
 
@@ -54,8 +54,7 @@ private:
     Perft() : ThreadPool(1) { };
 
     _TPerftRes perftRes;
-    high_resolution_clock::time_point start1;
-
+    Time time;
     string fen;
     string dumpFile;
     u64 mbSize;
@@ -64,7 +63,7 @@ private:
 
     bool load();
 
-    const static int minutesToDump = Time::HOUR_IN_MINUTES * 10;
+    constexpr static int minutesToDump = Time::HOUR_IN_MINUTES * 10;
 
     static void ctrlChandler(int s) {
         if (dumping) {
