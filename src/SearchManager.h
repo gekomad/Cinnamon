@@ -37,10 +37,6 @@ public:
 
     ~SearchManager();
 
-    GTB &getGtb() const;
-
-    GTB &createGtb();
-
     int loadFen(string fen = "");
 
     int getPieceAt(int side, u64 i);
@@ -83,7 +79,7 @@ public:
 
     void setMaxTimeMillsec(int i);
     void unsetSearchMoves();
-    void setSearchMoves(vector<string> &searchmoves);
+    void setSearchMoves(vector <string> &searchmoves);
     void setPonder(bool i);
 
     int getSide();
@@ -102,14 +98,19 @@ public:
 
     void setSide(bool i);
 
-    bool getGtbAvailable() const;
 
     int getMoveFromSan(String string, _Tmove *ptr);
+#ifndef JS_MODE
+    bool getGtbAvailable() const;
+
+    GTB &getGtb() const;
+
+    GTB &createGtb();
 
     void printDtmGtb();
 
     void setGtb(GTB &tablebase);
-
+#endif
     void pushStackMove();
 
     void init();

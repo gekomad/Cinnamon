@@ -27,7 +27,7 @@ using namespace std;
 class WrapperCinnamon {
 
 public:
-    vector<string> getSuccessorsFen(const string &, const int depth);
+    vector <string> getSuccessorsFen(const string &, const int depth);
 
     unsigned perft(const string &fen, const int depth);
 

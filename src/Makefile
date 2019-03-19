@@ -150,7 +150,9 @@ gnuprof:
 	gprof $(PA)$(EXE)
 
 cinnamon-js:
-	em++ -std=c++11 -DJS_MODE -DDLOG_LEVEL=_FATAL util/Bitboard.cpp -fsigned-char ChessBoard.cpp Eval.cpp Hash.cpp IterativeDeeping.cpp js/main.cpp OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Timer.cpp perft/PerftThread.cpp -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
+	emcc -std=c++11 -w -DJS_MODE -DDLOG_LEVEL=_FATAL util/Bitboard.cpp -fsigned-char ChessBoard.cpp Eval.cpp Hash.cpp IterativeDeeping.cpp GenMoves.cpp js/main.cpp \
+	db/OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Timer.cpp perft/PerftThread.cpp \
+	-s WASM=0 -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap"]' -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
 
 cinnamon-drmemory:
 	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive lib/$(OS)/32/libgtb.a" CFLAGS="-pthread -std=c++11 -DHAS_BSF -DHAS_POPCNT -g -fsigned-char -fno-inline -fno-omit-frame-pointer -m32 " drmemory

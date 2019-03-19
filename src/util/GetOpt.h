@@ -210,7 +210,7 @@ public:
                     }
                 } else if (opt == 'b') {
                     int thread = atoi(optarg);
-                    unique_ptr<IterativeDeeping> it(new IterativeDeeping());
+                    unique_ptr <IterativeDeeping> it(new IterativeDeeping());
                     it->setUseBook(false);
                     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
                     searchManager.setNthread(thread);

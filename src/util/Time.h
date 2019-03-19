@@ -29,7 +29,7 @@ class Time {
 
 private:
     int _count = 0;
-    std::chrono::time_point<std::chrono::system_clock> _start;
+    std::chrono::time_point <std::chrono::system_clock> _start;
     int64_t _tot = 0;
 public:
 

@@ -25,7 +25,7 @@ Timer::Timer(int seconds1) {
 void Timer::endRun() { }
 
 void Timer::run() {
-    unique_lock<mutex> lck(mtx);
+    unique_lock <mutex> lck(mtx);
     while (seconds) {
         cv.wait_for(lck, chrono::seconds(seconds));
         if (seconds) {

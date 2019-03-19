@@ -345,7 +345,7 @@ void Uci::listner(IterativeDeeping *it) {
                     searchManager.setMaxTimeMillsec(0x7FFFFFFF);
                     forceTime = true;
                 } else if (token == "searchmoves") {
-                    vector<string> searchmoves;
+                    vector <string> searchmoves;
                     while (!uip.eof()) {
                         uip >> token;
                         searchmoves.push_back(token);

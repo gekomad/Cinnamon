@@ -44,9 +44,9 @@ public:
     void endRun() { };
 
     bool getPonderEnabled() const;
-
+#ifndef JS_MODE
     bool getGtbAvailable() const;
-
+#endif
     bool getUseBook() const;
 
     void setUseBook(const bool b);

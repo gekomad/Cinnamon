@@ -59,7 +59,7 @@ public:
     void checkWait() {
         while (!running) {
             mutex mtx;
-            unique_lock<mutex> lck(mtx);
+            unique_lock <mutex> lck(mtx);
             cv.wait(lck);
         }
     }

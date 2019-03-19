@@ -73,9 +73,9 @@ public:
     void run();
 
     void endRun();
-
+#ifndef JS_MODE
     void printDtmGtb();
-
+#endif
     GTB &getGtb() const;
 
     void setMainPly(int);

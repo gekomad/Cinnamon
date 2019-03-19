@@ -41,5 +41,5 @@ private:
     int seconds;
     condition_variable cv;
     mutex mtx;
-    vector<function<void(void)>> observers;
+    vector <function<void(void)>> observers;
 };

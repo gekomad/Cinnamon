@@ -37,7 +37,7 @@ unsigned PerftThread::perft(const string &fen, const int depth) {
     return search<BLACK, false>(depth);
 }
 
-vector<string> PerftThread::getSuccessorsFen(const string &fen1, const int depth) {
+vector <string> PerftThread::getSuccessorsFen(const string &fen1, const int depth) {
     loadFen(fen1);
     if (getSide()) return getSuccessorsFen<WHITE>(depth);
     return getSuccessorsFen<BLACK>(depth);
@@ -45,14 +45,14 @@ vector<string> PerftThread::getSuccessorsFen(const string &fen1, const int depth
 
 
 template<int side>
-vector<string> PerftThread::getSuccessorsFen(const int depthx) {
+vector <string> PerftThread::getSuccessorsFen(const int depthx) {
     if (depthx == 0) {
-        vector<string> a;
+        vector <string> a;
         a.push_back(boardToFen());
         return a;
     }
 
-    vector<string> n_perft;
+    vector <string> n_perft;
 
     int listcount;
     _Tmove *move;
@@ -65,7 +65,7 @@ vector<string> PerftThread::getSuccessorsFen(const int depthx) {
     listcount = getListSize();
     if (!listcount) {
         decListId();
-        vector<string> a;
+        vector <string> a;
         return a;
     }
     for (int ii = 0; ii < listcount; ii++) {
@@ -73,7 +73,7 @@ vector<string> PerftThread::getSuccessorsFen(const int depthx) {
         u64 keyold = chessboard[ZOBRISTKEY_IDX];
         makemove(move, false, false);
         setSide(side ^ 1);
-        vector<string> bb = getSuccessorsFen<side ^ 1>(depthx - 1);
+        vector <string> bb = getSuccessorsFen<side ^ 1>(depthx - 1);
         n_perft.insert(n_perft.end(), bb.begin(), bb.end());
         takeback(move, keyold, false);
         setSide(side ^ 1);

@@ -25,7 +25,7 @@ mutex Hash::mutexConstructor;
 volatile bool Hash::generated = false;
 
 Hash::Hash() {
-    std::lock_guard<std::mutex> lock(mutexConstructor);
+    std::lock_guard <std::mutex> lock(mutexConstructor);
     if (generated) {
         return;
     }

@@ -29,7 +29,7 @@ SearchManager::SearchManager() {
     IniFile iniFile("cinnamon.ini");
 
     while (true) {
-        pair<string, string> *parameters = iniFile.get();
+        pair <string, string> *parameters = iniFile.get();
         if (!parameters) {
             break;
         }
@@ -265,7 +265,7 @@ void SearchManager::unsetSearchMoves() {
     }
 }
 
-void SearchManager::setSearchMoves(vector<string> &searchMov) {
+void SearchManager::setSearchMoves(vector <string> &searchMov) {
     _Tmove move;
     vector<int> searchMoves;
     for (std::vector<string>::iterator it = searchMov.begin(); it != searchMov.end(); ++it) {
@@ -336,9 +336,6 @@ void SearchManager::setSide(bool i) {
     }
 }
 
-bool SearchManager::getGtbAvailable() const {
-    return getThread(0).getGtbAvailable();
-}
 
 int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
 #ifdef DEBUG_MODE
@@ -350,8 +347,29 @@ int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
     return getThread(0).getMoveFromSan(string, ptr);
 }
 
+
+#ifndef JS_MODE
+
+bool SearchManager::getGtbAvailable() const {
+    return getThread(0).getGtbAvailable();
+}
+
+
 GTB &SearchManager::getGtb() const {
     return getThread(0).getGtb();
+}
+
+
+void SearchManager::deleteGtb() {
+    for (Search *s:getPool()) {
+        s->deleteGtb();
+    }
+}
+
+GTB &SearchManager::createGtb() {
+    GTB &gtb = GTB::getInstance();
+    setGtb(gtb);
+    return gtb;
 }
 
 void SearchManager::printDtmGtb() {
@@ -363,7 +381,7 @@ void SearchManager::setGtb(GTB &tablebase) {
         s->setGtb(tablebase);
     }
 }
-
+#endif
 void SearchManager::pushStackMove() {
     for (Search *s:getPool()) {
         s->pushStackMove();
@@ -382,11 +400,6 @@ void SearchManager::setRepetitionMapCount(int i) {
     }
 }
 
-void SearchManager::deleteGtb() {
-    for (Search *s:getPool()) {
-        s->deleteGtb();
-    }
-}
 
 bool SearchManager::setNthread(int nthread) {
     if (!ThreadPool::setNthread(nthread))return false;
@@ -406,11 +419,7 @@ bool SearchManager::setParameter(String param, int value) {
 }
 
 
-GTB &SearchManager::createGtb() {
-    GTB &gtb = GTB::getInstance();
-    setGtb(gtb);
-    return gtb;
-}
+
 
 
 

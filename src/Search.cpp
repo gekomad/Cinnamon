@@ -88,6 +88,7 @@ void Search::clone(const Search *s) {
     memcpy(chessboard, s->chessboard, sizeof(_Tchessboard));
 }
 
+#ifndef JS_MODE
 void Search::printDtmGtb() {
     int side = getSide();
     u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
@@ -127,6 +128,7 @@ void Search::printDtmGtb() {
     decListId();
 
 }
+#endif
 
 void Search::setNullMove(bool b) {
     nullSearch = !b;
@@ -373,6 +375,7 @@ string Search::probeRootTB() {
     const auto tot = bitCount(getBitmap<WHITE>() | getBitmap<BLACK>());
     const int side = getSide();
     string best = "";
+#ifndef JS_MODE
     if (gtb && gtb->isInstalledPieces(tot)) {
         u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
         u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
@@ -429,7 +432,7 @@ string Search::probeRootTB() {
         return best;
 
     }
-
+#endif
     //kpk -> try draw
     if (tot == 3 && chessboard[side] == 0 && chessboard[side ^ 1]) {
 

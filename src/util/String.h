@@ -30,7 +30,7 @@ using namespace std;
 typedef __int128_t i128;
 #else
 //32 bit
-    typedef unsigned long long i128;
+typedef unsigned long long i128;
 #endif
 
 class String: public string {

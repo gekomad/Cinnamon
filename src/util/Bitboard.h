@@ -81,7 +81,7 @@ private:
 
     _Ttmp *tmpStruct;
 
-    vector<u64> getCombination(const vector<u64> elements);
+    vector <u64> getCombination(const vector <u64> elements);
 
     static uchar rankIdx(const int position, const u64 allpieces) {
         return (allpieces >> RANK_ATx8[position]) & 0xff;
@@ -105,10 +105,10 @@ private:
 
     void popolateAntiDiagonal();
 
-    vector<u64>
-        combinations(const vector<u64> &elems, const int len, vector<int> &pos, const int depth, const int margin);
+    vector <u64>
+        combinations(const vector <u64> &elems, const int len, vector<int> &pos, const int depth, const int margin);
 
-    vector<u64> combinations(const vector<u64> &elems, const int len);
+    vector <u64> combinations(const vector <u64> &elems, const int len);
 
     u64 performDiagShift(const int position, const u64 allpieces);
 
@@ -118,7 +118,7 @@ private:
 
     u64 performAntiDiagShift(const int position, const u64 allpieces);
 
-    vector<u64> getCombination(u64 elements);
+    vector <u64> getCombination(u64 elements);
 
     void popolateRank();
 

@@ -19,7 +19,7 @@
 
 #include "WrapperCinnamon.h"
 
-vector<string> WrapperCinnamon::getSuccessorsFen(const string &fen, const int depth) {
+vector <string> WrapperCinnamon::getSuccessorsFen(const string &fen, const int depth) {
     PerftThread a;
     return a.getSuccessorsFen(fen, depth);
 }
