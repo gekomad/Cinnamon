@@ -26,11 +26,11 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), running(false), openBo
 void IterativeDeeping::setMaxDepth(const int d) {
     maxDepth = min(d, _board::MAX_PLY);
 }
-
+#ifndef JS_MODE
 bool IterativeDeeping::getGtbAvailable() const {
     return searchManager.getGtbAvailable();
 }
-
+#endif
 IterativeDeeping::~IterativeDeeping() {
 }
 

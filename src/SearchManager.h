@@ -36,7 +36,7 @@ public:
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn);
 
     ~SearchManager();
-
+#ifndef JS_MODE
     GTB &getGtb() const;
 
     GTB &createGtb();
@@ -53,7 +53,7 @@ public:
             return nullptr;
         };
     }
-
+#endif
 
     int loadFen(string fen = "");
 
@@ -123,14 +123,14 @@ public:
 //    int getSYZYGYdtm(const int side) const;
 
     int getMoveFromSan(String string, _Tmove *ptr);
-
+#ifndef JS_MODE
     void printDtmGtb();
     void printDtmSyzygy();
 
     void setGtb(GTB &tablebase);
 
 //    void setSYZYGY(SYZYGY &tablebase);
-
+#endif
     void pushStackMove();
 
     void init();

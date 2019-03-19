@@ -440,5 +440,4 @@ namespace _bitboardTmp {
         0xe000000000000000ULL, 0xc000000000000000ULL, 0x8000000000000000ULL, 0x0000000000000000ULL
     };
 
-    //@formatter:on
 }

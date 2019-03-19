@@ -39,7 +39,6 @@ Features
 - Available with Tarrasch GUI for Windows
 - Open Book (Polyglot)
 - Gaviota Tablebases
-- [Source doc][2]
 - [Elo ratings][3]
 
 
@@ -84,7 +83,6 @@ Credits
 Cinnamon was written by Giuseppe Cannella at gmail dot com.
 
   [1]: http://cinnamonchess.altervista.org
-  [2]: http://cinnamonchess.altervista.org/api/1.2a/class_iterative_deeping.html
   [3]: http://www.computerchess.org.uk/ccrl/404/cgi/compare_engines.cgi?family=Cinnamon
   [4]: http://www.gnu.org/software/xboard
   [5]: http://www.playwitharena.com

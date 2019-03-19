@@ -335,6 +335,21 @@ void SearchManager::setSide(bool i) {
         s->setSide(i);
     }
 }
+#ifndef JS_MODE
+
+GTB &SearchManager::getGtb() const {
+    return getThread(0).getGtb();
+}
+
+void SearchManager::printDtmGtb() {
+    getThread(0).printDtmGtb();
+}
+
+void SearchManager::setGtb(GTB &tablebase) {
+    for (Search *s:getPool()) {
+        s->setGtb(tablebase);
+    }
+}
 
 bool SearchManager::getGtbAvailable() const {
     return getThread(0).getGtbAvailable();
@@ -348,6 +363,30 @@ bool SearchManager::getGtbAvailable() const {
 //    return getThread(0).getSYZYGYdtm(side);
 //}
 
+void SearchManager::printDtmSyzygy() {
+    getThread(0).printDtmSyzygy();
+}
+
+void SearchManager::deleteGtb() {
+    for (Search *s:getPool()) {
+        s->deleteGtb();
+    }
+}
+
+GTB &SearchManager::createGtb() {
+    GTB &gtb = GTB::getInstance();
+    setGtb(gtb);
+    return gtb;
+}
+
+//void SearchManager::setSYZYGY(SYZYGY &tablebase) {
+//    for (Search *s:getPool()) {
+//        s->setSYZYGY(tablebase);
+//    }
+//}
+
+#endif
+
 int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
 #ifdef DEBUG_MODE
     int t = getThread(0).getMoveFromSan(string, ptr);
@@ -357,30 +396,6 @@ int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
 #endif
     return getThread(0).getMoveFromSan(string, ptr);
 }
-
-GTB &SearchManager::getGtb() const {
-    return getThread(0).getGtb();
-}
-
-void SearchManager::printDtmGtb() {
-    getThread(0).printDtmGtb();
-}
-
-void SearchManager::printDtmSyzygy() {
-    getThread(0).printDtmSyzygy();
-}
-
-void SearchManager::setGtb(GTB &tablebase) {
-    for (Search *s:getPool()) {
-        s->setGtb(tablebase);
-    }
-}
-
-//void SearchManager::setSYZYGY(SYZYGY &tablebase) {
-//    for (Search *s:getPool()) {
-//        s->setSYZYGY(tablebase);
-//    }
-//}
 
 void SearchManager::pushStackMove() {
     for (Search *s:getPool()) {
@@ -400,11 +415,6 @@ void SearchManager::setRepetitionMapCount(int i) {
     }
 }
 
-void SearchManager::deleteGtb() {
-    for (Search *s:getPool()) {
-        s->deleteGtb();
-    }
-}
 
 bool SearchManager::setNthread(int nthread) {
     if (!ThreadPool::setNthread(nthread))return false;
@@ -422,16 +432,4 @@ bool SearchManager::setParameter(String param, int value) {
     }
     return b;
 }
-
-
-GTB &SearchManager::createGtb() {
-    GTB &gtb = GTB::getInstance();
-    setGtb(gtb);
-    return gtb;
-}
-
-
-
-
-
 

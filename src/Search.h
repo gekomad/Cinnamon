@@ -74,10 +74,10 @@ public:
     void run();
 
     void endRun();
-
+#ifndef JS_MODE
     void printDtmGtb();
     void printDtmSyzygy();
-
+#endif
     GTB &getGtb() const;
 
     void setMainPly(int);
