@@ -186,7 +186,7 @@ private:
                 INC(probeHash);
                 if (!currentPly) {
                     if (phashe->dataS.flags == Hash::hashfBETA) {
-                        incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
+                        incHistoryHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
                     }
                 } else {
                     switch (phashe->dataS.flags) {
@@ -197,7 +197,7 @@ private:
                             }
                             break;
                         case Hash::hashfBETA:
-                            if (!quies)incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
+                            if (!quies)incHistoryHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
                             if (phashe->dataS.score >= beta) {
                                 INC(n_cut_hashB);
                                 return beta;

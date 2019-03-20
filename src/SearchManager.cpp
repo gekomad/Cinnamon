@@ -187,9 +187,9 @@ u64 SearchManager::getTotMoves() {
     return i;
 }
 
-void SearchManager::incKillerHeuristic(int from, int to, int value) {
+void SearchManager::incHistoryHeuristic(int from, int to, int value) {
     for (Search *s:getPool()) {
-        s->incKillerHeuristic(from, to, value);
+        s->incHistoryHeuristic(from, to, value);
     }
 }
 
@@ -205,9 +205,9 @@ string SearchManager::boardToFen() {
     return getThread(0).boardToFen();
 }
 
-void SearchManager::clearKillerHeuristic() {
+void SearchManager::clearHistoryHeuristic() {
     for (Search *s:getPool()) {
-        s->clearKillerHeuristic();
+        s->clearHistoryHeuristic();
     }
 }
 

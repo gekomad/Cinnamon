@@ -871,7 +871,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                     _ThashData data(score, depth - extension, move->from, move->to, 0, Hash::hashfBETA);
                     recordHash(zobristKeyR, data);
                 }
-                setKillerHeuristic(move->from, move->to, 0x400);
+                setHistoryHeuristic(move->from, move->to, 0x400);
                 return score;
             }
             alpha = score;

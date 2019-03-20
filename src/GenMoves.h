@@ -240,7 +240,7 @@ public:
         }
     }
 
-    void clearKillerHeuristic();
+    void clearHistoryHeuristic();
 
     void performDiagShift(const int piece, const int side, const u64 allpieces);
 
@@ -277,14 +277,14 @@ public:
 
     bool generatePuzzle(const string type);
 
-    void incKillerHeuristic(const int from, const int to, const int value) {
+    void incHistoryHeuristic(const int from, const int to, const int value) {
         if (!getRunning()) {
             return;
         }
         ASSERT_RANGE(from, 0, 63);
         ASSERT_RANGE(to, 0, 63);
-        ASSERT(killerHeuristic[from][to] <= killerHeuristic[from][to] + value);
-        killerHeuristic[from][to] += value;
+        ASSERT(historyHeuristic[from][to] <= historyHeuristic[from][to] + value);
+        historyHeuristic[from][to] += value;
     }
 
     _Tmove *getNextMove();
@@ -356,12 +356,12 @@ protected:
 
     u64 getMobilityQueen(const int position, const u64 enemies, const u64 allpieces);
 
-    void initKillerHeuristic();
+    void initHistoryHeuristic();
 
     void pushRepetition(u64);
 
-    int killerHeuristic[64][64];
-
+    int historyHeuristic[64][64];
+   
 #ifdef DEBUG_MODE
 
     template<int side, uchar type>
@@ -589,7 +589,7 @@ protected:
                     ASSERT_RANGE(pieceFrom, 0, 11);
                     ASSERT_RANGE(to, 0, 63);
                     ASSERT_RANGE(from, 0, 63);
-                    mos->score = killerHeuristic[from][to];
+                    mos->score = historyHeuristic[from][to];
                     mos->score += (PIECES_VALUE[piece_captured] >= PIECES_VALUE[pieceFrom]) ?
                                   (PIECES_VALUE[piece_captured] - PIECES_VALUE[pieceFrom]) * 2
                                                                                             : PIECES_VALUE[piece_captured];
@@ -622,12 +622,10 @@ protected:
         return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]), getBitmap<BLACK>() | getBitmap<WHITE>());
     }
 
-    void setKillerHeuristic(const int from, const int to, const int value) {
-        if (getRunning()) {
-            ASSERT_RANGE(from, 0, 63);
-            ASSERT_RANGE(to, 0, 63);
-            killerHeuristic[from][to] = value;
-        }
+    void setHistoryHeuristic(const int from, const int to, const int value) {
+        ASSERT_RANGE(from, 0, 63);
+        ASSERT_RANGE(to, 0, 63);
+        historyHeuristic[from][to] = value;
     }
 
 

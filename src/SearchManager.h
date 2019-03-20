@@ -61,7 +61,7 @@ public:
 
     u64 getTotMoves();
 
-    void incKillerHeuristic(int from, int to, int value);
+    void incHistoryHeuristic(int from, int to, int value);
 
     int getHashSize();
 
@@ -71,7 +71,7 @@ public:
 
     bool setParameter(String param, int value);
 
-    void clearKillerHeuristic();
+    void clearHistoryHeuristic();
 
     void clearAge();
 

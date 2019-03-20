@@ -123,8 +123,8 @@ void GenMoves::setPerft(const bool b) {
     perftMode = b;
 }
 
-void GenMoves::clearKillerHeuristic() {
-    memset(killerHeuristic, 0, sizeof(killerHeuristic));
+void GenMoves::clearHistoryHeuristic() {
+    memset(historyHeuristic, 0, sizeof(historyHeuristic));
 }
 
 _Tmove *GenMoves::getNextMove(_TmoveP *list) {
