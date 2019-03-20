@@ -674,27 +674,27 @@ private:
 
         ///knight
         u64 attackers = KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + (side ^ 1)];
-        if (exitOnFirst && attackers)return 1;
+        if (exitOnFirst && attackers)return attackers;
         ///king
         attackers |= NEAR_MASK1[position] & chessboard[KING_BLACK + (side ^ 1)];
-        if (exitOnFirst && attackers)return 1;
+        if (exitOnFirst && attackers)return attackers;
         ///pawn
         attackers |= PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + (side ^ 1)];
-        if (exitOnFirst && attackers)return 1;
+        if (exitOnFirst && attackers)return attackers;
         ///bishop queen
         u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
         u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
         for (; nuovo; RESET_LSB(nuovo)) {
             const int bound = BITScanForward(nuovo);
             attackers |= POW2[bound];
-            if (exitOnFirst && attackers)return 1;
+            if (exitOnFirst && attackers)return attackers;
         }
         enemies = chessboard[ROOK_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
         nuovo = Bitboard::getRankFile(position, allpieces) & enemies;
         for (; nuovo; RESET_LSB(nuovo)) {
             const int bound = BITScanForward(nuovo);
             attackers |= POW2[bound];
-            if (exitOnFirst && attackers)return 1;
+            if (exitOnFirst && attackers)return attackers;
         }
         return attackers;
     }
