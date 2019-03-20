@@ -361,7 +361,7 @@ protected:
     void pushRepetition(u64);
 
     int historyHeuristic[64][64];
-   
+
 #ifdef DEBUG_MODE
 
     template<int side, uchar type>

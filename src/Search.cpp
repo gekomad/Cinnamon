@@ -871,7 +871,10 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
                     _ThashData data(score, depth - extension, move->from, move->to, 0, Hash::hashfBETA);
                     recordHash(zobristKeyR, data);
                 }
-                setHistoryHeuristic(move->from, move->to, 0x400);
+                if (depth < 31)
+                    setHistoryHeuristic(move->from, move->to, 1 << depth);
+                else
+                    setHistoryHeuristic(move->from, move->to, 0x40000000);
                 return score;
             }
             alpha = score;
