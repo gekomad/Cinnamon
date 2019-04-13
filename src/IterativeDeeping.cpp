@@ -26,11 +26,7 @@ IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), running(false), openBo
 void IterativeDeeping::setMaxDepth(const int d) {
     maxDepth = min(d, _board::MAX_PLY);
 }
-#ifndef JS_MODE
-bool IterativeDeeping::getGtbAvailable() const {
-    return searchManager.getGtbAvailable();
-}
-#endif
+
 IterativeDeeping::~IterativeDeeping() {
 }
 
@@ -71,13 +67,11 @@ void IterativeDeeping::run() {
     if (LOCK_TEST_AND_SET(running)) {
         while (running);
     }
-
+    bestmove.clear();
     INC(checkSmp2);
     int timeTaken = 0;
     searchManager.setRunning(2);
     searchManager.setRunningThread(true);
-    int mply = 0;
-
 
     //openbook
     if (openBook) {
@@ -105,10 +99,10 @@ void IterativeDeeping::run() {
     int sc = 0;
     unsigned totMoves;
 
-    mply = 0;
+    int mply = 0;
 
     searchManager.startClock();
-    searchManager.clearKillerHeuristic();
+    searchManager.clearHistoryHeuristic();
     searchManager.clearAge();
     searchManager.setForceCheck(false);
 
@@ -134,11 +128,11 @@ void IterativeDeeping::run() {
         searchManager.setRunningThread(1);
         searchManager.setRunning(1);
         if (!searchManager.getRes(resultMove, ponderMove, pvv, &mateIn)) {
-            debug("IterativeDeeping cmove == 0, exit");
+            debug("IterativeDeeping cmove == 0. Exit");
             break;
         }
 
-        searchManager.incKillerHeuristic(resultMove.from, resultMove.to, 0x800);
+        searchManager.incHistoryHeuristic(resultMove.from, resultMove.to, 0x800);
 
         auto end1 = std::chrono::high_resolution_clock::now();
         timeTaken = Time::diffTime(end1, start1) + 1;
@@ -149,14 +143,14 @@ void IterativeDeeping::run() {
             sc = 0x7fffffff;
         }
 #ifdef DEBUG_MODE
-        int totStoreHash = searchManager.getPool()[0]->nRecordHashA + searchManager.getPool()[0]->nRecordHashB +
-            searchManager.getPool()[0]->nRecordHashE + 1;
-        int percStoreHashA = searchManager.getPool()[0]->nRecordHashA * 100 / totStoreHash;
-        int percStoreHashB = searchManager.getPool()[0]->nRecordHashB * 100 / totStoreHash;
-        int percStoreHashE = searchManager.getPool()[0]->nRecordHashE * 100 / totStoreHash;
-        int totCutHash = searchManager.getPool()[0]->n_cut_hashA + searchManager.getPool()[0]->n_cut_hashB + 1;
-        int percCutHashA = searchManager.getPool()[0]->n_cut_hashA * 100 / totCutHash;
-        int percCutHashB = searchManager.getPool()[0]->n_cut_hashB * 100 / totCutHash;
+        int totStoreHash = searchManager.getHash()->nRecordHashA + searchManager.getHash()->nRecordHashB +
+            searchManager.getHash()->nRecordHashE + 1;
+        int percStoreHashA = searchManager.getHash()->nRecordHashA * 100 / totStoreHash;
+        int percStoreHashB = searchManager.getHash()->nRecordHashB * 100 / totStoreHash;
+        int percStoreHashE = searchManager.getHash()->nRecordHashE * 100 / totStoreHash;
+        int totCutHash = searchManager.getHash()->n_cut_hashA + searchManager.getHash()->n_cut_hashB + 1;
+        int percCutHashA = searchManager.getHash()->n_cut_hashA * 100 / totCutHash;
+        int percCutHashB = searchManager.getHash()->n_cut_hashB * 100 / totCutHash;
         cout << "\ninfo string ply: " << mply << endl;
         cout << "info string tot moves: " << totMoves << endl;
         unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
@@ -176,8 +170,9 @@ void IterativeDeeping::run() {
         int nCutFp = searchManager.getNCutFp();
         int nCutRazor = searchManager.getNCutRazor();
 
-        int collisions = searchManager.getPool()[0]->collisions;
-        int nNullMoveCut = searchManager.getPool()[0]->cutFailed;
+        int collisions = searchManager.getHash()->collisions;
+        unsigned readCollisions = searchManager.getHash()->readCollisions;
+        int nNullMoveCut = searchManager.getHash()->cutFailed;
         unsigned totGen = searchManager.getTotGen();
         if (nCutAB) {
             cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%" << endl;
@@ -193,7 +188,8 @@ void IterativeDeeping::run() {
         cout << "info string razor cut: " << nCutRazor << endl;
         cout << "info string null move cut: " << nNullMoveCut << endl;
 
-        cout << "info string hash collisions : " << collisions * 100 / totStoreHash << "%" << endl;
+        cout << "info string hash write collisions : " << collisions * 100 / totStoreHash << "%" << endl;
+        cout << "info string hash read collisions : " << readCollisions * 100 / totStoreHash << "%" << endl;
 #endif
         ///is a valid move?
         bool trace = true;

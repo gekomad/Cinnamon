@@ -41,7 +41,7 @@ OpenBook::~OpenBook() {
 }
 
 u64 OpenBook::createKey(string fen1) {
-    const char *fen = (const char *) fen1.c_str();
+    const char *fen = fen1.c_str();
     u64 *RandomPiece = Random64;
     u64 *RandomCastle = Random64 + 768;
     u64 *RandomEnPassant = Random64 + 772;

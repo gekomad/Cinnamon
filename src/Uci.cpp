@@ -52,6 +52,9 @@ void Uci::listner(IterativeDeeping *it) {
     uciMode = false;
     int perftThreads = 1;
     int perftHashSize = 0;
+    int gaviotatbcache = -1;
+    int tb_pieces = -1;
+    string gaviotatbscheme;
     string dumpFile;
     static const string _BOOLEAN[] = {"false", "true"};
     while (!stop) {
@@ -111,7 +114,7 @@ void Uci::listner(IterativeDeeping *it) {
             uciMode = true;
             cout << "id name " << NAME << endl;
             cout << "id author Giuseppe Cannella" << endl;
-            cout << "option name Hash type spin default 64 min 1 max 1000" << endl;
+            cout << "option name Hash type spin default 64 min 1 max 10000" << endl;
             cout << "option name Clear Hash type button" << endl;
             cout << "option name Nullmove type check default true" << endl;
             cout << "option name Book File type string default cinnamon.bin" << endl;
@@ -166,6 +169,12 @@ void Uci::listner(IterativeDeeping *it) {
                         knowCommand = true;
                         gtb = &searchManager.createGtb();
                         gtb->setPath(token);
+                        if (gaviotatbcache != -1)
+                            gtb->setCacheSize(gaviotatbcache);
+                        if (!gaviotatbscheme.empty())
+                            gtb->setScheme(token);
+                        if (tb_pieces != -1)
+                            gtb->setInstalledPieces(tb_pieces);
                     }
                 } else if (token == "perftthreads") {
                     getToken(uip, token);
@@ -192,7 +201,10 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        if (gtb->setCacheSize(stoi(token))) {
+                        gaviotatbcache = stoi(token);
+                        if (gtb == nullptr) {
+                            knowCommand = true;
+                        } else if (gtb->setCacheSize(gaviotatbcache)) {
                             knowCommand = true;
                         };
                     }
@@ -206,7 +218,9 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (token == "value") {
                         getToken(uip, token);
-                        if (gtb->setScheme(token)) {
+                        gaviotatbscheme = token;
+                        if (gtb == nullptr) knowCommand = true;
+                        else if (gtb->setScheme(token)) {
                             knowCommand = true;
                         };
                     }
@@ -218,14 +232,16 @@ void Uci::listner(IterativeDeeping *it) {
                             getToken(uip, token);
                             if (token == "value") {
                                 getToken(uip, token);
-                                if (gtb->setInstalledPieces(stoi(token))) {
+                                tb_pieces = stoi(token);
+                                if (gtb == nullptr)knowCommand = true;
+                                else if (gtb->setInstalledPieces(tb_pieces)) {
                                     knowCommand = true;
                                 };
                             }
                         }
                     } else if (token == "restart") {
                         knowCommand = true;
-                        gtb->restart();
+                        if (gtb != nullptr)gtb->restart();
                     }
                 } else if (token == "hash") {
                     getToken(uip, token);

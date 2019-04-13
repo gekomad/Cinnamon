@@ -28,14 +28,23 @@
 #include <future>
 #include "namespaces/def.h"
 
-class SearchManager: public Singleton<SearchManager>, public ThreadPool<Search> {
+class SearchManager: public Singleton<SearchManager> {
     friend class Singleton<SearchManager>;
 
 public:
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn);
+    static GTB *gtb;
 
     ~SearchManager();
+#ifndef JS_MODE
+    static GTB *getGtb() {
+        return gtb;
+    }
+
+    GTB &createGtb();
+
+#endif
 
     int loadFen(string fen = "");
 
@@ -43,7 +52,7 @@ public:
 
     u64 getTotMoves();
 
-    void incKillerHeuristic(int from, int to, int value);
+    void incHistoryHeuristic(int from, int to, int value);
 
     int getHashSize();
 
@@ -53,7 +62,7 @@ public:
 
     bool setParameter(String param, int value);
 
-    void clearKillerHeuristic();
+    void clearHistoryHeuristic();
 
     void clearAge();
 
@@ -65,7 +74,6 @@ public:
 
     void setRunningThread(bool r);
 
-    void search(int mply);
     string probeRootTB();
     void setRunning(int i);
 
@@ -98,18 +106,12 @@ public:
 
     void setSide(bool i);
 
+    bool getGtbAvailable() const;
 
     int getMoveFromSan(String string, _Tmove *ptr);
 #ifndef JS_MODE
-    bool getGtbAvailable() const;
-
-    GTB &getGtb() const;
-
-    GTB &createGtb();
-
     void printDtmGtb();
 
-    void setGtb(GTB &tablebase);
 #endif
     void pushStackMove();
 
@@ -118,8 +120,6 @@ public:
     void setRepetitionMapCount(int i);
 
     void deleteGtb();
-
-    void receiveObserverSearch(int threadID);
 
     bool setNthread(int);
 
@@ -138,7 +138,7 @@ public:
 
     unsigned getCumulativeMovesCount() {
         unsigned i = 0;
-        for (Search *s:getPool()) {
+        for (Search *s:threadPool->getPool()) {
             i += s->cumulativeMovesCount;
         }
         return i;
@@ -146,7 +146,7 @@ public:
 
     unsigned getNCutAB() {
         unsigned i = 0;
-        for (Search *s:getPool()) {
+        for (Search *s:threadPool->getPool()) {
             i += s->nCutAB;
         }
         return i;
@@ -154,7 +154,7 @@ public:
 
     double getBetaEfficiency() {
         double i = 0;
-        for (Search *s:getPool()) {
+        for (Search *s:threadPool->getPool()) {
             i += s->betaEfficiency;
         }
         return i;
@@ -162,7 +162,7 @@ public:
 
     unsigned getLazyEvalCuts() {
         unsigned i = 0;
-        for (Search *s:getPool()) {
+        for (Search *s:threadPool->getPool()) {
             i += s->lazyEvalCuts;
         }
         return i;
@@ -170,7 +170,7 @@ public:
 
     unsigned getNCutFp() {
         unsigned i = 0;
-        for (Search *s:getPool()) {
+        for (Search *s:threadPool->getPool()) {
             i += s->nCutFp;
         }
         return i;
@@ -178,7 +178,7 @@ public:
 
     unsigned getNCutRazor() {
         unsigned i = 0;
-        for (Search *s:getPool()) {
+        for (Search *s:threadPool->getPool()) {
             i += s->nCutRazor;
         }
         return i;
@@ -186,39 +186,32 @@ public:
 
     unsigned getTotGen() {
         unsigned i = 0;
-        for (Search *s:getPool()) {
+        for (Search *s:threadPool->getPool()) {
             i += s->totGen;
         }
         return i;
     }
 
 #endif
-
+    const Hash *getHash() const {
+        return &hash;
+    }
+    void search(int mply);
 private:
 
+    Hash hash;
     SearchManager();
-
-    void lazySMP(const int mply);
-
-    void singleSearch(int mply);
+    ThreadPool<Search> *threadPool = nullptr;
 
     int mateIn;
-    int valWindow = INT_MAX;
-    _TpvLine lineWin;
 
-    Spinlock spinlockSearch;
+    _TpvLine lineWin;
 
     void setMainPly(const int r);
 
     void startThread(Search &thread, const int depth);
 
     void stopAllThread();
-
-#ifdef DEBUG_MODE
-
-    atomic_int checkSmp1;
-
-#endif
 
 };
 

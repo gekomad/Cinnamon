@@ -26,16 +26,13 @@
 using namespace _def;
 namespace _board {
 
-    static const string NAME = "Cinnamon 2.1";
+    static const string NAME = "Cinnamon 2.2a";
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     static constexpr int MAX_PLY = 96;
 
     static constexpr bool USE_HASH_YES = true;
     static constexpr bool USE_HASH_NO = false;
-
-    static constexpr bool SMP_YES = true;
-    static constexpr bool SMP_NO = false;
 
     static constexpr int _INFINITE = 32000;
 

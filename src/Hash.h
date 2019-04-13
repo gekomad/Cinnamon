@@ -30,14 +30,13 @@
 using namespace _board;
 using namespace _logger;
 
-class Hash {
+class Hash{
 
 public:
-    Hash();
 
-    static constexpr int HASH_GREATER = 0;
     static constexpr int HASH_ALWAYS = 1;
-
+    static constexpr int HASH_GREATER = 0;
+    Hash();
     typedef union _ThashData {
         u64 dataU;
 
@@ -73,7 +72,7 @@ public:
     };
 
 #ifdef DEBUG_MODE
-    unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions;
+    unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions, readCollisions;
 
     int n_cut_hashA, n_cut_hashB, cutFailed, probeHash;
 #endif
@@ -88,21 +87,28 @@ public:
 
     void clearAge();
 
-    u64 readHash(const int type, const u64 zobristKeyR) const {
+    u64 readHash(const int type, const u64 zobristKeyR)
+#ifndef DEBUG_MODE
+    const
+#endif
+    {
         const _Thash *hash = &(hashArray[type][zobristKeyR % HASH_SIZE]);
         const u64 data = hash->u.dataU;
         const u64 k = hash->key;
         if (zobristKeyR == (k ^ data)) {
             return data;
         }
+#ifdef DEBUG_MODE
+        if (data)
+            readCollisions++;
+#endif
         return 0;
     }
 
     void recordHash(const u64 zobristKey, _ThashData &tmp) {
         ASSERT(zobristKey);
-
         const int kMod = zobristKey % HASH_SIZE;
-        _Thash *rootHashG = &(hashArray[HASH_GREATER][kMod]);
+        _Thash *rootHashG = &(hashArray[HASH_ALWAYS][kMod]);
 
         rootHashG->key = (zobristKey ^ tmp.dataU);
         rootHashG->u.dataU = tmp.dataU;
@@ -117,10 +123,14 @@ public:
         }
 #endif
 
-        _Thash *rootHashA = &(hashArray[HASH_ALWAYS][kMod]);
+        _Thash *rootHashA = &(hashArray[HASH_GREATER][kMod]);
 
-        if (rootHashA->u.dataS.depth >= tmp.dataS.depth && rootHashA->u.dataS.entryAge) {
+#ifdef DEBUG_MODE
+        if (rootHashA->u.dataU) {
             INC(collisions);
+        }
+#endif
+        if (rootHashA->u.dataS.depth >= tmp.dataS.depth && rootHashA->u.dataS.entryAge) {
             return;
         }
         tmp.dataS.entryAge = 1;
@@ -130,8 +140,8 @@ public:
     }
 
 private:
-    static volatile bool generated;
-    static int HASH_SIZE;
+
+    int HASH_SIZE;
 #ifdef JS_MODE
     static constexpr int HASH_SIZE_DEFAULT = 1;
 #else
@@ -139,9 +149,6 @@ private:
 #endif
 
     void dispose();
-
-    static _Thash *hashArray[2];
-    static mutex mutexConstructor;
-
+    _Thash *hashArray[2];
 };
 

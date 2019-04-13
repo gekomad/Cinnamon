@@ -141,22 +141,22 @@ private:
                 fen = optarg;
             } else if (opt == 'p') { //path
                 token = optarg;
-                searchManager.getGtb().setPath(token);
+                SearchManager::getGtb()->setPath(token);
             } else if (opt == 's') { //scheme
                 token = optarg;
-                if (!searchManager.getGtb().setScheme(token)) {
+                if (!SearchManager::getGtb()->setScheme(token)) {
                     cout << "set scheme error" << endl;
                     return;
                 }
             } else if (opt == 'i') {
                 token = optarg;
-                if (!searchManager.getGtb().setInstalledPieces(stoi(token))) {
+                if (!SearchManager::getGtb()->setInstalledPieces(stoi(token))) {
                     cout << "set installed pieces error" << endl;
                     return;
                 }
             }
         }
-        if (!it.getGtbAvailable()) {
+        if (SearchManager::getGtb() == nullptr) {
             cout << "error TB not found" << endl;
             return;
         }

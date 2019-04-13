@@ -13,7 +13,14 @@ or any UCI-compatible GUI. Cinnamon is also a javascript library to play with
   
 Version  
 ----------  
-2.1  
+2.2a
+
+News
+----------
+- Bug fixed using Gaviota Tablebases in Windows
+- Bugs fixed in Uci protocol
+- Improved eval function
+- Improved null moves
   
 Features  
 ----------  
@@ -30,7 +37,7 @@ Features
 - Interruptible multithread Perft test  
 - 32/64 bit architectures  
 - Iterative deeping  
-- Killer heuristics  
+- History heuristics
 - Lazy evaluation  
 - Mvv/Lva  
 - Transposition Table  

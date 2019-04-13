@@ -126,7 +126,7 @@ void Perft::alloc() {
 }
 
 void Perft::setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1) {
-    memset(&perftRes, 0, sizeof(_TPerftRes));
+    memset(static_cast<void*>(&perftRes), 0, sizeof(_TPerftRes));
     if (depth1 <= 0)depth1 = 1;
     mbSize = mbSize1;
     perftRes.depth = depth1;

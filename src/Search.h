@@ -27,12 +27,12 @@
 #include "threadPool/Thread.h"
 #include "db/GTB.h"
 
-class Search: public Eval, public Thread<Search>, public Hash {
+class Search: public Eval, public Thread<Search> {
 
 public:
 
     typedef struct {
-        _ThashData phasheType[2];
+        Hash::_ThashData phasheType[2];
     } _TcheckHash;
 
     Search();
@@ -59,8 +59,6 @@ public:
 
     int getRunning();
 
-    void deleteGtb();
-
     _TpvLine &getPvLine() {
         return pvLine;
     }
@@ -72,22 +70,15 @@ public:
 
     void run();
 
-    void endRun();
+    void endRun() { };
 #ifndef JS_MODE
     void printDtmGtb();
 #endif
-    GTB &getGtb() const;
 
     void setMainPly(int);
 
-    bool getGtbAvailable();
-
-    STATIC_CONST int NULLMOVE_DEPTH = 3;
-    STATIC_CONST int NULLMOVES_MIN_PIECE = 3;
-    STATIC_CONST int NULLMOVES_R1 = 2;
-    STATIC_CONST int NULLMOVES_R2 = 3;
-    STATIC_CONST int NULLMOVES_R3 = 2;
-    STATIC_CONST int NULLMOVES_R4 = 2;
+    STATIC_CONST int NULL_DIVISOR = 6;
+    STATIC_CONST int NULL_DEPTH = 3;
     STATIC_CONST int VAL_WINDOW = 50;
 
     void setRunningThread(bool t) {
@@ -96,12 +87,6 @@ public:
     string probeRootTB();
     bool getRunningThread() const {
         return runningThread;
-    }
-
-    void setGtb(GTB &tablebase);
-
-    void setValWindow(int valWin) {
-        Search::valWindow = valWin;
     }
 
     int getValWindow() const {
@@ -124,13 +109,19 @@ public:
 
     void unsetSearchMoves();
     void setSearchMoves(vector<int> &v);
+    void setHash(Hash *h) {
+        hash = h;
+    }
+
 private:
+
+    Hash *hash;
 
     vector<int> searchMovesVector;
     int valWindow = INT_MAX;
-    static bool runningThread;
+    static volatile bool runningThread;
     _TpvLine pvLine;
-    static GTB *gtb;
+
     bool ponder;
 
     template<bool searchMoves>
@@ -145,7 +136,7 @@ private:
     bool checkDraw(u64);
 
     template<int side, bool checkMoves>
-    int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn);
+    int search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn, int n_root_moves);
 
     template<bool checkMoves>
     bool checkSearchMoves(_Tmove *move);
@@ -159,41 +150,43 @@ private:
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
-//    int getDtm1(const int side, _TpvLine *pline, const int depth, const int nPieces) const;
-
     int mainMateIn;
     int mainDepth;
-    inline int checkHash(const int type, const bool quies, const int alpha, const int beta, const int depth,
-                         const u64 zobristKeyR,
-                         _TcheckHash &checkHashStruct) {
-
-        _ThashData *phashe = &checkHashStruct.phasheType[type];
-        if ((phashe->dataU = readHash(type, zobristKeyR))) {
+    inline pair<int, _TcheckHash> checkHash(const int type,
+                                            const bool quies,
+                                            const int alpha,
+                                            const int beta,
+                                            const int depth,
+                                            const u64 zobristKeyR) {
+        ASSERT(hash);
+        _TcheckHash checkHashStruct;
+        Hash::_ThashData *phashe = &checkHashStruct.phasheType[type];
+        if ((phashe->dataU = hash->readHash(type, zobristKeyR))) {
             if (phashe->dataS.depth >= depth) {
-                INC(probeHash);
+                INC(hash->probeHash);
                 if (!currentPly) {
                     if (phashe->dataS.flags == Hash::hashfBETA) {
-                        incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
+                        incHistoryHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
                     }
                 } else {
                     switch (phashe->dataS.flags) {
                         case Hash::hashfEXACT:
                             if (phashe->dataS.score >= beta) {
-                                INC(n_cut_hashB);
-                                return beta;
+                                INC(hash->n_cut_hashB);
+                                return pair<int, _TcheckHash>(beta, checkHashStruct);
                             }
                             break;
                         case Hash::hashfBETA:
-                            if (!quies)incKillerHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
+                            if (!quies)incHistoryHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
                             if (phashe->dataS.score >= beta) {
-                                INC(n_cut_hashB);
-                                return beta;
+                                INC(hash->n_cut_hashB);
+                                return pair<int, _TcheckHash>(beta, checkHashStruct);
                             }
                             break;
                         case Hash::hashfALPHA:
                             if (phashe->dataS.score <= alpha) {
-                                INC(n_cut_hashA);
-                                return alpha;
+                                INC(hash->n_cut_hashA);
+                                return pair<int, _TcheckHash>(alpha, checkHashStruct);
                             }
                             break;
                         default:
@@ -203,8 +196,8 @@ private:
                 }
             }
         }
-        INC(cutFailed);
-        return INT_MAX;
+        INC(hash->cutFailed);
+        return pair<int, _TcheckHash>(INT_MAX, checkHashStruct);
 
     }
 };

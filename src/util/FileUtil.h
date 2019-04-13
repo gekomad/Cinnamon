@@ -21,17 +21,19 @@
 #include <fstream>
 #include "String.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
+
 using namespace std;
 
 class FileUtil {
 public:
     static bool fileExists(const string &filename) {
-        ifstream inData;
-        inData.open(filename);
-        if (!inData) {
+
+        struct stat info;
+        if (stat(filename.c_str(), &info) != 0)
             return false;
-        }
-        inData.close();
         return true;
     }
 

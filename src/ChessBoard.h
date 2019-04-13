@@ -239,6 +239,12 @@ protected:
                 chessboard[QUEEN_BLACK + side]);
     }
 
+    template<int side>
+    u64 getPiecesNoKing() const {
+        return chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] |
+            chessboard[PAWN_BLACK + side] | chessboard[QUEEN_BLACK + side];
+    }
+
 #ifdef DEBUG_MODE
 
     void updateZobristKey(int piece, int position) {
