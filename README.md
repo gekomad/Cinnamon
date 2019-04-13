@@ -1,7 +1,7 @@
 
 Cinnamon  
 ==========  
-###UCI Chess Engine  
+### UCI Chess Engine
   
 Cinnamon is a chess program for Windows, Linux, Mac OS, Android and Raspberry Pi, is a console-based chess engine for use with  
 [xboard][4],  
