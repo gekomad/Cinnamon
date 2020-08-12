@@ -28,7 +28,11 @@
 #include <future>
 #include "namespaces/def.h"
 
-class SearchManager: public Singleton<SearchManager> {
+class SearchManager: public Singleton<SearchManager>
+#ifdef FULL_TEST
+        , public ThreadPool<Search>
+#endif
+{
     friend class Singleton<SearchManager>;
 
 public:

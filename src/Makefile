@@ -72,7 +72,7 @@ help:
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=-DDEBUG_MODE$(CFLAGS)-DFULL_TEST all
+	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/lib/x86_64-linux-gnu/libgtest.a " CFLAGS=-DDEBUG_MODE$(CFLAGS)-DFULL_TEST all
 	$(PA)$(EXE)
 else
 ifeq ($(PROFILE_GCC),yes)
