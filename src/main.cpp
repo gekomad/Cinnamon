@@ -16,11 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "db/bitbase/kpk.h"
 #include "Uci.h"
-#include "util/GetOpt.h"
+#include "GetOpt.h"
 
-#if defined(DEBUG_MODE) || defined(FULL_TEST)
+#if defined(FULL_TEST)
 
 #include <gtest/gtest.h>
 
@@ -40,67 +39,16 @@
 
  */
 
-using namespace _board;
-
-void printHeader() {
-
-    cout << NAME << " UCI chess engine by Giuseppe Cannella\n";
-
-#ifdef HAS_64BIT
-    cout << "64-bit ";
-#else
-    cout << "32-bit ";
-#endif
-#ifdef HAS_POPCNT
-    cout << "popcnt ";
-#endif
-#ifdef HAS_BSF
-    cout << "bsf ";
-#endif
-    cout << "compiled " << __DATE__ << " with ";
-#if defined(__clang__)
-    cout << "Clang/LLVM " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
-#elif defined(__ICC) || defined(__INTEL_COMPILER)
-    cout << "Intel ICC "<<__VERSION__;
-#elif defined(__GNUC__) || defined(__GNUG__)
-    cout << "GNU GCC " << __VERSION__;
-#elif defined(__HP_cc) || defined(__HP_aCC)
-    cout << "Hewlett-Packard aC++" <<__HP_aCC;
-#elif defined(__IBMC__) || defined(__IBMCPP__)
-    cout << "IBM XL C++ <<"__IBMCPP__;
-#elif defined(_MSC_VER)
-    cout << "Microsoft Visual Studio. "<<_MSC_VER;
-#elif defined(__PGI)
-    cout << "Portland Group PGCC/PGCPP "<<__PGIC__;
-#elif defined(__SUNPRO_C) || defined(__SUNPRO_CC)
-    cout << "Oracle Solaris Studio "<<__SUNPRO_CC;
-#else
-    cout << "Unknown compiler";
-#endif
-    cout << "\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\n";
-#ifdef CLOP
-    cout << "CLOP ENABLED\n";
-#endif
-#ifdef DEBUG_MODE
-    cout << "DEBUG_MODE\n";
-    cout << "Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << endl;
-#endif
-    cout << flush;
-}
+using namespace constants;
 
 int main(int argc, char **argv) {
     ASSERT(sizeof(Hash::_Thash) == 16);
-    ASSERT(sizeof(_Tmove) == 16);
-
-    printHeader();
+    ASSERT(sizeof(_Tmove) == 8);
 
 #if defined(FULL_TEST)
     testing::InitGoogleTest(&argc, argv);
     if (RUN_ALL_TESTS())return 1;
-#if defined(FULL_TEST)
     return 0;
-#endif
-    cout << "\n\n";
 #endif
 
     GetOpt::parse(argc, argv);

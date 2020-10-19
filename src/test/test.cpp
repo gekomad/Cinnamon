@@ -18,15 +18,16 @@
 
 #if defined(FULL_TEST)
 
-#include <gtest/gtest.h>
-
 #include "pin.cpp"
 #include "eval.cpp"
 #include "spinlockShared.cpp"
 #include "spinlock.cpp"
 #include "search.cpp"
-#include "util/fileUtil.cpp"
-#include "util/string.cpp"
 #include "perft.cpp"
+#include "perft960.cpp"
+#include "syzygy.cpp"
+#include "gtb.cpp"
+#include "fileUtil.cpp"
+#include "string.cpp"
 
 #endif

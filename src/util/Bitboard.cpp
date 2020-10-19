@@ -26,7 +26,7 @@ volatile bool Bitboard::generated = false;
 mutex Bitboard::mutexConstructor;
 
 Bitboard::Bitboard() {
-    std::lock_guard <std::mutex> lock(mutexConstructor);
+    std::lock_guard<std::mutex> lock(mutexConstructor);
     if (generated) {
         return;
     }
@@ -88,9 +88,9 @@ Bitboard::Bitboard() {
 }
 
 void Bitboard::popolateDiagonal() {
-    vector <u64> combinationsDiagonal;
+    vector<u64> combinationsDiagonal;
     for (uchar pos = 0; pos < 64; pos++) {
-        combinationsDiagonal = getCombination(_board::DIAGONAL[pos]);
+        combinationsDiagonal = getCombination(constants::DIAGONAL[pos]);
         for (u64 allpieces:combinationsDiagonal) {
             uchar idx = diagonalIdx(pos, allpieces);
             BITBOARD_DIAGONAL[pos][idx] = performDiagShift(pos, allpieces) | performDiagCapture(pos, allpieces);
@@ -99,9 +99,9 @@ void Bitboard::popolateDiagonal() {
 }
 
 void Bitboard::popolateColumn() {
-    vector <u64> combinationsColumn;
+    vector<u64> combinationsColumn;
     for (uchar pos = 0; pos < 64; pos++) {
-        combinationsColumn = getCombination(_board::FILE_[pos]);
+        combinationsColumn = getCombination(constants::FILE_[pos]);
         for (u64 allpieces:combinationsColumn) {
             uchar idx = fileIdx(pos, allpieces);
             BITBOARD_FILE[pos][idx] = performColumnShift(pos, allpieces) | performColumnCapture(pos, allpieces);
@@ -110,9 +110,9 @@ void Bitboard::popolateColumn() {
 }
 
 void Bitboard::popolateRank() {
-    vector <u64> combinationsRank;
+    vector<u64> combinationsRank;
     for (uchar pos = 0; pos < 64; pos++) {
-        combinationsRank = getCombination(_board::RANK[pos]);
+        combinationsRank = getCombination(constants::RANK[pos]);
         for (u64 allpieces:combinationsRank) {
             uchar idx = rankIdx(pos, allpieces);
             BITBOARD_RANK[pos][idx] = performRankShift(pos, allpieces) | performRankCapture(pos, allpieces);
@@ -121,9 +121,9 @@ void Bitboard::popolateRank() {
 }
 
 void Bitboard::popolateAntiDiagonal() {
-    vector <u64> combinationsAntiDiagonal;
+    vector<u64> combinationsAntiDiagonal;
     for (uchar pos = 0; pos < 64; pos++) {
-        combinationsAntiDiagonal = getCombination(_board::ANTIDIAGONAL[pos]);
+        combinationsAntiDiagonal = getCombination(constants::ANTIDIAGONAL[pos]);
         for (u64 allpieces:combinationsAntiDiagonal) {
             uchar idx = antiDiagonalIdx(pos, allpieces);
             BITBOARD_ANTIDIAGONAL[pos][idx] =
@@ -246,15 +246,15 @@ u64 Bitboard::performDiagCapture(const int position, const u64 allpieces) {
     return k;
 }
 
-vector <u64> Bitboard::combinations(const vector <u64> &elems,
-                                    const int len,
-                                    vector<int> &pos,
-                                    const int depth,
-                                    const int margin) {
-    vector <u64> res;
+vector<u64> Bitboard::combinations(const vector<u64> &elems,
+                                   const int len,
+                                   vector<int> &pos,
+                                   const int depth,
+                                   const int margin) {
+    vector<u64> res;
     if (depth >= len) {
-        for (unsigned ii = 0; ii < pos.size(); ++ii) {
-            res.push_back(elems[pos[ii]]);
+        for (int po : pos) {
+            res.push_back(elems[po]);
         }
         return res;
     }
@@ -264,21 +264,21 @@ vector <u64> Bitboard::combinations(const vector <u64> &elems,
 
     for (unsigned ii = margin; ii < elems.size(); ++ii) {
         pos[depth] = ii;
-        vector <u64> A = combinations(elems, len, pos, depth + 1, ii + 1);
+        vector<u64> A = combinations(elems, len, pos, depth + 1, ii + 1);
         res.insert(res.end(), A.begin(), A.end());
     }
 
     return res;
 }
 
-vector <u64>  Bitboard::combinations(const vector <u64> &elems, const int len) {
+vector<u64>  Bitboard::combinations(const vector<u64> &elems, const int len) {
     vector<int> positions(len, 0);
     return combinations(elems, len, positions, 0, 0);
 
 }
 
-vector <u64> Bitboard::getCombination(u64 elements) {
-    vector <u64> res;
+vector<u64> Bitboard::getCombination(u64 elements) {
+    vector<u64> res;
     for (; elements; RESET_LSB(elements)) {
         const int o = BITScanForward(elements);
         res.push_back(o);
@@ -286,9 +286,9 @@ vector <u64> Bitboard::getCombination(u64 elements) {
     return getCombination(res);
 }
 
-vector <u64> Bitboard::getCombination(const vector <u64> elements) {
-    vector <u64> res;
-    vector <u64> v;
+vector<u64> Bitboard::getCombination(const vector<u64> elements) {
+    vector<u64> res;
+    vector<u64> v;
     u64 bits = 0;
 
     for (unsigned len = 1; len < elements.size() + 1; len++) {
@@ -305,6 +305,3 @@ vector <u64> Bitboard::getCombination(const vector <u64> elements) {
     }
     return res;
 }
-
-
-

@@ -18,14 +18,11 @@
 
 #include "Uci.h"
 #include "../perft/Perft.h"
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 
 Uci *u = NULL;
 
-using namespace _board;
+using namespace constants;
 
 extern "C" {
 
@@ -33,9 +30,9 @@ char *command(char *t, char *arg) {
     return u->command(t, arg);
 }
 
-unsigned perft(char *fen, int depth, int hashSize) {
+unsigned perft(char *fen, int depth, int hashSize, bool chess960) {
     Perft *p = &Perft::getInstance();
-    p->setParam(fen, depth, 1, hashSize, "");
+    p->setParam(fen, depth, 1, hashSize, "", chess960);
     p->start();
     p->join();
     return p->getResult();

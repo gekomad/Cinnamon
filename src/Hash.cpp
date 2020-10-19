@@ -45,13 +45,13 @@ void Hash::clearHash() {
 }
 
 int Hash::getHashSize() const {
-    return HASH_SIZE / (1024 * 1000 / (sizeof(_Thash) * 2));
+    return HASH_SIZE / (1024 * 1024 / (sizeof(_Thash) * 2));
 }
 
 void Hash::setHashSize(int mb) {
     dispose();
     if (mb > 0) {
-        int tmp = mb * 1024 * 1000 / (sizeof(_Thash) * 2);
+        int tmp = mb * 1024 * 1024 / (sizeof(_Thash) * 2);
         hashArray[HASH_ALWAYS] = (_Thash *) calloc(tmp, sizeof(_Thash));
         if (!hashArray[HASH_ALWAYS]) {
             fatal("info string error - no memory");
@@ -77,7 +77,4 @@ void Hash::dispose() {
     HASH_SIZE = 0;
 }
 
-Hash::~Hash() {
-    dispose();
-}
 

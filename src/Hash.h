@@ -19,24 +19,25 @@
 #pragma once
 
 #include <iostream>
-#include <string.h>
-#include "namespaces/def.h"
-#include "namespaces/board.h"
+#include <cstring>
+#include "namespaces/bits.h"
+#include "namespaces/constants.h"
 #include "util/Singleton.h"
 #include "util/logger.h"
 #include "threadPool/Spinlock.h"
 #include <mutex>
 
-using namespace _board;
+using namespace constants;
 using namespace _logger;
 
-class Hash{
+class Hash : public Singleton<Hash> {
+    friend class Singleton<Hash>;
 
 public:
 
     static constexpr int HASH_ALWAYS = 1;
     static constexpr int HASH_GREATER = 0;
-    Hash();
+
     typedef union _ThashData {
         u64 dataU;
 
@@ -48,18 +49,18 @@ public:
             uchar entryAge;
             uchar flags;
 
-            __dataS() { };
+            __dataS() {};
 
             __dataS(const short score, const char depth, const uchar from, const uchar to, const uchar entryAge,
                     const uchar flags) :
-                score(score), depth(depth), from(from), to(to), entryAge(entryAge), flags(flags) { };
+                    score(score), depth(depth), from(from), to(to), entryAge(entryAge), flags(flags) {};
         } dataS;
 
-        _ThashData() { };
+        _ThashData() {};
 
         _ThashData(const short score, const char depth, const uchar from, const uchar to, const uchar entryAge,
                    const uchar flags) :
-            dataS(score, depth, from, to, entryAge, flags) { };
+                dataS(score, depth, from, to, entryAge, flags) {};
     } __Tdata;
 
     typedef struct {
@@ -67,7 +68,7 @@ public:
         _ThashData u;
     } _Thash;
 
-    enum: char {
+    enum : char {
         hashfALPHA = 0, hashfEXACT = 1, hashfBETA = 2
     };
 
@@ -76,8 +77,6 @@ public:
 
     int n_cut_hashA, n_cut_hashB, cutFailed, probeHash;
 #endif
-
-    ~Hash();
 
     void setHashSize(int mb);
 
@@ -136,11 +135,10 @@ public:
         tmp.dataS.entryAge = 1;
         rootHashA->key = (zobristKey ^ tmp.dataU);
         rootHashA->u.dataU = tmp.dataU;
-
     }
 
 private:
-
+    Hash();
     int HASH_SIZE;
 #ifdef JS_MODE
     static constexpr int HASH_SIZE_DEFAULT = 1;
@@ -149,6 +147,7 @@ private:
 #endif
 
     void dispose();
+
     _Thash *hashArray[2];
 };
 

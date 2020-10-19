@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <iomanip>
 
-class IterativeDeeping: public Thread<IterativeDeeping> {
+class IterativeDeeping : public Thread<IterativeDeeping> {
 
 public:
 
@@ -41,7 +41,7 @@ public:
 
     void run();
 
-    void endRun() { };
+    void endRun() {};
 
     bool getPonderEnabled() const;
 
@@ -59,6 +59,10 @@ public:
 
     int loadFen(const string fen = "");
 
+    string getFen() {
+        return searchManager.getFen();
+    }
+
     bool setNthread(const int i);
 
     int getRunning() const {
@@ -72,8 +76,6 @@ public:
 private:
 
 #ifdef DEBUG_MODE
-    //for statistics
-
     atomic_int checkSmp2;
 #endif
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();

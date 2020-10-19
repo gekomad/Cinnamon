@@ -19,11 +19,41 @@
 #if defined(FULL_TEST)
 
 #include <gtest/gtest.h>
-#include "../../util/FileUtil.h"
 
-TEST(FileUtilTest, getFileName) {
-    ASSERT_EQ("c.txt", FileUtil::getFileName("c:\\a\\b\\c.txt"));
-    ASSERT_EQ("c.txt", FileUtil::getFileName("/a/b/c.txt"));
+TEST(StringTest, trim) {
+    String s(" hello ");
+    ASSERT_EQ("hello", s.trim());
+}
+
+TEST(StringTest, endsWith) {
+    String s("hello");
+    ASSERT_TRUE(s.endsWith("lo"));
+}
+
+TEST(StringTest, trimLeft) {
+    String s(" hello ");
+    ASSERT_EQ("hello ", s.trimLeft());
+}
+
+TEST(StringTest, trimRight) {
+    String s(" hello ");
+    ASSERT_EQ(" hello", s.trimRight());
+}
+
+
+TEST(StringTest, replace) {
+    String s(" hello ");
+    ASSERT_EQ(" hexxo ", s.replace("l", "x"));
+}
+
+TEST(StringTest, replaceChar) {
+    String s(" hello ");
+    ASSERT_EQ(" hexxo ", s.replace('l', 'x'));
+}
+
+TEST(StringTest, toLower) {
+    String s("HELLO");
+    ASSERT_EQ("hello", s.toLower());
 }
 
 #endif

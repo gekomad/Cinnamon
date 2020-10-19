@@ -22,7 +22,7 @@
 #include <atomic>
 #include <unistd.h>
 #include "ObserverThread.h"
-#include "../namespaces/def.h"
+#include "../namespaces/bits.h"
 #include <condition_variable>
 #include "../namespaces/debug.h"
 #include "../util/logger.h"
@@ -41,7 +41,7 @@ public:
     ThreadPool() : ThreadPool(thread::hardware_concurrency()) { }
 
     T &getNextThread() {
-        unique_lock <mutex> lck(mtx);
+        unique_lock<mutex> lck(mtx);
         cv.wait(lck, [this] { return bitCount(threadsBits) != nThread; });
         return getThread();
     }
@@ -114,7 +114,7 @@ public:
 private:
     vector<T *> threadPool;
     mutex mtx;
-    atomic <u64> threadsBits;
+    atomic<u64> threadsBits;
     int nThread = 0;
     condition_variable cv;
 

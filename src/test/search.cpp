@@ -19,8 +19,8 @@
 #if defined(FULL_TEST)
 
 #include <gtest/gtest.h>
-#include <set>
 #include "../IterativeDeeping.h"
+#include "../def.h"
 
 
 TEST(search, test0) {
@@ -62,16 +62,16 @@ TEST(search, test2) {
 }
 
 TEST(search, twoCore) {
-    const set<string> v = {"d2d4", "e2e4", "e2e3"};
+    const set<string> v = {"d2d4", "e2e4", "e2e3", "b1c3", "g1f3"};
     IterativeDeeping it;
     it.setNthread(2);
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     searchManager.setMaxTimeMillsec(250);
-    it.setMaxDepth(_board::MAX_PLY);
+    it.setMaxDepth(MAX_PLY);
     it.start();
     it.join();
+    cout << "twoCore res: " << it.getBestmove() << endl;
     EXPECT_TRUE(v.end() != v.find(it.getBestmove()));
-    it.setNthread(1);
 }
 
 #endif

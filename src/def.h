@@ -16,25 +16,50 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #pragma once
 
-#include "../namespaces/bits.h"
-#include <atomic>
+static constexpr int MAX_PLY = 96;
 
-using namespace _def;
-using namespace std;
-
-typedef struct {
-    u64 key;
-    u64 nMoves;
-} _ThashPerft;
-
+typedef unsigned char uchar;
+typedef long long unsigned u64;
+typedef u64 _Tchessboard[16];
 
 typedef struct {
-    atomic_ullong totMoves;
-    u64 sizeAtDepth[255];
-    int depth;
-    int nCpu;
-    bool chess960;
-} _TPerftRes;
+    u64 allPieces;
+    u64 kingAttackers[2];
+    u64 allPiecesSide[2];
+    u64 openFile;
+    u64 semiOpenFile[2];
+    u64 allPiecesNoPawns[2];
+    u64 posKingBit[2];
+    //u64 pinned[2]; anche x regina?
+    int kingSecurity[2];
+    uchar posKing[2];
+} _Tboard;
 
+
+typedef union {
+    u64 u;
+    struct s {
+        char promotionPiece;
+        char pieceFrom;
+        uchar capturedPiece;
+        uchar from;
+        uchar to;
+        char side;
+        uchar type;
+//    uchar used;
+        //char score1;
+    } s;
+} _Tmove;
+
+typedef struct {
+    _Tmove *moveList;
+    int size;
+} _TmoveP;
+
+typedef struct {
+    int cmove;
+    _Tmove argmove[MAX_PLY];
+} _TpvLine;

@@ -31,7 +31,7 @@ public:
 
     void run();
 
-    void registerObservers(function<void(void)> f);
+    void registerObservers(const function<void(void)>& f);
 
     void notifyObservers(void);
 
@@ -41,5 +41,5 @@ private:
     int seconds;
     condition_variable cv;
     mutex mtx;
-    vector <function<void(void)>> observers;
+    vector<function<void(void)>> observers;
 };

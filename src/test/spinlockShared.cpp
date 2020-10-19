@@ -22,7 +22,6 @@
 #include <thread>
 #include "../util/Random.h"
 #include "../threadPool/Spinlock.h"
-#include "../namespaces/def.h"
 
 
 using namespace std;

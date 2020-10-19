@@ -27,14 +27,20 @@
 #include "PerftThread.h"
 #include "../threadPool/ThreadPool.h"
 #include "_TPerftRes.h"
-#include <signal.h>
+#include <csignal>
 
-class Perft: public Thread<Perft>, public ThreadPool<PerftThread>, public Singleton<Perft> {
+class Perft : public Thread<Perft>, public ThreadPool<PerftThread>, public Singleton<Perft> {
     friend class Singleton<Perft>;
 
 public:
+    static _ThashPerft **hash;
 
-    void setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1);
+    void setParam(const string &fen1,
+                  int depth1,
+                  const int nCpu2,
+                  const int mbSize1,
+                  const string &dumpFile1,
+                  const bool chess960);
 
     ~Perft();
 
@@ -51,15 +57,18 @@ public:
     }
 
 private:
-    Perft() : ThreadPool(1) { };
+    Perft() : ThreadPool(1) {};
 
     _TPerftRes perftRes;
     Time time;
     string fen;
     string dumpFile;
     u64 mbSize;
+    bool chess960;
 
     void alloc();
+
+    void dealloc() const;
 
     bool load();
 
@@ -70,11 +79,9 @@ private:
             cout << "dumping hash... " << endl;
             return;
         }
-
         Perft::getInstance().dump();
         if (s < 0)cout << s;
-        exit(1);
-
+        exit(0);
     }
 
     static bool dumping;

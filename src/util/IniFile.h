@@ -37,7 +37,7 @@ public:
 
     string getValue(const string &value);
 
-    pair <string, string> *get();
+    pair<string, string> *get();
 
 private:
     std::regex rgxLine;
@@ -45,6 +45,6 @@ private:
     bool endFile = true;
     ifstream inData;
     string fileName;
-    pair <string, string> params;
+    pair<string, string> params;
 };
 

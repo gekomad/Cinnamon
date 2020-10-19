@@ -19,35 +19,23 @@
 #pragma once
 
 #include "IterativeDeeping.h"
-#include "perft/Perft.h"
-
 #include <string.h>
 #include "util/String.h"
 
 class Uci: public Singleton<Uci> {
     friend class Singleton<Uci>;
 
-public:
-    Uci(const string &fen, int perftDepth, int nCpu, int perftHashSize, const string &dumpFile);
-
-    virtual ~Uci();
-
 private:
     Uci();
-
-    Perft *perft = nullptr;
 
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
     bool uciMode;
-    GTB *gtb = nullptr;
 
     void listner(IterativeDeeping *it);
 
     void getToken(istringstream &uip, String &token);
 
     void startListner();
-
-    bool runPerftAndExit = false;
 
 };

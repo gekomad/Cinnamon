@@ -19,11 +19,16 @@
 #pragma once
 
 #include "GenMoves.h"
+#include "namespaces/board.h"
+
+#ifdef BENCH_MODE
+#include "util/bench/Times.h"
+#endif
 #include <fstream>
-#include <string.h>
+#include <cstring>
 #include <iomanip>
 
-using namespace _board;
+using namespace constants;
 
 class Eval: public GenMoves {
 
@@ -31,19 +36,9 @@ public:
 
     Eval();
 
-    virtual ~Eval();
+    ~Eval() override;
 
-#ifdef BENCH_MODE
-    static Time evalTime;
-    static Time bishopTime;
-    static Time pawnTime;
-    static Time kingTime;
-    static Time rookTime;
-    static Time knightTime;
-    static Time queenTime;
-#endif
-
-    short getScore(const u64 key, const int side, const int N_PIECE, const int alpha, const int beta, const bool trace);
+    short getScore(const u64 key, const int side, const int alpha, const int beta, const bool trace);
 
     template<int side>
     int lazyEval() {
@@ -146,8 +141,10 @@ private:
 
     inline void storeHashValue(const u64 key, const short value);
 
-    inline short getHashValue(const u64 key) const;
-
+    static inline short getHashValue(const u64 key) ;
+#ifdef BENCH_MODE
+    Times* times = &Times::getInstance();
+#endif
     enum _Tphase {
         OPEN, MIDDLE, END
     };
@@ -168,34 +165,37 @@ private:
     template<_Tphase phase>
     void getRes(_Tresult &res) {
 
-        BENCH(pawnTime.start());
+        BENCH(times->start("eval pawn"));
         res.pawns[BLACK] = evaluatePawn<BLACK, phase>();
         res.pawns[WHITE] = evaluatePawn<WHITE, phase>();
-        BENCH(pawnTime.stop());
+        BENCH(times->stop("eval pawn"));
 
-        BENCH(bishopTime.start());
+        BENCH(times->start("eval bishop"));
         res.bishop[BLACK] = evaluateBishop<BLACK, phase>(structureEval.allPiecesSide[WHITE]);
         res.bishop[WHITE] = evaluateBishop<WHITE, phase>(structureEval.allPiecesSide[BLACK]);
-        BENCH(bishopTime.stop());
+        BENCH(times->stop("eval bishop"));
 
-        BENCH(queenTime.start());
+        BENCH(times->start("eval queen"));
         res.queens[BLACK] = evaluateQueen<BLACK, phase>(structureEval.allPiecesSide[WHITE]);
         res.queens[WHITE] = evaluateQueen<WHITE, phase>(structureEval.allPiecesSide[BLACK]);
-        BENCH(queenTime.stop());
-        BENCH(rookTime.start());
+        BENCH(times->stop("eval queen"));
+
+        BENCH(times->start("eval rook"));
         res.rooks[BLACK] = evaluateRook<BLACK, phase>(chessboard[KING_BLACK], structureEval.allPiecesSide[WHITE],
                                                       structureEval.allPiecesSide[BLACK]);
         res.rooks[WHITE] = evaluateRook<WHITE, phase>(chessboard[KING_WHITE], structureEval.allPiecesSide[BLACK],
                                                       structureEval.allPiecesSide[WHITE]);
-        BENCH(rookTime.stop());
-        BENCH(knightTime.start());
+        BENCH(times->stop("eval rook"));
+
+        BENCH(times->start("eval knight"));
         res.knights[BLACK] = evaluateKnight<BLACK, phase>(chessboard[WHITE], ~structureEval.allPiecesSide[BLACK]);
         res.knights[WHITE] = evaluateKnight<WHITE, phase>(chessboard[BLACK], ~structureEval.allPiecesSide[WHITE]);
-        BENCH(knightTime.stop());
-        BENCH(kingTime.start());
+        BENCH(times->stop("eval knight"));
+
+        BENCH(times->start("eval king"));
         res.kings[BLACK] = evaluateKing<phase>(BLACK, ~structureEval.allPiecesSide[BLACK]);
         res.kings[WHITE] = evaluateKing<phase>(WHITE, ~structureEval.allPiecesSide[WHITE]);
-        BENCH(kingTime.stop());
+        BENCH(times->stop("eval king"));
     }
 
     template<int side>
@@ -228,7 +228,6 @@ private:
             bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
     }
 
-    void generateLinkRook();
 };
 
 namespace _eval {

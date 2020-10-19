@@ -22,7 +22,7 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
-#include <string.h>
+#include <cstring>
 
 using namespace std;
 #ifdef HAS_64BIT
@@ -30,7 +30,7 @@ using namespace std;
 typedef __int128_t i128;
 #else
 //32 bit
-typedef unsigned long long i128;
+    typedef unsigned long long i128;
 #endif
 
 class String: public string {
@@ -39,7 +39,7 @@ public:
 
     String(const char *s) : string(s) { };
 
-    String() { }
+    String() = default;
 
     bool endsWith(const string &ending) const;
 
@@ -104,7 +104,7 @@ public:
     }
 
     static int stoi(const string &s) {
-        if (s.size() == 0)return 0;
+        if (s.empty())return 0;
         return std::stoi(s);
     }
 

@@ -17,19 +17,17 @@
 */
 
 #include "SearchManager.h"
-#include "namespaces/board.h"
 
 using namespace _logger;
-GTB *SearchManager::gtb;
+
 SearchManager::SearchManager() {
-    //SET(checkSmp1, 0);
-    threadPool = new ThreadPool<Search>();
-    setNthread(1);
+
+    threadPool = new ThreadPool<Search>(1);
 
     IniFile iniFile("cinnamon.ini");
 
     while (true) {
-        pair <string, string> *parameters = iniFile.get();
+        pair<string, string> *parameters = iniFile.get();
         if (!parameters) {
             break;
         }
@@ -48,15 +46,32 @@ SearchManager::SearchManager() {
     }
 }
 
-string SearchManager::probeRootTB() {
-    return threadPool->getThread(0).probeRootTB();
+#if defined(FULL_TEST)
+unsigned SearchManager::SZtbProbeWDL() const {
+    return threadPool->getThread(0).SZtbProbeWDL();
+}
+#endif
+
+string SearchManager::probeRootTB() const {
+    _Tmove bestMove;
+    if (threadPool->getThread(0).probeRootTB(&bestMove)) {
+        string best = string(board::decodeBoardinv(bestMove.s.type, bestMove.s.from, getSide())) +
+                      string(board::decodeBoardinv(bestMove.s.type, bestMove.s.to, getSide()));
+
+        if (bestMove.s.promotionPiece != GenMoves::NO_PROMOTION)
+            best += tolower(bestMove.s.promotionPiece);
+
+        return best;
+    } else
+        return "";
 }
 
-void SearchManager::search(const int mply) {
+int SearchManager::search(const int mply) {
 
     constexpr int SkipStep[64] =
-        {0, 1, 2, 3, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1,
-         1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3};
+            {0, 1, 2, 3, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2,
+             1,
+             1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3};
 
     debug("start singleSearch -------------------------------");
     lineWin.cmove = -1;
@@ -77,7 +92,7 @@ void SearchManager::search(const int mply) {
     mainThread.setMainParam(mply);
     mainThread.run();
 
-    mainThread.getValWindow();
+    auto res = mainThread.getValWindow();
 
     if (mainThread.getRunning()) {
         memcpy(&lineWin, &mainThread.getPvLine(), sizeof(_TpvLine));
@@ -85,6 +100,7 @@ void SearchManager::search(const int mply) {
     stopAllThread();
     threadPool->joinAll();
     debug("end singleSearch -------------------------------");
+    return res;
 }
 
 bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn1) {
@@ -100,13 +116,13 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, 
     for (int t = 0; t < lineWin.cmove; t++) {
         pvvTmp.clear();
         pvvTmp +=
-            Search::decodeBoardinv(lineWin.argmove[t].type,
-                                   lineWin.argmove[t].from,
-                                   threadPool->getThread(0).getSide());
+                board::decodeBoardinv(lineWin.argmove[t].s.type,
+                                      lineWin.argmove[t].s.from,
+                                      board::getSide(threadPool->getThread(0).getChessboard()));
         if (pvvTmp.length() != 4) {
-            pvvTmp += Search::decodeBoardinv(lineWin.argmove[t].type,
-                                             lineWin.argmove[t].to,
-                                             threadPool->getThread(0).getSide());
+            pvvTmp += board::decodeBoardinv(lineWin.argmove[t].s.type,
+                                            lineWin.argmove[t].s.to,
+                                            board::getSide(threadPool->getThread(0).getChessboard()));
         }
         pvv.append(pvvTmp);
         if (t == 1) {
@@ -123,11 +139,10 @@ SearchManager::~SearchManager() {
 }
 
 int SearchManager::loadFen(string fen) {
-    int res = threadPool->getThread(0).loadFen(fen);
-
-    ASSERT_RANGE(res, 0, 1);
-    for (uchar i = 1; i < threadPool->getPool().size(); i++) {
-        threadPool->getThread(i).setChessboard(threadPool->getThread(0).getChessboard());
+    int res = -1;
+    for (uchar i = 0; i < threadPool->getPool().size(); i++) {
+        res = threadPool->getThread(i).loadFen(fen);
+        ASSERT_RANGE(res, 0, 1);
     }
     return res;
 }
@@ -148,8 +163,8 @@ void SearchManager::setMainPly(int r) {
 }
 
 int SearchManager::getPieceAt(int side, u64 i) {
-    return side == WHITE ? threadPool->getThread(0).getPieceAt<WHITE>(i)
-                         : threadPool->getThread(0).getPieceAt<BLACK>(i);
+    return side == WHITE ? board::getPieceAt<WHITE>(i, threadPool->getThread(0).getChessboard())
+                         : board::getPieceAt<BLACK>(i, threadPool->getThread(0).getChessboard());
 }
 
 u64 SearchManager::getTotMoves() {
@@ -166,26 +181,18 @@ void SearchManager::incHistoryHeuristic(int from, int to, int value) {
     }
 }
 
-int SearchManager::getHashSize() {
-    return hash.getHashSize();
-}
-
 void SearchManager::startClock() {
     threadPool->getThread(0).startClock();// static variable
 }
 
 string SearchManager::boardToFen() {
-    return threadPool->getThread(0).boardToFen();
+    return board::boardToFen(threadPool->getThread(0).getChessboard());
 }
 
-void SearchManager::clearHistoryHeuristic() {
+void SearchManager::clearHeuristic() {
     for (Search *s:threadPool->getPool()) {
-        s->clearHistoryHeuristic();
+        s->clearHeuristic();
     }
-}
-
-void SearchManager::clearAge() {
-    hash.clearAge();
 }
 
 int SearchManager::getForceCheck() {
@@ -215,15 +222,11 @@ int SearchManager::getRunning(int i) {
 }
 
 void SearchManager::display() {
-    threadPool->getThread(0).display();
+    board::display(threadPool->getThread(0).getChessboard());
 }
 
 string SearchManager::getFen() {
     return threadPool->getThread(0).getFen();
-}
-
-void SearchManager::setHashSize(int s) {
-    hash.setHashSize(s);
 }
 
 void SearchManager::setMaxTimeMillsec(int i) {
@@ -238,12 +241,12 @@ void SearchManager::unsetSearchMoves() {
     }
 }
 
-void SearchManager::setSearchMoves(vector <string> &searchMov) {
+void SearchManager::setSearchMoves(vector<string> &searchMov) {
     _Tmove move;
     vector<int> searchMoves;
     for (std::vector<string>::iterator it = searchMov.begin(); it != searchMov.end(); ++it) {
         getMoveFromSan(*it, &move);
-        const int x = move.to | (int) (move.from << 8);
+        const int x = move.s.to | (int) (move.s.from << 8);
         searchMoves.push_back(x);
     }
     for (Search *s:threadPool->getPool()) {
@@ -257,26 +260,18 @@ void SearchManager::setPonder(bool i) {
     }
 }
 
-int SearchManager::getSide() {
+int SearchManager::getSide() const {
 #ifdef DEBUG_MODE
-    int t = threadPool->getThread(0).getSide();
+    int t = board::getSide(threadPool->getThread(0).getChessboard());
     for (Search *s:threadPool->getPool()) {
-        ASSERT(s->getSide() == t);
+        ASSERT(board::getSide(s->getChessboard()) == t)
     }
 #endif
-    return threadPool->getThread(0).getSide();
+    return board::getSide(threadPool->getThread(0).getChessboard());
 }
 
 int SearchManager::getScore(int side, const bool trace) {
-    int N_PIECE = 0;
-#ifdef DEBUG_MODE
-    N_PIECE = bitCount(threadPool->getThread(0).getBitmap<WHITE>() | threadPool->getThread(0).getBitmap<BLACK>());
-#endif
-    return threadPool->getThread(0).getScore(0xffffffffffffffffULL, side, N_PIECE, -_INFINITE, _INFINITE, trace);
-}
-
-void SearchManager::clearHash() {
-    hash.clearHash();
+    return threadPool->getThread(0).getScore(0xffffffffffffffffULL, side, -_INFINITE, _INFINITE, trace);
 }
 
 int SearchManager::getMaxTimeMillsec() {
@@ -289,10 +284,16 @@ void SearchManager::setNullMove(bool i) {
     }
 }
 
+void SearchManager::setChess960(bool i) {
+    for (Search *s:threadPool->getPool()) {
+        s->setChess960(i);
+    }
+}
+
 bool SearchManager::makemove(_Tmove *i) {
     bool b = false;
     for (Search *s:threadPool->getPool()) {
-        b = s->makemove(i);
+        b = s->makemove(i, true, false);
     }
     return b;
 }
@@ -308,24 +309,24 @@ void SearchManager::setSide(bool i) {
         s->setSide(i);
     }
 }
+
 #ifndef JS_MODE
 
-void SearchManager::printDtmGtb() {
-    threadPool->getThread(0).printDtmGtb();
+int SearchManager::printDtmGtb(const bool dtm) {
+    return threadPool->getThread(0).printDtmWdlGtb(dtm);
 }
 
-void SearchManager::deleteGtb() {
-    gtb = nullptr;
+void SearchManager::printDtmSyzygy() {
+    threadPool->getThread(0).printDtzSyzygy();
 }
 
-GTB &SearchManager::createGtb() {
-    gtb = &GTB::getInstance();
-    return *gtb;
+void SearchManager::printWdlSyzygy() {
+    threadPool->getThread(0).printWdlSyzygy();
 }
 
 #endif
 
-int SearchManager::getMoveFromSan(String string, _Tmove *ptr) {
+int SearchManager::getMoveFromSan(String string, _Tmove *ptr) const {
 #ifdef DEBUG_MODE
     int t = threadPool->getThread(0).getMoveFromSan(string, ptr);
     for (Search *s:threadPool->getPool()) {
@@ -356,9 +357,6 @@ void SearchManager::setRepetitionMapCount(int i) {
 
 bool SearchManager::setNthread(int nthread) {
     if (!threadPool->setNthread(nthread))return false;
-    for (Search *s:threadPool->getPool()) {
-        s->setHash(&hash);
-    }
     return true;
 }
 
@@ -373,6 +371,7 @@ bool SearchManager::setParameter(String param, int value) {
     }
     return b;
 }
+
 
 
 

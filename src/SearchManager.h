@@ -26,29 +26,16 @@
 #include "util/IniFile.h"
 #include <algorithm>
 #include <future>
-#include "namespaces/def.h"
+#include "namespaces/bits.h"
 
-class SearchManager: public Singleton<SearchManager>
-#ifdef FULL_TEST
-        , public ThreadPool<Search>
-#endif
-{
+class SearchManager : public Singleton<SearchManager> {
     friend class Singleton<SearchManager>;
 
 public:
 
     bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn);
-    static GTB *gtb;
 
     ~SearchManager();
-#ifndef JS_MODE
-    static GTB *getGtb() {
-        return gtb;
-    }
-
-    GTB &createGtb();
-
-#endif
 
     int loadFen(string fen = "");
 
@@ -58,17 +45,13 @@ public:
 
     void incHistoryHeuristic(int from, int to, int value);
 
-    int getHashSize();
-
     void startClock();
 
     string boardToFen();
 
     bool setParameter(String param, int value);
 
-    void clearHistoryHeuristic();
-
-    void clearAge();
+    void clearHeuristic();
 
     int getForceCheck();
 
@@ -78,7 +61,8 @@ public:
 
     void setRunningThread(bool r);
 
-    string probeRootTB();
+    string probeRootTB() const;
+
     void setRunning(int i);
 
     int getRunning(int i);
@@ -87,22 +71,23 @@ public:
 
     string getFen();
 
-    void setHashSize(int s);
-
     void setMaxTimeMillsec(int i);
+
     void unsetSearchMoves();
-    void setSearchMoves(vector <string> &searchmoves);
+
+    void setSearchMoves(vector<string> &searchmoves);
+
     void setPonder(bool i);
 
-    int getSide();
+    int getSide() const;
 
     int getScore(int side, const bool trace);
-
-    void clearHash();
 
     int getMaxTimeMillsec();
 
     void setNullMove(bool i);
+
+    void setChess960(bool i);
 
     bool makemove(_Tmove *i);
 
@@ -110,32 +95,44 @@ public:
 
     void setSide(bool i);
 
-    bool getGtbAvailable() const;
+    int getMoveFromSan(String string, _Tmove *ptr) const;
 
-    int getMoveFromSan(String string, _Tmove *ptr);
 #ifndef JS_MODE
-    void printDtmGtb();
+
+    int printDtmGtb(const bool dtm);
+
+    void printDtmSyzygy();
+
+    void printWdlSyzygy();
 
 #endif
+
     void pushStackMove();
 
     void init();
 
     void setRepetitionMapCount(int i);
 
-    void deleteGtb();
-
     bool setNthread(int);
 
 #if defined(FULL_TEST)
+
+    unsigned SZtbProbeWDL() const;
+
     u64 getBitmap(const int n, const int side) const {
-        return getPool()[n]->getBitmap(side);
+        return side ? board::getBitmap<WHITE>(threadPool->getPool()[n]->getChessboard())
+                    : board::getBitmap<BLACK>(threadPool->getPool()[n]->getChessboard());
+    }
+
+    const _Tchessboard &getChessboard(const int n) const {
+        return threadPool->getPool()[n]->getChessboard();
     }
 
     template<int side>
     u64 getPinned(const u64 allpieces, const u64 friends, const int kingPosition) const {
-        return getThread(0).getPinned<side>(allpieces, friends, kingPosition);
+        return board::getPinned<side>(allpieces, friends, kingPosition, threadPool->getPool()[0]->getChessboard());
     }
+
 #endif
 
 #ifdef DEBUG_MODE
@@ -197,14 +194,13 @@ public:
     }
 
 #endif
-    const Hash *getHash() const {
-        return &hash;
-    }
-    void search(int mply);
+
+    int search(int mply);
+
 private:
 
-    Hash hash;
     SearchManager();
+
     ThreadPool<Search> *threadPool = nullptr;
 
     int mateIn;

@@ -1,22 +1,34 @@
 cmake_minimum_required(VERSION 3.5)
-project(debug)
+project(cinnamon_debug)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -pthread -pedantic -std=c++11 -DDLOG_LEVEL=_TRACE -DFULL_TEST -DDEBUG_MODE ")
+# debug
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -Wno-braced-scalar-init -mbmi2 -DUSE_BMI2 -DBENCH_MODE -fno-omit-frame-pointer -g -pthread -pedantic -std=c++11 -DDLOG_LEVEL=_TRACE -DDEBUG_MODE -fsigned-char -fno-exceptions -fno-rtti -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -DHAS_64BIT -m64 ")
 
-set(SOURCE_FILES
+# bench
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-braced-scalar-init -mbmi2 -DUSE_BMI2 -pthread -pedantic -DBENCH_MODE -std=c++11 -DDLOG_LEVEL=_FATAL -Wall -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -DHAS_64BIT -m64 ")
+
+# unit test
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-braced-scalar-init -fsanitize=address -fno-omit-frame-pointer -g -pthread -pedantic -std=c++11 -DDLOG_LEVEL=_TRACE -DFULL_TEST -DDEBUG_MODE -fsigned-char -fno-exceptions -fno-rtti -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -DHAS_64BIT -m64 ")
+
+set(SOURCE_FILES 
 
         lib/gtb-probe.h
-        namespaces/board.h
+        namespaces/constants.h
         namespaces/debug.h
-        namespaces/def.h
+        namespaces/bits.h
         namespaces/random.h
+        namespaces/board.h
+        namespaces/board.cpp
         perft/_TPerftRes.h
         perft/Perft.cpp
         perft/Perft.h
         db/OpenBook.cpp
         db/OpenBook.h
-        db/GTB.h
-        db/GTB.cpp
+        db/syzygy/SYZYGY.h
+        db/syzygy/SYZYGY.cpp
+        db/syzygy/tbprobe.c
+        db/gaviota/GTB.h
+        db/gaviota/GTB.cpp
         perft/PerftThread.cpp
         perft/PerftThread.h
         test/test.cpp
@@ -28,15 +40,14 @@ set(SOURCE_FILES
         util/Bitboard.cpp
         util/Bitboard.h
         util/FileUtil.h
-        util/GetOpt.h
+        GetOpt.h
         util/IniFile.cpp
         util/IniFile.h
         util/logger.h
-        util/Random.h
         util/Singleton.h
         util/String.cpp
         util/String.h
-        util/Time.h
+        util/bench/Time.h
         util/Timer.cpp
         util/Timer.h
         ChessBoard.cpp
@@ -55,10 +66,8 @@ set(SOURCE_FILES
         SearchManager.cpp
         SearchManager.h
         Uci.cpp
-        Uci.h
-        WrapperCinnamon.cpp
-        WrapperCinnamon.h)
+        Uci.h)
 
-set(CMAKE_CXX_COMPILER "g++")
-add_executable(debug ${SOURCE_FILES})
-target_link_libraries(debug ${CMAKE_SOURCE_DIR}/lib/Linux/64/libgtb.a /usr/lib/x86_64-linux-gnu/libgtest.a)
+set(CMAKE_CXX_COMPILER "clang++")
+add_executable(cinnamon_debug ${SOURCE_FILES})
+target_link_libraries(cinnamon_debug ${CMAKE_SOURCE_DIR}/lib/Linux/64/libgtb.a /usr/lib/libgtest.a)

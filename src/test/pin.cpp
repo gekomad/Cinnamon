@@ -19,7 +19,6 @@
 #if defined(FULL_TEST)
 
 #include <gtest/gtest.h>
-#include <set>
 #include "../IterativeDeeping.h"
 
 TEST(pin, test1) {
@@ -31,44 +30,51 @@ TEST(pin, test1) {
     it.loadFen("r3k2r/p1ppqpb1/Bn2pnp1/3PN3/1p2P3/2N2Q2/PPPB1PpP/R3K2R w KQkq - 0 1");
     friends = searchManager.getBitmap(0, BLACK);
     enemies = searchManager.getBitmap(0, WHITE);
-    kingPosition = BITScanForward(searchManager.getThread(0).getChessboard()[KING_BLACK]);
+    kingPosition = BITScanForward(searchManager.getChessboard(0)[KING_BLACK]);
     p = searchManager.getPinned<BLACK>(enemies | friends, friends, kingPosition);
     EXPECT_EQ(0, p);
 
     it.loadFen("rnbq1bnr/pppppkpp/8/5p2/4P2P/5Q2/PPPP1PP1/RNB1KBNR b KQ - 0 1");
     friends = searchManager.getBitmap(0, BLACK);
     enemies = searchManager.getBitmap(0, WHITE);
-    kingPosition = BITScanForward(searchManager.getThread(0).getChessboard()[KING_BLACK]);
+    kingPosition = BITScanForward(searchManager.getChessboard(0)[KING_BLACK]);
     p = searchManager.getPinned<BLACK>(enemies | friends, friends, kingPosition);
     EXPECT_EQ(0x400000000ULL, p);
 
     it.loadFen("r3k2r/p1ppqpb1/1n2pnp1/3PN3/1p2P3/2Nb1Q1p/PPPBBPPP/R4K1R w kq - 0 1");
     friends = searchManager.getBitmap(0, WHITE);
     enemies = searchManager.getBitmap(0, BLACK);
-    kingPosition = BITScanForward(searchManager.getThread(0).getChessboard()[KING_WHITE]);
+    kingPosition = BITScanForward(searchManager.getChessboard(0)[KING_WHITE]);
     p = searchManager.getPinned<WHITE>(enemies | friends, friends, kingPosition);
     EXPECT_EQ(0x800ULL, p);
 
     it.loadFen("rn4k1/pp3ppp/2B5/3p4/3P4/8/PPPBb3/RN5K w - - 0 1");
     friends = searchManager.getBitmap(0, WHITE);
     enemies = searchManager.getBitmap(0, BLACK);
-    kingPosition = BITScanForward(searchManager.getThread(0).getChessboard()[KING_WHITE]);
+    kingPosition = BITScanForward(searchManager.getChessboard(0)[KING_WHITE]);
     p = searchManager.getPinned<WHITE>(enemies | friends, friends, kingPosition);
     EXPECT_EQ(0, p);
 
     it.loadFen("rnK3nk/ppB2pp1/1bp1P3/b4q2/6p1/2P4b/PP2PP1P/RN3BNR w - - 0 1");
     friends = searchManager.getBitmap(0, WHITE);
     enemies = searchManager.getBitmap(0, BLACK);
-    kingPosition = BITScanForward(searchManager.getThread(0).getChessboard()[KING_WHITE]);
+    kingPosition = BITScanForward(searchManager.getChessboard(0)[KING_WHITE]);
     p = searchManager.getPinned<WHITE>(enemies | friends, friends, kingPosition);
     EXPECT_EQ(0x80000000000ULL, p);
 
     it.loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     friends = searchManager.getBitmap(0, WHITE);
     enemies = searchManager.getBitmap(0, BLACK);
-    kingPosition = BITScanForward(searchManager.getThread(0).getChessboard()[KING_WHITE]);
+    kingPosition = BITScanForward(searchManager.getChessboard(0)[KING_WHITE]);
     p = searchManager.getPinned<WHITE>(enemies | friends, friends, kingPosition);
     EXPECT_EQ(0, p);
+
+    it.loadFen("r3k2r/p1pp1pb1/1n2pnp1/3PN3/1p2P3/2Nb1q1p/PPPBBPPP/R4K1R w kq - 0 1");
+    friends = searchManager.getBitmap(0, WHITE);
+    enemies = searchManager.getBitmap(0, BLACK);
+    kingPosition = BITScanForward(searchManager.getChessboard(0)[KING_WHITE]);
+    p = searchManager.getPinned<WHITE>(enemies | friends, friends, kingPosition);
+    EXPECT_EQ(0xc00ULL, p);
 
 }
 

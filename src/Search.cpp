@@ -20,11 +20,11 @@
 #include "Search.h"
 #include "SearchManager.h"
 #include "db/bitbase/kpk.h"
-#include "namespaces/board.h"
 
 bool volatile Search::runningThread;
 high_resolution_clock::time_point Search::startTime;
 using namespace _bitbase;
+
 void Search::run() {
     if (getRunning()) {
         if (searchMovesVector.size())
@@ -81,60 +81,176 @@ void Search::clone(const Search *s) {
 }
 
 #ifndef JS_MODE
-void Search::printDtmGtb() {
-    int side = getSide();
-    u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
-    u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-    display();
-    cout << "current: ";
-    SearchManager::getGtb()->getDtm(side, true, chessboard, 100);
-    fflush(stdout);
+
+int Search::SZtbProbeWDL() const {
+    const auto tot = bitCount(board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard));
+    const int side = board::getSide(chessboard);
+    return syzygy->SZtbProbeWDL(chessboard, side, tot);
+}
+
+void Search::printWdlSyzygy() {
+    perftMode = true;
+    const int side = board::getSide(chessboard);
+    u64 friends = side == WHITE ? board::getBitmap<WHITE>(chessboard) : board::getBitmap<BLACK>(chessboard);
+    u64 enemies = side == BLACK ? board::getBitmap<WHITE>(chessboard) : board::getBitmap<BLACK>(chessboard);
+
     incListId();
     generateCaptures(side, enemies, friends);
     generateMoves(side, friends | enemies);
     _Tmove *move;
-    u64 oldKey = 0;
+    u64 oldKey = chessboard[ZOBRISTKEY_IDX];
+    board::display(chessboard);
+
+    unsigned res = syzygy->SZtbProbeWDL(chessboard, side);
+    cout << "current: ";
+    if (res != TB_RESULT_FAILED) {
+        res = TB_GET_WDL(res);
+        if (res == TB_DRAW)cout << " draw" << endl;
+        else if (res == TB_LOSS || res == TB_BLESSED_LOSS)
+            cout << " loss" << endl;
+        else
+            cout << " win" << endl;
+
+    } else
+        cout << " none" << endl;
 
     for (int i = 0; i < getListSize(); i++) {
         move = &gen_list[listId].moveList[i];
         if (!makemove(move, false, true)) {
             takeback(move, oldKey, false);
             continue;
-        };
-
-        cout << endl << decodeBoardinv(move->type, move->from, getSide())
-            << decodeBoardinv(move->type, move->to, getSide()) << " ";
-
-        auto res = -SearchManager::getGtb()->getDtm(side ^ 1, true, chessboard, 100);
-
-        if (res != -INT_MAX) {
-            cout << " res: " << res;
         }
+        board::print(move, chessboard);
+
+        unsigned res = syzygy->SZtbProbeWDL(chessboard, side ^ 1);
+
+        if (res != TB_RESULT_FAILED) {
+            res = TB_GET_WDL(res);
+            if (res == TB_DRAW)cout << " draw" << endl;
+            else if (res == TB_LOSS || res == TB_BLESSED_LOSS)
+                cout << " win" << endl;
+            else
+                cout << " loss" << endl;
+
+        } else
+            cout << " none" << endl;
+        takeback(move, oldKey, false);
+    }
+    cout << endl;
+    decListId();
+}
+
+void Search::printDtzSyzygy() {
+    perftMode = true;
+    const int side = board::getSide(chessboard);
+
+    if ((side == BLACK) ? board::inCheck1<WHITE>(chessboard) : board::inCheck1<BLACK>(chessboard)) {
+        cout << "invalid position" << endl;
+        return;
+    }
+
+    unsigned results[TB_MAX_MOVES];
+
+    const u64 white = board::getBitmap<WHITE>(chessboard);
+    const u64 black = board::getBitmap<BLACK>(chessboard);
+
+    unsigned res = syzygy->SZtbProbeWDL(chessboard, side);
+    board::display(chessboard);
+    cout << "current: ";
+    if (res != TB_RESULT_FAILED) {
+        res = TB_GET_WDL(res);
+        if (res == TB_DRAW)cout << " draw" << endl;
+        else if (res == TB_LOSS || res == TB_BLESSED_LOSS)
+            cout << " loss" << endl;
+        else
+            cout << " win" << endl;
+
+    } else
+        cout << " none" << endl;
+
+    const unsigned res1 = syzygy->SZtbProbeRoot(white, black, chessboard, side, results);
+    if (res1 != TB_RESULT_FAILED) {
+        for (unsigned i = 0; results[i] != TB_RESULT_FAILED; i++) {
+
+            string from = BOARD[_decodeSquare[TB_GET_FROM(results[i])]];
+            string to = BOARD[_decodeSquare[TB_GET_TO(results[i])]];
+
+            cout << from << to;
+            auto a = TB_GET_PROMOTES(results[i]);
+            if (a)cout << SYZYGY::getPromotion(a);
+
+            cout << " ";
+
+            unsigned dtz = TB_GET_DTZ(results[i]);
+            unsigned res = TB_GET_WDL(results[i]);
+            if (res == TB_DRAW) cout << " draw" << endl;
+            else if (res == TB_LOSS)
+                cout << " loss dtz: " << dtz << endl;
+            else if (res == TB_BLESSED_LOSS)
+                cout << " loss but 50-move draw dtz: " << dtz << endl;
+            else if (res == TB_WIN)
+                cout << " win dtz: " << dtz << endl;
+            else if (res == TB_CURSED_WIN)
+                cout << " win but 50-move draw dtz: " << dtz << endl;
+
+        }
+        cout << endl;
+    }
+}
+
+
+int Search::printDtmWdlGtb(const bool dtm) {
+    perftMode = true;
+    int side = board::getSide(chessboard);
+    u64 friends = side == WHITE ? board::getBitmap<WHITE>(chessboard) : board::getBitmap<BLACK>(chessboard);
+    u64 enemies = side == BLACK ? board::getBitmap<WHITE>(chessboard) : board::getBitmap<BLACK>(chessboard);
+    board::display(chessboard);
+    cout << "current: ";
+    unsigned pliestomate;
+    const int res = GTB::getInstance().getDtmWdl(GTB_STM(side), 2, chessboard, &pliestomate, dtm);
+    incListId();
+    generateCaptures(side, enemies, friends);
+    generateMoves(side, friends | enemies);
+    _Tmove *move;
+    u64 oldKey = chessboard[ZOBRISTKEY_IDX];
+
+    for (int i = 0; i < getListSize(); i++) {
+        move = &gen_list[listId].moveList[i];
+        if (!makemove(move, false, true)) {
+            takeback(move, oldKey, false);
+            continue;
+        }
+        board::print(move, chessboard);
+
+        GTB::getInstance().getDtmWdl(GTB_STM(side ^ 1), 1, chessboard, &pliestomate, dtm);
 
         takeback(move, oldKey, false);
 
     }
-
     cout << endl;
-
     decListId();
-
+    return res;
 }
+
 #endif
 
 void Search::setNullMove(bool b) {
     nullSearch = !b;
 }
 
+void Search::setChess960(bool b) {
+    chess960 = b;
+}
+
 void Search::startClock() {
     startTime = std::chrono::high_resolution_clock::now();
 }
 
-void Search::setMainPly(int m) {
+void Search::setMainPly(const int m) {
     mainDepth = m;
 }
 
-int Search::checkTime() {
+int Search::checkTime() const {
     if (getRunning() == 2) {
         return 2;
     }
@@ -150,13 +266,14 @@ Search::~Search() {
 }
 
 template<int side>
-int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIECE, int depth) {
+int Search::quiescence(int alpha, const int beta, const char promotionPiece, const int depth) {
+
     if (!getRunning()) {
         return 0;
     }
 
     const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
-    int score = getScore(zobristKeyR, side, N_PIECE, alpha, beta, false);
+    int score = getScore(zobristKeyR, side, alpha, beta, false);
     if (score >= beta) {
         return beta;
     }
@@ -187,8 +304,8 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
 
     incListId();
 
-    u64 friends = getBitmap<side>();
-    u64 enemies = getBitmap<side ^ 1>();
+    u64 friends = board::getBitmap<side>(chessboard);
+    u64 enemies = board::getBitmap<side ^ 1>(chessboard);
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
 
@@ -201,34 +318,35 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
     _Tmove *move;
     _Tmove *best = &gen_list[listId].moveList[0];
     const u64 oldKey = chessboard[ZOBRISTKEY_IDX];
+    Hash::_ThashData *c = nullptr;
     if (hashAlwaysItem.second.phasheType[Hash::HASH_ALWAYS].dataS.flags & 0x3) {
-        sortFromHash(listId, hashAlwaysItem.second.phasheType[Hash::HASH_ALWAYS]);
+        c = &hashAlwaysItem.second.phasheType[Hash::HASH_ALWAYS];
     } else if (hashGreaterItem.second.phasheType[Hash::HASH_GREATER].dataS.flags & 0x3) {
-        sortFromHash(listId, hashGreaterItem.second.phasheType[Hash::HASH_GREATER]);
+        c = &hashGreaterItem.second.phasheType[Hash::HASH_GREATER];
     }
-
-    while ((move = getNextMove(&gen_list[listId]))) {
+    int first = 0;
+    while ((move = getNextMove(&gen_list[listId], depth, c, first++))) {
         if (!makemove(move, false, true)) {
             takeback(move, oldKey, false);
             continue;
         }
 /**************Delta Pruning ****************/
-        if (fprune && ((move->type & 0x3) != PROMOTION_MOVE_MASK) &&
-            fscore + PIECES_VALUE[move->capturedPiece] <= alpha) {
+        if (fprune && ((move->s.type & 0x3) != PROMOTION_MOVE_MASK) &&
+            fscore + PIECES_VALUE[move->s.capturedPiece] <= alpha) {
             INC(nCutFp);
             takeback(move, oldKey, false);
             continue;
         }
 /************ end Delta Pruning *************/
-        int val = -quiescence<side ^ 1>(-beta, -alpha, move->promotionPiece, N_PIECE - 1, depth - 1);
+        int val = -quiescence<side ^ 1>(-beta, -alpha, move->s.promotionPiece, depth - 1);
         score = max(score, val);
         takeback(move, oldKey, false);
         if (score > alpha) {
             if (score >= beta) {
                 decListId();
                 if (getRunning()) {
-                    Hash::_ThashData data(score, depth, move->from, move->to, 0, Hash::hashfBETA);
-                    hash->recordHash(zobristKeyR, data);
+                    Hash::_ThashData data(score, depth, move->s.from, move->s.to, 0, Hash::hashfBETA);
+                    hash.recordHash(zobristKeyR, data);
                 }
                 return beta;
             }
@@ -238,8 +356,8 @@ int Search::quiescence(int alpha, int beta, const char promotionPiece, int N_PIE
         }
     }
     if (getRunning()) {
-        Hash::_ThashData data(score, depth, best->from, best->to, 0, hashf);
-        hash->recordHash(zobristKeyR, data);
+        Hash::_ThashData data(score, depth, best->s.from, best->s.to, 0, hashf);
+        hash.recordHash(zobristKeyR, data);
     }
     decListId();
 
@@ -257,7 +375,7 @@ void Search::setRunning(int r) {
     }
 }
 
-int Search::getRunning() {
+int Search::getRunning() const {
     if (!runningThread)return 0;
     return GenMoves::getRunning();
 
@@ -267,50 +385,8 @@ void Search::setMaxTimeMillsec(int n) {
     maxTimeMillsec = n;
 }
 
-int Search::getMaxTimeMillsec() {
+int Search::getMaxTimeMillsec() const {
     return maxTimeMillsec;
-}
-
-void Search::sortFromHash(const int listId, const Hash::_ThashData &phashe) {
-    for (int r = 0; r < gen_list[listId].size; r++) {
-        _Tmove *mos = &gen_list[listId].moveList[r];
-        ASSERT_RANGE(phashe.dataS.from, 0, 63);
-        ASSERT_RANGE(phashe.dataS.to, 0, 63);
-        if (phashe.dataS.from == mos->from && phashe.dataS.to == mos->to) {
-            mos->score = _INFINITE / 2;
-            return;
-        }
-    }
-}
-
-bool Search::checkInsufficientMaterial(int nPieces) {
-    //regexp: KN?B*KB*
-    switch (nPieces) {
-        case 2 :
-            //KK
-            return true;
-        case 3:
-            //KBK
-            if (chessboard[BISHOP_BLACK] || chessboard[BISHOP_WHITE])return true;
-            //KNK
-            if (chessboard[KNIGHT_BLACK] || chessboard[KNIGHT_WHITE])return true;
-            break;
-        case 4 :
-            //KBKB
-            if (chessboard[BISHOP_BLACK] && chessboard[BISHOP_WHITE])return true;
-            //KNKN
-            if (chessboard[KNIGHT_BLACK] && chessboard[KNIGHT_WHITE])return true;
-            //KBKN
-            if (chessboard[BISHOP_BLACK] && chessboard[KNIGHT_WHITE])return true;
-            if (chessboard[BISHOP_WHITE] && chessboard[KNIGHT_BLACK])return true;
-            //KNNK
-            if (bitCount(chessboard[KNIGHT_BLACK]) == 2)return true;
-            if (bitCount(chessboard[KNIGHT_WHITE]) == 2)return true;
-            break;
-        default:
-            return false;
-    }
-    return false;
 }
 
 bool Search::checkDraw(u64 key) {
@@ -342,176 +418,357 @@ void Search::setMainParam(const int depth) {
 template<bool searchMoves>
 int Search::search(const int depth, const int alpha, const int beta) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
+    auto ep = chessboard[ENPASSANT_IDX];
     incListId();
-    const int side = getSide();
-    const u64 friends = (side == WHITE) ? getBitmap<WHITE>() : getBitmap<BLACK>();
-    const u64 enemies = (side == WHITE) ? getBitmap<BLACK>() : getBitmap<WHITE>();
+    const int side = board::getSide(chessboard);
+    const u64 friends = (side == WHITE) ? board::getBitmap<WHITE>(chessboard) : board::getBitmap<BLACK>(chessboard);
+    const u64 enemies = (side == WHITE) ? board::getBitmap<BLACK>(chessboard) : board::getBitmap<WHITE>(chessboard);
     generateCaptures(side, enemies, friends);
     generateMoves(side, friends | enemies);
     int n_root_moves = getListSize();
     decListId();
-    return getSide() ? search<WHITE, searchMoves>(depth,
-                                                  alpha,
-                                                  beta,
-                                                  &pvLine,
-                                                  bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()),
-                                                  &mainMateIn,
-                                                  n_root_moves)
-                     : search<BLACK, searchMoves>(depth, alpha, beta, &pvLine,
-                                                  bitCount(getBitmap<WHITE>() | getBitmap<BLACK>()), &mainMateIn,
-                                                  n_root_moves);
+    chessboard[ENPASSANT_IDX] = ep;
+    return board::getSide(chessboard) ? search<WHITE, searchMoves>(depth,
+                                                                   alpha,
+                                                                   beta,
+                                                                   &pvLine,
+                                                                   bitCount(board::getBitmap<WHITE>(chessboard) |
+                                                                            board::getBitmap<BLACK>(chessboard)),
+                                                                   &mainMateIn,
+                                                                   n_root_moves)
+                                      : search<BLACK, searchMoves>(depth, alpha, beta, &pvLine,
+                                                            bitCount(board::getBitmap<WHITE>(chessboard) |
+                                                                     board::getBitmap<BLACK>(chessboard)),
+                                                            &mainMateIn,
+                                                            n_root_moves);
 }
 
-string Search::probeRootTB() {
-    const auto tot = bitCount(getBitmap<WHITE>() | getBitmap<BLACK>());
-    const int side = getSide();
-    string best = "";
-#ifndef JS_MODE
-    if (SearchManager::getGtb() && SearchManager::getGtb()->isInstalledPieces(tot)) {
-        u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
-        u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-        //display();
+bool Search::probeRootTB(_Tmove *res) {
+    const u64 white = board::getBitmap<WHITE>(chessboard);
+    const u64 black = board::getBitmap<BLACK>(chessboard);
+    const auto tot = bitCount(white | black);
+    const int side = board::getSide(chessboard);
+
+    const u64 oldKey = chessboard[ZOBRISTKEY_IDX];
+
+    if (tot == 3 && (chessboard[WHITE] || chessboard[BLACK])) {
+        _Tmove *bestMove = nullptr;
+        u64 friends = side == WHITE ? white : black;
+        u64 enemies = side == BLACK ? white : black;
 
         incListId();
         generateCaptures(side, enemies, friends);
         generateMoves(side, friends | enemies);
 
-        u64 oldKey = 0;
-
-        int bestRes = INT_MAX;
-        _Tmove *bestMove = nullptr;
-        _Tmove *drawMove = nullptr;
         for (int i = 0; i < getListSize(); i++) {
+            if (bestMove)break;
             _Tmove *move = &gen_list[listId].moveList[i];
             if (!makemove(move, false, true)) {
                 takeback(move, oldKey, false);
                 continue;
             }
 
-            auto dtm = SearchManager::getGtb()->getDtm(side ^ 1, false, chessboard, 100);
+            const int kw = BITScanForward(chessboard[KING_WHITE]);
+            const int kb = BITScanForward(chessboard[KING_BLACK]);
+            const int pawnQueenPos = BITScanForward(chessboard[PAWN_BLACK]) | BITScanForward(chessboard[PAWN_WHITE]) |
+                                     BITScanForward(chessboard[QUEEN_BLACK]) | BITScanForward(chessboard[QUEEN_WHITE]);
+            const int winSide = chessboard[PAWN_BLACK] | chessboard[QUEEN_BLACK] ? BLACK : WHITE;
 
-            if (dtm != INT_MAX) {
+            bool p;
 
-                if (dtm == GTB_DRAW) {
-                    drawMove = move;
-                } else if (bestRes == INT_MAX) {
-                    bestRes = dtm;
-                    bestMove = move;
-                }
-                else if (dtm < 0 && bestRes < 0 && dtm > bestRes) {
-                    bestRes = dtm;
-                    bestMove = move;
-                }
-                else if (dtm < 0 && bestRes > 0) {
-                    bestRes = dtm;
-                    bestMove = move;
-                }
-                else if (dtm > 0 && bestRes > 0 && dtm < bestRes) {
-
-                    bestMove = move;
-                }
+            if (winSide != side) { // looking for draw
+                p = isDraw(winSide, side ^ 1, kw, kb, pawnQueenPos);
+            } else { //looking for win
+                p = !isDraw(winSide, side ^ 1, kw, kb, pawnQueenPos);
+            }
+            if (p &&
+                (bestMove == nullptr || move->s.capturedPiece != SQUARE_EMPTY ||
+                 move->s.promotionPiece != NO_PROMOTION)) {
+                bestMove = move;
             }
             takeback(move, oldKey, false);
         }
-        if (bestRes > 0 && drawMove) {
-            bestMove = drawMove;
-        }
 
-        ASSERT(bestMove != nullptr)
-        best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
-            string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
-        if (bestMove->promotionPiece != -1)best += "q";
         decListId();
-
-        return best;
+        if (bestMove) {
+            memcpy(res, bestMove, sizeof(_Tmove));
+            if (res->s.pieceFrom == PAWN_WHITE && res->s.to > 55)res->s.promotionPiece = 'q';
+            else if (res->s.pieceFrom == PAWN_BLACK && res->s.to < 8)res->s.promotionPiece = 'q';
+            return true;
+        }
     }
-
-#endif
-    //kpk -> try draw
-    if (tot == 3 && chessboard[side] == 0 && chessboard[side ^ 1]) {
-
-        u64 friends = side == WHITE ? getBitmap<WHITE>() : getBitmap<BLACK>();
-        u64 enemies = side == BLACK ? getBitmap<WHITE>() : getBitmap<BLACK>();
-
+#ifndef JS_MODE
+    //gaviota
+    if (GTB::getInstance().isInstalledPieces(tot)) {
+        u64 friends = side == WHITE ? white : black;
+        u64 enemies = side == BLACK ? white : black;
+        _Tmove *bestMove = nullptr;
         incListId();
         generateCaptures(side, enemies, friends);
         generateMoves(side, friends | enemies);
 
-        u64 oldKey = 0;
+        _Tmove *drawMove = nullptr;
+        _Tmove *worstMove = nullptr;
 
-        _Tmove *bestMove = nullptr;
+        int minDtz = -1;
+        unsigned maxDtzWorst = 1000;
+
+        const u64 allPieces = white | black;
+
+        unsigned dtz;
 
         for (int i = 0; i < getListSize(); i++) {
-            if (bestMove)break;
             _Tmove *move = &gen_list[listId].moveList[i];
-            if (!makemove(move, true, true)) {
+            if (!makemove(move, false, true)) {
                 takeback(move, oldKey, false);
                 continue;
             }
-
-            const int kw = BITScanForward(chessboard[KING_WHITE]);
-            const int kb = BITScanForward(chessboard[KING_BLACK]);
-            const int
-                pawnPos =
-                side == WHITE ? BITScanForward(chessboard[PAWN_BLACK]) : BITScanForward(chessboard[PAWN_WHITE]);
-
-
-            auto draw =
-                side == BLACK ? isDraw<WHITE>(side ^ 1, kw, kb, pawnPos) : isDraw<BLACK>(side ^ 1, kw, kb, pawnPos);
-
-            if (draw) {
-                bestMove = move;
+            BENCH(times->start("gtbTime"))
+            const auto res = GTB::getInstance().getDtmWdl(GTB_STM(side ^ 1), 0, chessboard, &dtz, true);
+            BENCH(times->stop("gtbTime"))
+            if (res == TB_WIN && !worstMove && !drawMove) {
+                if ((int) dtz > minDtz) {
+                    bestMove = move;
+                    minDtz = dtz;
+                    if (move->s.promotionPiece != NO_PROMOTION || board::isOccupied(move->s.to, allPieces))
+                        minDtz++;
+                }
+            } else if (res == TB_DRAW) {
+                if (!drawMove || (move->s.promotionPiece != NO_PROMOTION || board::isOccupied(move->s.to, allPieces))) {
+                    drawMove = move;
+                }
+            } else if (res == TB_LOSS) {
+                if ((int) dtz < (int) maxDtzWorst) {
+                    worstMove = move;
+                    maxDtzWorst = dtz;
+                    if (move->s.promotionPiece != NO_PROMOTION || board::isOccupied(move->s.to, allPieces))
+                        maxDtzWorst--;
+                }
             }
-
             takeback(move, oldKey, false);
         }
 
-        if (bestMove)
-            best = string(decodeBoardinv(bestMove->type, bestMove->from, getSide())) +
-                string(decodeBoardinv(bestMove->type, bestMove->to, getSide()));
+        if (worstMove) {
+            debug("worstMove ***********\n");
+            memcpy(res, worstMove, sizeof(_Tmove));
+            if (res->s.promotionPiece != NO_PROMOTION)
+                res->s.promotionPiece = FEN_PIECE[res->s.promotionPiece];
+            decListId();
+            return true;
+        }
+
+        if (drawMove) {
+            debug("drawMove ***********\n");
+            memcpy(res, drawMove, sizeof(_Tmove));
+            if (res->s.promotionPiece != NO_PROMOTION)res->s.promotionPiece = FEN_PIECE[res->s.promotionPiece];
+            decListId();
+            return true;
+        }
+        if (bestMove) {
+            debug("best ***********\n");
+            memcpy(res, bestMove, sizeof(_Tmove));
+            if (res->s.promotionPiece != NO_PROMOTION)
+                res->s.promotionPiece = FEN_PIECE[res->s.promotionPiece];
+            decListId();
+            return true;
+        }
 
         decListId();
-
-        return best;
+        return false;
     }
-    return "";
+
+    if (syzygy->getInstalledPieces() >= tot) {
+
+        unsigned bestMove = 0;
+        unsigned bestMove50 = 0;
+        unsigned worstMove = 0;
+        unsigned worstMove50 = 0;
+        unsigned drawMove = 0;
+        unsigned minDtz = 1000;
+        unsigned minDtz50 = 1000;
+        int maxDtzWorst = -1;
+        int maxDtzWorst50 = -1;
+        unsigned results[TB_MAX_MOVES];
+
+        const u64 allPieces = white | black;
+        BENCH(times->start("syzygyTime"))
+        const auto sz = syzygy->SZtbProbeRoot(white, black, chessboard, side, results);
+        BENCH(times->stop("syzygyTime"))
+        if (sz == TB_RESULT_FAILED) return false;
+
+        for (unsigned i = 0; results[i] != TB_RESULT_FAILED; i++) {
+
+            const unsigned dtz = TB_GET_DTZ(results[i]) * 10;
+            const unsigned res = TB_GET_WDL(results[i]);
+
+            if (res == TB_WIN) {
+                if (dtz < minDtz) {
+                    bestMove = results[i];
+                    minDtz = dtz;
+                    if (TB_GET_PROMOTES(bestMove) || board::isOccupied(_decodeSquare[TB_GET_TO(bestMove)], allPieces))
+                        minDtz--;
+                }
+            } else if (res == TB_CURSED_WIN && !bestMove) {
+                if (dtz < minDtz50) {
+                    bestMove50 = results[i];
+                    minDtz50 = dtz;
+                    if (TB_GET_PROMOTES(bestMove50) || board::isOccupied(_decodeSquare[TB_GET_TO(bestMove50)], allPieces))
+                        minDtz50--;
+                }
+            } else if (res == TB_DRAW) {
+                if (!drawMove ||
+                    (TB_GET_PROMOTES(results[i]) || board::isOccupied(_decodeSquare[TB_GET_TO(results[i])], allPieces))) {
+                    drawMove = results[i];
+                }
+            } else if (res == TB_BLESSED_LOSS && !bestMove && !drawMove && !bestMove50) {
+                if ((int) dtz > maxDtzWorst50) {
+                    worstMove50 = results[i];
+                    maxDtzWorst50 = dtz;
+                    if (TB_GET_PROMOTES(worstMove50) || board::isOccupied(_decodeSquare[TB_GET_TO(worstMove50)], allPieces))
+                        maxDtzWorst50++;
+                }
+            } else if (res == TB_LOSS && !bestMove && !drawMove && !bestMove50 && !worstMove50) {
+                if ((int) dtz > maxDtzWorst) {
+                    worstMove = results[i];
+                    maxDtzWorst = dtz;
+                    if (TB_GET_PROMOTES(worstMove) || board::isOccupied(_decodeSquare[TB_GET_TO(worstMove)], allPieces))
+                        maxDtzWorst++;
+                }
+            }
+        }
+
+        res->s.type = STANDARD_MOVE_MASK;
+
+        if (bestMove) {
+            debug("best ***********\n");
+            res->s.from = _decodeSquare[TB_GET_FROM(bestMove)];
+            res->s.to = _decodeSquare[TB_GET_TO(bestMove)];
+            res->s.promotionPiece = SYZYGY::getPromotion(TB_GET_PROMOTES(bestMove));
+            return true;
+        }
+        if (bestMove50) {
+            debug("bestMove50 ***********\n");
+            res->s.from = _decodeSquare[TB_GET_FROM(bestMove50)];
+            res->s.to = _decodeSquare[TB_GET_TO(bestMove50)];
+            res->s.promotionPiece = SYZYGY::getPromotion(TB_GET_PROMOTES(bestMove50));
+            return true;
+        }
+        if (drawMove) {
+            debug("drawMove ***********\n");
+            res->s.from = _decodeSquare[TB_GET_FROM(drawMove)];
+            res->s.to = _decodeSquare[TB_GET_TO(drawMove)];
+            res->s.promotionPiece = SYZYGY::getPromotion(TB_GET_PROMOTES(drawMove));
+            return true;
+        }
+        if (worstMove50) {
+            debug("worstMove50 ***********\n");
+            res->s.from = _decodeSquare[TB_GET_FROM(worstMove50)];
+            res->s.to = _decodeSquare[TB_GET_TO(worstMove50)];
+            res->s.promotionPiece = SYZYGY::getPromotion(TB_GET_PROMOTES(worstMove50));
+            return true;
+        }
+        if (worstMove) {
+            debug("worstMove ***********\n");
+            res->s.from = _decodeSquare[TB_GET_FROM(worstMove)];
+            res->s.to = _decodeSquare[TB_GET_TO(worstMove)];
+            res->s.promotionPiece = SYZYGY::getPromotion(TB_GET_PROMOTES(worstMove));
+            return true;
+        }
+        return false;
+    }
+#endif
+    return false;
 }
 
 template<bool checkMoves>
-bool Search::checkSearchMoves(_Tmove *move) {
+bool Search::checkSearchMoves(_Tmove *move) const {
     if (!checkMoves)return true;
-    int m = move->to | (move->from << 8);
+    int m = move->s.to | (move->s.from << 8);
     if (std::find(searchMovesVector.begin(), searchMovesVector.end(), m) != searchMovesVector.end()) {
         return true;
     }
     return false;
 }
 
-template<int side, bool checkMoves>
-int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE, int *mateIn, int n_root_moves) {
-    ASSERT_RANGE(depth, 0, MAX_PLY);
-    INC(cumulativeMovesCount);
+#ifndef JS_MODE
 
+int Search::probeWdl(const int depth, const int side, const int N_PIECE) {
+
+//    if (N_PIECE == 3 &&  depth > 2 && depth != mainDepth && (board[WHITE] || board[BLACK])) {
+//        const int kw = BITScanForward(board[KING_WHITE]);
+//        const int kb = BITScanForward(board[KING_BLACK]);
+//        const int pawnPos = BITScanForward(board[PAWN_BLACK]) | BITScanForward(board[PAWN_WHITE]);
+//
+//        const int winSide = board[PAWN_BLACK] ? BLACK : WHITE;
+//
+//        if (isDraw(winSide, side, kw, kb, pawnPos)) {
+//            if (winSide == side) return -_INFINITE + depth;
+//            else return _INFINITE - depth;
+//        } else {
+//            if (winSide == side) return _INFINITE - depth;
+//            else return -_INFINITE + depth;
+//        }
+//    }
+    if (N_PIECE < 8 && depth > 2 && depth != mainDepth) {
+        int tbResult = INT_MAX;
+        //syzygy
+        const unsigned res = syzygy->SZtbProbeWDL(chessboard, side, N_PIECE);
+        if (res != TB_RESULT_FAILED) {
+            tbResult = TB_GET_WDL(res);
+        }
+        unsigned pliestomate;
+        //gaviota
+        if (GTB::getInstance().isInstalledPieces(N_PIECE)) {
+            BENCH(times->start("gtbTime"))
+            tbResult = GTB::getInstance().getDtmWdl(GTB_STM(side), 0, chessboard, &pliestomate, false);
+            BENCH(times->stop("gtbTime"))
+        }
+        switch (tbResult) {
+            case TB_LOSS :
+                return -_INFINITE + depth;
+            case TB_BLESSED_LOSS :
+                return -_INFINITE + depth + 50;
+            case TB_WIN :
+                return _INFINITE - depth;
+            case TB_CURSED_WIN :
+                return _INFINITE - depth - 50;
+        }
+    }
+    return INT_MAX;
+}
+
+#endif
+
+template<int side, bool checkMoves>
+int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE, int *mateIn,
+                   const int n_root_moves) {
+    ASSERT_RANGE(depth, 0, MAX_PLY);
     ASSERT_RANGE(side, 0, 1);
     if (!getRunning()) {
         return 0;
     }
-
-    *mateIn = INT_MAX;
-    int score = -_INFINITE;
+    INC(cumulativeMovesCount);
+#ifndef JS_MODE
+    int wdl = probeWdl(depth, side, N_PIECE);
+    if (wdl != INT_MAX) return wdl;
+#endif
 
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
+    *mateIn = INT_MAX;
+    int score = -_INFINITE;
+    const int pvNode = alpha != beta - 1;
+
 #ifdef DEBUG_MODE
     double betaEfficiencyCount = 0.0;
 #endif
     ASSERT(chessboard[KING_BLACK]);
     ASSERT(chessboard[KING_WHITE]);
-    ASSERT(chessboard[KING_BLACK + side]);
+
     int extension = 0;
-    const int is_incheck_side = inCheck<side>();
+    const int is_incheck_side = board::inCheck1<side>(chessboard);
     if (!is_incheck_side && depth != mainDepth) {
-        if (checkInsufficientMaterial(N_PIECE) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
-            if (inCheck<side ^ 1>()) {
+        if (board::checkInsufficientMaterial(N_PIECE, chessboard) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
+            if (board::inCheck1<side ^ 1>(chessboard)) {
                 return _INFINITE - (mainDepth - depth + 1);
             }
             return -lazyEval<side>() * 2;
@@ -522,7 +779,7 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     }
     depth += extension;
     if (depth == 0) {
-        return quiescence<side>(alpha, beta, -1, N_PIECE, 0);
+        return quiescence<side>(alpha, beta, -1, 0);
     }
 
     //************* hash ****************
@@ -547,10 +804,10 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     line.cmove = 0;
 
     // ********* null move ***********
-    if (!nullSearch && /*!pv_node &&*/  !is_incheck_side) {
+    if (!nullSearch && !pvNode && !is_incheck_side) {
         int n_depth = (n_root_moves > 17 || depth > 3) ? 1 : 3;
         if (n_depth == 3) {
-            const u64 pieces = getPiecesNoKing<side>();
+            const u64 pieces = board::getPiecesNoKing<side>(chessboard);
             if (pieces != chessboard[PAWN_BLACK + side] || bitCount(pieces) > 9)
                 n_depth = 1;
         }
@@ -558,10 +815,11 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             nullSearch = true;
             const int R = NULL_DEPTH + depth / NULL_DIVISOR;
             const int nullScore =
-                (depth - R - 1 > 0) ?
-                -search<side ^ 1, checkMoves>(depth - R - 1, -beta, -beta + 1, &line, N_PIECE, mateIn, n_root_moves)
-                                    :
-                -quiescence<side ^ 1>(-beta, -beta + 1, -1, N_PIECE, 0);
+                    (depth - R - 1 > 0) ?
+                    -search<side ^ 1, checkMoves>(depth - R - 1, -beta, -beta + 1, &line, N_PIECE, mateIn,
+                                                  n_root_moves)
+                                        :
+                    -quiescence<side ^ 1>(-beta, -beta + 1, -1, 0);
             nullSearch = false;
             if (nullScore >= beta) {
                 INC(nNullMoveCut);
@@ -579,7 +837,8 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     if (depth <= 3 && !is_incheck_side) {
         int matBalance = lazyEval<side>();
         if ((futilScore = matBalance + FUTIL_MARGIN) <= alpha) {
-            if (depth == 3 && (matBalance + RAZOR_MARGIN) <= alpha && getNpiecesNoPawnNoKing<side ^ 1>() > 3) {
+            if (depth == 3 && (matBalance + RAZOR_MARGIN) <= alpha &&
+                board::getNpiecesNoPawnNoKing<side ^ 1>(chessboard) > 3) {
                 INC(nCutRazor);
                 depth--;
             } else
@@ -599,15 +858,15 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
     incListId();
     ASSERT_RANGE(KING_BLACK + side, 0, 11);
     ASSERT_RANGE(KING_BLACK + (side ^ 1), 0, 11);
-    const u64 friends = getBitmap<side>();
-    const u64 enemies = getBitmap<side ^ 1>();
+    const u64 friends = board::getBitmap<side>(chessboard);
+    const u64 enemies = board::getBitmap<side ^ 1>(chessboard);
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
         score = _INFINITE - (mainDepth - depth + 1);
         return score;
     }
     generateMoves<side>(friends | enemies);
-    int listcount = getListSize();
+    const int listcount = getListSize();
     if (!listcount) {
         --listId;
         if (is_incheck_side) {
@@ -617,19 +876,21 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
         }
     }
     ASSERT(gen_list[listId].size > 0);
+    Hash::_ThashData *c = nullptr;
     _Tmove *best = &gen_list[listId].moveList[0];
     if (hashGreaterItem.second.phasheType[Hash::HASH_GREATER].dataS.flags & 0x3) {
-        sortFromHash(listId, hashGreaterItem.second.phasheType[Hash::HASH_GREATER]);
+        c = &hashGreaterItem.second.phasheType[Hash::HASH_GREATER];
     } else if (hashAlwaysItem.second.phasheType[Hash::HASH_ALWAYS].dataS.flags & 0x3) {
-        sortFromHash(listId, hashAlwaysItem.second.phasheType[Hash::HASH_ALWAYS]);
+        c = &hashAlwaysItem.second.phasheType[Hash::HASH_ALWAYS];
     }
     INC(totGen);
     _Tmove *move;
     bool checkInCheck = false;
     int countMove = 0;
     char hashf = Hash::hashfALPHA;
-    while ((move = getNextMove(&gen_list[listId]))) {
-        if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth)continue;
+    int first = 0;
+    while ((move = getNextMove(&gen_list[listId], depth, c, first++))) {
+        if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth) continue;
         countMove++;
         INC(betaEfficiencyCount);
         if (!makemove(move, true, checkInCheck)) {
@@ -637,18 +898,19 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             continue;
         }
         checkInCheck = true;
-        if (futilPrune && ((move->type & 0x3) != PROMOTION_MOVE_MASK) &&
-            futilScore + PIECES_VALUE[move->capturedPiece] <= alpha && !inCheck<side>()) {
+        if (futilPrune && ((move->s.type & 0x3) != PROMOTION_MOVE_MASK) &&
+            futilScore + PIECES_VALUE[move->s.capturedPiece] <= alpha && !board::inCheck1<side>(chessboard)) {
             INC(nCutFp);
             takeback(move, oldKey, true);
             continue;
         }
         //Late Move Reduction
         int val = INT_MAX;
-        if (countMove > 4 && !is_incheck_side && depth >= 3 && move->capturedPiece == SQUARE_FREE &&
-            move->promotionPiece == NO_PROMOTION) {
+        if (countMove > 4 && !is_incheck_side && depth >= 3 && move->s.capturedPiece == SQUARE_EMPTY &&
+            move->s.promotionPiece == NO_PROMOTION) {
             currentPly++;
-            val = -search<side ^ 1, checkMoves>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn, n_root_moves);
+            val = -search<side ^ 1, checkMoves>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn,
+                                                n_root_moves);
             ASSERT(val != INT_MAX);
             currentPly--;
         }
@@ -658,50 +920,64 @@ int Search::search(int depth, int alpha, int beta, _TpvLine *pline, int N_PIECE,
             const int upb = (doMws ? (lwb + 1) : beta);
             currentPly++;
             val = -search<side ^ 1, checkMoves>(depth - 1, -upb, -lwb, &line,
-                                                move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1,
+                                                move->s.capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1,
                                                 mateIn, n_root_moves);
-            ASSERT(val != INT_MAX);
             currentPly--;
             if (doMws && (lwb < val) && (val < beta)) {
                 currentPly++;
                 val = -search<side ^ 1, checkMoves>(depth - 1, -beta, -val + 1,
-                                                    &line, move->capturedPiece == SQUARE_FREE ? N_PIECE : N_PIECE - 1,
+                                                    &line,
+                                                    move->s.capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1,
                                                     mateIn, n_root_moves);
+                if (move->s.capturedPiece == SQUARE_EMPTY && move->s.promotionPiece == NO_PROMOTION &&
+                    val < -(_INFINITE - 100)) {
+                    setKiller(move->s.from, move->s.to, depth, true);
+                }
                 currentPly--;
+            } else {
+                if (move->s.capturedPiece == SQUARE_EMPTY && move->s.promotionPiece == NO_PROMOTION &&
+                    val < -(_INFINITE - 100)) {
+                    setKiller(move->s.from, move->s.to, depth, true);
+                }
             }
         }
         score = max(score, val);
         takeback(move, oldKey, true);
-        move->score = score;
+        ASSERT(chessboard[KING_BLACK])
+        ASSERT(chessboard[KING_WHITE])
+
+//        move->s.score1 = score;
         if (score > alpha) {
             if (score >= beta) {
                 decListId();
-                ASSERT(move->score == score);
+//                ASSERT(move->s.score1 == score);
                 INC(nCutAB);
                 ADD(betaEfficiency, betaEfficiencyCount / (double) listcount * 100.0);
                 if (getRunning()) {
-                    Hash::_ThashData data(score, depth - extension, move->from, move->to, 0, Hash::hashfBETA);
-                    hash->recordHash(zobristKeyR, data);
+                    Hash::_ThashData data(score, depth - extension, move->s.from, move->s.to, 0, Hash::hashfBETA);
+                    hash.recordHash(zobristKeyR, data);
                 }
                 if (depth < 31)
-                    setHistoryHeuristic(move->from, move->to, 1 << depth);
+                    setHistoryHeuristic(move->s.from, move->s.to, 1 << depth);
                 else
-                    setHistoryHeuristic(move->from, move->to, 0x40000000);
+                    setHistoryHeuristic(move->s.from, move->s.to, 0x40000000);
+                if (move->s.capturedPiece == SQUARE_EMPTY && move->s.promotionPiece == NO_PROMOTION)
+                    setKiller(move->s.from, move->s.to, depth, false);
                 return score;
             }
             alpha = score;
             hashf = Hash::hashfEXACT;
             best = move;
-            move->score = score;    //used in it
             updatePv(pline, &line, move);
         }
     }
     if (getRunning()) {
-        Hash::_ThashData data(score, depth - extension, best->from, best->to, 0, hashf);
-        hash->recordHash(zobristKeyR, data);
+        Hash::_ThashData data(score, depth - extension, best->s.from, best->s.to, 0, hashf);
+        hash.recordHash(zobristKeyR, data);
     }
     decListId();
     return score;
+
 }
 
 void Search::updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move) {
@@ -712,22 +988,9 @@ void Search::updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move)
     pline->cmove = line->cmove + 1;
 }
 
-_Tchessboard &Search::getChessboard() {
-    return chessboard;
-}
-
-void Search::setChessboard(_Tchessboard &b) {
-    memcpy(chessboard, b, sizeof(chessboard));
-}
-
 u64 Search::getZobristKey() {
     return chessboard[ZOBRISTKEY_IDX];
 }
-
-int Search::getMateIn() {
-    return mainMateIn;
-}
-
 
 void Search::unsetSearchMoves() {
     searchMovesVector.clear();
@@ -808,6 +1071,8 @@ bool Search::setParameter(String param, int value) {
     return false;
 #endif
 }
+
+
 
 
 

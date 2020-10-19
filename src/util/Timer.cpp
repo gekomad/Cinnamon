@@ -25,7 +25,7 @@ Timer::Timer(int seconds1) {
 void Timer::endRun() { }
 
 void Timer::run() {
-    unique_lock <mutex> lck(mtx);
+    unique_lock<mutex> lck(mtx);
     while (seconds) {
         cv.wait_for(lck, chrono::seconds(seconds));
         if (seconds) {
@@ -34,13 +34,13 @@ void Timer::run() {
     }
 }
 
-void Timer::registerObservers(function<void(void)> f) {
+void Timer::registerObservers(const function<void(void)>& f) {
     observers.push_back(f);
 }
 
-void Timer::notifyObservers(void) {
-    for (auto i = observers.begin(); i != observers.end(); ++i) {
-        (*i)();
+void Timer::notifyObservers() {
+    for (auto & observer : observers) {
+        observer();
     }
 }
 

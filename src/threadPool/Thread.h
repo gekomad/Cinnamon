@@ -21,7 +21,7 @@
 #include <thread>
 #include <mutex>
 #include "ObserverThread.h"
-#include "../namespaces/def.h"
+#include "../namespaces/bits.h"
 #include <condition_variable>
 
 using namespace std;
@@ -59,7 +59,7 @@ public:
     void checkWait() {
         while (!running) {
             mutex mtx;
-            unique_lock <mutex> lck(mtx);
+            unique_lock<mutex> lck(mtx);
             cv.wait(lck);
         }
     }

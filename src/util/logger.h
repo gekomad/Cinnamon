@@ -20,7 +20,7 @@
 #pragma once
 
 #include "../util/Singleton.h"
-#include "../util/Time.h"
+#include "bench/Time.h"
 #include "../threadPool/Spinlock.h"
 #include <iostream>
 
@@ -37,10 +37,6 @@ namespace _logger {
 #define DLOG_LEVEL _TRACE
 #else
 #define DLOG_LEVEL _OFF
-#endif
-#else
-#if defined DEBUG_MODE
-#define DLOG_LEVEL _TRACE
 #endif
 #endif
 

@@ -20,7 +20,8 @@
 
 #include <chrono>
 #include <iostream>
-#include "String.h"
+#include "../String.h"
+#include <map>
 
 using namespace std;
 using namespace chrono;
@@ -29,17 +30,30 @@ class Time {
 
 private:
     int _count = 0;
-    std::chrono::time_point <std::chrono::system_clock> _start;
-    int64_t _tot = 0;
+    std::chrono::time_point<std::chrono::system_clock> _start;
+    int64_t _totTime = 0;
+    map<string, int64_t> subName;
+    int latency = 0;
 public:
 
-    Time() { }
+    Time() {}
+
+    Time(int latency) {
+        this->latency = latency;
+    }
+
     static constexpr int HOUR_IN_SECONDS = 60 * 60;
     static constexpr int HOUR_IN_MINUTES = 60;
+
+    int64_t getCount() const { return _count; }
 
     void resetAndStart() {
         reset();
         start();
+    }
+
+    inline void incCount(const string &subName) {
+        this->subName[subName]++;
     }
 
     inline void start() {
@@ -48,30 +62,39 @@ public:
     }
 
     inline void stop() {
-        _tot += std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now() - _start).count();
+        _totTime += std::chrono::duration_cast<std::chrono::nanoseconds>(
+                std::chrono::system_clock::now() - _start).count();
+        _totTime -= latency;
     }
 
-    int64_t avg() {
-        return _count == 0 ? 0 : _tot / _count;
+    int64_t avg() const {
+        return _count == 0 ? 0 : _totTime / _count;
     }
 
-    int64_t avgAndReset() {
-        const int64_t a = _count == 0 ? 0 : _tot / _count;
+    pair<int64_t, int64_t> avgWithSubProcessAndReset(const map<string, Time *> times1) {
+        int64_t totTimeSubprocess = 0;
+        for (auto & it : subName) {
+            auto name1 = it.first;
+            auto count1 = it.second;
+            auto avg1 = times1.at(name1)->avg();
+            totTimeSubprocess += avg1 * count1;
+        }
+        auto avgs = pair<int64_t, int64_t>(0, 0);
+        if (_count)
+            avgs = pair<int64_t, int64_t>((_totTime - totTimeSubprocess) / _count, _totTime / _count);
         reset();
-        return a;
+        return avgs;
     }
 
-    unsigned long getNano() {
-        return _tot;
-    }
-
-
-    unsigned long getMill() {
-        return _tot / 1000000;
+    unsigned long getMill() const {
+        return _totTime / 1000000;
     }
 
     void reset() {
-        _tot = _count = 0;
+        _totTime = _count = 0;
+        for (auto & it : subName) {
+            it.second = 0;
+        }
     }
 
     static int diffTime(const high_resolution_clock::time_point t1, const high_resolution_clock::time_point t2) {
@@ -119,20 +142,21 @@ public:
     }
 
     static int getYear() {
-        time_t t = time(NULL);
+        time_t t = time(nullptr);
         tm *timePtr = localtime(&t);
         return 1900 + timePtr->tm_year;
     }
 
     static int getMonth() {
-        time_t t = time(NULL);
+        time_t t = time(nullptr);
         tm *timePtr = localtime(&t);
         return 1 + timePtr->tm_mon;
     }
 
     static int getDay() {
-        time_t t = time(NULL);
+        time_t t = time(nullptr);
         tm *timePtr = localtime(&t);
         return timePtr->tm_mday;
     }
 };
+

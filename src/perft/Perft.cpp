@@ -19,11 +19,11 @@
 #include "Perft.h"
 
 int Perft::count;
-
+_ThashPerft **Perft::hash = nullptr;
 bool Perft::dumping;
 
 void Perft::dump() {
-    if (dumping || dumpFile.empty() || !perftRes.hash) {
+    if (dumping || dumpFile.empty() || !hash) {
         return;
     }
     dumping = true;
@@ -45,7 +45,7 @@ void Perft::dump() {
     f.write(reinterpret_cast<char *>(&perftRes.nCpu), sizeof(int));
     f.write(reinterpret_cast<char *>(&mbSize), sizeof(u64));
     for (int i = 1; i <= perftRes.depth; i++) {
-        f.write(reinterpret_cast<char *>(perftRes.hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
+        f.write(reinterpret_cast<char *>(hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
     }
     f.close();
     rename(tmpFile.c_str(), dumpFile.c_str());
@@ -93,7 +93,7 @@ bool Perft::load() {
     cout << " nCpu: " << perftRes.nCpu << endl;
 
     for (int i = 1; i <= depthHash; i++) {
-        f.read(reinterpret_cast<char *>(perftRes.hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
+        f.read(reinterpret_cast<char *>(hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
     }
     f.close();
     cout << "loaded" << endl;
@@ -101,23 +101,28 @@ bool Perft::load() {
 }
 
 Perft::~Perft() {
-    if (perftRes.hash) {
+    dealloc();
+}
+
+void Perft::dealloc() const {
+    if (hash) {
         for (int i = 1; i <= perftRes.depth; i++) {
-            free(perftRes.hash[i]);
+            free(hash[i]);
         }
-        free(perftRes.hash);
-        perftRes.hash = nullptr;
+        free(hash);
+        hash = nullptr;
     }
 }
 
 void Perft::alloc() {
-    perftRes.hash = (_ThashPerft **) calloc(perftRes.depth + 1, sizeof(_ThashPerft *));
-    _assert(perftRes.hash);
+    dealloc();
+    hash = (_ThashPerft **) calloc(perftRes.depth + 1, sizeof(_ThashPerft *));
+    _assert(hash);
     const u64 k = 1024 * 1024 * mbSize / POW2[perftRes.depth];
     for (int i = 1; i <= perftRes.depth; i++) {
         perftRes.sizeAtDepth[i] = k * POW2[i - 1] / sizeof(_ThashPerft);
-        perftRes.hash[i] = (_ThashPerft *) calloc(perftRes.sizeAtDepth[i], sizeof(_ThashPerft));
-        _assert(perftRes.hash[i]);
+        hash[i] = (_ThashPerft *) calloc(perftRes.sizeAtDepth[i], sizeof(_ThashPerft));
+        _assert(hash[i]);
 #ifdef DEBUG_MODE
         cout << "alloc hash[" << i << "] " << perftRes.sizeAtDepth[i] * sizeof(_ThashPerft) << endl;
 #endif
@@ -125,8 +130,9 @@ void Perft::alloc() {
     }
 }
 
-void Perft::setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1) {
-    memset(static_cast<void*>(&perftRes), 0, sizeof(_TPerftRes));
+void Perft::setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1,
+                     const bool is960) {
+    memset(static_cast<void *>(&perftRes), 0, sizeof(_TPerftRes));
     if (depth1 <= 0)depth1 = 1;
     mbSize = mbSize1;
     perftRes.depth = depth1;
@@ -135,13 +141,14 @@ void Perft::setParam(const string &fen1, int depth1, const int nCpu2, const int 
     perftRes.nCpu = nCpu2;
     count = 0;
     dumping = false;
-    setNthread(getNthread());//reinitialize threads
+    chess960 = is960;
+    setNthread(getNthread()); //reinitialize threads
 }
 
 void Perft::run() {
 
     if (!load()) {
-        perftRes.hash = nullptr;
+        hash = nullptr;
         if (mbSize) {
             alloc();
         }
@@ -156,25 +163,27 @@ void Perft::run() {
     if (!perftRes.nCpu) {
         perftRes.nCpu = 1;
     }
-    PerftThread *p = new PerftThread();
+    auto *p = new PerftThread();
+    p->setChess960(chess960);
     if (!fen.empty()) {
         p->loadFen(fen);
     }
     p->setPerft(true);
-    int side = p->getSide() ? 1 : 0;
-    p->display();
+    int side = board::getSide(p->getChessboard()) ? 1 : 0;
+    board::display(p->getChessboard());
+
     cout << "fen:\t\t\t" << fen << endl;
     cout << "depth:\t\t\t" << perftRes.depth << endl;
     cout << "#cpu:\t\t\t" << perftRes.nCpu << endl;
     cout << "cache size:\t\t" << mbSize << endl;
     cout << "dump file:\t\t" << dumpFile << endl;
+    cout << "chess960:\t\t" << chess960 << endl;
     cout << endl << Time::getLocalTime() << " start perft test..." << endl;
 
     Timer t2(minutesToDump * 60);
-    if (perftRes.hash && !dumpFile.empty()) {
+    if (hash && !dumpFile.empty()) {
         signal(SIGINT, Perft::ctrlChandler);
         cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;
-        cout << "type 'dump' to dump now" << endl;
         t2.registerObservers([this]() {
             dump();
         });
@@ -187,8 +196,8 @@ void Perft::run() {
 
     time.resetAndStart();
     p->incListId();
-    u64 friends = side ? p->getBitmap<WHITE>() : p->getBitmap<BLACK>();
-    u64 enemies = side ? p->getBitmap<BLACK>() : p->getBitmap<WHITE>();
+    u64 friends = side ? board::getBitmap<WHITE>(p->getChessboard()) : board::getBitmap<BLACK>(p->getChessboard());
+    u64 enemies = side ? board::getBitmap<BLACK>(p->getChessboard()) : board::getBitmap<WHITE>(p->getChessboard());
     p->generateCaptures(side, enemies, friends);
     p->generateMoves(side, friends | enemies);
     int listcount = p->getListSize();
@@ -201,11 +210,12 @@ void Perft::run() {
     setNthread(perftRes.nCpu);
     for (i = 0; i < perftRes.nCpu - 1; i++) {
         PerftThread &perftThread = getNextThread();
-        perftThread.setParam(fen, s, s + block, &perftRes);
+        perftThread.setParam(fen, s, s + block, &perftRes, chess960);
         s += block;
     }
+
     PerftThread &perftThread = getNextThread();
-    perftThread.setParam(fen, s, listcount, &perftRes);
+    perftThread.setParam(fen, s, listcount, &perftRes, chess960);
     startAll();
     joinAll();
 }
@@ -220,12 +230,19 @@ void Perft::endRun() {
 
     if (t) {
         cout << " (" << (perftRes.totMoves / t) / 1000 - ((perftRes.totMoves / t) / 1000) % 1000 <<
-            "k nodes per seconds" << ")";
+             "k nodes per seconds" << ")";
     }
     cout << endl;
     dump();
     cout << Time::getLocalTime() << endl;
 
     cerr << flush;
+
+#ifdef BENCH_MODE
+
+    Times* times = &Times::getInstance();
+    times->print();
+
+#endif
 
 }

@@ -48,6 +48,7 @@ help:
 	@echo "Makefile for cross-compile Linux/Windows/OSX/ARM/Javascript"
 	@echo ""
 	@echo "make cinnamon64-modern-INTEL     > 64-bit optimized for modern Intel cpu"
+	@echo "make cinnamon64-BMI2             > 64-bit optimized for Haswell Intel cpu"
 	@echo "make cinnamon64-modern-AMD       > 64-bit optimized for modern Amd cpu"
 	@echo "make cinnamon64-modern           > 64-bit with popcnt bsf sse3 support"
 	@echo "make cinnamon64-generic          > Unspecified 64-bit"
@@ -59,103 +60,26 @@ help:
 	@echo ""
 	@echo "make cinnamon-js                 > Javascript build"
 	@echo ""
-	@echo "make cinnamon-drmemory           > Memory monitor"
-	@echo "make cinnamon-profiler           > Google profiler tool"
-	@echo "make cinnamon-gprof              > Gnu profiler tool"
-	@echo ""
 	@echo "add:"
 	@echo " COMP=compiler                   > Use another compiler"
-	@echo " PROFILE_GCC=yes                 > PGO build"
-	@echo " FULL_TEST=yes                   > Unit test (uses libgtest-dev)"	
+	@echo " FULL_TEST=yes                   > Unit test (googletest)"
 	@echo ""
 
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j4 EXE=$(EXE) LIBS="$(LIBS) /usr/lib/x86_64-linux-gnu/libgtest.a " CFLAGS=-DDEBUG_MODE$(CFLAGS)-DFULL_TEST all
+	$(MAKE) -j EXE=$(EXE) LIBS="$(LIBS) /usr/lib/libgtest.a " CFLAGS=$(CFLAGS)-DFULL_TEST all
 	$(PA)$(EXE)
 else
-ifeq ($(PROFILE_GCC),yes)
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)-fprofile-generate all
-	@echo "optimize..."
-	$(PA)$(EXE) -b1 >bench.tmp
-	$(RM) *.o bench.tmp
-	@echo "build..."
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS)$(PROFILE_USE_THREAD) all
-else
-	$(MAKE) -j4 EXE=$(EXE) CFLAGS=$(CFLAGS) all
-endif
+	$(MAKE) EXE=$(EXE) CFLAGS=$(CFLAGS) all
 endif
 
 	$(STRIP) $(EXE)
-	@echo "create static library..."
-	ar rcs libCinnamon.a ChessBoard.o Uci.o WrapperCinnamon.o Search.o IterativeDeeping.o Eval.o Perft.o Hash.o PerftThread.o SearchManager.o OpenBook.o GTB.o
-
-drmemory:
-	$(MAKE) -j4 EXE=$(EXE) all
-
-	@echo "\n\n *** PERFT SINGLE CORE ***\n"
-	drmemory -- $(PA)$(EXE) -perft -d3
-
-	@echo "\n\n *** PERFT QUAD CORE ***\n"
-	drmemory -- $(PA)$(EXE) -perft -d4 -c4 -h100
-
-	@echo "\n\n *** SEARCH SINGLE CORE ***\n"
-	drmemory -- $(PA)$(EXE) -b1
-
-	@echo "\n\n *** SEARCH QUAD CORE ***\n"
-	drmemory -- $(PA)$(EXE) -b4
-
-profiler:
-	$(MAKE) -j4 EXE=$(EXE) all
-	@echo "\n\n **** \nsudo apt-get install google-perftools libgoogle-perftools-dev && export LD_PRELOAD=/usr/lib/libtcmalloc.so:/usr/lib/libprofiler.so\n **** \n"
-
-	@echo "\n\n *** PERFT SINGLE CORE ***\n"
-	$(RM) profiler.tmp
-	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d7
-	google-pprof --text $(PA)$(EXE) profiler.tmp
-
-	@echo "\n\n *** PERFT QUAD CORE ***\n"
-	$(RM) profiler.tmp
-	CPUPROFILE=profiler.tmp $(PA)$(EXE) -perft -d7 -c4 -h100
-	google-pprof --text $(PA)$(EXE) profiler.tmp
-
-	@echo "\n\n *** SEARCH SINGLE CORE ***\n"
-	$(RM) profiler.tmp
-	CPUPROFILE=profiler.tmp $(PA)$(EXE) -b1
-	google-pprof --text $(PA)$(EXE) profiler.tmp
-
-	@echo "\n\n *** SEARCH QUAD CORE ***\n"
-	$(RM) profiler.tmp
-	CPUPROFILE=profiler.tmp $(PA)$(EXE) -b4
-	google-pprof --text $(PA)$(EXE) profiler.tmp
-
-gnuprof:
-	$(MAKE) -j4 EXE=$(EXE) all
-
-	@echo "\n\n *** PERFT SINGLE CORE ***\n"
-	$(PA)$(EXE) -perft -d6
-	gprof $(PA)$(EXE)
-
-	@echo "\n\n *** PERFT QUAD CORE ***\n"
-	$(PA)$(EXE) -perft -d7 -c4 -h100
-	gprof $(PA)$(EXE)
-
-	@echo "\n\n *** SEARCH SINGLE CORE ***\n"
-	$(PA)$(EXE) -b1
-	gprof $(PA)$(EXE)
-
-	@echo "\n\n *** SEARCH QUAD CORE ***\n"
-	$(PA)$(EXE) -b4
-	gprof $(PA)$(EXE)
 
 cinnamon-js:
-	emcc -std=c++11 -w -DJS_MODE -DDLOG_LEVEL=_FATAL util/Bitboard.cpp -fsigned-char ChessBoard.cpp Eval.cpp Hash.cpp IterativeDeeping.cpp GenMoves.cpp js/main.cpp \
+	emcc -std=c++11 -w -DJS_MODE -DDLOG_LEVEL=_FATAL util/Bitboard.cpp -fsigned-char namespaces/board.cpp ChessBoard.cpp Eval.cpp Hash.cpp IterativeDeeping.cpp GenMoves.cpp js/main.cpp \
 	db/OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Timer.cpp perft/PerftThread.cpp \
 	-s WASM=0 -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap"]' -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
-
-cinnamon-drmemory:
-	$(MAKE) LIBS="-Wl,--whole-archive -lpthread -Wl,--no-whole-archive lib/$(OS)/32/libgtb.a" CFLAGS="-pthread -std=c++11 -DHAS_BSF -DHAS_POPCNT -g -fsigned-char -fno-inline -fno-omit-frame-pointer -m32 " drmemory
 
 cinnamon32-generic:
 	$(MAKE) LIBS="$(LIBS) lib/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
@@ -164,37 +88,37 @@ cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse -DHAS_POPCNT -DHAS_BSF" cinnamon32-generic
 
 cinnamon32-ARM:
-	$(MAKE) LIBS="$(LIBS) lib/ARM/32/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF" build
+	$(MAKE) -j4  LIBS="$(LIBS) lib/ARM/32/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF" build
 
 cinnamon64-ARM:
-	$(MAKE) LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_64BIT -m64 -DHAS_BSF" build
+	$(MAKE) LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -DHAS_64BIT " build
 
 cinnamon64-generic:
-	$(MAKE) LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -DHAS_64BIT -m64" build
+	$(MAKE) -j LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -DHAS_64BIT -m64" build
 
 cinnamon64-modern:
 	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_POPCNT -DHAS_BSF " cinnamon64-generic
 
 cinnamon64-modern-AMD:
-	$(MAKE) ARC="$(ARC) -msse4a -march=athlon64 -mtune=athlon64 " cinnamon64-modern
+	$(MAKE) ARC="$(ARC) -msse4a -march=athlon64 " cinnamon64-modern
 
 cinnamon64-modern-INTEL:
-	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 -mtune=corei7 " cinnamon64-modern
+	$(MAKE) ARC="$(ARC) -msse4.2 -march=corei7 " cinnamon64-modern
 
-cinnamon-profiler:
-	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -ltcmalloc -DHAS_POPCNT -DDLOG_LEVEL=_FATAL -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " profiler
+cinnamon64-BMI2:
+	$(MAKE) ARC="$(ARC) -mbmi2 -DUSE_BMI2 " cinnamon64-modern-INTEL
 
-cinnamon-gprof:
-	$(MAKE) ARC=" -msse4.2 -march=corei7 -mtune=corei7 " CFLAGS=" -std=c++11 -g -pg -DHAS_POPCNT -DDLOG_LEVEL=_FATAL -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops " LIBS=" -Wl,--whole-archive -lpthread -Wl,--no-whole-archive gtb/$(OS)/64/libgtb.a " gnuprof
-
-all: main.o ChessBoard.o Eval.o test.o String.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o
-	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o ${LIBS}
+all: main.o ChessBoard.o board.o Eval.o test.o String.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o SYZYGY.o tbprobe.o
+	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o board.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o SYZYGY.o tbprobe.o ${LIBS}
 
 default:
 	help
 
 ChessBoard.o: ChessBoard.cpp
 	$(COMP) -c ChessBoard.cpp ${CFLAGS} ${ARC}
+
+board.o: namespaces/board.cpp
+	$(COMP) -c namespaces/board.cpp ${CFLAGS} ${ARC}
 
 Eval.o: Eval.cpp
 	$(COMP) -c Eval.cpp ${CFLAGS} ${ARC}
@@ -229,8 +153,14 @@ Hash.o: Hash.cpp
 OpenBook.o: db/OpenBook.cpp
 	$(COMP) -c db/OpenBook.cpp ${CFLAGS} ${ARC}
 
-GTB.o: db/GTB.cpp
-	$(COMP) -c db/GTB.cpp ${CFLAGS} ${ARC}
+GTB.o: db/gaviota/GTB.cpp
+	$(COMP) -c db/gaviota/GTB.cpp ${CFLAGS} ${ARC}
+
+SYZYGY.o: db/syzygy/SYZYGY.cpp
+	$(COMP) -c db/syzygy/SYZYGY.cpp ${CFLAGS} ${ARC}
+
+tbprobe.o: db/syzygy/tbprobe.c
+	$(COMP) -c db/syzygy/tbprobe.c ${CFLAGS} ${ARC}
 
 String.o: util/String.cpp
 	$(COMP) -c util/String.cpp ${CFLAGS} ${ARC}
@@ -251,5 +181,5 @@ WrapperCinnamon.o: WrapperCinnamon.cpp
 	$(COMP) -c WrapperCinnamon.cpp ${CFLAGS} ${ARC}
 
 clean:
-	$(RM) *.o $(EXE) *.gcda libCinnamon.a cinnamon.js
+	$(RM) *.o $(EXE) cinnamon.js
 

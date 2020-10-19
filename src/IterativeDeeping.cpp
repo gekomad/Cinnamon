@@ -20,11 +20,12 @@
 
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), running(false), openBook(nullptr), ponderEnabled(false) {
     setUseBook(false);
+    setId(-1);
     SET(checkSmp2, 0);
 }
 
 void IterativeDeeping::setMaxDepth(const int d) {
-    maxDepth = min(d, _board::MAX_PLY);
+    maxDepth = min(d, MAX_PLY);
 }
 
 IterativeDeeping::~IterativeDeeping() {
@@ -90,20 +91,28 @@ void IterativeDeeping::run() {
     }
 
     //Tablebase
+
     string tb = searchManager.probeRootTB();
     if (!tb.empty()) {
+        debug("info string returned move from TB\n");
+        _Tmove move;
+        searchManager.getMoveFromSan(tb, &move);
+        searchManager.makemove(&move);
         cout << "bestmove " << tb << endl;
+        ADD(checkSmp2, -1);
+        ASSERT(!checkSmp2);
         LOCK_RELEASE(running);
         return;
     }
-    int sc = 0;
+
     unsigned totMoves;
 
     int mply = 0;
 
     searchManager.startClock();
-    searchManager.clearHistoryHeuristic();
-    searchManager.clearAge();
+    searchManager.clearHeuristic();
+    auto hash = Hash::getInstance();
+    hash.clearAge();
     searchManager.setForceCheck(false);
 
     auto start1 = std::chrono::high_resolution_clock::now();
@@ -123,7 +132,7 @@ void IterativeDeeping::run() {
         ++mply;
         searchManager.init();
 
-        searchManager.search(mply);
+        auto sc =searchManager.search(mply);
 
         searchManager.setRunningThread(1);
         searchManager.setRunning(1);
@@ -132,33 +141,32 @@ void IterativeDeeping::run() {
             break;
         }
 
-        searchManager.incHistoryHeuristic(resultMove.from, resultMove.to, 0x800);
+        searchManager.incHistoryHeuristic(resultMove.s.from, resultMove.s.to, 0x800);
 
         auto end1 = std::chrono::high_resolution_clock::now();
         timeTaken = Time::diffTime(end1, start1) + 1;
         totMoves += searchManager.getTotMoves();
 
-        sc = resultMove.score;
-        if (resultMove.score > _INFINITE - MAX_PLY) {
+
+        if (sc > _INFINITE - MAX_PLY) {
             sc = 0x7fffffff;
         }
 #ifdef DEBUG_MODE
-        int totStoreHash = searchManager.getHash()->nRecordHashA + searchManager.getHash()->nRecordHashB +
-            searchManager.getHash()->nRecordHashE + 1;
-        int percStoreHashA = searchManager.getHash()->nRecordHashA * 100 / totStoreHash;
-        int percStoreHashB = searchManager.getHash()->nRecordHashB * 100 / totStoreHash;
-        int percStoreHashE = searchManager.getHash()->nRecordHashE * 100 / totStoreHash;
-        int totCutHash = searchManager.getHash()->n_cut_hashA + searchManager.getHash()->n_cut_hashB + 1;
-        int percCutHashA = searchManager.getHash()->n_cut_hashA * 100 / totCutHash;
-        int percCutHashB = searchManager.getHash()->n_cut_hashB * 100 / totCutHash;
+        int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
+        int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
+        int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
+        int percStoreHashE = hash.nRecordHashE * 100 / totStoreHash;
+        int totCutHash = hash.n_cut_hashA + hash.n_cut_hashB + 1;
+        int percCutHashA = hash.n_cut_hashA * 100 / totCutHash;
+        int percCutHashB = hash.n_cut_hashB * 100 / totCutHash;
         cout << "\ninfo string ply: " << mply << endl;
         cout << "info string tot moves: " << totMoves << endl;
         unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
         cout << "info string hash stored " << totStoreHash * 100 / (1 + cumulativeMovesCount) << "% (alpha=" <<
-            percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
+             percStoreHashA << "% beta=" << percStoreHashB << "% exact=" << percStoreHashE << "%)" << endl;
 
         cout << "info string cut hash " << totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()) <<
-            "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "%)" << endl;
+             "% (alpha=" << percCutHashA << "% beta=" << percCutHashB << "%)" << endl;
 
         u64 nps = 0;
         if (timeTaken) {
@@ -170,16 +178,16 @@ void IterativeDeeping::run() {
         int nCutFp = searchManager.getNCutFp();
         int nCutRazor = searchManager.getNCutRazor();
 
-        int collisions = searchManager.getHash()->collisions;
-        unsigned readCollisions = searchManager.getHash()->readCollisions;
-        int nNullMoveCut = searchManager.getHash()->cutFailed;
+        int collisions = hash.collisions;
+        unsigned readCollisions = hash.readCollisions;
+        int nNullMoveCut = hash.cutFailed;
         unsigned totGen = searchManager.getTotGen();
         if (nCutAB) {
             cout << "info string beta efficiency: " << (int) (betaEfficiency / totGen * 10) << "%" << endl;
         }
         if (totMovesPrec != 0xffffffffffffffffULL)
             cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2) <<
-                ((double) totMoves / (double) totMovesPrec) << endl;
+                 ((double) totMoves / (double) totMovesPrec) << endl;
         totMovesPrec = totMoves;
         cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds)" << endl;
         cout << "info string alphaBeta cut: " << nCutAB << endl;
@@ -207,22 +215,22 @@ void IterativeDeeping::run() {
         }
         if (trace) {
 
-            resultMove.capturedPiece = searchManager.getPieceAt(resultMove.side ^ 1, POW2[resultMove.to]);
-            bestmove = Search::decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
-            if (!(resultMove.type & (Search::KING_SIDE_CASTLE_MOVE_MASK | Search::QUEEN_SIDE_CASTLE_MOVE_MASK))) {
-                bestmove += Search::decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
-                if (resultMove.promotionPiece != -1) {
-                    bestmove += tolower(FEN_PIECE[(uchar) resultMove.promotionPiece]);
+            resultMove.s.capturedPiece = searchManager.getPieceAt(resultMove.s.side ^ 1, POW2[resultMove.s.to]);
+            bestmove = board::decodeBoardinv(resultMove.s.type, resultMove.s.from, resultMove.s.side);
+            if (!(resultMove.s.type & (KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK))) {
+                bestmove += board::decodeBoardinv(resultMove.s.type, resultMove.s.to, resultMove.s.side);
+                if (resultMove.s.promotionPiece != -1) {
+                    bestmove += tolower(FEN_PIECE[(uchar) resultMove.s.promotionPiece]);
                 }
             }
 
             if (abs(sc) > _INFINITE - MAX_PLY) {
-                cout << "info score mate 1 depth " << mply;
+                cout << "info depth " << mply << " score mate 1";
             } else {
-                cout << "info score cp " << sc << " depth " << mply - extension;
+                cout << "info depth " << mply - extension << " score cp " << sc;
             }
-            cout << " nodes " << totMoves << " time " << timeTaken;
-            if (timeTaken)cout << " knps " << (totMoves / timeTaken);
+            cout << " time " << timeTaken << " nodes " << totMoves;
+            if (timeTaken)cout << " nps " << (int) ((double) totMoves / (double) timeTaken * 1000.0);
             cout << " pv " << pvv << endl;
         }
 
@@ -246,13 +254,9 @@ void IterativeDeeping::run() {
 
 #ifdef BENCH_MODE
 
-    cout << "info string pawnTime eval avg: " << Eval::pawnTime.avgAndReset() << " ns." << endl;
-    cout << "info string bishopTime eval avg: " << Eval::bishopTime.avgAndReset() << " ns." << endl;
-    cout << "info string knightTime eval avg: " << Eval::knightTime.avgAndReset() << " ns." << endl;
-    cout << "info string rookTime eval avg: " << Eval::rookTime.avgAndReset() << " ns." << endl;
-    cout << "info string queenTime eval avg: " << Eval::queenTime.avgAndReset() << " ns." << endl;
-    cout << "info string kingTime eval avg: " << Eval::kingTime.avgAndReset() << " ns." << endl;
-    cout << "info string evalTime TOT avg: " << Eval::evalTime.avgAndReset() << " ns." << endl;
+    Times *times = &Times::getInstance();
+    times->print();
+
 
 #endif
 

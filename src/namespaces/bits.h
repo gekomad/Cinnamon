@@ -19,22 +19,18 @@
 
 #pragma once
 
-#include "../util/Time.h"
+#include "../util/bench/Time.h"
 #include "../util/FileUtil.h"
 #include "debug.h"
+#include "../def.h"
+#include "constants.h"
 #include <array>
 
 using namespace _debug;
+using namespace constants;
 
 namespace _def {
     using namespace std;
-
-    static constexpr int BLACK = 0;
-    static constexpr int WHITE = 1;
-
-    typedef unsigned char uchar;
-    typedef long long unsigned u64;
-    typedef u64 _Tchessboard[16];
 
 #define RESET_LSB(bits) (bits&=bits-1)
 
@@ -44,10 +40,10 @@ namespace _def {
 #define STATIC_CONST static constexpr
 #endif
 
-#define _assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< ":"<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::exit(1);};
+#define _assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< ":"<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::exit(1);}
 
 #ifdef BENCH_MODE
-#define BENCH(a) a
+#define BENCH(a) (a);
 #else
 #define BENCH(a)
 #endif
@@ -150,8 +146,6 @@ namespace _def {
     template<int side, int shift>
     static inline u64 shiftForward(const u64 bits) {
         ASSERT(shift == 7 || shift == 8 || shift == 9);
-        static constexpr array<u64, 2> NO_FILE_LEFT = {0xFEFEFEFEFEFEFEFEULL, 0x7F7F7F7F7F7F7F7FULL};
-        static constexpr array<u64, 2> NO_FILE_RIGHT = {0x7F7F7F7F7F7F7F7FULL, 0xFEFEFEFEFEFEFEFEULL};
 
         auto a = side == WHITE ? bits << shift : bits >> shift;
         if (shift == 7)
