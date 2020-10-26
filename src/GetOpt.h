@@ -169,10 +169,12 @@ private:
         string fen, token;
         IterativeDeeping it;
         int opt;
+        SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
         while ((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
             if (opt == 'f') {    //fen
                 fen = optarg;
+                searchManager.loadFen(fen);
             } else if (opt == 'p') { //path
                 token = optarg;
                 SYZYGY::getInstance().createSYZYGY(token);

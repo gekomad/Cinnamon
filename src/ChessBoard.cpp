@@ -109,7 +109,7 @@ string ChessBoard::boardToFen() const {
         cst++;
     }
     if (chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK) {
-        fen += whiteRookKingSideCastle;
+        fen += blackRookQueenSideCastle;
         cst++;
     }
     if (!cst) {
