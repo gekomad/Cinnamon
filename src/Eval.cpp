@@ -571,10 +571,10 @@ short Eval::getScore(const u64 key, const int side, const int alpha, const int b
         bonus_attack_king_white = BONUS_ATTACK_KING[bitCount(structureEval.kingAttackers[BLACK])];
     }
 
-    ASSERT(getMobilityCastle(WHITE, structureEval.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)))
-    ASSERT(getMobilityCastle(BLACK, structureEval.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)))
-    int mobWhite = MOB_CASTLE[phase][getMobilityCastle(WHITE, structureEval.allPieces)];
-    int mobBlack = MOB_CASTLE[phase][getMobilityCastle(BLACK, structureEval.allPieces)];
+    ASSERT(getMobilityCastle<WHITE>(structureEval.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)))
+    ASSERT(getMobilityCastle<BLACK>(structureEval.allPieces) < (int) (sizeof(MOB_CASTLE[phase]) / sizeof(int)))
+    int mobWhite = MOB_CASTLE[phase][getMobilityCastle<WHITE>(structureEval.allPieces)];
+    int mobBlack = MOB_CASTLE[phase][getMobilityCastle<BLACK>(structureEval.allPieces)];
     int attack_king_white = ATTACK_KING * bitCount(structureEval.kingAttackers[BLACK]);
     int attack_king_black = ATTACK_KING * bitCount(structureEval.kingAttackers[WHITE]);
     side == WHITE ? lazyscore_black -= 5 : lazyscore_white += 5;

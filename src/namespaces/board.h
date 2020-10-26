@@ -35,13 +35,9 @@ public:
 
     static int getFile(const char cc);
 
-    static void display(const _Tchessboard &chessboard);
-
     static bool checkInsufficientMaterial(const int nPieces, const _Tchessboard &chessboard);
 
     static u64 performRankFileCaptureAndShift(const int position, const u64 enemies, const u64 allpieces);
-
-    static void print(const _Tmove *move, const _Tchessboard &chessboard);
 
     static int getSide(const _Tchessboard &chessboard);
 
@@ -94,15 +90,18 @@ public:
 
     static bool isPieceAt(const uchar pieces, const uchar pos, const _Tchessboard &chessboard);
 
-    static string decodeBoardinv(const uchar type, const int a, const int side);
-
     template<int side>
     static u64 getBitmap(const _Tchessboard &chessboard) {
         return chessboard[PAWN_BLACK + side] | chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] |
                chessboard[KNIGHT_BLACK + side] | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
 
-    static string boardToFen(const _Tchessboard &chessboard);
+    static u64 getBitmap(const _Tchessboard &chessboard) {
+        return chessboard[PAWN_BLACK] | chessboard[ROOK_BLACK] | chessboard[BISHOP_BLACK] |
+               chessboard[KNIGHT_BLACK] | chessboard[KING_BLACK] | chessboard[QUEEN_BLACK] | chessboard[PAWN_WHITE] |
+               chessboard[ROOK_WHITE] | chessboard[BISHOP_WHITE] |
+               chessboard[KNIGHT_WHITE] | chessboard[KING_WHITE] | chessboard[QUEEN_WHITE];
+    }
 
     template<int side>
     static int getPieceAt(const u64 bitmapPos, const _Tchessboard &chessboard) {
@@ -214,8 +213,6 @@ public:
                 chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] |
                 chessboard[QUEEN_BLACK + side]);
     }
-
-    static string moveToString(const _Tmove *move);
 
 };
 

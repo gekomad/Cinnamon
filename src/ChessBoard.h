@@ -44,6 +44,8 @@ class ChessBoard : public Bitboard {
 public:
     ChessBoard();
 
+    string decodeBoardinv(const uchar type, const int a, const int side);
+
     virtual ~ChessBoard();
 
     const string getFen() const;
@@ -58,22 +60,42 @@ public:
         chessboard[SIDETOMOVE_IDX] = b;
     }
 
+    void setChess960(bool c) { chess960 = c; }
+
+    bool isChess960() const {
+        return chess960;
+    }
+
+    void display() const;
+
+    string boardToFen() const;
+
 protected:
 #ifdef BENCH_MODE
     Times *times = &Times::getInstance();
 #endif
     _Tchessboard chessboard;
-    int startPosWhiteKing = 999;
-    int startPosWhiteRookKingSide = 999;
-    int startPosWhiteRookQueenSide = 999;
+    int startPosWhiteKing;
+    int startPosWhiteRookKingSide;
+    int startPosWhiteRookQueenSide;
 
-    int startPosBlackKing = 999;
-    int startPosBlackRookKingSide = 999;
-    int startPosBlackRookQueenSide = 999;
+    int startPosBlackKing;
+    int startPosBlackRookKingSide;
+    int startPosBlackRookQueenSide;
+
+    string MATCH_QUEENSIDE;
+    string MATCH_QUEENSIDE_WHITE;
+    string MATCH_KINGSIDE_WHITE;
+    string MATCH_QUEENSIDE_BLACK;
+    string MATCH_KINGSIDE_BLACK;
 
     _Tboard structureEval;
+    int movesCount = 1;
+    bool chess960 = false;
 
     void makeZobristKey();
+
+    void print(const _Tmove *move, const _Tchessboard &chessboard);
 
 #ifdef DEBUG_MODE
 
@@ -89,6 +111,12 @@ protected:
 #endif
 private:
     string fenString;
+    char whiteRookKingSideCastle;
+    char whiteRookQueenSideCastle;
+    char blackRookKingSideCastle;
+    char blackRookQueenSideCastle;
+
+    string moveToString(const _Tmove *move);
 
     int loadFen();
 };

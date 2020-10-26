@@ -54,9 +54,10 @@ unsigned SearchManager::SZtbProbeWDL() const {
 
 string SearchManager::probeRootTB() const {
     _Tmove bestMove;
-    if (threadPool->getThread(0).probeRootTB(&bestMove)) {
-        string best = string(board::decodeBoardinv(bestMove.s.type, bestMove.s.from, getSide())) +
-                      string(board::decodeBoardinv(bestMove.s.type, bestMove.s.to, getSide()));
+    Search &search = threadPool->getThread(0);
+    if (search.probeRootTB(&bestMove)) {
+        string best = string(search.decodeBoardinv(bestMove.s.type, bestMove.s.from, getSide())) +
+                      string(search.decodeBoardinv(bestMove.s.type, bestMove.s.to, getSide()));
 
         if (bestMove.s.promotionPiece != GenMoves::NO_PROMOTION)
             best += tolower(bestMove.s.promotionPiece);
@@ -116,11 +117,11 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, 
     for (int t = 0; t < lineWin.cmove; t++) {
         pvvTmp.clear();
         pvvTmp +=
-                board::decodeBoardinv(lineWin.argmove[t].s.type,
+                decodeBoardinv(lineWin.argmove[t].s.type,
                                       lineWin.argmove[t].s.from,
                                       board::getSide(threadPool->getThread(0).getChessboard()));
-        if (pvvTmp.length() != 4) {
-            pvvTmp += board::decodeBoardinv(lineWin.argmove[t].s.type,
+        if (pvvTmp.length() != 4 && pvvTmp[0] != 'O') {
+            pvvTmp += decodeBoardinv(lineWin.argmove[t].s.type,
                                             lineWin.argmove[t].s.to,
                                             board::getSide(threadPool->getThread(0).getChessboard()));
         }
@@ -140,6 +141,7 @@ SearchManager::~SearchManager() {
 
 int SearchManager::loadFen(string fen) {
     int res = -1;
+
     for (uchar i = 0; i < threadPool->getPool().size(); i++) {
         res = threadPool->getThread(i).loadFen(fen);
         ASSERT_RANGE(res, 0, 1);
@@ -186,7 +188,7 @@ void SearchManager::startClock() {
 }
 
 string SearchManager::boardToFen() {
-    return board::boardToFen(threadPool->getThread(0).getChessboard());
+    return threadPool->getThread(0).boardToFen();
 }
 
 void SearchManager::clearHeuristic() {
@@ -222,7 +224,7 @@ int SearchManager::getRunning(int i) {
 }
 
 void SearchManager::display() {
-    board::display(threadPool->getThread(0).getChessboard());
+    threadPool->getThread(0).display();
 }
 
 string SearchManager::getFen() {
@@ -296,6 +298,10 @@ bool SearchManager::makemove(_Tmove *i) {
         b = s->makemove(i, true, false);
     }
     return b;
+}
+
+string SearchManager::decodeBoardinv(const uchar type, const int a, const int side) {
+    return threadPool->getThread(0).decodeBoardinv(type, a, side);
 }
 
 void SearchManager::takeback(_Tmove *move, const u64 oldkey, bool rep) {

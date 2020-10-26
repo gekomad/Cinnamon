@@ -170,8 +170,8 @@ void Perft::run() {
     }
     p->setPerft(true);
     int side = board::getSide(p->getChessboard()) ? 1 : 0;
-    board::display(p->getChessboard());
 
+    p->display();
     cout << "fen:\t\t\t" << fen << endl;
     cout << "depth:\t\t\t" << perftRes.depth << endl;
     cout << "#cpu:\t\t\t" << perftRes.nCpu << endl;
@@ -240,7 +240,7 @@ void Perft::endRun() {
 
 #ifdef BENCH_MODE
 
-    Times* times = &Times::getInstance();
+    Times *times = &Times::getInstance();
     times->print();
 
 #endif

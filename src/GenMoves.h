@@ -399,15 +399,15 @@ public:
     double betaEfficiency;
 #endif
 
-    void setChess960(bool c) { chess960 = c; }
 
     static constexpr int NO_PROMOTION = -1;
 protected:
-    bool chess960 = false;
+
     u64 pinned;
     bool perftMode;
     int listId;
     _TmoveP *gen_list;
+
     static constexpr u64 RANK_2 = 0xff00ULL;
     static constexpr u64 RANK_3 = 0xff000000ULL;
     static constexpr u64 RANK_5 = 0xff00000000ULL;
@@ -427,7 +427,20 @@ protected:
 
     _Tmove *getNextMove(decltype(gen_list), const int depth, const Hash::_ThashData *c, const int first);
 
-    int getMobilityCastle(const int side, const u64 allpieces) const;
+    template<int side>
+    int getMobilityCastle(const u64 allpieces) const {
+        ASSERT_RANGE(side, 0, 1)
+        if (chess960) return 0;
+        int count = 0;
+        if (side == WHITE) {
+            if (allowCastleWhiteKing(allpieces)) count++;
+            if (allowCastleWhiteQueen(allpieces)) count++;
+        } else {
+            if (allowCastleBlackKing(allpieces)) count++;
+            if (allowCastleBlackQueen(allpieces)) count++;
+        }
+        return count;
+    }
 
     int historyHeuristic[64][64];
     unsigned short killer[3][MAX_PLY];
@@ -454,7 +467,8 @@ protected:
                 ASSERT(chessboard[KING_WHITE]);
 
                 result = board::isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
-                                                 board::getBitmap<BLACK>(chessboard) | board::getBitmap<WHITE>(chessboard), chessboard);
+                                                 board::getBitmap<BLACK>(chessboard) |
+                                                 board::getBitmap<WHITE>(chessboard), chessboard);
                 chessboard[pieceFrom] = from1;
                 if (pieceTo != SQUARE_EMPTY) {
                     chessboard[pieceTo] = to1;
@@ -474,7 +488,8 @@ protected:
                 }
                 chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
                 result = board::isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
-                                                 board::getBitmap<BLACK>(chessboard) | board::getBitmap<WHITE>(chessboard), chessboard);
+                                                 board::getBitmap<BLACK>(chessboard) |
+                                                 board::getBitmap<WHITE>(chessboard), chessboard);
                 if (pieceTo != SQUARE_EMPTY) {
                     chessboard[pieceTo] = to1;
                 }
@@ -493,7 +508,8 @@ protected:
                     chessboard[side ^ 1] &= NOTPOW2[to + 8];
                 }
                 result = board::isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
-                                                 board::getBitmap<BLACK>(chessboard) | board::getBitmap<WHITE>(chessboard), chessboard);
+                                                 board::getBitmap<BLACK>(chessboard) |
+                                                 board::getBitmap<WHITE>(chessboard), chessboard);
                 chessboard[side ^ 1] = to1;
                 chessboard[side] = from1;;
                 break;
@@ -555,7 +571,8 @@ protected:
                 ASSERT(chessboard[KING_WHITE]);
 
                 result = board::isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
-                                                 board::getBitmap<BLACK>(chessboard) | board::getBitmap<WHITE>(chessboard), chessboard);
+                                                 board::getBitmap<BLACK>(chessboard) |
+                                                 board::getBitmap<WHITE>(chessboard), chessboard);
                 chessboard[pieceFrom] = from1;
                 if (pieceTo != SQUARE_EMPTY) {
                     chessboard[pieceTo] = to1;
@@ -575,7 +592,8 @@ protected:
                 }
                 chessboard[promotionPiece] = chessboard[promotionPiece] | POW2[to];
                 result = board::isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
-                                                 board::getBitmap<BLACK>(chessboard) | board::getBitmap<WHITE>(chessboard), chessboard);
+                                                 board::getBitmap<BLACK>(chessboard) |
+                                                 board::getBitmap<WHITE>(chessboard), chessboard);
                 if (pieceTo != SQUARE_EMPTY) {
                     chessboard[pieceTo] = to1;
                 }
@@ -594,7 +612,8 @@ protected:
                     chessboard[side ^ 1] &= NOTPOW2[to + 8];
                 }
                 result = board::isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
-                                                 board::getBitmap<BLACK>(chessboard) | board::getBitmap<WHITE>(chessboard), chessboard);
+                                                 board::getBitmap<BLACK>(chessboard) |
+                                                 board::getBitmap<WHITE>(chessboard), chessboard);
                 chessboard[side ^ 1] = to1;
                 chessboard[side] = from1;;
                 break;
@@ -624,73 +643,127 @@ protected:
         BENCH(times->stop("castle"))
     }
 
+    bool allowKingSideBlack(const u64 allpieces) const {
+        const auto a = board::isCastleRight_BlackKing(chessboard) &&
+                       board::isPieceAt(KING_BLACK, startPosBlackKing, chessboard) &&
+                       board::isPieceAt(ROOK_BLACK, startPosBlackRookKingSide, chessboard) &&
+                       (!board::isOccupied(G8, allpieces) || startPosBlackKing == G8 ||
+                        startPosBlackRookKingSide == G8) &&
+                       (!board::isOccupied(F8, allpieces) || startPosBlackKing == F8 ||
+                        startPosBlackRookKingSide == F8) &&
+                       !(startPosBlackKing == G8 && startPosBlackRookKingSide == F8);
+        if (!a)return a;
+        const u64 path = LINK_SQUARE[startPosBlackKing][G8];
+        const u64 rookPath = LINK_SQUARE[startPosBlackRookKingSide][F8] & NOTPOW2[startPosBlackKing];
+        const u64 kingPath = path | POW2[G8] | POW2[startPosBlackKing];
+        return (!(allpieces & rookPath) && !(allpieces & (path & NOTPOW2[startPosBlackRookKingSide])) &&
+                !board::anyAttack<BLACK>(kingPath, allpieces, chessboard) &&
+                !board::anyAttack<BLACK>(kingPath, allpieces & NOTPOW2[startPosBlackRookKingSide], chessboard));
+    }
+
+    bool allowQueenSideBlack(const u64 allpieces) const {
+        auto a = board::isCastleRight_BlackQueen(chessboard) &&
+                 board::isPieceAt(KING_BLACK, startPosBlackKing, chessboard) &&
+                 board::isPieceAt(ROOK_BLACK, startPosBlackRookQueenSide, chessboard) &&
+                 (!board::isOccupied(C8, allpieces) || startPosBlackKing == C8 || startPosBlackRookQueenSide == C8) &&
+                 (!board::isOccupied(D8, allpieces) || startPosBlackKing == D8 || startPosBlackRookQueenSide == D8) &&
+                 !(startPosWhiteKing == C8 && startPosWhiteRookQueenSide == D8);
+        if (!a)return false;
+        const u64 rookPath = LINK_SQUARE[startPosBlackRookQueenSide][D8] & NOTPOW2[startPosBlackKing];
+        const u64 path = LINK_SQUARE[startPosBlackKing][C8];
+        const u64 kingPath = path | POW2[C8] | POW2[startPosBlackKing];
+        return (!(allpieces & rookPath) && !(allpieces & (path & NOTPOW2[startPosBlackRookQueenSide])) &&
+                !board::anyAttack<BLACK>(kingPath, allpieces, chessboard) &&
+                !board::anyAttack<BLACK>(kingPath, allpieces & NOTPOW2[startPosBlackRookQueenSide],
+                                         chessboard));
+    }
+
+    bool allowCastleBlackQueen(const u64 allpieces) const;
+
+    bool allowCastleWhiteQueen(const u64 allpieces) const;
+
+    bool allowCastleBlackKing(const u64 allpieces) const;
+
+    bool allowCastleWhiteKing(const u64 allpieces) const;
+
+    bool allowQueenSideWhite(const u64 allpieces) const {
+        const auto a = board::isCastleRight_WhiteQueen(chessboard) &&
+                       board::isPieceAt(KING_WHITE, startPosWhiteKing, chessboard) &&
+                       board::isPieceAt(ROOK_WHITE, startPosWhiteRookQueenSide, chessboard) &&
+                       (!board::isOccupied(C1, allpieces) || startPosWhiteKing == C1 ||
+                        startPosWhiteRookQueenSide == C1) &&
+                       (!board::isOccupied(D1, allpieces) || startPosWhiteKing == D1 ||
+                        startPosWhiteRookQueenSide == D1) &&
+                       !(startPosWhiteKing == C1 && startPosWhiteRookQueenSide == D1);
+        if (!a)return false;
+        const u64 path = LINK_SQUARE[startPosWhiteKing][C1];
+        const u64 rookPath = LINK_SQUARE[startPosWhiteRookQueenSide][D1] & NOTPOW2[startPosWhiteKing];
+        const u64 kingPath = path | POW2[C1] | POW2[startPosWhiteKing];
+        return (!(allpieces & rookPath) && !(allpieces & (path & NOTPOW2[startPosWhiteRookQueenSide])) &&
+                !board::anyAttack<WHITE>(kingPath, allpieces, chessboard) &&
+                !board::anyAttack<WHITE>(kingPath, allpieces & NOTPOW2[startPosWhiteRookQueenSide], chessboard));
+    }
+
+    bool allowKingSideWhite(const u64 allpieces) const {
+        const auto a = board::isCastleRight_WhiteKing(chessboard) &&
+                       board::isPieceAt(KING_WHITE, startPosWhiteKing, chessboard) &&
+                       board::isPieceAt(ROOK_WHITE, startPosWhiteRookKingSide, chessboard) &&
+                       (!board::isOccupied(G1, allpieces) || startPosWhiteKing == G1 ||
+                        startPosWhiteRookKingSide == G1) &&
+                       (!board::isOccupied(F1, allpieces) || startPosWhiteKing == F1 ||
+                        startPosWhiteRookKingSide == F1) &&
+                       !(startPosWhiteKing == G1 && startPosWhiteRookKingSide == F1);
+        if (!a)return a;
+        const u64 path = LINK_SQUARE[startPosWhiteKing][G1];
+        const u64 rookPath = LINK_SQUARE[startPosWhiteRookKingSide][F1] & NOTPOW2[startPosWhiteKing];
+        const u64 kingPath = path | POW2[G1] | POW2[startPosWhiteKing];
+        return (!(allpieces & rookPath) && !(allpieces & (path & NOTPOW2[startPosWhiteRookKingSide])) &&
+                !board::anyAttack<WHITE>(kingPath, allpieces, chessboard) &&
+                !board::anyAttack<WHITE>(kingPath, allpieces & NOTPOW2[startPosWhiteRookKingSide], chessboard));
+    }
 
     template<int side>
     void tryAllCastle960(const u64 allpieces) {
         if (side == WHITE) {
 
-            if (board::isCastleRight_WhiteKing(chessboard) && board::isPieceAt(KING_WHITE, startPosWhiteKing, chessboard) &&
-                board::isPieceAt(ROOK_WHITE, startPosWhiteRookKingSide, chessboard) &&
-                (!board::isOccupied(G1, allpieces) || startPosWhiteKing == G1 || startPosWhiteRookKingSide == G1) &&
-                (!board::isOccupied(F1, allpieces) || startPosWhiteKing == F1 || startPosWhiteRookKingSide == F1) &&
-                !(startPosWhiteKing == G1 && startPosWhiteRookKingSide == F1)) {
-                const u64 path = LINK_SQUARE[startPosWhiteKing][G1];
-                const u64 rookPath = LINK_SQUARE[startPosWhiteRookKingSide][F1] & NOTPOW2[startPosWhiteKing];
-                const u64 kingPath = path | POW2[G1] | POW2[startPosWhiteKing];
-                if (!(allpieces & rookPath) && !(allpieces & (path & NOTPOW2[startPosWhiteRookKingSide])) &&
-                    !board::anyAttack<WHITE>(kingPath, allpieces, chessboard) &&
-                    !board::anyAttack<WHITE>(kingPath, allpieces & NOTPOW2[startPosWhiteRookKingSide], chessboard))
-                    pushmove<KING_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
+            if (allowKingSideWhite(allpieces)) {
+
+                pushmove<KING_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
             }
 
-            if (board::isCastleRight_WhiteQueen(chessboard) && board::isPieceAt(KING_WHITE, startPosWhiteKing, chessboard) &&
-                board::isPieceAt(ROOK_WHITE, startPosWhiteRookQueenSide, chessboard) &&
-                (!board::isOccupied(C1, allpieces) || startPosWhiteKing == C1 || startPosWhiteRookQueenSide == C1) &&
-                (!board::isOccupied(D1, allpieces) || startPosWhiteKing == D1 || startPosWhiteRookQueenSide == D1) &&
-                !(startPosWhiteKing == C1 && startPosWhiteRookQueenSide == D1)) {
-                const u64 path = LINK_SQUARE[startPosWhiteKing][C1];
-                const u64 rookPath = LINK_SQUARE[startPosWhiteRookQueenSide][D1] & NOTPOW2[startPosWhiteKing];
-                const u64 kingPath = path | POW2[C1] | POW2[startPosWhiteKing];
-                if (!(allpieces & rookPath) && !(allpieces & (path & NOTPOW2[startPosWhiteRookQueenSide])) &&
-                    !board::anyAttack<WHITE>(kingPath, allpieces, chessboard) &&
-                    !board::anyAttack<WHITE>(kingPath, allpieces & NOTPOW2[startPosWhiteRookQueenSide], chessboard))
-                    pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
+            if (allowQueenSideWhite(allpieces)) {
+
+                pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
             }
 
         } else {
-            if (board::isCastleRight_BlackKing(chessboard) && board::isPieceAt(KING_BLACK, startPosBlackKing, chessboard) &&
-                board::isPieceAt(ROOK_BLACK, startPosBlackRookKingSide, chessboard) &&
-                (!board::isOccupied(G8, allpieces) || startPosBlackKing == G8 || startPosBlackRookKingSide == G8) &&
-                (!board::isOccupied(F8, allpieces) || startPosBlackKing == F8 || startPosBlackRookKingSide == F8) &&
-                !(startPosBlackKing == G8 && startPosBlackRookKingSide == F8)) {
-                const u64 path = LINK_SQUARE[startPosBlackKing][G8];
-                const u64 rookPath = LINK_SQUARE[startPosBlackRookKingSide][F8] & NOTPOW2[startPosBlackKing];
-                const u64 kingPath = path | POW2[G8] | POW2[startPosBlackKing];
-                if (!(allpieces & rookPath) && !(allpieces & (path & NOTPOW2[startPosBlackRookKingSide])) &&
-                    !board::anyAttack<BLACK>(kingPath, allpieces, chessboard) &&
-                    !board::anyAttack<BLACK>(kingPath, allpieces & NOTPOW2[startPosBlackRookKingSide], chessboard))
-                    pushmove<KING_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
+            if (allowKingSideBlack(allpieces)) {
+
+                pushmove<KING_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
             }
 
-            if (board::isCastleRight_BlackQueen(chessboard) && board::isPieceAt(KING_BLACK, startPosBlackKing, chessboard) &&
-                board::isPieceAt(ROOK_BLACK, startPosBlackRookQueenSide, chessboard) &&
-                (!board::isOccupied(C8, allpieces) || startPosBlackKing == C8 || startPosBlackRookQueenSide == C8) &&
-                (!board::isOccupied(D8, allpieces) || startPosBlackKing == D8 || startPosBlackRookQueenSide == D8) &&
-                !(startPosWhiteKing == C8 && startPosWhiteRookQueenSide == D8)) {
-                const u64 rookPath = LINK_SQUARE[startPosBlackRookQueenSide][D8] & NOTPOW2[startPosBlackKing];
-                const u64 path = LINK_SQUARE[startPosBlackKing][C8];
-                const u64 kingPath = path | POW2[C8] | POW2[startPosBlackKing];
-                if (!(allpieces & rookPath) && !(allpieces & (path & NOTPOW2[startPosBlackRookQueenSide])) &&
-                    !board::anyAttack<BLACK>(kingPath, allpieces, chessboard) &&
-                    !board::anyAttack<BLACK>(kingPath, allpieces & NOTPOW2[startPosBlackRookQueenSide], chessboard))
-                    pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
+            if (allowQueenSideBlack(allpieces)) {
+
+                pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
             }
         }
     }
 
     template<int side>
-    void tryAllCastleStandard(const u64 allpieces);
-
+    void tryAllCastleStandard(const u64 allpieces) {
+        if (side == WHITE) {
+            if (allowCastleWhiteKing(allpieces))
+                pushmove<KING_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
+            if (allowCastleWhiteQueen(allpieces)) {
+                pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
+            }
+        } else {
+            if (allowCastleBlackKing(allpieces))
+                pushmove<KING_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
+            if (allowCastleBlackQueen(allpieces))
+                pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
+        }
+    }
     template<uchar type, int side>
     bool pushmove(const int from, const int to, const int promotionPiece, const int pieceFrom, const bool isCapture) {
 #ifdef DEBUG_MODE
@@ -698,7 +771,7 @@ protected:
             auto a = board::getPieceAt<side ^ 1>(POW2[to], chessboard);
             if (from != -1 && (isCapture && a == SQUARE_EMPTY || !isCapture && a != SQUARE_EMPTY)) {
                 if (((type & 0x3) != ENPASSANT_MOVE_MASK)) {
-                    board::display(chessboard);
+                    display();
                     cout << isCapture << " " << BOARD[from] << " " << BOARD[to] << endl << flush;
                     cout << 1;
                 }

@@ -64,10 +64,9 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const Hash::_Thash
         auto mos = list->moveList[i];
         int score = 0;
         if (mos.s.type & 0x3) {
-            if (mos.s.capturedPiece == KING_BLACK + (mos.s.side ^ 1)){
+            if (mos.s.capturedPiece == KING_BLACK + (mos.s.side ^ 1)) {
                 score = _INFINITE;
-            }
-            else {
+            } else {
                 ASSERT_RANGE(mos.s.pieceFrom, 0, 11);
                 ASSERT_RANGE(mos.s.to, 0, 63);
                 ASSERT_RANGE(mos.s.from, 0, 63);
@@ -189,70 +188,36 @@ void GenMoves::performCastle(const int side, const uchar type) {
     ASSERT(chessboard[KING_BLACK])
 }
 
-int GenMoves::getMobilityCastle(const int side, const u64 allpieces) const {
-    ASSERT_RANGE(side, 0, 1)
-    if (chess960) return 0;
-    int count = 0;
-    if (side == WHITE) {
-        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x6ULL) &&
-            chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_0 &&
-            !board::isAttacked<WHITE>(1, allpieces, chessboard) && !board::isAttacked<WHITE>(2, allpieces, chessboard) &&
-            !board::isAttacked<WHITE>(3, allpieces, chessboard)) {
-            count++;
-        }
-        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x70ULL) &&
-            chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_7 &&
-            !board::isAttacked<WHITE>(3, allpieces, chessboard) && !board::isAttacked<WHITE>(4, allpieces, chessboard) &&
-            !board::isAttacked<WHITE>(5, allpieces, chessboard)) {
-            count++;
-        }
-    } else {
-        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK &&
-            !(allpieces & 0x600000000000000ULL) && chessboard[ROOK_BLACK] & POW2_56 &&
-            !board::isAttacked<BLACK>(57, allpieces, chessboard) && !board::isAttacked<BLACK>(58, allpieces, chessboard) &&
-            !board::isAttacked<BLACK>(59, allpieces, chessboard)) {
-            count++;
-        }
-        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK &&
-            !(allpieces & 0x7000000000000000ULL) && chessboard[ROOK_BLACK] & POW2_63 &&
-            !board::isAttacked<BLACK>(59, allpieces, chessboard) && !board::isAttacked<BLACK>(60, allpieces, chessboard) &&
-            !board::isAttacked<BLACK>(61, allpieces, chessboard)) {
-            count++;
-        }
-    }
-    return count;
+bool GenMoves::allowCastleBlackQueen(const u64 allpieces) const {
+    return POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK &&
+           !(allpieces & 0x7000000000000000ULL) && chessboard[ROOK_BLACK] & POW2_63 &&
+           !board::isAttacked<BLACK>(59, allpieces, chessboard) &&
+           !board::isAttacked<BLACK>(60, allpieces, chessboard) &&
+           !board::isAttacked<BLACK>(61, allpieces, chessboard);
 }
 
+bool GenMoves::allowCastleWhiteQueen(const u64 allpieces) const {
+    return POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x70ULL) &&
+           chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_7 &&
+           !board::isAttacked<WHITE>(3, allpieces, chessboard) &&
+           !board::isAttacked<WHITE>(4, allpieces, chessboard) &&
+           !board::isAttacked<WHITE>(5, allpieces, chessboard);
+}
 
-template<int side>
-void GenMoves::tryAllCastleStandard(const u64 allpieces) {
-    if (side == WHITE) {
-        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x6ULL) &&
-            chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_0 &&
-            !board::isAttacked<WHITE>(1, allpieces, chessboard) && !board::isAttacked<WHITE>(2, allpieces, chessboard) &&
-            !board::isAttacked<WHITE>(3, allpieces, chessboard)) {
-            pushmove<KING_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
-        }
-        if (POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x70ULL) &&
-            chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_7 &&
-            !board::isAttacked<WHITE>(3, allpieces, chessboard) && !board::isAttacked<WHITE>(4, allpieces, chessboard) &&
-            !board::isAttacked<WHITE>(5, allpieces, chessboard)) {
-            pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
-        }
-    } else {
-        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK &&
-            !(allpieces & 0x600000000000000ULL) && chessboard[ROOK_BLACK] & POW2_56 &&
-            !board::isAttacked<BLACK>(57, allpieces, chessboard) && !board::isAttacked<BLACK>(58, allpieces, chessboard) &&
-            !board::isAttacked<BLACK>(59, allpieces, chessboard)) {
-            pushmove<KING_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
-        }
-        if (POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_QUEEN_CASTLE_BLACK_MASK &&
-            !(allpieces & 0x7000000000000000ULL) && chessboard[ROOK_BLACK] & POW2_63 &&
-            !board::isAttacked<BLACK>(59, allpieces, chessboard) && !board::isAttacked<BLACK>(60, allpieces, chessboard) &&
-            !board::isAttacked<BLACK>(61, allpieces, chessboard)) {
-            pushmove<QUEEN_SIDE_CASTLE_MOVE_MASK, side>(-1, -1, NO_PROMOTION, -1, false);
-        }
-    }
+bool GenMoves::allowCastleBlackKing(const u64 allpieces) const {
+    return POW2_59 & chessboard[KING_BLACK] && chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_BLACK_MASK &&
+           !(allpieces & 0x600000000000000ULL) && chessboard[ROOK_BLACK] & POW2_56 &&
+           !board::isAttacked<BLACK>(57, allpieces, chessboard) &&
+           !board::isAttacked<BLACK>(58, allpieces, chessboard) &&
+           !board::isAttacked<BLACK>(59, allpieces, chessboard);
+}
+
+bool GenMoves::allowCastleWhiteKing(const u64 allpieces) const {
+    return POW2_3 & chessboard[KING_WHITE] && !(allpieces & 0x6ULL) &&
+           chessboard[RIGHT_CASTLE_IDX] & RIGHT_KING_CASTLE_WHITE_MASK && chessboard[ROOK_WHITE] & POW2_0 &&
+           !board::isAttacked<WHITE>(1, allpieces, chessboard) &&
+           !board::isAttacked<WHITE>(2, allpieces, chessboard) &&
+           !board::isAttacked<WHITE>(3, allpieces, chessboard);
 }
 
 void GenMoves::unPerformCastle(const int side, const uchar type) {
@@ -464,8 +429,6 @@ void GenMoves::setRepetitionMapCount(const int i) {
 }
 
 int GenMoves::loadFen(string fen) {
-    repetitionMapCount = 0;
-
     int side = ChessBoard::loadFen(fen);
     if (side == 2) {
         fatal("Bad FEN position format ", fen)
@@ -478,17 +441,20 @@ int GenMoves::loadFen(string fen) {
 int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
     chessboard[ENPASSANT_IDX] = NO_ENPASSANT;
     memset(move, 0, sizeof(_Tmove));
-    static const string MATCH_QUEENSIDE = "O-O-O e1c1 e8c8";
-    static const string MATCH_QUEENSIDE_WHITE = "O-O-O e1c1";
-    static const string MATCH_KINGSIDE_WHITE = "O-O e1g1";
-    static const string MATCH_QUEENSIDE_BLACK = "O-O-O e8c8";
-    static const string MATCH_KINGSIDE_BLACK = "O-O e8g8";
-    if (((MATCH_QUEENSIDE_WHITE.find(fenStr) != string::npos ||
-          MATCH_KINGSIDE_WHITE.find(fenStr) != string::npos) &&
-         board::getPieceAt<WHITE>(POW2[E1], chessboard) == KING_WHITE) ||
-        ((MATCH_QUEENSIDE_BLACK.find(fenStr) != string::npos ||
-          MATCH_KINGSIDE_BLACK.find(fenStr) != string::npos) &&
-         board::getPieceAt<BLACK>(POW2[E8], chessboard) == KING_BLACK)) {
+    movesCount++;
+    if (
+            (((MATCH_QUEENSIDE_WHITE.find(fenStr) != string::npos &&
+               allowQueenSideWhite(board::getBitmap(chessboard))) ||
+              (MATCH_KINGSIDE_WHITE.find(fenStr) != string::npos
+               && allowKingSideWhite(board::getBitmap(chessboard))))
+            )
+            ||
+            (((MATCH_QUEENSIDE_BLACK.find(fenStr) != string::npos &&
+               allowQueenSideBlack(board::getBitmap(chessboard))) ||
+              (MATCH_KINGSIDE_BLACK.find(fenStr) != string::npos
+               && allowKingSideBlack(board::getBitmap(chessboard))))
+            )
+            ) {
         if (MATCH_QUEENSIDE.find(fenStr) != string::npos) {
             move->s.type = QUEEN_SIDE_CASTLE_MOVE_MASK;
             move->s.from = QUEEN_SIDE_CASTLE_MOVE_MASK;
@@ -535,7 +501,8 @@ int GenMoves::getMoveFromSan(const string fenStr, _Tmove *move) {
     } else if ((pieceFrom = board::getPieceAt<BLACK>(POW2[from], chessboard)) != 12) {
         move->s.side = BLACK;
     } else {
-        cout << "fenStr: " << fenStr << " from: " << from << endl;
+        display();
+        cout << "fenStr: >" << fenStr << "< from: " << from << endl;
         _assert(0)
     }
     move->s.from = from;
@@ -588,8 +555,8 @@ void GenMoves::writeRandomFen(const vector<int> pieces) {
         if (bitCount(check) == (2 + (int) pieces.size()) && !board::inCheck1<WHITE>(chessboard) &&
             !board::inCheck1<BLACK>(chessboard) &&
             !(0xff000000000000ffULL & (chessboard[0] | chessboard[1]))) {
-            cout << board::boardToFen(chessboard) << "\n";
-            loadFen(board::boardToFen(chessboard));
+            cout << boardToFen() << "\n";
+            loadFen(boardToFen());
             return;
         }
     }

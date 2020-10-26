@@ -20,8 +20,8 @@
 
 #include "pin.cpp"
 #include "eval.cpp"
-#include "spinlockShared.cpp"
-#include "spinlock.cpp"
+//#include "spinlockShared.cpp"
+//#include "spinlock.cpp"
 #include "search.cpp"
 #include "perft.cpp"
 #include "perft960.cpp"

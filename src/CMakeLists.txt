@@ -70,4 +70,5 @@ set(SOURCE_FILES
 
 set(CMAKE_CXX_COMPILER "clang++")
 add_executable(cinnamon_debug ${SOURCE_FILES})
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
 target_link_libraries(cinnamon_debug ${CMAKE_SOURCE_DIR}/lib/Linux/64/libgtb.a /usr/lib/libgtest.a)

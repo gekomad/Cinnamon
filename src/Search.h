@@ -52,8 +52,6 @@ public:
 
     void setNullMove(bool);
 
-    void setChess960(bool b);
-
     void setMaxTimeMillsec(int);
 
     bool setParameter(String param, int value);

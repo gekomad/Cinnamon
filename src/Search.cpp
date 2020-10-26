@@ -99,7 +99,7 @@ void Search::printWdlSyzygy() {
     generateMoves(side, friends | enemies);
     _Tmove *move;
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
-    board::display(chessboard);
+    display();
 
     unsigned res = syzygy->SZtbProbeWDL(chessboard, side);
     cout << "current: ";
@@ -120,7 +120,7 @@ void Search::printWdlSyzygy() {
             takeback(move, oldKey, false);
             continue;
         }
-        board::print(move, chessboard);
+        print(move, chessboard);
 
         unsigned res = syzygy->SZtbProbeWDL(chessboard, side ^ 1);
 
@@ -155,7 +155,7 @@ void Search::printDtzSyzygy() {
     const u64 black = board::getBitmap<BLACK>(chessboard);
 
     unsigned res = syzygy->SZtbProbeWDL(chessboard, side);
-    board::display(chessboard);
+    display();
     cout << "current: ";
     if (res != TB_RESULT_FAILED) {
         res = TB_GET_WDL(res);
@@ -204,7 +204,7 @@ int Search::printDtmWdlGtb(const bool dtm) {
     int side = board::getSide(chessboard);
     u64 friends = side == WHITE ? board::getBitmap<WHITE>(chessboard) : board::getBitmap<BLACK>(chessboard);
     u64 enemies = side == BLACK ? board::getBitmap<WHITE>(chessboard) : board::getBitmap<BLACK>(chessboard);
-    board::display(chessboard);
+    display();
     cout << "current: ";
     unsigned pliestomate;
     const int res = GTB::getInstance().getDtmWdl(GTB_STM(side), 2, chessboard, &pliestomate, dtm);
@@ -220,7 +220,7 @@ int Search::printDtmWdlGtb(const bool dtm) {
             takeback(move, oldKey, false);
             continue;
         }
-        board::print(move, chessboard);
+        print(move, chessboard);
 
         GTB::getInstance().getDtmWdl(GTB_STM(side ^ 1), 1, chessboard, &pliestomate, dtm);
 
@@ -236,10 +236,6 @@ int Search::printDtmWdlGtb(const bool dtm) {
 
 void Search::setNullMove(bool b) {
     nullSearch = !b;
-}
-
-void Search::setChess960(bool b) {
-    chess960 = b;
 }
 
 void Search::startClock() {
@@ -437,10 +433,10 @@ int Search::search(const int depth, const int alpha, const int beta) {
                                                                    &mainMateIn,
                                                                    n_root_moves)
                                       : search<BLACK, searchMoves>(depth, alpha, beta, &pvLine,
-                                                            bitCount(board::getBitmap<WHITE>(chessboard) |
-                                                                     board::getBitmap<BLACK>(chessboard)),
-                                                            &mainMateIn,
-                                                            n_root_moves);
+                                                                   bitCount(board::getBitmap<WHITE>(chessboard) |
+                                                                            board::getBitmap<BLACK>(chessboard)),
+                                                                   &mainMateIn,
+                                                                   n_root_moves);
 }
 
 bool Search::probeRootTB(_Tmove *res) {
@@ -612,19 +608,22 @@ bool Search::probeRootTB(_Tmove *res) {
                 if (dtz < minDtz50) {
                     bestMove50 = results[i];
                     minDtz50 = dtz;
-                    if (TB_GET_PROMOTES(bestMove50) || board::isOccupied(_decodeSquare[TB_GET_TO(bestMove50)], allPieces))
+                    if (TB_GET_PROMOTES(bestMove50) ||
+                        board::isOccupied(_decodeSquare[TB_GET_TO(bestMove50)], allPieces))
                         minDtz50--;
                 }
             } else if (res == TB_DRAW) {
                 if (!drawMove ||
-                    (TB_GET_PROMOTES(results[i]) || board::isOccupied(_decodeSquare[TB_GET_TO(results[i])], allPieces))) {
+                    (TB_GET_PROMOTES(results[i]) ||
+                     board::isOccupied(_decodeSquare[TB_GET_TO(results[i])], allPieces))) {
                     drawMove = results[i];
                 }
             } else if (res == TB_BLESSED_LOSS && !bestMove && !drawMove && !bestMove50) {
                 if ((int) dtz > maxDtzWorst50) {
                     worstMove50 = results[i];
                     maxDtzWorst50 = dtz;
-                    if (TB_GET_PROMOTES(worstMove50) || board::isOccupied(_decodeSquare[TB_GET_TO(worstMove50)], allPieces))
+                    if (TB_GET_PROMOTES(worstMove50) ||
+                        board::isOccupied(_decodeSquare[TB_GET_TO(worstMove50)], allPieces))
                         maxDtzWorst50++;
                 }
             } else if (res == TB_LOSS && !bestMove && !drawMove && !bestMove50 && !worstMove50) {

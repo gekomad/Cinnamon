@@ -49,6 +49,8 @@ public:
 
     string boardToFen();
 
+    string decodeBoardinv(const uchar type, const int a, const int side);
+
     bool setParameter(String param, int value);
 
     void clearHeuristic();

@@ -48,7 +48,7 @@ template<int side>
 vector<string> PerftThread::getSuccessorsFen(const int depthx) {
     if (depthx == 0) {
         vector<string> a;
-        a.push_back(board::boardToFen(chessboard));
+        a.push_back(boardToFen());
         return a;
     }
 
@@ -177,15 +177,16 @@ void PerftThread::run() {
             y = '-';
         }
 
+
         if (fhash)spinlockPrint.lock();
         cout << endl;
         string h;
-        if ((board::decodeBoardinv(move->s.type, move->s.to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
+        if ((decodeBoardinv(move->s.type, move->s.to, chessboard[SIDETOMOVE_IDX])).length() > 2) {
 
-            h = board::decodeBoardinv(move->s.type, move->s.to, chessboard[SIDETOMOVE_IDX]);
+            h = decodeBoardinv(move->s.type, move->s.to, chessboard[SIDETOMOVE_IDX]);
         } else {
-            h = h + x + board::decodeBoardinv(move->s.type, move->s.from, chessboard[SIDETOMOVE_IDX]) + y
-                + board::decodeBoardinv(move->s.type, move->s.to, chessboard[SIDETOMOVE_IDX]);
+            h = h + x + decodeBoardinv(move->s.type, move->s.from, chessboard[SIDETOMOVE_IDX]) + y
+                + decodeBoardinv(move->s.type, move->s.to, chessboard[SIDETOMOVE_IDX]);
         }
         cout << setw(6) << h;
         cout << setw(20) << n_perft;
