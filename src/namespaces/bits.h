@@ -147,7 +147,7 @@ namespace _def {
     static inline u64 shiftForward(const u64 bits) {
         ASSERT(shift == 7 || shift == 8 || shift == 9);
 
-        auto a = side == WHITE ? bits << shift : bits >> shift;
+        const auto a = side == WHITE ? bits << shift : bits >> shift;
         if (shift == 7)
             return a & NO_FILE_LEFT[side];
         if (shift == 9)

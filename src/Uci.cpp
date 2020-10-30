@@ -44,7 +44,6 @@ void Uci::listner(IterativeDeeping *it) {
     string gaviotatbscheme;
     string dumpFile;
     static const string _BOOLEAN[] = {"false", "true"};
-    auto hash = Hash::getInstance();
     while (!stop) {
         if (!getline(cin, command)) {
             break;

@@ -86,7 +86,6 @@ private:
 
     typedef struct {
         u64 MASK_BIT_SET_NOBOUND_TMP[64][64];
-        char MASK_BIT_SET_NOBOUND_COUNT_TMP[64][64];
     } _Ttmp;
 
     _Ttmp *tmpStruct;

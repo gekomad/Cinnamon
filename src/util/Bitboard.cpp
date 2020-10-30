@@ -72,11 +72,6 @@ Bitboard::Bitboard() {
             MASK_BIT_SET[i][j] &= NOTPOW2[i];
         }
     }
-    for (int i = 0; i < 64; i++) {
-        for (int j = 0; j < 64; j++) {
-            tmpStruct->MASK_BIT_SET_NOBOUND_COUNT_TMP[i][j] = bitCount(tmpStruct->MASK_BIT_SET_NOBOUND_TMP[i][j]);
-        }
-    }
 
     popolateAntiDiagonal();
     popolateDiagonal();

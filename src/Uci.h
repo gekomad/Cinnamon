@@ -28,6 +28,8 @@ class Uci: public Singleton<Uci> {
 private:
     Uci();
 
+    Hash& hash = Hash::getInstance();
+
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
     bool uciMode;

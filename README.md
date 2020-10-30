@@ -6,7 +6,7 @@ Cinnamon is a chess program for Windows, Linux, Mac OS, Android and Raspberry Pi
 
 Version
 ----------
-2.3.1
+2.3.2
 
 News
 ----------

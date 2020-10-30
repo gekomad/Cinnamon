@@ -111,7 +111,6 @@ void IterativeDeeping::run() {
 
     searchManager.startClock();
     searchManager.clearHeuristic();
-    auto hash = Hash::getInstance();
     hash.clearAge();
     searchManager.setForceCheck(false);
 

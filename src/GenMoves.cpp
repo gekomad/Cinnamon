@@ -41,8 +41,7 @@ void GenMoves::generateMoves(const int side, const u64 allpieces) {
 
 bool GenMoves::generateCaptures(const int side, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(side, 0, 1)
-    auto a = side ? generateCaptures<WHITE>(enemies, friends) : generateCaptures<BLACK>(enemies, friends);
-    return a;
+    return side ? generateCaptures<WHITE>(enemies, friends) : generateCaptures<BLACK>(enemies, friends);
 }
 
 void GenMoves::setPerft(const bool b) {
