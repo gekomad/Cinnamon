@@ -31,7 +31,7 @@ Hash::Hash() {
 }
 
 void Hash::clearAge() {
-    for (int i = 0; i < HASH_SIZE; i++) {
+    for (unsigned i = 0; i < HASH_SIZE; i++) {
         hashArray[HASH_ALWAYS][i].u.dataS.entryAge = 0;
     }
 }
@@ -44,14 +44,10 @@ void Hash::clearHash() {
     memset(static_cast<void*>(hashArray[HASH_ALWAYS]), 0, sizeof(_Thash) * HASH_SIZE);
 }
 
-int Hash::getHashSize() const {
-    return HASH_SIZE / (1024 * 1024 / (sizeof(_Thash) * 2));
-}
-
 void Hash::setHashSize(int mb) {
     dispose();
     if (mb > 0) {
-        int tmp = mb * 1024 * 1024 / (sizeof(_Thash) * 2);
+        u64 tmp = (u64)mb * 1024 * 1024 / (sizeof(_Thash) * 2);
         hashArray[HASH_ALWAYS] = (_Thash *) calloc(tmp, sizeof(_Thash));
         if (!hashArray[HASH_ALWAYS]) {
             fatal("info string error - no memory");

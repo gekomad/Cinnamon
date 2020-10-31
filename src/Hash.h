@@ -80,8 +80,6 @@ public:
 
     void setHashSize(int mb);
 
-    int getHashSize() const;
-
     void clearHash();
 
     void clearAge();
@@ -106,7 +104,7 @@ public:
 
     void recordHash(const u64 zobristKey, _ThashData &tmp) {
         ASSERT(zobristKey);
-        const int kMod = zobristKey % HASH_SIZE;
+        const unsigned kMod = zobristKey % HASH_SIZE;
         _Thash *rootHashG = &(hashArray[HASH_ALWAYS][kMod]);
 
         rootHashG->key = (zobristKey ^ tmp.dataU);
@@ -139,7 +137,7 @@ public:
 
 private:
     Hash();
-    int HASH_SIZE;
+    unsigned HASH_SIZE;
 #ifdef JS_MODE
     static constexpr int HASH_SIZE_DEFAULT = 1;
 #else

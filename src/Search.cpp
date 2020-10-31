@@ -945,11 +945,9 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
         ASSERT(chessboard[KING_BLACK])
         ASSERT(chessboard[KING_WHITE])
 
-//        move->s.score1 = score;
         if (score > alpha) {
             if (score >= beta) {
                 decListId();
-//                ASSERT(move->s.score1 == score);
                 INC(nCutAB);
                 ADD(betaEfficiency, betaEfficiencyCount / (double) listcount * 100.0);
                 if (getRunning()) {
