@@ -19,7 +19,7 @@ COMP=g++
 ifndef SystemRoot
 	# *nix
 	ifeq ($(shell uname -s),Darwin)
-		LIBS= -static-libgcc -static-libstdc++ -lpthread
+		LIBS= -static-libstdc++ -lpthread
 		OS=OSX
 	else
 	    LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -static
