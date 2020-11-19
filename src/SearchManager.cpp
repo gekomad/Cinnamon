@@ -41,7 +41,7 @@ SearchManager::SearchManager() {
         } else {
             if (!setParameter(param, value)) {
                 cout << "error parameter " << param << " not defined\n";
-            };
+            }
         }
     }
 }
@@ -74,11 +74,11 @@ int SearchManager::search(const int mply) {
              1,
              1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3};
 
-    debug("start singleSearch -------------------------------");
+    debug("start singleSearch -------------------------------")
     lineWin.cmove = -1;
     setMainPly(mply);
-    ASSERT(bitCount(threadPool->getBitCount()) < 2);
-    debug("start lazySMP --------------------------");
+    ASSERT(bitCount(threadPool->getBitCount()) < 2)
+    debug("start lazySMP --------------------------")
 
     for (int ii = 1; ii < threadPool->getNthread(); ii++) {
         Search &helperThread = threadPool->getNextThread();
@@ -88,7 +88,7 @@ int SearchManager::search(const int mply) {
         startThread(helperThread, mply + SkipStep[ii]);
     }
 
-    debug("end lazySMP ---------------------------");
+    debug("end lazySMP ---------------------------")
     Search &mainThread = threadPool->getThread(0);
     mainThread.setMainParam(mply);
     mainThread.run();
@@ -100,20 +100,19 @@ int SearchManager::search(const int mply) {
     }
     stopAllThread();
     threadPool->joinAll();
-    debug("end singleSearch -------------------------------");
+    debug("end singleSearch -------------------------------")
     return res;
 }
 
-bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn1) {
+bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) {
     if (lineWin.cmove < 1) {
         return false;
     }
 
-    *mateIn1 = mateIn;
     pvv.clear();
     string pvvTmp;
 
-    ASSERT(lineWin.cmove);
+    ASSERT(lineWin.cmove)
     for (int t = 0; t < lineWin.cmove; t++) {
         pvvTmp.clear();
         pvvTmp +=
@@ -144,14 +143,14 @@ int SearchManager::loadFen(string fen) {
 
     for (uchar i = 0; i < threadPool->getPool().size(); i++) {
         res = threadPool->getThread(i).loadFen(fen);
-        ASSERT_RANGE(res, 0, 1);
+        ASSERT_RANGE(res, 0, 1)
     }
     return res;
 }
 
 void SearchManager::startThread(Search &thread, const int depth) {
 
-    debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId()));
+    debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId()))
 
     thread.setMainParam(depth);
 
@@ -336,7 +335,7 @@ int SearchManager::getMoveFromSan(String string, _Tmove *ptr) const {
 #ifdef DEBUG_MODE
     int t = threadPool->getThread(0).getMoveFromSan(string, ptr);
     for (Search *s:threadPool->getPool()) {
-        ASSERT(s->getMoveFromSan(string, ptr) == t);
+        ASSERT(s->getMoveFromSan(string, ptr) == t)
     }
 #endif
     return threadPool->getThread(0).getMoveFromSan(string, ptr);
@@ -367,7 +366,7 @@ bool SearchManager::setNthread(int nthread) {
 }
 
 void SearchManager::stopAllThread() {
-    threadPool->getThread(0).setRunningThread(false);//is static
+    threadPool->getThread(0).setRunningThread(false);
 }
 
 bool SearchManager::setParameter(String param, int value) {

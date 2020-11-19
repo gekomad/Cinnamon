@@ -75,9 +75,9 @@ public:
 
 private:
 
-#ifdef DEBUG_MODE
-    atomic_int checkSmp2;
-#endif
+
+    DEBUG(atomic_int checkSmp2)
+
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     int maxDepth;
     string bestmove;

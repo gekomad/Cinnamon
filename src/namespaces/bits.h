@@ -49,13 +49,14 @@ namespace _def {
 #endif
 
 #ifdef DEBUG_MODE
+#define DEBUG(a) a;
 #define ASSERT(a) _assert(a)
 #define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;_assert(0)};}
 #define INC(a) (a++)
 #define SET(a, v) (a=(v))
 #define ADD(a, b) (a+=(b))
 #else
-
+#define DEBUG(a)
 #define ASSERT(a)
 #define ASSERT_RANGE(value, from, to)
 #define INC(a)

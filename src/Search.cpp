@@ -70,9 +70,8 @@ void Search::aspirationWindow(const int depth, const int valWin) {
 }
 
 Search::Search() : ponder(false), nullSearch(false) {
-#ifdef DEBUG_MODE
-    lazyEvalCuts = cumulativeMovesCount = totGen = 0;
-#endif
+
+    DEBUG(lazyEvalCuts = cumulativeMovesCount = totGen = 0)
 
 }
 
@@ -180,7 +179,6 @@ void Search::printDtzSyzygy() {
             if (a)cout << SYZYGY::getPromotion(a);
 
             cout << " ";
-
             unsigned dtz = TB_GET_DTZ(results[i]);
             unsigned res = TB_GET_WDL(results[i]);
             if (res == TB_DRAW) cout << " draw" << endl;
@@ -264,9 +262,7 @@ Search::~Search() {
 template<int side>
 int Search::quiescence(int alpha, const int beta, const char promotionPiece, const int depth) {
 
-    if (!getRunning()) {
-        return 0;
-    }
+    if (!getRunning()) return 0;
 
     const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^_random::RANDSIDE[side];
     int score = getScore(zobristKeyR, side, alpha, beta, false);
@@ -279,12 +275,12 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
     pair<int, _TcheckHash> hashAlwaysItem = checkHash(Hash::HASH_ALWAYS, true, alpha, beta, depth, zobristKeyR);
     if (hashAlwaysItem.first != INT_MAX) {
         return hashAlwaysItem.first;
-    };
+    }
 
     pair<int, _TcheckHash> hashGreaterItem = checkHash(Hash::HASH_GREATER, true, alpha, beta, depth, zobristKeyR);
     if (hashGreaterItem.first != INT_MAX) {
         return hashGreaterItem.first;
-    };
+    }
 
 ///********** end hash ***************
 /**************Delta Pruning ****************/
@@ -321,6 +317,7 @@ int Search::quiescence(int alpha, const int beta, const char promotionPiece, con
         c = &hashGreaterItem.second.phasheType[Hash::HASH_GREATER];
     }
     int first = 0;
+    if (!(numMoves % 2048)) setRunning(checkTime());
     while ((move = getNextMove(&gen_list[listId], depth, c, first++))) {
         if (!makemove(move, false, true)) {
             takeback(move, oldKey, false);
@@ -413,7 +410,7 @@ void Search::setMainParam(const int depth) {
 
 template<bool searchMoves>
 int Search::search(const int depth, const int alpha, const int beta) {
-    ASSERT_RANGE(depth, 0, MAX_PLY);
+    ASSERT_RANGE(depth, 0, MAX_PLY)
     auto ep = chessboard[ENPASSANT_IDX];
     incListId();
     const int side = board::getSide(chessboard);
@@ -430,12 +427,10 @@ int Search::search(const int depth, const int alpha, const int beta) {
                                                                    &pvLine,
                                                                    bitCount(board::getBitmap<WHITE>(chessboard) |
                                                                             board::getBitmap<BLACK>(chessboard)),
-                                                                   &mainMateIn,
                                                                    n_root_moves)
                                       : search<BLACK, searchMoves>(depth, alpha, beta, &pvLine,
                                                                    bitCount(board::getBitmap<WHITE>(chessboard) |
                                                                             board::getBitmap<BLACK>(chessboard)),
-                                                                   &mainMateIn,
                                                                    n_root_moves);
 }
 
@@ -545,7 +540,7 @@ bool Search::probeRootTB(_Tmove *res) {
         }
 
         if (worstMove) {
-            debug("worstMove ***********\n");
+            debug("worstMove ***********\n")
             memcpy(res, worstMove, sizeof(_Tmove));
             if (res->s.promotionPiece != NO_PROMOTION)
                 res->s.promotionPiece = FEN_PIECE[res->s.promotionPiece];
@@ -554,14 +549,14 @@ bool Search::probeRootTB(_Tmove *res) {
         }
 
         if (drawMove) {
-            debug("drawMove ***********\n");
+            debug("drawMove ***********\n")
             memcpy(res, drawMove, sizeof(_Tmove));
             if (res->s.promotionPiece != NO_PROMOTION)res->s.promotionPiece = FEN_PIECE[res->s.promotionPiece];
             decListId();
             return true;
         }
         if (bestMove) {
-            debug("best ***********\n");
+            debug("best ***********\n")
             memcpy(res, bestMove, sizeof(_Tmove));
             if (res->s.promotionPiece != NO_PROMOTION)
                 res->s.promotionPiece = FEN_PIECE[res->s.promotionPiece];
@@ -639,35 +634,35 @@ bool Search::probeRootTB(_Tmove *res) {
         res->s.type = STANDARD_MOVE_MASK;
 
         if (bestMove) {
-            debug("best ***********\n");
+            debug("best ***********\n")
             res->s.from = _decodeSquare[TB_GET_FROM(bestMove)];
             res->s.to = _decodeSquare[TB_GET_TO(bestMove)];
             res->s.promotionPiece = SYZYGY::getPromotion(TB_GET_PROMOTES(bestMove));
             return true;
         }
         if (bestMove50) {
-            debug("bestMove50 ***********\n");
+            debug("bestMove50 ***********\n")
             res->s.from = _decodeSquare[TB_GET_FROM(bestMove50)];
             res->s.to = _decodeSquare[TB_GET_TO(bestMove50)];
             res->s.promotionPiece = SYZYGY::getPromotion(TB_GET_PROMOTES(bestMove50));
             return true;
         }
         if (drawMove) {
-            debug("drawMove ***********\n");
+            debug("drawMove ***********\n")
             res->s.from = _decodeSquare[TB_GET_FROM(drawMove)];
             res->s.to = _decodeSquare[TB_GET_TO(drawMove)];
             res->s.promotionPiece = SYZYGY::getPromotion(TB_GET_PROMOTES(drawMove));
             return true;
         }
         if (worstMove50) {
-            debug("worstMove50 ***********\n");
+            debug("worstMove50 ***********\n")
             res->s.from = _decodeSquare[TB_GET_FROM(worstMove50)];
             res->s.to = _decodeSquare[TB_GET_TO(worstMove50)];
             res->s.promotionPiece = SYZYGY::getPromotion(TB_GET_PROMOTES(worstMove50));
             return true;
         }
         if (worstMove) {
-            debug("worstMove ***********\n");
+            debug("worstMove ***********\n")
             res->s.from = _decodeSquare[TB_GET_FROM(worstMove)];
             res->s.to = _decodeSquare[TB_GET_TO(worstMove)];
             res->s.promotionPiece = SYZYGY::getPromotion(TB_GET_PROMOTES(worstMove));
@@ -739,13 +734,12 @@ int Search::probeWdl(const int depth, const int side, const int N_PIECE) {
 #endif
 
 template<int side, bool checkMoves>
-int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE, int *mateIn,
+int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE,
                    const int n_root_moves) {
     ASSERT_RANGE(depth, 0, MAX_PLY);
     ASSERT_RANGE(side, 0, 1);
-    if (!getRunning()) {
-        return 0;
-    }
+    if (!getRunning()) return 0;
+
     INC(cumulativeMovesCount);
 #ifndef JS_MODE
     int wdl = probeWdl(depth, side, N_PIECE);
@@ -753,15 +747,14 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
 #endif
 
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
-    *mateIn = INT_MAX;
     int score = -_INFINITE;
     const int pvNode = alpha != beta - 1;
 
-#ifdef DEBUG_MODE
-    double betaEfficiencyCount = 0.0;
-#endif
-    ASSERT(chessboard[KING_BLACK]);
-    ASSERT(chessboard[KING_WHITE]);
+
+    DEBUG(double betaEfficiencyCount = 0.0)
+
+    ASSERT(chessboard[KING_BLACK])
+    ASSERT(chessboard[KING_WHITE])
 
     int extension = 0;
     const int is_incheck_side = board::inCheck1<side>(chessboard);
@@ -787,17 +780,16 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
     pair<int, _TcheckHash> hashGreaterItem = checkHash(Hash::HASH_GREATER, false, alpha, beta, depth, zobristKeyR);
     if (hashGreaterItem.first != INT_MAX) {
         return hashGreaterItem.first;
-    };
+    }
 
     pair<int, _TcheckHash> hashAlwaysItem = checkHash(Hash::HASH_ALWAYS, false, alpha, beta, depth, zobristKeyR);
     if (hashAlwaysItem.first != INT_MAX) {
         return hashAlwaysItem.first;
-    };
+    }
     ///********** end hash ***************
 
-    if (!(numMoves % 8192)) {
-        setRunning(checkTime());
-    }
+    if (!(numMoves % 2048)) setRunning(checkTime());
+
     ++numMoves;
     _TpvLine line;
     line.cmove = 0;
@@ -815,8 +807,7 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
             const int R = NULL_DEPTH + depth / NULL_DIVISOR;
             const int nullScore =
                     (depth - R - 1 > 0) ?
-                    -search<side ^ 1, checkMoves>(depth - R - 1, -beta, -beta + 1, &line, N_PIECE, mateIn,
-                                                  n_root_moves)
+                    -search<side ^ 1, checkMoves>(depth - R - 1, -beta, -beta + 1, &line, N_PIECE, n_root_moves)
                                         :
                     -quiescence<side ^ 1>(-beta, -beta + 1, -1, 0);
             nullSearch = false;
@@ -874,7 +865,7 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
             return -lazyEval<side>() * 2;
         }
     }
-    ASSERT(gen_list[listId].size > 0);
+    ASSERT(gen_list[listId].size > 0)
     Hash::_ThashData *c = nullptr;
     _Tmove *best = &gen_list[listId].moveList[0];
     if (hashGreaterItem.second.phasheType[Hash::HASH_GREATER].dataS.flags & 0x3) {
@@ -908,8 +899,7 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
         if (countMove > 4 && !is_incheck_side && depth >= 3 && move->s.capturedPiece == SQUARE_EMPTY &&
             move->s.promotionPiece == NO_PROMOTION) {
             currentPly++;
-            val = -search<side ^ 1, checkMoves>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, mateIn,
-                                                n_root_moves);
+            val = -search<side ^ 1, checkMoves>(depth - 2, -(alpha + 1), -alpha, &line, N_PIECE, n_root_moves);
             ASSERT(val != INT_MAX);
             currentPly--;
         }
@@ -920,14 +910,14 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
             currentPly++;
             val = -search<side ^ 1, checkMoves>(depth - 1, -upb, -lwb, &line,
                                                 move->s.capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1,
-                                                mateIn, n_root_moves);
+                                                n_root_moves);
             currentPly--;
             if (doMws && (lwb < val) && (val < beta)) {
                 currentPly++;
                 val = -search<side ^ 1, checkMoves>(depth - 1, -beta, -val + 1,
                                                     &line,
                                                     move->s.capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1,
-                                                    mateIn, n_root_moves);
+                                                    n_root_moves);
                 if (move->s.capturedPiece == SQUARE_EMPTY && move->s.promotionPiece == NO_PROMOTION &&
                     val < -(_INFINITE - 100)) {
                     setKiller(move->s.from, move->s.to, depth, true);
@@ -978,10 +968,10 @@ int Search::search(int depth, int alpha, const int beta, _TpvLine *pline, const 
 }
 
 void Search::updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move) {
-    ASSERT(line->cmove < MAX_PLY - 1);
+    ASSERT(line->cmove < MAX_PLY - 1)
     memcpy(&(pline->argmove[0]), move, sizeof(_Tmove));
     memcpy(pline->argmove + 1, line->argmove, line->cmove * sizeof(_Tmove));
-    ASSERT(line->cmove >= 0);
+    ASSERT(line->cmove >= 0)
     pline->cmove = line->cmove + 1;
 }
 
@@ -1021,8 +1011,6 @@ bool Search::setParameter(String param, int value) {
         DOUBLED_ISOLATED_PAWNS = value;
     } else if (param == "DOUBLED_PAWNS") {
         DOUBLED_PAWNS = value;
-    } else if (param == "END_OPENING") {
-        END_OPENING = value;
     } else if (param == "ENEMY_NEAR_KING") {
         ENEMY_NEAR_KING = value;
     } else if (param == "FRIEND_NEAR_KING") {

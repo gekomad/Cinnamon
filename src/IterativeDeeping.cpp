@@ -94,7 +94,7 @@ void IterativeDeeping::run() {
 
     string tb = searchManager.probeRootTB();
     if (!tb.empty()) {
-        debug("info string returned move from TB\n");
+        debug("info string returned move from TB\n")
         _Tmove move;
         searchManager.getMoveFromSan(tb, &move);
         searchManager.makemove(&move);
@@ -119,24 +119,24 @@ void IterativeDeeping::run() {
     int extension = 0;
     string ponderMove;
     searchManager.init();
-    int mateIn = INT_MAX;
+
     string pvv;
     _Tmove resultMove;
 
-#ifdef DEBUG_MODE
-    u64 totMovesPrec = -1;
-#endif
+
+    DEBUG(u64 totMovesPrec = -1)
+
     while (searchManager.getRunning(0)) {
         totMoves = 0;
         ++mply;
         searchManager.init();
 
-        auto sc =searchManager.search(mply);
+        auto sc = searchManager.search(mply);
 
         searchManager.setRunningThread(1);
         searchManager.setRunning(1);
-        if (!searchManager.getRes(resultMove, ponderMove, pvv, &mateIn)) {
-            debug("IterativeDeeping cmove == 0. Exit");
+        if (!searchManager.getRes(resultMove, ponderMove, pvv)) {
+            debug("IterativeDeeping cmove == 0. Exit")
             break;
         }
 
@@ -145,7 +145,6 @@ void IterativeDeeping::run() {
         auto end1 = std::chrono::high_resolution_clock::now();
         timeTaken = Time::diffTime(end1, start1) + 1;
         totMoves += searchManager.getTotMoves();
-
 
         if (sc > _INFINITE - MAX_PLY) {
             sc = 0x7fffffff;
@@ -236,8 +235,7 @@ void IterativeDeeping::run() {
         if (searchManager.getForceCheck()) {
             searchManager.setForceCheck(inMate);
             searchManager.setRunning(1);
-
-        } else if (abs(sc) > _INFINITE - MAX_PLY) {
+        } else if (mply == 1 && abs(sc) > _INFINITE - MAX_PLY) {
             searchManager.setForceCheck(true);
             searchManager.setRunning(2);
 

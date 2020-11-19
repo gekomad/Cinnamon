@@ -31,20 +31,6 @@ Eval::~Eval() {
     evalHash = nullptr;
 }
 
-template<int side>
-void Eval::openFile() {
-    structureEval.openFile = 0;
-    structureEval.semiOpenFile[side] = 0;
-
-    for (u64 side_rooks = chessboard[ROOK_BLACK + side]; side_rooks; RESET_LSB(side_rooks)) {
-        const int o = BITScanForward(side_rooks);
-        if (!(FILE_[o] & (chessboard[WHITE] | chessboard[BLACK])))
-            structureEval.openFile |= FILE_[o];
-        else if (FILE_[o] & chessboard[side ^ 1])
-            structureEval.semiOpenFile[side] |= FILE_[o];
-    }
-}
-
 /**
  * evaluate pawns for color at phase
  * 1. if no pawns returns -NO_PAWNS
@@ -313,7 +299,7 @@ int Eval::evaluateQueen(const u64 enemies) {
 */
 
 template<int side, Eval::_Tphase phase>
-int Eval::evaluateKnight(const u64 enemiesPawns, const u64 notMyBits) {
+int Eval::evaluateKnight(const u64 notMyBits) {
     INC(evaluationCount[side]);
     u64 knight = chessboard[KNIGHT_BLACK + side];
     if (!knight) return 0;
@@ -469,21 +455,12 @@ int Eval::evaluateKing(int side, u64 squares) {
         ADD(SCORE_DEBUG.DISTANCE_KING[side], DISTANCE_KING_OPENING[pos_king]);
         result = DISTANCE_KING_OPENING[pos_king];
     }
-    u64 POW2_king = POW2[pos_king];
+    
     //mobility
     ASSERT(bitCount(squares & NEAR_MASK1[pos_king]) < (int) (sizeof(MOB_KING[phase]) / sizeof(int)))
     result += MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])];
     ADD(SCORE_DEBUG.MOB_KING[side], MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])]);
-    if (phase != OPEN) {
-        if ((structureEval.openFile & POW2_king) || (structureEval.semiOpenFile[side ^ 1] & POW2_king)) {
-            ADD(SCORE_DEBUG.END_OPENING_KING[side], -END_OPENING);
-            result -= END_OPENING;
-            if (bitCount(RANK[pos_king]) < 4) {
-                ADD(SCORE_DEBUG.END_OPENING_KING[side], -END_OPENING);
-                result -= END_OPENING;
-            }
-        }
-    }
+
     ASSERT(pos_king < 64)
     if (!(NEAR_MASK1[pos_king] & chessboard[side])) {
         ADD(SCORE_DEBUG.PAWN_NEAR_KING[side], -PAWN_NEAR_KING);
@@ -547,9 +524,6 @@ short Eval::getScore(const u64 key, const int side, const int alpha, const int b
     structureEval.posKingBit[WHITE] = POW2[structureEval.posKing[WHITE]];
     structureEval.kingAttackers[WHITE] = structureEval.kingAttackers[BLACK] = 0;
 
-    openFile<WHITE>();
-    openFile<BLACK>();
-
     _Tresult Tresult;
     switch (phase) {
         case OPEN :
@@ -596,12 +570,6 @@ short Eval::getScore(const u64 key, const int side, const int alpha, const int b
         } else {
             cout << " END\n";
         }
-        cout << "|OPEN FILE: ";
-        if (!structureEval.openFile)cout << "none";
-        else
-            for (int i = 0; i < 8; i++) if (POW2[i] & structureEval.openFile)cout << (char) (65 + i) << " ";
-        cout << "\n";
-
 
         cout << "|VALUES:";
         cout << "\tPAWN: " << (double) constants::VALUEPAWN / 100.0;
@@ -737,9 +705,7 @@ short Eval::getScore(const u64 key, const int side, const int alpha, const int b
         cout << "|       distance:                 " << setw(10) <<
              (double) (SCORE_DEBUG.DISTANCE_KING[WHITE]) / 100.0 << setw(10) <<
              (double) (SCORE_DEBUG.DISTANCE_KING[BLACK]) / 100.0 << "\n";
-        cout << "|       open file:                " << setw(10) <<
-             (double) (SCORE_DEBUG.END_OPENING_KING[WHITE]) / 100.0 << setw(10) <<
-             (double) (SCORE_DEBUG.END_OPENING_KING[BLACK]) / 100.0 << "\n";
+
         cout << "|       pawn near:                " << setw(10) <<
              (double) (SCORE_DEBUG.PAWN_NEAR_KING[WHITE]) / 100.0 << setw(10) <<
              (double) (SCORE_DEBUG.PAWN_NEAR_KING[BLACK]) / 100.0 << "\n";

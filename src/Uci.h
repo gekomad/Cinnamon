@@ -19,7 +19,7 @@
 #pragma once
 
 #include "IterativeDeeping.h"
-#include <string.h>
+#include <cstring>
 #include "util/String.h"
 
 class Uci: public Singleton<Uci> {

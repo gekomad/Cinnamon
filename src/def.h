@@ -29,11 +29,8 @@ typedef struct {
     u64 allPieces;
     u64 kingAttackers[2];
     u64 allPiecesSide[2];
-    u64 openFile;
-    u64 semiOpenFile[2];
     u64 allPiecesNoPawns[2];
     u64 posKingBit[2];
-    //u64 pinned[2]; anche x regina?
     int kingSecurity[2];
     uchar posKing[2];
 } _Tboard;
@@ -49,8 +46,6 @@ typedef union {
         uchar to;
         char side;
         uchar type;
-//    uchar used;
-        //char score1;
     } s;
 } _Tmove;
 

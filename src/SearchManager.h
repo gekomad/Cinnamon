@@ -33,7 +33,7 @@ class SearchManager : public Singleton<SearchManager> {
 
 public:
 
-    bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv, int *mateIn);
+    bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
     ~SearchManager();
 
@@ -204,8 +204,6 @@ private:
     SearchManager();
 
     ThreadPool<Search> *threadPool = nullptr;
-
-    int mateIn;
 
     _TpvLine lineWin;
 

@@ -449,7 +449,7 @@ protected:
 
     template<int side, uchar type>
     bool inCheckSlow(const int from, const int to, const int pieceFrom, const int pieceTo, const int promotionPiece) {
-        bool result = false;
+        bool result;
         switch (type & 0x3) {
             case STANDARD_MOVE_MASK: {
                 u64 from1, to1 = -1;
@@ -622,9 +622,7 @@ protected:
                 _assert(0);
         }
 
-#ifdef DEBUG_MODE
         ASSERT(!memcmp(&a, chessboard, sizeof(_Tchessboard)));
-#endif
         BENCH(times->stop("inCheck"))
         return result;
     }

@@ -149,7 +149,7 @@ void PerftThread::run() {
     makeZobristKey();
     const u64 keyold = chessboard[ZOBRISTKEY_IDX];
     for (int ii = from; ii <= to - 1; ii++) {
-        u64 n_perft = 0;
+        u64 n_perft;
         move = getMove(ii);
         makemove(move, false, false);
         bool fhash = Perft::hash != nullptr;

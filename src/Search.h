@@ -148,8 +148,7 @@ private:
     bool checkDraw(u64);
 
     template<int side, bool checkMoves>
-    int search(int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE, int *mateIn,
-               const int n_root_moves);
+    int search(int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE,               const int n_root_moves);
 
     template<bool checkMoves>
     bool checkSearchMoves(_Tmove *move) const;
@@ -159,7 +158,6 @@ private:
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
-    int mainMateIn;
     int mainDepth;
 
     inline pair<int, _TcheckHash> checkHash(const int type,

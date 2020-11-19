@@ -45,9 +45,7 @@ public:
         return lazyEvalSide<side>() - lazyEvalSide<side ^ 1>();
     }
 
-#ifdef DEBUG_MODE
-    unsigned lazyEvalCuts;
-#endif
+    DEBUG(unsigned lazyEvalCuts)
 
 protected:
     STATIC_CONST int FUTIL_MARGIN = 154;
@@ -68,7 +66,6 @@ protected:
     STATIC_CONST int ENEMY_NEAR_KING = 2;
     STATIC_CONST int FRIEND_NEAR_KING = 1;
     STATIC_CONST int HALF_OPEN_FILE_Q = 3;
-    STATIC_CONST int END_OPENING = 6;
     STATIC_CONST int BONUS2BISHOP = 18;
     STATIC_CONST int BISHOP_PAWN_ON_SAME_COLOR = 5;
     STATIC_CONST int CONNECTED_ROOKS = 7;
@@ -107,7 +104,6 @@ protected:
         int KING_SECURITY_KNIGHT[2];
         int KING_SECURITY_ROOK[2];
         int DISTANCE_KING[2];
-        int END_OPENING_KING[2];
         int PAWN_NEAR_KING[2];
         int MOB_KING[2];
 
@@ -158,9 +154,7 @@ private:
         int kings[2];
     } _Tresult;
 
-#ifdef DEBUG_MODE
-    int evaluationCount[2];
-#endif
+    DEBUG(int evaluationCount[2])
 
     template<_Tphase phase>
     void getRes(_Tresult &res) {
@@ -188,8 +182,8 @@ private:
         BENCH(times->stop("eval rook"));
 
         BENCH(times->start("eval knight"));
-        res.knights[BLACK] = evaluateKnight<BLACK, phase>(chessboard[WHITE], ~structureEval.allPiecesSide[BLACK]);
-        res.knights[WHITE] = evaluateKnight<WHITE, phase>(chessboard[BLACK], ~structureEval.allPiecesSide[WHITE]);
+        res.knights[BLACK] = evaluateKnight<BLACK, phase>(~structureEval.allPiecesSide[BLACK]);
+        res.knights[WHITE] = evaluateKnight<WHITE, phase>(~structureEval.allPiecesSide[WHITE]);
         BENCH(times->stop("eval knight"));
 
         BENCH(times->start("eval king"));
@@ -197,9 +191,6 @@ private:
         res.kings[WHITE] = evaluateKing<phase>(WHITE, ~structureEval.allPiecesSide[WHITE]);
         BENCH(times->stop("eval king"));
     }
-
-    template<int side>
-    void openFile();
 
     template<int side, _Tphase phase>
     int evaluatePawn();
@@ -211,7 +202,7 @@ private:
     int evaluateQueen(const u64 enemies);
 
     template<int side, _Tphase phase>
-    int evaluateKnight(const u64, const u64);
+    int evaluateKnight(const u64);
 
     template<int side, Eval::_Tphase phase>
     int evaluateRook(const u64, u64 enemies, u64 friends);

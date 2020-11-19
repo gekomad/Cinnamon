@@ -148,7 +148,7 @@ void Uci::listner(IterativeDeeping *it) {
                             knowCommand = true;
                         } else if (gtb->setCacheSize(gaviotatbcache)) {
                             knowCommand = true;
-                        };
+                        }
                     }
                 } else if (token.toLower() == "threads") {
                     getToken(uip, token);
@@ -165,7 +165,7 @@ void Uci::listner(IterativeDeeping *it) {
                         if (gtb == nullptr) knowCommand = true;
                         else if (gtb->setScheme(token)) {
                             knowCommand = true;
-                        };
+                        }
                     }
                 } else if (token.toLower() == "tb") {
                     getToken(uip, token);
@@ -180,7 +180,7 @@ void Uci::listner(IterativeDeeping *it) {
                                 if (gtb == nullptr)knowCommand = true;
                                 else if (gtb->setInstalledPieces(tb_pieces)) {
                                     knowCommand = true;
-                                };
+                                }
                             }
                         }
                     } else if (token.toLower() == "restart") {
@@ -354,7 +354,7 @@ void Uci::listner(IterativeDeeping *it) {
         }
         if (!knowCommand) {
             cout << "Unknown command: " << command << endl;
-        };
+        }
         cout << flush;
     }
 }

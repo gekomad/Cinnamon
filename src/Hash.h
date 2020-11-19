@@ -95,10 +95,9 @@ public:
         if (zobristKeyR == (k ^ data)) {
             return data;
         }
-#ifdef DEBUG_MODE
-        if (data)
-            readCollisions++;
-#endif
+
+        DEBUG(if (data) readCollisions++)
+
         return 0;
     }
 
@@ -122,11 +121,8 @@ public:
 
         _Thash *rootHashA = &(hashArray[HASH_GREATER][kMod]);
 
-#ifdef DEBUG_MODE
-        if (rootHashA->u.dataU) {
-            INC(collisions);
-        }
-#endif
+        DEBUG(if (rootHashA->u.dataU) INC(collisions))
+
         if (rootHashA->u.dataS.depth >= tmp.dataS.depth && rootHashA->u.dataS.entryAge) {
             return;
         }
