@@ -2,6 +2,8 @@ Cinnamon
 ==========
 ### UCI Chess Engine
 
+[Go to website][11]
+
 Cinnamon is a chess program for Windows, Linux, Mac OS, Android and Raspberry Pi, is a console-based chess engine for use with [xboard][4], [Arena][5], [Tarrasch][6], [Droidfish][7] or any UCI-compatible GUI. Cinnamon is also a javascript library to play with [chessboardjs][8] or any js GUI.
 
 Version
@@ -32,7 +34,7 @@ Features
 - Futility pruning
 - Delta pruning
 - Razoring
-- Interruptible multithread Perft test [standard][9] [chess960][10]
+- Interruptible multithread Perft test [standard][9] and [chess960][10]
 - 32/64 bit architectures
 - Iterative deeping
 - History heuristics
@@ -123,12 +125,13 @@ Credits
 
 Cinnamon was written by Giuseppe Cannella at gmail dot com.
 
-  [1]: http://cinnamonchess.altervista.org
-  [3]: http://www.computerchess.org.uk/ccrl/404/cgi/compare_engines.cgi?family=Cinnamon
-  [4]: http://www.gnu.org/software/xboard
-  [5]: http://www.playwitharena.com
-  [6]: http://triplehappy.com
+  [1]: https://github.com/gekomad/Cinnamon/releases
+  [3]: https://www.computerchess.org.uk/ccrl/404/cgi/compare_engines.cgi?family=Cinnamon
+  [4]: https://www.gnu.org/software/xboard
+  [5]: http://www.playwitharena.de
+  [6]: https://triplehappy.com
   [7]: https://play.google.com/store/apps/details?hl=it&id=org.petero.droidfish
-  [8]: http://chessboardjs.com
-  [9]: http://cinnamonchess.altervista.org/perft.html
+  [8]: https://chessboardjs.com
+  [9]: https://gekomad.github.io/Cinnamon/perft.html
   [10]: https://www.chessprogramming.org/Chess960_Perft_Results
+  [11]: https://gekomad.github.io/Cinnamon/
