@@ -2,7 +2,7 @@ Cinnamon
 ==========
 ### UCI Chess Engine
 
-[Go to website][11]
+- [Play on line](https://gekomad.github.io/Cinnamon/)
 
 Cinnamon is a chess program for Windows, Linux, Mac OS, Android and Raspberry Pi, is a console-based chess engine for use with [xboard][4], [Arena][5], [Tarrasch][6], [Droidfish][7] or any UCI-compatible GUI. Cinnamon is also a javascript library to play with [chessboardjs][8] or any js GUI.
 
@@ -20,6 +20,18 @@ News
 - BMI2 Instructions
 - Bug fix in enpassant
 - Bug fix parallel perft
+
+Useful links
+----------
+- [Bitboard Calculator](https://gekomad.github.io/Cinnamon/BitboardCalculator/)
+- [C++ thread pool](https://github.com/gekomad/BlockingThreadPool)
+- [Auriga Distributed Perft](https://github.com/gekomad/Auriga)
+- [Web Eval debugger](https://github.com/gekomad/chess-engine-eval-debugger)
+- [Android App](https://play.google.com/store/apps/details?id=com.github.gekomad.cinnamonengine)
+- [Cinnamon on DGT Pi](https://www.digitalgametechnology.com/index.php/products/revelation-ii/533-dgt-pi-chess-computer-for-dgt-e-boards)
+- [Clion IDE](https://www.jetbrains.com/?from=CINNAMON_CHESS_ENGINE)
+
+
 Features
 ----------
 
