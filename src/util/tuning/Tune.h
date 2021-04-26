@@ -26,7 +26,7 @@
 class Tune {
 
 protected:
-    constexpr static int N_PARAM = 37;
+    constexpr static int N_PARAM = 36;
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     const string iniFile = "tuning.ini";
 
@@ -80,13 +80,11 @@ protected:
     }
 
     void tune(const set<FEN *> &fens) {
-
         searchManager.setMaxTimeMillsec(2500);
         cout.precision(17);
 
         loadParams();
         const array<PARAMS, N_PARAM> params{
-                PARAMS("MAX_VALUE_TAPERED9", searchManager),
                 PARAMS("ATTACK_KING0", searchManager),
                 PARAMS("ATTACK_KING1", searchManager),
                 PARAMS("BISHOP_ON_QUEEN0", searchManager),

@@ -40,11 +40,9 @@ public:
                                  " cat win_white.epd  | awk -F \" \" '{print $1\" \"$2\" \"$3}' >foo;sort -u foo |grep \"k\" > win_white.epd\n"
                                  " cat win_black.epd  | awk -F \" \" '{print $1\" \"$2\" \"$3}' >foo;sort -u foo |grep \"k\" > win_black.epd\n"
                                  " cat draw.epd       | awk -F \" \" '{print $1\" \"$2\" \"$3}' >foo;sort -u foo |grep \"k\" > draw.epd\n"
-                                 " rm foo win_black.pgn win_white.pgn draw.pgn\n"
-                                 " run ./cinnamon path\n";
+                                 " rm foo win_black.pgn win_white.pgn draw.pgn\n";
 
     Texel(const string &path) {
-
         this->path = path;
         cout << "Texel's Tuning Method " << Time::getLocalTime() << " start" << endl;
         set <string> draw;

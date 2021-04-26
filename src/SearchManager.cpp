@@ -118,9 +118,7 @@ int SearchManager::loadFen(const string &fen) {
 
     for (uchar i = 0; i < threadPool->getPool().size(); i++) {
         res = threadPool->getThread(i).loadFen(fen);
-        if (res == 2) {
-            fatal("Bad FEN position format ", fen)
-        }
+        ASSERT_RANGE(res, 0, 1)
     }
     return res;
 }

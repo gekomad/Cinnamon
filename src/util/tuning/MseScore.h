@@ -32,7 +32,7 @@ public:
                                  "  sudo mount -t tmpfs -o size=100m tmpfs /tmp/ramdisk/\n"
                                  "  cp crafty /tmp/ramdisk\n"
                                  "  cd /tmp/ramdisk\n"
-                                 "  ./cinnamon step1 /path/huge_epd.epd /path/oracle_epd.epd /tmp/ramdisk/\n"
+                                 "  ./cinnamon step1 huge_epd.epd oracle_epd.epd /tmp/ramdisk/\n"
                                  "\n--- Step 2 - tuning through Crafty ---\n"
                                  "./cinnamon step2 oracle_epd.epd\n";
 
@@ -97,10 +97,7 @@ private:
         if (epdFile.is_open()) {
             while (getline(epdFile, line)) {
                 if (!((c++) % 100)) cout << "calculateOracleScore " << c << endl;
-                oracle_score << line << ";" << getCraftyScore(line, ramdisk) ;
-                searchManager.loadFen(line);
-                oracle_score <<";"<< searchManager.getScore(WHITE)<<flush;
-                oracle_score <<endl;
+                oracle_score << line << ";" << getCraftyScore(line, ramdisk) << endl;
             }
             epdFile.close();
         }else {cout <<"\nnot found";}

@@ -11,5 +11,4 @@
 #export tc="0/5:1+0.0"
 export TOT_MATCH=20000
 #export variant="-variant fischerandom"
-#export compile_tag=cinnamon32-ARM-CLOP
 

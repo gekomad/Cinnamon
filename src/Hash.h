@@ -163,7 +163,8 @@ public:
             int oldTT = -INT_MAX;
             for (i = 0; i < BUCKETS; i++, hash++) {
                 const u64 data = hash->data;
-                const auto age = ((ply - GET_AGE(data)) & 0xff) * 0x100 + 0xff - GET_DEPTH(data); //TODO
+                const auto age = ((ply - GET_AGE(data)) & 255) * 256 + 255 - GET_DEPTH(data); //TODO
+                // const int age = ((pow(GET_DEPTH(data) - GET_DEPTH(old->data), 2)) + (ply - GET_AGE(data)));
                 if (age > oldTT) {
                     old = hash;
                     oldTT = age;

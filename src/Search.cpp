@@ -16,14 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "Search.h"
-#include "SearchManager.h"
-#include "db/bitbase/kpk.h"
 
 bool volatile Search::runningThread;
 high_resolution_clock::time_point Search::startTime;
-using namespace _bitbase;
+
 DEBUG(unsigned Search::cumulativeMovesCount)
 
 void Search::run() {
@@ -416,50 +413,7 @@ bool Search::probeRootTB(_Tmove *res) {
 
     const u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     uchar oldEnpassant = enPassant;
-    if (tot == 3 && (chessboard[WHITE] || chessboard[BLACK])) {
-        _Tmove *bestMove = nullptr;
-        u64 friends = sideToMove == WHITE ? white : black;
-        u64 enemies = sideToMove == BLACK ? white : black;
 
-        incListId();
-        generateCaptures(sideToMove, enemies, friends);
-        generateMoves(sideToMove, friends | enemies);
-
-        for (int i = 0; i < getListSize(); i++) {
-            if (bestMove)break;
-            _Tmove *move = &genList[listId].moveList[i];
-            if (!makemove(move, false, true)) {
-                takeback(move, oldKey, oldEnpassant, false);
-                continue;
-            }
-
-            const int kw = BITScanForward(chessboard[KING_WHITE]);
-            const int kb = BITScanForward(chessboard[KING_BLACK]);
-            const int pawnQueenPos = BITScanForward(chessboard[PAWN_BLACK]) | BITScanForward(chessboard[PAWN_WHITE]) |
-                                     BITScanForward(chessboard[QUEEN_BLACK]) | BITScanForward(chessboard[QUEEN_WHITE]);
-            const int winSide = chessboard[PAWN_BLACK] | chessboard[QUEEN_BLACK] ? BLACK : WHITE;
-
-            const bool p = (winSide != sideToMove) ?  // looking for draw
-                           isDraw(winSide, X(sideToMove), kw, kb, pawnQueenPos)
-                                                   :  //looking for win
-                           !isDraw(winSide, X(sideToMove), kw, kb, pawnQueenPos);
-
-            if (p &&
-                (bestMove == nullptr || move->capturedPiece != SQUARE_EMPTY ||
-                 move->promotionPiece != NO_PROMOTION)) {
-                bestMove = move;
-            }
-            takeback(move, oldKey, oldEnpassant, false);
-        }
-
-        decListId();
-        if (bestMove) {
-            memcpy(res, bestMove, sizeof(_Tmove));
-            if (res->pieceFrom == PAWN_WHITE && res->to > 55)res->promotionPiece = 'q';
-            else if (res->pieceFrom == PAWN_BLACK && res->to < 8)res->promotionPiece = 'q';
-            return true;
-        }
-    }
 #ifndef JS_MODE
     //gaviota
     if (GTB::getInstance().isInstalledPieces(tot)) {
@@ -996,10 +950,7 @@ int Search::getParameter(const string &p1) {
     const string p=p1.substr (0,p1.size()-1);
     const int idx=atoi(p1.substr (p1.size()-1,p1.size()-1).c_str());
 
-
-    if (p == "MAX_VALUE_TAPERED")return eval.MAX_VALUE_TAPERED;
     if (p == "BISHOP_ON_QUEEN")return eval.BISHOP_ON_QUEEN[idx];
-    if (p == "ATTACK_KING")return eval.ATTACK_KING[idx];
     if (p == "BACKWARD_PAWN")return eval.BACKWARD_PAWN[idx];
     if (p == "DOUBLED_ISOLATED_PAWNS")return eval.DOUBLED_ISOLATED_PAWNS[idx];
 //    if (p == "DOUBLED_PAWNS")return eval.DOUBLED_PAWNS[idx];
@@ -1038,8 +989,6 @@ void Search::setParameter(const string &p1, const int value) {
     const int idx=atoi(p1.substr (p1.size()-1,p1.size()-1).c_str());
 
     if (p == "BISHOP_ON_QUEEN")eval.BISHOP_ON_QUEEN[idx]=value;
-    else if (p == "MAX_VALUE_TAPERED")eval.MAX_VALUE_TAPERED=value;
-    else if (p == "ATTACK_KING")eval.ATTACK_KING[idx]=value;
     else if (p == "BACKWARD_PAWN")eval.BACKWARD_PAWN[idx]=value;
     else if (p == "DOUBLED_ISOLATED_PAWNS")eval.DOUBLED_ISOLATED_PAWNS[idx]=value;
 //    else if (p == "DOUBLED_PAWNS")eval.DOUBLED_PAWNS[idx]=value;

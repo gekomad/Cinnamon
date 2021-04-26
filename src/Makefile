@@ -21,7 +21,7 @@ ifndef SystemRoot
 		LIBS= -static-libstdc++ -lpthread
 		OS=OSX
 	else
-	    LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -static
+	    LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive # TODO -static
 	    OS=Linux
 	endif
 
@@ -91,7 +91,7 @@ cinnamon32-ARM:
 	$(MAKE) -j4 ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF" build
 
 cinnamon64-ARM:
-	$(MAKE) ARC="$(ARC) " build
+	$(MAKE) -j4 ARC="$(ARC) -DHAS_POPCNT -DHAS_BSF" build
 
 cinnamon64-generic:
 	$(MAKE) -j ARC="$(ARC) -m64" build
