@@ -440,10 +440,10 @@ pair<int, int> Eval::evaluateRook(const _Tchessboard &chessboard, const u64 enem
     constexpr int xside = X(side);
     // 3. in 7th
 
-    result[MG] += ROOK_7TH_RANK[MG] * bitCount(rook & RANK_1_7[side]);
-    result[EG] += ROOK_7TH_RANK[EG] * bitCount(rook & RANK_1_7[side]);
-    ADD(SCORE_DEBUG[MG].ROOK_7TH_RANK[side], ROOK_7TH_RANK[MG] * bitCount(rook & RANK_1_7[side]));
-    ADD(SCORE_DEBUG[EG].ROOK_7TH_RANK[side], ROOK_7TH_RANK[EG] * bitCount(rook & RANK_1_7[side]));
+    result[MG] += ROOK_7TH_RANK[MG] * bitCount(rook & RANK_2_7[side]);
+    result[EG] += ROOK_7TH_RANK[EG] * bitCount(rook & RANK_2_7[side]);
+    ADD(SCORE_DEBUG[MG].ROOK_7TH_RANK[side], ROOK_7TH_RANK[MG] * bitCount(rook & RANK_2_7[side]));
+    ADD(SCORE_DEBUG[EG].ROOK_7TH_RANK[side], ROOK_7TH_RANK[EG] * bitCount(rook & RANK_2_7[side]));
 
     // 4. king security
     if (structureEval.pinned[side] & rook) result[MG] -= ROOK_PINNED[MG];

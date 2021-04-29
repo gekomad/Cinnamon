@@ -27,7 +27,7 @@
 using namespace std;
 namespace constants {
     
-    static const string NAME = "Cinnamon 2.4.0-78.5%";
+    static const string NAME = "Cinnamon 2.4.0-75.8%";
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     static constexpr int BLACK = 0;
     static constexpr int WHITE = 1;
@@ -323,8 +323,9 @@ namespace constants {
 
     static constexpr array<u64, 2> BISHOP_HOME = {0x24ULL, 0x2400000000000000ULL};
     static constexpr array<u64, 2> KNIGHT_HOME = {0x4200000000000000ULL, 0x42ULL};
-    static constexpr array<u64, 2> RANK_1_7 = {0xff00ULL, 0xff000000000000ULL};
-    /*static constexpr array<u64, 2> RANK_1_8 = {0xff00000000000000ULL, 0xffULL};
+    static constexpr array<u64, 2> RANK_2_7 = {0xff000000000000ULL,0xff00ULL};
+    static constexpr array<u64, 2> RANK_1_8 = {0xff00000000000000ULL,0xffULL};
+    /*
     static constexpr uchar DISTANCE[64][64]{{0,1,2,3,4,5,6,7,1,1,2,3,4,5,6,7,2,2,2,3,4,5,6,7,3,3,3,3,4,5,6,7,4,4,4,4,4,5,6,7,5,5,5,5,5,5,6,7,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7},
                                           {1,0,1,2,3,4,5,6,1,1,1,2,3,4,5,6,2,2,2,2,3,4,5,6,3,3,3,3,3,4,5,6,4,4,4,4,4,4,5,6,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7},
                                           {2,1,0,1,2,3,4,5,2,1,1,1,2,3,4,5,2,2,2,2,2,3,4,5,3,3,3,3,3,3,4,5,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7},
