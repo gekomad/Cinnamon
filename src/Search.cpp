@@ -820,7 +820,8 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         checkInCheck = true;
         int val = INT_MAX;
         if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
-            if (futilPrune && futilScore + PIECES_VALUE[move->capturedPiece] <= alpha && !board::inCheck1<side>(chessboard)) {
+            if (futilPrune && futilScore + PIECES_VALUE[move->capturedPiece] <= alpha &&
+                !board::inCheck1<side>(chessboard)) {
                 INC(nCutFp);
                 takeback(move, oldKey, oldEnpassant, true);
                 continue;
@@ -947,9 +948,11 @@ void Search::setSearchMoves(const vector<int> &s) {
 #ifdef TUNING
 
 int Search::getParameter(const string &p1) {
-    const string p=p1.substr (0,p1.size()-1);
-    const int idx=atoi(p1.substr (p1.size()-1,p1.size()-1).c_str());
+    const string p = p1.substr(0, p1.size() - 1);
+    const int idx = atoi(p1.substr(p1.size() - 1, p1.size() - 1).c_str());
 
+    if (p == "MAX_VALUE_TAPERED")return eval.MAX_VALUE_TAPERED;
+    if (p == "ATTACK_KING")return eval.ATTACK_KING[idx];
     if (p == "BISHOP_ON_QUEEN")return eval.BISHOP_ON_QUEEN[idx];
     if (p == "BACKWARD_PAWN")return eval.BACKWARD_PAWN[idx];
     if (p == "DOUBLED_ISOLATED_PAWNS")return eval.DOUBLED_ISOLATED_PAWNS[idx];
@@ -985,37 +988,39 @@ int Search::getParameter(const string &p1) {
 
 void Search::setParameter(const string &p1, const int value) {
 
-    const string p=p1.substr (0,p1.size()-1);
-    const int idx=atoi(p1.substr (p1.size()-1,p1.size()-1).c_str());
+    const string p = p1.substr(0, p1.size() - 1);
+    const int idx = atoi(p1.substr(p1.size() - 1, p1.size() - 1).c_str());
 
-    if (p == "BISHOP_ON_QUEEN")eval.BISHOP_ON_QUEEN[idx]=value;
-    else if (p == "BACKWARD_PAWN")eval.BACKWARD_PAWN[idx]=value;
-    else if (p == "DOUBLED_ISOLATED_PAWNS")eval.DOUBLED_ISOLATED_PAWNS[idx]=value;
+    if (p == "BISHOP_ON_QUEEN")eval.BISHOP_ON_QUEEN[idx] = value;
+    else if (p == "ATTACK_KING")eval.ATTACK_KING[idx] = value;
+    else if (p == "MAX_VALUE_TAPERED")eval.MAX_VALUE_TAPERED = value;
+    else if (p == "BACKWARD_PAWN")eval.BACKWARD_PAWN[idx] = value;
+    else if (p == "DOUBLED_ISOLATED_PAWNS")eval.DOUBLED_ISOLATED_PAWNS[idx] = value;
 //    else if (p == "DOUBLED_PAWNS")eval.DOUBLED_PAWNS[idx]=value;
-    else if (p == "PAWN_IN_7TH")eval.PAWN_IN_7TH[idx]=value;
+    else if (p == "PAWN_IN_7TH")eval.PAWN_IN_7TH[idx] = value;
 //    else if (p == "PAWN_CENTER")eval.PAWN_CENTER[idx]=value;
-    else if (p == "PAWN_IN_PROMOTION")eval.PAWN_IN_PROMOTION[idx]=value;
+    else if (p == "PAWN_IN_PROMOTION")eval.PAWN_IN_PROMOTION[idx] = value;
 //    else if (p == "PAWN_ISOLATED")eval.PAWN_ISOLATED[idx]=value;
-    else if (p == "PAWN_NEAR_KING")eval.PAWN_NEAR_KING[idx]=value;
-    else if (p == "PAWN_BLOCKED")eval.PAWN_BLOCKED[idx]=value;
-    else if (p == "UNPROTECTED_PAWNS")eval.UNPROTECTED_PAWNS[idx]=value;
+    else if (p == "PAWN_NEAR_KING")eval.PAWN_NEAR_KING[idx] = value;
+    else if (p == "PAWN_BLOCKED")eval.PAWN_BLOCKED[idx] = value;
+    else if (p == "UNPROTECTED_PAWNS")eval.UNPROTECTED_PAWNS[idx] = value;
 //    else if (p == "ENEMY_NEAR_KING")eval.ENEMY_NEAR_KING[idx]=value;
-    else if (p == "FRIEND_NEAR_KING")eval.FRIEND_NEAR_KING[idx]=value;
+    else if (p == "FRIEND_NEAR_KING")eval.FRIEND_NEAR_KING[idx] = value;
 //    else if (p == "HALF_OPEN_FILE_Q")eval.HALF_OPEN_FILE_Q[idx]=value;
-    else if (p == "BONUS2BISHOP")eval.BONUS2BISHOP[idx]=value;
-    else if (p == "BISHOP_PAWN_ON_SAME_COLOR")eval.BISHOP_PAWN_ON_SAME_COLOR[idx]=value;
+    else if (p == "BONUS2BISHOP")eval.BONUS2BISHOP[idx] = value;
+    else if (p == "BISHOP_PAWN_ON_SAME_COLOR")eval.BISHOP_PAWN_ON_SAME_COLOR[idx] = value;
 //    else if (p == "CONNECTED_ROOKS")eval.CONNECTED_ROOKS[idx]=value;
 //    else if (p == "OPEN_FILE")eval.OPEN_FILE[idx]=value;
-    else if (p == "OPEN_FILE_Q")eval.OPEN_FILE_Q[idx]=value;
-    else if (p == "ROOK_7TH_RANK")eval.ROOK_7TH_RANK[idx]=value;
+    else if (p == "OPEN_FILE_Q")eval.OPEN_FILE_Q[idx] = value;
+    else if (p == "ROOK_7TH_RANK")eval.ROOK_7TH_RANK[idx] = value;
 //    else if (p == "ROOK_BLOCKED")eval.ROOK_BLOCKED[idx]=value;
 //    else if (p == "ROOK_TRAPPED")eval.ROOK_TRAPPED[idx]=value;
 //    else if (p == "UNDEVELOPED_KNIGHT")eval.UNDEVELOPED_KNIGHT[idx]=value;
 //    else if (p == "UNDEVELOPED_BISHOP")eval.UNDEVELOPED_BISHOP[idx]=value;
-    else if (p == "KNIGHT_PINNED")eval.KNIGHT_PINNED[idx]=value;
-    else if (p == "ROOK_PINNED")eval.ROOK_PINNED[idx]=value;
-    else if (p == "BISHOP_PINNED")eval.BISHOP_PINNED[idx]=value;
-    else if (p == "QUEEN_PINNED")eval.QUEEN_PINNED[idx]=value;
+    else if (p == "KNIGHT_PINNED")eval.KNIGHT_PINNED[idx] = value;
+    else if (p == "ROOK_PINNED")eval.ROOK_PINNED[idx] = value;
+    else if (p == "BISHOP_PINNED")eval.BISHOP_PINNED[idx] = value;
+    else if (p == "QUEEN_PINNED")eval.QUEEN_PINNED[idx] = value;
 //    else if (p == "PAWN_PINNED")eval.PAWN_PINNED[idx]=value;
     else {
         fatal("Not found ", p)

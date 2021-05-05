@@ -557,12 +557,13 @@ short Eval::getHashValue(const u64 key) {
     return noHashValue;
 }
 
-short Eval::getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, const int alpha, const int beta,
-                     const bool trace) {
+short Eval::getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, const int alpha, const int beta
+                     DEBUG2(,const bool trace = false)
+                     ) {
+#ifndef TUNING
     const short hashValue = getHashValue(key);
-    if (hashValue != noHashValue && !trace) {
-        return side ? -hashValue : hashValue;
-    }
+    DEBUG2(if (!trace)) if (hashValue != noHashValue) return side ? -hashValue : hashValue;
+#endif
     const int lazyscore_white = lazyEvalSide<WHITE>(chessboard);
     const int lazyscore_black = lazyEvalSide<BLACK>(chessboard);
 

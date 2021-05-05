@@ -26,7 +26,7 @@
 class Tune {
 
 protected:
-    constexpr static int N_PARAM = 36;
+    constexpr static int N_PARAM = 37;
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     const string iniFile = "tuning.ini";
 
@@ -53,7 +53,7 @@ protected:
         PARAMS(string n, const SearchManager &searchManager) : name(n) { startValue = searchManager.getParameter(n); }
 
         void print(SearchManager &searchManager) const {
-            printf("\n%s startValue: %d newValue: %d", name.c_str(), startValue,
+            printf("\nname: %s, startValue: %d, newValue: %d", name.c_str(), startValue,
                    searchManager.getParameter(name));
             if (startValue != searchManager.getParameter(name))cout << " (*)";
         }
@@ -85,42 +85,46 @@ protected:
 
         loadParams();
         const array<PARAMS, N_PARAM> params{
+
                 PARAMS("ATTACK_KING0", searchManager),
-                PARAMS("ATTACK_KING1", searchManager),
                 PARAMS("BISHOP_ON_QUEEN0", searchManager),
-                PARAMS("BISHOP_ON_QUEEN1", searchManager),
                 PARAMS("BACKWARD_PAWN0", searchManager),
-                PARAMS("BACKWARD_PAWN1", searchManager),
                 PARAMS("DOUBLED_ISOLATED_PAWNS0", searchManager),
-                PARAMS("DOUBLED_ISOLATED_PAWNS1", searchManager),
                 PARAMS("PAWN_IN_7TH0", searchManager),
-                PARAMS("PAWN_IN_7TH1", searchManager),
                 PARAMS("PAWN_IN_PROMOTION0", searchManager),
-                PARAMS("PAWN_IN_PROMOTION1", searchManager),
                 PARAMS("PAWN_NEAR_KING0", searchManager),
-                PARAMS("PAWN_NEAR_KING1", searchManager),
                 PARAMS("PAWN_BLOCKED0", searchManager),
-                PARAMS("PAWN_BLOCKED1", searchManager),
                 PARAMS("UNPROTECTED_PAWNS0", searchManager),
-                PARAMS("UNPROTECTED_PAWNS1", searchManager),
                 PARAMS("FRIEND_NEAR_KING0", searchManager),
-                PARAMS("FRIEND_NEAR_KING1", searchManager),
                 PARAMS("BONUS2BISHOP0", searchManager),
-                PARAMS("BONUS2BISHOP1", searchManager),
                 PARAMS("BISHOP_PAWN_ON_SAME_COLOR0", searchManager),
-                PARAMS("BISHOP_PAWN_ON_SAME_COLOR1", searchManager),
                 PARAMS("OPEN_FILE_Q0", searchManager),
-                PARAMS("OPEN_FILE_Q1", searchManager),
                 PARAMS("ROOK_7TH_RANK0", searchManager),
-                PARAMS("ROOK_7TH_RANK1", searchManager),
                 PARAMS("KNIGHT_PINNED0", searchManager),
-                PARAMS("KNIGHT_PINNED1", searchManager),
                 PARAMS("ROOK_PINNED0", searchManager),
-                PARAMS("ROOK_PINNED1", searchManager),
                 PARAMS("BISHOP_PINNED0", searchManager),
-                PARAMS("BISHOP_PINNED1", searchManager),
                 PARAMS("QUEEN_PINNED0", searchManager),
-                PARAMS("QUEEN_PINNED1", searchManager)
+
+                PARAMS("ATTACK_KING1", searchManager),
+                PARAMS("BISHOP_ON_QUEEN1", searchManager),
+                PARAMS("BACKWARD_PAWN1", searchManager),
+                PARAMS("DOUBLED_ISOLATED_PAWNS1", searchManager),
+                PARAMS("PAWN_IN_7TH1", searchManager),
+                PARAMS("PAWN_IN_PROMOTION1", searchManager),
+                PARAMS("PAWN_NEAR_KING1", searchManager),
+                PARAMS("PAWN_BLOCKED1", searchManager),
+                PARAMS("UNPROTECTED_PAWNS1", searchManager),
+                PARAMS("FRIEND_NEAR_KING1", searchManager),
+                PARAMS("BONUS2BISHOP1", searchManager),
+                PARAMS("BISHOP_PAWN_ON_SAME_COLOR1", searchManager),
+                PARAMS("OPEN_FILE_Q1", searchManager),
+                PARAMS("ROOK_7TH_RANK1", searchManager),
+                PARAMS("KNIGHT_PINNED1", searchManager),
+                PARAMS("ROOK_PINNED1", searchManager),
+                PARAMS("BISHOP_PINNED1", searchManager),
+                PARAMS("QUEEN_PINNED1", searchManager),
+                PARAMS("MAX_VALUE_TAPERED0", searchManager)
+
         };
         bool fullImproved;
         int cycle = 1;
