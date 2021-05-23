@@ -22,7 +22,7 @@
 
 #ifndef _WIN32
 
-#include <unistd.h>
+#include "unistd.h"
 #include <sys/mman.h>
 
 #endif
@@ -61,13 +61,21 @@
 #ifdef TB_CUSTOM_BSWAP32
 #define internal_bswap32(x) TB_CUSTOM_BSWAP32(x)
 #else
+#ifdef _MSC_VER
+#define internal_bswap32(x) _byteswap_ulong(x)
+#else
 #define internal_bswap32(x) __builtin_bswap32(x)
+#endif
 #endif
 
 #ifdef TB_CUSTOM_BSWAP64
 #define internal_bswap64(x) TB_CUSTOM_BSWAP64(x)
 #else
+#ifdef _MSC_VER
+#define internal_bswap64(x) _byteswap_uint64(x)
+#else
 #define internal_bswap64(x) __builtin_bswap64(x)
+#endif
 #endif
 
 static int initialized = 0;

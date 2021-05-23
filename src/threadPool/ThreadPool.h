@@ -20,14 +20,12 @@
 
 #include "Thread.h"
 #include <atomic>
-#include <unistd.h>
+#include "../unistd.h"
 #include "ObserverThread.h"
 #include "../namespaces/bits.h"
 #include <condition_variable>
-#include "../namespaces/debug.h"
 #include "../util/logger.h"
 
-using namespace _debug;
 using namespace _def;
 
 template<typename T, typename = typename std::enable_if<std::is_base_of<Thread<T>, T>::value, T>::type>
@@ -66,7 +64,7 @@ public:
         joinAll();
         removeAllThread();
         nThread = t;
-        ASSERT(threadsBits == 0);
+        assert(threadsBits == 0);
         for (int i = 0; i < nThread; i++) {
             T *x = new T();
             x->setId(i);
@@ -107,7 +105,7 @@ public:
     }
 
     T &getThread(int i) const {
-        ASSERT(i < nThread);
+        assert(i < nThread);
         return *threadPool[i];
     }
 
@@ -121,15 +119,15 @@ private:
     T &getThread() {
         int i = BITScanForwardUnset(threadsBits);
         threadPool[i]->join();
-        ASSERT(!(threadsBits & POW2[i]));
-        threadsBits |= POW2[i];
+        assert(!(threadsBits & POW2(i)));
+        threadsBits |= POW2(i);
         return *threadPool[i];
     }
 
     void releaseThread(const int threadID) {
-        ASSERT_RANGE(threadID, 0, 63);
-        ASSERT(threadsBits & POW2[threadID]);
-        threadsBits &= ~POW2[threadID];
+        ASSERT_RANGE(threadID, 0, 63)
+        assert(threadsBits & POW2(threadID));
+        threadsBits &= ~POW2(threadID);
         cv.notify_all();
         debug("ThreadPool::releaseThread #", threadID);
     }
@@ -150,7 +148,7 @@ private:
             delete s;
         }
         threadPool.clear();
-        ASSERT(threadsBits == 0);
+        assert(threadsBits == 0);
     }
 };
 

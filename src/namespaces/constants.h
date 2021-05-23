@@ -22,33 +22,68 @@
 #include <string.h>
 #include <sstream>
 #include <array>
+#include <assert.h>
 
 using namespace std;
 namespace constants {
     
-    static const string NAME = "Cinnamon 2.3.4";
+    static const string NAME = "Cinnamon 2.4";
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     static constexpr int BLACK = 0;
     static constexpr int WHITE = 1;
+
+
+#ifdef TUNING
+#define STATIC_CONST
+#else
+#define STATIC_CONST static constexpr
+#endif
+
+#define _assert(a) if(!(a)){  cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< ":"<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::exit(1);}
+
+#define X(side) ((side)^1)
+
+#ifdef DEBUG_MODE
+#define DEBUG(a) a;
+#define DEBUG2(...) __VA_ARGS__
+#define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;_assert(0)};}
+#define INC(a) (a++)
+#define SET(a, v) (a=(v))
+#define ADD(a, b) (a+=(b))
+#else
+#define DEBUG(a)
+#define DEBUG2(...)
+#define ASSERT_RANGE(value, from, to)
+#define INC(a)
+#define SET(a, v)
+#define ADD(a, b)
+
+#endif
 
     static constexpr bool USE_HASH_YES = true;
     static constexpr bool USE_HASH_NO = false;
 
     static constexpr int _INFINITE = 32000;
 
-    static constexpr int PAWN_BLACK = 0;
-    static constexpr int PAWN_WHITE = 1;
-    static constexpr int ROOK_BLACK = 2;
-    static constexpr int ROOK_WHITE = 3;
-    static constexpr int BISHOP_BLACK = 4;
-    static constexpr int BISHOP_WHITE = 5;
-    static constexpr int KNIGHT_BLACK = 6;
-    static constexpr int KNIGHT_WHITE = 7;
-    static constexpr int KING_BLACK = 8;
-    static constexpr int KING_WHITE = 9;
-    static constexpr int QUEEN_BLACK = 10;
-    static constexpr int QUEEN_WHITE = 11;
-    static constexpr int SQUARE_EMPTY = 12;
+    static constexpr uchar PAWN_BLACK = 0;
+    static constexpr uchar PAWN_WHITE = 1;
+    static constexpr uchar ROOK_BLACK = 2;
+    static constexpr uchar ROOK_WHITE = 3;
+    static constexpr uchar BISHOP_BLACK = 4;
+    static constexpr uchar BISHOP_WHITE = 5;
+    static constexpr uchar KNIGHT_BLACK = 6;
+    static constexpr uchar KNIGHT_WHITE = 7;
+    static constexpr uchar KING_BLACK = 8;
+    static constexpr uchar KING_WHITE = 9;
+    static constexpr uchar QUEEN_BLACK = 10;
+    static constexpr uchar QUEEN_WHITE = 11;
+    static constexpr uchar ZOBRISTKEY_IDX = 12;
+
+    static constexpr uchar ENPASSANT_IDX = 13;
+    static constexpr uchar SIDETOMOVE_IDX = 14;
+    static constexpr uchar RIGHT_CASTLE_IDX = 15;
+
+    static constexpr uchar SQUARE_EMPTY = 12;
 
     static constexpr int VALUEPAWN = 100;
     static constexpr int VALUEROOK = 520;
@@ -66,23 +101,9 @@ namespace constants {
     static constexpr uchar KING_SIDE_CASTLE_MOVE_MASK = 0x4;
     static constexpr uchar QUEEN_SIDE_CASTLE_MOVE_MASK = 0x8;
 
-#define PAWN_BLACK 0
-#define PAWN_WHITE 1
-#define ROOK_BLACK 2
-#define ROOK_WHITE 3
-#define BISHOP_BLACK 4
-#define BISHOP_WHITE 5
-#define KNIGHT_BLACK 6
-#define KNIGHT_WHITE 7
-#define KING_BLACK 8
-#define KING_WHITE 9
-#define QUEEN_BLACK 10
-#define QUEEN_WHITE 11
-
-#define RIGHT_CASTLE_IDX 12
-#define ENPASSANT_IDX 13
-#define SIDETOMOVE_IDX 14
-#define ZOBRISTKEY_IDX 15
+    static constexpr uchar NO_PROMOTION = 0xff;
+    static constexpr uchar NO_PIECE = 0xff;
+    static constexpr uchar NO_POSITION = 0xff;
 
     static constexpr u64 A7bit = 0x80000000000000ULL;
     static constexpr u64 B7bit = 0x40000000000000ULL;
@@ -123,78 +144,78 @@ namespace constants {
     static constexpr u64 BIG_DIAGONAL = 0x102040810204080ULL;
     static constexpr u64 BIG_ANTIDIAGONAL = 0x8040201008040201ULL;
 
-    static constexpr int H1 = 0;
-    static constexpr int H2 = 8;
-    static constexpr int H3 = 16;
-    static constexpr int H4 = 24;
-    static constexpr int H5 = 32;
-    static constexpr int H6 = 40;
-    static constexpr int H7 = 48;
-    static constexpr int H8 = 56;
+    static constexpr uchar H1 = 0;
+    static constexpr uchar H2 = 8;
+    static constexpr uchar H3 = 16;
+    static constexpr uchar H4 = 24;
+    static constexpr uchar H5 = 32;
+    static constexpr uchar H6 = 40;
+    static constexpr uchar H7 = 48;
+    static constexpr uchar H8 = 56;
 
-    static constexpr int G1 = 1;
-    static constexpr int G2 = 9;
-    static constexpr int G3 = 17;
-    static constexpr int G4 = 25;
-    static constexpr int G5 = 33;
-    static constexpr int G6 = 41;
-    static constexpr int G7 = 49;
-    static constexpr int G8 = 57;
+    static constexpr uchar G1 = 1;
+    static constexpr uchar G2 = 9;
+    static constexpr uchar G3 = 17;
+    static constexpr uchar G4 = 25;
+    static constexpr uchar G5 = 33;
+    static constexpr uchar G6 = 41;
+    static constexpr uchar G7 = 49;
+    static constexpr uchar G8 = 57;
 
-    static constexpr int F1 = 2;
-    static constexpr int F2 = 10;
-    static constexpr int F3 = 18;
-    static constexpr int F4 = 26;
-    static constexpr int F5 = 34;
-    static constexpr int F6 = 42;
-    static constexpr int F7 = 50;
-    static constexpr int F8 = 58;
+    static constexpr uchar F1 = 2;
+    static constexpr uchar F2 = 10;
+    static constexpr uchar F3 = 18;
+    static constexpr uchar F4 = 26;
+    static constexpr uchar F5 = 34;
+    static constexpr uchar F6 = 42;
+    static constexpr uchar F7 = 50;
+    static constexpr uchar F8 = 58;
 
-    static constexpr int B1 = 6;
-    static constexpr int B2 = 14;
-    static constexpr int B3 = 22;
-    static constexpr int B4 = 30;
-    static constexpr int B5 = 38;
-    static constexpr int B6 = 46;
-    static constexpr int B7 = 54;
-    static constexpr int B8 = 62;
+    static constexpr uchar B1 = 6;
+    static constexpr uchar B2 = 14;
+    static constexpr uchar B3 = 22;
+    static constexpr uchar B4 = 30;
+    static constexpr uchar B5 = 38;
+    static constexpr uchar B6 = 46;
+    static constexpr uchar B7 = 54;
+    static constexpr uchar B8 = 62;
 
-    static constexpr int A1 = 7;
-    static constexpr int A2 = 15;
-    static constexpr int A3 = 23;
-    static constexpr int A4 = 31;
-    static constexpr int A5 = 39;
-    static constexpr int A6 = 47;
-    static constexpr int A7 = 55;
-    static constexpr int A8 = 63;
+    static constexpr uchar A1 = 7;
+    static constexpr uchar A2 = 15;
+    static constexpr uchar A3 = 23;
+    static constexpr uchar A4 = 31;
+    static constexpr uchar A5 = 39;
+    static constexpr uchar A6 = 47;
+    static constexpr uchar A7 = 55;
+    static constexpr uchar A8 = 63;
 
-    static constexpr int C1 = 5;
-    static constexpr int C2 = 13;
-    static constexpr int C3 = 21;
-    static constexpr int C4 = 29;
-    static constexpr int C5 = 37;
-    static constexpr int C6 = 45;
-    static constexpr int C7 = 53;
-    static constexpr int C8 = 61;
+    static constexpr uchar C1 = 5;
+    static constexpr uchar C2 = 13;
+    static constexpr uchar C3 = 21;
+    static constexpr uchar C4 = 29;
+    static constexpr uchar C5 = 37;
+    static constexpr uchar C6 = 45;
+    static constexpr uchar C7 = 53;
+    static constexpr uchar C8 = 61;
 
 
-    static constexpr int D1 = 4;
-    static constexpr int D2 = 12;
-    static constexpr int D3 = 20;
-    static constexpr int D4 = 28;
-    static constexpr int D5 = 36;
-    static constexpr int D6 = 44;
-    static constexpr int D7 = 52;
-    static constexpr int D8 = 60;
+    static constexpr uchar D1 = 4;
+    static constexpr uchar D2 = 12;
+    static constexpr uchar D3 = 20;
+    static constexpr uchar D4 = 28;
+    static constexpr uchar D5 = 36;
+    static constexpr uchar D6 = 44;
+    static constexpr uchar D7 = 52;
+    static constexpr uchar D8 = 60;
 
-    static constexpr int E1 = 3;
-    static constexpr int E2 = 11;
-    static constexpr int E3 = 19;
-    static constexpr int E4 = 27;
-    static constexpr int E5 = 35;
-    static constexpr int E6 = 43;
-    static constexpr int E7 = 51;
-    static constexpr int E8 = 59;
+    static constexpr uchar E1 = 3;
+    static constexpr uchar E2 = 11;
+    static constexpr uchar E3 = 19;
+    static constexpr uchar E4 = 27;
+    static constexpr uchar E5 = 35;
+    static constexpr uchar E6 = 43;
+    static constexpr uchar E7 = 51;
+    static constexpr uchar E8 = 59;
 
     static constexpr u64 POW2_0 = 0x1ULL;
     static constexpr u64 POW2_1 = 0x2ULL;
@@ -227,6 +248,71 @@ namespace constants {
     static constexpr u64 NOTPOW2_61 = 0xdfffffffffffffffULL;
     static constexpr u64 NOTPOW2_63 = 0x7fffffffffffffffULL;
 
+    static constexpr int _0_ = 0;
+    static constexpr int Px_ = 1;
+    static constexpr int Rx_ = 0;
+    static constexpr int Bx_ = 0;
+    static constexpr int Nx_ = 0;
+    static constexpr int Kx_ = 0;
+    static constexpr int Qx_ = 0;
+
+    static constexpr int PxP = 100;
+    static constexpr int PxN = 300;
+    static constexpr int PxB = 301;
+    static constexpr int PxR = 500;
+    static constexpr int PxQ = 800;
+    static constexpr int PxK = 100010;
+
+    static constexpr int NxP = 21;
+    static constexpr int NxN = 251;
+    static constexpr int NxB = 252;
+    static constexpr int NxR = 451;
+    static constexpr int NxQ = 751;
+    static constexpr int NxK = 100009;
+
+    static constexpr int BxP = 20;
+    static constexpr int BxN = 250;
+    static constexpr int BxB = 251;
+    static constexpr int BxR = 450;
+    static constexpr int BxQ = 750;
+    static constexpr int BxK = 100008;
+
+    static constexpr int RxP = 10;
+    static constexpr int RxN = 200;
+    static constexpr int RxB = 201;
+    static constexpr int RxR = 400;
+    static constexpr int RxQ = 700;
+    static constexpr int RxK = 100007;
+
+    static constexpr int QxP = 5;
+    static constexpr int QxN = 150;
+    static constexpr int QxB = 151;
+    static constexpr int QxR = 200;
+    static constexpr int QxQ = 400;
+    static constexpr int QxK = 100006;
+
+    static constexpr int KxP = 2;
+    static constexpr int KxN = 100;
+    static constexpr int KxB = 101;
+    static constexpr int KxR = 110;
+    static constexpr int KxQ = 200;
+    static constexpr int KxK = 100005;
+
+    static constexpr int CAPTURES[13][13]{
+            {_0_,PxP,_0_,PxR,_0_,PxB,_0_,PxN,_0_,PxK,_0_,PxQ,Px_},
+            {PxP,_0_,PxR,_0_,PxB,_0_,PxN,_0_,PxK,_0_,PxQ,_0_,Px_},
+            {_0_,RxP,_0_,RxR,_0_,RxB,_0_,RxN,_0_,RxK,_0_,RxQ,Rx_},
+            {RxP,_0_,RxR,_0_,RxB,_0_,RxN,_0_,RxK,_0_,RxQ,RxQ,Rx_},
+            {_0_,BxP,_0_,BxR,_0_,BxB,_0_,BxN,_0_,BxK,_0_,BxQ,Bx_},
+            {BxP,_0_,BxR,_0_,BxB,_0_,BxN,_0_,BxK,_0_,BxQ,_0_,Bx_},
+            {_0_,NxP,_0_,NxR,_0_,NxB,_0_,NxN,_0_,NxK,_0_,NxQ,Nx_},
+            {NxP,_0_,NxR,_0_,NxB,_0_,NxN,_0_,NxK,_0_,NxQ,_0_,Nx_},
+            {_0_,KxP,_0_,KxR,_0_,KxB,_0_,KxN,_0_,KxK,_0_,KxQ,Kx_},
+            {KxP,_0_,KxR,_0_,KxB,_0_,KxN,_0_,KxK,_0_,KxQ,_0_,Kx_},
+            {_0_,QxP,_0_,QxR,_0_,QxB,_0_,QxN,_0_,QxK,_0_,QxQ,Qx_},
+            {QxP,_0_,QxR,_0_,QxB,_0_,QxN,_0_,QxK,_0_,QxQ,_0_,Qx_},
+            {_0_,_0_,_0_,_0_,_0_,_0_,_0_,_0_,_0_,_0_,_0_,_0_,_0_}
+    };
 
     static const array<string, 64> BOARD =
         {"h1", "g1", "f1", "e1", "d1", "c1", "b1", "a1", "h2", "g2", "f2", "e2", "d2", "c2", "b2", "a2", "h3", "g3",
@@ -237,8 +323,74 @@ namespace constants {
 
     static constexpr array<u64, 2> BISHOP_HOME = {0x24ULL, 0x2400000000000000ULL};
     static constexpr array<u64, 2> KNIGHT_HOME = {0x4200000000000000ULL, 0x42ULL};
-    static constexpr array<u64, 2> RANK_1_7 = {0xff00ULL, 0xff000000000000ULL};
-
+    static constexpr array<u64, 2> RANK_2_7 = {0xff000000000000ULL,0xff00ULL};
+    static constexpr array<u64, 2> RANK_1_8 = {0xff00000000000000ULL,0xffULL};
+    /*
+    static constexpr uchar DISTANCE[64][64]{{0,1,2,3,4,5,6,7,1,1,2,3,4,5,6,7,2,2,2,3,4,5,6,7,3,3,3,3,4,5,6,7,4,4,4,4,4,5,6,7,5,5,5,5,5,5,6,7,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7},
+                                          {1,0,1,2,3,4,5,6,1,1,1,2,3,4,5,6,2,2,2,2,3,4,5,6,3,3,3,3,3,4,5,6,4,4,4,4,4,4,5,6,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7},
+                                          {2,1,0,1,2,3,4,5,2,1,1,1,2,3,4,5,2,2,2,2,2,3,4,5,3,3,3,3,3,3,4,5,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7},
+                                          {3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7},
+                                          {4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7},
+                                          {5,4,3,2,1,0,1,2,5,4,3,2,1,1,1,2,5,4,3,2,2,2,2,2,5,4,3,3,3,3,3,3,5,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7},
+                                          {6,5,4,3,2,1,0,1,6,5,4,3,2,1,1,1,6,5,4,3,2,2,2,2,6,5,4,3,3,3,3,3,6,5,4,4,4,4,4,4,6,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7},
+                                          {7,6,5,4,3,2,1,0,7,6,5,4,3,2,1,1,7,6,5,4,3,2,2,2,7,6,5,4,3,3,3,3,7,6,5,4,4,4,4,4,7,6,5,5,5,5,5,5,7,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7},
+                                          {1,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,1,1,2,3,4,5,6,7,2,2,2,3,4,5,6,7,3,3,3,3,4,5,6,7,4,4,4,4,4,5,6,7,5,5,5,5,5,5,6,7,6,6,6,6,6,6,6,7},
+                                          {1,1,1,2,3,4,5,6,1,0,1,2,3,4,5,6,1,1,1,2,3,4,5,6,2,2,2,2,3,4,5,6,3,3,3,3,3,4,5,6,4,4,4,4,4,4,5,6,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6},
+                                          {2,1,1,1,2,3,4,5,2,1,0,1,2,3,4,5,2,1,1,1,2,3,4,5,2,2,2,2,2,3,4,5,3,3,3,3,3,3,4,5,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6},
+                                          {3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6},
+                                          {4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6},
+                                          {5,4,3,2,1,1,1,2,5,4,3,2,1,0,1,2,5,4,3,2,1,1,1,2,5,4,3,2,2,2,2,2,5,4,3,3,3,3,3,3,5,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6},
+                                          {6,5,4,3,2,1,1,1,6,5,4,3,2,1,0,1,6,5,4,3,2,1,1,1,6,5,4,3,2,2,2,2,6,5,4,3,3,3,3,3,6,5,4,4,4,4,4,4,6,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6},
+                                          {7,6,5,4,3,2,1,1,7,6,5,4,3,2,1,0,7,6,5,4,3,2,1,1,7,6,5,4,3,2,2,2,7,6,5,4,3,3,3,3,7,6,5,4,4,4,4,4,7,6,5,5,5,5,5,5,7,6,6,6,6,6,6,6},
+                                          {2,2,2,3,4,5,6,7,1,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,1,1,2,3,4,5,6,7,2,2,2,3,4,5,6,7,3,3,3,3,4,5,6,7,4,4,4,4,4,5,6,7,5,5,5,5,5,5,6,7},
+                                          {2,2,2,2,3,4,5,6,1,1,1,2,3,4,5,6,1,0,1,2,3,4,5,6,1,1,1,2,3,4,5,6,2,2,2,2,3,4,5,6,3,3,3,3,3,4,5,6,4,4,4,4,4,4,5,6,5,5,5,5,5,5,5,6},
+                                          {2,2,2,2,2,3,4,5,2,1,1,1,2,3,4,5,2,1,0,1,2,3,4,5,2,1,1,1,2,3,4,5,2,2,2,2,2,3,4,5,3,3,3,3,3,3,4,5,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5},
+                                          {3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5},
+                                          {4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5},
+                                          {5,4,3,2,2,2,2,2,5,4,3,2,1,1,1,2,5,4,3,2,1,0,1,2,5,4,3,2,1,1,1,2,5,4,3,2,2,2,2,2,5,4,3,3,3,3,3,3,5,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5},
+                                          {6,5,4,3,2,2,2,2,6,5,4,3,2,1,1,1,6,5,4,3,2,1,0,1,6,5,4,3,2,1,1,1,6,5,4,3,2,2,2,2,6,5,4,3,3,3,3,3,6,5,4,4,4,4,4,4,6,5,5,5,5,5,5,5},
+                                          {7,6,5,4,3,2,2,2,7,6,5,4,3,2,1,1,7,6,5,4,3,2,1,0,7,6,5,4,3,2,1,1,7,6,5,4,3,2,2,2,7,6,5,4,3,3,3,3,7,6,5,4,4,4,4,4,7,6,5,5,5,5,5,5},
+                                          {3,3,3,3,4,5,6,7,2,2,2,3,4,5,6,7,1,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,1,1,2,3,4,5,6,7,2,2,2,3,4,5,6,7,3,3,3,3,4,5,6,7,4,4,4,4,4,5,6,7},
+                                          {3,3,3,3,3,4,5,6,2,2,2,2,3,4,5,6,1,1,1,2,3,4,5,6,1,0,1,2,3,4,5,6,1,1,1,2,3,4,5,6,2,2,2,2,3,4,5,6,3,3,3,3,3,4,5,6,4,4,4,4,4,4,5,6},
+                                          {3,3,3,3,3,3,4,5,2,2,2,2,2,3,4,5,2,1,1,1,2,3,4,5,2,1,0,1,2,3,4,5,2,1,1,1,2,3,4,5,2,2,2,2,2,3,4,5,3,3,3,3,3,3,4,5,4,4,4,4,4,4,4,5},
+                                          {3,3,3,3,3,3,3,4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4},
+                                          {4,3,3,3,3,3,3,3,4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4},
+                                          {5,4,3,3,3,3,3,3,5,4,3,2,2,2,2,2,5,4,3,2,1,1,1,2,5,4,3,2,1,0,1,2,5,4,3,2,1,1,1,2,5,4,3,2,2,2,2,2,5,4,3,3,3,3,3,3,5,4,4,4,4,4,4,4},
+                                          {6,5,4,3,3,3,3,3,6,5,4,3,2,2,2,2,6,5,4,3,2,1,1,1,6,5,4,3,2,1,0,1,6,5,4,3,2,1,1,1,6,5,4,3,2,2,2,2,6,5,4,3,3,3,3,3,6,5,4,4,4,4,4,4},
+                                          {7,6,5,4,3,3,3,3,7,6,5,4,3,2,2,2,7,6,5,4,3,2,1,1,7,6,5,4,3,2,1,0,7,6,5,4,3,2,1,1,7,6,5,4,3,2,2,2,7,6,5,4,3,3,3,3,7,6,5,4,4,4,4,4},
+                                          {4,4,4,4,4,5,6,7,3,3,3,3,4,5,6,7,2,2,2,3,4,5,6,7,1,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,1,1,2,3,4,5,6,7,2,2,2,3,4,5,6,7,3,3,3,3,4,5,6,7},
+                                          {4,4,4,4,4,4,5,6,3,3,3,3,3,4,5,6,2,2,2,2,3,4,5,6,1,1,1,2,3,4,5,6,1,0,1,2,3,4,5,6,1,1,1,2,3,4,5,6,2,2,2,2,3,4,5,6,3,3,3,3,3,4,5,6},
+                                          {4,4,4,4,4,4,4,5,3,3,3,3,3,3,4,5,2,2,2,2,2,3,4,5,2,1,1,1,2,3,4,5,2,1,0,1,2,3,4,5,2,1,1,1,2,3,4,5,2,2,2,2,2,3,4,5,3,3,3,3,3,3,4,5},
+                                          {4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4,3,3,3,3,3,3,3,4},
+                                          {4,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4,3,3,3,3,3,3,3},
+                                          {5,4,4,4,4,4,4,4,5,4,3,3,3,3,3,3,5,4,3,2,2,2,2,2,5,4,3,2,1,1,1,2,5,4,3,2,1,0,1,2,5,4,3,2,1,1,1,2,5,4,3,2,2,2,2,2,5,4,3,3,3,3,3,3},
+                                          {6,5,4,4,4,4,4,4,6,5,4,3,3,3,3,3,6,5,4,3,2,2,2,2,6,5,4,3,2,1,1,1,6,5,4,3,2,1,0,1,6,5,4,3,2,1,1,1,6,5,4,3,2,2,2,2,6,5,4,3,3,3,3,3},
+                                          {7,6,5,4,4,4,4,4,7,6,5,4,3,3,3,3,7,6,5,4,3,2,2,2,7,6,5,4,3,2,1,1,7,6,5,4,3,2,1,0,7,6,5,4,3,2,1,1,7,6,5,4,3,2,2,2,7,6,5,4,3,3,3,3},
+                                          {5,5,5,5,5,5,6,7,4,4,4,4,4,5,6,7,3,3,3,3,4,5,6,7,2,2,2,3,4,5,6,7,1,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,1,1,2,3,4,5,6,7,2,2,2,3,4,5,6,7},
+                                          {5,5,5,5,5,5,5,6,4,4,4,4,4,4,5,6,3,3,3,3,3,4,5,6,2,2,2,2,3,4,5,6,1,1,1,2,3,4,5,6,1,0,1,2,3,4,5,6,1,1,1,2,3,4,5,6,2,2,2,2,3,4,5,6},
+                                          {5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,5,3,3,3,3,3,3,4,5,2,2,2,2,2,3,4,5,2,1,1,1,2,3,4,5,2,1,0,1,2,3,4,5,2,1,1,1,2,3,4,5,2,2,2,2,2,3,4,5},
+                                          {5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3,4},
+                                          {5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4,3,2,2,2,2,2,3},
+                                          {5,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,5,4,3,3,3,3,3,3,5,4,3,2,2,2,2,2,5,4,3,2,1,1,1,2,5,4,3,2,1,0,1,2,5,4,3,2,1,1,1,2,5,4,3,2,2,2,2,2},
+                                          {6,5,5,5,5,5,5,5,6,5,4,4,4,4,4,4,6,5,4,3,3,3,3,3,6,5,4,3,2,2,2,2,6,5,4,3,2,1,1,1,6,5,4,3,2,1,0,1,6,5,4,3,2,1,1,1,6,5,4,3,2,2,2,2},
+                                          {7,6,5,5,5,5,5,5,7,6,5,4,4,4,4,4,7,6,5,4,3,3,3,3,7,6,5,4,3,2,2,2,7,6,5,4,3,2,1,1,7,6,5,4,3,2,1,0,7,6,5,4,3,2,1,1,7,6,5,4,3,2,2,2},
+                                          {6,6,6,6,6,6,6,7,5,5,5,5,5,5,6,7,4,4,4,4,4,5,6,7,3,3,3,3,4,5,6,7,2,2,2,3,4,5,6,7,1,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,1,1,2,3,4,5,6,7},
+                                          {6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,6,4,4,4,4,4,4,5,6,3,3,3,3,3,4,5,6,2,2,2,2,3,4,5,6,1,1,1,2,3,4,5,6,1,0,1,2,3,4,5,6,1,1,1,2,3,4,5,6},
+                                          {6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,5,3,3,3,3,3,3,4,5,2,2,2,2,2,3,4,5,2,1,1,1,2,3,4,5,2,1,0,1,2,3,4,5,2,1,1,1,2,3,4,5},
+                                          {6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3,4},
+                                          {6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4,3,2,1,1,1,2,3},
+                                          {6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,5,4,3,3,3,3,3,3,5,4,3,2,2,2,2,2,5,4,3,2,1,1,1,2,5,4,3,2,1,0,1,2,5,4,3,2,1,1,1,2},
+                                          {6,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,6,5,4,4,4,4,4,4,6,5,4,3,3,3,3,3,6,5,4,3,2,2,2,2,6,5,4,3,2,1,1,1,6,5,4,3,2,1,0,1,6,5,4,3,2,1,1,1},
+                                          {7,6,6,6,6,6,6,6,7,6,5,5,5,5,5,5,7,6,5,4,4,4,4,4,7,6,5,4,3,3,3,3,7,6,5,4,3,2,2,2,7,6,5,4,3,2,1,1,7,6,5,4,3,2,1,0,7,6,5,4,3,2,1,1},
+                                          {7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,7,5,5,5,5,5,5,6,7,4,4,4,4,4,5,6,7,3,3,3,3,4,5,6,7,2,2,2,3,4,5,6,7,1,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7},
+                                          {7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,6,4,4,4,4,4,4,5,6,3,3,3,3,3,4,5,6,2,2,2,2,3,4,5,6,1,1,1,2,3,4,5,6,1,0,1,2,3,4,5,6},
+                                          {7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,5,3,3,3,3,3,3,4,5,2,2,2,2,2,3,4,5,2,1,1,1,2,3,4,5,2,1,0,1,2,3,4,5},
+                                          {7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3,4},
+                                          {7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,4,3,2,2,2,2,2,3,4,3,2,1,1,1,2,3,4,3,2,1,0,1,2,3},
+                                          {7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,5,4,3,3,3,3,3,3,5,4,3,2,2,2,2,2,5,4,3,2,1,1,1,2,5,4,3,2,1,0,1,2},
+                                          {7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,6,5,4,4,4,4,4,4,6,5,4,3,3,3,3,3,6,5,4,3,2,2,2,2,6,5,4,3,2,1,1,1,6,5,4,3,2,1,0,1},
+                                          {7,7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,7,6,5,5,5,5,5,5,7,6,5,4,4,4,4,4,7,6,5,4,3,3,3,3,7,6,5,4,3,2,2,2,7,6,5,4,3,2,1,1,7,6,5,4,3,2,1,0}};
+*/
     static constexpr array<int, 255> INV_FEN = {
         0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff,
         0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff,
@@ -273,6 +425,15 @@ namespace constants {
         0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff,
         0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff, 0x000000ff
     };
+
+    static constexpr array<u64, 64> RANK_FILE_DIAG_ANTIDIAG ={0x81412111090503feULL, 0x2824222120a07fdULL, 0x404844424150efbULL, 0x8080888492a1cf7ULL, 0x10101011925438efULL, 0x2020212224a870dfULL, 0x404142444850e0bfULL, 0x8182848890a0c07fULL,
+                                                              0x412111090503fe03ULL, 0x824222120a07fd07ULL, 0x4844424150efb0eULL, 0x80888492a1cf71cULL, 0x101011925438ef38ULL, 0x20212224a870df70ULL, 0x4142444850e0bfe0ULL, 0x82848890a0c07fc0ULL,
+                                                              0x2111090503fe0305ULL, 0x4222120a07fd070aULL, 0x844424150efb0e15ULL, 0x888492a1cf71c2aULL, 0x1011925438ef3854ULL, 0x212224a870df70a8ULL, 0x42444850e0bfe050ULL, 0x848890a0c07fc0a0ULL,
+                                                              0x11090503fe030509ULL, 0x22120a07fd070a12ULL, 0x4424150efb0e1524ULL, 0x88492a1cf71c2a49ULL, 0x11925438ef385492ULL, 0x2224a870df70a824ULL, 0x444850e0bfe05048ULL, 0x8890a0c07fc0a090ULL,
+                                                              0x90503fe03050911ULL, 0x120a07fd070a1222ULL, 0x24150efb0e152444ULL, 0x492a1cf71c2a4988ULL, 0x925438ef38549211ULL, 0x24a870df70a82422ULL, 0x4850e0bfe0504844ULL, 0x90a0c07fc0a09088ULL,
+                                                              0x503fe0305091121ULL, 0xa07fd070a122242ULL, 0x150efb0e15244484ULL, 0x2a1cf71c2a498808ULL, 0x5438ef3854921110ULL, 0xa870df70a8242221ULL, 0x50e0bfe050484442ULL, 0xa0c07fc0a0908884ULL,
+                                                              0x3fe030509112141ULL, 0x7fd070a12224282ULL, 0xefb0e1524448404ULL, 0x1cf71c2a49880808ULL, 0x38ef385492111010ULL, 0x70df70a824222120ULL, 0xe0bfe05048444241ULL, 0xc07fc0a090888482ULL,
+                                                              0xfe03050911214181ULL, 0xfd070a1222428202ULL, 0xfb0e152444840404ULL, 0xf71c2a4988080808ULL, 0xef38549211101010ULL, 0xdf70a82422212020ULL, 0xbfe0504844424140ULL, 0x7fc0a09088848281ULL};
 
     static constexpr array<u64, 64> RANK_BOUND = {
         0x0000000000000002ULL, 0x0000000000000005ULL, 0x000000000000000aULL, 0x0000000000000014ULL,
@@ -365,7 +526,7 @@ namespace constants {
     static constexpr array<char, 64> FILE_AT =
         {0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4,
          5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7};
-
+#ifndef USE_BMI2
     static constexpr array<char, 64> RANK_ATx8 =
         {0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x8ULL, 0x8ULL, 0x8ULL, 0x8ULL, 0x8ULL, 0x8ULL,
          0x8ULL, 0x8ULL, 0x10ULL, 0x10ULL, 0x10ULL, 0x10ULL, 0x10ULL, 0x10ULL, 0x10ULL, 0x10ULL, 0x18ULL, 0x18ULL,
@@ -373,7 +534,7 @@ namespace constants {
          0x20ULL, 0x20ULL, 0x28ULL, 0x28ULL, 0x28ULL, 0x28ULL, 0x28ULL, 0x28ULL, 0x28ULL, 0x28ULL, 0x30ULL, 0x30ULL,
          0x30ULL, 0x30ULL, 0x30ULL, 0x30ULL, 0x30ULL, 0x30ULL, 0x38ULL, 0x38ULL, 0x38ULL, 0x38ULL, 0x38ULL, 0x38ULL,
          0x38ULL, 0x38ULL};
-
+#endif
     static constexpr array<char, 64> RANK_AT =
         {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4,
          4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7};
@@ -411,37 +572,6 @@ namespace constants {
         0x0101010101010101ULL, 0x0202020202020202ULL, 0x0404040404040404ULL, 0x0808080808080808ULL,
         0x1010101010101010ULL, 0x2020202020202020ULL, 0x4040404040404040ULL, 0x8080808080808080ULL
     };
-    static constexpr u64 POW2[64] =
-        {0x1ULL, 0x2ULL, 0x4ULL, 0x8ULL, 0x10ULL, 0x20ULL, 0x40ULL, 0x80ULL, 0x100ULL, 0x200ULL, 0x400ULL, 0x800ULL,
-         0x1000ULL, 0x2000ULL, 0x4000ULL, 0x8000ULL, 0x10000ULL, 0x20000ULL, 0x40000ULL, 0x80000ULL, 0x100000ULL,
-         0x200000ULL, 0x400000ULL, 0x800000ULL, 0x1000000ULL, 0x2000000ULL, 0x4000000ULL, 0x8000000ULL, 0x10000000ULL,
-         0x20000000ULL, 0x40000000ULL, 0x80000000ULL, 0x100000000ULL, 0x200000000ULL, 0x400000000ULL, 0x800000000ULL,
-         0x1000000000ULL, 0x2000000000ULL, 0x4000000000ULL, 0x8000000000ULL, 0x10000000000ULL, 0x20000000000ULL,
-         0x40000000000ULL, 0x80000000000ULL, 0x100000000000ULL, 0x200000000000ULL, 0x400000000000ULL, 0x800000000000ULL,
-         0x1000000000000ULL, 0x2000000000000ULL, 0x4000000000000ULL, 0x8000000000000ULL, 0x10000000000000ULL,
-         0x20000000000000ULL, 0x40000000000000ULL, 0x80000000000000ULL, 0x100000000000000ULL, 0x200000000000000ULL,
-         0x400000000000000ULL, 0x800000000000000ULL, 0x1000000000000000ULL, 0x2000000000000000ULL,
-         0x4000000000000000ULL, 0x8000000000000000ULL};
-
-    static constexpr array<u64, 64> NOTPOW2 =
-        {0xfffffffffffffffeULL, 0xfffffffffffffffdULL, 0xfffffffffffffffbULL, 0xfffffffffffffff7ULL,
-         0xffffffffffffffefULL, 0xffffffffffffffdfULL, 0xffffffffffffffbfULL, 0xffffffffffffff7fULL,
-         0xfffffffffffffeffULL, 0xfffffffffffffdffULL, 0xfffffffffffffbffULL, 0xfffffffffffff7ffULL,
-         0xffffffffffffefffULL, 0xffffffffffffdfffULL, 0xffffffffffffbfffULL, 0xffffffffffff7fffULL,
-         0xfffffffffffeffffULL, 0xfffffffffffdffffULL, 0xfffffffffffbffffULL, 0xfffffffffff7ffffULL,
-         0xffffffffffefffffULL, 0xffffffffffdfffffULL, 0xffffffffffbfffffULL, 0xffffffffff7fffffULL,
-         0xfffffffffeffffffULL, 0xfffffffffdffffffULL, 0xfffffffffbffffffULL, 0xfffffffff7ffffffULL,
-         0xffffffffefffffffULL, 0xffffffffdfffffffULL, 0xffffffffbfffffffULL, 0xffffffff7fffffffULL,
-         0xfffffffeffffffffULL, 0xfffffffdffffffffULL, 0xfffffffbffffffffULL, 0xfffffff7ffffffffULL,
-         0xffffffefffffffffULL, 0xffffffdfffffffffULL, 0xffffffbfffffffffULL, 0xffffff7fffffffffULL,
-         0xfffffeffffffffffULL, 0xfffffdffffffffffULL, 0xfffffbffffffffffULL, 0xfffff7ffffffffffULL,
-         0xffffefffffffffffULL, 0xffffdfffffffffffULL, 0xffffbfffffffffffULL,
-         0xffff7fffffffffffULL, 0xfffeffffffffffffULL, 0xfffdffffffffffffULL, 0xfffbffffffffffffULL,
-         0xfff7ffffffffffffULL, 0xffefffffffffffffULL, 0xffdfffffffffffffULL, 0xffbfffffffffffffULL,
-         0xff7fffffffffffffULL, 0xfeffffffffffffffULL, 0xfdffffffffffffffULL, 0xfbffffffffffffffULL,
-         0xf7ffffffffffffffULL, 0xefffffffffffffffULL, 0xdfffffffffffffffULL, 0xbfffffffffffffffULL,
-         0x7fffffffffffffffULL};
-
 
     static constexpr u64 LINES[64][64]{
         {0x0ULL, 0xffULL, 0xffULL, 0xffULL, 0xffULL, 0xffULL, 0xffULL, 0xffULL, 0x101010101010101ULL,
@@ -1507,5 +1637,11 @@ namespace constants {
            0x50000000ULL, 0xA0000000ULL, 0x40000000ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
            0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
            0ULL, 0ULL, 0ULL, 0}}};
+
+#ifdef MVSC
+#define FOLDERSEP "\\"
+#else
+#define FOLDERSEP "/"
+#endif
 
 }

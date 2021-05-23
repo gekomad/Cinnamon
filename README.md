@@ -2,32 +2,30 @@ Cinnamon
 ==========
 ### UCI Chess Engine
 
-- [Play on line](https://gekomad.github.io/Cinnamon/)
-
 Cinnamon is a chess program for Windows, Linux, Mac OS, Android and Raspberry Pi, is a console-based chess engine for use with [xboard][4], [Arena][5], [Tarrasch][6], [Droidfish][7] or any UCI-compatible GUI. Cinnamon is also a javascript library to play with [chessboardjs][8] or any js GUI.
+
+- [Play on line](https://gekomad.github.io/Cinnamon/)
 
 Version
 ----------
-2.3.4
+2.4
 
 News
 ----------
-- Chess 960
-- Killer heuristics
-- Improved move ordering
-- Improved Gaviota Tablebase search
-- Syzygy Tablebases
-- BMI2 Instructions
-- Bug fix in enpassant
-- Bug fix parallel perft
+- Reverse Futility Pruning
+- Stalemate improvement
+- Trasposition Table improvement
+- Bug fix in castle
+- Bug fix in en passant
+- Speeded up Perft
+- Compilable with MS Visual Studio
 
 Useful links
 ----------
 - [Bitboard Calculator](https://gekomad.github.io/Cinnamon/BitboardCalculator/)
-- [C++ thread pool](https://github.com/gekomad/BlockingThreadPool)
 - [Auriga Distributed Perft](https://github.com/gekomad/Auriga)
 - [Web Eval debugger](https://github.com/gekomad/chess-engine-eval-debugger)
-- [Android App](https://play.google.com/store/apps/details?id=com.github.gekomad.cinnamonengine)
+- [Cinnamon on Android](https://play.google.com/store/apps/details?id=com.github.gekomad.cinnamonengine)
 - [Cinnamon on DGT Pi](https://www.digitalgametechnology.com/index.php/products/revelation-ii/533-dgt-pi-chess-computer-for-dgt-e-boards)
 - [Clion IDE](https://www.jetbrains.com/?from=CINNAMON_CHESS_ENGINE)
 
@@ -35,6 +33,7 @@ Useful links
 Features
 ----------
 
+- [Elo ratings][3]
 - Available for both Unix, Windows, Mac, Android, ARM and Javascript
 - UCI protocol
 - GPL 3 License
@@ -44,6 +43,7 @@ Features
 - Rotated bitboards
 - Null moves
 - Futility pruning
+- Reverse Futility Pruning
 - Delta pruning
 - Razoring
 - Interruptible multithread Perft test [standard][9] and [chess960][10]
@@ -53,14 +53,12 @@ Features
 - Killer heuristics
 - Lazy evaluation
 - MVV/LVA
-- Two-tier Transposition Table
+- Transposition Table
 - Aspiration Windows
 - Late Move Reduction
 - Ponder
-- Open Book (Polyglot)
 - Gaviota Tablebases
 - Syzygy Tablebases
-- [Elo ratings][3]
 
 Binaries
 ----------
@@ -71,35 +69,45 @@ All files are compiled statically, no further libraries are necessary.
 Command line tools
 ----------
 #### Perft
-`cinnamon -perft [-d depth] [-c nCpu] [-h hash size (mb) [-F dump file]] [-Chess960] [-f "fen position"] `
+`cinnamon.exe -perft [-d depth] [-c nCpu] [-h hash size (mb) [-F dump file]] [-Chess960] [-f "fen position"] `
 
 Setting `-F` and `-h` you can stop (Ctrl-c) and restart the perft process.
 
+
 #### Gaviota DTM (distance to mate)
 
-`cinnamon -dtm-gtb -f "fen position" -p path`
+`cinnamon.exe -dtm-gtb -f "fen position" -p path`
 
 #### Gaviota WDL (win/draw/loss)
 
-`cinnamon -wdl-gtb -f "fen position" -p path`
+`cinnamon.exe -wdl-gtb -f "fen position" -p path`
 
 #### SYZYFY DTZ (distance to zero)
 
-`cinnamon -dtz-syzygy -f "fen position" -p path`
+`cinnamon.exe -dtz-syzygy -f "fen position" -p path`
 
 #### SYZYFY WDL (win/draw/loss)
 
-`cinnamon -wdl-syzygy -f "fen position" -p path`
+`cinnamon.exe -wdl-syzygy -f "fen position" -p path`
 
 #### EPD generator
-`cinnamon -puzzle_epd -t K?K?`
- example: `cinnamon -puzzle_epd -t KRKP`
+`cinnamon.exe -puzzle_epd -t K?K?`
+
+ example: `cinnamon.exe -puzzle_epd -t KRRKPN`
 
 Compiling
 ---------
 
-Cinnamon requires C++11 or greater, use unique Makefile to compile for many architectures:
+Cinnamon requires C++11 or greater
 
+- use MS Visual Studio (cinnamon.vcxproj)
+
+- use cmake (CMakeLists.txt)
+
+- use make - unique Makefile to compile for many architectures:
+
+
+```
     $ make
 
 
@@ -126,6 +134,7 @@ Cinnamon requires C++11 or greater, use unique Makefile to compile for many arch
     g++ is the default compiler, add COMP=yourcompiler to use another compiler
      example: make cinnamon64-modern-INTEL COMP=clang++
 
+```
 
 License
 -------
@@ -146,4 +155,4 @@ Cinnamon was written by Giuseppe Cannella at gmail dot com.
   [8]: https://chessboardjs.com
   [9]: https://gekomad.github.io/Cinnamon/perft.html
   [10]: https://www.chessprogramming.org/Chess960_Perft_Results
-  [11]: https://gekomad.github.io/Cinnamon/
+

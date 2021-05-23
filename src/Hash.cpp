@@ -16,60 +16,43 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <mutex>
 #include "Hash.h"
+
+unsigned Hash::HASH_SIZE;
+Hash::_Thash *Hash::hashArray;
+#ifdef DEBUG_MODE
+unsigned Hash::nRecordHashA, Hash::nRecordHashB, Hash::nRecordHashE, Hash::collisions, Hash::readCollisions,
+        Hash::n_cut_hashA, Hash::n_cut_hashB, Hash::n_cut_hashE, Hash::readHashCount;
+#endif
 
 Hash::Hash() {
     HASH_SIZE = 0;
-    hashArray[HASH_ALWAYS] = hashArray[HASH_GREATER] = nullptr;
-#ifdef DEBUG_MODE
-    n_cut_hashA = n_cut_hashB = cutFailed = probeHash = readCollisions = 0;
-    nRecordHashA = nRecordHashB = nRecordHashE = collisions = 0;
-#endif
+    hashArray = nullptr;
+    DEBUG(n_cut_hashA = n_cut_hashB = readCollisions = nRecordHashA = nRecordHashB = nRecordHashE = readCollisions = collisions = 0)
     setHashSize(HASH_SIZE_DEFAULT);
-
-}
-
-void Hash::clearAge() {
-    for (unsigned i = 0; i < HASH_SIZE; i++) {
-        hashArray[HASH_ALWAYS][i].u.dataS.entryAge = 0;
-    }
 }
 
 void Hash::clearHash() {
-    if (!HASH_SIZE) {
-        return;
-    }
-    memset(static_cast<void*>(hashArray[HASH_GREATER]), 0, sizeof(_Thash) * HASH_SIZE);
-    memset(static_cast<void*>(hashArray[HASH_ALWAYS]), 0, sizeof(_Thash) * HASH_SIZE);
+    if (!HASH_SIZE) return;
+    memset(static_cast<void *>(hashArray), 0, sizeof(_Thash) * (HASH_SIZE + BUCKETS));
 }
 
-void Hash::setHashSize(int mb) {
+void Hash::setHashSize(const int mb) {
     dispose();
     if (mb > 0) {
-        u64 tmp = (u64)mb * 1024 * 1024 / (sizeof(_Thash) * 2);
-        hashArray[HASH_ALWAYS] = (_Thash *) calloc(tmp, sizeof(_Thash));
-        if (!hashArray[HASH_ALWAYS]) {
-            fatal("info string error - no memory");
+        u64 tmp = (u64) mb * 1024 * 1024 / (sizeof(_Thash));
+        hashArray = (_Thash *) calloc(tmp, sizeof(_Thash));
+        if (!hashArray) {
+            fatal("info string error - no memory")
             exit(1);
         }
-        hashArray[HASH_GREATER] = (_Thash *) calloc(tmp, sizeof(_Thash));
-        if (!hashArray[HASH_GREATER]) {
-            fatal("info string error - no memory");
-            exit(1);
-        }
-        HASH_SIZE = tmp;
+        HASH_SIZE = tmp - BUCKETS;
     }
 }
 
 void Hash::dispose() {
-    if (hashArray[HASH_ALWAYS] != nullptr) {
-        free(hashArray[HASH_ALWAYS]);
-    }
-    if (hashArray[HASH_GREATER] != nullptr) {
-        free(hashArray[HASH_GREATER]);
-    }
-    hashArray[HASH_ALWAYS] = hashArray[HASH_GREATER] = nullptr;
+    if (hashArray != nullptr) free(hashArray);
+    hashArray = nullptr;
     HASH_SIZE = 0;
 }
 

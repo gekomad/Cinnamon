@@ -24,7 +24,7 @@
 #include <iomanip>
 #include <atomic>
 #include <fstream>
-#include <unistd.h>
+#include "../unistd.h"
 #include "../util/Timer.h"
 
 class PerftThread: public Thread<PerftThread>, public GenMoves {
@@ -40,8 +40,6 @@ public:
 
     void endRun();
 
-    u64 getPartial();
-
     unsigned perft(const string &fen, const int depth);
 
     vector <string> getSuccessorsFen(const string &fen1, const int depth);
@@ -51,14 +49,13 @@ private:
     static Spinlock spinlockPrint;
     u64 tot = 0;
 
-    template<int side, bool useHash>
+    template<uchar side, bool useHash>
     u64 search(const int depthx);
 
     int from, to;
     _TPerftRes *tPerftRes;
-    u64 partialTot = 0;
 
-    template<int side>
+    template<uchar side>
     vector <string> getSuccessorsFen(const int depthx);
 };
 

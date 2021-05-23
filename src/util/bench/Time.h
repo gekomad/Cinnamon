@@ -20,7 +20,7 @@
 
 #include <chrono>
 #include <iostream>
-#include "../String.h"
+#include "../../namespaces/String.h"
 #include <map>
 
 using namespace std;
@@ -29,7 +29,7 @@ using namespace chrono;
 class Time {
 
 private:
-    int _count = 0;
+    long _count = 0;
     std::chrono::time_point<std::chrono::system_clock> _start;
     int64_t _totTime = 0;
     map<string, int64_t> subName;
@@ -45,7 +45,7 @@ public:
     static constexpr int HOUR_IN_SECONDS = 60 * 60;
     static constexpr int HOUR_IN_MINUTES = 60;
 
-    int64_t getCount() const { return _count; }
+    long getCount() const { return _count; }
 
     void resetAndStart() {
         reset();
@@ -71,7 +71,7 @@ public:
         return _count == 0 ? 0 : _totTime / _count;
     }
 
-    pair<int64_t, int64_t> avgWithSubProcessAndReset(const map<string, Time *> times1) {
+    pair<int64_t, int64_t> avgWithSubProcess(const map<string, Time *> times1) {
         int64_t totTimeSubprocess = 0;
         for (auto & it : subName) {
             auto name1 = it.first;
@@ -82,7 +82,6 @@ public:
         auto avgs = pair<int64_t, int64_t>(0, 0);
         if (_count)
             avgs = pair<int64_t, int64_t>((_totTime - totTimeSubprocess) / _count, _totTime / _count);
-        reset();
         return avgs;
     }
 
@@ -102,61 +101,11 @@ public:
         return elapsed.count();
     }
 
-    static string
-    diffTimeToString(const high_resolution_clock::time_point start, const high_resolution_clock::time_point stop) {
-        string res;
-        unsigned t = Time::diffTime(stop, start) / 1000;
-        unsigned days = t / 60 / 60 / 24;
-        int hours = (t / 60 / 60) % 24;
-        int minutes = (t / 60) % 60;
-        int seconds = t % 60;
-        int millsec = Time::diffTime(stop, start) % 1000;
-
-        if (days) {
-            res.append(String(days)).append(" days ");
-        }
-        if (days || hours) {
-            res.append(String(hours)).append(" hours ");
-        }
-        if (days || hours || minutes) {
-            res.append(String(minutes)).append(" minutes ");
-        }
-        if (!days) {
-            res.append(String(seconds)).append(" seconds ");
-        }
-        if (!days && !hours) {
-            res.append(String(millsec)).append(" millsec");
-        }
-        return res;
-    }
-
     static string getLocalTime() {
         time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
         auto a = string(ctime(&current));
         return a.substr(0, a.size() - 1);
     }
 
-    static string getLocalTimeNs() {
-        unsigned long ns = (unsigned long) (std::chrono::steady_clock::now().time_since_epoch().count());
-        return getLocalTime() + " ns: " + to_string(ns);
-    }
-
-    static int getYear() {
-        time_t t = time(nullptr);
-        tm *timePtr = localtime(&t);
-        return 1900 + timePtr->tm_year;
-    }
-
-    static int getMonth() {
-        time_t t = time(nullptr);
-        tm *timePtr = localtime(&t);
-        return 1 + timePtr->tm_mon;
-    }
-
-    static int getDay() {
-        time_t t = time(nullptr);
-        tm *timePtr = localtime(&t);
-        return timePtr->tm_mday;
-    }
 };
 

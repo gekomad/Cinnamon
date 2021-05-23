@@ -1,38 +1,70 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.17)
 project(cinnamon_debug)
 
 # debug
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -Wno-braced-scalar-init -mbmi2 -DUSE_BMI2 -DBENCH_MODE -fno-omit-frame-pointer -g -pthread -pedantic -std=c++11 -DDLOG_LEVEL=_TRACE -DDEBUG_MODE -fsigned-char -fno-exceptions -fno-rtti -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -DHAS_64BIT -m64 ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-braced-scalar-init -fsanitize=address -mbmi2 -DUSE_BMI2 -g -DDEBUG_MODE -pthread -Wall -Wpedantic -W -std=c++11 -DDLOG_LEVEL=_TRACE -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
 
 # bench
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-braced-scalar-init -mbmi2 -DUSE_BMI2 -pthread -pedantic -DBENCH_MODE -std=c++11 -DDLOG_LEVEL=_FATAL -Wall -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -DHAS_64BIT -m64 ")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-braced-scalar-init -mbmi2 -DUSE_BMI2 -pthread -Wpedantic -W -DBENCH_MODE -std=c++11 -DDLOG_LEVEL=_FATAL -Wall -O3 -DNDEBUG -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
 
 # unit test
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-braced-scalar-init -fsanitize=address -fno-omit-frame-pointer -g -pthread -pedantic -std=c++11 -DDLOG_LEVEL=_TRACE -DFULL_TEST -DDEBUG_MODE -fsigned-char -fno-exceptions -fno-rtti -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -DHAS_64BIT -m64 ")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-braced-scalar-init -fsanitize=address -g -pthread -Wall -Wpedantic -W -std=c++11 -DDLOG_LEVEL=_TRACE -DFULL_TEST -DDEBUG_MODE -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
 
-set(SOURCE_FILES 
+# tuning
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-braced-scalar-init -mbmi2 -DUSE_BMI2 -O3 -pthread -Wall -Wpedantic -W -std=c++11 -DTUNING -DNDEBUG -DDLOG_LEVEL=_FATAL -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
 
-        lib/gtb-probe.h
+include_directories(db/gtb)
+include_directories(db/gtb/compression)
+include_directories(db/gtb/compression/lzma)
+include_directories(db/gtb/sysport)
+
+set(SOURCE_FILES
         namespaces/constants.h
-        namespaces/debug.h
         namespaces/bits.h
         namespaces/random.h
+        namespaces/see.h
         namespaces/board.h
         namespaces/board.cpp
         perft/_TPerftRes.h
         perft/Perft.cpp
         perft/Perft.h
-        db/OpenBook.cpp
-        db/OpenBook.h
         db/syzygy/SYZYGY.h
         db/syzygy/SYZYGY.cpp
         db/syzygy/tbprobe.c
         db/gaviota/GTB.h
         db/gaviota/GTB.cpp
+        db/gaviota/gtb/compression/lzma/Alloc.c
+        db/gaviota/gtb/compression/lzma/Alloc.h
+        db/gaviota/gtb/compression/lzma/Bra.h
+        db/gaviota/gtb/compression/lzma/Bra86.c
+        db/gaviota/gtb/compression/lzma/LzFind.c
+        db/gaviota/gtb/compression/lzma/LzFind.h
+        db/gaviota/gtb/compression/lzma/LzFindMt.h
+        db/gaviota/gtb/compression/lzma/LzHash.h
+        db/gaviota/gtb/compression/lzma/Lzma86Dec.c
+        db/gaviota/gtb/compression/lzma/Lzma86Dec.h
+        db/gaviota/gtb/compression/lzma/Lzma86Enc.c
+        db/gaviota/gtb/compression/lzma/Lzma86Enc.h
+        db/gaviota/gtb/compression/lzma/LzmaDec.c
+        db/gaviota/gtb/compression/lzma/LzmaDec.h
+        db/gaviota/gtb/compression/lzma/LzmaEnc.c
+        db/gaviota/gtb/compression/lzma/LzmaEnc.h
+        db/gaviota/gtb/compression/lzma/Types.h
+        db/gaviota/gtb/compression/wrap.c
+        db/gaviota/gtb/compression/wrap.h
+        db/gaviota/gtb/sysport/sysport.c
+        db/gaviota/gtb/sysport/sysport.h
+        db/gaviota/gtb/gtb-att.c
+        db/gaviota/gtb/gtb-att.h
+        db/gaviota/gtb/gtb-dec.c
+        db/gaviota/gtb/gtb-dec.h
+        db/gaviota/gtb/gtb-probe.c
+        db/gaviota/gtb/gtb-probe.h
+        db/gaviota/gtb/gtb-types.h
+        db/gaviota/gtb/version.h
         perft/PerftThread.cpp
         perft/PerftThread.h
         test/test.cpp
-        threadPool/Mutex.h
         threadPool/ObserverThread.h
         threadPool/Spinlock.h
         threadPool/Thread.h
@@ -45,11 +77,10 @@ set(SOURCE_FILES
         util/IniFile.h
         util/logger.h
         util/Singleton.h
-        util/String.cpp
-        util/String.h
         util/bench/Time.h
         util/Timer.cpp
         util/Timer.h
+        util/getopt.h
         ChessBoard.cpp
         ChessBoard.h
         Eval.cpp
@@ -66,9 +97,11 @@ set(SOURCE_FILES
         SearchManager.cpp
         SearchManager.h
         Uci.cpp
-        Uci.h)
+        Uci.h
+        unistd.h
+        )
 
 set(CMAKE_CXX_COMPILER "clang++")
 add_executable(cinnamon_debug ${SOURCE_FILES})
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
-target_link_libraries(cinnamon_debug ${CMAKE_SOURCE_DIR}/lib/Linux/64/libgtb.a /usr/lib/libgtest.a)
+target_link_libraries(cinnamon_debug /usr/lib/libgtest.a)

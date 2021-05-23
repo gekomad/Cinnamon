@@ -17,7 +17,7 @@
 */
 
 #pragma once
-#ifdef JS_MODE
+// Auriga, JS etc.
 #include <string>
 #include <iostream>
 #include "perft/PerftThread.h"
@@ -33,4 +33,3 @@ public:
 
     bool isValid(const string &fen) const;
 };
-#endif

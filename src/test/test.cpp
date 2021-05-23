@@ -29,5 +29,6 @@
 #include "gtb.cpp"
 #include "fileUtil.cpp"
 #include "string.cpp"
+#include "stalemate.cpp"
 
 #endif

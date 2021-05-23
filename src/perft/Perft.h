@@ -22,14 +22,14 @@
 #include <iomanip>
 #include <atomic>
 #include <fstream>
-#include <unistd.h>
+#include "../unistd.h"
 #include "../util/Timer.h"
 #include "PerftThread.h"
 #include "../threadPool/ThreadPool.h"
 #include "_TPerftRes.h"
 #include <csignal>
 
-class Perft : public Thread<Perft>, public ThreadPool<PerftThread>, public Singleton<Perft> {
+class Perft : public Thread<Perft>, protected ThreadPool<PerftThread>, public Singleton<Perft> {
     friend class Singleton<Perft>;
 
 public:
@@ -57,15 +57,15 @@ public:
     }
 
 private:
-    Perft() : ThreadPool(1) {};
+    Perft() : ThreadPool(1) {}
 
     _TPerftRes perftRes;
     Time time;
     string fen;
     string dumpFile;
-    u64 mbSize;
+    int mbSize;
     bool chess960;
-
+    int depthHashFile;
     void alloc();
 
     void dealloc() const;
@@ -76,11 +76,12 @@ private:
 
     static void ctrlChandler(int s) {
         if (dumping) {
-            cout << "dumping hash... " << endl;
+            cout << "dumping hash... " << endl << flush;
             return;
         }
-        Perft::getInstance().dump();
         if (s < 0)cout << s;
+        Perft::getInstance().dump();
+        cout << "exit" << endl << endl;
         exit(0);
     }
 

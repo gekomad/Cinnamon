@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <unistd.h>
+#include "unistd.h"
 #include "Hash.h"
 #include "Eval.h"
 #include "namespaces/bits.h"
@@ -33,12 +33,24 @@
 
 #endif
 
+typedef struct {
+    int cmove;
+    _Tmove argmove[MAX_PLY];
+} _TpvLine;
 
-class Search : public Eval, public Thread<Search> {
+class Search : public GenMoves, public Thread<Search> {
 
 public:
 
+    static constexpr int NULL_DIVISOR = 7;
+    static constexpr int NULL_DEPTH = 3;
+    static constexpr int VAL_WINDOW = 50;
+
     Search();
+
+    short getScore(const uchar side) {
+        return eval.getScore(chessboard, 0xffffffffffffffffULL, side, -_INFINITE, _INFINITE DEBUG2(, true));
+    }
 
     Search(const Search *s) { clone(s); }
 
@@ -46,15 +58,30 @@ public:
 
     virtual ~Search();
 
-    void setRunning(int);
+    void setRunning(const int);
 
-    void setPonder(bool);
+    void setPonder(const bool);
 
-    void setNullMove(bool);
+    void setNullMove(const bool);
 
-    void setMaxTimeMillsec(int);
+    void setMaxTimeMillsec(const int);
 
-    bool setParameter(String param, int value);
+#ifdef TUNING
+
+    int getParameter(const string &param);
+
+    void setParameter(const string &param, const int value);
+
+    int qSearch(const int depth, const int alpha, const int beta) {
+        ASSERT_RANGE(depth, 0, MAX_PLY)
+        auto ep = enPassant;
+
+        const auto result= sideToMove ? qsearch<WHITE>(alpha, beta, ep, depth)
+                                      : qsearch<BLACK>(alpha, beta, ep, depth);
+        return sideToMove ? result : -result;
+    }
+
+#endif
 
     int getMaxTimeMillsec() const;
 
@@ -69,14 +96,15 @@ public:
     void setMainParam(const int depth);
 
     template<bool searchMoves>
-    int search(const int depth, const int alpha, const int beta);
+    int searchRoot(const int depth, const int alpha, const int beta);
 
     void run();
 
-    void endRun() {};
+    void endRun() {}
+
 #ifndef JS_MODE
 
-    int probeWdl(const int depth, const int side, const int N_PIECE);
+    int probeWdl(const int depth, const uchar side, const int N_PIECE);
 
     int printDtmWdlGtb(const bool dtm);
 
@@ -86,13 +114,9 @@ public:
 
 #endif
 
-    void setMainPly(const int);
+    void setMainPly(const int, const int);
 
-    STATIC_CONST int NULL_DIVISOR = 7;
-    STATIC_CONST int NULL_DEPTH = 3;
-    STATIC_CONST int VAL_WINDOW = 50;
-
-    void setRunningThread(bool t) {
+    static void setRunningThread(const bool t) {
         runningThread = t;
     }
 
@@ -104,24 +128,28 @@ public:
         return valWindow;
     }
 
-    u64 getZobristKey();
+    u64 getZobristKey() const;
+
+    uchar getEnpassant() const {
+        return enPassant;
+    }
 
 #ifdef DEBUG_MODE
-    unsigned cumulativeMovesCount;
+    static unsigned cumulativeMovesCount;
     unsigned totGen;
+
+    unsigned getLazyEvalCuts() {
+        return eval.lazyEvalCuts;
+    }
 
 #endif
 
     void unsetSearchMoves();
 
-    void setSearchMoves(vector<int> &v);
+    void setSearchMoves(const vector<int> &v);
 
 private:
-
-    typedef struct {
-        Hash::_ThashData phasheType[2];
-    } _TcheckHash;
-
+    Eval eval;
     Hash &hash = Hash::getInstance();
 #ifndef JS_MODE
     SYZYGY *syzygy = &SYZYGY::getInstance();
@@ -132,6 +160,7 @@ private:
     _TpvLine pvLine;
 
     bool ponder;
+
 #ifdef BENCH_MODE
     Times *times = &Times::getInstance();
 #endif
@@ -147,65 +176,20 @@ private:
 
     bool checkDraw(u64);
 
-    template<int side, bool checkMoves>
-    int search(int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE,               const int n_root_moves);
+    template<uchar side, bool checkMoves>
+    int search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE, const int nRootMoves);
 
     template<bool checkMoves>
-    bool checkSearchMoves(_Tmove *move) const;
+    bool checkSearchMoves(const _Tmove *move) const;
 
-    template<int side>
-    int quiescence(int alpha, const int beta, const char promotionPiece, const int depth);
+    template<uchar side>
+    int qsearch(int alpha, const int beta, const uchar promotionPiece, const int depth);
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
     int mainDepth;
+    int ply;
 
-    inline pair<int, _TcheckHash> checkHash(const int type,
-                                            const bool quies,
-                                            const int alpha,
-                                            const int beta,
-                                            const int depth,
-                                            const u64 zobristKeyR) {
-
-        _TcheckHash checkHashStruct;
-        Hash::_ThashData *phashe = &checkHashStruct.phasheType[type];
-        if ((phashe->dataU = hash.readHash(type, zobristKeyR))) {
-            if (phashe->dataS.depth >= depth) {
-                INC(hash.probeHash);
-                if (!currentPly) {
-                    if (phashe->dataS.flags == Hash::hashfBETA) {
-                        incHistoryHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
-                    }
-                } else {
-                    switch (phashe->dataS.flags) {
-                        case Hash::hashfEXACT:
-                            if (phashe->dataS.score >= beta) {
-                                INC(hash.n_cut_hashB);
-                                return pair<int, _TcheckHash>(beta, checkHashStruct);
-                            }
-                            break;
-                        case Hash::hashfBETA:
-                            if (!quies)incHistoryHeuristic(phashe->dataS.from, phashe->dataS.to, 1);
-                            if (phashe->dataS.score >= beta) {
-                                INC(hash.n_cut_hashB);
-                                return pair<int, _TcheckHash>(beta, checkHashStruct);
-                            }
-                            break;
-                        case Hash::hashfALPHA:
-                            if (phashe->dataS.score <= alpha) {
-                                INC(hash.n_cut_hashA);
-                                return pair<int, _TcheckHash>(alpha, checkHashStruct);
-                            }
-                            break;
-                        default:
-                            fatal("error checkHash");
-                            break;
-                    }
-                }
-            }
-        }
-        INC(hash.cutFailed);
-        return pair<int, _TcheckHash>(INT_MAX, checkHashStruct);
-
-    }
+    template<uchar side>
+    bool badCapure(const _Tmove &move, const u64 allpieces);
 };

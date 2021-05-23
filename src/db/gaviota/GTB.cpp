@@ -180,12 +180,12 @@ int GTB::getDtmWdl(const int stm,
                    const int doPrint,
                    const _Tchessboard &chessboard,
                    unsigned *pliestomate,
-                   const bool dtm) const {
+                   const bool dtm, const uchar RIGHT_CASTLE) const {
 
     unsigned info = tb_UNKNOWN;    /* default, no tbvalue */
 
     GTBchessboard gtbChessboard;
-    gtbChessboard.fromChessboard(chessboard);
+    gtbChessboard.fromChessboard(chessboard, RIGHT_CASTLE);
     if (dtm) {
         int tb_available = tb_probe_soft(stm, tb_NOSQUARE, gtbChessboard.tb_castling, gtbChessboard.ws,
                                          gtbChessboard.bs,
@@ -197,7 +197,7 @@ int GTB::getDtmWdl(const int stm,
 
         if (tb_available) {
             if (doPrint != 0) {
-                const int stm1 = (doPrint == 1) ? stm : (stm ^ 1);
+                const int stm1 = (doPrint == 1) ? stm : X(stm);
                 if (info == tb_DRAW) {
                     cout << "Draw";
                 } else if (info == tb_WMATE && stm1 == tb_WHITE_TO_MOVE) {
@@ -213,7 +213,7 @@ int GTB::getDtmWdl(const int stm,
                 }
                 cout << endl;
             }
-            ASSERT(info != tb_UNKNOWN)
+            assert(info != tb_UNKNOWN);
             return convertToSyzygy(stm, info);
         }
         return INT_MAX;
@@ -227,7 +227,7 @@ int GTB::getDtmWdl(const int stm,
 
         if (tb_available) {
             if (doPrint != 0) {
-                const int stm1 = (doPrint == 1) ? stm : (stm ^ 1);
+                const int stm1 = (doPrint == 1) ? stm : X(stm);
                 switch (info) {
                     case tb_WMATE :
                         if (stm1 == tb_WHITE_TO_MOVE) cout << "Loss" << endl;
@@ -245,7 +245,7 @@ int GTB::getDtmWdl(const int stm,
                         break;
                 }
             }
-            ASSERT(info != tb_UNKNOWN)
+            assert(info != tb_UNKNOWN);
             return convertToSyzygy(stm, info);
         }
         if (doPrint != 0) cout << "none" << endl;

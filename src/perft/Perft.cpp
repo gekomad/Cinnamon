@@ -23,11 +23,9 @@ _ThashPerft **Perft::hash = nullptr;
 bool Perft::dumping;
 
 void Perft::dump() {
-    if (dumping || dumpFile.empty() || !hash) {
-        return;
-    }
+    if (depthHashFile > perftRes.depth) return;
+    if (dumping || dumpFile.empty() || !hash) return;
     dumping = true;
-
     cout << endl << "Dump hash table in " << dumpFile << " file..." << flush;
     ofstream f;
     string tmpFile = dumpFile + ".tmp";
@@ -38,6 +36,9 @@ void Perft::dump() {
     }
 
     sleepAll(true);
+    f << NAME;
+    f.put(10);
+    f << "1"; //version
     f.put(10);
     f << fen;
     f.put(10);
@@ -60,26 +61,33 @@ bool Perft::load() {
     }
     ifstream f;
     string fen1;
-    int nCpuHash, depthHash;
-    u64 mbSizeHash;
+    string perftVersion;
+    int nCpuHash;
+
     if (!FileUtil::fileExists(dumpFile)) {
         return false;
     }
     f.open(dumpFile, ios_base::in | ios_base::binary);
     cout << endl << "load hash table from " << dumpFile << " file.." << endl;
-    string detailType;
-    getline(f, detailType);
 
+    getline(f, fen1);//name
+    getline(f, perftVersion);
     getline(f, fen1);
-    f.read(reinterpret_cast<char *>(&depthHash), sizeof(int));
-    if (depthHash > perftRes.depth) {
-        fatal("error depth < hash depth");
-        f.close();
-        std::exit(0);
-    };
-    f.read(reinterpret_cast<char *>(&nCpuHash), sizeof(int));
-    f.read(reinterpret_cast<char *>(&mbSizeHash), sizeof(u64));
+    cout << " Fen: " << fen1 << endl;
+    cout << " Perft version: " << perftVersion << endl;
 
+    cout << " Depth: " << perftRes.depth << endl;
+    cout << flush;
+    f.read(reinterpret_cast<char *>(&depthHashFile), sizeof(int));
+//    if (depthHash > perftRes.depth) {
+//        fatal("File wrong, depth < hash depth")
+//        f.close();
+//        std::exit(1);
+//    }
+    f.read(reinterpret_cast<char *>(&nCpuHash), sizeof(int));
+    f.read(reinterpret_cast<char *>(&mbSize), sizeof(u64));
+    cout << " Hash size (MB): " << mbSize << endl;
+    cout << flush;
     alloc();
     if (fen.empty()) {
         fen = fen1;
@@ -87,12 +95,9 @@ bool Perft::load() {
     if (!perftRes.nCpu) {
         perftRes.nCpu = nCpuHash;
     }
-    cout << " fen: " << fen << endl;
-    cout << " mbSize: " << mbSize << endl;
-    cout << " depth: " << perftRes.depth << endl;
-    cout << " nCpu: " << perftRes.nCpu << endl;
+//    cout << " #cpu: " << perftRes.nCpu << endl;
 
-    for (int i = 1; i <= depthHash; i++) {
+    for (int i = 1; i <= depthHashFile; i++) {
         f.read(reinterpret_cast<char *>(hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
     }
     f.close();
@@ -117,12 +122,12 @@ void Perft::dealloc() const {
 void Perft::alloc() {
     dealloc();
     hash = (_ThashPerft **) calloc(perftRes.depth + 1, sizeof(_ThashPerft *));
-    _assert(hash);
-    const u64 k = 1024 * 1024 * mbSize / POW2[perftRes.depth];
+    _assert(hash)
+    const u64 k = 1024 * 1024 * mbSize / POW2(perftRes.depth);
     for (int i = 1; i <= perftRes.depth; i++) {
-        perftRes.sizeAtDepth[i] = k * POW2[i - 1] / sizeof(_ThashPerft);
+        perftRes.sizeAtDepth[i] = k * POW2(i - 1) / sizeof(_ThashPerft);
         hash[i] = (_ThashPerft *) calloc(perftRes.sizeAtDepth[i], sizeof(_ThashPerft));
-        _assert(hash[i]);
+        _assert(hash[i])
 
         DEBUG(cout << "alloc hash[" << i << "] " << perftRes.sizeAtDepth[i] * sizeof(_ThashPerft) << endl)
 
@@ -168,7 +173,7 @@ void Perft::run() {
         p->loadFen(fen);
     }
     p->setPerft(true);
-    int side = board::getSide(p->getChessboard()) ? 1 : 0;
+    uchar side = p->sideToMove;
 
     p->display();
     cout << "fen:\t\t\t" << fen << endl;
@@ -176,7 +181,7 @@ void Perft::run() {
     cout << "#cpu:\t\t\t" << perftRes.nCpu << endl;
     cout << "cache size:\t\t" << mbSize << endl;
     cout << "dump file:\t\t" << dumpFile << endl;
-    cout << "chess960:\t\t" << chess960 << endl;
+    cout << "chess960:\t\t" << (chess960 ? "true" : "false") << endl;
     cout << endl << Time::getLocalTime() << " start perft test..." << endl;
 
     Timer t2(minutesToDump * 60);
@@ -203,7 +208,7 @@ void Perft::run() {
     count = listcount;
     delete (p);
     p = nullptr;
-    ASSERT(perftRes.nCpu > 0);
+    assert(perftRes.nCpu > 0);
     int block = listcount / perftRes.nCpu;
     int i, s = 0;
     setNthread(perftRes.nCpu);
@@ -221,15 +226,16 @@ void Perft::run() {
 
 void Perft::endRun() {
     time.stop();
-    int t = time.getMill() / 1000;
-
+    const double t = time.getMill() / 1000.0;
     cout << endl << endl << "Perft moves: " << perftRes.totMoves;
 
-    cout << " in " << t << " seconds";
-
     if (t) {
-        cout << " (" << (perftRes.totMoves / t) / 1000 - ((perftRes.totMoves / t) / 1000) % 1000 <<
-             "k nodes per seconds" << ")";
+        if (t > 60 * 60) cout << " in " << (t / 60.0) << " minutes";
+        else cout << " in " << t << " seconds";
+
+        if ((perftRes.totMoves / t) / 1000.0 <= 1000.0)
+            cout << " (" << round((perftRes.totMoves / t) / 1000.0) << " K nodes per seconds" << ")";
+        cout << " (" << round((perftRes.totMoves / t) / 1000000.0) << " M nodes per seconds" << ")";
     }
     cout << endl;
     dump();
@@ -237,11 +243,6 @@ void Perft::endRun() {
 
     cerr << flush;
 
-#ifdef BENCH_MODE
-
-    Times *times = &Times::getInstance();
-    times->print();
-
-#endif
+    BENCH_PRINT()
 
 }

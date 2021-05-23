@@ -18,7 +18,7 @@
 
 #include "Uci.h"
 #include "../perft/Perft.h"
-#include <unistd.h>
+#include "unistd.h"
 
 Uci *u = NULL;
 

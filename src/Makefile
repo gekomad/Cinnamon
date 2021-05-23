@@ -15,16 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 COMP=g++
-
 ifndef SystemRoot
 	# *nix
 	ifeq ($(shell uname -s),Darwin)
 		LIBS= -static-libstdc++ -lpthread
 		OS=OSX
 	else
-	    LIBS=-s -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -static
-		PROFILE_USE_THREAD=" -fprofile-correction -fprofile-use "		
-		OS=Linux
+	    LIBS=-s -Wl,--whole-archive -static -lpthread -Wl,--no-whole-archive
+	    OS=Linux
 	endif
 
 	RM=rm -f
@@ -41,7 +39,7 @@ else
 	STRIP=strip.exe
 endif
 
-CFLAGS=" -std=c++11 -DDLOG_LEVEL=_FATAL -Wall -Ofast -DNDEBUG -fsigned-char -fno-exceptions -fno-rtti -funroll-loops "
+CFLAGS=" -std=c++11 -Wall -fno-stack-protector -fno-rtti -fno-exceptions -fomit-frame-pointer -O3 -Wpedantic -W -DNDEBUG -fsigned-char -funroll-loops "
 
 help:
 
@@ -61,8 +59,8 @@ help:
 	@echo "make cinnamon-js                 > Javascript build"
 	@echo ""
 	@echo "add:"
-	@echo " COMP=compiler                   > Use another compiler"
-	@echo " FULL_TEST=yes                   > Unit test (googletest)"
+	@echo " COMP=compiler                   > Use another compiler (default g++)"
+	@echo " FULL_TEST=yes                   > Run unit test (googletest)"
 	@echo ""
 
 build:
@@ -75,29 +73,31 @@ else
 endif
 
 	$(STRIP) $(EXE)
+	@echo "create static library..."
+	ar rcs libCinnamon.a Bitboard.o board.o ChessBoard.o Uci.o Timer.o WrapperCinnamon.o Search.o IterativeDeeping.o Eval.o GenMoves.o Perft.o Hash.o PerftThread.o SearchManager.o
 
 cinnamon-js:
-	emcc -std=c++11 -w -DJS_MODE -DDLOG_LEVEL=_FATAL util/Bitboard.cpp -fsigned-char namespaces/board.cpp ChessBoard.cpp Eval.cpp Hash.cpp IterativeDeeping.cpp GenMoves.cpp js/main.cpp \
-	db/OpenBook.cpp Search.cpp SearchManager.cpp perft/Perft.cpp util/String.cpp util/IniFile.cpp util/Timer.cpp perft/PerftThread.cpp \
+	emcc -std=c++11 -w -DNDEBUG -DJS_MODE -DDLOG_LEVEL=_FATAL util/Bitboard.cpp -fsigned-char namespaces/board.cpp ChessBoard.cpp Eval.cpp Hash.cpp IterativeDeeping.cpp GenMoves.cpp js/main.cpp \
+	Search.cpp SearchManager.cpp perft/Perft.cpp util/Timer.cpp perft/PerftThread.cpp \
 	-s WASM=0 -s EXPORTED_FUNCTIONS="['_main','_perft','_command','_isvalid']" -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap"]' -s NO_EXIT_RUNTIME=1 -o cinnamon.js -O3 --memory-init-file 0
 
 cinnamon32-generic:
-	$(MAKE) LIBS="$(LIBS) lib/$(OS)/32/libgtb.a" ARC="$(ARC) -m32" build
+	$(MAKE) ARC="$(ARC) -m32" build
 
 cinnamon32-modern:
 	$(MAKE) ARC="$(ARC) -mfpmath=sse -DHAS_POPCNT -DHAS_BSF" cinnamon32-generic
 
 cinnamon32-ARM:
-	$(MAKE) -j4  LIBS="$(LIBS) lib/ARM/32/libgtb.a" ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF" build
+	$(MAKE) -j4 ARC="$(ARC) -DHAS_POPCNT -fno-gcse -DHAS_BSF" build
 
 cinnamon64-ARM:
-	$(MAKE) LIBS="$(LIBS) lib/ARM/64/libgtb.a" ARC="$(ARC) -DHAS_64BIT " build
+	$(MAKE) -j4 ARC="$(ARC) -DHAS_POPCNT -DHAS_BSF" build
 
 cinnamon64-generic:
-	$(MAKE) -j LIBS="$(LIBS) lib/$(OS)/64/libgtb.a" ARC="$(ARC) -DHAS_64BIT -m64" build
+	$(MAKE) -j ARC="$(ARC) -m64" build
 
 cinnamon64-modern:
-	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_POPCNT -DHAS_BSF " cinnamon64-generic
+	$(MAKE) ARC="$(ARC) -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF " cinnamon64-generic
 
 cinnamon64-modern-AMD:
 	$(MAKE) ARC="$(ARC) -msse4a -march=athlon64 " cinnamon64-modern
@@ -108,8 +108,8 @@ cinnamon64-modern-INTEL:
 cinnamon64-BMI2:
 	$(MAKE) ARC="$(ARC) -mbmi2 -DUSE_BMI2 " cinnamon64-modern-INTEL
 
-all: main.o ChessBoard.o board.o Eval.o test.o String.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IniFile.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o SYZYGY.o tbprobe.o
-	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o board.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IniFile.o String.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o OpenBook.o GTB.o SYZYGY.o tbprobe.o ${LIBS}
+all: main.o ChessBoard.o board.o Eval.o test.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o GTB.o SYZYGY.o tbprobe.o Lzma86Dec.o LzFind.o Lzma86Enc.o Alloc.o LzmaDec.o Bra86.o LzmaEnc.o wrap.o gtb-dec.o gtb-att.o sysport.o gtb-probe.o
+	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o board.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o GTB.o SYZYGY.o tbprobe.o Lzma86Dec.o LzFind.o Lzma86Enc.o Alloc.o LzmaDec.o Bra86.o LzmaEnc.o wrap.o gtb-dec.o gtb-att.o sysport.o gtb-probe.o ${LIBS}
 
 default:
 	help
@@ -150,23 +150,50 @@ GenMoves.o: GenMoves.cpp
 Hash.o: Hash.cpp
 	$(COMP) -c Hash.cpp ${CFLAGS} ${ARC}
 
-OpenBook.o: db/OpenBook.cpp
-	$(COMP) -c db/OpenBook.cpp ${CFLAGS} ${ARC}
-
 GTB.o: db/gaviota/GTB.cpp
 	$(COMP) -c db/gaviota/GTB.cpp ${CFLAGS} ${ARC}
+
+Lzma86Dec.o: db/gaviota/gtb/compression/lzma/Lzma86Dec.c
+	$(COMP) -c db/gaviota/gtb/compression/lzma/Lzma86Dec.c ${CFLAGS} ${ARC}
+
+LzFind.o: db/gaviota/gtb/compression/lzma/LzFind.c
+	$(COMP) -c db/gaviota/gtb/compression/lzma/LzFind.c ${CFLAGS} ${ARC}
+
+Lzma86Enc.o: db/gaviota/gtb/compression/lzma/Lzma86Enc.c
+	$(COMP) -c db/gaviota/gtb/compression/lzma/Lzma86Enc.c ${CFLAGS} ${ARC}
+
+LzmaDec.o: db/gaviota/gtb/compression/lzma/LzmaDec.c
+	$(COMP) -c db/gaviota/gtb/compression/lzma/LzmaDec.c ${CFLAGS} ${ARC}
+
+Alloc.o: db/gaviota/gtb/compression/lzma/Alloc.c
+	$(COMP) -c db/gaviota/gtb/compression/lzma/Alloc.c ${CFLAGS} ${ARC}
+
+Bra86.o: db/gaviota/gtb/compression/lzma/Bra86.c
+	$(COMP) -c db/gaviota/gtb/compression/lzma/Bra86.c ${CFLAGS} ${ARC}
+
+LzmaEnc.o: db/gaviota/gtb/compression/lzma/LzmaEnc.c
+	$(COMP) -c db/gaviota/gtb/compression/lzma/LzmaEnc.c ${CFLAGS} ${ARC}
+
+wrap.o: db/gaviota/gtb/compression/wrap.c
+	$(COMP) -c db/gaviota/gtb/compression/wrap.c ${CFLAGS} ${ARC}
+
+gtb-dec.o: db/gaviota/gtb/gtb-dec.c
+	$(COMP) -c db/gaviota/gtb/gtb-dec.c ${CFLAGS} ${ARC} 
+
+gtb-att.o: db/gaviota/gtb/gtb-att.c
+	$(COMP) -c db/gaviota/gtb/gtb-att.c ${CFLAGS} ${ARC}
+
+sysport.o: db/gaviota/gtb/sysport/sysport.c
+	$(COMP) -c db/gaviota/gtb/sysport/sysport.c ${CFLAGS} ${ARC}
+
+gtb-probe.o: db/gaviota/gtb/gtb-probe.c
+	$(COMP) -c db/gaviota/gtb/gtb-probe.c ${CFLAGS} ${ARC}
 
 SYZYGY.o: db/syzygy/SYZYGY.cpp
 	$(COMP) -c db/syzygy/SYZYGY.cpp ${CFLAGS} ${ARC}
 
 tbprobe.o: db/syzygy/tbprobe.c
 	$(COMP) -c db/syzygy/tbprobe.c ${CFLAGS} ${ARC}
-
-String.o: util/String.cpp
-	$(COMP) -c util/String.cpp ${CFLAGS} ${ARC}
-
-IniFile.o: util/IniFile.cpp
-	$(COMP) -c util/IniFile.cpp ${CFLAGS} ${ARC}
 
 Timer.o: util/Timer.cpp
 	$(COMP) -c util/Timer.cpp ${CFLAGS} ${ARC}
@@ -181,5 +208,5 @@ WrapperCinnamon.o: WrapperCinnamon.cpp
 	$(COMP) -c WrapperCinnamon.cpp ${CFLAGS} ${ARC}
 
 clean:
-	$(RM) *.o $(EXE) cinnamon.js
+	$(RM) *.o $(EXE) cinnamon.js libCinnamon.a
 

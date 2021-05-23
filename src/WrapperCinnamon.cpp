@@ -15,7 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifdef JS_MODE
+
+// Auriga, JS etc.
 #include "WrapperCinnamon.h"
 
 vector<string> WrapperCinnamon::getSuccessorsFen(const string &fen, const int depth) {
@@ -30,7 +31,6 @@ unsigned WrapperCinnamon::perft(const string &fen, const int depth) {
 
 bool WrapperCinnamon::isValid(const string &fen) const {
     ChessBoard a;
-    if (a.loadFen(fen) == -1)return false;
-    return true;
+    return a.loadFen(fen) != -1;
 }
-#endif
+

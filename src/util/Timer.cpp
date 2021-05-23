@@ -18,7 +18,7 @@
 
 #include "Timer.h"
 
-Timer::Timer(int seconds1) {
+Timer::Timer(const int seconds1) {
     seconds = seconds1;
 }
 

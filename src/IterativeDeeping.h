@@ -20,24 +20,21 @@
 
 #include <cstring>
 #include <string.h>
-#include "util/String.h"
+#include "namespaces/String.h"
 #include "SearchManager.h"
 #include "threadPool/Thread.h"
-#include "db/OpenBook.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include "unistd.h"
 #include <iomanip>
 
 class IterativeDeeping : public Thread<IterativeDeeping> {
 
 public:
-
+    int ply;
     IterativeDeeping();
 
     virtual ~ IterativeDeeping();
-
-    string go();
 
     void run();
 
@@ -45,45 +42,38 @@ public:
 
     bool getPonderEnabled() const;
 
-    bool getUseBook() const;
-
-    void setUseBook(const bool b);
-
     void enablePonder(const bool);
 
     void setMaxDepth(const int);
 
-    void loadBook(const string);
-
-    bool setParameter(String param, int value);
-
-    int loadFen(const string fen = "");
-
-    string getFen() {
-        return searchManager.getFen();
-    }
-
-    bool setNthread(const int i);
+    int loadFen(const string &fen = "");
 
     int getRunning() const {
         return running;
     }
 
+#ifdef JS_MODE
+    string go() {
+        run();
+        return bestmove;
+    }
+#endif
+
+#if defined(FULL_TEST)
     const string &getBestmove() const {
         return bestmove;
     }
+#endif
 
 private:
-
 
     DEBUG(atomic_int checkSmp2)
 
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     int maxDepth;
     string bestmove;
-    Hash& hash = Hash::getInstance();
+    Hash &hash = Hash::getInstance();
     volatile long running;
-    OpenBook *openBook = nullptr;
     bool ponderEnabled;
 
 };

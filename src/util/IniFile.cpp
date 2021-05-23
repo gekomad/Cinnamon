@@ -15,48 +15,31 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+#ifdef TUNING
 #include "IniFile.h"
 
 IniFile::IniFile(const string &fileName1) {
     fileName = fileName1;
-    if (FileUtil::fileSize(fileName) <= 0)return;
-    endFile = true;
     inData.open(fileName, std::ofstream::in);
-    if (inData.is_open()) {
-        endFile = false;
-    } else {
-        warn("file not found: ", fileName);
+    if (!inData.is_open()) {
+        cout << "file not found " << fileName << endl;
+        return;
     }
+
     rgxLine.assign("^(.+?)=(.*)$");
     rgxTag.assign("^\\[.+]$");
-}
-
-IniFile::~IniFile() {
-    if (endFile) {
-        inData.close();
-    }
-}
-
-string IniFile::getValue(const string &value) {
-    IniFile file(fileName);
     while (true) {
-        pair<string, string> *parameters = file.get();
-        if (!parameters)return "";
-        if (parameters->first == value) {
-            return parameters->second;
-        }
+        pair<string, string> *parameters = this->get();
+        if (!parameters)break;
+        paramMap[parameters->first] = parameters->second;
     }
+    inData.close();
 }
 
 pair<string, string> *IniFile::get() {
     std::smatch match;
     string line;
-    while (!endFile) {
-        if (inData.eof()) {
-            endFile = true;
-            return nullptr;
-        }
+    while (!inData.eof()) {
         getline(inData, line);
         trace(line);
         if (line.empty())continue;
@@ -67,7 +50,8 @@ pair<string, string> *IniFile::get() {
             params.first = line;
             params.second = "";
         } else if (std::regex_search(line2.begin(), line2.end(), match, rgxLine)) {
-            params.first = String(match[1]).trim();
+            string x = string(match[1]);
+            params.first = String::trim(x);
             if (params.first.empty())continue;
             params.second = match[2];
         } else {
@@ -78,3 +62,4 @@ pair<string, string> *IniFile::get() {
 
     return nullptr;
 }
+#endif

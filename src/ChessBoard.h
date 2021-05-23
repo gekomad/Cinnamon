@@ -21,7 +21,7 @@
 #include <iostream>
 #include <string.h>
 #include <sstream>
-#include "util/String.h"
+#include "namespaces/String.h"
 #include "namespaces/bits.h"
 #include <unordered_map>
 #include "namespaces/random.h"
@@ -40,11 +40,11 @@ using namespace _logger;
 using namespace constants;
 using namespace _def;
 
-class ChessBoard : public Bitboard {
+class ChessBoard {
 public:
     ChessBoard();
 
-    string decodeBoardinv(const uchar type, const int a, const int side);
+    string decodeBoardinv(const uchar type, const int a, const uchar side);
 
     virtual ~ChessBoard();
 
@@ -52,12 +52,14 @@ public:
 
     int loadFen(const string &);
 
+    void clearChessboard();
+
     const _Tchessboard &getChessboard() const {
         return chessboard;
     }
 
     void setSide(const bool b) {
-        chessboard[SIDETOMOVE_IDX] = b;
+        sideToMove = b;
     }
 
     void setChess960(bool c) { chess960 = c; }
@@ -70,38 +72,39 @@ public:
 
     string boardToFen() const;
 
+    uchar sideToMove;
 protected:
-#ifdef BENCH_MODE
-    Times *times = &Times::getInstance();
-#endif
+
     _Tchessboard chessboard;
-    int startPosWhiteKing;
-    int startPosWhiteRookKingSide;
-    int startPosWhiteRookQueenSide;
+    uchar startPosWhiteKing;
+    uchar startPosWhiteRookKingSide;
+    uchar startPosWhiteRookQueenSide;
 
-    int startPosBlackKing;
-    int startPosBlackRookKingSide;
-    int startPosBlackRookQueenSide;
+    uchar startPosBlackKing;
+    uchar startPosBlackRookKingSide;
+    uchar startPosBlackRookQueenSide;
 
+    uchar rightCastle;
+
+    uchar enPassant;
     string MATCH_QUEENSIDE;
     string MATCH_QUEENSIDE_WHITE;
     string MATCH_KINGSIDE_WHITE;
     string MATCH_QUEENSIDE_BLACK;
     string MATCH_KINGSIDE_BLACK;
 
-    _Tboard structureEval;
     int movesCount = 1;
     bool chess960 = false;
 
     void makeZobristKey();
 
-    void print(const _Tmove *move, const _Tchessboard &chessboard);
+    void print(const _Tmove *move);
 
 #ifdef DEBUG_MODE
 
     void updateZobristKey(int piece, int position) {
-        ASSERT_RANGE(position, 0, 63);
-        ASSERT_RANGE(piece, 0, 14);
+        ASSERT_RANGE(position, 0, 63)
+        ASSERT_RANGE(piece, 0, 15)
         chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];
     }
 
@@ -120,4 +123,3 @@ private:
 
     int loadFen();
 };
-

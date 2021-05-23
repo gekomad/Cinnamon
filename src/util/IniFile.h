@@ -15,17 +15,16 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+#ifdef TUNING
 #pragma once
 
 #include <fstream>
 #include <regex>
-#include "../namespaces/debug.h"
 #include "logger.h"
 #include "FileUtil.h"
+#include <map>
 
 using namespace std;
-using namespace _debug;
 using namespace _logger;
 
 class IniFile {
@@ -33,18 +32,15 @@ public:
 
     IniFile(const string &fileName1);
 
-    ~IniFile();
-
-    string getValue(const string &value);
-
-    pair<string, string> *get();
-
+    map<string, string> paramMap;
 private:
     std::regex rgxLine;
     std::regex rgxTag;
-    bool endFile = true;
     ifstream inData;
     string fileName;
     pair<string, string> params;
-};
 
+    pair<string, string> *get();
+
+};
+#endif

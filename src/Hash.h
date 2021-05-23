@@ -24,8 +24,7 @@
 #include "namespaces/constants.h"
 #include "util/Singleton.h"
 #include "util/logger.h"
-#include "threadPool/Spinlock.h"
-#include <mutex>
+#include <limits.h>
 
 using namespace constants;
 using namespace _logger;
@@ -35,37 +34,22 @@ class Hash : public Singleton<Hash> {
 
 public:
 
-    static constexpr int HASH_ALWAYS = 1;
-    static constexpr int HASH_GREATER = 0;
-
-    typedef union _ThashData {
-        u64 dataU;
-
-        struct __dataS {
-            short score;
-            char depth;
-            uchar from;
-            uchar to;
-            uchar entryAge;
-            uchar flags;
-
-            __dataS() {};
-
-            __dataS(const short score, const char depth, const uchar from, const uchar to, const uchar entryAge,
-                    const uchar flags) :
-                    score(score), depth(depth), from(from), to(to), entryAge(entryAge), flags(flags) {};
-        } dataS;
-
-        _ThashData() {};
-
-        _ThashData(const short score, const char depth, const uchar from, const uchar to, const uchar entryAge,
-                   const uchar flags) :
-                dataS(score, depth, from, to, entryAge, flags) {};
-    } __Tdata;
-
-    typedef struct {
+    typedef struct _Thash {
         u64 key;
-        _ThashData u;
+        // 123456789ABCDEF|12345678|12345678|12345678|12345678|123456789ABCDEF|
+        // age            | flags  | from   |   to   | depth  |    score      |
+        u64 data;
+
+        _Thash(const u64 zobristKeyR, const short score, const char depth, const uchar from, const uchar to,
+               const uchar flags) {
+            key = zobristKeyR;
+            data = score;
+            data &= 0xffffULL;
+            data |= (u64) depth << 16;
+            data |= (u64) to << (16 + 8);
+            data |= (u64) from << (16 + 8 + 8);
+            data |= (u64) flags << (16 + 8 + 8 + 8);
+        }
     } _Thash;
 
     enum : char {
@@ -73,75 +57,140 @@ public:
     };
 
 #ifdef DEBUG_MODE
-    unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions, readCollisions;
-
-    int n_cut_hashA, n_cut_hashB, cutFailed, probeHash;
+    static unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions, readCollisions, n_cut_hashA, n_cut_hashB, n_cut_hashE, readHashCount;
 #endif
 
-    void setHashSize(int mb);
+    static void setHashSize(const int mb);
 
-    void clearHash();
+    static void clearHash();
 
-    void clearAge();
+#define SET_AGE(u, v) (u=(u&0xffffffffffffULL)|(((u64)v)<<(16 + 8 + 8 + 8 + 8)))
+#define GET_DEPTH(v) ((uchar)(v>>16))
+#define GET_FLAGS(v) ((uchar)(v>>(16 + 8 + 8 + 8)))
+#define GET_FROM(v) ((uchar)(v>>(16 + 8 + 8)))
+#define GET_TO(v) ((uchar)(v>>(16 + 8)))
+#define GET_SCORE(v) ((short ) v)
+#define GET_AGE(v) ((unsigned short)(v>> (16 + 8 + 8 + 8 + 8)))
+#define GET_KEY(hash) (hash->key ^ (hash->data & 0xffffffffffffULL))
 
-    u64 readHash(const int type, const u64 zobristKeyR)
-#ifndef DEBUG_MODE
-    const
-#endif
-    {
-        const _Thash *hash = &(hashArray[type][zobristKeyR % HASH_SIZE]);
-        const u64 data = hash->u.dataU;
-        const u64 k = hash->key;
-        if (zobristKeyR == (k ^ data)) {
-            return data;
+    static inline int readHash(
+            const int alpha,
+            const int beta,
+            const int depth,
+            const u64 zobristKeyR, u64 &checkHashStruct, const bool currentPly) {
+        INC(readHashCount);
+        const Hash::_Thash *hash = &(hashArray[zobristKeyR % HASH_SIZE]);
+        DEBUG(u64 d = 0)
+        checkHashStruct = 0;
+        bool found = false;
+        for (int i = 0; i < BUCKETS; i++, hash++) {
+            if (found)break;
+            u64 data = hash->data;
+            DEBUG(d |= data)
+            if (zobristKeyR == GET_KEY(hash)) {
+                found = true;
+                checkHashStruct = data;
+                if (GET_DEPTH(checkHashStruct) >= depth) {
+                    if (currentPly) {
+                        switch (GET_FLAGS(checkHashStruct)) {
+                            case Hash::hashfEXACT:
+                            case Hash::hashfBETA:
+                                if (GET_SCORE(checkHashStruct) >= beta) {
+                                    INC(n_cut_hashB);
+                                    return beta;
+                                }
+                                break;
+                            case Hash::hashfALPHA:
+                                if (GET_SCORE(checkHashStruct) <= alpha) {
+                                    INC(n_cut_hashA);
+                                    return alpha;
+                                }
+                                break;
+                            default:
+                                fatal("Error checkHash")
+                                exit(1);
+                        }
+                    }
+                }
+            }
         }
-
-        DEBUG(if (data) readCollisions++)
-
-        return 0;
+        DEBUG(if (d && !found)readCollisions++)
+        return INT_MAX;
     }
 
-    void recordHash(const u64 zobristKey, _ThashData &tmp) {
-        ASSERT(zobristKey);
-        const unsigned kMod = zobristKey % HASH_SIZE;
-        _Thash *rootHashG = &(hashArray[HASH_ALWAYS][kMod]);
-
-        rootHashG->key = (zobristKey ^ tmp.dataU);
-        rootHashG->u.dataU = tmp.dataU;
-
+    static void recordHash(const _Thash &toStore, const int ply) {
 #ifdef DEBUG_MODE
-        if (tmp.dataS.flags == hashfALPHA) {
-            nRecordHashA++;
-        } else if (tmp.dataS.flags == hashfBETA) {
-            nRecordHashB++;
-        } else {
-            nRecordHashE++;
-        }
+        assert(toStore.key);
+        if (GET_FLAGS(toStore.data) == hashfALPHA) nRecordHashA++;
+        else if (GET_FLAGS(toStore.data) == hashfBETA) nRecordHashB++;
+        else nRecordHashE++;
 #endif
+        assert(GET_DEPTH(toStore.data) < MAX_PLY);
+        const unsigned kMod = toStore.key % HASH_SIZE;
 
-        _Thash *rootHashA = &(hashArray[HASH_GREATER][kMod]);
+        _Thash *empty = nullptr;
 
-        DEBUG(if (rootHashA->u.dataU) INC(collisions))
-
-        if (rootHashA->u.dataS.depth >= tmp.dataS.depth && rootHashA->u.dataS.entryAge) {
+        { // update
+            _Thash *hash = &(hashArray[kMod]);
+            bool found = false;
+            for (int i = 0; i < BUCKETS; i++, hash++) {
+                const u64 data = hash->data;
+                if (toStore.key == GET_KEY(hash)) {
+                    found = true;
+                    if (GET_DEPTH(data) <= GET_DEPTH(toStore.data)) {
+                        hash->key = (toStore.key ^ toStore.data);
+                        hash->data = toStore.data;
+                        SET_AGE(hash->data, ply);
+                        return;
+                    }
+                } else if (!hash->key) {
+                    empty = hash;
+                    if (found)break;
+                }
+            }
+        }
+        if (empty) { //empty slot
+            empty->key = (toStore.key ^ toStore.data);
+            empty->data = toStore.data;
+            SET_AGE(empty->data, ply);
             return;
         }
-        tmp.dataS.entryAge = 1;
-        rootHashA->key = (zobristKey ^ tmp.dataU);
-        rootHashA->u.dataU = tmp.dataU;
+
+        { // age
+            _Thash *hash = &(hashArray[kMod]);
+            _Thash *old = &(hashArray[kMod]);
+            int i;
+            int oldTT = -INT_MAX;
+            for (i = 0; i < BUCKETS; i++, hash++) {
+                const u64 data = hash->data;
+                const auto age = ((ply - GET_AGE(data)) & 255) * 256 + 255 - GET_DEPTH(data);
+                if (age > oldTT) {
+                    old = hash;
+                    oldTT = age;
+                }
+            }
+            if (i == BUCKETS) hash = old;
+
+            DEBUG(if (hash->key && hash->key != (toStore.key ^ toStore.data)) INC(collisions))
+            hash->key = (toStore.key ^ toStore.data);
+            hash->data = toStore.data;
+            SET_AGE(hash->data, ply);
+        }
     }
 
 private:
     Hash();
-    unsigned HASH_SIZE;
+
+    static constexpr int BUCKETS = 3;
+    static unsigned HASH_SIZE;
 #ifdef JS_MODE
     static constexpr int HASH_SIZE_DEFAULT = 1;
 #else
     static constexpr int HASH_SIZE_DEFAULT = 64;
 #endif
 
-    void dispose();
+    static void dispose();
 
-    _Thash *hashArray[2];
+    static _Thash *hashArray;
 };
 

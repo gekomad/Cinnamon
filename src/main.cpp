@@ -36,23 +36,20 @@
  2| 15 14 13 12 11 10 09 08
  1| 07 06 05 04 03 02 01 00
  ...a  b  c  d  e  f  g  h
-
  */
 
 using namespace constants;
 
 int main(int argc, char **argv) {
-    ASSERT(sizeof(Hash::_Thash) == 16);
-    ASSERT(sizeof(_Tmove) == 8);
 
-#if defined(FULL_TEST)
+    assert(sizeof(Hash::_Thash) == 16);
+    assert(sizeof(_Tmove) == 8);
+#ifdef FULL_TEST
     testing::InitGoogleTest(&argc, argv);
-    if (RUN_ALL_TESTS())return 1;
-    return 0;
+    return RUN_ALL_TESTS();
 #endif
 
     GetOpt::parse(argc, argv);
-
     return 0;
 }
 

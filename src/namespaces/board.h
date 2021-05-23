@@ -22,33 +22,32 @@
 #pragma once
 
 #include "constants.h"
-#include "../util/bench/Times.h"
 #include "../util/Bitboard.h"
 
 using namespace constants;
 
 class board {
+private:
+    board() {}
 public:
-    static u64 colors(const int pos);
+    [[gnu::pure]] static u64 colors(const int pos);
 
     static bool isOccupied(const uchar pos, const u64 allpieces);
 
-    static int getFile(const char cc);
+    [[gnu::pure]] static int getFile(const char cc);
 
     static bool checkInsufficientMaterial(const int nPieces, const _Tchessboard &chessboard);
 
     static u64 performRankFileCaptureAndShift(const int position, const u64 enemies, const u64 allpieces);
 
-    static int getSide(const _Tchessboard &chessboard);
-
-    template<int side>
+    template<uchar side>
     static u64
     getPinned(const u64 allpieces, const u64 friends, const int kingPosition, const _Tchessboard &chessboard) {
-        BENCH(Times::getInstance().start("pinTime"))
+        BENCH_AUTO_CLOSE("getPinned")
         u64 result = 0;
-        ASSERT_RANGE(kingPosition, 0, 63);
+        ASSERT_RANGE(kingPosition, 0, 63)
         const u64 *s = LINK_SQUARE[kingPosition];
-        constexpr int xside = side ^1;
+        constexpr int xside = X(side);
         u64 attacked = DIAGONAL_ANTIDIAGONAL[kingPosition] &
                        (chessboard[QUEEN_BLACK + xside] | chessboard[BISHOP_BLACK + xside]);
         attacked |=
@@ -57,41 +56,33 @@ public:
             const int pos = BITScanForward(attacked);
             const u64 b = *(s + pos) & allpieces;
 #ifdef DEBUG_MODE
-            u64 x = *(s + pos) & (allpieces & NOTPOW2[kingPosition]);
-            ASSERT(b == x);
+            u64 x = *(s + pos) & (allpieces & NOTPOW2(kingPosition));
+            assert(b == x);
 #endif
             if (!(b & (b - 1))) {
                 result |= b & friends;
             }
         }
-        BENCH(Times::getInstance().stop("pinTime"))
         return result;
     }
 
     static u64 getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces);
 
-    static int getDiagShiftCount(const int position, const u64 allpieces);
-
-    static bool isCastleRight_WhiteKing(const _Tchessboard &chessboard);
-
-    static u64 getMobilityQueen(const int position, const u64 enemies, const u64 allpieces);
+    [[gnu::pure]] static bool isCastleRight_WhiteKing(const uchar RIGHT_CASTLE);
 
     static u64 getMobilityRook(const int position, const u64 enemies, const u64 friends);
 
-    static bool isCastleRight_BlackKing(const _Tchessboard &chessboard);
+    [[gnu::pure]] static bool isCastleRight_BlackKing(const uchar RIGHT_CASTLE);
 
-    static bool isCastleRight_WhiteQueen(const _Tchessboard &chessboard);
+    [[gnu::pure]]static bool isCastleRight_WhiteQueen(const uchar RIGHT_CASTLE);
 
-    static bool isCastleRight_BlackQueen(const _Tchessboard &chessboard);
-
-    static char decodeBoard(string a);
-
-    static string getCell(const int file, const int rank);
+    [[gnu::pure]]static bool isCastleRight_BlackQueen(const uchar RIGHT_CASTLE);
 
     static bool isPieceAt(const uchar pieces, const uchar pos, const _Tchessboard &chessboard);
 
-    template<int side>
+    template<uchar side>
     static u64 getBitmap(const _Tchessboard &chessboard) {
+        BENCH_AUTO_CLOSE("getBitmap")
         return chessboard[PAWN_BLACK + side] | chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] |
                chessboard[KNIGHT_BLACK + side] | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
@@ -103,8 +94,9 @@ public:
                chessboard[KNIGHT_WHITE] | chessboard[KING_WHITE] | chessboard[QUEEN_WHITE];
     }
 
-    template<int side>
+    template<uchar side>
     static int getPieceAt(const u64 bitmapPos, const _Tchessboard &chessboard) {
+        BENCH_AUTO_CLOSE("getPieceAt")
         if ((chessboard[PAWN_BLACK + side] & bitmapPos))return PAWN_BLACK + side;
         if ((chessboard[ROOK_BLACK + side] & bitmapPos))return ROOK_BLACK + side;
         if ((chessboard[BISHOP_BLACK + side] & bitmapPos))return BISHOP_BLACK + side;
@@ -116,103 +108,112 @@ public:
 
 #ifdef DEBUG_MODE
 
-    static u64 getBitmap(const int side, const _Tchessboard &chessboard);
+    static u64 getBitmap(const uchar side, const _Tchessboard &chessboard);
 
-    static int getPieceAt(int side, const u64 bitmapPos, const _Tchessboard &chessboard);
+    static int getPieceAt(uchar side, const u64 bitmapPos, const _Tchessboard &chessboard);
 
 #endif
 
-    template<int side, bool exitOnFirst>
+    template<uchar side>
     static u64 getAttackers(const int position, const u64 allpieces, const _Tchessboard &chessboard) {
-        BENCH(Times::getInstance().start("getAttackers"))
-        ASSERT_RANGE(position, 0, 63);
-        ASSERT_RANGE(side, 0, 1);
-
+        BENCH_AUTO_CLOSE("getAttackers")
+        ASSERT_RANGE(position, 0, 63)
+        ASSERT_RANGE(side, 0, 1)
+        constexpr int xside = X(side);
         ///knight
-        u64 attackers = KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + (side ^ 1)];
-        if (exitOnFirst && attackers) {
-            BENCH(Times::getInstance().stop("getAttackers"))
-            return attackers;
-        }
+        u64 attackers = KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + xside];
+
         ///king
-        attackers |= NEAR_MASK1[position] & chessboard[KING_BLACK + (side ^ 1)];
-        if (exitOnFirst && attackers) {
-            BENCH(Times::getInstance().stop("getAttackers"))
-            return attackers;
-        }
+        attackers |= NEAR_MASK1[position] & chessboard[KING_BLACK + xside];
+
         ///pawn
-        attackers |= PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + (side ^ 1)];
-        if (exitOnFirst && attackers) {
-            BENCH(Times::getInstance().stop("getAttackers"))
-            return attackers;
-        }
+        attackers |= PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + xside];
+
         ///bishop queen
-        u64 enemies = chessboard[BISHOP_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
-        u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
-        for (; nuovo; RESET_LSB(nuovo)) {
-            const int bound = BITScanForward(nuovo);
-            attackers |= POW2[bound];
-            if (exitOnFirst && attackers) {
-                BENCH(Times::getInstance().stop("getAttackers"))
-                return attackers;
-            }
+        u64 enemies = chessboard[BISHOP_BLACK + xside] | chessboard[QUEEN_BLACK + xside];
+        u64 n = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
+        for (; n; RESET_LSB(n)) {
+            attackers |= POW2(BITScanForward(n));
         }
-        enemies = chessboard[ROOK_BLACK + (side ^ 1)] | chessboard[QUEEN_BLACK + (side ^ 1)];
-        nuovo = Bitboard::getRankFile(position, allpieces) & enemies;
-        for (; nuovo; RESET_LSB(nuovo)) {
-            const int bound = BITScanForward(nuovo);
-            attackers |= POW2[bound];
-            if (exitOnFirst && attackers) {
-                BENCH(Times::getInstance().stop("getAttackers"))
-                return attackers;
-            }
+        enemies = chessboard[ROOK_BLACK + xside] | chessboard[QUEEN_BLACK + xside];
+        n = Bitboard::getRankFile(position, allpieces) & enemies;
+        for (; n; RESET_LSB(n)) {
+            attackers |= POW2(BITScanForward(n));
         }
-        BENCH(Times::getInstance().stop("getAttackers"))
+
         return attackers;
     }
 
-    template<int side>
-    static bool isAttacked(const int position, const u64 allpieces, const _Tchessboard &chessboard) {
-        return getAttackers<side, true>(position, allpieces, chessboard);
+    static bool isAttacked(const uchar side, const int position, const u64 allpieces, const _Tchessboard &chessboard) {
+        if (side == WHITE)return isAttacked < WHITE > (position, allpieces, chessboard);
+        return isAttacked < BLACK > (position, allpieces, chessboard);
     }
 
-    template<int side>
-    static bool anyAttack(u64 sq, const u64 allpieces, const _Tchessboard &chessboard) {
-        for (; sq; RESET_LSB(sq)) {
-            const int position = BITScanForward(sq);
-            if (getAttackers<side, true>(position, allpieces, chessboard))return true;
+    template<uchar side>
+    static bool isAttacked(const int position, const u64 allpieces, const _Tchessboard &chessboard) {
+        BENCH_AUTO_CLOSE("isAttacked")
+        ASSERT_RANGE(position, 0, 63)
+        ASSERT_RANGE(side, 0, 1)
+        constexpr int xside = X(side);
+        ///knight
+        if (KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + xside]) {
+            return true;
+        }
+
+        ///king
+        if (NEAR_MASK1[position] & chessboard[KING_BLACK + xside]) {
+            return true;
+        }
+        ///pawn
+        if (PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + xside]) {
+            return true;
+        }
+
+        u64 enemies = chessboard[BISHOP_BLACK + xside] | chessboard[QUEEN_BLACK + xside];
+        if ((DIAGONAL_ANTIDIAGONAL[position] & enemies)) {
+            ///bishop queen
+            if (Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies) {
+                return true;
+            }
+        }
+
+        enemies = chessboard[ROOK_BLACK + xside] | chessboard[QUEEN_BLACK + xside];
+        if (!(RANK_FILE[position] & enemies)) return false;
+        if (Bitboard::getRankFile(position, allpieces) & enemies) {
+            return true;
         }
         return false;
     }
 
-    template<int side>
+    template<uchar side>
+    static bool anyAttack(u64 sq, const u64 allpieces, const _Tchessboard &chessboard) {
+        for (; sq; RESET_LSB(sq)) {
+            if (isAttacked<side>(BITScanForward(sq), allpieces, chessboard))return true;
+        }
+        return false;
+    }
+
+    template<uchar side>
     static bool inCheck1(const _Tchessboard &chessboard) {
         return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
                                 getBitmap<BLACK>(chessboard) | getBitmap<WHITE>(chessboard), chessboard);
     }
 
-    template<int side>
-    static u64 getBitmapNoPawns(const _Tchessboard &chessboard) {
-        BENCH(Times::getInstance().start("getBitmapNoPawns"))
-        auto a = chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] |
-                 chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
-        BENCH(Times::getInstance().stop("getBitmapNoPawns"))
-        return a;
+    template<uchar side>
+    static u64 getBitmapNoPawnsNoKing(const _Tchessboard &chessboard) {
+        BENCH_AUTO_CLOSE("getBitmapNoPawns")
+        return chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] |
+               chessboard[QUEEN_BLACK + side];
     }
 
 
-    template<int side>
+    template<uchar side>
     static u64 getPiecesNoKing(const _Tchessboard &chessboard) {
+        BENCH_AUTO_CLOSE("getPiecesNoKing")
         return chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] |
                chessboard[PAWN_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
 
-    template<int side>
-    static int getNpiecesNoPawnNoKing(const _Tchessboard &chessboard) {
-        return bitCount(
-                chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] |
-                chessboard[QUEEN_BLACK + side]);
-    }
 
 };
 

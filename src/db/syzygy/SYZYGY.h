@@ -35,10 +35,8 @@ class SYZYGY : public Singleton<SYZYGY> {
 public:
     int SZtbProbeWDL(const _Tchessboard &chessboard, const int side, const int tot) const {
         if (getInstalledPieces() >= tot) {
-            BENCH(times->start("syzygyTime"))
-            auto a = SZtbProbeWDL(chessboard, side);
-            BENCH(times->stop("syzygyTime"))
-            return a;
+            BENCH_AUTO_CLOSE("syzygyTime")
+            return SZtbProbeWDL(chessboard, side);
         }
         return TB_RESULT_FAILED;
     }
@@ -50,7 +48,7 @@ public:
         if (promotion == 2) return 'r';
         if (promotion == 3) return 'b';
         if (promotion == 4) return 'n';
-        return GenMoves::NO_PROMOTION;
+        return NO_PROMOTION;
     }
 
     unsigned SZtbProbeRoot(const u64, const u64, const _Tchessboard &c, const bool turn, unsigned *);
@@ -87,6 +85,6 @@ private:
 
     SYZYGY();
 
-    static u64 decode(u64 d) ;
+    static u64 decode(u64 d);
 };
 

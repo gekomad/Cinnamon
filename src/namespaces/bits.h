@@ -21,61 +21,33 @@
 
 #include "../util/bench/Time.h"
 #include "../util/FileUtil.h"
-#include "debug.h"
+#include "../util/bench/Bench.h"
 #include "../def.h"
 #include "constants.h"
 #include <array>
+#include <cmath>
 
-using namespace _debug;
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
+
 using namespace constants;
 
 namespace _def {
     using namespace std;
 
+#define POW2(a) (1ull << (a))
+#define NOTPOW2(a) (~POW2(a))
+
 #define RESET_LSB(bits) (bits&=bits-1)
 
-#if defined(CLOP) || defined(DEBUG_MODE)
-#define STATIC_CONST
-#else
-#define STATIC_CONST static constexpr
-#endif
-
-#define _assert(a) if(!(a)){  print_stacktrace();cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< ":"<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::exit(1);}
-
-#ifdef BENCH_MODE
-#define BENCH(a) (a);
-#else
-#define BENCH(a)
-#endif
-
-#ifdef DEBUG_MODE
-#define DEBUG(a) a;
-#define ASSERT(a) _assert(a)
-#define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;_assert(0)};}
-#define INC(a) (a++)
-#define SET(a, v) (a=(v))
-#define ADD(a, b) (a+=(b))
-#else
-#define DEBUG(a)
-#define ASSERT(a)
-#define ASSERT_RANGE(value, from, to)
-#define INC(a)
-#define SET(a, v)
-#define ADD(a, b)
-
-#endif
-
-
 #ifdef HAS_POPCNT
-#ifdef HAS_64BIT
 
-    static inline int bitCount(const u64 bits) {
-        return __builtin_popcountll(bits);
-    }
+#ifdef _MSC_VER
+
+#define bitCount(bits)  _mm_popcnt_u64(bits)
 #else
-    static inline int bitCount(const u64 bits) {
-        return __builtin_popcountl(bits)+__builtin_popcountl(bits>>32);
-    }
+#define bitCount(bits)  __builtin_popcountll(bits)
 #endif
 #else
 
@@ -90,28 +62,22 @@ namespace _def {
 
 
 #ifdef HAS_BSF
-#ifdef HAS_64BIT
+#ifdef _MSC_VER
 
-    static inline int BITScanForward(const u64 bits) {
-        size_t idx;
-        __asm__("bsfq %1, %0": "=r"(idx): "rm"(bits));
-        return idx;
+    static int BITScanForward(u64 x) {
+        unsigned long index;        
+        _BitScanForward64(&index, x);
+        return (int)index;
     }
 
-    static inline int BITScanReverse(const u64 bits) {
-        size_t idx;
-        __asm__("bsrq %1, %0": "=r"(idx): "rm"(bits));
-        return idx;
+    static int BITScanReverse(u64 x) {
+        unsigned long index;
+        _BitScanReverse64(&index, x);
+        return (int)index;
     }
-
 #else
-    static inline int BITScanForward(const u64 bits) {
-        return ((unsigned) bits) ? __builtin_ffs(bits) - 1 : __builtin_ffs(bits >> 32) + 31;
-    }
-
-    static inline int BITScanReverse(const u64 bits) {
-        return ((unsigned)(bits >> 32)) ? 63 - __builtin_clz(bits >> 32) : 31 - __builtin_clz(bits);
-    }
+#define BITScanForward(bits)  __builtin_ctzll(bits)
+#define BITScanReverse(bits) (63 - __builtin_clzll(bits))
 #endif
 #else
 
@@ -144,17 +110,13 @@ namespace _def {
 
 #endif
 
-    template<int side, int shift>
+    template<uchar side, int shift>
     static inline u64 shiftForward(const u64 bits) {
-        ASSERT(shift == 7 || shift == 8 || shift == 9);
-
+        assert(shift == 7 || shift == 8 || shift == 9);
         const auto a = side == WHITE ? bits << shift : bits >> shift;
-        if (shift == 7)
-            return a & NO_FILE_LEFT[side];
-        if (shift == 9)
-            return a & NO_FILE_RIGHT[side];
+        if (shift == 7) return a & NO_FILE_LEFT[side];
+        if (shift == 9) return a & NO_FILE_RIGHT[side];
         return a;
-
     }
 
     static inline int BITScanForwardUnset(const u64 bb) {

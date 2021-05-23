@@ -25,7 +25,7 @@
 class Timer: public Thread<Timer> {
 public:
 
-    Timer(int seconds1);
+    Timer(const int seconds1);
 
     void endRun();
 

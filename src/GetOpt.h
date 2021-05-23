@@ -20,6 +20,8 @@
 
 #include "util/Singleton.h"
 #include "perft/Perft.h"
+#include "util/getopt.h"
+#include "util/tuning/Texel.h"
 
 static const string
         PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb) [-F dump file]] [-Chess960] [-f \"fen position\"]";
@@ -32,15 +34,10 @@ static const string PUZZLE_HELP = "-puzzle_epd -t K?K? ex: KRKP | KQKP | KBBKN |
 class GetOpt {
 
 private:
-    static void printHeader() {
+    static void printHeader(const string &exe) {
 
         cout << NAME << " UCI chess engine by Giuseppe Cannella\n";
 
-#ifdef HAS_64BIT
-        cout << "64-bit ";
-#else
-        cout << "32-bit ";
-#endif
 #ifdef HAS_POPCNT
         cout << "popcnt ";
 #endif
@@ -54,30 +51,27 @@ private:
 #if defined(__clang__)
         cout << "Clang/LLVM " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
 #elif defined(__ICC) || defined(__INTEL_COMPILER)
-        cout << "Intel ICC "<<__VERSION__;
+        cout << "Intel ICC " << __VERSION__;
 #elif defined(__GNUC__) || defined(__GNUG__)
         cout << "GNU GCC " << __VERSION__;
 #elif defined(__HP_cc) || defined(__HP_aCC)
-        cout << "Hewlett-Packard aC++" <<__HP_aCC;
+        cout << "Hewlett-Packard aC++" << __HP_aCC;
 #elif defined(__IBMC__) || defined(__IBMCPP__)
-    cout << "IBM XL C++ <<"__IBMCPP__;
+        cout << "IBM XL C++ <<"__IBMCPP__;
 #elif defined(_MSC_VER)
-    cout << "Microsoft Visual Studio. "<<_MSC_VER;
+        cout << "Microsoft Visual Studio. " << _MSC_VER;
 #elif defined(__PGI)
-    cout << "Portland Group PGCC/PGCPP "<<__PGIC__;
+        cout << "Portland Group PGCC/PGCPP " << __PGIC__;
 #elif defined(__SUNPRO_C) || defined(__SUNPRO_CC)
-    cout << "Oracle Solaris Studio "<<__SUNPRO_CC;
+        cout << "Oracle Solaris Studio " << __SUNPRO_CC;
 #else
-    cout << "Unknown compiler";
+        cout << "Unknown compiler";
 #endif
-        cout << "\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\n";
-#ifdef CLOP
-        cout << "CLOP ENABLED\n";
-#endif
-#ifdef DEBUG_MODE
-        cout << "DEBUG_MODE\n";
-        cout << "Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << endl;
-#endif
+        cout << "\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n";
+        cout << "Run " << exe << " -h for more commands." << endl << endl;
+
+        DEBUG(cout << "DEBUG_MODE" << endl)
+        DEBUG(cout << "Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << endl)
         cout << flush;
     }
 
@@ -95,7 +89,7 @@ private:
         if (string(optarg) != "erft") {
             help(argv);
             return;
-        };
+        }
         int nCpu = 0;
         int perftDepth = 0;
         string fen;
@@ -104,25 +98,39 @@ private:
         bool chess960 = false;
         int opt;
         string iniFile;
-        while ((opt = getopt(argc, argv, "d:f:h:f:c:F:9:C:")) != -1) {
+        bool useDump = false;
+        while ((opt = getopt1(argc, argv, "d:f:h:f:c:F:9:C:")) != -1) {
             if (opt == 'd') {    //depth
                 perftDepth = atoi(optarg);
+            } else if (opt == 'c') {  //N cpu
+                nCpu = atoi(optarg);
+            } else if (opt == 'h') {  //hash
+                perftHashSize = atoi(optarg);
             } else if (opt == 'F') { //use dump
                 dumpFile = optarg;
                 if (dumpFile.empty()) {
                     cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                     return;
                 }
-            } else if (opt == 'c') {  //N cpu
-                nCpu = atoi(optarg);
-            } else if (opt == 'h') {  //hash
-                perftHashSize = atoi(optarg);
+                useDump = true;
             } else if (opt == 'f') {  //fen
                 fen = optarg;
             } else if (opt == 'C') {  //chess960
                 if (!string(optarg).compare("hess960"))
                     chess960 = true;
             }
+        }
+        if (useDump && !FileUtil::fileExists(dumpFile) && !perftHashSize) {
+            cout << "Error: with '-F' parameter you have to specify either an existing dump file or a hash size (-h)"
+                 << endl << endl;
+            help(argv);
+            return;
+        }
+        if (useDump && FileUtil::fileExists(dumpFile) && perftHashSize) {
+            cout << "Error: with '-F' parameter and existing dump file you can't specify hash size (-h)" << endl
+                 << endl;
+            help(argv);
+            return;
         }
         Perft *perft = &Perft::getInstance();
         perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, chess960);
@@ -137,7 +145,7 @@ private:
         string fen, token;
         IterativeDeeping it;
         int opt;
-        while ((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
+        while ((opt = getopt1(argc, argv, "f:p:s:i:")) != -1) {
             if (opt == 'f') {    //fen
                 fen = optarg;
             } else if (opt == 'p') { //path
@@ -171,7 +179,7 @@ private:
         int opt;
         SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
-        while ((opt = getopt(argc, argv, "f:p:s:i:")) != -1) {
+        while ((opt = getopt1(argc, argv, "f:p:s:i:")) != -1) {
             if (opt == 'f') {    //fen
                 fen = optarg;
                 searchManager.loadFen(fen);
@@ -197,8 +205,15 @@ private:
 public:
 
     static void parse(int argc, char **argv) {
+#ifdef TUNING
+
+        cout << Texel::help << endl;
+        cout << "run " << FileUtil::getFileName(argv[0]) << " path" << endl;
+        return;
+
+#endif
         if (!(argc > 1 && !strcmp("-puzzle_epd", argv[1])))
-            printHeader();
+            printHeader(FileUtil::getFileName(argv[0]));
         if (argc == 2 && !strcmp(argv[1], "--help")) {
             help(argv);
             return;
@@ -206,7 +221,7 @@ public:
 
         int opt;
 
-        while ((opt = getopt(argc, argv, "p:e:hd:b:f:w:")) != -1) {
+        while ((opt = getopt1(argc, argv, "p:e:hd:b:f:w:")) != -1) {
             if (opt == 'h') {
                 help(argv);
                 return;
@@ -215,7 +230,7 @@ public:
                 if (string(optarg) == "erft") {
                     perft(argc, argv);
                 } else if (string(optarg) == "uzzle_epd") {
-                    while ((opt = getopt(argc, argv, "t:")) != -1) {
+                    while ((opt = getopt1(argc, argv, "t:")) != -1) {
                         if (opt == 't') {    //file
                             Search a;
                             if (!a.generatePuzzle(optarg)) {

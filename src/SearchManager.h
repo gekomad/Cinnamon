@@ -18,119 +18,134 @@
 
 #pragma once
 
-#include <unistd.h>
 #include "Search.h"
 #include "threadPool/ThreadPool.h"
-#include <condition_variable>
-#include "util/String.h"
+#include "namespaces/String.h"
 #include "util/IniFile.h"
-#include <algorithm>
-#include <future>
-#include "namespaces/bits.h"
 
-class SearchManager : public Singleton<SearchManager> {
+class SearchManager : private Singleton<SearchManager> {
     friend class Singleton<SearchManager>;
 
 public:
 
-    bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
-
     ~SearchManager();
 
-    int loadFen(string fen = "");
+    static bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
 
-    int getPieceAt(int side, u64 i);
+    static int loadFen(const string &fen = "");
 
-    u64 getTotMoves();
+    static int getPieceAt(const uchar side, const u64 i);
 
-    void incHistoryHeuristic(int from, int to, int value);
+    static u64 getTotMoves();
 
-    void startClock();
+    static void incHistoryHeuristic(const int from, const int to, const int value);
 
-    string boardToFen();
+    static void startClock();
 
-    string decodeBoardinv(const uchar type, const int a, const int side);
+    static string decodeBoardinv(const uchar type, const int a, const uchar side);
 
-    bool setParameter(String param, int value);
+#ifdef TUNING
 
-    void clearHeuristic();
+    const _Tchessboard &getChessboard() {
+        return threadPool->getThread(0).getChessboard();
+    }
 
-    int getForceCheck();
+    static void setParameter(const string &param, const int value) {
+        for (Search *s:threadPool->getPool()) {
+            s->setParameter(param, value);
+        }
+    }
 
-    u64 getZobristKey(int id);
+    static int getParameter(const string &param) {
+        return threadPool->getThread(0).getParameter(param);
+    }
 
-    void setForceCheck(bool a);
-
-    void setRunningThread(bool r);
-
-    string probeRootTB() const;
-
-    void setRunning(int i);
-
-    int getRunning(int i);
-
-    void display();
-
-    string getFen();
-
-    void setMaxTimeMillsec(int i);
-
-    void unsetSearchMoves();
-
-    void setSearchMoves(vector<string> &searchmoves);
-
-    void setPonder(bool i);
-
-    int getSide() const;
-
-    int getScore(int side, const bool trace);
-
-    int getMaxTimeMillsec();
-
-    void setNullMove(bool i);
-
-    void setChess960(bool i);
-
-    bool makemove(_Tmove *i);
-
-    void takeback(_Tmove *move, const u64 oldkey, bool rep);
-
-    void setSide(bool i);
-
-    int getMoveFromSan(String string, _Tmove *ptr) const;
-
-#ifndef JS_MODE
-
-    int printDtmGtb(const bool dtm);
-
-    void printDtmSyzygy();
-
-    void printWdlSyzygy();
+    int getQscore() const {
+        return threadPool->getThread(0).qSearch(15, -_INFINITE, _INFINITE);
+    }
 
 #endif
 
-    void pushStackMove();
+    static void clearHeuristic();
 
-    void init();
+    static int getForceCheck();
 
-    void setRepetitionMapCount(int i);
+    static u64 getZobristKey(const int id);
 
-    bool setNthread(int);
+    static u64 getEnpassant(const int id) {
+        return threadPool->getThread(id).getEnpassant();
+    }
+
+    static void setForceCheck(const bool a);
+
+    static void setRunningThread(const bool r);
+
+    static string probeRootTB();
+
+    static void setRunning(const int i);
+
+    static int getRunning(const int i);
+
+    static void display();
+
+    static void setMaxTimeMillsec(const int i);
+
+    static void unsetSearchMoves();
+
+    static void setSearchMoves(const vector<string> &searchmoves);
+
+    static void setPonder(bool i);
+
+    static int getSide();
+
+    static int getScore(const uchar side);
+
+    static int getMaxTimeMillsec();
+
+    static void setNullMove(const bool i);
+
+    static void setChess960(const bool i);
+
+    static bool makemove(const _Tmove *i);
+
+    static void takeback(const _Tmove *move, const u64 oldkey, const uchar oldEnpassant, const bool rep);
+
+    static void setSide(const bool i);
+
+    static int getMoveFromSan(const string &string, _Tmove *ptr);
+
+#ifndef JS_MODE
+
+    static int printDtmGtb(const bool dtm);
+
+    static void printDtmSyzygy();
+
+    static void printWdlSyzygy();
+
+#endif
+
+    static void pushStackMove();
+
+    static void init();
+
+    static void setRepetitionMapCount(const int i);
+
+    static bool setNthread(const int);
 
 #if defined(FULL_TEST)
 
     unsigned SZtbProbeWDL() const;
 
-    u64 getBitmap(const int n, const int side) const {
+    u64 getBitmap(const int n, const uchar side) const {
         return side ? board::getBitmap<WHITE>(threadPool->getPool()[n]->getChessboard())
                     : board::getBitmap<BLACK>(threadPool->getPool()[n]->getChessboard());
     }
 
-    const _Tchessboard &getChessboard(const int n) const {
+    const _Tchessboard &getChessboard(const int n = 0) const {
         return threadPool->getPool()[n]->getChessboard();
     }
 
-    template<int side>
+    template<uchar side>
     u64 getPinned(const u64 allpieces, const u64 friends, const int kingPosition) const {
         return board::getPinned<side>(allpieces, friends, kingPosition, threadPool->getPool()[0]->getChessboard());
     }
@@ -139,15 +154,11 @@ public:
 
 #ifdef DEBUG_MODE
 
-    unsigned getCumulativeMovesCount() {
-        unsigned i = 0;
-        for (Search *s:threadPool->getPool()) {
-            i += s->cumulativeMovesCount;
-        }
-        return i;
+    static unsigned getCumulativeMovesCount() {
+        return Search::cumulativeMovesCount;
     }
 
-    unsigned getNCutAB() {
+    static unsigned getNCutAB() {
         unsigned i = 0;
         for (Search *s:threadPool->getPool()) {
             i += s->nCutAB;
@@ -155,23 +166,25 @@ public:
         return i;
     }
 
-    double getBetaEfficiency() {
-        double i = 0;
+    static double getBetaEfficiency() {
+        double b = 0;
+        unsigned count = 0;
         for (Search *s:threadPool->getPool()) {
-            i += s->betaEfficiency;
+            b += s->betaEfficiency;
+            count += s->betaEfficiencyCount;
         }
-        return i;
+        return b / count;
     }
 
-    unsigned getLazyEvalCuts() {
+    static unsigned getLazyEvalCuts() {
         unsigned i = 0;
         for (Search *s:threadPool->getPool()) {
-            i += s->lazyEvalCuts;
+            i += s->getLazyEvalCuts();
         }
         return i;
     }
 
-    unsigned getNCutFp() {
+    static unsigned getNCutFp() {
         unsigned i = 0;
         for (Search *s:threadPool->getPool()) {
             i += s->nCutFp;
@@ -179,7 +192,7 @@ public:
         return i;
     }
 
-    unsigned getNCutRazor() {
+    static unsigned getNCutRazor() {
         unsigned i = 0;
         for (Search *s:threadPool->getPool()) {
             i += s->nCutRazor;
@@ -187,31 +200,39 @@ public:
         return i;
     }
 
-    unsigned getTotGen() {
+    static unsigned getTotBadCaputure() {
         unsigned i = 0;
         for (Search *s:threadPool->getPool()) {
-            i += s->totGen;
+            i += s->nCutBadCaputure;
+        }
+        return i;
+    }
+
+    static unsigned getNullMoveCut() {
+        unsigned i = 0;
+        for (Search *s:threadPool->getPool()) {
+            i += s->nNullMoveCut;
         }
         return i;
     }
 
 #endif
 
-    int search(int mply);
+    static int search(const int ply, const int mply);
 
 private:
 
     SearchManager();
 
-    ThreadPool<Search> *threadPool = nullptr;
+    static ThreadPool<Search> *threadPool;
 
-    _TpvLine lineWin;
+    static _TpvLine lineWin;
 
-    void setMainPly(const int r);
+    static void setMainPly(const int ply, const int r);
 
-    void startThread(Search &thread, const int depth);
+    static void startThread(Search &thread, const int depth);
 
-    void stopAllThread();
+    static void stopAllThread();
 
 };
 

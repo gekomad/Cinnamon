@@ -19,22 +19,17 @@
 #pragma once
 
 #include <fstream>
-#include "String.h"
-
+#include "../namespaces/String.h"
 #include <sys/types.h>
 #include <sys/stat.h>
-
 
 using namespace std;
 
 class FileUtil {
 public:
     static bool fileExists(const string &filename) {
-
         struct stat info;
-        if (stat(filename.c_str(), &info) != 0)
-            return false;
-        return true;
+        return stat(filename.c_str(), &info) == 0;
     }
 
     static int fileSize(const string &filename) {
@@ -42,13 +37,10 @@ public:
         return in.tellg();
     }
 
-    static string getFileName(string path) {
-        String s(path);
-        s.replace(':', '/');
-        s.replace("\\", "/");
-        s.replace("//", "/");
-        path = s;
-        istringstream iss(path);
+    static string getFileName(const string &path) {
+        string pp = path;
+        auto p = String::replace(pp, '\\', '/');
+        istringstream iss(p);
         string token;
         while (getline(iss, token, '/'));
         return token;
