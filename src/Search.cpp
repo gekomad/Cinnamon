@@ -454,10 +454,10 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
                 if (getRunning()) {
                     Hash::_Thash data(zobristKeyR, score, depth, move->from, move->to, Hash::hashfBETA);
                     hash.recordHash(data, ply);
-                }
 
-                if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
-                    setHistoryHeuristic(move->from, move->to, depth);
+                    if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
+                        setHistoryHeuristic(move->from, move->to, depth);
+                    }
                 }
                 return score;
             }
