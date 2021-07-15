@@ -89,7 +89,7 @@ public:
         return pvLine;
     }
 
-    void setMainParam(const int depth);
+    void setMainParam(const uchar depth);
 
     void run();
 
@@ -141,7 +141,7 @@ private:
 #endif
 
     template<uchar side,bool searchMoves>
-    void aspirationWindow(const int depth, const short valWindow);
+    void aspirationWindow(const uchar depth, const short valWindow);
 
     int checkTime() const;
 
@@ -152,7 +152,7 @@ private:
     bool checkDraw(u64);
 
     template<uchar side, bool checkMoves>
-    short search(const int depth, short alpha, const short beta, _TpvLine *pline, const unsigned N_PIECE);
+    short search(const uchar depth, short alpha, const short beta, _TpvLine *pline, const unsigned N_PIECE);
 
     template<bool checkMoves>
     bool checkSearchMoves(const _Tmove *move) const;
@@ -162,7 +162,7 @@ private:
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
-    int mainDepth;
+    uchar mainDepth;
     int ply;
 
     template<uchar side>

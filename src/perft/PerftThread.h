@@ -40,7 +40,7 @@ public:
 
     void endRun();
 
-    unsigned perft(const string &fen, const int depth);
+    u64 perft(const string &fen, const int depth);
 
     vector <string> getSuccessorsFen(const string &fen1, const int depth);
 

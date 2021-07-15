@@ -65,7 +65,7 @@ public:
         removeAllThread();
         nThread = t;
         assert(threadsBits == 0);
-        for (int i = 0; i < nThread; i++) {
+        for (uchar i = 0; i < nThread; i++) {
             T *x = new T();
             x->setId(i);
             threadPool.push_back(x);

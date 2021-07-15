@@ -40,7 +40,7 @@ void Search::run() {
 }
 
 template<uchar side, bool searchMoves>
-void Search::aspirationWindow(const int depth, const short valWin) {
+void Search::aspirationWindow(const uchar depth, const short valWin) {
     valWindow = valWin;
     init();
     const auto nPieces = (unsigned) bitCount(board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard));
@@ -233,7 +233,7 @@ bool Search::checkDraw(const u64 key) {
     return false;
 }
 
-void Search::setMainParam(const int iter_depth) {
+void Search::setMainParam(const uchar iter_depth) {
     memset(&pvLine, 0, sizeof(_TpvLine));
     mainDepth = iter_depth;
 }
@@ -250,10 +250,9 @@ bool Search::checkSearchMoves(const _Tmove *move) const {
 
 
 template<uchar side, bool checkMoves>
-short Search::search(const int depth, short alpha, const short beta, _TpvLine *pline, const unsigned N_PIECE) {
+short Search::search(const uchar depth, short alpha, const short beta, _TpvLine *pline, const unsigned N_PIECE) {
     ASSERT_RANGE(side, 0, 1)
-
-    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const short alpha, const short beta,
+    const auto searchLambda = [&](_TpvLine *newLine, const uchar depth, const short alpha, const short beta,
                                   const _Tmove *move = nullptr) {
         const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
         currentPly++;
@@ -294,7 +293,7 @@ short Search::search(const int depth, short alpha, const short beta, _TpvLine *p
             return -eval.lazyEval<side>(chessboard) * 2;
         }
     }
-    int extension = isIncheckSide; // TODO pawn in 7th
+    uchar extension = isIncheckSide; // TODO pawn in 7th
     if (depth + extension == 0) {
         return qsearch<side>(alpha, beta, NO_PROMOTION);
     }
@@ -316,7 +315,7 @@ short Search::search(const int depth, short alpha, const short beta, _TpvLine *p
 
     /// ********* null move ***********
     if (!nullSearch && !pvNode && !isIncheckSide) {
-        int nDepth = (depth > 3) ? 1 : 3;
+        uchar nDepth = (depth > 3) ? 1 : 3;
         if (nDepth == 3) {
             const u64 pieces = board::getPiecesNoKing<side>(chessboard);
             if (pieces != chessboard[PAWN_BLACK + side] || bitCount(pieces) > 9)
@@ -324,10 +323,13 @@ short Search::search(const int depth, short alpha, const short beta, _TpvLine *p
         }
         if (depth > nDepth) {
             nullSearch = true;
-            const int R = NULL_DEPTH + depth / NULL_DIVISOR;
+            const uchar R = NULL_DEPTH + depth / NULL_DIVISOR;
             short nullScore;
             if (depth - R - 1 > 0) {
-                nullScore = searchLambda(&newLine1, depth + extension - R - 1, -beta, -beta + 1);
+                if (depth + extension < R - 1) nullScore = -qsearch<X(side)>(-beta, -alpha, NO_PROMOTION);
+                else
+                    nullScore = searchLambda(&newLine1, depth + extension < R - 1 ? 0 : depth + extension - R - 1,
+                                             -beta, -beta + 1);
             } else {
                 nullScore = -qsearch<X(side)>(-beta, -beta + 1, NO_PROMOTION);
             }
@@ -349,7 +351,7 @@ short Search::search(const int depth, short alpha, const short beta, _TpvLine *p
         const short matBalance = eval.lazyEval<side>(chessboard);
         /// ******** reverse futility pruning ***********
         if (depth < 3 && !pvNode && abs(beta - 1) > -_INFINITE + MAX_PLY) {
-            const int evalMargin = matBalance - eval.REVERSE_FUTIL_MARGIN * depth;
+            const short evalMargin = matBalance - eval.REVERSE_FUTIL_MARGIN * depth;
             if (evalMargin >= beta) return evalMargin;
         }
         /// *********************************************
@@ -422,17 +424,22 @@ short Search::search(const int depth, short alpha, const short beta, _TpvLine *p
             }
             //Late Move Reduction
             if (countMove > 3 && !isIncheckSide && depth >= 3 && move->capturedPiece == SQUARE_EMPTY) {
-                val = searchLambda(&newLine, depth + extension - (countMove > 6 ? 3 : 2), -(alpha + 1), -alpha);
+                if (depth + extension < (countMove > 6 ? 3 : 2)) val = -qsearch<X(side)>(-beta, -alpha, NO_PROMOTION);
+                else
+                    val = searchLambda(&newLine, depth + extension - (countMove > 6 ? 3 : 2), -(alpha + 1), -alpha);
             }
         }
 
         if (val > alpha) {
-            const bool doMws = (score > -_INFINITE + MAX_PLY);
-            const short lwb = max(alpha, score);
-            const short upb = (doMws ? (lwb + 1) : beta);
-            val = searchLambda(&newLine, depth + extension - 1, -upb, -lwb, move);
-            if (doMws && (lwb < val) && (val < beta)) {
-                val = searchLambda(&newLine, depth + extension - 1, -beta, -val + 1, move);
+            if (depth + extension < 1) val = -qsearch<X(side)>(-beta, -alpha, NO_PROMOTION);
+            else {
+                const bool doMws = (score > -_INFINITE + MAX_PLY);
+                const short lwb = max(alpha, score);
+                const short upb = (doMws ? (lwb + 1) : beta);
+                val = searchLambda(&newLine, depth + extension - 1, -upb, -lwb, move);
+                if (doMws && (lwb < val) && (val < beta)) {
+                    val = searchLambda(&newLine, depth + extension - 1, -beta, -val + 1, move);
+                }
             }
         }
         score = max(score, val);

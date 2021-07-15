@@ -31,7 +31,7 @@ void PerftThread::setParam(const string &fen1, const int from1, const int to1, _
     this->to = to1;
 }
 
-unsigned PerftThread::perft(const string &fen, const int depth) {
+u64 PerftThread::perft(const string &fen, const int depth) {
     loadFen(fen);
     if (sideToMove) return search<WHITE, false>(depth);
     return search<BLACK, false>(depth);

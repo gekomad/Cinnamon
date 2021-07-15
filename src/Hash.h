@@ -40,7 +40,7 @@ public:
         // age            | flags  | from   |   to   | depth  |    score      |
         u64 data;
 
-        _Thash(const u64 zobristKeyR, const short score, const char depth, const uchar from, const uchar to,
+        _Thash(const u64 zobristKeyR, const short score, const uchar depth, const uchar from, const uchar to,
                const uchar flags) {
             key = zobristKeyR;
             data = (u64) score;
