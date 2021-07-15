@@ -272,8 +272,8 @@ uchar ChessBoard::loadFen(const string &fen) {
             chessboard[p] &= NOTPOW2(i);
         }
     }
-    startPosWhiteKing = BITScanForward(chessboard[KING_WHITE]);
-    startPosBlackKing = BITScanForward(chessboard[KING_BLACK]);
+    startPosWhiteKing = BITScanForwardU8(chessboard[KING_WHITE]);
+    startPosBlackKing = BITScanForwardU8(chessboard[KING_BLACK]);
     auto whiteRookKingSide = [&](const char c) {
         startPosWhiteRookKingSide = BITScanForwardU8(chessboard[ROOK_WHITE] & 0xffULL);
         updateZobristKey(RIGHT_CASTLE_RAND, 4);
@@ -322,8 +322,8 @@ uchar ChessBoard::loadFen(const string &fen) {
             default:
                 //x-fen
                 setChess960(true);
-                const int wKing = FILE_AT[BITScanForward(chessboard[KING_WHITE])];
-                const int bKing = FILE_AT[BITScanForward(chessboard[KING_BLACK])];
+                const int wKing = FILE_AT[BITScanForwardU8(chessboard[KING_WHITE])];
+                const int bKing = FILE_AT[BITScanForwardU8(chessboard[KING_BLACK])];
 
                 if (isupper(c)) {
                     if (board::getFile(c) < wKing) {

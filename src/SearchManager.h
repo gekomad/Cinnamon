@@ -221,7 +221,7 @@ public:
 
 #endif
 
-    static int search(const int ply, const int iter_depth);
+    static int search(const int ply, const uchar iter_depth);
 
 private:
 
@@ -231,7 +231,7 @@ private:
 
     static _TpvLine lineWin;
 
-    static void setMainPly(const int ply, const int r);
+    static void setMainPly(const int ply, const uchar r);
 
     static void startThread(Search &thread, const int depth);
 

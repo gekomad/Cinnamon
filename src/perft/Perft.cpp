@@ -62,7 +62,7 @@ bool Perft::load() {
     ifstream f;
     string fen1;
     string perftVersion;
-    int nCpuHash;
+    uchar nCpuHash;
 
     if (!FileUtil::fileExists(dumpFile)) {
         return false;

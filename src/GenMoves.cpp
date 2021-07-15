@@ -558,7 +558,7 @@ bool GenMoves::generatePuzzle(const string type) {
         pieces.clear();
         _assert(toupper(type.at(0)) == 'K')
         for (unsigned i = 1; i < type.size(); i++) {
-            const char up = toupper(type.at(i));
+            const char up = (char)toupper(type.at(i));
             if (!(up == 'K' || up == 'R' || up == 'P' || up == 'Q' || up == 'B' || up == 'N')) {
                 cout << "format error" << endl;
                 return false;

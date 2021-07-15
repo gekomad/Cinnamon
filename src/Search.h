@@ -95,7 +95,7 @@ public:
 
     void endRun() {}
 
-    void setMainPly(const int, const int);
+    void setMainPly(const int, const uchar);
 
     static void setRunningThread(const bool t) {
         runningThread = t;

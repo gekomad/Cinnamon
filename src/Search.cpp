@@ -95,7 +95,7 @@ void Search::startClock() {
     startTime = std::chrono::high_resolution_clock::now();
 }
 
-void Search::setMainPly(const int ply, const int iter_depth) {
+void Search::setMainPly(const int ply, const uchar iter_depth) {
     mainDepth = iter_depth;
     this->ply = ply;
 }
@@ -275,7 +275,7 @@ short Search::search(const uchar depth, short alpha, const short beta, _TpvLine 
     INC(cumulativeMovesCount);
 #ifndef JS_MODE
     int wdl = TB::probeWdl(depth, side, N_PIECE, mainDepth, rightCastle, chessboard);
-    if (wdl != INT_MAX) return wdl;
+    if (wdl != INT_MAX) return (short)wdl;
 #endif
 
     short score = -_INFINITE;

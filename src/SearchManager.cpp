@@ -33,7 +33,7 @@ unsigned SearchManager::SZtbProbeWDL() const {
 }
 #endif
 
-int SearchManager::search(const int plyFromRoot, const int iter_depth) {
+int SearchManager::search(const int plyFromRoot, const uchar iter_depth) {
 
     constexpr int SkipStep[64] =
             {0, 1, 2, 3, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2,
@@ -112,7 +112,7 @@ void SearchManager::startThread(Search &thread, const int depth) {
     thread.start();
 }
 
-void SearchManager::setMainPly(const int ply, const int iter_depth) {
+void SearchManager::setMainPly(const int ply, const uchar iter_depth) {
     for (Search *s:threadPool->getPool()) {
         s->setMainPly(ply, iter_depth);
     }

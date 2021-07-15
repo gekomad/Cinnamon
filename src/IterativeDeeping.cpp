@@ -19,7 +19,7 @@
 #include "IterativeDeeping.h"
 
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), running(false), ponderEnabled(false) {
-    setId(-1);
+    setId(0xff);
     plyFromRoot = 0;
     SET(checkSmp2, 0);
 }
