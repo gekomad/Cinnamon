@@ -387,7 +387,7 @@ bool GenMoves::makemove(const _Tmove *move, const bool rep) {
     }
 
     for (u64 x2 = rightCastleOld ^ rightCastle; x2; RESET_LSB(x2)) {
-        const int position = BITScanForward(x2);
+        const uchar position = BITScanForwardU8(x2);
         updateZobristKey(14, position);
     }
     if (rep) {
@@ -449,7 +449,7 @@ int GenMoves::getMoveFromSan(const string &fenStr, _Tmove *move) {
         } else {
             _assert(0)
         }
-        move->from = -1;
+        move->from = 0xff;
         move->capturedPiece = SQUARE_EMPTY;
         return move->side;
     }

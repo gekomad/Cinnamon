@@ -32,7 +32,7 @@ template<typename T, typename = typename std::enable_if<std::is_base_of<Thread<T
 class ThreadPool: public ObserverThread {
 
 public:
-    ThreadPool(int t) : threadsBits(0) {
+    ThreadPool(uchar t) : threadsBits(0) {
         setNthread(t);
     }
 
@@ -56,7 +56,7 @@ public:
 
 #endif
 
-    bool setNthread(const int t) {
+    bool setNthread(const uchar t) {
         if (t < 1 || t > 64) {
             warn("invalid value");
             return false;
@@ -76,13 +76,13 @@ public:
     }
 
     void joinAll() {
-        for (int i = 0; i < nThread; i++) {
+        for (uchar i = 0; i < nThread; i++) {
             threadPool[i]->join();
         }
     }
 
     void sleepAll(bool b) {
-        for (int i = 0; i < nThread; i++) {
+        for (uchar i = 0; i < nThread; i++) {
             threadPool[i]->setSleep(b);
             if (!b) {
                 threadPool[i]->notify();
@@ -91,7 +91,7 @@ public:
     }
 
     void startAll() {
-        for (int i = 0; i < nThread; i++) {
+        for (uchar i = 0; i < nThread; i++) {
             threadPool[i]->start();
         }
     }
@@ -104,7 +104,7 @@ public:
         return threadPool;
     }
 
-    T &getThread(int i) const {
+    T &getThread(uchar i) const {
         assert(i < nThread);
         return *threadPool[i];
     }
@@ -113,11 +113,11 @@ private:
     vector<T *> threadPool;
     mutex mtx;
     atomic<u64> threadsBits;
-    int nThread = 0;
+    uchar nThread = 0;
     condition_variable cv;
 
     T &getThread() {
-        int i = BITScanForwardUnset(threadsBits);
+        uchar i = (uchar)BITScanForwardUnset(threadsBits);
         threadPool[i]->join();
         assert(!(threadsBits & POW2(i)));
         threadsBits |= POW2(i);

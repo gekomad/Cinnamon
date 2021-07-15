@@ -50,7 +50,7 @@ public:
 
     const string getFen() const;
 
-    int loadFen(const string &);
+    uchar loadFen(const string &);
 
     void clearChessboard();
 
@@ -121,5 +121,5 @@ private:
 
     string moveToString(const _Tmove *move);
 
-    int loadFen();
+    uchar loadFen();
 };

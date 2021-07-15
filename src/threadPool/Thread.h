@@ -33,7 +33,7 @@ class Thread {
 
 private:
     bool running = true;
-    int threadID;
+    uchar threadID;
     ObserverThread *observer = nullptr;
     condition_variable cv;
     thread theThread;
@@ -83,11 +83,11 @@ public:
         theThread.detach();
     }
 
-    int getId() const {
+    uchar getId() const {
         return threadID;
     }
 
-    void setId(int id) {
+    void setId(uchar id) {
         threadID = id;
     }
 

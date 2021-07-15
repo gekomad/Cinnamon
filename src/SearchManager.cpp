@@ -151,7 +151,7 @@ int SearchManager::getForceCheck() {
     return threadPool->getThread(0).getForceCheck();
 }
 
-u64 SearchManager::getZobristKey(const int id) {
+u64 SearchManager::getZobristKey(const uchar id) {
     return threadPool->getThread(id).getZobristKey();
 }
 
@@ -171,7 +171,7 @@ void SearchManager::setRunning(const int i) {
     }
 }
 
-int SearchManager::getRunning(const int i) {
+int SearchManager::getRunning(const uchar i) {
     return threadPool->getThread(i).getRunning();
 }
 
@@ -210,7 +210,7 @@ void SearchManager::setPonder(const bool i) {
     }
 }
 
-int SearchManager::getSide() {
+uchar SearchManager::getSide() {
 #ifdef DEBUG_MODE
     int t = threadPool->getThread(0).sideToMove;
     for (Search *s:threadPool->getPool()) {
@@ -308,7 +308,7 @@ void SearchManager::setRepetitionMapCount(const int i) {
     }
 }
 
-bool SearchManager::setNthread(const int nthread) {
+bool SearchManager::setNthread(const uchar nthread) {
     return threadPool->setNthread(nthread);
 }
 

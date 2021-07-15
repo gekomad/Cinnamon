@@ -43,7 +43,7 @@ public:
 
     Bitboard();
 
-    static inline u64 getRankFile(const int position, const u64 allpieces) {
+    static inline u64 getRankFile(const uchar position, const u64 allpieces) {
         BENCH_AUTO_CLOSE("getRankFile")
 //    ........            00000000
 //    ...q....            00010000
@@ -58,7 +58,7 @@ public:
                BITBOARD_RANK[position][rankIdx(position, allpieces)];
     }
 
-    static inline u64 getDiagonalAntiDiagonal(const int position, const u64 allpieces) {
+    static inline u64 getDiagonalAntiDiagonal(const uchar position, const u64 allpieces) {
         BENCH_AUTO_CLOSE("getDiagonalAntiDiagonal")
 //    ........            00010000
 //    q.......            10100000
@@ -93,20 +93,20 @@ private:
 
 #ifdef USE_BMI2
 
-    static uchar rankIdx(const int position, const u64 allpieces) {
-        return _pext_u64(allpieces, RANK[position]);
+    static uchar rankIdx(const uchar position, const u64 allpieces) {
+        return (uchar)_pext_u64(allpieces, RANK[position]);
     }
 
-    static uchar fileIdx(const int position, const u64 allpieces) {
-        return _pext_u64(allpieces, FILE_[position]);
+    static uchar fileIdx(const uchar position, const u64 allpieces) {
+        return (uchar)_pext_u64(allpieces, FILE_[position]);
     }
 
-    static uchar diagonalIdx(const int position, const u64 allpieces) {
-        return _pext_u64(allpieces, DIAGONAL[position]);
+    static uchar diagonalIdx(const uchar position, const u64 allpieces) {
+        return (uchar)_pext_u64(allpieces, DIAGONAL[position]);
     }
 
-    static uchar antiDiagonalIdx(const int position, const u64 allpieces) {
-        return _pext_u64(allpieces, ANTIDIAGONAL[position]);
+    static uchar antiDiagonalIdx(const uchar position, const u64 allpieces) {
+        return (uchar)_pext_u64(allpieces, ANTIDIAGONAL[position]);
     }
 
 #else
@@ -134,29 +134,29 @@ private:
     void popolateAntiDiagonal();
 
     vector<u64>
-    combinations(const vector<u64> &elems, const int len, vector<int> &pos, const int depth, const int margin);
+    combinations(const vector<u64> &elems, const unsigned len, vector<int> &pos, const int depth, const int margin);
 
-    vector<u64> combinations(const vector<u64> &elems, const int len);
+    vector<u64> combinations(const vector<u64> &elems, const unsigned len);
 
-    u64 performDiagShift(const int position, const u64 allpieces);
+    u64 performDiagShift(const uchar position, const u64 allpieces);
 
-    u64 performDiagCapture(const int position, const u64 allpieces);
+    u64 performDiagCapture(const uchar position, const u64 allpieces);
 
-    u64 performAntiDiagCapture(const int position, const u64 allpieces);
+    u64 performAntiDiagCapture(const uchar position, const u64 allpieces);
 
-    u64 performAntiDiagShift(const int position, const u64 allpieces);
+    u64 performAntiDiagShift(const uchar position, const u64 allpieces);
 
     vector<u64> getCombination(u64 elements);
 
     void popolateRank();
 
-    u64 performRankShift(const int position, const u64 allpieces);
+    u64 performRankShift(const uchar position, const u64 allpieces);
 
-    static u64 performColumnCapture(const int position, const u64 allpieces);
+    static u64 performColumnCapture(const uchar position, const u64 allpieces);
 
-    static u64 performRankCapture(const int position, const u64 allpieces);
+    static u64 performRankCapture(const uchar position, const u64 allpieces);
 
-    u64 performColumnShift(const int position, const u64 allpieces);
+    u64 performColumnShift(const uchar position, const u64 allpieces);
 
     static mutex mutexConstructor;
     static bool volatile generated;

@@ -68,7 +68,7 @@ public:
         const u64 allpieces = enemies | friends;
 
         if (perftMode) {
-            int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
+            uchar kingPosition = BITScanForwardU8(chessboard[KING_BLACK + side]);
             pinned = board::getPinned<side>(allpieces, friends, kingPosition, chessboard);
             isInCheck = board::isAttacked<side>(kingPosition, allpieces, chessboard);
         }
@@ -103,12 +103,12 @@ public:
     bool performKingShiftCapture(const u64 enemies, const bool isCapture) {
         BENCH_AUTO_CLOSE("kingShiftCapture")
         ASSERT_RANGE(side, 0, 1)
-        const int pos = BITScanForward(chessboard[KING_BLACK + side]);
+        const uchar pos = BITScanForwardU8(chessboard[KING_BLACK + side]);
         assert(pos != -1);
 
         for (u64 x1 = enemies & NEAR_MASK1[pos]; x1; RESET_LSB(x1)) {
             BENCH_SUBPROCESS("kingShiftCapture", "pushmove")
-            if (pushmove<STANDARD_MOVE_MASK, side>(pos, BITScanForward(x1), NO_PROMOTION, KING_BLACK + side,
+            if (pushmove<STANDARD_MOVE_MASK, side>(pos, BITScanForwardU8(x1), NO_PROMOTION, KING_BLACK + side,
                                                    isCapture)) {
                 return true;
             }
@@ -121,10 +121,10 @@ public:
         BENCH_AUTO_CLOSE("knightShiftCapture")
         ASSERT_RANGE(side, 0, 1)
         for (u64 x = chessboard[KNIGHT_BLACK + side]; x; RESET_LSB(x)) {
-            const int pos = BITScanForward(x);
+            const uchar pos = BITScanForwardU8(x);
             for (u64 x1 = enemies & KNIGHT_MASK[pos]; x1; RESET_LSB(x1)) {
                 BENCH_SUBPROCESS("knightShiftCapture", "pushmove")
-                if (pushmove<STANDARD_MOVE_MASK, side>(pos, BITScanForward(x1), NO_PROMOTION, KNIGHT_BLACK + side,
+                if (pushmove<STANDARD_MOVE_MASK, side>(pos, BITScanForwardU8(x1), NO_PROMOTION, KNIGHT_BLACK + side,
                                                        isCapture
                 ))
                     return true;
@@ -140,11 +140,11 @@ public:
         ASSERT_RANGE(piece, 0, 11)
         ASSERT_RANGE(side, 0, 1)
         for (u64 x2 = chessboard[piece]; x2; RESET_LSB(x2)) {
-            const int position = BITScanForward(x2);
+            const uchar position = BITScanForwardU8(x2);
             u64 diag = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & enemies;
             for (; diag; RESET_LSB(diag)) {
                 BENCH_SUBPROCESS("diagCapture", "pushmove")
-                if (pushmove<STANDARD_MOVE_MASK, side>(position, BITScanForward(diag), NO_PROMOTION, piece, true))
+                if (pushmove<STANDARD_MOVE_MASK, side>(position, BITScanForwardU8(diag), NO_PROMOTION, piece, true))
                     return true;
 
             }
@@ -161,11 +161,11 @@ public:
         ASSERT_RANGE(side, 0, 1)
 
         for (u64 x2 = chessboard[piece]; x2; RESET_LSB(x2)) {
-            const int position = BITScanForward(x2);
+            const uchar position = BITScanForwardU8(x2);
             u64 rankFile = Bitboard::getRankFile(position, allpieces) & enemies;
             for (; rankFile; RESET_LSB(rankFile)) {
                 BENCH_SUBPROCESS("rankFileCapture", "pushmove")
-                if (pushmove<STANDARD_MOVE_MASK, side>(position, BITScanForward(rankFile), NO_PROMOTION, piece, true))
+                if (pushmove<STANDARD_MOVE_MASK, side>(position, BITScanForwardU8(rankFile), NO_PROMOTION, piece, true))
                     return true;
 
             }
@@ -187,24 +187,27 @@ public:
 
         u64 x = shiftForward<side, 7>(chessboard[side]) & enemies;
         for (; x; RESET_LSB(x)) {
-            const int o = BITScanForward(x);
+            const uchar o = BITScanForwardU8(x);
             if ((side && o > A7) || (!side && o < H2)) {//PROMOTION
                 BENCH_SUBPROCESS("pawnCapture", "pushmove")
-                if (pushmove<PROMOTION_MOVE_MASK, side>(o + sh, o, QUEEN_BLACK + side, side, true)) return true;
+                if (pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh), o, QUEEN_BLACK + side, side, true)) return true;
 
                 BENCH_SUBPROCESS("pawnCapture", "pushmove")
-                if (pushmove<PROMOTION_MOVE_MASK, side>(o + sh, o, KNIGHT_BLACK + side, side, true)) return true;
+                if (pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh), o, KNIGHT_BLACK + side, side, true))
+                    return true;
 
                 if (perftMode) {
                     BENCH_SUBPROCESS("pawnCapture", "pushmove")
-                    if (pushmove<PROMOTION_MOVE_MASK, side>(o + sh, o, ROOK_BLACK + side, side, true)) return true;
+                    if (pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh), o, ROOK_BLACK + side, side, true))
+                        return true;
 
                     BENCH_SUBPROCESS("pawnCapture", "pushmove")
-                    if (pushmove<PROMOTION_MOVE_MASK, side>(o + sh, o, BISHOP_BLACK + side, side, true)) return true;
+                    if (pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh), o, BISHOP_BLACK + side, side, true))
+                        return true;
                 }
             } else {
                 BENCH_SUBPROCESS("pawnCapture", "pushmove")
-                if (pushmove<STANDARD_MOVE_MASK, side>(o + sh, o, NO_PROMOTION, side, true)) return true;
+                if (pushmove<STANDARD_MOVE_MASK, side>((uchar) (o + sh), o, NO_PROMOTION, side, true)) return true;
 
             }
         }
@@ -212,24 +215,29 @@ public:
         x = shiftForward<side, 9>(chessboard[side]) & enemies;
 
         for (; x; RESET_LSB(x)) {
-            const int o = BITScanForward(x);
+            const uchar o = BITScanForwardU8(x);
             if ((side && o > A7) || (!side && o < H2)) {    //PROMOTION
                 BENCH_SUBPROCESS("pawnCapture", "pushmove")
-                if (pushmove<PROMOTION_MOVE_MASK, side>(o + sh2, o, QUEEN_BLACK + side, side, true)) return true;
+                if (pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh2), o, QUEEN_BLACK + side, side, true))
+                    return true;
 
                 BENCH_SUBPROCESS("pawnCapture", "pushmove")
-                if (pushmove<PROMOTION_MOVE_MASK, side>(o + sh2, o, KNIGHT_BLACK + side, side, true)) return true;
+                if (pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh2), o, KNIGHT_BLACK + side, side, true))
+                    return true;
 
                 if (perftMode) {
                     BENCH_SUBPROCESS("pawnCapture", "pushmove")
-                    if (pushmove<PROMOTION_MOVE_MASK, side>(o + sh2, o, BISHOP_BLACK + side, side, true)) return true;
+                    if (pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh2), o, BISHOP_BLACK + side, side,
+                                                            true))
+                        return true;
 
                     BENCH_SUBPROCESS("pawnCapture", "pushmove")
-                    if (pushmove<PROMOTION_MOVE_MASK, side>(o + sh2, o, ROOK_BLACK + side, side, true)) return true;
+                    if (pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh2), o, ROOK_BLACK + side, side, true))
+                        return true;
                 }
             } else {
                 BENCH_SUBPROCESS("pawnCapture", "pushmove")
-                if (pushmove<STANDARD_MOVE_MASK, side>(o + sh2, o, NO_PROMOTION, side, true)) return true;
+                if (pushmove<STANDARD_MOVE_MASK, side>((uchar) (o + sh2), o, NO_PROMOTION, side, true)) return true;
 
             }
         }
@@ -237,7 +245,7 @@ public:
         if (enPassant != NO_ENPASSANT) {
             x = ENPASSANT_MASK[X(side)][enPassant] & chessboard[side];
             for (; x; RESET_LSB(x)) {
-                const int o = BITScanForward(x);
+                const uchar o = BITScanForwardU8(x);
                 BENCH_SUBPROCESS("pawnCapture", "pushmove")
                 pushmove<ENPASSANT_MOVE_MASK, side>(o, (side ? enPassant + 8 : enPassant - 8), NO_PROMOTION, side,
                                                     true);
@@ -259,23 +267,23 @@ public:
 
         x &= xallpieces;
         for (; x; RESET_LSB(x)) {
-            const int o = BITScanForward(x);
+            const uchar o = BITScanForwardU8(x);
             assert(board::getPieceAt<side>(POW2(o + sh), chessboard) != SQUARE_EMPTY);
             assert(board::getBitmap(side, chessboard) & POW2(o + sh));
             if (o > A7 || o < H2) {
                 BENCH_SUBPROCESS("pawnShift", "pushmove")
-                pushmove<PROMOTION_MOVE_MASK, side>(o + sh, o, QUEEN_BLACK + side, side, false);
+                pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh), o, QUEEN_BLACK + side, side, false);
                 BENCH_SUBPROCESS("pawnShift", "pushmove")
-                pushmove<PROMOTION_MOVE_MASK, side>(o + sh, o, KNIGHT_BLACK + side, side, false);
+                pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh), o, KNIGHT_BLACK + side, side, false);
                 if (perftMode) {
                     BENCH_SUBPROCESS("pawnShift", "pushmove")
-                    pushmove<PROMOTION_MOVE_MASK, side>(o + sh, o, BISHOP_BLACK + side, side, false);
+                    pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh), o, BISHOP_BLACK + side, side, false);
                     BENCH_SUBPROCESS("pawnShift", "pushmove")
-                    pushmove<PROMOTION_MOVE_MASK, side>(o + sh, o, ROOK_BLACK + side, side, false);
+                    pushmove<PROMOTION_MOVE_MASK, side>((uchar) (o + sh), o, ROOK_BLACK + side, side, false);
                 }
             } else {
                 BENCH_SUBPROCESS("pawnShift", "pushmove")
-                pushmove<STANDARD_MOVE_MASK, side>(o + sh, o, NO_PROMOTION, side, false);
+                pushmove<STANDARD_MOVE_MASK, side>((uchar) (o + sh), o, NO_PROMOTION, side, false);
             }
         }
     }
@@ -288,11 +296,11 @@ public:
         ASSERT_RANGE(piece, 0, 11)
         ASSERT_RANGE(side, 0, 1)
         for (u64 x2 = chessboard[piece]; x2; RESET_LSB(x2)) {
-            const int position = BITScanForward(x2);
+            const uchar position = BITScanForwardU8(x2);
             u64 diag = Bitboard::getDiagonalAntiDiagonal(position, allpieces) & ~allpieces;
             for (; diag; RESET_LSB(diag)) {
                 BENCH_SUBPROCESS("diagShift", "pushmove")
-                pushmove<STANDARD_MOVE_MASK, side>(position, BITScanForward(diag), NO_PROMOTION, piece, false);
+                pushmove<STANDARD_MOVE_MASK, side>(position, BITScanForwardU8(diag), NO_PROMOTION, piece, false);
             }
         }
     }
@@ -304,11 +312,11 @@ public:
         ASSERT_RANGE(side, 0, 1)
 
         for (u64 x2 = chessboard[piece]; x2; RESET_LSB(x2)) {
-            const int position = BITScanForward(x2);
+            const uchar position = BITScanForwardU8(x2);
             u64 rankFile = Bitboard::getRankFile(position, allpieces) & ~allpieces;
             for (; rankFile; RESET_LSB(rankFile)) {
                 BENCH_SUBPROCESS("rankFileShift", "pushmove")
-                pushmove<STANDARD_MOVE_MASK, side>(position, BITScanForward(rankFile), NO_PROMOTION, piece, false);
+                pushmove<STANDARD_MOVE_MASK, side>(position, BITScanForwardU8(rankFile), NO_PROMOTION, piece, false);
             }
         }
     }
@@ -346,6 +354,7 @@ public:
         assert(historyHeuristic[from][to] <= historyHeuristic[from][to] + value);
         historyHeuristic[from][to] += value;
     }
+
     bool perftMode;
 
 
@@ -512,7 +521,7 @@ protected:
         bool result = 0;
         switch (type & 0x3) {
             case STANDARD_MOVE_MASK: {
-                u64 from1, to1 = -1;
+                u64 from1, to1 = 0xff;
                 assert(pieceFrom != SQUARE_EMPTY);
                 assert(pieceTo != KING_BLACK);
                 assert(pieceTo != KING_WHITE);
@@ -526,7 +535,7 @@ protected:
                 assert(chessboard[KING_BLACK]);
                 assert(chessboard[KING_WHITE]);
 
-                result = board::isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                result = board::isAttacked<side>(BITScanForwardU8(chessboard[KING_BLACK + side]),
                                                  board::getBitmap<BLACK>(chessboard) |
                                                  board::getBitmap<WHITE>(chessboard), chessboard);
                 chessboard[pieceFrom] = from1;
@@ -547,7 +556,7 @@ protected:
                     chessboard[pieceTo] &= NOTPOW2(to);
                 }
                 chessboard[promotionPiece] = chessboard[promotionPiece] | POW2(to);
-                result = board::isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                result = board::isAttacked<side>(BITScanForwardU8(chessboard[KING_BLACK + side]),
                                                  board::getBitmap<BLACK>(chessboard) |
                                                  board::getBitmap<WHITE>(chessboard), chessboard);
                 if (pieceTo != SQUARE_EMPTY) {
@@ -567,7 +576,7 @@ protected:
                 } else {
                     chessboard[X(side)] &= NOTPOW2(to + 8);
                 }
-                result = board::isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
+                result = board::isAttacked<side>(BITScanForwardU8(chessboard[KING_BLACK + side]),
                                                  board::getBitmap<BLACK>(chessboard) |
                                                  board::getBitmap<WHITE>(chessboard), chessboard);
                 chessboard[X(side)] = to1;
@@ -740,10 +749,10 @@ protected:
         move->side = side;
         move->capturedPiece = capturedPiece;
         if (type & 0x3) {
-            move->from = (uchar) from;
-            move->to = (uchar) to;
+            move->from = from;
+            move->to = to;
             move->pieceFrom = pieceFrom;
-            move->promotionPiece = (char) promotionPiece;
+            move->promotionPiece = promotionPiece;
         }
         assert(getListSize() < MAX_MOVE);
         return res;
@@ -772,13 +781,13 @@ protected:
         ASSERT_RANGE(from, 0, 63)
         ASSERT_RANGE(to, 0, 63)
         killer[1][ply] = killer[0][ply];
-        killer[0][ply] = from | (to << 8);
+        killer[0][ply] = (unsigned short) (from | (to << 8));
     }
 
     bool isKiller(const int idx, const int from, const int to, const int ply) {
         ASSERT_RANGE(from, 0, 63)
         ASSERT_RANGE(to, 0, 63)
-        const unsigned short v = from | (to << 8);
+        const unsigned short v = (unsigned short) (from | (to << 8));
         return v == killer[idx][ply];
     }
 
@@ -812,9 +821,9 @@ private:
             x = (((x >> 8) & xallpieces) >> 8) & xallpieces;
         }
         for (; x; RESET_LSB(x)) {
-            const int o = BITScanForward(x);
+            const uchar o = BITScanForwardU8(x);
             BENCH_SUBPROCESS("performJumpPawn", "pushmove")
-            pushmove<STANDARD_MOVE_MASK, side>(o + (side ? -16 : 16), o, NO_PROMOTION, side, false);
+            pushmove<STANDARD_MOVE_MASK, side>((uchar)(o + (side ? -16 : 16)), o, NO_PROMOTION, side, false);
         }
     }
 

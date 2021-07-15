@@ -11,7 +11,7 @@ class TB {
 private:
     TB() {};
 public:
-    static int probeWdl(const int depth, const uchar side, const int N_PIECE, const int mainDepth,
+    static int probeWdl(const int depth, const uchar side, const unsigned N_PIECE, const int mainDepth,
                         uchar rightCastle, const _Tchessboard &chessboard) {
         SYZYGY *syzygy = &SYZYGY::getInstance();
 
@@ -64,7 +64,7 @@ public:
         SYZYGY *syzygy = &SYZYGY::getInstance();
         const u64 white = board::getBitmap<WHITE>(chessboard);
         const u64 black = board::getBitmap<BLACK>(chessboard);
-        const auto tot = bitCount(white | black);
+        const auto tot = (unsigned) bitCount(white | black);
 
         const u64 oldKey = chessboard[ZOBRISTKEY_IDX];
         uchar oldEnpassant = genMoves.enPassant;
@@ -81,7 +81,7 @@ public:
             _Tmove *drawMove = nullptr;
             _Tmove *worstMove = nullptr;
 
-            int minDtz = -1;
+            unsigned minDtz = UINT_MAX;
             unsigned maxDtzWorst = 1000;
 
             const u64 allPieces = white | black;
@@ -100,7 +100,7 @@ public:
                                                               genMoves.rightCastle);
                 BENCH_STOP("gtbTime")
                 if (res == TB_WIN && !worstMove && !drawMove) {
-                    if ((int) dtz > minDtz) {
+                    if (dtz > minDtz) {
                         bestMove = move;
                         minDtz = dtz;
                         if (move->promotionPiece != NO_PROMOTION || board::isOccupied(move->to, allPieces))
@@ -199,7 +199,7 @@ public:
                 } else if (res == TB_BLESSED_LOSS && !bestMove && !drawMove && !bestMove50) {
                     if ((int) dtz > maxDtzWorst50) {
                         worstMove50 = results[i];
-                        maxDtzWorst50 = dtz;
+                        maxDtzWorst50 = (int) dtz;
                         if (TB_GET_PROMOTES(worstMove50) ||
                             board::isOccupied(_decodeSquare[TB_GET_TO(worstMove50)], allPieces))
                             maxDtzWorst50++;
@@ -207,7 +207,7 @@ public:
                 } else if (res == TB_LOSS && !bestMove && !drawMove && !bestMove50 && !worstMove50) {
                     if ((int) dtz > maxDtzWorst) {
                         worstMove = results[i];
-                        maxDtzWorst = dtz;
+                        maxDtzWorst = (int) dtz;
                         if (TB_GET_PROMOTES(worstMove) ||
                             board::isOccupied(_decodeSquare[TB_GET_TO(worstMove)], allPieces))
                             maxDtzWorst++;
@@ -269,10 +269,10 @@ public:
             return "";
     }
 
-    static int SZtbProbeWDL(GenMoves &genMoves) {
+    static unsigned SZtbProbeWDL(GenMoves &genMoves) {
         SYZYGY *syzygy = &SYZYGY::getInstance();
         const _Tchessboard &chessboard = genMoves.chessboard;
-        const auto tot = bitCount(board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard));
+        const auto tot = (unsigned) bitCount(board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard));
         return syzygy->SZtbProbeWDL(chessboard, genMoves.sideToMove, tot);
     }
 

@@ -38,7 +38,7 @@ public:
 
     static constexpr int NULL_DIVISOR = 7;
     static constexpr int NULL_DEPTH = 3;
-    static constexpr int VAL_WINDOW = 50;
+    static constexpr short VAL_WINDOW = 50;
 #ifndef JS_MODE
     SYZYGY *syzygy = &SYZYGY::getInstance();
 #endif
@@ -130,7 +130,7 @@ private:
     Hash &hash = Hash::getInstance();
 
     vector<int> searchMovesVector;
-    int valWindow = INT_MAX;
+    short valWindow = SHRT_MAX;
     static volatile bool runningThread;
     _TpvLine pvLine;
 
@@ -141,7 +141,7 @@ private:
 #endif
 
     template<uchar side,bool searchMoves>
-    void aspirationWindow(const int depth, const int valWindow);
+    void aspirationWindow(const int depth, const short valWindow);
 
     int checkTime() const;
 
@@ -152,13 +152,13 @@ private:
     bool checkDraw(u64);
 
     template<uchar side, bool checkMoves>
-    int search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE);
+    short search(const int depth, short alpha, const short beta, _TpvLine *pline, const unsigned N_PIECE);
 
     template<bool checkMoves>
     bool checkSearchMoves(const _Tmove *move) const;
 
     template<uchar side>
-    int qsearch(int alpha, const int beta, const uchar promotionPiece, const int depth);
+    short qsearch(short alpha, const short beta, const uchar promotionPiece);
 
     void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 

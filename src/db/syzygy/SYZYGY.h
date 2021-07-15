@@ -33,7 +33,7 @@ class SYZYGY : public Singleton<SYZYGY> {
     friend class Singleton<SYZYGY>;
 
 public:
-    int SZtbProbeWDL(const _Tchessboard &chessboard, const int side, const int tot) const {
+    unsigned SZtbProbeWDL(const _Tchessboard &chessboard, const int side, const unsigned tot) const {
         if (getInstalledPieces() >= tot) {
             BENCH_AUTO_CLOSE("syzygyTime")
             return SZtbProbeWDL(chessboard, side);
@@ -41,9 +41,9 @@ public:
         return TB_RESULT_FAILED;
     }
 
-    int setPath(const string &path);
+    unsigned setPath(const string &path);
 
-    static char getPromotion(const unsigned promotion) {
+    static uchar getPromotion(const unsigned promotion) {
         if (promotion == 1) return 'q';
         if (promotion == 2) return 'r';
         if (promotion == 3) return 'b';
@@ -55,17 +55,17 @@ public:
 
     unsigned SZtbProbeWDL(const _Tchessboard &c, const bool turn) const;
 
-    void setInstalledPieces(const int i) {
+    void setInstalledPieces(const unsigned i) {
         installedPieces = i;
     }
 
     ~SYZYGY() = default;
 
-    int getInstalledPieces() const {
+    unsigned getInstalledPieces() const {
         return installedPieces;
     }
 
-    bool createSYZYGY(string path) {
+    unsigned createSYZYGY(string path) {
 
         installedPieces = setPath(path);
         if (!installedPieces) {
@@ -81,7 +81,7 @@ private:
 #ifdef BENCH_MODE
     Times *times = &Times::getInstance();
 #endif
-    int installedPieces = 0;
+    unsigned installedPieces = 0;
 
     SYZYGY();
 

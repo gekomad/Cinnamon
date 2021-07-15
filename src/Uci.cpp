@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef JS_MODE
+
 #include "Uci.h"
 
 void Uci::startListner() {
@@ -39,7 +40,7 @@ void Uci::listner(IterativeDeeping *it) {
     bool stop = false;
     int lastTime = 0;
     uciMode = false;
-    int gaviotatbcache = -1;
+    unsigned gaviotatbcache = INT_MAX;
     int tb_pieces = -1;
     string gaviotatbscheme;
     string dumpFile;
@@ -117,7 +118,7 @@ void Uci::listner(IterativeDeeping *it) {
                         knowCommand = true;
                         auto gtb = &GTB::getInstance();
                         gtb->setPath(token);
-                        if (gaviotatbcache != -1)
+                        if (gaviotatbcache != INT_MAX)
                             gtb->setCacheSize(gaviotatbcache);
                         if (!gaviotatbscheme.empty())
                             gtb->setScheme(token);
@@ -135,7 +136,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (String::toLower(token) == "value") {
                         getToken(uip, token);
-                        gaviotatbcache = stoi(token);
+                        gaviotatbcache = (unsigned)stoi(token);
                         GTB *gtb = &GTB::getInstance();
                         if (gtb == nullptr) {
                             knowCommand = true;
@@ -147,7 +148,7 @@ void Uci::listner(IterativeDeeping *it) {
                     getToken(uip, token);
                     if (String::toLower(token) == "value") {
                         getToken(uip, token);
-                        knowCommand = searchManager.setNthread(stoi(token));
+                        knowCommand = searchManager.setNthread((uchar) stoi(token));
                     }
                 } else if (String::toLower(token) == "gaviotatbscheme") {
                     getToken(uip, token);
@@ -261,7 +262,7 @@ void Uci::listner(IterativeDeeping *it) {
             bool setMovetime = false;
             while (!uip.eof()) {
                 getToken(uip, token);
-                 if (String::toLower(token) == "wtime") {
+                if (String::toLower(token) == "wtime") {
                     uip >> wtime;
                 } else if (String::toLower(token) == "btime") {
                     uip >> btime;
@@ -327,4 +328,5 @@ void Uci::listner(IterativeDeeping *it) {
         cout << flush;
     }
 }
+
 #endif

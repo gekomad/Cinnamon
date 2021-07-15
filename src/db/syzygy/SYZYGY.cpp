@@ -20,7 +20,7 @@
 
 SYZYGY::SYZYGY() = default;
 
-int SYZYGY::setPath(const string &path) {
+unsigned SYZYGY::setPath(const string &path) {
     sz_tb_init(path.c_str());
     setInstalledPieces(TB_LARGEST);
     return TB_LARGEST;
@@ -76,7 +76,7 @@ u64 SYZYGY::decode(u64 c) {
 
     u64 res = 0;
     for (; c; RESET_LSB(c)) {
-        int position = BITScanForward(c);
+        uchar position = BITScanForwardU8(c);
         res |= _decode[position];
     }
     return res;

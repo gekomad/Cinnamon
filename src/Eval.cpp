@@ -49,9 +49,9 @@ Eval::~Eval() {
 
  */
 template<uchar side, Eval::_Tphase phase>
-int Eval::evaluatePawn(const _Tchessboard &chessboard) {
+short Eval::evaluatePawn(const _Tchessboard &chessboard) {
     INC(evaluationCount[side]);
-    int result = 0;
+    short result = 0;
     constexpr int xside = X(side);
 
     const u64 ped_friends = chessboard[side];
@@ -90,7 +90,7 @@ int Eval::evaluatePawn(const _Tchessboard &chessboard) {
 
     for (u64 p = ped_friends; p; RESET_LSB(p)) {
         bool isolated = false;
-        const int o = BITScanForward(p);
+        const uchar o = BITScanForwardU8(p);
         const u64 pos = POW2(o);
 
         // 4. attack king
@@ -153,7 +153,7 @@ int Eval::evaluatePawn(const _Tchessboard &chessboard) {
  * 9. pinned
  */
 template<uchar side, Eval::_Tphase phase>
-int Eval::evaluateBishop(const _Tchessboard &chessboard, const u64 enemies) {
+short Eval::evaluateBishop(const _Tchessboard &chessboard, const u64 enemies) {
     INC(evaluationCount[side]);
     constexpr int xside = X(side);
     u64 bishop = chessboard[BISHOP_BLACK + side];
@@ -161,7 +161,7 @@ int Eval::evaluateBishop(const _Tchessboard &chessboard, const u64 enemies) {
     // 1.
     if (!bishop) return 0;
 
-    int result = 0;
+    short result = 0;
     const int nBishop = bitCount(bishop);
 
     // 2.
@@ -194,7 +194,7 @@ int Eval::evaluateBishop(const _Tchessboard &chessboard, const u64 enemies) {
 //    }
 
     for (; bishop; RESET_LSB(bishop)) {
-        const int o = BITScanForward(bishop);
+        const uchar o = BITScanForwardU8(bishop);
         // 5. mobility
 
         const u64 x = Bitboard::getDiagonalAntiDiagonal(o, structureEval.allPieces);
@@ -245,10 +245,10 @@ int Eval::evaluateBishop(const _Tchessboard &chessboard, const u64 enemies) {
  * 6. 5. bishop on queen - if there is a bishop on same diagonal add BISHOP_ON_QUEEN
  */
 template<uchar side, Eval::_Tphase phase>
-int Eval::evaluateQueen(const _Tchessboard &chessboard, const u64 enemies) {
+short Eval::evaluateQueen(const _Tchessboard &chessboard, const u64 enemies) {
     INC(evaluationCount[side]);
     u64 queen = chessboard[QUEEN_BLACK + side];
-    int result = 0;
+    short result = 0;
     constexpr int xside = X(side);
     // 2. *king security*
 //    if (phase != OPEN) {
@@ -268,7 +268,7 @@ int Eval::evaluateQueen(const _Tchessboard &chessboard, const u64 enemies) {
 //    }
 
     for (; queen; RESET_LSB(queen)) {
-        const int o = BITScanForward(queen);
+        const uchar o = BITScanForwardU8(queen);
         // 3. mobility
         const u64 x = board::performRankFileCaptureAndShift(o, enemies, structureEval.allPieces) |
                       board::getDiagShiftAndCapture(o, enemies, structureEval.allPieces);
@@ -308,13 +308,13 @@ int Eval::evaluateQueen(const _Tchessboard &chessboard, const u64 enemies) {
 */
 
 template<uchar side, Eval::_Tphase phase>
-int Eval::evaluateKnight(const _Tchessboard &chessboard, const u64 notMyBits) {
+short Eval::evaluateKnight(const _Tchessboard &chessboard, const u64 notMyBits) {
     INC(evaluationCount[side]);
     u64 knight = chessboard[KNIGHT_BLACK + side];
     if (!knight) return 0;
     constexpr int xside = X(side);
     // 1. pinned
-    int result = 0;
+    short result = 0;
 
     // 2. undevelop
 //    if (phase == OPEN) {
@@ -338,7 +338,7 @@ int Eval::evaluateKnight(const _Tchessboard &chessboard, const u64 notMyBits) {
 //            -ENEMY_NEAR_KING * bitCount(NEAR_MASK2[structureEval.posKing[xside]] & knight));
     }
     for (; knight; RESET_LSB(knight)) {
-        const int pos = BITScanForward(knight);
+        const uchar pos = BITScanForwardU8(knight);
 
         // 5. mobility
         assert(bitCount(notMyBits & KNIGHT_MASK[pos]) < (int) (sizeof(MOB_KNIGHT) / sizeof(int)));
@@ -377,7 +377,7 @@ int Eval::evaluateKnight(const _Tchessboard &chessboard, const u64 notMyBits) {
  * 8. Penalise if Rook is Blocked Horizontally
 */
 template<uchar side, Eval::_Tphase phase>
-int Eval::evaluateRook(const _Tchessboard &chessboard, const u64 enemies, const u64 friends) {
+short Eval::evaluateRook(const _Tchessboard &chessboard, const u64 enemies, const u64 friends) {
     INC(evaluationCount[side]);
 
     u64 rook = chessboard[ROOK_BLACK + side];
@@ -385,7 +385,7 @@ int Eval::evaluateRook(const _Tchessboard &chessboard, const u64 enemies, const 
 
 //    const int nRooks = bitCount(rook);
     // 2.
-    int result = 0;
+    short result = 0;
     constexpr int xside = X(side);
     // 3. in 7th
     if (phase == MIDDLE) {
@@ -427,7 +427,7 @@ int Eval::evaluateRook(const _Tchessboard &chessboard, const u64 enemies, const 
 //    }
 
     for (; rook; RESET_LSB(rook)) {
-        const int o = BITScanForward(rook);
+        const uchar o = BITScanForwardU8(rook);
         //mobility
         u64 mob = board::getMobilityRook(o, enemies, friends);
         if (mob & structureEval.posKingBit[xside]) structureEval.kingAttackers[xside] |= POW2(o);
@@ -458,9 +458,9 @@ int Eval::evaluateRook(const _Tchessboard &chessboard, const u64 enemies, const 
 }
 
 template<Eval::_Tphase phase>
-int Eval::evaluateKing(const _Tchessboard &chessboard, const uchar side, const u64 squares) {
+short Eval::evaluateKing(const _Tchessboard &chessboard, const uchar side, const u64 squares) {
     assert(evaluationCount[side] == 5);
-    int result = 0;
+    short result = 0;
     uchar pos_king = structureEval.posKing[side];
     if (phase == END) {
         ADD(SCORE_DEBUG.DISTANCE_KING[side], DISTANCE_KING_ENDING[pos_king]);
@@ -485,7 +485,7 @@ int Eval::evaluateKing(const _Tchessboard &chessboard, const uchar side, const u
 }
 
 void Eval::storeHashValue(const u64 key, const short value) {
-    evalHash[key % hashSize] = (key & keyMask) | (value & valueMask);
+    evalHash[key % hashSize] =  (key & keyMask) | ((u64)value & valueMask);
     assert(value == getHashValue(key));
 }
 
@@ -523,11 +523,11 @@ Eval::getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, 
     const short hashValue = getHashValue(key);
     if (hashValue != noHashValue && !trace) return side ? -hashValue : hashValue;
 #endif
-    
-    int lazyscore_white = lazyEvalSide<WHITE>(chessboard);
-    int lazyscore_black = lazyEvalSide<BLACK>(chessboard);
 
-    const int lazyscore = side ? lazyscore_white - lazyscore_black : lazyscore_black - lazyscore_white;
+    short lazyscore_white = lazyEvalSide<WHITE>(chessboard);
+    short lazyscore_black = lazyEvalSide<BLACK>(chessboard);
+
+    const short lazyscore = side ? lazyscore_white - lazyscore_black : lazyscore_black - lazyscore_white;
     if (lazyscore > (beta + FUTIL_MARGIN) || lazyscore < (alpha - FUTIL_MARGIN)) {
         INC(lazyEvalCuts);
         return lazyscore;
@@ -588,7 +588,7 @@ Eval::getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, 
     const int attack_king_white = ATTACK_KING * bitCount(structureEval.kingAttackers[BLACK]);
     const int attack_king_black = ATTACK_KING * bitCount(structureEval.kingAttackers[WHITE]);
     side == WHITE ? lazyscore_black -= 5 : lazyscore_white += 5;
-    const int result =
+    const short result =
             (attack_king_black + bonus_attack_king_black + lazyscore_black + Tresult.pawns[BLACK] +
              Tresult.knights[BLACK] + Tresult.bishop[BLACK] + Tresult.rooks[BLACK] + Tresult.queens[BLACK] +
              Tresult.kings[BLACK]) -

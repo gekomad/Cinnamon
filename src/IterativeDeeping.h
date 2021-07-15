@@ -49,7 +49,7 @@ public:
 
     int loadFen(const string &fen = "");
 
-    int getRunning() const {
+    long getRunning() const {
         return running;
     }
 

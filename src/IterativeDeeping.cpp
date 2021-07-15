@@ -161,7 +161,7 @@ void IterativeDeeping::run() {
         if (abs(sc) > _INFINITE - MAX_PLY) {
             const bool b = searchManager.getForceCheck();
             const u64 oldKey = searchManager.getZobristKey(0);
-            const int oldEnpassant = searchManager.getEnpassant(0);
+            const uchar oldEnpassant = searchManager.getEnpassant(0);
             searchManager.setForceCheck(true);
             const bool valid = searchManager.makemove(&resultMove);
             if (!valid) {

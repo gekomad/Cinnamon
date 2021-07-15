@@ -77,6 +77,7 @@ namespace _def {
     }
 #else
 #define BITScanForward(bits)  __builtin_ctzll(bits)
+#define BITScanForwardU8(bits)  ((uchar)__builtin_ctzll(bits))
 #define BITScanReverse(bits) (63 - __builtin_clzll(bits))
 #endif
 #else

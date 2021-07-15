@@ -43,10 +43,9 @@ public:
 
     static void startClock();
 
-    Search &getSearch(int i = 0) {
+    Search &getSearch(uchar i = 0) {
         return threadPool->getThread(i);
     }
-
 
     static string decodeBoardinv(const _Tmove*,const uchar side);
 
@@ -76,10 +75,10 @@ public:
 
     static int getForceCheck();
 
-    static u64 getZobristKey(const int id);
+    static u64 getZobristKey(const uchar id);
 
-    static u64 getEnpassant(const int id) {
-        return threadPool->getThread(id).getEnpassant();
+    static uchar getEnpassant(const uchar id) {
+        return (uchar)threadPool->getThread(id).getEnpassant();
     }
 
     static void setForceCheck(const bool a);
@@ -88,7 +87,7 @@ public:
 
     static void setRunning(const int i);
 
-    static int getRunning(const int i);
+    static int getRunning(const uchar i);
 
     static void display();
 
@@ -100,7 +99,7 @@ public:
 
     static void setPonder(bool i);
 
-    static int getSide();
+    static uchar getSide();
 
     static int getScore(const uchar side);
 
@@ -134,7 +133,7 @@ public:
 
     static void setRepetitionMapCount(const int i);
 
-    static bool setNthread(const int);
+    static bool setNthread(const uchar);
 
 #if defined(FULL_TEST)
 

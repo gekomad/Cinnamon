@@ -37,13 +37,13 @@ int board::getPieceAt(uchar side, const u64 bitmapPos, const _Tchessboard &chess
 
 #endif
 
-u64 board::performRankFileCaptureAndShift(const int position, const u64 enemies, const u64 allpieces) {
+u64 board::performRankFileCaptureAndShift(const uchar position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63)
     const u64 rankFile = Bitboard::getRankFile(position, allpieces);
     return (rankFile & enemies) | (rankFile & ~allpieces);
 }
 
-bool board::checkInsufficientMaterial(const int nPieces, const _Tchessboard &chessboard) {
+bool board::checkInsufficientMaterial(const unsigned nPieces, const _Tchessboard &chessboard) {
     //regexp: KN?B*KB*
     switch (nPieces) {
         case 2 :
@@ -73,13 +73,13 @@ bool board::checkInsufficientMaterial(const int nPieces, const _Tchessboard &che
     return false;
 }
 
-u64 board::getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces) {
+u64 board::getDiagShiftAndCapture(const uchar position, const u64 enemies, const u64 allpieces) {
     ASSERT_RANGE(position, 0, 63)
     u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
     return (nuovo & enemies) | (nuovo & ~allpieces);
 }
 
-u64 board::getMobilityRook(const int position, const u64 enemies, const u64 friends) {
+u64 board::getMobilityRook(const uchar position, const u64 enemies, const u64 friends) {
     ASSERT_RANGE(position, 0, 63)
     return performRankFileCaptureAndShift(position, enemies, enemies | friends);
 }

@@ -43,7 +43,7 @@ public:
         _Thash(const u64 zobristKeyR, const short score, const char depth, const uchar from, const uchar to,
                const uchar flags) {
             key = zobristKeyR;
-            data = score;
+            data = (u64) score;
             data &= 0xffffULL;
             data |= (u64) depth << 16;
             data |= (u64) to << (16 + 8);
@@ -73,9 +73,9 @@ public:
 #define GET_AGE(v) ((unsigned short)(v>> (16 + 8 + 8 + 8 + 8)))
 #define GET_KEY(hash) (hash->key ^ (hash->data & 0xffffffffffffULL))
 
-    static inline int readHash(
-            const int alpha,
-            const int beta,
+    static inline short readHash(
+            const short alpha,
+            const short beta,
             const int depth,
             const u64 zobristKeyR, u64 &checkHashStruct, const bool currentPly) { // TODO remove checkHashStruct
         //TODO currentPly
@@ -84,7 +84,7 @@ public:
         DEBUG(u64 d = 0)
         checkHashStruct = 0;
         bool found = false;
-        for (int i = 0; i < BUCKETS; i++, hash++) {
+        for (uchar i = 0; i < BUCKETS; i++, hash++) {
             if (found)break;
             u64 data = hash->data;
             DEBUG(d |= data)
@@ -116,7 +116,7 @@ public:
             }
         }
         DEBUG(if (d && !found)readCollisions++)
-        return INT_MAX;
+        return SHRT_MAX;
     }
 
     static void recordHash(const _Thash &toStore, const int ply) {

@@ -33,8 +33,10 @@ public:
     }
 
     static int fileSize(const string &filename) {
-        std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
-        return in.tellg();
+        cout <<filename;
+//        std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
+//        return in.tellg();
+return 1;
     }
 
     static string getFileName(const string &path) {

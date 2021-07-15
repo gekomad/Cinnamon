@@ -34,12 +34,12 @@ struct GTBchessboard {
     unsigned char bp[17];    /* what black pieces are on those squares */
 
     void fromChessboard(const _Tchessboard &chessboard, const uchar rightCastle) {
-        static const int DECODE_PIECE[13] =
+        static const uchar DECODE_PIECE[13] =
                 {tb_PAWN, tb_PAWN, tb_ROOK, tb_ROOK, tb_BISHOP, tb_BISHOP, tb_KNIGHT, tb_KNIGHT, tb_KING, tb_KING,
                  tb_QUEEN,
                  tb_QUEEN, tb_NOPIECE};
 
-        static const int DECODE_POSITION[64] =
+        static const uchar DECODE_POSITION[64] =
                 {tb_H1, tb_G1, tb_F1, tb_E1, tb_D1, tb_C1, tb_B1, tb_A1, tb_H2, tb_G2, tb_F2, tb_E2, tb_D2, tb_C2,
                  tb_B2,
                  tb_A2,
@@ -56,9 +56,9 @@ struct GTBchessboard {
 
         int count = 0;
         //white
-        for (int piece = 1; piece < 12; piece += 2) {
+        for (unsigned piece = 1; piece < 12; piece += 2) {
             for (u64 b = chessboard[piece]; b; RESET_LSB(b)) {
-                int position = BITScanForward(b);
+                uchar position = BITScanForwardU8(b);
                 ws[count] = DECODE_POSITION[position];
                 wp[count] = DECODE_PIECE[piece];
                 count++;
@@ -70,7 +70,7 @@ struct GTBchessboard {
         count = 0;
         for (int piece = 0; piece < 12; piece += 2) {
             for (u64 b = chessboard[piece]; b; RESET_LSB(b)) {
-                int position = BITScanForward(b);
+                uchar position = BITScanForwardU8(b);
                 bs[count] = DECODE_POSITION[position];
                 bp[count] = DECODE_PIECE[piece];
                 count++;
@@ -95,17 +95,17 @@ public:
 
     bool getAvailable() const;
 
-    int getCache() const;
+    unsigned getCache() const;
 
     string getPath() const;
 
     string getSchema() const;
 
-    bool setCacheSize(const int mb);
+    bool setCacheSize(const unsigned mb);
 
     bool setPath(const string &path);
 
-    int convertToSyzygy(const int side, const int info) const;
+    int convertToSyzygy(const unsigned side, const int info) const;
 
     bool setScheme(const string &s);
 
@@ -113,9 +113,9 @@ public:
 
     bool setInstalledPieces(const int n);
 
-    bool isInstalledPieces(const int p) const;
+    bool isInstalledPieces(const unsigned p) const;
 
-    int getDtmWdl(const int side, const int doPrint, const _Tchessboard &chessboard, unsigned *pliestomate,
+    int getDtmWdl(const unsigned side, const int doPrint, const _Tchessboard &chessboard, unsigned *pliestomate,
                   const bool dtm, const uchar RIGHT_CASTLE) const;
 
 private:
@@ -124,7 +124,7 @@ private:
     bool load();
 
     static constexpr int verbosity = 0;
-    int cacheSize = 32;        //mb
+    unsigned cacheSize = 32;        //mb
     const char **paths = nullptr;
     string path = "";
     int scheme = tb_CP4;

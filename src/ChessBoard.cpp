@@ -36,13 +36,13 @@ void ChessBoard::makeZobristKey() {
 
     for (int u = 0; u < 12; u++) {
         for (u64 c = chessboard[u]; c; RESET_LSB(c)) {
-            const int position = BITScanForward(c);
+            const uchar position = BITScanForwardU8(c);
             updateZobristKey(u, position);
         }
     }
 
     for (u64 x2 = rightCastle; x2; RESET_LSB(x2)) {
-        const int position = BITScanForward(x2);
+        const uchar position = BITScanForwardU8(x2);
         updateZobristKey(RIGHT_CASTLE_RAND, position);//12
     }
 
@@ -58,7 +58,7 @@ const string ChessBoard::getFen() const {
     return fenString;
 }
 
-int ChessBoard::loadFen() {
+uchar ChessBoard::loadFen() {
     return loadFen(fenString);
 }
 
@@ -206,7 +206,7 @@ void ChessBoard::clearChessboard() {
     sideToMove = 0;
 }
 
-int ChessBoard::loadFen(const string &fen) {
+uchar ChessBoard::loadFen(const string &fen) {
     if (fen.empty()) {
         return loadFen();
     }
@@ -275,14 +275,14 @@ int ChessBoard::loadFen(const string &fen) {
     startPosWhiteKing = BITScanForward(chessboard[KING_WHITE]);
     startPosBlackKing = BITScanForward(chessboard[KING_BLACK]);
     auto whiteRookKingSide = [&](const char c) {
-        startPosWhiteRookKingSide = BITScanForward(chessboard[ROOK_WHITE] & 0xffULL);
+        startPosWhiteRookKingSide = BITScanForwardU8(chessboard[ROOK_WHITE] & 0xffULL);
         updateZobristKey(RIGHT_CASTLE_RAND, 4);
         assert(4 == BITScanForward(RIGHT_KING_CASTLE_WHITE_MASK));
         rightCastle |= RIGHT_KING_CASTLE_WHITE_MASK;
         whiteRookKingSideCastle = c;
     };
     auto blackRookKingSide = [&](const char c) {
-        startPosBlackRookKingSide = BITScanForward(chessboard[ROOK_BLACK] & 0xff00000000000000ULL);
+        startPosBlackRookKingSide = BITScanForwardU8(chessboard[ROOK_BLACK] & 0xff00000000000000ULL);
         updateZobristKey(RIGHT_CASTLE_RAND, 6);
         assert(6 == BITScanForward(RIGHT_KING_CASTLE_BLACK_MASK));
         rightCastle |= RIGHT_KING_CASTLE_BLACK_MASK;

@@ -97,7 +97,7 @@ u64 PerftThread::search(const int depthx) {
 
         const int listcount = getListSize();
         decListId();
-        return listcount;
+        return (u64)listcount;
     }
     u64 zobristKeyR;
     u64 nPerft = 0;

@@ -78,11 +78,11 @@ bool GTB::load() {
     return true;
 }
 
-int GTB::getCache() const {
+unsigned GTB::getCache() const {
     return cacheSize;
 }
 
-bool GTB::isInstalledPieces(const int p) const {
+bool GTB::isInstalledPieces(const unsigned p) const {
     if (p > 5)return false;
     return installedPieces[p];
 }
@@ -115,8 +115,8 @@ bool GTB::getAvailable() const {
     return false;
 }
 
-bool GTB::setCacheSize(const int mb) {
-    if (mb < 1 || mb > 1024) {
+bool GTB::setCacheSize(const unsigned mb) {
+    if (mb > 1024) {
         return false;
     }
     cacheSize = mb;
@@ -163,7 +163,7 @@ bool GTB::setPath(const string &path1) {
 
 #include "../syzygy/tbprobe.h"
 
-int GTB::convertToSyzygy(const int stm, const int info) const {
+int GTB::convertToSyzygy(const unsigned stm, const int info) const {
     switch (info) {
         case tb_DRAW :
             return TB_DRAW;
@@ -176,7 +176,7 @@ int GTB::convertToSyzygy(const int stm, const int info) const {
     }
 }
 
-int GTB::getDtmWdl(const int stm,
+int GTB::getDtmWdl(const unsigned stm,
                    const int doPrint,
                    const _Tchessboard &chessboard,
                    unsigned *pliestomate,
@@ -197,7 +197,7 @@ int GTB::getDtmWdl(const int stm,
 
         if (tb_available) {
             if (doPrint != 0) {
-                const int stm1 = (doPrint == 1) ? stm : X(stm);
+                const unsigned stm1 = (doPrint == 1) ? stm : X(stm);
                 if (info == tb_DRAW) {
                     cout << "Draw";
                 } else if (info == tb_WMATE && stm1 == tb_WHITE_TO_MOVE) {

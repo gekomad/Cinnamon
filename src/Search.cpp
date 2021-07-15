@@ -40,16 +40,15 @@ void Search::run() {
 }
 
 template<uchar side, bool searchMoves>
-void Search::aspirationWindow(const int depth, const int valWin) {
+void Search::aspirationWindow(const int depth, const short valWin) {
     valWindow = valWin;
     init();
-    const auto nPieces = bitCount(board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard));
-
+    const auto nPieces = (unsigned) bitCount(board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard));
 
     if (depth == 1) {
         valWindow = search<side, searchMoves>(depth, -_INFINITE - 1, _INFINITE + 1, &pvLine, nPieces);
     } else {
-        int tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW, &pvLine, nPieces);
+        short tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW, &pvLine, nPieces);
         if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
             if (tmp <= valWindow - VAL_WINDOW) {
                 tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW, &pvLine,
@@ -117,12 +116,13 @@ Search::~Search() {
 }
 
 template<uchar side>
-int Search::qsearch(int alpha, const int beta, const uchar promotionPiece, const int depth) {
+short Search::qsearch(short alpha, const short beta, const uchar promotionPiece) {
+
     const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
     if (!getRunning()) return 0;
 
     ++numMovesq;
-    int score = eval.getScore(chessboard, zobristKeyR, side, alpha, beta);
+    short score = eval.getScore(chessboard, zobristKeyR, side, alpha, beta);
     if (score > alpha) {
         if (score >= beta) return score;
         alpha = score;
@@ -143,7 +143,7 @@ int Search::qsearch(int alpha, const int beta, const uchar promotionPiece, const
     u64 enemies = board::getBitmap<X(side)>(chessboard);
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
-        return _INFINITE - (mainDepth + depth);
+        return _INFINITE - mainDepth;
     }
     if (!getListSize()) {
         --listId;
@@ -173,7 +173,7 @@ int Search::qsearch(int alpha, const int beta, const uchar promotionPiece, const
             continue;
         }
         /// ************ end Delta Pruning *************
-        int val = -qsearch<X(side)>(-beta, -alpha, move->promotionPiece, depth - 1);
+        short val = -qsearch<X(side)>(-beta, -alpha, move->promotionPiece);
         score = max(score, val);
         takeback(move, oldKey, oldEnpassant, false);
         if (score > alpha) {
@@ -250,14 +250,14 @@ bool Search::checkSearchMoves(const _Tmove *move) const {
 
 
 template<uchar side, bool checkMoves>
-int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE) {
+short Search::search(const int depth, short alpha, const short beta, _TpvLine *pline, const unsigned N_PIECE) {
     ASSERT_RANGE(side, 0, 1)
 
-    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
+    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const short alpha, const short beta,
                                   const _Tmove *move = nullptr) {
         const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
         currentPly++;
-        int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
+        short val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
         if (!forceCheck && abs(val) > _INFINITE - MAX_PLY) {
             forceCheck = true;
             val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
@@ -279,7 +279,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     if (wdl != INT_MAX) return wdl;
 #endif
 
-    int score = -_INFINITE;
+    short score = -_INFINITE;
     const bool pvNode = alpha != beta - 1;
 
     assert(chessboard[KING_BLACK]);
@@ -296,14 +296,14 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     }
     int extension = isIncheckSide; // TODO pawn in 7th
     if (depth + extension == 0) {
-        return qsearch<side>(alpha, beta, NO_PROMOTION, 0);
+        return qsearch<side>(alpha, beta, NO_PROMOTION);
     }
 
     /// ************* hash ****************
     const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
     u64 hashItem;
-    const int hashValue = hash.readHash(alpha, beta, depth, zobristKeyR, hashItem, currentPly);
-    if (hashValue != INT_MAX) {
+    const short hashValue = hash.readHash(alpha, beta, depth, zobristKeyR, hashItem, currentPly);
+    if (hashValue != SHRT_MAX) {
         return hashValue;
     }
 
@@ -325,11 +325,11 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         if (depth > nDepth) {
             nullSearch = true;
             const int R = NULL_DEPTH + depth / NULL_DIVISOR;
-            int nullScore;
+            short nullScore;
             if (depth - R - 1 > 0) {
                 nullScore = searchLambda(&newLine1, depth + extension - R - 1, -beta, -beta + 1);
             } else {
-                nullScore = -qsearch<X(side)>(-beta, -beta + 1, -1, 0);
+                nullScore = -qsearch<X(side)>(-beta, -beta + 1, NO_PROMOTION);
             }
             nullSearch = false;
             if (nullScore >= beta) {
@@ -344,9 +344,9 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     /// ********************** Futility Pruning *********************
     /// ************* Futility Pruning razor at pre-pre-frontier ****
     bool futilPrune = false;
-    int futilScore = 0;
+    short futilScore = 0;
     if (depth <= 3 && !isIncheckSide) {
-        const int matBalance = eval.lazyEval<side>(chessboard);
+        const short matBalance = eval.lazyEval<side>(chessboard);
         /// ******** reverse futility pruning ***********
         if (depth < 3 && !pvNode && abs(beta - 1) > -_INFINITE + MAX_PLY) {
             const int evalMargin = matBalance - eval.REVERSE_FUTIL_MARGIN * depth;
@@ -398,7 +398,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     INC(totGen);
     _Tmove *move;
     int countMove = 0;
-    char hashf = Hash::hashfALPHA;
+    uchar hashf = Hash::hashfALPHA;
     int first = 0;
 
     while ((move = getNextMove(&genList[listId], depth, hashItem, first++))) {
@@ -409,7 +409,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             takeback(move, oldKey, oldEnpassant, true);
             continue;
         }
-        int val = INT_MAX;
+        short val = SHRT_MAX;
         _TpvLine newLine;
         newLine.cmove = 0;
 
@@ -427,9 +427,9 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         }
 
         if (val > alpha) {
-            const int doMws = (score > -_INFINITE + MAX_PLY);
-            const int lwb = max(alpha, score);
-            const int upb = (doMws ? (lwb + 1) : beta);
+            const bool doMws = (score > -_INFINITE + MAX_PLY);
+            const short lwb = max(alpha, score);
+            const short upb = (doMws ? (lwb + 1) : beta);
             val = searchLambda(&newLine, depth + extension - 1, -upb, -lwb, move);
             if (doMws && (lwb < val) && (val < beta)) {
                 val = searchLambda(&newLine, depth + extension - 1, -beta, -val + 1, move);

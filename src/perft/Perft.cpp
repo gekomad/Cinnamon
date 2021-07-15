@@ -226,7 +226,7 @@ void Perft::run() {
 
 void Perft::endRun() {
     time.stop();
-    const double t = time.getMill() / 1000.0;
+    const double t = (double)(time.getMill() / 1000.0);
     cout << endl << endl << "Perft moves: " << perftRes.totMoves;
 
     if (t) {

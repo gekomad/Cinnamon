@@ -45,15 +45,15 @@ public:
                    const bool trace = false);
 
     template<uchar side>
-    int lazyEval(const _Tchessboard &chessboard) const {
+    short lazyEval(const _Tchessboard &chessboard) const {
         return lazyEvalSide<side>(chessboard) - lazyEvalSide<X(side)>(chessboard);
     }
 
-    STATIC_CONST int REVERSE_FUTIL_MARGIN = 180;
-    STATIC_CONST int FUTIL_MARGIN = 220;
-    STATIC_CONST int EXT_FUTIL_MARGIN = 550;
-    STATIC_CONST int RAZOR_MARGIN = 1171;
-    STATIC_CONST int ATTACK_KING = 45;
+    STATIC_CONST short REVERSE_FUTIL_MARGIN = 180;
+    STATIC_CONST short FUTIL_MARGIN = 220;
+    STATIC_CONST short EXT_FUTIL_MARGIN = 550;
+    STATIC_CONST short RAZOR_MARGIN = 1171;
+    STATIC_CONST short ATTACK_KING = 45;
     STATIC_CONST int BISHOP_ON_QUEEN = 8;
     STATIC_CONST int BACKWARD_PAWN = 6;
     STATIC_CONST int DOUBLED_ISOLATED_PAWNS = 9;
@@ -166,11 +166,11 @@ private:
     };
 
     typedef struct {
-        int pawns[2];
-        int bishop[2];
-        int queens[2];
-        int rooks[2];
-        int knights[2];
+        short pawns[2];
+        short bishop[2];
+        short queens[2];
+        short rooks[2];
+        short knights[2];
         int kings[2];
     } _Tresult;
 
@@ -215,30 +215,30 @@ private:
     }
 
     template<uchar side, _Tphase phase>
-    int evaluatePawn(const _Tchessboard &chessboard);
+    short evaluatePawn(const _Tchessboard &chessboard);
 
     template<uchar side, _Tphase phase>
-    int evaluateBishop(const _Tchessboard &chessboard, const u64);
+    short evaluateBishop(const _Tchessboard &chessboard, const u64);
 
     template<uchar side, Eval::_Tphase phase>
-    int evaluateQueen(const _Tchessboard &chessboard, const u64 enemies);
+    short evaluateQueen(const _Tchessboard &chessboard, const u64 enemies);
 
     template<uchar side, _Tphase phase>
-    int evaluateKnight(const _Tchessboard &chessboard, const u64);
+    short evaluateKnight(const _Tchessboard &chessboard, const u64);
 
     template<uchar side, Eval::_Tphase phase>
-    int evaluateRook(const _Tchessboard &chessboard, u64 enemies, u64 friends);
+    short evaluateRook(const _Tchessboard &chessboard, u64 enemies, u64 friends);
 
     template<_Tphase phase>
-    int evaluateKing(const _Tchessboard &chessboard, const uchar side, const u64 squares);
+    short evaluateKing(const _Tchessboard &chessboard, const uchar side, const u64 squares);
 
     template<uchar side>
-    int lazyEvalSide(const _Tchessboard &chessboard) const {
-        return bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN +
+    short lazyEvalSide(const _Tchessboard &chessboard) const {
+        return (short)(bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN +
                bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK +
                bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP +
                bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT +
-               bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
+               bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN);
     }
 
 };

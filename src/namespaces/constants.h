@@ -318,7 +318,7 @@ namespace constants {
          "f3", "e3", "d3", "c3", "b3", "a3", "h4", "g4", "f4", "e4", "d4", "c4", "b4", "a4", "h5", "g5", "f5", "e5",
          "d5", "c5", "b5", "a5", "h6", "g6", "f6", "e6", "d6", "c6", "b6", "a6", "h7", "g7", "f7", "e7", "d7", "c7",
          "b7", "a7", "h8", "g8", "f8", "e8", "d8", "c8", "b8", "a8"};
-    static constexpr array<char, 13> FEN_PIECE = {'p', 'P', 'r', 'R', 'b', 'B', 'n', 'N', 'k', 'K', 'q', 'Q', '-'};
+    static constexpr array<uchar, 13> FEN_PIECE = {'p', 'P', 'r', 'R', 'b', 'B', 'n', 'N', 'k', 'K', 'q', 'Q', '-'};
 
     static constexpr array<u64, 2> BISHOP_HOME = {0x24ULL, 0x2400000000000000ULL};
     static constexpr array<u64, 2> KNIGHT_HOME = {0x4200000000000000ULL, 0x42ULL};
@@ -538,7 +538,7 @@ namespace constants {
         {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4,
          4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7};
 
-    static constexpr array<int, 64> _decodeSquare = {7,6,5,4,3,2,1,0,
+    static constexpr array<uchar, 64> _decodeSquare = {7,6,5,4,3,2,1,0,
                                                      15,14,13,12,11,10,9,8,
                                                      23,22,21,20,19,18,17,16,
                                                      31,30,29,28,27,26,25,24,
