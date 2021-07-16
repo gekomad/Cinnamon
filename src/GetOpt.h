@@ -91,8 +91,8 @@ private:
             help(argv);
             return;
         }
-        int nCpu = 0;
-        int perftDepth = 0;
+        uchar nCpu = 0;
+        uchar perftDepth = 0;
         string fen;
         int perftHashSize = 0;
         string dumpFile;

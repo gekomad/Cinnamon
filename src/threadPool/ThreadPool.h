@@ -44,7 +44,7 @@ public:
         return getThread();
     }
 
-    int getNthread() const {
+    uchar getNthread() const {
         return nThread;
     }
 

@@ -485,8 +485,8 @@ int GenMoves::getMoveFromSan(const string &fenStr, _Tmove *move) {
         cout << "fenStr: >" << fenStr << "< from: " << from << endl;
         _assert(0)
     }
-    move->from = from;
-    move->to = to;
+    move->from = (uchar) from;
+    move->to = (uchar) to;
     if (fenStr.length() == 4) {
         move->type = STANDARD_MOVE_MASK;
         if (pieceFrom == PAWN_WHITE || pieceFrom == PAWN_BLACK) {
@@ -558,7 +558,7 @@ bool GenMoves::generatePuzzle(const string type) {
         pieces.clear();
         _assert(toupper(type.at(0)) == 'K')
         for (unsigned i = 1; i < type.size(); i++) {
-            const char up = (char)toupper(type.at(i));
+            const char up = (char) toupper(type.at(i));
             if (!(up == 'K' || up == 'R' || up == 'P' || up == 'Q' || up == 'B' || up == 'N')) {
                 cout << "format error" << endl;
                 return false;

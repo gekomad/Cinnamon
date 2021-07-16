@@ -46,7 +46,7 @@ void Perft::dump() {
     f.write(reinterpret_cast<char *>(&perftRes.nCpu), sizeof(int));
     f.write(reinterpret_cast<char *>(&mbSize), sizeof(u64));
     for (int i = 1; i <= perftRes.depth; i++) {
-        f.write(reinterpret_cast<char *>(hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
+        f.write(reinterpret_cast<char *>(hash[i]), (uchar)perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
     }
     f.close();
     rename(tmpFile.c_str(), dumpFile.c_str());
@@ -98,7 +98,7 @@ bool Perft::load() {
 //    cout << " #cpu: " << perftRes.nCpu << endl;
 
     for (int i = 1; i <= depthHashFile; i++) {
-        f.read(reinterpret_cast<char *>(hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
+        f.read(reinterpret_cast<char *>(hash[i]), (unsigned)perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
     }
     f.close();
     cout << "loaded" << endl;
@@ -134,7 +134,7 @@ void Perft::alloc() {
     }
 }
 
-void Perft::setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1,
+void Perft::setParam(const string &fen1, uchar depth1, const uchar nCpu2, const int mbSize1, const string &dumpFile1,
                      const bool is960) {
     memset(static_cast<void *>(&perftRes), 0, sizeof(_TPerftRes));
     if (depth1 <= 0)depth1 = 1;

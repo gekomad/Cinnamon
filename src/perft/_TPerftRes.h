@@ -33,7 +33,7 @@ typedef struct {
 typedef struct {
     atomic_ullong totMoves;
     u64 sizeAtDepth[255];
-    int depth;
+    uchar depth;
     uchar nCpu;
     bool chess960;
 } _TPerftRes;
