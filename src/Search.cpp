@@ -254,7 +254,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     ASSERT_RANGE(side, 0, 1)
 
     const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
-                                  const _Tmove *move = nullptr) {
+                                  const _Tmove *move) {
         const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
         currentPly++;
         int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
@@ -327,7 +327,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             const int R = NULL_DEPTH + depth / NULL_DIVISOR;
             int nullScore;
             if (depth - R - 1 > 0) {
-                nullScore = searchLambda(&newLine1, depth + extension - R - 1, -beta, -beta + 1);
+                nullScore = searchLambda(&newLine1, depth + extension - R - 1, -beta, -beta + 1, nullptr);
             } else {
                 nullScore = -qsearch<X(side)>(-beta, -beta + 1, -1, 0);
             }
@@ -422,7 +422,8 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             }
             //Late Move Reduction
             if (countMove > 3 && !isIncheckSide && depth >= 3 && move->capturedPiece == SQUARE_EMPTY) {
-                val = searchLambda(&newLine, depth + extension - (countMove > 6 ? 3 : 2), -(alpha + 1), -alpha);
+                val = searchLambda(&newLine, depth + extension - (countMove > 6 ? 3 : 2), -(alpha + 1), -alpha,
+                                   nullptr);
             }
         }
 
