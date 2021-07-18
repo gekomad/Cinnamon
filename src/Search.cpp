@@ -422,7 +422,16 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             }
             //Late Move Reduction
             if (countMove > 3 && !isIncheckSide && depth >= 3 && move->capturedPiece == SQUARE_EMPTY) {
-                val = searchLambda(&newLine, depth + extension - (countMove > 6 ? 3 : 2), -(alpha + 1), -alpha,
+                int reduction = 1;
+                reduction += msLmrSize[pvNode][depth][countMove];
+                if (!pvNode)reduction++;
+                if (countMove > 6)reduction++;
+                auto h = historyHeuristic[move->from][move->to];
+                if (h > 0)reduction++;
+                if (h > 4095)reduction++;
+                if (depth + extension <= reduction)
+                    reduction = depth + extension - 1;
+                val = searchLambda(&newLine, depth + extension - reduction, -(alpha + 1), -alpha,
                                    nullptr);
             }
         }
