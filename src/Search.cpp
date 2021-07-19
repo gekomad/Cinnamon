@@ -423,7 +423,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             //Late Move Reduction
             if (countMove > 3 && !isIncheckSide && depth >= 3 && move->capturedPiece == SQUARE_EMPTY) {
                 int reduction = 1;
-                reduction += msLmrSize[pvNode][depth][countMove];
+//                reduction += msLmrSize[pvNode][depth][countMove];
                 if (!pvNode)reduction++;
                 if (countMove > 6)reduction++;
                 auto h = historyHeuristic[move->from][move->to];
