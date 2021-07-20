@@ -118,7 +118,7 @@ Search::~Search() {
 
 template<uchar side>
 int Search::qsearch(int alpha, const int beta, const uchar promotionPiece, const int depth) {
-    const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
+    const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX];
     if (!getRunning()) return 0;
 
     ++numMovesq;
@@ -299,7 +299,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     }
 
     /// ************* hash ****************
-    const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
+    const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX];
     u64 hashItem;
     const int hashValue = hash.readHash(alpha, beta, depth, zobristKeyR, hashItem, currentPly);
     if (hashValue != INT_MAX) {
