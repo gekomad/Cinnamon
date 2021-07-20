@@ -269,8 +269,9 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     if (!getRunning()) return 0;
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     uchar oldEnpassant = enPassant;
+    const auto evalScore = eval.getScore(chessboard, oldKey, side, alpha, beta);
     if (depth >= MAX_PLY - 1) {
-        return eval.getScore(chessboard, oldKey, side, alpha, beta);
+        return evalScore;
     }
     INC(cumulativeMovesCount);
 #ifndef JS_MODE
@@ -290,7 +291,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             if (board::inCheck1<X(side)>(chessboard)) {
                 return _INFINITE - (mainDepth - depth + 1);
             }
-            return -eval.lazyEval<side>(chessboard) * 2;
+            return -evalScore;
         }
     }
     int extension = isIncheckSide; // TODO pawn in 7th
@@ -314,7 +315,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     newLine1.cmove = 0;
 
     /// ********* null move ***********
-    if (!nullSearch && !pvNode && !isIncheckSide) {
+    if (!nullSearch && !pvNode && !isIncheckSide && evalScore > beta) {
         int nDepth = (depth > 3) ? 1 : 3;
         if (nDepth == 3) {
             const u64 pieces = board::getPiecesNoKing<side>(chessboard);
@@ -345,21 +346,21 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     bool futilPrune = false;
     int futilScore = 0;
     if (depth <= 3 && !isIncheckSide) {
-        const int matBalance = eval.lazyEval<side>(chessboard);
+//        const int matBalance = eval.lazyEval<side>(chessboard);
         /// ******** reverse futility pruning ***********
         if (depth < 3 && !pvNode && abs(beta - 1) > -_INFINITE + MAX_PLY) {
-            const int evalMargin = matBalance - eval.REVERSE_FUTIL_MARGIN * depth;
+            const int evalMargin = evalScore - eval.REVERSE_FUTIL_MARGIN * depth;
             if (evalMargin >= beta) return evalMargin;
         }
         /// *********************************************
-        if ((futilScore = matBalance + eval.FUTIL_MARGIN) <= alpha) {
-            if (depth == 3 && (matBalance + eval.RAZOR_MARGIN) <= alpha &&
+        if ((futilScore = evalScore + eval.FUTIL_MARGIN) <= alpha) {
+            if (depth == 3 && (evalScore + eval.RAZOR_MARGIN) <= alpha &&
                 bitCount(board::getBitmapNoPawnsNoKing<X(side)>(chessboard)) > 3) {
                 INC(nCutRazor);
                 extension--;
             } else
                 /// **************Futility Pruning at pre-frontier*****
-            if (depth == 2 && (futilScore = matBalance + eval.EXT_FUTIL_MARGIN) <= alpha) {
+            if (depth == 2 && (futilScore = evalScore + eval.EXT_FUTIL_MARGIN) <= alpha) {
                 futilPrune = true;
                 score = futilScore;
             } else
@@ -387,7 +388,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         if (isIncheckSide) {
             return -_INFINITE + (mainDepth - depth + 1);
         } else {
-            return -eval.lazyEval<side>(chessboard) * 2;
+            return -evalScore;
         }
     }
     assert(genList[listId].size > 0);
