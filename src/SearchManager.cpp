@@ -25,6 +25,16 @@ _TpvLine SearchManager::lineWin;
 
 SearchManager::SearchManager() {
     threadPool = new ThreadPool<Search>(1);
+//    for (int i = 0; i < MAX_PLY; i++) {
+//        cout <<"\n{";
+//        for (int j = 0; j < GenMoves::MAX_MOVE; j++) {
+//            int a= ((1 / 1.95) * log(i) * log(j));
+//            if(a > 10)a=0;
+//            if(a <0)a=0;
+//            cout<< a<< ",";
+//        }
+//        cout <<"},";
+//    }
 }
 
 #if defined(FULL_TEST)

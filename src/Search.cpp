@@ -421,7 +421,8 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             }
             //Late Move Reduction
             if (countMove > 3 && !isIncheckSide && depth >= 3 && move->capturedPiece == SQUARE_EMPTY) {
-                val = searchLambda(&newLine, depth + extension - (countMove > 6 ? 3 : 2), -(alpha + 1), -alpha,
+               // cout <<depth<<" "<<countMove<<"    "<< (countMove > 6 ? 3 : 2)<<" "<<LMR[depth][countMove]<< endl;
+                val = searchLambda(&newLine, depth + extension - LMR[depth][countMove], -(alpha + 1), -alpha,
                                    nullptr);
             }
         }
