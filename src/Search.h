@@ -42,6 +42,7 @@ public:
 #ifndef JS_MODE
     SYZYGY *syzygy = &SYZYGY::getInstance();
 #endif
+
     Search();
 
     short getScore(const uchar side) {
@@ -140,7 +141,7 @@ private:
     Times *times = &Times::getInstance();
 #endif
 
-    template<uchar side,bool searchMoves>
+    template<uchar side, bool searchMoves>
     void aspirationWindow(const int depth, const int valWindow);
 
     int checkTime() const;
@@ -152,7 +153,7 @@ private:
     bool checkDraw(u64);
 
     template<uchar side, bool checkMoves>
-    int search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE);
+    int search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE, bool ext = false);
 
     template<bool checkMoves>
     bool checkSearchMoves(const _Tmove *move) const;

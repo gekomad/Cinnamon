@@ -249,17 +249,17 @@ bool Search::checkSearchMoves(const _Tmove *move) const {
 
 
 template<uchar side, bool checkMoves>
-int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE) {
+int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE, bool ext) {
     ASSERT_RANGE(side, 0, 1)
 
     const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
                                   const _Tmove *move) {
         const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
         currentPly++;
-        int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
+        int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces, ext);
         if (!forceCheck && abs(val) > _INFINITE - MAX_PLY) {
             forceCheck = true;
-            val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
+            val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces, ext);
             forceCheck = false;
         }
         currentPly--;
@@ -293,7 +293,11 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             return -eval.lazyEval<side>(chessboard) * 2;
         }
     }
-    int extension = isIncheckSide; // TODO pawn in 7th
+    int extension = isIncheckSide;
+    if (!ext && PAWNS_7_2[side] & chessboard[PAWN_BLACK + side]) {
+        ext = true;
+        extension++;
+    }
     if (depth + extension == 0) {
         return qsearch<side>(alpha, beta, NO_PROMOTION, 0);
     }
