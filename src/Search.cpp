@@ -293,8 +293,8 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             return -eval.lazyEval<side>(chessboard) * 2;
         }
     }
-    int extension = isIncheckSide;
-    if (!ext && PAWNS_7_2[side] & chessboard[PAWN_BLACK + side]) {
+    int extension = 0;
+    if (!ext && isIncheckSide) {
         ext = true;
         extension++;
     }
