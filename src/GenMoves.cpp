@@ -307,6 +307,9 @@ bool GenMoves::makemove(const _Tmove *move, const bool rep) {
     assert(bitCount(chessboard[KING_WHITE]) == 1 && bitCount(chessboard[KING_BLACK]) == 1);
     assert(verifyMove(move));
     const uchar rightCastleOld = rightCastle;
+    static constexpr u64 RANDSIDE = 0x1cf0862fa4118029ULL;
+
+    chessboard[ZOBRISTKEY_IDX] ^= RANDSIDE;
     if (!(move->type & 0xc)) { //no castle
 
         ASSERT_RANGE(move->from, 0, 63)
