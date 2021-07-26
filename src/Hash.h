@@ -92,15 +92,16 @@ public:
                 found = true;
                 checkHashStruct = data;
                 if (GET_DEPTH(checkHashStruct) >= depth) {
-                    if (currentPly) {
+                    if (currentPly) {//TODO
                         switch (GET_FLAGS(checkHashStruct)) {
-                            case Hash::hashfEXACT:  //TODO
+
                             case Hash::hashfBETA:
                                 if (GET_SCORE(checkHashStruct) >= beta) {
                                     INC(n_cut_hashB);
                                     return beta;
                                 }
                                 break;
+                            case Hash::hashfEXACT:
                             case Hash::hashfALPHA:
                                 if (GET_SCORE(checkHashStruct) <= alpha) {
                                     INC(n_cut_hashA);
