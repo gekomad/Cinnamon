@@ -166,7 +166,8 @@ public:
                 const u64 data = hash->data;
                 const auto age = ((ply - GET_AGE(data)) & 255) * 256 + 255 - GET_DEPTH(data); //TODO
                 // const int age = ((pow(GET_DEPTH(data) - GET_DEPTH(old->data), 2)) + (ply - GET_AGE(data)));
-                if (age > oldTT) {
+                if (age > oldTT ||
+                    (GET_FLAGS(toStore.data) == Hash::hashfALPHA) && GET_SCORE(toStore.data) > GET_SCORE(hash->data)) {
                     old = hash;
                     oldTT = age;
                 }
