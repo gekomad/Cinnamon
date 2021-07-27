@@ -397,13 +397,14 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     INC(totGen);
     _Tmove *move;
     int countMove = 0;
+    int quietTried = 0;
     char hashf = Hash::hashfALPHA;
     int first = 0;
 
     while ((move = getNextMove(&genList[listId], depth, hashItem, first++))) {
         if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth) continue;
         countMove++;
-
+        if (move->promotionPiece == NO_PROMOTION && move->capturedPiece == SQUARE_EMPTY)quietTried++;
         if (!makemove(move, true)) {
             takeback(move, oldKey, oldEnpassant, true);
             continue;
@@ -413,6 +414,11 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         newLine.cmove = 0;
 
         if (move->promotionPiece == NO_PROMOTION) {
+            // lmp
+            if (depth < 10 && move->capturedPiece == SQUARE_EMPTY && !isIncheckSide && quietTried > lmpTable[depth]) {
+                takeback(move, oldKey, oldEnpassant, true);
+                continue;
+            }
             if (futilPrune && futilScore + PIECES_VALUE[move->capturedPiece] <= alpha &&
                 !board::inCheck1<side>(chessboard)) {
                 INC(nCutFp);

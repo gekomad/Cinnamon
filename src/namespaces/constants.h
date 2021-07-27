@@ -552,6 +552,7 @@ namespace constants {
     static constexpr array<u64, 2> NO_FILE_RIGHT = {0x7F7F7F7F7F7F7F7FULL, 0xFEFEFEFEFEFEFEFEULL};
 
     static constexpr array<u64, 2> PAWNS_7_2 = {0xFF00ULL, 0xFF000000000000ULL};
+    static constexpr int lmpTable[10 + 1] = { 0, 5, 6, 9, 15, 23, 32, 42, 54, 68, 83 };
 
     static constexpr array<u64, 64> FILE_ = {
         0x0101010101010101ULL, 0x0202020202020202ULL, 0x0404040404040404ULL, 0x0808080808080808ULL,
