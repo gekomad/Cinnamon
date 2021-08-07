@@ -170,15 +170,15 @@ public:
         return i;
     }
 
-    static double getBetaEfficiency() {
-        double b = 0;
-        unsigned count = 0;
-        for (Search *s:threadPool->getPool()) {
-            b += s->betaEfficiency;
-            count += s->betaEfficiencyCount;
-        }
-        return b / count;
-    }
+//    static double getBetaEfficiency() {
+//        double b = 0;
+//        unsigned count = 0;
+//        for (Search *s:threadPool->getPool()) {
+//            b += s->betaEfficiency;
+//            count += s->betaEfficiencyCount;
+//        }
+//        return b / count;
+//    }
 
     static unsigned getLazyEvalCuts() {
         unsigned i = 0;

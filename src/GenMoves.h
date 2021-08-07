@@ -26,7 +26,10 @@
 #include "namespaces/board.h"
 
 class GenMoves : public ChessBoard {
-
+protected:
+    enum NEXT_MOVE {
+        GEN_CAP, GET_CAP, GEN_MOVE, GET_MOVE, NO_MOVE, MATE
+    };
 public:
     static const int MAX_MOVE = 130;
 
@@ -59,6 +62,12 @@ public:
         assert(allpieces == (board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard)));
         return board::isAttacked(move.side, move.to, allpieces, chessboard);
     }
+
+    bool generateCaptures(const int side, const u64 enemies, const u64 friends) {
+        if (side == WHITE)return generateCaptures < WHITE > (enemies, friends);
+        return generateCaptures < BLACK > (enemies, friends);
+    }
+
 
     template<uchar side>
     bool generateCaptures(const u64 enemies, const u64 friends) {
@@ -346,12 +355,13 @@ public:
         assert(historyHeuristic[from][to] <= historyHeuristic[from][to] + value);
         historyHeuristic[from][to] += value;
     }
+
     bool perftMode;
 
 
 #ifndef NDEBUG
     unsigned nCutAB, nNullMoveCut, nCutFp, nCutRazor, nCutBadCaputure;
-    double betaEfficiency = 0.0;
+//    double betaEfficiency = 0.0;
     unsigned betaEfficiencyCount = 0;
 #endif
     static constexpr uchar STANDARD_MOVE_MASK = 0x3;
@@ -381,7 +391,9 @@ protected:
 
     _Tmove *getNextMoveQ(_TmoveP *list, const int first);
 
-    _Tmove *getNextMove(_TmoveP *list, const int depth, const u64 &, const int first);
+    _Tmove *
+    getNextMove(const int side, _TmoveP *list, const int depth, const u64 &, const u64, const u64, const int first,
+               const  NEXT_MOVE *, int *);
 
     template<uchar side>
     int getMobilityCastle(const u64 allpieces) const {
@@ -783,6 +795,7 @@ protected:
     }
 
     bool forceCheck;
+
 public:
     _TmoveP *genList;
     int listId;

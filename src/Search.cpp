@@ -376,31 +376,46 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     ASSERT_RANGE(KING_BLACK + (X(side)), 0, 11)
     const u64 friends = board::getBitmap<side>(chessboard);
     const u64 enemies = board::getBitmap<X(side)>(chessboard);
-    if (generateCaptures<side>(enemies, friends)) {
-        decListId();
-        return _INFINITE - (mainDepth - depth + 1);
-    }
-    generateMoves<side>(friends | enemies);
-    const int listcount = getListSize();
-    if (!listcount) {
-        --listId;
-        if (isIncheckSide) {
-            return -_INFINITE + (mainDepth - depth + 1);
-        } else {
-            return -eval.lazyEval<side>(chessboard) * 2;
-        }
-    }
-    assert(genList[listId].size > 0);
 
-    _Tmove *best = &genList[listId].moveList[0];
-
+    _Tmove *best = nullptr;
     INC(totGen);
     _Tmove *move;
     int countMove = 0;
     char hashf = Hash::hashfALPHA;
     int first = 0;
-
-    while ((move = getNextMove(&genList[listId], depth, hashItem, first++))) {
+    NEXT_MOVE phase = GEN_CAP;
+    int res = 0;
+    while (true) {
+        move = getNextMove(side, &genList[listId], depth, hashItem, friends, enemies, first++, &phase, &res);
+        if (move != nullptr && best == nullptr)best = move;
+        if (res == MATE) {
+            return _INFINITE - (mainDepth - depth + 1);
+        }
+        if (res == NO_MOVE) {
+            if (isIncheckSide) {
+                return -_INFINITE + (mainDepth - depth + 1);
+            } else {
+                return -eval.lazyEval<side>(chessboard) * 2;
+            }
+        }
+        if (phase == GEN_CAP && move == nullptr) {
+            phase = GET_CAP;
+            continue;
+        }
+        if (phase == GET_CAP && move == nullptr) {
+            phase = GEN_MOVE;
+            continue;
+        }
+        if (phase == GEN_MOVE && move == nullptr) {
+            phase = GET_MOVE;
+            continue;
+        }
+        if (phase == GET_MOVE && move == nullptr) {
+            break;
+        }
+        if (!move)
+            display();
+        assert (move);
         if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth) continue;
         countMove++;
 
@@ -448,9 +463,9 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
                 decListId();
                 INC(nCutAB);
                 INC(betaEfficiencyCount);
-                DEBUG(betaEfficiency +=
-                              (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
-                              (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
+//                DEBUG(betaEfficiency +=
+//                              (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
+//                              (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
                 if (getRunning()) {
                     Hash::_Thash data(zobristKeyR, score, depth, move->from, move->to, Hash::hashfBETA);
                     hash.recordHash(data, ply);
@@ -468,6 +483,9 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         }
     }
     if (getRunning()) {
+        if (!best)
+            display();
+        assert(best);
         if (best->capturedPiece == SQUARE_EMPTY && best->promotionPiece == NO_PROMOTION) {
             setHistoryHeuristic(best->from, best->to, depth - extension);
             setKiller(best->from, best->to, depth - extension);

@@ -133,7 +133,7 @@ void IterativeDeeping::run() {
         cout << "\ninfo string ply: " << iter_depth << endl;
         cout << "info string tot moves: " << totMoves << endl;
 
-        if (nCutAB) cout << "info string beta efficiency: " << (searchManager.getBetaEfficiency()) << "%" << endl;
+//        if (nCutAB) cout << "info string beta efficiency: " << (searchManager.getBetaEfficiency()) << "%" << endl;
 
         if (totMovesPrec != 0xffffffffffffffffULL)
             cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2) <<

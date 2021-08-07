@@ -74,8 +74,26 @@ _Tmove *GenMoves::getNextMoveQ(_TmoveP *list, const int first) {
     return swap(list, first, bestId);
 }
 
-_Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, const int first) {
+_Tmove *GenMoves::getNextMove(const int side, _TmoveP *list, const int depth, const u64 &hash, const u64 friends,
+                              const u64 enemies,
+                              const int first, const NEXT_MOVE *phase, int *res) {
     BENCH_AUTO_CLOSE("getNextMove")
+    if (*phase == GEN_MOVE) {
+        generateMoves(side, friends | enemies);
+        const int listcount = getListSize();
+        if (!listcount) {
+            --listId;
+            *res = NO_MOVE;
+        }
+        return nullptr;
+    }
+    if (*phase == GEN_CAP) {
+        if (generateCaptures(side, enemies, friends)) {
+            decListId();
+            *res = MATE;
+        }
+        return nullptr;
+    }
     int bestId = -1;
     int bestScore = -1;
 
