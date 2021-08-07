@@ -387,7 +387,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     int res = 0;
     while (true) {
         move = getNextMove(side, &genList[listId], depth, hashItem, friends, enemies, first++, &phase, &res);
-        if (move != nullptr && best == nullptr)best = move;
+        if (best == nullptr && move != nullptr)best = move;
         if (res == MATE) {
             return _INFINITE - (mainDepth - depth + 1);
         }
@@ -398,23 +398,23 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
                 return -eval.lazyEval<side>(chessboard) * 2;
             }
         }
-        if (phase == GEN_CAP && move == nullptr) {
-            phase = GET_CAP;
-            continue;
+        if (move == nullptr) {
+            if (phase == GEN_CAP) {
+                phase = GET_CAP;
+                continue;
+            }
+            if (phase == GET_CAP) {
+                phase = GEN_MOVE;
+                continue;
+            }
+            if (phase == GEN_MOVE) {
+                phase = GET_MOVE;
+                continue;
+            }
+            if (phase == GET_MOVE) {
+                break;
+            }
         }
-        if (phase == GET_CAP && move == nullptr) {
-            phase = GEN_MOVE;
-            continue;
-        }
-        if (phase == GEN_MOVE && move == nullptr) {
-            phase = GET_MOVE;
-            continue;
-        }
-        if (phase == GET_MOVE && move == nullptr) {
-            break;
-        }
-        if (!move)
-            display();
         assert (move);
         if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth) continue;
         countMove++;
@@ -483,8 +483,6 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         }
     }
     if (getRunning()) {
-        if (!best)
-            display();
         assert(best);
         if (best->capturedPiece == SQUARE_EMPTY && best->promotionPiece == NO_PROMOTION) {
             setHistoryHeuristic(best->from, best->to, depth - extension);
