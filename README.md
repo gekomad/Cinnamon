@@ -22,6 +22,7 @@ News
 
 Useful links
 ----------
+- [Cinnamon written in Rust](https://github.com/gekomad/cinnamon_r)
 - [Bitboard Calculator](https://gekomad.github.io/Cinnamon/BitboardCalculator/)
 - [Auriga Distributed Perft](https://github.com/gekomad/Auriga)
 - [Web Eval debugger](https://github.com/gekomad/chess-engine-eval-debugger)
