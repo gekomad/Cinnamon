@@ -20,7 +20,7 @@
 
 IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), running(false), ponderEnabled(false) {
     setId(-1);
-    ply = 0;
+    plyFromRoot = 0;
     SET(checkSmp2, 0);
 }
 
@@ -50,8 +50,10 @@ void IterativeDeeping::run() {
     searchManager.setRunning(2);
     searchManager.setRunningThread(true);
 
+#ifndef JS_MODE
     //Tablebase
-    string tb = searchManager.probeRootTB();
+
+    string tb = TB::probeRootTB1(searchManager.getSearch());
     if (!tb.empty()) {
         debug("info string returned move from TB\n")
         _Tmove move;
@@ -63,14 +65,14 @@ void IterativeDeeping::run() {
         LOCK_RELEASE(running);
         return;
     }
-
+#endif
     unsigned totMoves;
 
-    int mply = 0;
+    int iter_depth = 0;
 
     searchManager.startClock();
     searchManager.clearHeuristic();
-    ply++;
+    plyFromRoot++;
     searchManager.setForceCheck(false);
 
     auto start1 = std::chrono::high_resolution_clock::now();
@@ -86,10 +88,10 @@ void IterativeDeeping::run() {
 
     while (searchManager.getRunning(0)) {
         totMoves = 0;
-        ++mply;
+        ++iter_depth;
         searchManager.init();
 
-        auto sc = searchManager.search(ply, mply);
+        auto sc = searchManager.search(plyFromRoot, iter_depth);
 
         searchManager.setRunningThread(1);
         searchManager.setRunning(1);
@@ -104,7 +106,7 @@ void IterativeDeeping::run() {
         timeTaken = Time::diffTime(end1, start1) + 1;
         totMoves += searchManager.getTotMoves();
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
         const int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
         const int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
         const int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
@@ -128,7 +130,7 @@ void IterativeDeeping::run() {
         const int nBadCaputure = searchManager.getTotBadCaputure();
         const int nullMoveCut = searchManager.getNullMoveCut();
 
-        cout << "\ninfo string ply: " << mply << endl;
+        cout << "\ninfo string ply: " << iter_depth << endl;
         cout << "info string tot moves: " << totMoves << endl;
 
         if (nCutAB) cout << "info string beta efficiency: " << (searchManager.getBetaEfficiency()) << "%" << endl;
@@ -172,34 +174,29 @@ void IterativeDeeping::run() {
         if (trace) {
 
             resultMove.capturedPiece = searchManager.getPieceAt(X(resultMove.side), POW2(resultMove.to));
-            bestmove = searchManager.decodeBoardinv(resultMove.type, resultMove.from, resultMove.side);
-            if (!(resultMove.type & (KING_SIDE_CASTLE_MOVE_MASK | QUEEN_SIDE_CASTLE_MOVE_MASK))) {
-                bestmove += searchManager.decodeBoardinv(resultMove.type, resultMove.to, resultMove.side);
-                if (resultMove.promotionPiece != NO_PROMOTION) {
-                    bestmove += tolower(FEN_PIECE[resultMove.promotionPiece]);
-                }
-            }
+            bestmove = searchManager.decodeBoardinv(&resultMove, resultMove.side);
 
             if (sc > _INFINITE - MAX_PLY)
-                cout << "info depth " << mply << " score mate " << max(1, (_INFINITE - sc) / 2);
+                cout << "info depth " << iter_depth << " score mate " << max(1, (_INFINITE - sc) / 2);
             else if (sc < -_INFINITE + MAX_PLY)
-                cout << "info depth " << mply << " score mate -" << max(1, (_INFINITE + sc) / 2);
-            else cout << "info depth " << mply - extension << " score cp " << sc;
+                cout << "info depth " << iter_depth << " score mate -" << max(1, (_INFINITE + sc) / 2);
+            else cout << "info depth " << iter_depth - extension << " score cp " << sc;
 
             cout << " time " << timeTaken << " nodes " << totMoves;
             if (timeTaken)cout << " nps " << (int) ((double) totMoves / (double) timeTaken * 1000.0);
             cout << " pv " << pvv << endl;
+            DEBUG(GenMoves::verifyPV(searchManager.getSearch().getFen(),pvv))
         }
 
         if (searchManager.getForceCheck()) {
             searchManager.setForceCheck(inMate);
             searchManager.setRunning(1);
-        } else if (mply == 1 && abs(sc) > _INFINITE - MAX_PLY) {
+        } else if (iter_depth == 1 && abs(sc) > _INFINITE - MAX_PLY) {
             searchManager.setForceCheck(true);
             searchManager.setRunning(2);
 
         }
-        if (mply >= maxDepth + extension && (searchManager.getRunning(0) != 2 || inMate)) {
+        if (iter_depth >= maxDepth + extension && (searchManager.getRunning(0) != 2 || inMate)) {
             break;
         }
 
@@ -223,3 +220,4 @@ void IterativeDeeping::run() {
 int IterativeDeeping::loadFen(const string &fen) {
     return searchManager.loadFen(fen);
 }
+

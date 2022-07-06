@@ -48,7 +48,7 @@ public:
         return nThread;
     }
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
 
     int getBitCount() const {
         return bitCount(threadsBits);

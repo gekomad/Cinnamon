@@ -23,9 +23,8 @@
 #include "../util/Random.h"
 #include "../threadPool/Spinlock.h"
 
-
 using namespace std;
-using namespace _def;
+
 tuple<u64, u64, u64, u64> target{0, 0, 0, 0};
 
 void writeNOatomic() {

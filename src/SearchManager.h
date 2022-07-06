@@ -22,6 +22,7 @@
 #include "threadPool/ThreadPool.h"
 #include "namespaces/String.h"
 #include "util/IniFile.h"
+#include "db/TB.h"
 
 class SearchManager : private Singleton<SearchManager> {
     friend class Singleton<SearchManager>;
@@ -42,22 +43,27 @@ public:
 
     static void startClock();
 
-    static string decodeBoardinv(const uchar type, const int a, const uchar side);
+    Search &getSearch(int i = 0) {
+        return threadPool->getThread(i);
+    }
+
+
+    static string decodeBoardinv(const _Tmove *, const uchar side);
 
 #ifdef TUNING
 
     const _Tchessboard &getChessboard() {
-        return threadPool->getThread(0).getChessboard();
+        return threadPool->getThread(0).chessboard;
     }
 
-    static void setParameter(const string &param, const int value) {
-        for (Search *s:threadPool->getPool()) {
-            s->setParameter(param, value);
+    static void setParameter(const string &param, const int value, const int phase) {
+        for (Search *s: threadPool->getPool()) {
+            s->setParameter(param, value, phase);
         }
     }
 
-    static int getParameter(const string &param) {
-        return threadPool->getThread(0).getParameter(param);
+    static int getParameter(const string &param, const int phase) {
+        return threadPool->getThread(0).getParameter(param, phase);
     }
 
     int getQscore() const {
@@ -79,8 +85,6 @@ public:
     static void setForceCheck(const bool a);
 
     static void setRunningThread(const bool r);
-
-    static string probeRootTB();
 
     static void setRunning(const int i);
 
@@ -137,22 +141,22 @@ public:
     unsigned SZtbProbeWDL() const;
 
     u64 getBitmap(const int n, const uchar side) const {
-        return side ? board::getBitmap<WHITE>(threadPool->getPool()[n]->getChessboard())
-                    : board::getBitmap<BLACK>(threadPool->getPool()[n]->getChessboard());
+        return side ? board::getBitmap<WHITE>(threadPool->getPool()[n]->chessboard)
+                    : board::getBitmap<BLACK>(threadPool->getPool()[n]->chessboard);
     }
 
     const _Tchessboard &getChessboard(const int n = 0) const {
-        return threadPool->getPool()[n]->getChessboard();
+        return threadPool->getPool()[n]->chessboard;
     }
 
     template<uchar side>
     u64 getPinned(const u64 allpieces, const u64 friends, const int kingPosition) const {
-        return board::getPinned<side>(allpieces, friends, kingPosition, threadPool->getPool()[0]->getChessboard());
+        return board::getPinned<side>(allpieces, friends, kingPosition, threadPool->getPool()[0]->chessboard);
     }
 
 #endif
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
 
     static unsigned getCumulativeMovesCount() {
         return Search::cumulativeMovesCount;
@@ -218,7 +222,7 @@ public:
 
 #endif
 
-    static int search(const int ply, const int mply);
+    static int search(const int ply, const int iter_depth);
 
 private:
 

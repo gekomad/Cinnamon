@@ -26,7 +26,7 @@
 class Tune {
 
 protected:
-    constexpr static int N_PARAM = 20;
+    constexpr static int N_PARAM = 43;
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     const string iniFile = "tuning.ini";
 
@@ -49,13 +49,16 @@ protected:
         int getStartValue() const { return startValue; }
 
         string name;
+        int phase;
 
-        PARAMS(string n, const SearchManager &searchManager) : name(n) { startValue = searchManager.getParameter(n); }
+        PARAMS(string p, const SearchManager &searchManager, const int ph) : name(p), phase(ph) {
+            startValue = searchManager.getParameter(p, ph);
+        }
 
         void print(SearchManager &searchManager) const {
-            printf("\nname: %s, startValue: %d, newValue: %d", name.c_str(), startValue,
-                   searchManager.getParameter(name));
-            if (startValue != searchManager.getParameter(name))cout << " (*)";
+            printf("\nname: %s(%s), startValue: %d, newValue: %d", name.c_str(), phase ? "EG" : "MG", startValue,
+                   searchManager.getParameter(name, phase));
+            if (startValue != searchManager.getParameter(name, phase))cout << " (*)";
         }
     };
 
@@ -64,8 +67,9 @@ protected:
         ofstream myfile;
         myfile.open(iniFile);
         myfile << "#" << Time::getLocalTime() << endl;
-        for (auto &param:params) {
-            myfile << param.name << "=" << searchManager.getParameter(param.name) << endl;
+        for (auto &param: params) {
+            myfile << param.name << "=" << searchManager.getParameter(param.name, param.phase) << "|" << param.phase
+                   << endl;
         }
         myfile.close();
     }
@@ -74,8 +78,11 @@ protected:
         cout << "\nload parameters from " << iniFile << endl;
         map<string, string> map = IniFile(iniFile).paramMap;
         for (std::map<string, string>::iterator it = map.begin(); it != map.end(); ++it) {
-            std::cout << it->first << " => " << it->second << endl;
-            searchManager.setParameter(it->first, stoi(it->second));
+            int pos = it->second.find("|");
+            const auto value = stoi(it->second.substr(0, pos));
+            const auto phase = stoi(it->second.substr(pos + 1, it->second.length()));
+            cout << it->first << "(" << (phase ? "EG" : "MG") << ") => " << value << endl;
+            searchManager.setParameter(it->first, value, phase);
         }
     }
 
@@ -85,26 +92,60 @@ protected:
 
         loadParams();
         const array<PARAMS, N_PARAM> params{
-                PARAMS("ATTACK_KING", searchManager),
-                PARAMS("BISHOP_ON_QUEEN", searchManager),
-                PARAMS("BACKWARD_PAWN", searchManager),
-                PARAMS("DOUBLED_ISOLATED_PAWNS", searchManager),
-                PARAMS("PAWN_IN_7TH", searchManager),
-                PARAMS("PAWN_IN_PROMOTION", searchManager),
-                PARAMS("PAWN_NEAR_KING", searchManager),
-                PARAMS("PAWN_BLOCKED", searchManager),
-                PARAMS("UNPROTECTED_PAWNS", searchManager),
-                PARAMS("FRIEND_NEAR_KING", searchManager),
-                PARAMS("BONUS2BISHOP", searchManager),
-                PARAMS("BISHOP_PAWN_ON_SAME_COLOR", searchManager),
-                PARAMS("OPEN_FILE_Q", searchManager),
-                PARAMS("ROOK_7TH_RANK", searchManager),
-                PARAMS("KNIGHT_PINNED", searchManager),
-                PARAMS("ROOK_PINNED", searchManager),
-                PARAMS("BISHOP_PINNED", searchManager),
-                PARAMS("QUEEN_PINNED", searchManager),
-                PARAMS("ROOK_IN_7", searchManager),
-                PARAMS("QUEEN_IN_7", searchManager)
+                PARAMS("MOB_KING_", searchManager, Eval::MG),
+                PARAMS("MOB_KNIGHT_", searchManager, Eval::MG),
+                PARAMS("MOB_BISHOP_", searchManager, Eval::MG),
+                PARAMS("MOB_QUEEN_", searchManager, Eval::MG),
+//                PARAMS("ATTACK_KING", searchManager, Eval::MG),
+//                PARAMS("BISHOP_ON_QUEEN", searchManager, Eval::MG),
+                PARAMS("BACKWARD_PAWN", searchManager, Eval::MG),
+                PARAMS("DOUBLED_ISOLATED_PAWNS", searchManager, Eval::MG),
+                PARAMS("PAWN_IN_7TH", searchManager, Eval::MG),
+                PARAMS("PAWN_IN_PROMOTION", searchManager, Eval::MG),
+                PARAMS("PAWN_NEAR_KING", searchManager, Eval::MG),
+                PARAMS("PAWN_BLOCKED", searchManager, Eval::MG),
+                PARAMS("UNPROTECTED_PAWNS", searchManager, Eval::MG),
+                PARAMS("FRIEND_NEAR_KING", searchManager, Eval::MG),
+                PARAMS("BONUS2BISHOP", searchManager, Eval::MG),
+                PARAMS("BISHOP_PAWN_ON_SAME_COLOR", searchManager, Eval::MG),
+                PARAMS("OPEN_FILE_Q", searchManager, Eval::MG),
+                PARAMS("ROOK_7TH_RANK", searchManager, Eval::MG),
+                PARAMS("KNIGHT_PINNED", searchManager, Eval::MG),
+                PARAMS("ROOK_PINNED", searchManager, Eval::MG),
+                PARAMS("BISHOP_PINNED", searchManager, Eval::MG),
+                PARAMS("ROOK_IN_7_KING_IN_8", searchManager, Eval::MG),
+                PARAMS("PAWN_PASSED_", searchManager, Eval::MG),
+                PARAMS("DISTANCE_KING_ENDING_", searchManager, Eval::MG),
+                PARAMS("DISTANCE_KING_OPENING_", searchManager, Eval::MG),
+//                PARAMS("QUEEN_PINNED", searchManager, Eval::MG),
+//                PARAMS("ROOK_IN_7", searchManager, Eval::MG),
+//                PARAMS("QUEEN_IN_7", searchManager, Eval::MG),
+
+                PARAMS("MOB_KING_", searchManager, Eval::EG),
+                PARAMS("MOB_KNIGHT_", searchManager, Eval::EG),
+                PARAMS("MOB_BISHOP_", searchManager, Eval::EG),
+                PARAMS("MOB_QUEEN_", searchManager, Eval::EG),
+//                PARAMS("ATTACK_KING", searchManager, Eval::EG),
+//                PARAMS("BISHOP_ON_QUEEN", searchManager, Eval::EG),
+                PARAMS("BACKWARD_PAWN", searchManager, Eval::EG),
+                PARAMS("DOUBLED_ISOLATED_PAWNS", searchManager, Eval::EG),
+                PARAMS("PAWN_IN_7TH", searchManager, Eval::EG),
+                PARAMS("PAWN_IN_PROMOTION", searchManager, Eval::EG),
+                PARAMS("PAWN_NEAR_KING", searchManager, Eval::EG),
+                PARAMS("PAWN_BLOCKED", searchManager, Eval::EG),
+                PARAMS("UNPROTECTED_PAWNS", searchManager, Eval::EG),
+                PARAMS("FRIEND_NEAR_KING", searchManager, Eval::EG),
+                PARAMS("BONUS2BISHOP", searchManager, Eval::EG),
+                PARAMS("BISHOP_PAWN_ON_SAME_COLOR", searchManager, Eval::EG),
+                PARAMS("OPEN_FILE_Q", searchManager, Eval::EG),
+                PARAMS("ROOK_7TH_RANK", searchManager, Eval::EG),
+                PARAMS("KNIGHT_PINNED", searchManager, Eval::EG),
+                PARAMS("ROOK_PINNED", searchManager, Eval::EG),
+                PARAMS("BISHOP_PINNED", searchManager, Eval::EG),
+                PARAMS("ROOK_IN_7_KING_IN_8", searchManager, Eval::EG)
+//              PARAMS("QUEEN_PINNED", searchManager, Eval::EG),
+//              PARAMS("ROOK_IN_7", searchManager, Eval::EG),
+//              PARAMS("QUEEN_IN_7", searchManager, Eval::EG)
         };
         bool fullImproved;
         int cycle = 1;
@@ -114,30 +155,32 @@ protected:
                  << " *****************************************" << endl << flush;
             fullImproved = false;
             const double startError = E(fens);
-            for (auto &param:params) param.print(searchManager);
+            for (auto &param: params) param.print(searchManager);
             cout << "\nstartError: " << startError << endl << flush;
             bestError = startError;
-            for (auto &param:params) {
-                int bestValue = -1;
+            for (auto &param: params) {
+                int bestValue = INT_MAX;
                 for (int dir = 0; dir < 2; dir++) {
                     if (!dir)cout << "\nUP "; else cout << "\nDOWN ";
                     cout << Time::getLocalTime() << endl << flush;
 
-                    auto oldValue = searchManager.getParameter(param.name);
+                    auto oldValue = searchManager.getParameter(param.name, param.phase);
                     int newValue;
-                    if (dir == 0) newValue = searchManager.getParameter(param.name) + 1;
+                    if (dir == 0) newValue = searchManager.getParameter(param.name, param.phase) + 1;
                     else {
-                        if (searchManager.getParameter(param.name) <= 0)continue;
-                        else newValue = searchManager.getParameter(param.name) - 1;
+                        if (searchManager.getParameter(param.name, param.phase) <= 0)continue;
+                        else newValue = searchManager.getParameter(param.name, param.phase) - 1;
                     }
-                    searchManager.setParameter(param.name, newValue);
+                    searchManager.setParameter(param.name, newValue, param.phase);
 
                     double currentError;
 
                     int eq = 0;
                     while (true) {
                         currentError = E(fens);
-                        cout << param.name << " try value: " << newValue << "\terror: " << currentError
+                        cout << param.name << "(" << (param.phase ? "EG" : "MG") << ") try value: " << newValue
+                             << "\terror: "
+                             << currentError
                              << "\tbestError: "
                              << bestError;
                         if (currentError < bestError)cout << "\t(improved)";
@@ -151,23 +194,27 @@ protected:
                                 bestError = currentError;
                                 fullImproved = true;
                             }
-                            if (dir == 0) newValue++; else { if (newValue <= 0)break; else newValue--; }
-                            searchManager.setParameter(param.name, newValue);
+                            if (dir == 0) newValue++;
+                            else {
+                                if (startError >= 0) { if (newValue <= 0)break; }
+                                else if (newValue == 0)break; else newValue--;
+                            }
+                            searchManager.setParameter(param.name, newValue, param.phase);
                         } else break;
                     }
-                    searchManager.setParameter(param.name, oldValue);
-                    if (bestValue >= 0) {
+                    searchManager.setParameter(param.name, oldValue, param.phase);
+                    if (bestValue != INT_MAX) {
                         cout << "\n** Improved. ** bestError: " << bestError << " bestValue " << bestValue << " was "
                              << param.getStartValue() << flush;
-                        searchManager.setParameter(param.name, bestValue);
-                        for (auto &param:params) param.print(searchManager);
+                        searchManager.setParameter(param.name, bestValue, param.phase);
+                        for (auto &param: params) param.print(searchManager);
                         saveParams(params);
                         assert(E(fens) == bestError);
                     } else cout << "\n** Not improved. **" << flush;
                 }
             }
         } while (fullImproved);
-        for (auto &param:params) param.print(searchManager);
+        for (auto &param: params) param.print(searchManager);
         saveParams(params);
     }
 };

@@ -123,7 +123,7 @@ void Perft::alloc() {
     dealloc();
     hash = (_ThashPerft **) calloc(perftRes.depth + 1, sizeof(_ThashPerft *));
     _assert(hash)
-    const u64 k = 1024 * 1024 * mbSize / POW2(perftRes.depth);
+    const u64 k = 1024 * 1024 * (u64)mbSize / (u64) POW2(perftRes.depth);
     for (int i = 1; i <= perftRes.depth; i++) {
         perftRes.sizeAtDepth[i] = k * POW2(i - 1) / sizeof(_ThashPerft);
         hash[i] = (_ThashPerft *) calloc(perftRes.sizeAtDepth[i], sizeof(_ThashPerft));
@@ -200,8 +200,8 @@ void Perft::run() {
 
     time.resetAndStart();
     p->incListId();
-    u64 friends = side ? board::getBitmap<WHITE>(p->getChessboard()) : board::getBitmap<BLACK>(p->getChessboard());
-    u64 enemies = side ? board::getBitmap<BLACK>(p->getChessboard()) : board::getBitmap<WHITE>(p->getChessboard());
+    u64 friends = side ? board::getBitmap<WHITE>(p->chessboard) : board::getBitmap<BLACK>(p->chessboard);
+    u64 enemies = side ? board::getBitmap<BLACK>(p->chessboard) : board::getBitmap<WHITE>(p->chessboard);
     p->generateCaptures(side, enemies, friends);
     p->generateMoves(side, friends | enemies);
     int listcount = p->getListSize();

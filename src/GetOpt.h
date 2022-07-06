@@ -138,6 +138,8 @@ private:
         perft->join();
     }
 
+#ifndef JS_MODE
+
     static void dtmWdlGtb(int argc, char **argv, const bool dtm) {
         SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
@@ -191,26 +193,36 @@ private:
     }
 
     static void wdlSyzygy(int argc, char **argv) {
+
         createSyzygy(argc, argv);
         SearchManager &searchManager = Singleton<SearchManager>::getInstance();
         searchManager.printWdlSyzygy();
+
     }
 
     static void dtmSyzygy(int argc, char **argv) {
+
         createSyzygy(argc, argv);
         SearchManager &searchManager = Singleton<SearchManager>::getInstance();
         searchManager.printDtmSyzygy();
+
     }
 
+#endif
 public:
 
     static void parse(int argc, char **argv) {
+#ifdef NDEBUG
+        assert(0);
+#endif
 #ifdef TUNING
-
-        cout << Texel::help << endl;
-        cout << "run " << FileUtil::getFileName(argv[0]) << " path" << endl;
-        return;
-
+            if (argc != 2) {
+                cout << Texel::help << endl;
+                cout << "run " << FileUtil::getFileName(argv[0]) << " path" << endl;
+                return;
+            }
+            new Texel(argv[1]);
+	    return;
 #endif
         if (!(argc > 1 && !strcmp("-puzzle_epd", argv[1])))
             printHeader(FileUtil::getFileName(argv[0]));
@@ -241,7 +253,9 @@ public:
                     }
                 }
                 return;
-            } else {
+            }
+#ifndef JS_MODE
+            else {
                 if (opt == 'e') {
                     help(argv);
                     return;
@@ -264,8 +278,11 @@ public:
                     }
                     return;
                 }
+
             }
+#endif
         }
         Uci::getInstance();
     }
+
 };

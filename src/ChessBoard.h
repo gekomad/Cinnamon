@@ -44,7 +44,7 @@ class ChessBoard {
 public:
     ChessBoard();
 
-    string decodeBoardinv(const uchar type, const int a, const uchar side);
+    string decodeBoardinv(const _Tmove *move, const uchar side, const bool verbose = false);
 
     virtual ~ChessBoard();
 
@@ -53,10 +53,6 @@ public:
     int loadFen(const string &);
 
     void clearChessboard();
-
-    const _Tchessboard &getChessboard() const {
-        return chessboard;
-    }
 
     void setSide(const bool b) {
         sideToMove = b;
@@ -72,10 +68,17 @@ public:
 
     string boardToFen() const;
 
+    uchar rightCastle;
+
+    uchar enPassant;
     uchar sideToMove;
-protected:
+
+    void print(const _Tmove *move);
 
     _Tchessboard chessboard;
+protected:
+
+
     uchar startPosWhiteKing;
     uchar startPosWhiteRookKingSide;
     uchar startPosWhiteRookQueenSide;
@@ -84,9 +87,7 @@ protected:
     uchar startPosBlackRookKingSide;
     uchar startPosBlackRookQueenSide;
 
-    uchar rightCastle;
 
-    uchar enPassant;
     string MATCH_QUEENSIDE;
     string MATCH_QUEENSIDE_WHITE;
     string MATCH_KINGSIDE_WHITE;
@@ -98,9 +99,8 @@ protected:
 
     void makeZobristKey();
 
-    void print(const _Tmove *move);
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
 
     void updateZobristKey(int piece, int position) {
         ASSERT_RANGE(position, 0, 63)
@@ -118,8 +118,6 @@ private:
     char whiteRookQueenSideCastle;
     char blackRookKingSideCastle;
     char blackRookQueenSideCastle;
-
-    string moveToString(const _Tmove *move);
 
     int loadFen();
 };

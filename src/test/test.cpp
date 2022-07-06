@@ -18,17 +18,19 @@
 
 #if defined(FULL_TEST)
 
+#include "see.cpp"
 #include "pin.cpp"
 #include "eval.cpp"
-//#include "spinlockShared.cpp"
-//#include "spinlock.cpp"
 #include "search.cpp"
 #include "perft.cpp"
-#include "perft960.cpp"
 #include "syzygy.cpp"
 #include "gtb.cpp"
 #include "fileUtil.cpp"
 #include "string.cpp"
 #include "stalemate.cpp"
+
+#include "spinlockShared.cpp"
+#include "spinlock.cpp"
+#include "perft960.cpp"
 
 #endif

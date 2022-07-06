@@ -28,27 +28,14 @@ SearchManager::SearchManager() {
 }
 
 #if defined(FULL_TEST)
+
 unsigned SearchManager::SZtbProbeWDL() const {
-    return threadPool->getThread(0).SZtbProbeWDL();
+    return SYZYGY::getInstance().SZtbProbeWDL(threadPool->getThread(0).chessboard, threadPool->getThread(0).sideToMove);
 }
+
 #endif
 
-string SearchManager::probeRootTB() {
-    _Tmove bestMove;
-    Search &search = threadPool->getThread(0);
-    if (search.probeRootTB(&bestMove)) {
-        string best = string(search.decodeBoardinv(bestMove.type, bestMove.from, getSide())) +
-                      string(search.decodeBoardinv(bestMove.type, bestMove.to, getSide()));
-
-        if (bestMove.promotionPiece != NO_PROMOTION)
-            best += tolower(bestMove.promotionPiece);
-
-        return best;
-    } else
-        return "";
-}
-
-int SearchManager::search(const int ply, const int mply) {
+int SearchManager::search(const int plyFromRoot, const int iter_depth) {
 
     constexpr int SkipStep[64] =
             {0, 1, 2, 3, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2,
@@ -56,7 +43,7 @@ int SearchManager::search(const int ply, const int mply) {
              1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3};
 
     lineWin.cmove = -1;
-    setMainPly(ply, mply);
+    setMainPly(plyFromRoot, iter_depth);
     assert(bitCount(threadPool->getBitCount()) < 2);
 
     for (int ii = 1; ii < threadPool->getNthread(); ii++) {
@@ -64,11 +51,11 @@ int SearchManager::search(const int ply, const int mply) {
         if (helperThread.getId() == 0)continue;
 
         helperThread.setRunning(1);
-        startThread(helperThread, mply + SkipStep[ii]);
+        startThread(helperThread, iter_depth + SkipStep[ii]);
     }
 
     Search &mainThread = threadPool->getThread(0);
-    mainThread.setMainParam(mply);
+    mainThread.setMainParam(iter_depth);
     mainThread.run();
 
     auto res = mainThread.getValWindow();
@@ -92,14 +79,9 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
     assert(lineWin.cmove);
     for (int t = 0; t < lineWin.cmove; t++) {
         pvvTmp.clear();
-        pvvTmp +=
-                decodeBoardinv(lineWin.argmove[t].type, lineWin.argmove[t].from,
-                               threadPool->getThread(0).sideToMove);
-        if (pvvTmp.length() != 4 && pvvTmp[0] != 'O') {
-            pvvTmp += decodeBoardinv(lineWin.argmove[t].type, lineWin.argmove[t].to,
-                                     threadPool->getThread(0).sideToMove);
-        }
+        pvvTmp += decodeBoardinv(&lineWin.argmove[t], threadPool->getThread(0).sideToMove);
         pvv.append(pvvTmp);
+
         if (t == 1) {
             ponderMove.assign(pvvTmp);
         }
@@ -132,15 +114,15 @@ void SearchManager::startThread(Search &thread, const int depth) {
     thread.start();
 }
 
-void SearchManager::setMainPly(const int ply, const int mply) {
+void SearchManager::setMainPly(const int ply, const int iter_depth) {
     for (Search *s:threadPool->getPool()) {
-        s->setMainPly(ply, mply);
+        s->setMainPly(ply, iter_depth);
     }
 }
 
 int SearchManager::getPieceAt(const uchar side, const u64 i) {
-    return side == WHITE ? board::getPieceAt<WHITE>(i, threadPool->getThread(0).getChessboard())
-                         : board::getPieceAt<BLACK>(i, threadPool->getThread(0).getChessboard());
+    return side == WHITE ? board::getPieceAt<WHITE>(i, threadPool->getThread(0).chessboard)
+                         : board::getPieceAt<BLACK>(i, threadPool->getThread(0).chessboard);
 }
 
 u64 SearchManager::getTotMoves() {
@@ -231,7 +213,7 @@ void SearchManager::setPonder(const bool i) {
 }
 
 int SearchManager::getSide() {
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
     int t = threadPool->getThread(0).sideToMove;
     for (Search *s:threadPool->getPool()) {
         assert(s->sideToMove == t);
@@ -263,13 +245,13 @@ void SearchManager::setChess960(const bool i) {
 bool SearchManager::makemove(const _Tmove *i) {
     bool b = false;
     for (Search *s:threadPool->getPool()) {
-        b = s->makemove(i, true, false);
+        b = s->makemove(i, true);
     }
     return b;
 }
 
-string SearchManager::decodeBoardinv(const uchar type, const int a, const uchar side) {
-    return threadPool->getThread(0).decodeBoardinv(type, a, side);
+string SearchManager::decodeBoardinv(const _Tmove *move, const uchar side) {
+    return threadPool->getThread(0).decodeBoardinv(move, side);
 }
 
 void SearchManager::takeback(const _Tmove *move, const u64 oldkey, const uchar oldEnpassant, const bool rep) {
@@ -287,21 +269,21 @@ void SearchManager::setSide(const bool i) {
 #ifndef JS_MODE
 
 int SearchManager::printDtmGtb(const bool dtm) {
-    return threadPool->getThread(0).printDtmWdlGtb(dtm);
+    return TB::printDtmWdlGtb(threadPool->getThread(0), dtm);
 }
 
 void SearchManager::printDtmSyzygy() {
-    threadPool->getThread(0).printDtzSyzygy();
+    TB::printDtzSyzygy(threadPool->getThread(0));
 }
 
 void SearchManager::printWdlSyzygy() {
-    threadPool->getThread(0).printWdlSyzygy();
+    TB::printWdlSyzygy(threadPool->getThread(0));
 }
 
 #endif
 
 int SearchManager::getMoveFromSan(const string &string, _Tmove *ptr) {
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
     int t = threadPool->getThread(0).getMoveFromSan(string, ptr);
     for (Search *s:threadPool->getPool()) {
         assert(s->getMoveFromSan(string, ptr) == t);

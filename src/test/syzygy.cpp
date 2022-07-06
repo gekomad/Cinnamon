@@ -26,7 +26,7 @@ TEST(syzygy, DTM) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     SYZYGY::getInstance().createSYZYGY("/syzygy");
     searchManager.loadFen("2QN4/8/8/8/8/8/8/1k2K3 w - - 0 1");
-    EXPECT_EQ("e1d2", searchManager.probeRootTB());
+    EXPECT_EQ("e1d2", TB::probeRootTB1(searchManager.getSearch()));
 }
 
 TEST(syzygy, WDL1) {

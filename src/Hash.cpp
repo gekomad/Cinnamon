@@ -20,7 +20,7 @@
 
 unsigned Hash::HASH_SIZE;
 Hash::_Thash *Hash::hashArray;
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
 unsigned Hash::nRecordHashA, Hash::nRecordHashB, Hash::nRecordHashE, Hash::collisions, Hash::readCollisions,
         Hash::n_cut_hashA, Hash::n_cut_hashB, Hash::n_cut_hashE, Hash::readHashCount;
 #endif
@@ -28,7 +28,7 @@ unsigned Hash::nRecordHashA, Hash::nRecordHashB, Hash::nRecordHashE, Hash::colli
 Hash::Hash() {
     HASH_SIZE = 0;
     hashArray = nullptr;
-    DEBUG(n_cut_hashA = n_cut_hashB = readCollisions = nRecordHashA = nRecordHashB = nRecordHashE = readCollisions = collisions = 0)
+    DEBUG(n_cut_hashA = n_cut_hashB = nRecordHashA = nRecordHashB = nRecordHashE = readCollisions = collisions = 0)
     setHashSize(HASH_SIZE_DEFAULT);
 }
 

@@ -70,7 +70,7 @@ vector<string> PerftThread::getSuccessorsFen(const int depthx) {
         move = getMove(ii);
         const u64 keyold = chessboard[ZOBRISTKEY_IDX];
         const uchar oldEnpassant = enPassant;
-        makemove(move, false, false);
+        makemove(move, false);
         setSide(X(side));
         vector<string> bb = getSuccessorsFen<X(side)>(depthx - 1);
         n_perft.insert(n_perft.end(), bb.begin(), bb.end());
@@ -124,7 +124,7 @@ u64 PerftThread::search(const int depthx) {
         move = getMove(ii);
         const u64 keyold = chessboard[ZOBRISTKEY_IDX];
         const uchar oldEnpassant = enPassant;
-        makemove(move, false, false);
+        makemove(move, false);
         nPerft += search<X(side), useHash>(depthx - 1);
         takeback(move, keyold, oldEnpassant, false);
     }
@@ -158,7 +158,7 @@ void PerftThread::run() {
     for (int ii = from; ii <= to - 1; ii++) {
         u64 n_perft;
         move = getMove(ii);
-        makemove(move, false, false);
+        makemove(move, false);
         bool fhash = Perft::hash != nullptr;
         bool side = X(sideToMove);
 
@@ -177,17 +177,10 @@ void PerftThread::run() {
         x = toupper(x);
         if (x == 'P') x = ' ';
 
-        const char y = (move->capturedPiece != SQUARE_EMPTY) ? '*' : '-';
-
         if (fhash)spinlockPrint.lock();
         cout << endl;
-        string h;
-        if ((decodeBoardinv(move->type, move->to, sideToMove)).length() > 2) {
-            h = decodeBoardinv(move->type, move->to, sideToMove);
-        } else {
-            h = h + x + decodeBoardinv(move->type, move->from, sideToMove) + y
-                + decodeBoardinv(move->type, move->to, sideToMove);
-        }
+        string h = decodeBoardinv(move, sideToMove, true);
+
         cout << setw(6) << h;
         cout << setw(20) << n_perft;
         cout << setw(8) << (Perft::count--);

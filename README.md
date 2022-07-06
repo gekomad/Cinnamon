@@ -8,21 +8,15 @@ Cinnamon is a chess program for Windows, Linux, Mac OS, Android and Raspberry Pi
 
 Version
 ----------
-2.4
+2.5
 
 News
 ----------
-- Reverse Futility Pruning
-- Stalemate improvement
-- Trasposition Table improvement
-- Bug fix in castle
-- Bug fix in en passant
-- Speeded up Perft
-- Compilable with MS Visual Studio
+- Time management
+- Tapered eval
 
 Useful links
 ----------
-- [Cinnamon written in Rust](https://github.com/gekomad/cinnamon_r)
 - [Bitboard Calculator](https://gekomad.github.io/Cinnamon/BitboardCalculator/)
 - [Auriga Distributed Perft](https://github.com/gekomad/Auriga)
 - [Web Eval debugger](https://github.com/gekomad/chess-engine-eval-debugger)

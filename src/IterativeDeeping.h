@@ -31,7 +31,8 @@
 class IterativeDeeping : public Thread<IterativeDeeping> {
 
 public:
-    int ply;
+    int plyFromRoot;
+
     IterativeDeeping();
 
     virtual ~ IterativeDeeping();

@@ -25,13 +25,7 @@
 #include "namespaces/board.h"
 #include <climits>
 #include "threadPool/Thread.h"
-
-#ifndef JS_MODE
-
-#include "db/gaviota/GTB.h"
-#include "db/syzygy/SYZYGY.h"
-
-#endif
+#include "db/TB.h"
 
 typedef struct {
     int cmove;
@@ -45,11 +39,13 @@ public:
     static constexpr int NULL_DIVISOR = 7;
     static constexpr int NULL_DEPTH = 3;
     static constexpr int VAL_WINDOW = 50;
-
+#ifndef JS_MODE
+    SYZYGY *syzygy = &SYZYGY::getInstance();
+#endif
     Search();
 
     short getScore(const uchar side) {
-        return eval.getScore(chessboard, 0xffffffffffffffffULL, side, -_INFINITE, _INFINITE DEBUG2(, true));
+        return eval.getScore(chessboard, 0, side, -_INFINITE, _INFINITE, true);
     }
 
     Search(const Search *s) { clone(s); }
@@ -68,9 +64,9 @@ public:
 
 #ifdef TUNING
 
-    int getParameter(const string &param);
+    int getParameter(const string &param,const int phase);
 
-    void setParameter(const string &param, const int value);
+    void setParameter(const string &param, const int value, const int phase);
 
     int qSearch(const int depth, const int alpha, const int beta) {
         ASSERT_RANGE(depth, 0, MAX_PLY)
@@ -95,34 +91,15 @@ public:
 
     void setMainParam(const int depth);
 
-    template<bool searchMoves>
-    int searchRoot(const int depth, const int alpha, const int beta);
-
     void run();
 
     void endRun() {}
-
-#ifndef JS_MODE
-
-    int probeWdl(const int depth, const uchar side, const int N_PIECE);
-
-    int printDtmWdlGtb(const bool dtm);
-
-    void printDtzSyzygy();
-
-    void printWdlSyzygy();
-
-#endif
 
     void setMainPly(const int, const int);
 
     static void setRunningThread(const bool t) {
         runningThread = t;
     }
-
-    bool probeRootTB(_Tmove *);
-
-    int SZtbProbeWDL() const;
 
     int getValWindow() const {
         return valWindow;
@@ -134,7 +111,7 @@ public:
         return enPassant;
     }
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
     static unsigned cumulativeMovesCount;
     unsigned totGen;
 
@@ -151,9 +128,7 @@ public:
 private:
     Eval eval;
     Hash &hash = Hash::getInstance();
-#ifndef JS_MODE
-    SYZYGY *syzygy = &SYZYGY::getInstance();
-#endif
+
     vector<int> searchMovesVector;
     int valWindow = INT_MAX;
     static volatile bool runningThread;
@@ -165,7 +140,7 @@ private:
     Times *times = &Times::getInstance();
 #endif
 
-    template<bool searchMoves>
+    template<uchar side,bool searchMoves>
     void aspirationWindow(const int depth, const int valWindow);
 
     int checkTime() const;
@@ -177,7 +152,7 @@ private:
     bool checkDraw(u64);
 
     template<uchar side, bool checkMoves>
-    int search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE, const int nRootMoves);
+    int search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE);
 
     template<bool checkMoves>
     bool checkSearchMoves(const _Tmove *move) const;

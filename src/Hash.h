@@ -56,7 +56,7 @@ public:
         hashfALPHA = 0, hashfEXACT = 1, hashfBETA = 2
     };
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
     static unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions, readCollisions, n_cut_hashA, n_cut_hashB, n_cut_hashE, readHashCount;
 #endif
 
@@ -77,11 +77,13 @@ public:
             const int alpha,
             const int beta,
             const int depth,
-            const u64 zobristKeyR, u64 &checkHashStruct, const bool currentPly) {
+            const u64 zobristKeyR,
+            u64 &hashStruct,
+            const bool currentPly) {
         INC(readHashCount);
         const Hash::_Thash *hash = &(hashArray[zobristKeyR % HASH_SIZE]);
         DEBUG(u64 d = 0)
-        checkHashStruct = 0;
+        hashStruct = 0;
         bool found = false;
         for (int i = 0; i < BUCKETS; i++, hash++) {
             if (found)break;
@@ -89,19 +91,19 @@ public:
             DEBUG(d |= data)
             if (zobristKeyR == GET_KEY(hash)) {
                 found = true;
-                checkHashStruct = data;
-                if (GET_DEPTH(checkHashStruct) >= depth) {
+                hashStruct = data;
+                if (GET_DEPTH(hashStruct) >= depth) {
                     if (currentPly) {
-                        switch (GET_FLAGS(checkHashStruct)) {
+                        switch (GET_FLAGS(hashStruct)) {
                             case Hash::hashfEXACT:
                             case Hash::hashfBETA:
-                                if (GET_SCORE(checkHashStruct) >= beta) {
+                                if (GET_SCORE(hashStruct) >= beta) {
                                     INC(n_cut_hashB);
                                     return beta;
                                 }
                                 break;
                             case Hash::hashfALPHA:
-                                if (GET_SCORE(checkHashStruct) <= alpha) {
+                                if (GET_SCORE(hashStruct) <= alpha) {
                                     INC(n_cut_hashA);
                                     return alpha;
                                 }
@@ -119,7 +121,7 @@ public:
     }
 
     static void recordHash(const _Thash &toStore, const int ply) {
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
         assert(toStore.key);
         if (GET_FLAGS(toStore.data) == hashfALPHA) nRecordHashA++;
         else if (GET_FLAGS(toStore.data) == hashfBETA) nRecordHashB++;
@@ -164,6 +166,7 @@ public:
             for (i = 0; i < BUCKETS; i++, hash++) {
                 const u64 data = hash->data;
                 const auto age = ((ply - GET_AGE(data)) & 255) * 256 + 255 - GET_DEPTH(data);
+                // const int age = ((pow(GET_DEPTH(data) - GET_DEPTH(old->data), 2)) + (ply - GET_AGE(data)));
                 if (age > oldTT) {
                     old = hash;
                     oldTT = age;

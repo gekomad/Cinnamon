@@ -27,7 +27,7 @@
 using namespace std;
 namespace constants {
     
-    static const string NAME = "Cinnamon 2.4";
+    static const string NAME = "Cinnamon 2.5";
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     static constexpr int BLACK = 0;
     static constexpr int WHITE = 1;
@@ -43,16 +43,15 @@ namespace constants {
 
 #define X(side) ((side)^1)
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
 #define DEBUG(a) a;
-#define DEBUG2(...) __VA_ARGS__
+
 #define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;_assert(0)};}
 #define INC(a) (a++)
 #define SET(a, v) (a=(v))
 #define ADD(a, b) (a+=(b))
 #else
 #define DEBUG(a)
-#define DEBUG2(...)
 #define ASSERT_RANGE(value, from, to)
 #define INC(a)
 #define SET(a, v)
@@ -79,9 +78,9 @@ namespace constants {
     static constexpr uchar QUEEN_WHITE = 11;
     static constexpr uchar ZOBRISTKEY_IDX = 12;
 
-    static constexpr uchar ENPASSANT_IDX = 13;
-    static constexpr uchar SIDETOMOVE_IDX = 14;
-    static constexpr uchar RIGHT_CASTLE_IDX = 15;
+    static constexpr uchar ENPASSANT_RAND = 13;
+
+    static constexpr uchar RIGHT_CASTLE_RAND = 15;
 
     static constexpr uchar SQUARE_EMPTY = 12;
 

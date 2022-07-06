@@ -42,7 +42,7 @@ public:
 
     template<uchar side>
     static u64
-    getPinned(const u64 allpieces, const u64 friends, const int kingPosition, const _Tchessboard &chessboard) {
+    __attribute__((always_inline))  getPinned(const u64 allpieces, const u64 friends, const int kingPosition, const _Tchessboard &chessboard) {
         BENCH_AUTO_CLOSE("getPinned")
         u64 result = 0;
         ASSERT_RANGE(kingPosition, 0, 63)
@@ -55,7 +55,7 @@ public:
         for (; attacked; RESET_LSB(attacked)) {
             const int pos = BITScanForward(attacked);
             const u64 b = *(s + pos) & allpieces;
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
             u64 x = *(s + pos) & (allpieces & NOTPOW2(kingPosition));
             assert(b == x);
 #endif
@@ -81,13 +81,13 @@ public:
     static bool isPieceAt(const uchar pieces, const uchar pos, const _Tchessboard &chessboard);
 
     template<uchar side>
-    static u64 getBitmap(const _Tchessboard &chessboard) {
+    __attribute__((always_inline)) static u64 getBitmap(const _Tchessboard &chessboard) {
         BENCH_AUTO_CLOSE("getBitmap")
         return chessboard[PAWN_BLACK + side] | chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] |
                chessboard[KNIGHT_BLACK + side] | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
 
-    static u64 getBitmap(const _Tchessboard &chessboard) {
+    __attribute__((always_inline))  static u64 getBitmap(const _Tchessboard &chessboard) {
         return chessboard[PAWN_BLACK] | chessboard[ROOK_BLACK] | chessboard[BISHOP_BLACK] |
                chessboard[KNIGHT_BLACK] | chessboard[KING_BLACK] | chessboard[QUEEN_BLACK] | chessboard[PAWN_WHITE] |
                chessboard[ROOK_WHITE] | chessboard[BISHOP_WHITE] |
@@ -95,7 +95,7 @@ public:
     }
 
     template<uchar side>
-    static int getPieceAt(const u64 bitmapPos, const _Tchessboard &chessboard) {
+    __attribute__((always_inline))  static int getPieceAt(const u64 bitmapPos, const _Tchessboard &chessboard) {
         BENCH_AUTO_CLOSE("getPieceAt")
         if ((chessboard[PAWN_BLACK + side] & bitmapPos))return PAWN_BLACK + side;
         if ((chessboard[ROOK_BLACK + side] & bitmapPos))return ROOK_BLACK + side;
@@ -106,7 +106,7 @@ public:
         return SQUARE_EMPTY;
     }
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
 
     static u64 getBitmap(const uchar side, const _Tchessboard &chessboard);
 
@@ -115,7 +115,7 @@ public:
 #endif
 
     template<uchar side>
-    static u64 getAttackers(const int position, const u64 allpieces, const _Tchessboard &chessboard) {
+    __attribute__((always_inline))  static u64 getAttackers(const int position, const u64 allpieces, const _Tchessboard &chessboard) {
         BENCH_AUTO_CLOSE("getAttackers")
         ASSERT_RANGE(position, 0, 63)
         ASSERT_RANGE(side, 0, 1)
@@ -150,7 +150,7 @@ public:
     }
 
     template<uchar side>
-    static bool isAttacked(const int position, const u64 allpieces, const _Tchessboard &chessboard) {
+    __attribute__((always_inline))  static bool isAttacked(const int position, const u64 allpieces, const _Tchessboard &chessboard) {
         BENCH_AUTO_CLOSE("isAttacked")
         ASSERT_RANGE(position, 0, 63)
         ASSERT_RANGE(side, 0, 1)
@@ -186,7 +186,7 @@ public:
     }
 
     template<uchar side>
-    static bool anyAttack(u64 sq, const u64 allpieces, const _Tchessboard &chessboard) {
+    __attribute__((always_inline)) static bool anyAttack(u64 sq, const u64 allpieces, const _Tchessboard &chessboard) {
         for (; sq; RESET_LSB(sq)) {
             if (isAttacked<side>(BITScanForward(sq), allpieces, chessboard))return true;
         }
@@ -194,13 +194,13 @@ public:
     }
 
     template<uchar side>
-    static bool inCheck1(const _Tchessboard &chessboard) {
+    __attribute__((always_inline)) static bool inCheck1(const _Tchessboard &chessboard) {
         return isAttacked<side>(BITScanForward(chessboard[KING_BLACK + side]),
                                 getBitmap<BLACK>(chessboard) | getBitmap<WHITE>(chessboard), chessboard);
     }
 
     template<uchar side>
-    static u64 getBitmapNoPawnsNoKing(const _Tchessboard &chessboard) {
+    __attribute__((always_inline)) static u64 getBitmapNoPawnsNoKing(const _Tchessboard &chessboard) {
         BENCH_AUTO_CLOSE("getBitmapNoPawns")
         return chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] |
                chessboard[QUEEN_BLACK + side];
@@ -208,7 +208,7 @@ public:
 
 
     template<uchar side>
-    static u64 getPiecesNoKing(const _Tchessboard &chessboard) {
+    __attribute__((always_inline))  static u64 getPiecesNoKing(const _Tchessboard &chessboard) {
         BENCH_AUTO_CLOSE("getPiecesNoKing")
         return chessboard[ROOK_BLACK + side] | chessboard[BISHOP_BLACK + side] | chessboard[KNIGHT_BLACK + side] |
                chessboard[PAWN_BLACK + side] | chessboard[QUEEN_BLACK + side];

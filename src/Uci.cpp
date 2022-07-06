@@ -15,6 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef JS_MODE
 
 #include "Uci.h"
 
@@ -92,7 +93,7 @@ void Uci::listner(IterativeDeeping *it) {
             uchar side = searchManager.getSide();
             int t = searchManager.getScore(side);
             if (!searchManager.getSide()) t = -t;
-            cout << "Score: " << t << endl;
+            cout << "\nTotal (white)..........   " << (float) t / 100.0 << endl;
             knowCommand = true;
         } else if (String::toLower(token) == "perft") {
             cout << "Can't run perft here, view \"cinnamon.exe -help\"" << endl;
@@ -103,7 +104,7 @@ void Uci::listner(IterativeDeeping *it) {
             searchManager.setRunningThread(false);
         } else if (String::toLower(token) == "ucinewgame") {
             while (it->getRunning());
-            it->ply = 0;
+            it->plyFromRoot = 0;
             searchManager.loadFen();
             knowCommand = true;
         } else if (String::toLower(token) == "setoption") {
@@ -302,21 +303,15 @@ void Uci::listner(IterativeDeeping *it) {
             }
             if (!forceTime) {
                 if (searchManager.getSide() == WHITE) {
-                    winc -= (int) (winc * 0.1);
-                    searchManager.setMaxTimeMillsec(winc + wtime / 36);
-                    if (btime > wtime) {
-                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
-                                                        (int) (searchManager.getMaxTimeMillsec() *
-                                                               ((135.0 - wtime * 100.0 / btime) / 100.0)));
-                    }
+                    int timeForThisMove = wtime / 40 + (winc / 2);
+                    if (timeForThisMove >= wtime) timeForThisMove = wtime - 500;
+                    if (timeForThisMove < 0) timeForThisMove = 100;
+                    searchManager.setMaxTimeMillsec(timeForThisMove);
                 } else {
-                    binc -= (int) (binc * 0.1);
-                    searchManager.setMaxTimeMillsec(binc + btime / 36);
-                    if (wtime > btime) {
-                        searchManager.setMaxTimeMillsec(searchManager.getMaxTimeMillsec() -
-                                                        (int) (searchManager.getMaxTimeMillsec() *
-                                                               ((135.0 - btime * 100.0 / wtime) / 100.0)));
-                    }
+                    int timeForThisMove = btime / 40 + (binc / 2);
+                    if (timeForThisMove >= btime) timeForThisMove = btime - 500;
+                    if (timeForThisMove < 0) timeForThisMove = 100;
+                    searchManager.setMaxTimeMillsec(timeForThisMove);
                 }
                 lastTime = searchManager.getMaxTimeMillsec();
             }
@@ -333,3 +328,5 @@ void Uci::listner(IterativeDeeping *it) {
         cout << flush;
     }
 }
+
+#endif
