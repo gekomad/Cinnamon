@@ -19,18 +19,17 @@
 // compile time logger
 #pragma once
 
+#include <iostream>
+
+#include "../threadPool/Spinlock.h"
 #include "../util/Singleton.h"
 #include "bench/Time.h"
-#include "../threadPool/Spinlock.h"
-#include <iostream>
 
 using namespace std;
 
 namespace _logger {
 
-    enum LOG_LEVEL {
-        _TRACE = 0, _DEBUG1 = 1, _INFO = 2, _WARN = 3, _ERROR = 4, _FATAL = 5, _OFF = 6
-    };
+enum LOG_LEVEL { _TRACE = 0, _DEBUG1 = 1, _INFO = 2, _WARN = 3, _ERROR = 4, _FATAL = 5, _OFF = 6 };
 
 #if !defined DLOG_LEVEL
 #ifndef NDEBUG
@@ -40,49 +39,47 @@ namespace _logger {
 #endif
 #endif
 
-    static const string LOG_LEVEL_STRING[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF", "LOG"};
+static const string LOG_LEVEL_STRING[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "OFF", "LOG"};
 
-    class Logger: public Singleton<Logger>, public ofstream {
-        friend class Singleton<Logger>;
+class Logger : public Singleton<Logger>, public ofstream {
+  friend class Singleton<Logger>;
 
-    public:
-        void setLogfile(const string &f, const bool append = false) {
-            this->open(f, append ? std::ofstream::app : std::ofstream::out);
-        }
+ public:
+  void setLogfile(const string &f, const bool append = false) {
+    this->open(f, append ? std::ofstream::app : std::ofstream::out);
+  }
 
-        template<LOG_LEVEL type, typename T, typename... Args>
-        void _log(T t, Args... args) {
-            _CoutSyncSpinlock.lock();
-            cout << Time::getLocalTime() << " " << LOG_LEVEL_STRING[type] << " ";
-            *this << Time::getLocalTime() << " " << LOG_LEVEL_STRING[type] << " ";
-            __log(t, args...);
-            cout << endl;
-            *this << endl;
-            _CoutSyncSpinlock.unlock();
-        }
+  template <LOG_LEVEL type, typename T, typename... Args>
+  void _log(T t, Args... args) {
+    _CoutSyncSpinlock.lock();
+    cout << Time::getLocalTime() << " " << LOG_LEVEL_STRING[type] << " ";
+    *this << Time::getLocalTime() << " " << LOG_LEVEL_STRING[type] << " ";
+    __log(t, args...);
+    cout << endl;
+    *this << endl;
+    _CoutSyncSpinlock.unlock();
+  }
 
-    private:
-        Spinlock _CoutSyncSpinlock;
+ private:
+  Spinlock _CoutSyncSpinlock;
 
-        template<typename T>
-        void __log(T t) {
-            cout << (t);
-            *this << (t);
-        }
+  template <typename T>
+  void __log(T t) {
+    cout << (t);
+    *this << (t);
+  }
 
-        template<typename T, typename... Args>
-        void __log(T t, Args... args) {
-            cout << (t);
-            *this << (t);
-            __log(args...);
-        }
+  template <typename T, typename... Args>
+  void __log(T t, Args... args) {
+    cout << (t);
+    *this << (t);
+    __log(args...);
+  }
 
-        ~Logger() {
-            this->close();
-        }
-    };
+  ~Logger() { this->close(); }
+};
 
-    static Logger &logger = Logger::getInstance();
+static Logger &logger = Logger::getInstance();
 
 #if _WIN32 || _WIN64
 #define FILE_SEPARATOR '\\'
@@ -92,15 +89,33 @@ namespace _logger {
 
 #define __FILENAME__ (strrchr(__FILE__, FILE_SEPARATOR) ? strrchr(__FILE__, FILE_SEPARATOR) + 1 : __FILE__)
 
-#define LINE_INFO __FILENAME__,":",__LINE__," "
+#define LINE_INFO __FILENAME__, ":", __LINE__, " "
 
-#define trace(...) if (_TRACE >= DLOG_LEVEL) {logger._log<LOG_LEVEL::_TRACE>( LINE_INFO,__VA_ARGS__);}
-#define debug(...) if (_DEBUG1 >= DLOG_LEVEL) {logger._log<LOG_LEVEL::_DEBUG1>( LINE_INFO,__VA_ARGS__);}
-#define info(...)  if (_INFO  >= DLOG_LEVEL) {logger._log<LOG_LEVEL::_INFO> ( LINE_INFO,__VA_ARGS__);}
-#define warn(...)  if (_WARN  >= DLOG_LEVEL) {logger._log<LOG_LEVEL::_WARN> ( LINE_INFO,__VA_ARGS__);}
-#define error(...) if (_ERROR >= DLOG_LEVEL) {logger._log<LOG_LEVEL::_ERROR>( LINE_INFO,__VA_ARGS__);}
-#define fatal(...) if (_FATAL >= DLOG_LEVEL) {logger._log<LOG_LEVEL::_FATAL>( LINE_INFO,__VA_ARGS__);}
+#define trace(...)                                          \
+  if (_TRACE >= DLOG_LEVEL) {                               \
+    logger._log<LOG_LEVEL::_TRACE>(LINE_INFO, __VA_ARGS__); \
+  }
+#define debug(...)                                           \
+  if (_DEBUG1 >= DLOG_LEVEL) {                               \
+    logger._log<LOG_LEVEL::_DEBUG1>(LINE_INFO, __VA_ARGS__); \
+  }
+#define info(...)                                          \
+  if (_INFO >= DLOG_LEVEL) {                               \
+    logger._log<LOG_LEVEL::_INFO>(LINE_INFO, __VA_ARGS__); \
+  }
+#define warn(...)                                          \
+  if (_WARN >= DLOG_LEVEL) {                               \
+    logger._log<LOG_LEVEL::_WARN>(LINE_INFO, __VA_ARGS__); \
+  }
+#define error(...)                                          \
+  if (_ERROR >= DLOG_LEVEL) {                               \
+    logger._log<LOG_LEVEL::_ERROR>(LINE_INFO, __VA_ARGS__); \
+  }
+#define fatal(...)                                          \
+  if (_FATAL >= DLOG_LEVEL) {                               \
+    logger._log<LOG_LEVEL::_FATAL>(LINE_INFO, __VA_ARGS__); \
+  }
 
-}
+}  // namespace _logger
 
 using namespace _logger;

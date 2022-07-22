@@ -40,31 +40,42 @@
 #include <stdlib.h>
 
 #if defined(ZLIB)
-extern int zlib_encode (const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
-extern int zlib_decode (const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
+extern int zlib_encode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                       size_t out_max);
+extern int zlib_decode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                       size_t out_max);
 #endif
 
 #if defined(LLIBLZF)
-extern int lzf_encode  (const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
-extern int lzf_decode  (const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
+extern int lzf_encode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                      size_t out_max);
+extern int lzf_decode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                      size_t out_max);
 #endif
 
 #if defined(LZMA86)
-extern int lzma_encode (const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
-extern int lzma_decode (const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
+extern int lzma_encode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                       size_t out_max);
+extern int lzma_decode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                       size_t out_max);
 #endif
 
-#if defined (LIBBZIP2)
-extern int bzip2_encode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
-extern int bzip2_decode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
+#if defined(LIBBZIP2)
+extern int bzip2_encode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                        size_t out_max);
+extern int bzip2_decode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                        size_t out_max);
 #endif
 
-extern int rle_encode  (const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
-extern int rle_decode  (const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
+extern int rle_encode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                      size_t out_max);
+extern int rle_decode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                      size_t out_max);
 
-extern int justcopy_encode (const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
-extern int justcopy_decode (const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len, size_t out_max);
-
+extern int justcopy_encode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                           size_t out_max);
+extern int justcopy_decode(const unsigned char *in_start, size_t in_len, unsigned char *out_start, size_t *pout_len,
+                           size_t out_max);
 
 /*<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<*/
 #endif

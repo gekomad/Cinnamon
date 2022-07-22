@@ -2,7 +2,7 @@ Cinnamon
 ==========
 ### UCI Chess Engine
 
-Cinnamon is a chess program for Windows, Linux, Mac OS, Android and Raspberry Pi, is a console-based chess engine for use with [xboard][4], [Arena][5], [Tarrasch][6], [Droidfish][7] or any UCI-compatible GUI. Cinnamon is also a javascript library to play with [chessboardjs][8] or any js GUI.
+Cinnamon is a chess program for Windows, Linux, Mac OS, Android and Raspberry Pi, is a console-based chess engine for use with [xboard][4], [Arena][5], [Tarrasch][6] or any UCI-compatible GUI. Cinnamon is also a javascript library to play with [chessboardjs][7] or any js GUI.
 
 - [Play on line](https://gekomad.github.io/Cinnamon/)
 
@@ -18,12 +18,21 @@ News
 Useful links
 ----------
 - [Bitboard Calculator](https://gekomad.github.io/Cinnamon/BitboardCalculator/)
-- [Auriga Distributed Perft](https://github.com/gekomad/Auriga)
 - [Web Eval debugger](https://github.com/gekomad/chess-engine-eval-debugger)
-- [Cinnamon on Android](https://play.google.com/store/apps/details?id=com.github.gekomad.cinnamonengine)
-- [Cinnamon on DGT Pi](https://www.digitalgametechnology.com/index.php/products/revelation-ii/533-dgt-pi-chess-computer-for-dgt-e-boards)
-- [Clion IDE](https://www.jetbrains.com/?from=CINNAMON_CHESS_ENGINE)
+- [Cute Cluster Chess](https://github.com/gekomad/cute_cluster_chess)
+- [Perft results](https://gekomad.github.io/Cinnamon/perft.html)
+- [Perft 960 results](https://www.chessprogramming.org/Chess960_Perft_Results)
 
+
+Other links
+----------
+- [Auriga Distributed Perft](https://github.com/gekomad/Auriga)
+- [Cinnamon on Android](https://play.google.com/store/apps/details?id=com.github.gekomad.cinnamonengine)
+- [Cinnamon on Android with GUI](https://play.google.com/store/apps/details?id=com.github.gekomad.chess_master)
+- [Cinnamon on DGT Pi](https://www.digitalgametechnology.com/index.php/products/revelation-ii/533-dgt-pi-chess-computer-for-dgt-e-boards)
+- [Janggi Master (korean chess)](https://play.google.com/store/apps/details?id=com.github.gekomad.rangy_app)
+- [Xiangqi Master (chinese chess)](https://play.google.com/store/apps/details?id=com.github.gekomad.rangyxx_app)
+- [Rangy Master](https://gekomad.github.io/rangy_master/index.html)
 
 Features
 ----------
@@ -34,23 +43,8 @@ Features
 - GPL 3 License
 - Chess 960
 - C++11 source
-- PVS
 - Rotated bitboards
-- Null moves
-- Futility pruning
-- Reverse Futility Pruning
-- Delta pruning
-- Razoring
-- Interruptible multithread Perft test [standard][9] and [chess960][10]
-- 32/64 bit architectures
-- Iterative deeping
-- History heuristics
-- Killer heuristics
-- Lazy evaluation
-- MVV/LVA
-- Transposition Table
-- Aspiration Windows
-- Late Move Reduction
+- Interruptible multithread Perft test
 - Ponder
 - Gaviota Tablebases
 - Syzygy Tablebases
@@ -146,8 +140,6 @@ Cinnamon was written by Giuseppe Cannella at gmail dot com.
   [4]: https://www.gnu.org/software/xboard
   [5]: http://www.playwitharena.de
   [6]: https://triplehappy.com
-  [7]: https://play.google.com/store/apps/details?hl=it&id=org.petero.droidfish
-  [8]: https://chessboardjs.com
-  [9]: https://gekomad.github.io/Cinnamon/perft.html
-  [10]: https://www.chessprogramming.org/Chess960_Perft_Results
+  [7]: https://chessboardjs.com
+
 

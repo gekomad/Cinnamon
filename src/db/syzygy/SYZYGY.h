@@ -18,73 +18,66 @@
 
 #pragma once
 
-#include "../../namespaces/bits.h"
+#include <map>
+
 #include "../../ChessBoard.h"
+#include "../../GenMoves.h"
+#include "../../namespaces/bits.h"
 #include "../../util/Singleton.h"
 #include "tbprobe.h"
-#include "../../GenMoves.h"
-
-#include <map>
 
 using namespace std;
 
-
 class SYZYGY : public Singleton<SYZYGY> {
-    friend class Singleton<SYZYGY>;
+  friend class Singleton<SYZYGY>;
 
-public:
-    int SZtbProbeWDL(const _Tchessboard &chessboard, const int side, const int tot) const {
-        if (getInstalledPieces() >= tot) {
-            BENCH_AUTO_CLOSE("syzygyTime")
-            return SZtbProbeWDL(chessboard, side);
-        }
-        return TB_RESULT_FAILED;
+ public:
+  int SZtbProbeWDL(const _Tchessboard &chessboard, const int side, const int tot) const {
+    if (getInstalledPieces() >= tot) {
+      BENCH_AUTO_CLOSE("syzygyTime")
+      return SZtbProbeWDL(chessboard, side);
     }
+    return TB_RESULT_FAILED;
+  }
 
-    int setPath(const string &path);
+  int setPath(const string &path);
 
-    static char getPromotion(const unsigned promotion) {
-        if (promotion == 1) return 'q';
-        if (promotion == 2) return 'r';
-        if (promotion == 3) return 'b';
-        if (promotion == 4) return 'n';
-        return NO_PROMOTION;
+  static char getPromotion(const unsigned promotion) {
+    if (promotion == 1) return 'q';
+    if (promotion == 2) return 'r';
+    if (promotion == 3) return 'b';
+    if (promotion == 4) return 'n';
+    return NO_PROMOTION;
+  }
+
+  unsigned SZtbProbeRoot(const u64, const u64, const _Tchessboard &c, const bool turn, unsigned *);
+
+  unsigned SZtbProbeWDL(const _Tchessboard &c, const bool turn) const;
+
+  void setInstalledPieces(const int i) { installedPieces = i; }
+
+  ~SYZYGY() = default;
+
+  int getInstalledPieces() const { return installedPieces; }
+
+  bool createSYZYGY(string path) {
+    installedPieces = setPath(path);
+    if (!installedPieces) {
+      cout << "error: unable to initialize syzygy lib; no lib files found" << endl;
+      return false;
     }
+    cout << "syzygy tb use " << installedPieces << " pieces" << endl;
 
-    unsigned SZtbProbeRoot(const u64, const u64, const _Tchessboard &c, const bool turn, unsigned *);
+    return true;
+  }
 
-    unsigned SZtbProbeWDL(const _Tchessboard &c, const bool turn) const;
-
-    void setInstalledPieces(const int i) {
-        installedPieces = i;
-    }
-
-    ~SYZYGY() = default;
-
-    int getInstalledPieces() const {
-        return installedPieces;
-    }
-
-    bool createSYZYGY(string path) {
-
-        installedPieces = setPath(path);
-        if (!installedPieces) {
-            cout << "error: unable to initialize syzygy lib; no lib files found" << endl;
-            return false;
-        }
-        cout << "syzygy tb use " << installedPieces << " pieces" << endl;
-
-        return true;
-    }
-
-private:
+ private:
 #ifdef BENCH_MODE
-    Times *times = &Times::getInstance();
+  Times *times = &Times::getInstance();
 #endif
-    int installedPieces = 0;
+  int installedPieces = 0;
 
-    SYZYGY();
+  SYZYGY();
 
-    static u64 decode(u64 d);
+  static u64 decode(u64 d);
 };
-

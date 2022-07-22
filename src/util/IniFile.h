@@ -19,28 +19,28 @@
 #pragma once
 
 #include <fstream>
-#include <regex>
-#include "logger.h"
-#include "FileUtil.h"
 #include <map>
+#include <regex>
+
+#include "FileUtil.h"
+#include "logger.h"
 
 using namespace std;
 using namespace _logger;
 
 class IniFile {
-public:
+ public:
+  IniFile(const string &fileName1);
 
-    IniFile(const string &fileName1);
+  map<string, string> paramMap;
 
-    map<string, string> paramMap;
-private:
-    std::regex rgxLine;
-    std::regex rgxTag;
-    ifstream inData;
-    string fileName;
-    pair<string, string> params;
+ private:
+  std::regex rgxLine;
+  std::regex rgxTag;
+  ifstream inData;
+  string fileName;
+  pair<string, string> params;
 
-    pair<string, string> *get();
-
+  pair<string, string> *get();
 };
 #endif

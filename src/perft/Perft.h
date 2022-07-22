@@ -18,74 +18,67 @@
 
 #pragma once
 
-#include "../Search.h"
-#include <iomanip>
 #include <atomic>
+#include <csignal>
 #include <fstream>
+#include <iomanip>
+
+#include "../Search.h"
+#include "../threadPool/ThreadPool.h"
 #include "../unistd.h"
 #include "../util/Timer.h"
 #include "PerftThread.h"
-#include "../threadPool/ThreadPool.h"
 #include "_TPerftRes.h"
-#include <csignal>
 
 class Perft : public Thread<Perft>, protected ThreadPool<PerftThread>, public Singleton<Perft> {
-    friend class Singleton<Perft>;
+  friend class Singleton<Perft>;
 
-public:
-    static _ThashPerft **hash;
+ public:
+  static _ThashPerft **hash;
 
-    void setParam(const string &fen1,
-                  int depth1,
-                  const int nCpu2,
-                  const int mbSize1,
-                  const string &dumpFile1,
-                  const bool chess960);
+  void setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1,
+                const bool chess960);
 
-    ~Perft();
+  ~Perft();
 
-    void dump();
+  void dump();
 
-    void run();
+  void run();
 
-    void endRun();
+  void endRun();
 
-    static int count;
+  static int count;
 
-    u64 getResult() {
-        return perftRes.totMoves;
+  u64 getResult() { return perftRes.totMoves; }
+
+ private:
+  Perft() : ThreadPool(1) {}
+
+  _TPerftRes perftRes;
+  Time time;
+  string fen;
+  string dumpFile;
+  int mbSize;
+  bool chess960;
+  int depthHashFile;
+  void alloc();
+
+  void dealloc() const;
+
+  bool load();
+
+  constexpr static int minutesToDump = Time::HOUR_IN_MINUTES * 10;
+
+  static void ctrlChandler(int s) {
+    if (dumping) {
+      cout << "dumping hash... " << endl << flush;
+      return;
     }
+    if (s < 0) cout << s;
+    Perft::getInstance().dump();
+    cout << "exit" << endl << endl;
+    exit(0);
+  }
 
-private:
-    Perft() : ThreadPool(1) {}
-
-    _TPerftRes perftRes;
-    Time time;
-    string fen;
-    string dumpFile;
-    int mbSize;
-    bool chess960;
-    int depthHashFile;
-    void alloc();
-
-    void dealloc() const;
-
-    bool load();
-
-    constexpr static int minutesToDump = Time::HOUR_IN_MINUTES * 10;
-
-    static void ctrlChandler(int s) {
-        if (dumping) {
-            cout << "dumping hash... " << endl << flush;
-            return;
-        }
-        if (s < 0)cout << s;
-        Perft::getInstance().dump();
-        cout << "exit" << endl << endl;
-        exit(0);
-    }
-
-    static bool dumping;
-
+  static bool dumping;
 };
-

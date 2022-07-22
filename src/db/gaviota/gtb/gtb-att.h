@@ -1,7 +1,7 @@
 /*
 This Software is distributed with the following X11 License,
 sometimes also known as MIT license.
- 
+
 Copyright (c) 2010 Miguel A. Ballicora
 
  Permission is hereby granted, free of charge, to any person
@@ -29,15 +29,15 @@ Copyright (c) 2010 Miguel A. Ballicora
 #if !defined(H_PROBATT)
 #define H_PROBATT
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
-#include  "sysport/sysport.h"
+#include "sysport/sysport.h"
 
-extern uint64_t 	Reach [7] [64];
+extern uint64_t Reach[7][64];
 
-extern void 		attack_maps_init (void);
-extern int /*bool*/	possible_attack(unsigned int from, unsigned int to, unsigned int piece);
-extern void 		reach_init (void);
-extern int /*bool*/	reach_was_initialized (void);
-extern void 		tolist_rev (uint64_t occ, unsigned char input_piece, unsigned int sq, unsigned int *list);
+extern void attack_maps_init(void);
+extern int /*bool*/ possible_attack(unsigned int from, unsigned int to, unsigned int piece);
+extern void reach_init(void);
+extern int /*bool*/ reach_was_initialized(void);
+extern void tolist_rev(uint64_t occ, unsigned char input_piece, unsigned int sq, unsigned int *list);
 
 /*<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<*/
 #endif

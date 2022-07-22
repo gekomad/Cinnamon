@@ -22,38 +22,35 @@ unsigned Hash::HASH_SIZE;
 Hash::_Thash *Hash::hashArray;
 #ifndef NDEBUG
 unsigned Hash::nRecordHashA, Hash::nRecordHashB, Hash::nRecordHashE, Hash::collisions, Hash::readCollisions,
-        Hash::n_cut_hashA, Hash::n_cut_hashB, Hash::n_cut_hashE, Hash::readHashCount;
+    Hash::n_cut_hashA, Hash::n_cut_hashB, Hash::n_cut_hashE, Hash::readHashCount;
 #endif
 
 Hash::Hash() {
-    HASH_SIZE = 0;
-    hashArray = nullptr;
-    DEBUG(n_cut_hashA = n_cut_hashB = nRecordHashA = nRecordHashB = nRecordHashE = readCollisions = collisions = 0)
-    setHashSize(HASH_SIZE_DEFAULT);
+  HASH_SIZE = 0;
+  hashArray = nullptr;
+  DEBUG(n_cut_hashA = n_cut_hashB = nRecordHashA = nRecordHashB = nRecordHashE = readCollisions = collisions = 0)
+  setHashSize(HASH_SIZE_DEFAULT);
 }
 
 void Hash::clearHash() {
-    if (!HASH_SIZE) return;
-    memset(static_cast<void *>(hashArray), 0, sizeof(_Thash) * (HASH_SIZE + BUCKETS));
+  if (!HASH_SIZE) return;
+  memset(static_cast<void *>(hashArray), 0, sizeof(_Thash) * (HASH_SIZE + BUCKETS));
 }
 
 void Hash::setHashSize(const int mb) {
-    dispose();
-    if (mb > 0) {
-        u64 tmp = (u64) mb * 1024 * 1024 / (sizeof(_Thash));
-        hashArray = (_Thash *) calloc(tmp, sizeof(_Thash));
-        if (!hashArray) {
-            fatal("info string error - no memory")
-            exit(1);
-        }
-        HASH_SIZE = tmp - BUCKETS;
+  dispose();
+  if (mb > 0) {
+    u64 tmp = (u64)mb * 1024 * 1024 / (sizeof(_Thash));
+    hashArray = (_Thash *)calloc(tmp, sizeof(_Thash));
+    if (!hashArray) {
+      fatal("info string error - no memory") exit(1);
     }
+    HASH_SIZE = tmp - BUCKETS;
+  }
 }
 
 void Hash::dispose() {
-    if (hashArray != nullptr) free(hashArray);
-    hashArray = nullptr;
-    HASH_SIZE = 0;
+  if (hashArray != nullptr) free(hashArray);
+  hashArray = nullptr;
+  HASH_SIZE = 0;
 }
-
-

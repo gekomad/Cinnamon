@@ -18,89 +18,72 @@
 
 #pragma once
 
-#include <thread>
-#include <mutex>
-#include "ObserverThread.h"
-#include "../namespaces/bits.h"
 #include <condition_variable>
+#include <mutex>
+#include <thread>
+
+#include "../namespaces/bits.h"
+#include "ObserverThread.h"
 
 using namespace std;
 
-//curiously recurring template pattern (CRTP)
+// curiously recurring template pattern (CRTP)
 
-template<typename T>
+template <typename T>
 class Thread {
+ private:
+  bool running = true;
+  int threadID;
+  ObserverThread *observer = nullptr;
+  condition_variable cv;
+  thread theThread;
 
-private:
-    bool running = true;
-    int threadID;
-    ObserverThread *observer = nullptr;
-    condition_variable cv;
-    thread theThread;
-
-    void _run() {
-        static_cast<T *>(this)->run();
-        static_cast<T *>(this)->endRun();
-        if (observer != nullptr) {
-            observer->observerEndThread(threadID);
-        }
+  void _run() {
+    static_cast<T *>(this)->run();
+    static_cast<T *>(this)->endRun();
+    if (observer != nullptr) {
+      observer->observerEndThread(threadID);
     }
+  }
 
-public:
-    template<typename O, typename = typename std::enable_if<std::is_base_of<ObserverThread, O>::value, O>::type>
-    void registerObserverThread(ObserverThread *obs) {
-        observer = static_cast<O *>(obs);
+ public:
+  template <typename O, typename = typename std::enable_if<std::is_base_of<ObserverThread, O>::value, O>::type>
+  void registerObserverThread(ObserverThread *obs) {
+    observer = static_cast<O *>(obs);
+  }
+
+  virtual ~Thread() { join(); }
+
+  void checkWait() {
+    while (!running) {
+      mutex mtx;
+      unique_lock<mutex> lck(mtx);
+      cv.wait(lck);
     }
+  }
 
-    virtual ~Thread() {
-        join();
+  void notify() { cv.notify_all(); }
+
+  void start() {
+    assert(!isJoinable());
+    theThread = thread(&Thread::_run, this);
+  }
+
+  void join() {
+    if (theThread.joinable()) {
+      theThread.join();
     }
+  }
 
-    void checkWait() {
-        while (!running) {
-            mutex mtx;
-            unique_lock<mutex> lck(mtx);
-            cv.wait(lck);
-        }
-    }
+  void detach() { theThread.detach(); }
 
-    void notify() {
-        cv.notify_all();
-    }
+  int getId() const { return threadID; }
 
-    void start() {
-        assert(!isJoinable());
-        theThread = thread(&Thread::_run, this);
-    }
+  void setId(int id) { threadID = id; }
 
-    void join() {
-        if (theThread.joinable()) {
-            theThread.join();
-        }
-    }
+  void threadSleep(bool b) { running = !b; }
 
-    void detach() {
-        theThread.detach();
-    }
+  bool isJoinable() { return theThread.joinable(); }
 
-    int getId() const {
-        return threadID;
-    }
-
-    void setId(int id) {
-        threadID = id;
-    }
-
-    void threadSleep(bool b) {
-        running = !b;
-    }
-
-    bool isJoinable() {
-        return theThread.joinable();
-    }
-
-    void setSleep(bool b) {
-        running = !b;
-    }
-
+  void setSleep(bool b) { running = !b; }
 };

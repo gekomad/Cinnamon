@@ -18,34 +18,30 @@
 
 #include "Timer.h"
 
-Timer::Timer(const int seconds1) {
-    seconds = seconds1;
-}
+Timer::Timer(const int seconds1) { seconds = seconds1; }
 
-void Timer::endRun() { }
+void Timer::endRun() {}
 
 void Timer::run() {
-    unique_lock<mutex> lck(mtx);
-    while (seconds) {
-        cv.wait_for(lck, chrono::seconds(seconds));
-        if (seconds) {
-            notifyObservers();
-        }
+  unique_lock<mutex> lck(mtx);
+  while (seconds) {
+    cv.wait_for(lck, chrono::seconds(seconds));
+    if (seconds) {
+      notifyObservers();
     }
+  }
 }
 
-void Timer::registerObservers(const function<void(void)>& f) {
-    observers.push_back(f);
-}
+void Timer::registerObservers(const function<void(void)>& f) { observers.push_back(f); }
 
 void Timer::notifyObservers() {
-    for (auto & observer : observers) {
-        observer();
-    }
+  for (auto& observer : observers) {
+    observer();
+  }
 }
 
 Timer::~Timer() {
-    seconds = 0;
-    cv.notify_all();
-    join();
+  seconds = 0;
+  cv.notify_all();
+  join();
 }

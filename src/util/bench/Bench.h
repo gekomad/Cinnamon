@@ -19,15 +19,16 @@
 #pragma once
 
 #include <iostream>
-#include "Times.h"
 #include <map>
 
+#include "Times.h"
+
 #ifdef BENCH_MODE
-#define BENCH_AUTO_CLOSE(name)  (Bench(Times::getInstance(),name));
-#define BENCH_START(name)  (Bench(Times::getInstance(),name));
-#define BENCH_SUBPROCESS(name,sub)  (Times::getInstance().subProcess(name,sub));
-#define BENCH_STOP(name)  (Times::getInstance().stop(name));
-#define BENCH_PRINT()  (Times::getInstance().print());
+#define BENCH_AUTO_CLOSE(name) (Bench(Times::getInstance(), name));
+#define BENCH_START(name) (Bench(Times::getInstance(), name));
+#define BENCH_SUBPROCESS(name, sub) (Times::getInstance().subProcess(name, sub));
+#define BENCH_STOP(name) (Times::getInstance().stop(name));
+#define BENCH_PRINT() (Times::getInstance().print());
 #else
 #define BENCH_AUTO_CLOSE(name)
 #define BENCH_START(name)
@@ -39,17 +40,16 @@
 using namespace std;
 
 class Bench {
-public:
-    Bench(Times &time, const string &name) {
-        this->time = &time;
-        this->name = name;
-        time.start(name);
-    }
+ public:
+  Bench(Times &time, const string &name) {
+    this->time = &time;
+    this->name = name;
+    time.start(name);
+  }
 
-    ~Bench() {
-        time->stop(name);
-    }
-private:
-    string name;
-    Times *time;
+  ~Bench() { time->stop(name); }
+
+ private:
+  string name;
+  Times *time;
 };

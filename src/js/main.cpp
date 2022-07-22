@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Uci.h"
 #include "../perft/Perft.h"
+#include "Uci.h"
 #include "unistd.h"
 
 Uci *u = NULL;
@@ -26,29 +26,27 @@ using namespace constants;
 
 extern "C" {
 
-char *command(char *t, char *arg) {
-    return u->command(t, arg);
-}
+char *command(char *t, char *arg) { return u->command(t, arg); }
 
 unsigned perft(char *fen, int depth, int hashSize, bool chess960) {
-    Perft *p = &Perft::getInstance();
-    p->setParam(fen, depth, 1, hashSize, "", chess960);
-    p->start();
-    p->join();
-    return p->getResult();
+  Perft *p = &Perft::getInstance();
+  p->setParam(fen, depth, 1, hashSize, "", chess960);
+  p->start();
+  p->join();
+  return p->getResult();
 }
 int isvalid(char *fen) {
-    ChessBoard c;
-    return c.loadFen(fen) == 2 ? 0 : 1;
+  ChessBoard c;
+  return c.loadFen(fen) == 2 ? 0 : 1;
 }
 
-}//extern C
+}  // extern C
 
 int main(int argc, char **argv) {
-    cout << NAME;
-    cout << " UCI by Giuseppe Cannella\n";
-    cout << "version compiled " << __DATE__ << " with emscripten - " << __VERSION__ << endl;
-    cout << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>" << endl << endl;
-    u = new Uci();
-    return 0;
+  cout << NAME;
+  cout << " UCI by Giuseppe Cannella\n";
+  cout << "version compiled " << __DATE__ << " with emscripten - " << __VERSION__ << endl;
+  cout << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>" << endl << endl;
+  u = new Uci();
+  return 0;
 }

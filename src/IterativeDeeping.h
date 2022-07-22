@@ -18,64 +18,58 @@
 
 #pragma once
 
-#include <cstring>
-#include <string.h>
-#include "namespaces/String.h"
-#include "SearchManager.h"
-#include "threadPool/Thread.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "unistd.h"
+#include <string.h>
+
+#include <cstring>
 #include <iomanip>
 
+#include "SearchManager.h"
+#include "namespaces/String.h"
+#include "threadPool/Thread.h"
+#include "unistd.h"
+
 class IterativeDeeping : public Thread<IterativeDeeping> {
+ public:
+  int plyFromRoot;
 
-public:
-    int plyFromRoot;
+  IterativeDeeping();
 
-    IterativeDeeping();
+  virtual ~IterativeDeeping();
 
-    virtual ~ IterativeDeeping();
+  void run();
 
-    void run();
+  void endRun() {};
 
-    void endRun() {};
+  bool getPonderEnabled() const;
 
-    bool getPonderEnabled() const;
+  void enablePonder(const bool);
 
-    void enablePonder(const bool);
+  void setMaxDepth(const int);
 
-    void setMaxDepth(const int);
+  int loadFen(const string &fen = "");
 
-    int loadFen(const string &fen = "");
-
-    int getRunning() const {
-        return running;
-    }
+  int getRunning() const { return running; }
 
 #ifdef JS_MODE
-    string go() {
-        run();
-        return bestmove;
-    }
+  string go() {
+    run();
+    return bestmove;
+  }
 #endif
 
 #if defined(FULL_TEST)
-    const string &getBestmove() const {
-        return bestmove;
-    }
+  const string &getBestmove() const { return bestmove; }
 #endif
 
-private:
+ private:
+  DEBUG(atomic_int checkSmp2)
 
-    DEBUG(atomic_int checkSmp2)
-
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    int maxDepth;
-    string bestmove;
-    Hash &hash = Hash::getInstance();
-    volatile long running;
-    bool ponderEnabled;
-
+  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  int maxDepth;
+  string bestmove;
+  Hash &hash = Hash::getInstance();
+  volatile long running;
+  bool ponderEnabled;
 };
-

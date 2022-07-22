@@ -16,39 +16,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #if defined(FULL_TEST)
 
-#include <gtest/gtest.h>
-#include <set>
-#include "../SearchManager.h"
-#include "../IterativeDeeping.h"
 #include "../db/gaviota/GTB.h"
+
+#include <gtest/gtest.h>
+
+#include <set>
+
+#include "../IterativeDeeping.h"
+#include "../SearchManager.h"
 
 /*****************************
  * memory leak on gaviota lib
  ****************************/
 TEST(gtb, wdl) {
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    GTB &tablebase = GTB::getInstance();
-    if (!tablebase.setPath("/gtb4")) {
-        FAIL() << "path error";
-    }
-    searchManager.loadFen("3r1k2/8/8/1Q6/8/8/8/2K5 w - - 0 1");
-    EXPECT_EQ(4, searchManager.printDtmGtb(false)); //win
+  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  GTB &tablebase = GTB::getInstance();
+  if (!tablebase.setPath("/gtb4")) {
+    FAIL() << "path error";
+  }
+  searchManager.loadFen("3r1k2/8/8/1Q6/8/8/8/2K5 w - - 0 1");
+  EXPECT_EQ(4, searchManager.printDtmGtb(false));  // win
 }
 
 TEST(gtb, dtm) {
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    GTB &tablebase = GTB::getInstance();
-    if (!tablebase.setPath("/gtb4")) {
-        FAIL() << "path error";
-    }
-    searchManager.loadFen("3r1k2/8/8/1Q6/8/8/8/2K5 w - - 0 1");
-    EXPECT_EQ(4, searchManager.printDtmGtb(true)); //win
-
+  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  GTB &tablebase = GTB::getInstance();
+  if (!tablebase.setPath("/gtb4")) {
+    FAIL() << "path error";
+  }
+  searchManager.loadFen("3r1k2/8/8/1Q6/8/8/8/2K5 w - - 0 1");
+  EXPECT_EQ(4, searchManager.printDtmGtb(true));  // win
 }
-
-
 
 #endif

@@ -27,278 +27,284 @@
 
 #endif
 
-#include <fstream>
 #include <cstring>
+#include <fstream>
 #include <iomanip>
 
 using namespace constants;
 
 class Eval {
+ public:
+  Eval();
 
-public:
+  ~Eval();
 
-    Eval();
+  short getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, const int alpha, const int beta,
+                 const bool trace = false);
 
-    ~Eval();
+  template <uchar side>
+  int lazyEval(const _Tchessboard &chessboard) const {
+    return lazyEvalSide<side>(chessboard) - lazyEvalSide<X(side)>(chessboard);
+  }
 
-    short getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, const int alpha, const int beta,
-                   const bool trace = false);
+  static const int REVERSE_FUTIL_MARGIN = 180;
+  static const int FUTIL_MARGIN = 220;
+  static const int EXT_FUTIL_MARGIN = 550;
+  static const int RAZOR_MARGIN = 1171;
 
-    template<uchar side>
-    int lazyEval(const _Tchessboard &chessboard) const {
-        return lazyEvalSide<side>(chessboard) - lazyEvalSide<X(side)>(chessboard);
-    }
+  STATIC_CONST int MOB_QUEEN_[2] = {100, 296};
+  //    STATIC_CONST int MOB_ROOK_[2] = {100, 100};
+  //    STATIC_CONST int MOB_BISHOP_[2] = {102, 100};
+  STATIC_CONST int MOB_KNIGHT_[2] = {103, 66};
+  //    STATIC_CONST int MOB_KING_[2] = {100, 100};
+  //    STATIC_CONST int PAWN_PASSED_ = 98;
+  //    STATIC_CONST int DISTANCE_KING_ENDING_ = 100;
+  //    STATIC_CONST int DISTANCE_KING_OPENING_ = 100;
 
-    static const int REVERSE_FUTIL_MARGIN = 180;
-    static const int FUTIL_MARGIN = 220;
-    static const int EXT_FUTIL_MARGIN = 550;
-    static const int RAZOR_MARGIN = 1171;
+  //    STATIC_CONST int ATTACK_KING[2] = {0, 0};
+  //  STATIC_CONST int BISHOP_ON_QUEEN[2] = {8,8};
 
-    STATIC_CONST int MOB_QUEEN_[2] = {100, 296};
-//    STATIC_CONST int MOB_ROOK_[2] = {100, 100};
-//    STATIC_CONST int MOB_BISHOP_[2] = {102, 100};
-    STATIC_CONST int MOB_KNIGHT_[2] = {103, 66};
-//    STATIC_CONST int MOB_KING_[2] = {100, 100};
-//    STATIC_CONST int PAWN_PASSED_ = 98;
-//    STATIC_CONST int DISTANCE_KING_ENDING_ = 100;
-//    STATIC_CONST int DISTANCE_KING_OPENING_ = 100;
+  STATIC_CONST int BACKWARD_PAWN[2] = {4, 6};
+  STATIC_CONST int DOUBLED_ISOLATED_PAWNS[2] = {12, 14};
+  STATIC_CONST int PAWN_IN_7TH[2] = {98, 1};
+  STATIC_CONST int PAWN_IN_PROMOTION[2] = {122, 27};
+  STATIC_CONST int PAWN_NEAR_KING[2] = {46, 5};
+  STATIC_CONST int PAWN_BLOCKED[2] = {13, 24};
+  // STATIC_CONST int UNPROTECTED_PAWNS[2] = {0, 0};
+  STATIC_CONST int FRIEND_NEAR_KING[2] = {8, 8};
 
-//    STATIC_CONST int ATTACK_KING[2] = {0, 0};
-//  STATIC_CONST int BISHOP_ON_QUEEN[2] = {8,8};
+  STATIC_CONST int BONUS2BISHOP[2] = {42, 33};
+  STATIC_CONST int BISHOP_PAWN_ON_SAME_COLOR[2] = {0, 9};
+  STATIC_CONST int OPEN_FILE_Q[2] = {0, 15};
+  STATIC_CONST int ROOK_7TH_RANK[2] = {64, 0};
+  STATIC_CONST int KNIGHT_PINNED[2] = {60, 81};
+  STATIC_CONST int ROOK_PINNED[2] = {105, 29};
+  STATIC_CONST int BISHOP_PINNED[2] = {57, 41};
+  // STATIC_CONST int QUEEN_PINNED[2] = {2,2};
+  STATIC_CONST int ROOK_IN_7_KING_IN_8[2] = {17, 21};
 
-    STATIC_CONST int BACKWARD_PAWN[2] = {4, 6};
-    STATIC_CONST int DOUBLED_ISOLATED_PAWNS[2] = {12, 14};
-    STATIC_CONST int PAWN_IN_7TH[2] = {98, 1};
-    STATIC_CONST int PAWN_IN_PROMOTION[2] = {122, 27};
-    STATIC_CONST int PAWN_NEAR_KING[2] = {46, 5};
-    STATIC_CONST int PAWN_BLOCKED[2] = {13, 24};
-    //STATIC_CONST int UNPROTECTED_PAWNS[2] = {0, 0};
-    STATIC_CONST int FRIEND_NEAR_KING[2] = {8, 8};
+  static constexpr float MAX_VALUE_TAPERED =
+      2 * (VALUEROOK * 2 + VALUEBISHOP * 2 + VALUEKNIGHT * 2 + VALUEQUEEN + VALUEPAWN * 8);  // 8300
 
-    STATIC_CONST int BONUS2BISHOP[2] = {42, 33};
-    STATIC_CONST int BISHOP_PAWN_ON_SAME_COLOR[2] = {0, 9};
-    STATIC_CONST int OPEN_FILE_Q[2] = {0, 15};
-    STATIC_CONST int ROOK_7TH_RANK[2] = {64, 0};
-    STATIC_CONST int KNIGHT_PINNED[2] = {60, 81};
-    STATIC_CONST int ROOK_PINNED[2] = {105, 29};
-    STATIC_CONST int BISHOP_PINNED[2] = {57, 41};
-    //STATIC_CONST int QUEEN_PINNED[2] = {2,2};
-    STATIC_CONST int ROOK_IN_7_KING_IN_8[2] = {17, 21};
-
-    static constexpr float
-            MAX_VALUE_TAPERED =
-            2 * (VALUEROOK * 2 + VALUEBISHOP * 2 + VALUEKNIGHT * 2 + VALUEQUEEN + VALUEPAWN * 8);//8300
-
-    static constexpr uchar MG = 0;
-    static constexpr uchar EG = 1;
+  static constexpr uchar MG = 0;
+  static constexpr uchar EG = 1;
 #ifndef NDEBUG
 
-    void p() {
-        cout << "|.......................|";
-    }
+  void p() { cout << "|.......................|"; }
 
-    void p(const float d1, const float d2) {
-        std::cout << std::fixed;
-        std::cout << std::setprecision(2);
+  void p(const float d1, const float d2) {
+    std::cout << std::fixed;
+    std::cout << std::setprecision(2);
 
-        if (d1 < 0)std::cout << "\t"; else std::cout << "\t ";
-        std::cout << d1 / 100.0;
-        if (d2 < 0)std::cout << "\t"; else std::cout << "\t ";
-        std::cout << d2 / 100.0;
-        std::cout << "\t|";
-    }
+    if (d1 < 0)
+      std::cout << "\t";
+    else
+      std::cout << "\t ";
+    std::cout << d1 / 100.0;
+    if (d2 < 0)
+      std::cout << "\t";
+    else
+      std::cout << "\t ";
+    std::cout << d2 / 100.0;
+    std::cout << "\t|";
+  }
 
-    void p2(const float d1, const float d2, const int phase) {
-        std::cout << std::fixed;
-        std::cout << std::setprecision(2);
+  void p2(const float d1, const float d2, const int phase) {
+    std::cout << std::fixed;
+    std::cout << std::setprecision(2);
 
-        if (d1 < 0)std::cout << " "; else std::cout << "  ";
-        std::cout << d1 / 100.0;
+    if (d1 < 0)
+      std::cout << " ";
+    else
+      std::cout << "  ";
+    std::cout << d1 / 100.0;
 
-        std::cout << "\t ";
-        if(d2<0)cout <<" ";else cout <<"  ";
-        std::cout << d2 / 100.0;
-        std::cout << "\t";
-        const auto tot = (((d1 * (256 - phase)) + (d2 * phase)) / 256) / 100.0;
-        if(tot<0)cout <<" ";else cout <<"  ";
-        cout << tot;
-        std::cout << "\t|";
-    }
+    std::cout << "\t ";
+    if (d2 < 0)
+      cout << " ";
+    else
+      cout << "  ";
+    std::cout << d2 / 100.0;
+    std::cout << "\t";
+    const auto tot = (((d1 * (256 - phase)) + (d2 * phase)) / 256) / 100.0;
+    if (tot < 0)
+      cout << " ";
+    else
+      cout << "  ";
+    cout << tot;
+    std::cout << "\t|";
+  }
 
-    unsigned lazyEvalCuts;
-    typedef struct {
-//        int BAD_BISHOP[2];
-        int MOB_BISHOP[2];
-//        int UNDEVELOPED_BISHOP[2];
-        int OPEN_DIAG_BISHOP[2];
-        int BONUS2BISHOP[2];
-//        int PAWN_PINNED[2];
-        int BISHOP_PINNED[2];
-        //int QUEEN_PINNED[2];
-        int KNIGHT_PINNED[2];
-        int ROOK_PINNED[2];
-        int ATTACK_KING_PAWN[2];
-//        int PAWN_CENTER[2];
-        int PAWN_7H[2];
-        int PAWN_IN_PROMOTION[2];
-        int PAWN_BLOCKED[2];
-        int UNPROTECTED_PAWNS[2];
-//        int PAWN_ISOLATED[2];
-//        int DOUBLED_PAWNS[2];
-        int DOUBLED_ISOLATED_PAWNS[2];
-        int BACKWARD_PAWN[2];
-//        int FORK_SCORE[2];
-        int PAWN_PASSED[2];
-//        int ENEMIES_PAWNS_ALL[2];
-//        int NO_PAWNS[2];
-//        int KING_SECURITY_BISHOP[2];
-        int KING_SECURITY_QUEEN[2];
-        int KING_SECURITY_KNIGHT[2];
-        int KING_SECURITY_ROOK[2];
-        int DISTANCE_KING[2];
-        int PAWN_NEAR_KING[2];
-        int MOB_KING[2];
-        int MOB_QUEEN[2];
-        int OPEN_FILE_Q[2];
-//        int BISHOP_ON_QUEEN[2];
-//        int HALF_OPEN_FILE_Q[2];
-//        int UNDEVELOPED_KNIGHT[2];
-//        int KNIGHT_TRAPPED[2];
-        int MOB_KNIGHT[2];
-        int ROOK_7TH_RANK[2];
-        int ROOK_IN_7_KING_IN_8[2];
-//        int ROOK_TRAPPED[2];
-        int MOB_ROOK[2];
-//        int ROOK_BLOCKED[2];
-//        int ROOK_OPEN_FILE[2];
-//        int CONNECTED_ROOKS[2];
-    } _TSCORE_DEBUG;
-    _TSCORE_DEBUG SCORE_DEBUG[2];
+  unsigned lazyEvalCuts;
+  typedef struct {
+    //        int BAD_BISHOP[2];
+    int MOB_BISHOP[2];
+    //        int UNDEVELOPED_BISHOP[2];
+    int OPEN_DIAG_BISHOP[2];
+    int BONUS2BISHOP[2];
+    //        int PAWN_PINNED[2];
+    int BISHOP_PINNED[2];
+    // int QUEEN_PINNED[2];
+    int KNIGHT_PINNED[2];
+    int ROOK_PINNED[2];
+    int ATTACK_KING_PAWN[2];
+    //        int PAWN_CENTER[2];
+    int PAWN_7H[2];
+    int PAWN_IN_PROMOTION[2];
+    int PAWN_BLOCKED[2];
+    int UNPROTECTED_PAWNS[2];
+    //        int PAWN_ISOLATED[2];
+    //        int DOUBLED_PAWNS[2];
+    int DOUBLED_ISOLATED_PAWNS[2];
+    int BACKWARD_PAWN[2];
+    //        int FORK_SCORE[2];
+    int PAWN_PASSED[2];
+    //        int ENEMIES_PAWNS_ALL[2];
+    //        int NO_PAWNS[2];
+    //        int KING_SECURITY_BISHOP[2];
+    int KING_SECURITY_QUEEN[2];
+    int KING_SECURITY_KNIGHT[2];
+    int KING_SECURITY_ROOK[2];
+    int DISTANCE_KING[2];
+    int PAWN_NEAR_KING[2];
+    int MOB_KING[2];
+    int MOB_QUEEN[2];
+    int OPEN_FILE_Q[2];
+    //        int BISHOP_ON_QUEEN[2];
+    //        int HALF_OPEN_FILE_Q[2];
+    //        int UNDEVELOPED_KNIGHT[2];
+    //        int KNIGHT_TRAPPED[2];
+    int MOB_KNIGHT[2];
+    int ROOK_7TH_RANK[2];
+    int ROOK_IN_7_KING_IN_8[2];
+    //        int ROOK_TRAPPED[2];
+    int MOB_ROOK[2];
+    //        int ROOK_BLOCKED[2];
+    //        int ROOK_OPEN_FILE[2];
+    //        int CONNECTED_ROOKS[2];
+  } _TSCORE_DEBUG;
+  _TSCORE_DEBUG SCORE_DEBUG[2];
 #endif
 
-private:
+ private:
+  typedef struct {
+    u64 allPieces;
+    u64 kingAttackers[2];
+    u64 allPiecesSide[2];
+    u64 allPiecesNoPawns[2];
+    u64 posKingBit[2];
+    //   int kingSecurity[2][2];
+    uchar posKing[2];
+    u64 pinned[2];
+  } _Tboard;
+  _Tboard structureEval;
 
-    typedef struct {
-        u64 allPieces;
-        u64 kingAttackers[2];
-        u64 allPiecesSide[2];
-        u64 allPiecesNoPawns[2];
-        u64 posKingBit[2];
-        //   int kingSecurity[2][2];
-        uchar posKing[2];
-        u64 pinned[2];
-    } _Tboard;
-    _Tboard structureEval;
+  static constexpr int hashSize = 65536;
+  static constexpr u64 keyMask = 0xffffffffffff0000ULL;
+  static constexpr u64 valueMask = 0xffffULL;
+  static constexpr short noHashValue = (short)0xffff;
 
-    static constexpr int hashSize = 65536;
-    static constexpr u64 keyMask = 0xffffffffffff0000ULL;
-    static constexpr u64 valueMask = 0xffffULL;
-    static constexpr short noHashValue = (short) 0xffff;
+  static u64 *evalHash;
 
-    static u64 *evalHash;
+  inline void storeHashValue(const u64 key, const short value);
 
-    inline void storeHashValue(const u64 key, const short value);
+  static inline short getHashValue(const u64 key);
 
-    static inline short getHashValue(const u64 key);
+  //    enum _Tphase {
+  //        OPEN, MIDDLE, END
+  //    };
 
-//    enum _Tphase {
-//        OPEN, MIDDLE, END
-//    };
+  typedef struct {
+    int pawns[2];
+    int bishop[2];
+    int queens[2];
+    int rooks[2];
+    int knights[2];
+    int kings[2];
+  } _Tresult;
 
-    typedef struct {
-        int pawns[2];
-        int bishop[2];
-        int queens[2];
-        int rooks[2];
-        int knights[2];
-        int kings[2];
-    } _Tresult;
+  DEBUG(int evaluationCount[2])
 
-    DEBUG(int evaluationCount[2])
+  void getRes(const _Tchessboard &chessboard, _Tresult res[2]) {
+    BENCH_START("eval pawn")
+    auto x1 = evaluatePawn<BLACK>(chessboard);
+    res[MG].pawns[BLACK] = x1.first;
+    res[EG].pawns[BLACK] = x1.second;
+    x1 = evaluatePawn<WHITE>(chessboard);
+    res[MG].pawns[WHITE] = x1.first;
+    res[EG].pawns[WHITE] = x1.second;
+    BENCH_STOP("eval pawn")
 
-    void getRes(const _Tchessboard &chessboard, _Tresult res[2]) {
+    BENCH_START("eval bishop")
+    x1 = evaluateBishop<BLACK>(chessboard, structureEval.allPiecesSide[WHITE]);
+    res[MG].bishop[BLACK] = x1.first;
+    res[EG].bishop[BLACK] = x1.second;
+    x1 = evaluateBishop<WHITE>(chessboard, structureEval.allPiecesSide[BLACK]);
+    res[MG].bishop[WHITE] = x1.first;
+    res[EG].bishop[WHITE] = x1.second;
+    BENCH_STOP("eval bishop")
 
-        BENCH_START("eval pawn")
-        auto x1 = evaluatePawn<BLACK>(chessboard);
-        res[MG].pawns[BLACK] = x1.first;
-        res[EG].pawns[BLACK] = x1.second;
-        x1 = evaluatePawn<WHITE>(chessboard);
-        res[MG].pawns[WHITE] = x1.first;
-        res[EG].pawns[WHITE] = x1.second;
-        BENCH_STOP("eval pawn")
+    BENCH_START("eval queen")
+    x1 = evaluateQueen<BLACK>(chessboard, structureEval.allPiecesSide[WHITE]);
+    res[MG].queens[BLACK] = x1.first;
+    res[EG].queens[BLACK] = x1.second;
+    x1 = evaluateQueen<WHITE>(chessboard, structureEval.allPiecesSide[BLACK]);
+    res[MG].queens[WHITE] = x1.first;
+    res[EG].queens[WHITE] = x1.second;
+    BENCH_STOP("eval queen")
 
-        BENCH_START("eval bishop")
-        x1 = evaluateBishop<BLACK>(chessboard, structureEval.allPiecesSide[WHITE]);
-        res[MG].bishop[BLACK] = x1.first;
-        res[EG].bishop[BLACK] = x1.second;
-        x1 = evaluateBishop<WHITE>(chessboard, structureEval.allPiecesSide[BLACK]);
-        res[MG].bishop[WHITE] = x1.first;
-        res[EG].bishop[WHITE] = x1.second;
-        BENCH_STOP("eval bishop")
+    BENCH_START("eval rook")
+    x1 = evaluateRook<BLACK>(chessboard, structureEval.allPiecesSide[WHITE], structureEval.allPiecesSide[BLACK]);
+    res[MG].rooks[BLACK] = x1.first;
+    res[EG].rooks[BLACK] = x1.second;
+    x1 = evaluateRook<WHITE>(chessboard, structureEval.allPiecesSide[BLACK], structureEval.allPiecesSide[WHITE]);
+    res[MG].rooks[WHITE] = x1.first;
+    res[EG].rooks[WHITE] = x1.second;
+    BENCH_STOP("eval rook")
 
-        BENCH_START("eval queen")
-        x1 = evaluateQueen<BLACK>(chessboard, structureEval.allPiecesSide[WHITE]);
-        res[MG].queens[BLACK] = x1.first;
-        res[EG].queens[BLACK] = x1.second;
-        x1 = evaluateQueen<WHITE>(chessboard, structureEval.allPiecesSide[BLACK]);
-        res[MG].queens[WHITE] = x1.first;
-        res[EG].queens[WHITE] = x1.second;
-        BENCH_STOP("eval queen")
+    BENCH_START("eval knight")
+    x1 = evaluateKnight<BLACK>(chessboard, ~structureEval.allPiecesSide[BLACK]);
+    res[MG].knights[BLACK] = x1.first;
+    res[EG].knights[BLACK] = x1.second;
+    x1 = evaluateKnight<WHITE>(chessboard, ~structureEval.allPiecesSide[WHITE]);
+    res[MG].knights[WHITE] = x1.first;
+    res[EG].knights[WHITE] = x1.second;
+    BENCH_STOP("eval knight")
 
-        BENCH_START("eval rook")
-        x1 = evaluateRook<BLACK>(chessboard, structureEval.allPiecesSide[WHITE], structureEval.allPiecesSide[BLACK]);
-        res[MG].rooks[BLACK] = x1.first;
-        res[EG].rooks[BLACK] = x1.second;
-        x1 = evaluateRook<WHITE>(chessboard, structureEval.allPiecesSide[BLACK], structureEval.allPiecesSide[WHITE]);
-        res[MG].rooks[WHITE] = x1.first;
-        res[EG].rooks[WHITE] = x1.second;
-        BENCH_STOP("eval rook")
+    BENCH_START("eval king")
+    x1 = evaluateKing(chessboard, BLACK, ~structureEval.allPiecesSide[BLACK]);
+    res[MG].kings[BLACK] = x1.first;
+    res[EG].kings[BLACK] = x1.second;
+    x1 = evaluateKing(chessboard, WHITE, ~structureEval.allPiecesSide[WHITE]);
+    res[MG].kings[WHITE] = x1.first;
+    res[EG].kings[WHITE] = x1.second;
+    BENCH_STOP("eval king")
+  }
 
-        BENCH_START("eval knight")
-        x1 = evaluateKnight<BLACK>(chessboard, ~structureEval.allPiecesSide[BLACK]);
-        res[MG].knights[BLACK] = x1.first;
-        res[EG].knights[BLACK] = x1.second;
-        x1 = evaluateKnight<WHITE>(chessboard, ~structureEval.allPiecesSide[WHITE]);
-        res[MG].knights[WHITE] = x1.first;
-        res[EG].knights[WHITE] = x1.second;
-        BENCH_STOP("eval knight")
+  template <uchar side>
+  pair<int, int> evaluatePawn(const _Tchessboard &chessboard);
 
-        BENCH_START("eval king")
-        x1 = evaluateKing(chessboard, BLACK, ~structureEval.allPiecesSide[BLACK]);
-        res[MG].kings[BLACK] = x1.first;
-        res[EG].kings[BLACK] = x1.second;
-        x1 = evaluateKing(chessboard, WHITE, ~structureEval.allPiecesSide[WHITE]);
-        res[MG].kings[WHITE] = x1.first;
-        res[EG].kings[WHITE] = x1.second;
-        BENCH_STOP("eval king")
-    }
+  template <uchar side>
+  pair<int, int> evaluateBishop(const _Tchessboard &chessboard, const u64);
 
-    template<uchar side>
-    pair<int, int> evaluatePawn(const _Tchessboard &chessboard);
+  template <uchar side>
+  pair<int, int> evaluateQueen(const _Tchessboard &chessboard, const u64 enemies);
 
-    template<uchar side>
-    pair<int, int> evaluateBishop(const _Tchessboard &chessboard, const u64);
+  template <uchar side>
+  pair<int, int> evaluateKnight(const _Tchessboard &chessboard, const u64);
 
-    template<uchar side>
-    pair<int, int> evaluateQueen(const _Tchessboard &chessboard, const u64 enemies);
+  template <uchar side>
+  pair<int, int> evaluateRook(const _Tchessboard &chessboard, u64 enemies, u64 friends);
 
-    template<uchar side>
-    pair<int, int> evaluateKnight(const _Tchessboard &chessboard, const u64);
+  pair<int, int> evaluateKing(const _Tchessboard &chessboard, const uchar side, const u64 squares);
 
-    template<uchar side>
-    pair<int, int> evaluateRook(const _Tchessboard &chessboard, u64 enemies, u64 friends);
-
-    pair<int, int> evaluateKing(const _Tchessboard &chessboard, const uchar side, const u64 squares);
-
-    template<uchar side>
-    int lazyEvalSide(const _Tchessboard &chessboard) const {
-        return bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN +
-               bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK +
-               bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP +
-               bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT +
-               bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
-    }
-
+  template <uchar side>
+  int lazyEvalSide(const _Tchessboard &chessboard) const {
+    return bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN + bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK +
+           bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP +
+           bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT +
+           bitCount(chessboard[QUEEN_BLACK + side]) * VALUEQUEEN;
+  }
 };
 
 namespace _eval {
@@ -341,229 +347,447 @@ namespace _eval {
 //                    0, 0, 0, 0, 0, 0, 0, 0,
 //                    0, 0, 0, 0, 0, 0, 0, 0}
 //    };
-    static constexpr int
-            MOB_QUEEN[2][29] = {{0,   1,   1,   1, 1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 1,  1,  1,  1,  1},
-                                {-20, -15, -10, 0, 1, 3, 4, 9, 11, 12, 15, 18, 28, 30, 32, 33, 34, 36, 37,
-                                                                                                          39, 40, 41, 42, 43, 44, 45, 56, 47, 48}
-    };
+static constexpr int MOB_QUEEN[2][29] = {
+    {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {-20, -15, -10, 0, 1, 3, 4, 9, 11, 12, 15, 18, 28, 30, 32, 33, 34, 36, 37, 39, 40, 41, 42, 43, 44, 45, 56, 47, 48}};
 
-    static constexpr int MOB_ROOK[2][15] = {
-            {-1,  0,   1,  4, 5, 6,  7,  9,  12, 14, 19, 22, 23, 24, 25},
-            {-15, -10, -5, 0, 9, 11, 16, 22, 30, 32, 40, 45, 50, 51, 52}
-    };
+static constexpr int MOB_ROOK[2][15] = {{-1, 0, 1, 4, 5, 6, 7, 9, 12, 14, 19, 22, 23, 24, 25},
+                                        {-15, -10, -5, 0, 9, 11, 16, 22, 30, 32, 40, 45, 50, 51, 52}};
 
-    static constexpr int MOB_KNIGHT[9] = {-8,
-                                          -4,
-                                          7,
-                                          10,
-                                          15,
-                                          20,
-                                          30,
-                                          35,
-                                          40
-    };
+static constexpr int MOB_KNIGHT[9] = {-8, -4, 7, 10, 15, 20, 30, 35, 40};
 
-    static constexpr int MOB_BISHOP[2][14] =
-            {{-8,  -7,  2,  8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 50},
-             {-20, -10, -4, 0, 4, 9,  14, 19, 28, 30, 40, 45, 50, 50}
-            };
+static constexpr int MOB_BISHOP[2][14] = {{-8, -7, 2, 8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 50},
+                                          {-20, -10, -4, 0, 4, 9, 14, 19, 28, 30, 40, 45, 50, 50}};
 
-    static constexpr int MOB_KING[2][9] = {{1,   2,   2,   1,  0,  0,  0,  0,  0},
-                                           {-50, -30, -10, 10, 25, 40, 50, 55, 60}
-    };
+static constexpr int MOB_KING[2][9] = {{1, 2, 2, 1, 0, 0, 0, 0, 0}, {-50, -30, -10, 10, 25, 40, 50, 55, 60}};
 
 //    static constexpr int MOB_CASTLE[3][3] = {{-50, 30, 50},
 //                                             {-1,  10, 10},
 //                                             {0,   0,  0}
 //    };
 
-    static constexpr int BONUS_ATTACK_KING[18] =
-            {-1, 2, 8, 64, 128, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512,
-             512, 512, 512
-            };
+static constexpr int BONUS_ATTACK_KING[18] = {-1,  2,   8,   64,  128, 512, 512, 512, 512,
+                                              512, 512, 512, 512, 512, 512, 512, 512, 512};
 
-    static constexpr u64 PAWN_PROTECTED_MASK[2][64] =
-            {{0x200ULL, 0x500ULL, 0xa00ULL, 0x1400ULL, 0x2800ULL, 0x5000ULL,
-                                                                     0xa000ULL, 0x4000ULL, 0x20000ULL, 0x50000ULL,
-                                                                                                                  0xa0000ULL, 0x140000ULL, 0x280000ULL, 0x500000ULL, 0xa00000ULL,
-                     0x400000ULL, 0x2000000ULL, 0x5000000ULL,
-                                                          0xa000000ULL, 0x14000000ULL, 0x28000000ULL, 0x50000000ULL,
-                     0xa0000000ULL, 0x40000000ULL, 0x200000000ULL,
-                     0x500000000ULL, 0xa00000000ULL, 0x1400000000ULL, 0x2800000000ULL,
-                                                                                   0x5000000000ULL, 0xa000000000ULL,
-                     0x4000000000ULL, 0x20000000000ULL, 0x50000000000ULL, 0xa0000000000ULL,
-                                                                                        0x140000000000ULL, 0x280000000000ULL,
-                                                                                                                          0x500000000000ULL, 0xa00000000000ULL, 0x400000000000ULL,
-                     0x2000000000000ULL, 0x5000000000000ULL,
-                                                         0xa000000000000ULL, 0x14000000000000ULL, 0x28000000000000ULL,
-                                                                                                                   0x50000000000000ULL, 0xa0000000000000ULL,
-                                                                                                                                                         0x40000000000000ULL, 0xFF000000000000ULL, 0xFF000000000000ULL,
-                     0xFF000000000000ULL, 0xFF000000000000ULL,
-                     0xFF000000000000ULL, 0xFF000000000000ULL, 0xFF000000000000ULL,
-                                                                                  0xFF000000000000ULL, 0, 0,                     0,                     0, 0, 0,                     0,                     0},
-             {0,        0,        0,        0,         0,         0, 0,         0,         0xFF00ULL,  0xFF00ULL, 0xFF00ULL,  0xFF00ULL,
-                                                                                                                                           0xFF00ULL,   0xFF00ULL,   0xFF00ULL,
-                     0xFF00ULL,   0x200ULL,     0x500ULL, 0xa00ULL,     0x1400ULL,     0x2800ULL,     0x5000ULL,
-                     0xa000ULL,     0x4000ULL,     0x20000ULL,
-                     0x50000ULL,     0xa0000ULL,     0x140000ULL,     0x280000ULL, 0x500000ULL,     0xa00000ULL,
-                     0x400000ULL,     0x2000000ULL,
-                                                        0x5000000ULL,     0xa000000ULL, 0x14000000ULL,     0x28000000ULL, 0x50000000ULL,
-                                                                                                                                             0xa0000000ULL,     0x40000000ULL,
-                     0x200000000ULL,     0x500000000ULL, 0xa00000000ULL,     0x1400000000ULL,
-                                                                                                  0x2800000000ULL, 0x5000000000ULL,
-                                                                                                                                        0xa000000000ULL, 0x4000000000ULL,     0x20000000000ULL,    0x50000000000ULL,
-                     0xa0000000000ULL,    0x140000000000ULL,
-                     0x280000000000ULL,   0x500000000000ULL,   0xa00000000000ULL, 0x400000000000ULL,
-                                                                                                       0xFF00000000000000ULL,
-                                                                                                          0xFF00000000000000ULL, 0xFF00000000000000ULL, 0xFF00000000000000ULL,
-                                                                                                                                                           0xFF00000000000000ULL,
-                                                                                                                                                              0xFF00000000000000ULL, 0xFF00000000000000ULL, 0xFF00000000000000ULL}
-            };
+static constexpr u64 PAWN_PROTECTED_MASK[2][64] = {{0x200ULL,
+                                                    0x500ULL,
+                                                    0xa00ULL,
+                                                    0x1400ULL,
+                                                    0x2800ULL,
+                                                    0x5000ULL,
+                                                    0xa000ULL,
+                                                    0x4000ULL,
+                                                    0x20000ULL,
+                                                    0x50000ULL,
+                                                    0xa0000ULL,
+                                                    0x140000ULL,
+                                                    0x280000ULL,
+                                                    0x500000ULL,
+                                                    0xa00000ULL,
+                                                    0x400000ULL,
+                                                    0x2000000ULL,
+                                                    0x5000000ULL,
+                                                    0xa000000ULL,
+                                                    0x14000000ULL,
+                                                    0x28000000ULL,
+                                                    0x50000000ULL,
+                                                    0xa0000000ULL,
+                                                    0x40000000ULL,
+                                                    0x200000000ULL,
+                                                    0x500000000ULL,
+                                                    0xa00000000ULL,
+                                                    0x1400000000ULL,
+                                                    0x2800000000ULL,
+                                                    0x5000000000ULL,
+                                                    0xa000000000ULL,
+                                                    0x4000000000ULL,
+                                                    0x20000000000ULL,
+                                                    0x50000000000ULL,
+                                                    0xa0000000000ULL,
+                                                    0x140000000000ULL,
+                                                    0x280000000000ULL,
+                                                    0x500000000000ULL,
+                                                    0xa00000000000ULL,
+                                                    0x400000000000ULL,
+                                                    0x2000000000000ULL,
+                                                    0x5000000000000ULL,
+                                                    0xa000000000000ULL,
+                                                    0x14000000000000ULL,
+                                                    0x28000000000000ULL,
+                                                    0x50000000000000ULL,
+                                                    0xa0000000000000ULL,
+                                                    0x40000000000000ULL,
+                                                    0xFF000000000000ULL,
+                                                    0xFF000000000000ULL,
+                                                    0xFF000000000000ULL,
+                                                    0xFF000000000000ULL,
+                                                    0xFF000000000000ULL,
+                                                    0xFF000000000000ULL,
+                                                    0xFF000000000000ULL,
+                                                    0xFF000000000000ULL,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0},
+                                                   {0,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                    0xFF00ULL,
+                                                    0xFF00ULL,
+                                                    0xFF00ULL,
+                                                    0xFF00ULL,
+                                                    0xFF00ULL,
+                                                    0xFF00ULL,
+                                                    0xFF00ULL,
+                                                    0xFF00ULL,
+                                                    0x200ULL,
+                                                    0x500ULL,
+                                                    0xa00ULL,
+                                                    0x1400ULL,
+                                                    0x2800ULL,
+                                                    0x5000ULL,
+                                                    0xa000ULL,
+                                                    0x4000ULL,
+                                                    0x20000ULL,
+                                                    0x50000ULL,
+                                                    0xa0000ULL,
+                                                    0x140000ULL,
+                                                    0x280000ULL,
+                                                    0x500000ULL,
+                                                    0xa00000ULL,
+                                                    0x400000ULL,
+                                                    0x2000000ULL,
+                                                    0x5000000ULL,
+                                                    0xa000000ULL,
+                                                    0x14000000ULL,
+                                                    0x28000000ULL,
+                                                    0x50000000ULL,
+                                                    0xa0000000ULL,
+                                                    0x40000000ULL,
+                                                    0x200000000ULL,
+                                                    0x500000000ULL,
+                                                    0xa00000000ULL,
+                                                    0x1400000000ULL,
+                                                    0x2800000000ULL,
+                                                    0x5000000000ULL,
+                                                    0xa000000000ULL,
+                                                    0x4000000000ULL,
+                                                    0x20000000000ULL,
+                                                    0x50000000000ULL,
+                                                    0xa0000000000ULL,
+                                                    0x140000000000ULL,
+                                                    0x280000000000ULL,
+                                                    0x500000000000ULL,
+                                                    0xa00000000000ULL,
+                                                    0x400000000000ULL,
+                                                    0xFF00000000000000ULL,
+                                                    0xFF00000000000000ULL,
+                                                    0xFF00000000000000ULL,
+                                                    0xFF00000000000000ULL,
+                                                    0xFF00000000000000ULL,
+                                                    0xFF00000000000000ULL,
+                                                    0xFF00000000000000ULL,
+                                                    0xFF00000000000000ULL}};
 
-    static constexpr u64 PAWN_BACKWARD_MASK[2][64] =
-            {{0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 131584ULL, 328960ULL,
-                                                                                  657920ULL, 1315840ULL, 2631680ULL,
-                                                                                                                   5263360ULL, 10526720ULL, 4210688ULL, 33685504ULL, 84213760ULL,
-                                                                                                                                                                                168427520ULL, 336855040ULL, 673710080ULL,
-                                                                                                                                                                                                                        1347420160ULL, 2694840320ULL, 1077936128ULL, 8623489024ULL,
-                                                                                                                                                                                                                                                                                  21558722560ULL, 43117445120ULL, 86234890240ULL,
-                     172469780480ULL, 344939560960ULL, 689879121920ULL, 275951648768ULL,
-                                                                                       2207613190144ULL, 5519032975360ULL,
-                                                                                                                         11038065950720ULL, 22076131901440ULL, 44152263802880ULL,
-                     88304527605760ULL, 176609055211520ULL,
-                                                         70643622084608ULL, 565148976676864ULL, 1412872441692160ULL,
-                                                                                                                  2825744883384320ULL, 5651489766768640ULL,
-                                                                                                                                                          11302979533537280ULL, 22605959067074560ULL, 45211918134149120ULL,
-                                                                                                                                                                                                                          18084767253659648ULL, 562949953421312ULL,
-                                                                                                                                                                                                                                                                    1407374883553280ULL, 2814749767106560ULL, 5629499534213120ULL,
-                                                                                                                                                                                                                                                                                                                                   11258999068426240ULL, 22517998136852480ULL,
-                                                                                                                                                                                                                                                                                                                                                                               45035996273704960ULL, 18014398509481984ULL, 0ULL, 0ULL, 0ULL, 0ULL,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                   0ULL, 0ULL, 0ULL, 0},
-             {0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 512ULL,    1280ULL, 2560ULL,
-                                                                                             5120ULL,    10240ULL, 20480ULL,
-                                                                                                                               40960ULL,    16384ULL,   131584ULL,   328960ULL, 657920ULL,    1315840ULL,
-                                                                                                                                                                                                            2631680ULL, 5263360ULL,    10526720ULL,
-                                                                                                                                                                                                                                                      4210688ULL,    33685504ULL, 84213760ULL,    168427520ULL,   336855040ULL,
-                     673710080ULL,    1347420160ULL,   2694840320ULL,
-                                                                        1077936128ULL, 8623489024ULL,    21558722560ULL, 43117445120ULL,
-                                                                                                                                            86234890240ULL,    172469780480ULL,
-                     344939560960ULL,   689879121920ULL, 275951648768ULL,   2207613190144ULL,
-                                                                                                5519032975360ULL, 11038065950720ULL,
-                                                                                                                                       22076131901440ULL, 44152263802880ULL,    88304527605760ULL,
-                                                                                                                                                                                                      176609055211520ULL, 70643622084608ULL,
-                                                                                                                                                                                                                                                565148976676864ULL, 1412872441692160ULL, 2825744883384320ULL,
-                                                                                                                                                                                                                                                                                                              5651489766768640ULL, 11302979533537280ULL,
-                                                                                                                                                                                                                                                                                                                                                         22605959067074560ULL, 45211918134149120ULL, 18084767253659648ULL, 0ULL,
-                                                                                                                                                                                                                                                                                                                                                                                                                                 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                     0}
-            };
+static constexpr u64 PAWN_BACKWARD_MASK[2][64] = {{0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   131584ULL,
+                                                   328960ULL,
+                                                   657920ULL,
+                                                   1315840ULL,
+                                                   2631680ULL,
+                                                   5263360ULL,
+                                                   10526720ULL,
+                                                   4210688ULL,
+                                                   33685504ULL,
+                                                   84213760ULL,
+                                                   168427520ULL,
+                                                   336855040ULL,
+                                                   673710080ULL,
+                                                   1347420160ULL,
+                                                   2694840320ULL,
+                                                   1077936128ULL,
+                                                   8623489024ULL,
+                                                   21558722560ULL,
+                                                   43117445120ULL,
+                                                   86234890240ULL,
+                                                   172469780480ULL,
+                                                   344939560960ULL,
+                                                   689879121920ULL,
+                                                   275951648768ULL,
+                                                   2207613190144ULL,
+                                                   5519032975360ULL,
+                                                   11038065950720ULL,
+                                                   22076131901440ULL,
+                                                   44152263802880ULL,
+                                                   88304527605760ULL,
+                                                   176609055211520ULL,
+                                                   70643622084608ULL,
+                                                   565148976676864ULL,
+                                                   1412872441692160ULL,
+                                                   2825744883384320ULL,
+                                                   5651489766768640ULL,
+                                                   11302979533537280ULL,
+                                                   22605959067074560ULL,
+                                                   45211918134149120ULL,
+                                                   18084767253659648ULL,
+                                                   562949953421312ULL,
+                                                   1407374883553280ULL,
+                                                   2814749767106560ULL,
+                                                   5629499534213120ULL,
+                                                   11258999068426240ULL,
+                                                   22517998136852480ULL,
+                                                   45035996273704960ULL,
+                                                   18014398509481984ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0},
+                                                  {0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   512ULL,
+                                                   1280ULL,
+                                                   2560ULL,
+                                                   5120ULL,
+                                                   10240ULL,
+                                                   20480ULL,
+                                                   40960ULL,
+                                                   16384ULL,
+                                                   131584ULL,
+                                                   328960ULL,
+                                                   657920ULL,
+                                                   1315840ULL,
+                                                   2631680ULL,
+                                                   5263360ULL,
+                                                   10526720ULL,
+                                                   4210688ULL,
+                                                   33685504ULL,
+                                                   84213760ULL,
+                                                   168427520ULL,
+                                                   336855040ULL,
+                                                   673710080ULL,
+                                                   1347420160ULL,
+                                                   2694840320ULL,
+                                                   1077936128ULL,
+                                                   8623489024ULL,
+                                                   21558722560ULL,
+                                                   43117445120ULL,
+                                                   86234890240ULL,
+                                                   172469780480ULL,
+                                                   344939560960ULL,
+                                                   689879121920ULL,
+                                                   275951648768ULL,
+                                                   2207613190144ULL,
+                                                   5519032975360ULL,
+                                                   11038065950720ULL,
+                                                   22076131901440ULL,
+                                                   44152263802880ULL,
+                                                   88304527605760ULL,
+                                                   176609055211520ULL,
+                                                   70643622084608ULL,
+                                                   565148976676864ULL,
+                                                   1412872441692160ULL,
+                                                   2825744883384320ULL,
+                                                   5651489766768640ULL,
+                                                   11302979533537280ULL,
+                                                   22605959067074560ULL,
+                                                   45211918134149120ULL,
+                                                   18084767253659648ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0ULL,
+                                                   0}};
 
-    static constexpr u64 PAWN_PASSED_MASK[2][64] =
-            {{0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x3ULL,
-                                                                                                    0x7ULL, 0xeULL,               0x1cULL,               0x38ULL,
-                     0x70ULL, 0xe0ULL,               0xc0ULL,               0x303ULL, 0x707ULL, 0xe0eULL,             0x1c1cULL,
-                                                                                                                                             0x3838ULL, 0x7070ULL, 0xe0e0ULL,
-                                                                                                                                                                                          0xc0c0ULL,             0x30303ULL, 0x70707ULL, 0xe0e0eULL,           0x1c1c1cULL,
-                                                                                                                                                                                                                                                                                      0x383838ULL, 0x707070ULL, 0xe0e0e0ULL,
-                                                                                                                                                                                                                                                                                                                                       0xc0c0c0ULL,           0x3030303ULL, 0x7070707ULL, 0xe0e0e0eULL,         0x1c1c1c1cULL,
-                                                                                                                                                                                                                                                                                                                                                                                                                                       0x38383838ULL, 0x70707070ULL,
-                     0xe0e0e0e0ULL,         0xc0c0c0c0ULL,         0x303030303ULL, 0x707070707ULL,
-                     0xe0e0e0e0eULL,       0x1c1c1c1c1cULL,
-                                                                  0x3838383838ULL, 0x7070707070ULL, 0xe0e0e0e0e0ULL,       0xc0c0c0c0c0ULL,
-                                                                                                                                                  0x30303030303ULL, 0x70707070707ULL,
-                     0xe0e0e0e0e0eULL,     0x1c1c1c1c1c1cULL,     0x383838383838ULL,
-                     0x707070707070ULL, 0xe0e0e0e0e0e0ULL,
-                                                               0xc0c0c0c0c0c0ULL,     0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
-                                                                                                                                      0x0ULL, 0x0},
-             {0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL,
-                                                                              0x303030303030000ULL, 0x707070707070000ULL,
-                                                                                                            0xe0e0e0e0e0e0000ULL, 0x1c1c1c1c1c1c0000ULL, 0x3838383838380000ULL,
-                     0x7070707070700000ULL,
-                              0xe0e0e0e0e0e00000ULL, 0xc0c0c0c0c0c00000ULL, 0x303030303000000ULL,
-                                                                                      0x707070707000000ULL,
-                                                                                                0xe0e0e0e0e000000ULL, 0x1c1c1c1c1c000000ULL, 0x3838383838000000ULL,
-                                                                                                                                                        0x7070707070000000ULL,
-                                                                                                                                                                   0xe0e0e0e0e0000000ULL, 0xc0c0c0c0c0000000ULL, 0x303030300000000ULL,
-                                                                                                                                                                                                                             0x707070700000000ULL,
-                                                                                                                                                                                                                                         0xe0e0e0e00000000ULL, 0x1c1c1c1c00000000ULL, 0x3838383800000000ULL,
-                                                                                                                                                                                                                                                                                                   0x7070707000000000ULL,
-                                                                                                                                                                                                                                                                                                                0xe0e0e0e000000000ULL, 0xc0c0c0c000000000ULL, 0x303030000000000ULL,
-                                                                                                                                                                                                                                                                                                                                                                            0x707070000000000ULL,
-                                                                                                                                                                                                                                                                                                                                                                                          0xe0e0e0000000000ULL, 0x1c1c1c0000000000ULL, 0x3838380000000000ULL,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                      0x7070700000000000ULL,
-                     0xe0e0e00000000000ULL, 0xc0c0c00000000000ULL, 0x303000000000000ULL,
-                                                                                   0x707000000000000ULL,
-                     0xe0e000000000000ULL, 0x1c1c000000000000ULL, 0x3838000000000000ULL,
-                                                                                   0x7070000000000000ULL,
-                                                                                                    0xe0e0000000000000ULL, 0xc0c0000000000000ULL, 0x300000000000000ULL,
-                                                                                                                                                                    0x700000000000000ULL,
-                     0xe00000000000000ULL, 0x1c00000000000000ULL, 0x3800000000000000ULL,
-                     0x7000000000000000ULL,
-                                        0xe000000000000000ULL, 0xc000000000000000ULL, 0x0ULL, 0x0ULL, 0x0ULL,
-                                                                                                              0x0ULL, 0x0ULL, 0x0ULL, 0x0ULL, 0x0}
-            };
+static constexpr u64 PAWN_PASSED_MASK[2][64] = {{0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x3ULL,
+                                                 0x7ULL,
+                                                 0xeULL,
+                                                 0x1cULL,
+                                                 0x38ULL,
+                                                 0x70ULL,
+                                                 0xe0ULL,
+                                                 0xc0ULL,
+                                                 0x303ULL,
+                                                 0x707ULL,
+                                                 0xe0eULL,
+                                                 0x1c1cULL,
+                                                 0x3838ULL,
+                                                 0x7070ULL,
+                                                 0xe0e0ULL,
+                                                 0xc0c0ULL,
+                                                 0x30303ULL,
+                                                 0x70707ULL,
+                                                 0xe0e0eULL,
+                                                 0x1c1c1cULL,
+                                                 0x383838ULL,
+                                                 0x707070ULL,
+                                                 0xe0e0e0ULL,
+                                                 0xc0c0c0ULL,
+                                                 0x3030303ULL,
+                                                 0x7070707ULL,
+                                                 0xe0e0e0eULL,
+                                                 0x1c1c1c1cULL,
+                                                 0x38383838ULL,
+                                                 0x70707070ULL,
+                                                 0xe0e0e0e0ULL,
+                                                 0xc0c0c0c0ULL,
+                                                 0x303030303ULL,
+                                                 0x707070707ULL,
+                                                 0xe0e0e0e0eULL,
+                                                 0x1c1c1c1c1cULL,
+                                                 0x3838383838ULL,
+                                                 0x7070707070ULL,
+                                                 0xe0e0e0e0e0ULL,
+                                                 0xc0c0c0c0c0ULL,
+                                                 0x30303030303ULL,
+                                                 0x70707070707ULL,
+                                                 0xe0e0e0e0e0eULL,
+                                                 0x1c1c1c1c1c1cULL,
+                                                 0x383838383838ULL,
+                                                 0x707070707070ULL,
+                                                 0xe0e0e0e0e0e0ULL,
+                                                 0xc0c0c0c0c0c0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0},
+                                                {0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x303030303030000ULL,
+                                                 0x707070707070000ULL,
+                                                 0xe0e0e0e0e0e0000ULL,
+                                                 0x1c1c1c1c1c1c0000ULL,
+                                                 0x3838383838380000ULL,
+                                                 0x7070707070700000ULL,
+                                                 0xe0e0e0e0e0e00000ULL,
+                                                 0xc0c0c0c0c0c00000ULL,
+                                                 0x303030303000000ULL,
+                                                 0x707070707000000ULL,
+                                                 0xe0e0e0e0e000000ULL,
+                                                 0x1c1c1c1c1c000000ULL,
+                                                 0x3838383838000000ULL,
+                                                 0x7070707070000000ULL,
+                                                 0xe0e0e0e0e0000000ULL,
+                                                 0xc0c0c0c0c0000000ULL,
+                                                 0x303030300000000ULL,
+                                                 0x707070700000000ULL,
+                                                 0xe0e0e0e00000000ULL,
+                                                 0x1c1c1c1c00000000ULL,
+                                                 0x3838383800000000ULL,
+                                                 0x7070707000000000ULL,
+                                                 0xe0e0e0e000000000ULL,
+                                                 0xc0c0c0c000000000ULL,
+                                                 0x303030000000000ULL,
+                                                 0x707070000000000ULL,
+                                                 0xe0e0e0000000000ULL,
+                                                 0x1c1c1c0000000000ULL,
+                                                 0x3838380000000000ULL,
+                                                 0x7070700000000000ULL,
+                                                 0xe0e0e00000000000ULL,
+                                                 0xc0c0c00000000000ULL,
+                                                 0x303000000000000ULL,
+                                                 0x707000000000000ULL,
+                                                 0xe0e000000000000ULL,
+                                                 0x1c1c000000000000ULL,
+                                                 0x3838000000000000ULL,
+                                                 0x7070000000000000ULL,
+                                                 0xe0e0000000000000ULL,
+                                                 0xc0c0000000000000ULL,
+                                                 0x300000000000000ULL,
+                                                 0x700000000000000ULL,
+                                                 0xe00000000000000ULL,
+                                                 0x1c00000000000000ULL,
+                                                 0x3800000000000000ULL,
+                                                 0x7000000000000000ULL,
+                                                 0xe000000000000000ULL,
+                                                 0xc000000000000000ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0ULL,
+                                                 0x0}};
 
-    static constexpr short PAWN_PASSED[2][64] = {{0, 0, 0, 0, 0, 0, 0, 0,
-                                                         95, 95, 95, 96, 96, 95, 95,
-                                                                                    95,
-                                                         80, 80, 80, 85, 85, 80, 80,
-                                                                                    80,
-                                                         55, 55, 55, 56, 56, 55, 55,
-                                                                                     55,
-                                                         20, 20, 20, 20, 20, 20, 20,
-                                                                                     20,
-                                                         5,  5,  5,  5,  5,  5,  5,  5,
-                                                         0,  0,  0,  0,  0,  0,  0,  0,
-                                                         0, 0, 0, 0, 0, 0, 0, 0},
-                                                 {0, 0, 0, 0, 0, 0, 0, 0,
-                                                         0,  0,  0,  0,  0,  0,  0, 0,
-                                                         5,  5,  5,  5,  5,  5,  5, 5,
-                                                         20, 20, 20, 20, 20, 20, 20, 20,
-                                                         55, 55, 55, 56, 56, 55, 55, 55,
-                                                         80, 80, 80, 85, 85, 80, 80, 80,
-                                                         95, 95, 95, 96, 96, 95, 95, 95,
-                                                         0, 0, 0, 0, 0, 0, 0, 0}
-    };
+static constexpr short PAWN_PASSED[2][64] = {
+    {0,  0,  0,  0,  0,  0,  0,  0,  95, 95, 95, 96, 96, 95, 95, 95, 80, 80, 80, 85, 85, 80,
+     80, 80, 55, 55, 55, 56, 56, 55, 55, 55, 20, 20, 20, 20, 20, 20, 20, 20, 5,  5,  5,  5,
+     5,  5,  5,  5,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  5,  5,  5,  5,  5,  5,
+     5,  5,  20, 20, 20, 20, 20, 20, 20, 20, 55, 55, 55, 56, 56, 55, 55, 55, 80, 80, 80, 85,
+     85, 80, 80, 80, 95, 95, 95, 96, 96, 95, 95, 95, 0,  0,  0,  0,  0,  0,  0,  0}};
 
-    static constexpr u64 PAWN_ISOLATED_MASK[64] =
-            {0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL,
-             0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL,
-             0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL,
-             0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL,
-             0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL,
-             0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL,
-             0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL,
-             0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL,
-             0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL,
-             0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL,
-             0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL,
-             0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL,
-             0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL,
-             0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL,
-             0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL,
-             0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL,
-             0x4040404040404040ULL, 0x202020202020202ULL, 0x505050505050505ULL,
-             0xA0A0A0A0A0A0A0AULL, 0x1414141414141414ULL, 0x2828282828282828ULL,
-             0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL,
-             0x202020202020202ULL, 0x505050505050505ULL, 0xA0A0A0A0A0A0A0AULL,
-             0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL,
-             0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL
-            };
+static constexpr u64 PAWN_ISOLATED_MASK[64] = {
+    0x202020202020202ULL,  0x505050505050505ULL,  0xA0A0A0A0A0A0A0AULL,  0x1414141414141414ULL, 0x2828282828282828ULL,
+    0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL,  0x505050505050505ULL,
+    0xA0A0A0A0A0A0A0AULL,  0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL,
+    0x4040404040404040ULL, 0x202020202020202ULL,  0x505050505050505ULL,  0xA0A0A0A0A0A0A0AULL,  0x1414141414141414ULL,
+    0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL,
+    0x505050505050505ULL,  0xA0A0A0A0A0A0A0AULL,  0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL,
+    0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL,  0x505050505050505ULL,  0xA0A0A0A0A0A0A0AULL,
+    0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL,
+    0x202020202020202ULL,  0x505050505050505ULL,  0xA0A0A0A0A0A0A0AULL,  0x1414141414141414ULL, 0x2828282828282828ULL,
+    0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL, 0x202020202020202ULL,  0x505050505050505ULL,
+    0xA0A0A0A0A0A0A0AULL,  0x1414141414141414ULL, 0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL,
+    0x4040404040404040ULL, 0x202020202020202ULL,  0x505050505050505ULL,  0xA0A0A0A0A0A0A0AULL,  0x1414141414141414ULL,
+    0x2828282828282828ULL, 0x5050505050505050ULL, 0xA0A0A0A0A0A0A0A0ULL, 0x4040404040404040ULL};
 
-    static constexpr char DISTANCE_KING_OPENING[64] =
-            {-8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8,
-             -8, -8, -12, -12, -12, -12, -8, -8, -8, -8, -12, -16, -16, -12,
-             -8, -8, -8, -8, -12, -16, -16, -12, -8, -8, -8, -8, -12, -12,
-             -12, -12, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8,
-             -8, -8, -8, -8
-            };
+static constexpr char DISTANCE_KING_OPENING[64] = {
+    -8,  -8,  -8, -8, -8,  -8,  -8,  -8,  -8, -8, -8, -8, -8,  -8,  -8,  -8,  -8, -8, -12, -12, -12, -12,
+    -8,  -8,  -8, -8, -12, -16, -16, -12, -8, -8, -8, -8, -12, -16, -16, -12, -8, -8, -8,  -8,  -12, -12,
+    -12, -12, -8, -8, -8,  -8,  -8,  -8,  -8, -8, -8, -8, -8,  -8,  -8,  -8,  -8, -8, -8,  -8};
 
-    static constexpr char DISTANCE_KING_ENDING[64] =
-            {12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
-             12, 12, 16, 16, 16, 16, 12, 12, 12, 12, 16, 20, 20, 16, 12, 12,
-             12, 12, 16, 20, 20, 16, 12, 12, 12, 12, 16, 16, 16, 16, 12, 12,
-             12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12
-            };
+static constexpr char DISTANCE_KING_ENDING[64] = {12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+                                                  12, 12, 16, 16, 16, 16, 12, 12, 12, 12, 16, 20, 20, 16, 12, 12,
+                                                  12, 12, 16, 20, 20, 16, 12, 12, 12, 12, 16, 16, 16, 16, 12, 12,
+                                                  12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12};
 
 //    static constexpr u64 LINK_ROOKS[64][64] = {
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x2ULL,                0x6ULL,                0xeULL,
@@ -594,7 +818,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL, 0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0x4ULL,                0xcULL,                0x1cULL,               0x3cULL,               0x7cULL,
+//                                                                                  0x4ULL,                0xcULL,
+//                                                                                  0x1cULL,               0x3cULL,
+//                                                                                  0x7cULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                          0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -621,7 +847,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL, 0xffffffffffffffffULL},
 //            {0x2ULL,                0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0x8ULL,                0x18ULL,               0x38ULL,               0x78ULL,
+//                                                                                  0xffffffffffffffffULL, 0x8ULL,
+//                                                                                  0x18ULL,               0x38ULL,
+//                                                                                  0x78ULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                          0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -648,7 +876,10 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL, 0xffffffffffffffffULL},
 //            {0x6ULL,                0x4ULL,                0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0x10ULL,               0x30ULL,               0x70ULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x10ULL,
+//                                                                                                         0x30ULL,
+//                                                                                                         0x70ULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                          0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -674,7 +905,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x8080808080800ULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL, 0xffffffffffffffffULL},
-//            {0xeULL,                0xcULL,                0x8ULL,                0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//            {0xeULL,                0xcULL,                0x8ULL,                0xffffffffffffffffULL,
+//            0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0x20ULL,               0x60ULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                          0xffffffffffffffffULL,
@@ -701,7 +933,7 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0x10101010101000ULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
-//            {0x1eULL,               0x1cULL,               0x18ULL,               0x10ULL,               0xffffffffffffffffULL,
+//            {0x1eULL,               0x1cULL,               0x18ULL,               0x10ULL, 0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                              0x40ULL,               0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -728,7 +960,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0x20202020202000ULL,   0xffffffffffffffffULL, 0xffffffffffffffffULL},
-//            {0x3eULL,               0x3cULL,               0x38ULL,               0x30ULL,               0x20ULL,               0xffffffffffffffffULL,
+//            {0x3eULL,               0x3cULL,               0x38ULL,               0x30ULL,               0x20ULL,
+//            0xffffffffffffffffULL,
 //                                                                                                                                                       0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL,
@@ -756,7 +989,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40404040404000ULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
-//            {0x7eULL,               0x7cULL,               0x78ULL,               0x70ULL,               0x60ULL,               0x40ULL,
+//            {0x7eULL,               0x7cULL,               0x78ULL,               0x70ULL,               0x60ULL,
+//            0x40ULL,
 //                                                                                                                                                       0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                          0xffffffffffffffffULL,
@@ -785,7 +1019,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x80808080808000ULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x200ULL,              0x600ULL,
 //                                                                                                                                                                                                                                                                                                 0xe00ULL,              0x1e00ULL,             0x3e00ULL,             0x7e00ULL,
@@ -812,7 +1048,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                          0x400ULL,              0xc00ULL,              0x1c00ULL,             0x3c00ULL,
@@ -839,7 +1077,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0x200ULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0x800ULL,              0x1800ULL,             0x3800ULL,             0x7800ULL,
@@ -866,7 +1106,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0x600ULL,              0x400ULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                        0x1000ULL,             0x3000ULL,             0x7000ULL,
@@ -893,7 +1135,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xe00ULL,              0xc00ULL,
 //                                                                                                                                                                                                                                                   0x800ULL,              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL, 0x2000ULL,             0x6000ULL,
@@ -921,7 +1165,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0x1e00ULL,
 //                                                                                                                                                                                                                            0x1c00ULL,             0x1800ULL,             0x1000ULL,             0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -949,7 +1195,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0x3e00ULL,
 //                                                                                                                                                                                                                            0x3c00ULL,             0x3800ULL,             0x3000ULL,             0x2000ULL,             0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
@@ -978,7 +1226,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0x7e00ULL,
 //                                                                                                                                                                                                                            0x7c00ULL,             0x7800ULL,             0x7000ULL,             0x6000ULL,             0x4000ULL,
 //                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1005,7 +1255,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0x80808080800000ULL},
 //            {0x100ULL,              0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1033,7 +1284,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0x200ULL,              0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1061,7 +1313,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x400ULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1089,7 +1342,7 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0x800ULL,              0xffffffffffffffffULL,
+//                                                                                  0x800ULL, 0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1147,7 +1400,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0x2000ULL,             0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x2000ULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -1176,7 +1431,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4000ULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x4000ULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -1205,7 +1462,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0x8000ULL,             0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -1232,7 +1491,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0x80808080000000ULL},
 //            {0x10100ULL,            0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0x10000ULL,            0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1260,7 +1520,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0x20200ULL,            0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0x20000ULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1289,7 +1550,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40400ULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0x40000ULL,            0xffffffffffffffffULL,
@@ -1317,7 +1579,7 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0x80800ULL,            0xffffffffffffffffULL,
+//                                                                                  0x80800ULL, 0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x80000ULL,
@@ -1376,7 +1638,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0x202000ULL,           0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x202000ULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0x200000ULL,
@@ -1405,7 +1669,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x404000ULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x404000ULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -1434,7 +1700,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0x808000ULL,           0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -1462,7 +1730,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0x80808000000000ULL},
 //            {0x1010100ULL,          0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0x1010000ULL,          0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1491,7 +1760,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0x2020200ULL,          0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0x2020000ULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1520,7 +1790,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4040400ULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0x4040000ULL,          0xffffffffffffffffULL,
@@ -1549,7 +1820,7 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0x8080800ULL,          0xffffffffffffffffULL,
+//                                                                                  0x8080800ULL, 0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x8080000ULL,
@@ -1578,7 +1849,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0x10101000ULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0x10101000ULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1608,7 +1880,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL, 0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0x20202000ULL,         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x20202000ULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0x20200000ULL,
@@ -1637,7 +1911,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL, 0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40404000ULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x40404000ULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -1666,7 +1942,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0x40400000000000ULL,   0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0x80808000ULL,         0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -1694,7 +1972,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0x80800000000000ULL},
 //            {0x101010100ULL,        0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0x101010000ULL,        0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1723,7 +2002,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0x202020200ULL,        0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0x202020000ULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1752,7 +2032,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x404040400ULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0x404040000ULL,        0xffffffffffffffffULL,
@@ -1780,7 +2061,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0x808080800ULL,        0xffffffffffffffffULL,
+//                                                                                  0x808080800ULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x808080000ULL,
@@ -1808,7 +2090,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0x1010101000ULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0x1010101000ULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1838,7 +2121,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0x2020202000ULL,       0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x2020202000ULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0x2020200000ULL,
@@ -1867,7 +2152,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4040404000ULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x4040404000ULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -1896,7 +2183,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0x40000000000000ULL,   0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0x8080808000ULL,       0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -1924,7 +2213,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL, 0x80000000000000ULL},
 //            {0x10101010100ULL,      0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0x10101010000ULL,      0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1953,7 +2243,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0x20202020200ULL,      0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0x20202020000ULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -1982,7 +2273,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40404040400ULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0x40404040000ULL,      0xffffffffffffffffULL,
@@ -2011,7 +2303,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0x80808080800ULL,      0xffffffffffffffffULL,
+//                                                                                  0x80808080800ULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x80808080000ULL,
@@ -2040,7 +2333,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0x101010101000ULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0x101010101000ULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -2070,7 +2364,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0x202020202000ULL,     0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x202020202000ULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL, 0x202020200000ULL,
@@ -2099,7 +2395,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x404040404000ULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x404040404000ULL,
 //                                                                                                                                                                              0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -2128,7 +2426,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0x808080808000ULL,     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                 0xffffffffffffffffULL,
@@ -2156,7 +2456,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0x1010101010100ULL,    0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0x1010101010000ULL,    0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -2185,7 +2486,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0x1e00000000000000ULL, 0x3e00000000000000ULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0x7e00000000000000ULL},
 //            {0xffffffffffffffffULL, 0x2020202020200ULL,    0xffffffffffffffffULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0x2020202020000ULL,
 //                                                                                                                                                                                                                                                   0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
@@ -2214,7 +2516,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0x1c00000000000000ULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0x3c00000000000000ULL, 0x7c00000000000000ULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x4040404040400ULL,
-//                                                                                  0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0x4040404040000ULL,    0xffffffffffffffffULL,
@@ -2243,7 +2546,8 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0x1800000000000000ULL,
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0x3800000000000000ULL, 0x7800000000000000ULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
-//                                                                                  0x8080808080800ULL,    0xffffffffffffffffULL,
+//                                                                                  0x8080808080800ULL,
+//                                                                                  0xffffffffffffffffULL,
 //                                                                                                                                0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL,
 //                                                                                                                                                                                                                            0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x8080808080000ULL,
@@ -2273,7 +2577,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0x3000000000000000ULL, 0x7000000000000000ULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0x10101010101000ULL,   0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0x10101010101000ULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                          0xffffffffffffffffULL,
@@ -2304,7 +2610,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0xffffffffffffffffULL, 0x2000000000000000ULL, 0x6000000000000000ULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0x20202020202000ULL,   0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x20202020202000ULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                          0xffffffffffffffffULL,
@@ -2336,7 +2644,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0x4000000000000000ULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0x40404040404000ULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0x40404040404000ULL,
 //                                                                                                                                                                              0xffffffffffffffffULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                          0xffffffffffffffffULL,
@@ -2368,7 +2678,9 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL},
 //            {0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                  0xffffffffffffffffULL,
-//                                                                                                         0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
+//                                                                                                         0xffffffffffffffffULL,
 //                                                                                                                                                                              0x80808080808000ULL,
 //                                                                                                                                                                                                     0xffffffffffffffffULL, 0xffffffffffffffffULL, 0xffffffffffffffffULL,
 //                                                                                                                                                                                                                                                                          0xffffffffffffffffULL,
@@ -2400,4 +2712,4 @@ namespace _eval {
 //                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      0xffffffffffffffffULL}
 //    };
 
-}
+}  // namespace _eval

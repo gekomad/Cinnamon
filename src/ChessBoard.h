@@ -18,17 +18,19 @@
 
 #pragma once
 
-#include <iostream>
 #include <string.h>
+
+#include <climits>
+#include <iostream>
 #include <sstream>
+#include <unordered_map>
+
 #include "namespaces/String.h"
 #include "namespaces/bits.h"
-#include <unordered_map>
-#include "namespaces/random.h"
 #include "namespaces/board.h"
-#include <climits>
-#include "util/logger.h"
+#include "namespaces/random.h"
 #include "util/Bitboard.h"
+#include "util/logger.h"
 
 #ifdef BENCH_MODE
 
@@ -41,83 +43,76 @@ using namespace constants;
 using namespace _def;
 
 class ChessBoard {
-public:
-    ChessBoard();
+ public:
+  ChessBoard();
 
-    string decodeBoardinv(const _Tmove *move, const uchar side, const bool verbose = false);
+  string decodeBoardinv(const _Tmove *move, const uchar side, const bool verbose = false);
 
-    virtual ~ChessBoard();
+  virtual ~ChessBoard();
 
-    const string getFen() const;
+  const string getFen() const;
 
-    int loadFen(const string &);
+  int loadFen(const string &);
 
-    void clearChessboard();
+  void clearChessboard();
 
-    void setSide(const bool b) {
-        sideToMove = b;
-    }
+  void setSide(const bool b) { sideToMove = b; }
 
-    void setChess960(bool c) { chess960 = c; }
+  void setChess960(bool c) { chess960 = c; }
 
-    bool isChess960() const {
-        return chess960;
-    }
+  bool isChess960() const { return chess960; }
 
-    void display() const;
+  void display() const;
 
-    string boardToFen() const;
+  string boardToFen() const;
 
-    uchar rightCastle;
+  uchar rightCastle;
 
-    uchar enPassant;
-    uchar sideToMove;
+  uchar enPassant;
+  uchar sideToMove;
 
-    void print(const _Tmove *move);
+  void print(const _Tmove *move);
 
-    _Tchessboard chessboard;
-protected:
+  _Tchessboard chessboard;
 
+ protected:
+  uchar startPosWhiteKing;
+  uchar startPosWhiteRookKingSide;
+  uchar startPosWhiteRookQueenSide;
 
-    uchar startPosWhiteKing;
-    uchar startPosWhiteRookKingSide;
-    uchar startPosWhiteRookQueenSide;
+  uchar startPosBlackKing;
+  uchar startPosBlackRookKingSide;
+  uchar startPosBlackRookQueenSide;
 
-    uchar startPosBlackKing;
-    uchar startPosBlackRookKingSide;
-    uchar startPosBlackRookQueenSide;
+  string MATCH_QUEENSIDE;
+  string MATCH_QUEENSIDE_WHITE;
+  string MATCH_KINGSIDE_WHITE;
+  string MATCH_QUEENSIDE_BLACK;
+  string MATCH_KINGSIDE_BLACK;
 
+  int movesCount = 1;
+  bool chess960 = false;
 
-    string MATCH_QUEENSIDE;
-    string MATCH_QUEENSIDE_WHITE;
-    string MATCH_KINGSIDE_WHITE;
-    string MATCH_QUEENSIDE_BLACK;
-    string MATCH_KINGSIDE_BLACK;
-
-    int movesCount = 1;
-    bool chess960 = false;
-
-    void makeZobristKey();
-
+  void makeZobristKey();
 
 #ifndef NDEBUG
 
-    void updateZobristKey(int piece, int position) {
-        ASSERT_RANGE(position, 0, 63)
-        ASSERT_RANGE(piece, 0, 15)
-        chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];
-    }
+  void updateZobristKey(int piece, int position) {
+    ASSERT_RANGE(position, 0, 63)
+    ASSERT_RANGE(piece, 0, 15)
+    chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];
+  }
 
 #else
 #define updateZobristKey(piece, position) (chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position])
 
 #endif
-private:
-    string fenString;
-    char whiteRookKingSideCastle;
-    char whiteRookQueenSideCastle;
-    char blackRookKingSideCastle;
-    char blackRookQueenSideCastle;
+ private:
+  string fenString;
+  char whiteRookKingSideCastle;
+  char whiteRookQueenSideCastle;
+  char blackRookKingSideCastle;
+  char blackRookQueenSideCastle;
 
-    int loadFen();
+  int loadFen();
 };

@@ -19,15 +19,16 @@
 #if defined(FULL_TEST)
 
 #include <gtest/gtest.h>
+
 #include "../SearchManager.h"
 
 TEST(eval, eval1) {
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    searchManager.loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    int score = searchManager.getScore(WHITE);
-    EXPECT_EQ(5, score);
-    score = searchManager.getScore(BLACK);
-    EXPECT_EQ(-5, score);
+  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  searchManager.loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  int score = searchManager.getScore(WHITE);
+  EXPECT_EQ(5, score);
+  score = searchManager.getScore(BLACK);
+  EXPECT_EQ(-5, score);
 }
 
 #endif
