@@ -27,7 +27,7 @@
 using namespace std;
 namespace constants {
     
-    static const string NAME = "Cinnamon 2.5";
+    static const string NAME = "Cinnamon 2.6-rollback_2.5_to_2.4";
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     static constexpr int BLACK = 0;
     static constexpr int WHITE = 1;
@@ -45,12 +45,13 @@ namespace constants {
 
 #ifndef NDEBUG
 #define DEBUG(a) a;
-
+#define DEBUG2(...) __VA_ARGS__
 #define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;_assert(0)};}
 #define INC(a) (a++)
 #define SET(a, v) (a=(v))
 #define ADD(a, b) (a+=(b))
 #else
+#define DEBUG2(...)
 #define DEBUG(a)
 #define ASSERT_RANGE(value, from, to)
 #define INC(a)

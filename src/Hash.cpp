@@ -38,8 +38,8 @@ void Hash::clearHash() {
 }
 
 void Hash::setHashSize(const int mb) {
-    dispose();
     if (mb > 0) {
+    	dispose();
         u64 tmp = (u64) mb * 1024 * 1024 / (sizeof(_Thash));
         hashArray = (_Thash *) calloc(tmp, sizeof(_Thash));
         if (!hashArray) {

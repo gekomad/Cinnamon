@@ -1,14 +1,14 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.17)
 project(cinnamon_debug)
 
 # debug
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftrapv -fwrapv -fsanitize=address -mbmi2 -DUSE_BMI2 -g -pthread -Wall -Wpedantic -W -std=c++11 -DDLOG_LEVEL=_TRACE -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftrapv -fwrapv -fsanitize=address -mbmi2 -DUSE_BMI2 -g -pthread -Wall -Wpedantic -W -std=c++11 -DDLOG_LEVEL=_TRACE -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
 
 # bench
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mbmi2 -DUSE_BMI2 -pthread -Wpedantic -W -DBENCH_MODE -std=c++11 -DDLOG_LEVEL=_FATAL -Wall -O3 -DNDEBUG -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
 
 # release
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mbmi2 -DUSE_BMI2 -pthread -Wpedantic -W -std=c++11 -DDLOG_LEVEL=_FATAL -Wall -O3 -DNDEBUG -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mbmi2 -DUSE_BMI2 -pthread -Wpedantic -W -std=c++11 -DDLOG_LEVEL=_FATAL -Wall -O3 -DNDEBUG -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
 
 # unit test
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -O3 -pthread -Wall -Wpedantic -W -std=c++11 -DDLOG_LEVEL=_TRACE -DFULL_TEST -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
@@ -104,7 +104,7 @@ set(SOURCE_FILES
         unistd.h
         db/TB.h)
 
-set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_COMPILER "g++")
 add_executable(cinnamon_debug ${SOURCE_FILES})
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
-target_link_libraries(cinnamon_debug /usr/lib/libgtest.a)
+#target_link_libraries(cinnamon_debug /usr/lib/libgtest.a)
