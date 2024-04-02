@@ -133,7 +133,7 @@ u64 SearchManager::getTotMoves() {
     return i;
 }
 
-void SearchManager::incHistoryHeuristic(const int from, const int to, const int value) {
+void SearchManager::incHistoryHeuristic(const int from, const int to, const int value) {return;
     for (Search *s:threadPool->getPool()) {
         s->incHistoryHeuristic(from, to, value);
     }

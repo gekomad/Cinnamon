@@ -87,7 +87,7 @@ public:
                chessboard[KNIGHT_BLACK + side] | chessboard[KING_BLACK + side] | chessboard[QUEEN_BLACK + side];
     }
 
-    __attribute__((always_inline))  static u64 getBitmap(const _Tchessboard &chessboard) {
+    static u64 getBitmap(const _Tchessboard &chessboard) {
         return chessboard[PAWN_BLACK] | chessboard[ROOK_BLACK] | chessboard[BISHOP_BLACK] |
                chessboard[KNIGHT_BLACK] | chessboard[KING_BLACK] | chessboard[QUEEN_BLACK] | chessboard[PAWN_WHITE] |
                chessboard[ROOK_WHITE] | chessboard[BISHOP_WHITE] |

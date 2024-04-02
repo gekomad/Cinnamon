@@ -46,7 +46,7 @@ void Search::aspirationWindow(const int depth, const int valWin) {
     const auto nPieces = bitCount(board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard));
 
 
-    if (depth == 1) {
+    if (true) {
         valWindow = search<side, searchMoves>(depth, -_INFINITE - 1, _INFINITE + 1, &pvLine, nPieces);
     } else {
         int tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW, &pvLine, nPieces);
@@ -124,68 +124,7 @@ int Search::qsearch(int alpha, const int beta, const uchar promotionPiece, const
     const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
     int score = eval.getScore(chessboard, zobristKeyR, side, alpha, beta);
 
-    if (score > alpha) {
-        if (score >= beta) return score;
-        alpha = score;
-    }
 
-    /// **************Delta Pruning ****************
-    bool fprune = false;
-    int fscore;
-    if ((fscore = score + (promotionPiece == NO_PROMOTION ? VALUEQUEEN : 2 * VALUEQUEEN)) < alpha) {
-        fprune = true;
-    }
-    /// ************ end Delta Pruning *************
-    if (score > alpha) alpha = score;
-
-    incListId();
-
-    u64 friends = board::getBitmap<side>(chessboard);
-    u64 enemies = board::getBitmap<X(side)>(chessboard);
-    if (generateCaptures<side>(enemies, friends)) {
-        decListId();
-        return _INFINITE - (mainDepth + depth);
-    }
-    if (!getListSize()) {
-        --listId;
-        return score;
-    }
-    _Tmove *move;
-    const u64 oldKey = chessboard[ZOBRISTKEY_IDX];
-    uchar oldEnpassant = enPassant;
-    int first = 0;
-    if (!(numMoves % 2048)) setRunning(checkTime());
-    while ((move = getNextMoveQ(&genList[listId], first++))) {
-        if (!makemove(move, false)) {
-            takeback(move, oldKey, oldEnpassant, false);
-            continue;
-        }
-
-        if (badCapure<side>(*move, friends | enemies)) {
-            INC(nCutBadCaputure);
-            takeback(move, oldKey, oldEnpassant, false);
-            continue;
-        }
-        /// **************Delta Pruning ****************
-        if (fprune && ((move->type & 0x3) != PROMOTION_MOVE_MASK) &&
-            fscore + PIECES_VALUE[move->capturedPiece] <= alpha) {
-            INC(nCutFp);
-            takeback(move, oldKey, oldEnpassant, false);
-            continue;
-        }
-        /// ************ end Delta Pruning *************
-        int val = -qsearch<X(side)>(-beta, -alpha, move->promotionPiece, depth - 1);
-        score = max(score, val);
-        takeback(move, oldKey, oldEnpassant, false);
-        if (score > alpha) {
-            if (score >= beta) {
-                decListId();
-                return beta;
-            }
-            alpha = score;
-        }
-    }
-    decListId();
     return score;
 }
 
@@ -256,19 +195,19 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     if (!getRunning()) return 0;
 
 
-    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
-                                  const _Tmove *move) {
-        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
-        currentPly++;
-        int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
-        if (!forceCheck && abs(val) > _INFINITE - MAX_PLY) {
-            forceCheck = true;
-            val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
-            forceCheck = false;
-        }
-        currentPly--;
-        return val;
-    };
+//    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
+//                                  const _Tmove *move) {
+//        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
+//        currentPly++;
+//        int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
+//        if (!forceCheck && abs(val) > _INFINITE - MAX_PLY) {
+//            forceCheck = true;
+//            val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
+//            forceCheck = false;
+//        }
+//        currentPly--;
+//        return val;
+//    };
 
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     uchar oldEnpassant = enPassant;
@@ -281,8 +220,8 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     if (wdl != INT_MAX) return wdl;
 #endif
 
-    int score = -_INFINITE;
-    const bool pvNode = alpha != beta - 1;
+    int bestscore = -_INFINITE;
+    //const bool pvNode = alpha != beta - 1;
 
     assert(chessboard[KING_BLACK]);
     assert(chessboard[KING_WHITE]);
@@ -293,10 +232,10 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             if (board::inCheck1<X(side)>(chessboard)) {
                 return _INFINITE - (mainDepth - depth + 1);
             }
-            return -eval.lazyEval<side>(chessboard) * 2;
+            return -eval.lazyEval<side>(chessboard) * 2;// TODO se ho meno materiale dell'avversario è positivo altrimenti negativo
         }
     }
-    int extension = isIncheckSide;
+    int extension = 0;//isIncheckSide;
     if (depth + extension == 0) {
         return qsearch<side>(alpha, beta, NO_PROMOTION, 0);
     }
@@ -316,64 +255,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     _TpvLine newLine1;
     newLine1.cmove = 0;
 
-    /// ********* null move ***********
-    if (!nullSearch && !pvNode && !isIncheckSide) {
-        int nDepth = (depth > 3) ? 1 : 3;
-        if (nDepth == 3) {
-            const u64 pieces = board::getPiecesNoKing<side>(chessboard);
-            if (pieces != chessboard[PAWN_BLACK + side] || bitCount(pieces) > 9)
-                nDepth = 1;
-        }
-        if (depth > nDepth) {
-            nullSearch = true;
-            const int R = NULL_DEPTH + depth / NULL_DIVISOR;
-            int nullScore;
-            if (depth - R - 1 > 0) {
-                nullScore = searchLambda(&newLine1, depth + extension - R - 1, -beta, -beta + 1, nullptr);
-            } else {
-                nullScore = -qsearch<X(side)>(-beta, -beta + 1, -1, 0);
-            }
-            nullSearch = false;
-            if (nullScore >= beta) {
-                INC(nNullMoveCut);
-                return nullScore;
-            }
-        }
-    }
 
-    /// ******* null move end ********
-
-    /// ********************** Futility Pruning *********************
-    /// ************* Futility Pruning razor at pre-pre-frontier ****
-    bool futilPrune = false;
-    int futilScore = 0;
-    if (depth <= 3 && !isIncheckSide) {
-        const int matBalance = eval.lazyEval<side>(chessboard);
-        /// ******** reverse futility pruning ***********
-        if (depth < 3 && !pvNode && abs(beta - 1) > -_INFINITE + MAX_PLY) {
-            const int evalMargin = matBalance - eval.REVERSE_FUTIL_MARGIN * depth;
-            if (evalMargin >= beta) return evalMargin;
-        }
-        /// *********************************************
-        if ((futilScore = matBalance + eval.FUTIL_MARGIN) <= alpha) {
-            if (depth == 3 && (matBalance + eval.RAZOR_MARGIN) <= alpha &&
-                bitCount(board::getBitmapNoPawnsNoKing<X(side)>(chessboard)) > 3) {
-                INC(nCutRazor);
-                extension--;
-            } else
-                /// **************Futility Pruning at pre-frontier*****
-            if (depth == 2 && (futilScore = matBalance + eval.EXT_FUTIL_MARGIN) <= alpha) {
-                futilPrune = true;
-                score = futilScore;
-            } else
-                /// **************Futility Pruning at frontier*****
-            if (depth == 1) {
-                futilPrune = true;
-                score = futilScore;
-            }
-        }
-    }
-    /// ************ end Futility Pruning*************
     incListId();
     ASSERT_RANGE(KING_BLACK + side, 0, 11)
     ASSERT_RANGE(KING_BLACK + (X(side)), 0, 11)
@@ -390,7 +272,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         if (isIncheckSide) {
             return -_INFINITE + (mainDepth - depth + 1);
         } else {
-            return -eval.lazyEval<side>(chessboard) * 2;
+            return -eval.lazyEval<side>(chessboard) * 2;// TODO se ho meno materiale dell'avversario è positivo altrimenti negativo
         }
     }
     assert(genList[listId].size > 0);
@@ -404,82 +286,66 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     int first = 0;
 
     while ((move = getNextMove(&genList[listId], depth, hashItem, first++))) {
-        if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth) continue;
+        if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth)
+            continue;
         countMove++;
 
         if (!makemove(move, true)) {
             takeback(move, oldKey, oldEnpassant, true);
+//            display(move);
             continue;
         }
-        int val = INT_MAX;
+        //int val = INT_MAX;
         _TpvLine newLine;
         newLine.cmove = 0;
 
-        if (move->promotionPiece == NO_PROMOTION) {
-            if (futilPrune && futilScore + PIECES_VALUE[move->capturedPiece] <= alpha &&
-                !board::inCheck1<side>(chessboard)) {
-                INC(nCutFp);
-                takeback(move, oldKey, oldEnpassant, true);
-                continue;
-            }
-            //Late Move Reduction
-            if (countMove > 3 && !isIncheckSide && depth >= 3 && move->capturedPiece == SQUARE_EMPTY) {
-                val = searchLambda(&newLine, depth + extension - (countMove > 6 ? 3 : 2), -(alpha + 1), -alpha,
-                                   nullptr);
-            }
-        }
+        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
+        int score = -search<X(side), checkMoves>(depth - 1, -beta, -alpha, &newLine, nPieces);
 
-        if (val > alpha) {
-            const int doMws = (score > -_INFINITE + MAX_PLY);
-            const int lwb = max(alpha, score);
-            const int upb = (doMws ? (lwb + 1) : beta);
-            val = searchLambda(&newLine, depth + extension - 1, -upb, -lwb, move);
-            if (doMws && (lwb < val) && (val < beta)) {
-                val = searchLambda(&newLine, depth + extension - 1, -beta, -val + 1, move);
-            }
-        }
-        score = max(score, val);
         takeback(move, oldKey, oldEnpassant, true);
         assert(chessboard[KING_BLACK]);
         assert(chessboard[KING_WHITE]);
-
-        if (score > alpha) {
-            if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
-                setKiller(move->from, move->to, depth);
+        if (score >= beta) {
+            decListId();
+            INC(nCutAB);
+            INC(betaEfficiencyCount);
+            DEBUG(betaEfficiency +=
+                          (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
+                          (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
+//            if (getRunning()) {
+//                Hash::_Thash data(zobristKeyR, score, depth, move->from, move->to, Hash::hashfBETA);
+//                hash.recordHash(data, ply);
+//
+//                if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
+//                    setHistoryHeuristic(move->from, move->to, depth);
+//                }
+//            }
+            return score;
+        }
+        if (score > bestscore) {
+//            if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
+//                setKiller(move->from, move->to, depth);
+//            }
+            bestscore = score;
+//            alpha = score;
+//            hashf = Hash::hashfEXACT;
+//            best = move;
+            if (score > alpha) {
+                alpha = score;
+                updatePv(pline, &newLine, move);
             }
-            if (score >= beta) {
-                decListId();
-                INC(nCutAB);
-                INC(betaEfficiencyCount);
-                DEBUG(betaEfficiency +=
-                              (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
-                              (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
-                if (getRunning()) {
-                    Hash::_Thash data(zobristKeyR, score, depth, move->from, move->to, Hash::hashfBETA);
-                    hash.recordHash(data, ply);
-
-                    if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
-                        setHistoryHeuristic(move->from, move->to, depth);
-                    }
-                }
-                return score;
-            }
-            alpha = score;
-            hashf = Hash::hashfEXACT;
-            best = move;
-            updatePv(pline, &newLine, move);
         }
     }
     if (getRunning()) {
-        if (best->capturedPiece == SQUARE_EMPTY && best->promotionPiece == NO_PROMOTION && (depth - extension) >= 0) {
-            setHistoryHeuristic(best->from, best->to, depth - extension);
-            setKiller(best->from, best->to, depth - extension);
-        }
-        Hash::_Thash data(zobristKeyR, score, depth, best->from, best->to, hashf);
+//        if (best->capturedPiece == SQUARE_EMPTY && best->promotionPiece == NO_PROMOTION && (depth - extension) >= 0) {
+//            setHistoryHeuristic(best->from, best->to, depth - extension);
+//            setKiller(best->from, best->to, depth - extension);
+//        }
+        Hash::_Thash data(zobristKeyR, bestscore, depth, best->from, best->to, hashf);
         hash.recordHash(data, ply);
     }
     decListId();
-    return score;
+    return bestscore;
 
 }
 

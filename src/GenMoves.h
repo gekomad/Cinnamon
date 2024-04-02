@@ -791,7 +791,7 @@ protected:
         ASSERT_RANGE(from, 0, 63)
         ASSERT_RANGE(to, 0, 63)
         if (depth < 0)return;
-        const int value = (depth < 30) ? 2 << depth : 0x40000000;
+        const int value = (int) min((u64) 2 << depth, 0x40000000Ull);
         historyHeuristic[from][to] = value;
     }
 
@@ -804,6 +804,7 @@ protected:
     }
 
     bool isKiller(const int idx, const int from, const int to, const int depth) {
+        return false;
         ASSERT_RANGE(from, 0, 63)
         ASSERT_RANGE(to, 0, 63)
         ASSERT_RANGE(depth, 0, MAX_PLY - 1)

@@ -94,8 +94,8 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
             score += historyHeuristic[move.from][move.to];
             score += CAPTURES[move.pieceFrom][move.capturedPiece];
 
-            if (isKiller(0, move.from, move.to, depth)) score += 50;
-            else if (isKiller(1, move.from, move.to, depth)) score += 30;
+//            if (isKiller(0, move.from, move.to, depth)) score += 50;
+//            else if (isKiller(1, move.from, move.to, depth)) score += 30;
 
         } else if (move.type & 0xc) {    //castle
             assert(rightCastle);

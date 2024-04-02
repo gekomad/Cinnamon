@@ -126,6 +126,11 @@ string ChessBoard::boardToFen() const {
     return fen;
 }
 
+void ChessBoard::display(const _Tmove *move) const {
+    display();
+    print(move);
+}
+
 void ChessBoard::display() const {
     cout << endl << "     a   b   c   d   e   f   g   h";
     for (int t = 0; t <= 63; t++) {
@@ -159,12 +164,12 @@ void ChessBoard::display() const {
     cout << endl;
 }
 
-void ChessBoard::print(const _Tmove *move) {
+void ChessBoard::print(const _Tmove *move) const {
     cout << decodeBoardinv(move, move->side) << " " << flush;
 }
 
 string
-ChessBoard::decodeBoardinv(const _Tmove *move, const uchar side, const bool verbose) {
+ChessBoard::decodeBoardinv(const _Tmove *move, const uchar side, const bool verbose) const {
     const uchar type = move->type;
     const int from = move->from;
     const int to = move->to;

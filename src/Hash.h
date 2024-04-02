@@ -79,7 +79,7 @@ public:
             const int depth,
             const u64 zobristKeyR,
             u64 &hashStruct,
-            const bool currentPly) {
+            const bool currentPly) {return INT_MAX;
         INC(readHashCount);
         const Hash::_Thash *hash = &(hashArray[zobristKeyR % HASH_SIZE]);
         DEBUG(u64 d = 0)
@@ -120,7 +120,7 @@ public:
         return INT_MAX;
     }
 
-    static void recordHash(const _Thash &toStore, const int ply) {
+    static void recordHash(const _Thash &toStore, const int ply) {return;
 #ifndef NDEBUG
         assert(toStore.key);
         if (GET_FLAGS(toStore.data) == hashfALPHA) nRecordHashA++;
