@@ -483,6 +483,7 @@ int GenMoves::getMoveFromSan(const string &fenStr, _Tmove *move) {
     } else {
         display();
         cout << "fenStr: >" << fenStr << "< from: " << from << endl;
+        return INT_MAX;
         _assert(0)
     }
     move->from = from;

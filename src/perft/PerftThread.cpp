@@ -179,7 +179,7 @@ void PerftThread::run() {
 
         if (fhash)spinlockPrint.lock();
         cout << endl;
-        string h = decodeBoardinv(move, sideToMove, true);
+        string h = decodeBoardinv(move, true);
 
         cout << setw(6) << h;
         cout << setw(20) << n_perft;

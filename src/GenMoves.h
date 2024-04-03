@@ -57,7 +57,7 @@ public:
 
 #ifndef NDEBUG
 
-    static void verifyPV(string fen, string pv) {
+    static void verifyPV(const string fen, string pv) {
         cout << flush;
         std::string delimiter = " ";
         size_t pos;
@@ -68,8 +68,13 @@ public:
             token = pv.substr(0, pos);
             //std::cout << token << std::endl;
             _Tmove move;
-            int x = !g.getMoveFromSan(token, &move);
-            g.setSide(x);
+            const int x = g.getMoveFromSan(token, &move);
+            if (x == INT_MAX) {
+                cout << fen << "|||" << pv << endl;
+                assert(0);
+            }
+
+            g.setSide(!x);
             g.makemove(&move, false);
             pv.erase(0, pos + delimiter.length());
         }

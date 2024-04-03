@@ -48,7 +48,7 @@ public:
     }
 
 
-    static string decodeBoardinv(const _Tmove *, const uchar side);
+    static string decodeBoardinv(const _Tmove *);
 
 #ifdef TUNING
 
@@ -111,7 +111,7 @@ public:
     static void setChess960(const bool i);
 
     static bool makemove(const _Tmove *i);
-
+    static void updateFenString();
     static void takeback(const _Tmove *move, const u64 oldkey, const uchar oldEnpassant, const bool rep);
 
     static void setSide(const bool i);

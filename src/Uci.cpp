@@ -249,6 +249,7 @@ void Uci::listner(IterativeDeeping *it) {
                         searchManager.makemove(&move);
                     }
                 }
+                searchManager.updateFenString();
             }
 
         } else if (String::toLower(token) == "go") {

@@ -44,7 +44,7 @@ class ChessBoard {
 public:
     ChessBoard();
 
-    string decodeBoardinv(const _Tmove *move, const uchar side, const bool verbose = false);
+    string decodeBoardinv(const _Tmove *move, const bool verbose = false);
 
     virtual ~ChessBoard();
 
@@ -53,6 +53,7 @@ public:
     int loadFen(const string &);
 
     void clearChessboard();
+    void updateFenString();
 
     void setSide(const bool b) {
         sideToMove = b;

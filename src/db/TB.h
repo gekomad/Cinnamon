@@ -262,7 +262,7 @@ public:
 
         if (probeRootTB(&bestMove, genMoves)) {
             string best = string(
-                    genMoves.decodeBoardinv(&bestMove, genMoves.sideToMove));
+                    genMoves.decodeBoardinv(&bestMove));
 
             return best;
         } else

@@ -159,16 +159,18 @@ void ChessBoard::display() const {
     cout << endl;
 }
 
+void ChessBoard::updateFenString() {
+    fenString=boardToFen();
+}
 void ChessBoard::print(const _Tmove *move) {
-    cout << decodeBoardinv(move, move->side) << " " << flush;
+    cout << decodeBoardinv(move, false) << " " << flush;
 }
 
 string
-ChessBoard::decodeBoardinv(const _Tmove *move, const uchar side, const bool verbose) {
+ChessBoard::decodeBoardinv(const _Tmove *move, const bool verbose) {
     const uchar type = move->type;
-    const int from = move->from;
-    const int to = move->to;
-    const int promotionPiece = move->promotionPiece;
+    const int side = move->side;
+
     if (type & QUEEN_SIDE_CASTLE_MOVE_MASK && side == WHITE) {
         return isChess960() ? BOARD[startPosWhiteKing] + BOARD[startPosWhiteRookQueenSide] : "e1c1";
     }
@@ -181,6 +183,9 @@ ChessBoard::decodeBoardinv(const _Tmove *move, const uchar side, const bool verb
     if (type & KING_SIDE_CASTLE_MOVE_MASK && side == BLACK) {
         return isChess960() ? BOARD[startPosBlackKing] + BOARD[startPosBlackRookKingSide] : "e8g8";
     }
+    const int from = move->from;
+    const int to = move->to;
+    const int promotionPiece = move->promotionPiece;
     assert(!(type & 0xC));
     assert (to >= 0 && to < 64);
     string cap = "";
