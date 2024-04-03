@@ -48,7 +48,7 @@ public:
     }
 
 
-    static string decodeBoardinv(const _Tmove *, const uchar side);
+    static string decodeBoardinv(const _Tmove *);
 
 #ifdef TUNING
 

@@ -174,7 +174,7 @@ void IterativeDeeping::run() {
         if (trace) {
 
             resultMove.capturedPiece = searchManager.getPieceAt(X(resultMove.side), POW2(resultMove.to));
-            bestmove = searchManager.decodeBoardinv(&resultMove, resultMove.side);
+            bestmove = searchManager.decodeBoardinv(&resultMove);
 
             if (sc > _INFINITE - MAX_PLY)
                 cout << "info depth " << iter_depth << " score mate " << max(1, (_INFINITE - sc) / 2);
