@@ -213,7 +213,7 @@ public:
 
     static void parse(int argc, char **argv) {
 #ifdef NDEBUG
-        assert(0);
+        ASSERT(0);
 #endif
 #ifdef TUNING
             if (argc != 2) {

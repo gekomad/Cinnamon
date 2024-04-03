@@ -156,7 +156,7 @@ public:
 
 #endif
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 
     static unsigned getCumulativeMovesCount() {
         return Search::cumulativeMovesCount;

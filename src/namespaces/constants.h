@@ -39,20 +39,22 @@ namespace constants {
 #define STATIC_CONST static constexpr
 #endif
 
-#define _assert(a) if(!(a)){  cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< ":"<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::exit(1);}
+#define _ASSERT(a) if(!(a)){  cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< ":"<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::exit(1);}
 
 #define X(side) ((side)^1)
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 #define DEBUG(a) a;
+#define ASSERT(a) assert(a)
 #define DEBUG2(...) __VA_ARGS__
-#define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;_assert(0)};}
+#define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;_ASSERT(0)};}
 #define INC(a) (a++)
 #define SET(a, v) (a=(v))
 #define ADD(a, b) (a+=(b))
 #else
 #define DEBUG2(...)
 #define DEBUG(a)
+#define ASSERT(a)
 #define ASSERT_RANGE(value, from, to)
 #define INC(a)
 #define SET(a, v)

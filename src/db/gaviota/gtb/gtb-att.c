@@ -106,7 +106,7 @@ enum SQUARES {
 
 /*----------------------------------------------------------------------*/
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 #define NDEBUG
 #endif
 #ifdef DEBUG

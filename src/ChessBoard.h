@@ -101,7 +101,7 @@ protected:
     void makeZobristKey();
 
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 
     void updateZobristKey(int piece, int position) {
         ASSERT_RANGE(position, 0, 63)
