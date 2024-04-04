@@ -24,7 +24,7 @@
 }
 
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 
 u64 board::getBitmap(const uchar side, const _Tchessboard &chessboard) {
     return side ? getBitmap<WHITE>(chessboard) : getBitmap<BLACK>(chessboard);

@@ -53,6 +53,7 @@ public:
     int loadFen(const string &);
 
     void clearChessboard();
+    void updateFenString();
 
     void setSide(const bool b) {
         sideToMove = b;
@@ -100,7 +101,7 @@ protected:
     void makeZobristKey();
 
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 
     void updateZobristKey(int piece, int position) {
         ASSERT_RANGE(position, 0, 63)

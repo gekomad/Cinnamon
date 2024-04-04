@@ -112,7 +112,7 @@ namespace _def {
 
     template<uchar side, int shift>
     static inline u64 shiftForward(const u64 bits) {
-        assert(shift == 7 || shift == 8 || shift == 9);
+        ASSERT(shift == 7 || shift == 8 || shift == 9);
         const auto a = side == WHITE ? bits << shift : bits >> shift;
         if (shift == 7) return a & NO_FILE_LEFT[side];
         if (shift == 9) return a & NO_FILE_RIGHT[side];

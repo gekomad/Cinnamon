@@ -39,7 +39,7 @@ bool GTB::load() {
     tbstats_reset();
     paths = tbpaths_done(paths);
     paths = tbpaths_init();
-    _assert(paths);
+    _ASSERT(paths);
     paths = tbpaths_add(paths, path.c_str());
     restart();
     unsigned av = tb_availability();
@@ -213,7 +213,7 @@ int GTB::getDtmWdl(const int stm,
                 }
                 cout << endl;
             }
-            assert(info != tb_UNKNOWN);
+            ASSERT(info != tb_UNKNOWN);
             return convertToSyzygy(stm, info);
         }
         return INT_MAX;
@@ -245,7 +245,7 @@ int GTB::getDtmWdl(const int stm,
                         break;
                 }
             }
-            assert(info != tb_UNKNOWN);
+            ASSERT(info != tb_UNKNOWN);
             return convertToSyzygy(stm, info);
         }
         if (doPrint != 0) cout << "none" << endl;

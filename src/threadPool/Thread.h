@@ -69,7 +69,7 @@ public:
     }
 
     void start() {
-        assert(!isJoinable());
+        ASSERT(!isJoinable());
         theThread = thread(&Thread::_run, this);
     }
 

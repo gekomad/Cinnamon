@@ -26,7 +26,7 @@ public:
         const uchar side = move.side;
         const int position = move.to;
         const int capturedPiece = move.capturedPiece;
-        assert(allpieces == (board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard)));
+        ASSERT(allpieces == (board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard)));
         int yourCap[15];
         int yourCount = _see(side, position, allpieces, yourCap, PIECES_VALUE[move.pieceFrom], chessboard);
         const int pieceValue = PIECES_VALUE[capturedPiece];

@@ -111,7 +111,7 @@ public:
     static void setChess960(const bool i);
 
     static bool makemove(const _Tmove *i);
-
+    static void updateFenString();
     static void takeback(const _Tmove *move, const u64 oldkey, const uchar oldEnpassant, const bool rep);
 
     static void setSide(const bool i);
@@ -156,7 +156,7 @@ public:
 
 #endif
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 
     static unsigned getCumulativeMovesCount() {
         return Search::cumulativeMovesCount;

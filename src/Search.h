@@ -111,7 +111,7 @@ public:
         return enPassant;
     }
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
     static unsigned cumulativeMovesCount;
     unsigned totGen;
 

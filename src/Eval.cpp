@@ -169,7 +169,7 @@ int Eval::evaluateBishop(const _Tchessboard &chessboard, const u64 enemies) {
         result -= BISHOP_PAWN_ON_SAME_COLOR * bitCount(chessboard[side] & board::colors(BITScanForward(bishop)));
     } else {
         // 2.
-        assert(nBishop > 1);
+        ASSERT(nBishop > 1);
         if (phase != OPEN) {
             result += BONUS2BISHOP;
             ADD(SCORE_DEBUG.BONUS2BISHOP[side], BONUS2BISHOP);
@@ -199,7 +199,7 @@ int Eval::evaluateBishop(const _Tchessboard &chessboard, const u64 enemies) {
 
         const u64 x = Bitboard::getDiagonalAntiDiagonal(o, structureEval.allPieces);
         const u64 captured = x & enemies;
-        assert(bitCount(captured) + bitCount(x & ~structureEval.allPieces) < (int) (sizeof(MOB_BISHOP) / sizeof(int)));
+        ASSERT(bitCount(captured) + bitCount(x & ~structureEval.allPieces) < (int) (sizeof(MOB_BISHOP) / sizeof(int)));
         if (captured & structureEval.posKingBit[xside]) structureEval.kingAttackers[xside] |= POW2(o);
 
         result += MOB_BISHOP[phase][bitCount(captured) + bitCount(x & ~structureEval.allPieces)];
@@ -341,7 +341,7 @@ int Eval::evaluateKnight(const _Tchessboard &chessboard, const u64 notMyBits) {
         const int pos = BITScanForward(knight);
 
         // 5. mobility
-        assert(bitCount(notMyBits & KNIGHT_MASK[pos]) < (int) (sizeof(MOB_KNIGHT) / sizeof(int)));
+        ASSERT(bitCount(notMyBits & KNIGHT_MASK[pos]) < (int) (sizeof(MOB_KNIGHT) / sizeof(int)));
         u64 mob = notMyBits & KNIGHT_MASK[pos];
         result += MOB_KNIGHT[bitCount(mob)];
         if (mob & structureEval.posKingBit[xside]) structureEval.kingAttackers[xside] |= POW2(pos);
@@ -432,7 +432,7 @@ int Eval::evaluateRook(const _Tchessboard &chessboard, const u64 enemies, const 
         u64 mob = board::getMobilityRook(o, enemies, friends);
         if (mob & structureEval.posKingBit[xside]) structureEval.kingAttackers[xside] |= POW2(o);
 
-        assert(bitCount(mob) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
+        ASSERT(bitCount(mob) < (int) (sizeof(MOB_ROOK[phase]) / sizeof(int)));
         result += MOB_ROOK[phase][bitCount(mob)];
         ADD(SCORE_DEBUG.MOB_ROOK[side], MOB_ROOK[phase][bitCount(mob)]);
 
@@ -459,7 +459,7 @@ int Eval::evaluateRook(const _Tchessboard &chessboard, const u64 enemies, const 
 
 template<Eval::_Tphase phase>
 int Eval::evaluateKing(const _Tchessboard &chessboard, const uchar side, const u64 squares) {
-    assert(evaluationCount[side] == 5);
+    ASSERT(evaluationCount[side] == 5);
     int result = 0;
     uchar pos_king = structureEval.posKing[side];
     if (phase == END) {
@@ -471,11 +471,11 @@ int Eval::evaluateKing(const _Tchessboard &chessboard, const uchar side, const u
     }
 
     //mobility
-    assert(bitCount(squares & NEAR_MASK1[pos_king]) < (int) (sizeof(MOB_KING[phase]) / sizeof(int)));
+    ASSERT(bitCount(squares & NEAR_MASK1[pos_king]) < (int) (sizeof(MOB_KING[phase]) / sizeof(int)));
     result += MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])];
     ADD(SCORE_DEBUG.MOB_KING[side], MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])]);
 
-    assert(pos_king < 64);
+    ASSERT(pos_king < 64);
     if (!(NEAR_MASK1[pos_king] & chessboard[side])) {
         ADD(SCORE_DEBUG.PAWN_NEAR_KING[side], -PAWN_NEAR_KING);
         result -= PAWN_NEAR_KING;
@@ -486,7 +486,7 @@ int Eval::evaluateKing(const _Tchessboard &chessboard, const uchar side, const u
 
 void Eval::storeHashValue(const u64 key, const short value) {
     evalHash[key % hashSize] = (key & keyMask) | (value & valueMask);
-    assert(value == getHashValue(key));
+    ASSERT(value == getHashValue(key));
 }
 
 short Eval::getHashValue(const u64 key) {
@@ -597,7 +597,7 @@ Eval::getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, 
              Tresult.knights[WHITE] + Tresult.bishop[WHITE] + Tresult.rooks[WHITE] + Tresult.queens[WHITE] +
              Tresult.kings[WHITE]);
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
     if (trace) {
         const string HEADER = "\n|\t\t\t\t\tTOT (white)\t\t  WHITE\t\tBLACK\n";
         cout << "|PHASE: ";
