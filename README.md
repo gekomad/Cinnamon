@@ -8,12 +8,8 @@ Cinnamon is a chess program for Windows, Linux, Mac OS, Android and Raspberry Pi
 
 Version
 ----------
-2.5
+2.6
 
-News
-----------
-- Time management
-- Tapered eval
 
 Useful links
 ----------
@@ -22,7 +18,6 @@ Useful links
 - [Web Eval debugger](https://github.com/gekomad/chess-engine-eval-debugger)
 - [Cinnamon on Android](https://play.google.com/store/apps/details?id=com.github.gekomad.cinnamonengine)
 - [Cinnamon on DGT Pi](https://www.digitalgametechnology.com/index.php/products/revelation-ii/533-dgt-pi-chess-computer-for-dgt-e-boards)
-- [Clion IDE](https://www.jetbrains.com/?from=CINNAMON_CHESS_ENGINE)
 
 
 Features

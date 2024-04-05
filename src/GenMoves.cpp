@@ -46,6 +46,12 @@ void GenMoves::setPerft(const bool b) {
     perftMode = b;
 }
 
+void GenMoves::agedHeuristic() {
+    for (int i = 0; i < 64; i++)
+        for (int j = 0; j < 64; j++)
+            historyHeuristic[i][j] /= 64;
+}
+
 void GenMoves::clearHeuristic() {
     memset(historyHeuristic, 0, sizeof(historyHeuristic));
     memset(killer, 0, sizeof(killer));
@@ -307,6 +313,7 @@ bool GenMoves::makemove(const _Tmove *move, const bool rep) {
     ASSERT(bitCount(chessboard[KING_WHITE]) == 1 && bitCount(chessboard[KING_BLACK]) == 1);
     ASSERT(verifyMove(move));
     const uchar rightCastleOld = rightCastle;
+    enPassant = NO_ENPASSANT;
     if (!(move->type & 0xc)) { //no castle
 
         ASSERT_RANGE(move->from, 0, 63)

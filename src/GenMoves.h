@@ -304,6 +304,7 @@ public:
     }
 
     void clearHeuristic();
+    void agedHeuristic();
 
     template<uchar side>
     __attribute__((always_inline)) void performDiagShift(const uchar piece, const u64 allpieces) {

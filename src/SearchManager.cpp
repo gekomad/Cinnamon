@@ -98,7 +98,7 @@ SearchManager::~SearchManager() {
 
 int SearchManager::loadFen(const string &fen) {
     int res = -1;
-
+    clearHeuristic();
     for (uchar i = 0; i < threadPool->getPool().size(); i++) {
         res = threadPool->getThread(i).loadFen(fen);
         ASSERT_RANGE(res, 0, 1)
@@ -143,7 +143,11 @@ void SearchManager::incHistoryHeuristic(const int from, const int to, const int 
 void SearchManager::startClock() {
     threadPool->getThread(0).startClock();// static variable
 }
-
+void SearchManager::agedHeuristic() {
+    for (Search *s:threadPool->getPool()) {
+        s->agedHeuristic();
+    }
+}
 void SearchManager::clearHeuristic() {
     for (Search *s:threadPool->getPool()) {
         s->clearHeuristic();
@@ -303,6 +307,7 @@ void SearchManager::pushStackMove() {
 }
 
 void SearchManager::init() {
+    clearHeuristic();
     for (Search *s:threadPool->getPool()) {
         s->init();
     }
