@@ -256,83 +256,94 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     _TpvLine newLine1;
     newLine1.cmove = 0;
 
-    incListId();
     ASSERT_RANGE(KING_BLACK + side, 0, 11)
     ASSERT_RANGE(KING_BLACK + (X(side)), 0, 11)
     const u64 friends = board::getBitmap<side>(chessboard);
     const u64 enemies = board::getBitmap<X(side)>(chessboard);
-    if (generateCaptures<side>(enemies, friends)) {
-        decListId();
-        return _INFINITE - (mainDepth - depth + 1);
-    }
-    generateMoves<side>(friends | enemies);
-    const int listcount = getListSize();
-    if (!listcount) {
-        --listId;
-        if (isIncheckSide) {
-            return -_INFINITE + (mainDepth - depth + 1);
-        } else {
-            return -eval.lazyEval<side>(chessboard) *
-                   2;// TODO se ho meno materiale dell'avversario è positivo altrimenti negativo
-        }
-    }
-    ASSERT(genList[listId].size > 0);
-
     _Tmove *best = nullptr;
+    int empty = 0;
+    for (int _i = 0; _i < 2; _i++) {
+        incListId();
+        if (_i == 0) {
+            if (generateCaptures<side>(enemies, friends)) {
+                decListId();
+                return _INFINITE - (mainDepth - depth + 1);
+            }
+        } else generateMoves<side>(friends | enemies);
 
-    INC(totGen);
-    _Tmove *move;
-    int countMove = 0;
-
-    int first = 0;
-
-    while ((move = getNextMove(&genList[listId], depth, hashItem, first++))) {
-        if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth)
-            continue;
-        countMove++;
-
-        if (!makemove(move, true)) {
-            takeback(move, oldKey, oldEnpassant, true);
+        const int listcount = getListSize();
+        if (!listcount) empty++;
+        if (empty == 2) {
+            --listId;
+            decListId();
+            if (isIncheckSide) {
+                return -_INFINITE + (mainDepth - depth + 1);
+            } else {
+                return -eval.lazyEval<side>(chessboard) *
+                       2;// TODO se ho meno materiale dell'avversario è positivo altrimenti negativo
+            }
+        }
+        if (!listcount && empty) {
+            decListId();
             continue;
         }
 
-        _TpvLine newLine;
-        newLine.cmove = 0;
+        INC(totGen);
+        _Tmove *move;
+        int countMove = 0;
 
-        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
-        int score = -search<X(side), checkMoves>(depth - 1, -beta, -alpha, &newLine, nPieces);
+        int first = 0;
 
-        takeback(move, oldKey, oldEnpassant, true);
-        ASSERT(chessboard[KING_BLACK]);
-        ASSERT(chessboard[KING_WHITE]);
-        if (score >= beta) {
-            INC(nCutAB);
-            INC(betaEfficiencyCount);
-            DEBUG(betaEfficiency +=
-                          (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
-                          (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
+        while ((move = getNextMove(&genList[listId], depth, hashItem, first++, _i == 0))) {
+            if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth)
+                continue;
+            countMove++;
 
-            if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
-                setHistoryHeuristic(move->from, move->to, depth);
+            if (!makemove(move, true)) {
+                takeback(move, oldKey, oldEnpassant, true);
+                continue;
             }
 
-            bestscore = score;
-            best = move;
-            break;
-        }
-        if (score > bestscore) {
+            _TpvLine newLine;
+            newLine.cmove = 0;
+
+            const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
+            int score = -search<X(side), checkMoves>(depth - 1, -beta, -alpha, &newLine, nPieces);
+
+            takeback(move, oldKey, oldEnpassant, true);
+            ASSERT(chessboard[KING_BLACK]);
+            ASSERT(chessboard[KING_WHITE]);
+            if (score >= beta) {
+                INC(nCutAB);
+                INC(betaEfficiencyCount);
+                DEBUG(betaEfficiency +=
+                              (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
+                              (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
+
+                if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
+                    setHistoryHeuristic(move->from, move->to, depth);// TODO inc ?
+                }
+
+                bestscore = score;
+                best = move;
+                _i = 3;
+                break;
+            }
+            if (score > bestscore) {
 //            if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
 //                setKiller(move->from, move->to, depth);
 //            }
-            bestscore = score;
+                bestscore = score;
 //            alpha = score;
 //            hashf = Hash::hashfEXACT;
-            best = move;
-            if (score > alpha) {
-                alpha = score;
-                updatePv(pline, &newLine, move);
+                best = move;
+                if (score > alpha) {
+                    alpha = score;
+                    updatePv(pline, &newLine, move);
+                }
             }
         }
+        decListId();
     }
 
 //        if (best->capturedPiece == SQUARE_EMPTY && best->promotionPiece == NO_PROMOTION && (depth - extension) >= 0) {
@@ -346,7 +357,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         Hash::_Thash data(zobristKeyR, bestscore, depth, best->from, best->to, hashf);
         hash.recordHash(data, ply);
     }
-    decListId();
+
     return bestscore;
 
 }

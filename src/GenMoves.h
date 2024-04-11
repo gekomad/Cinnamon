@@ -304,6 +304,7 @@ public:
     }
 
     void clearHeuristic();
+
     void agedHeuristic();
 
     template<uchar side>
@@ -406,7 +407,7 @@ protected:
 
     _Tmove *getNextMoveQ(_TmoveP *list, const int first);
 
-    _Tmove *getNextMove(_TmoveP *list, const int depth, const u64 &, const int first);
+    _Tmove *getNextMove(_TmoveP *list, const int depth, const u64 &, const int first, bool isCapture);
 
     template<uchar side>
     __attribute__((always_inline)) int getMobilityCastle(const u64 allpieces) const {

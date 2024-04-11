@@ -80,15 +80,17 @@ _Tmove *GenMoves::getNextMoveQ(_TmoveP *list, const int first) {
     return swap(list, first, bestId);
 }
 
-_Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, const int first) {
+_Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, const int first, bool isCapture) {
     BENCH_AUTO_CLOSE("getNextMove")
     int bestId = -1;
     int bestScore = -1;
 
+
     for (int i = first; i < list->size; i++) {
         const auto move = list->moveList[i];
         int score = 0;
-        if (move.type & 0x3) {
+
+        if (move.type & STANDARD_MOVE_MASK) {
 
             ASSERT_RANGE(move.pieceFrom, 0, 11)
             ASSERT_RANGE(move.to, 0, 63)
@@ -97,8 +99,20 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
             if (GET_FROM(hash) == move.from && GET_TO(hash) == move.to) {
                 return swap(list, first, i);
             }
-            score += historyHeuristic[move.from][move.to];
-            score += CAPTURES[move.pieceFrom][move.capturedPiece];
+            if (isCapture) {
+                const int a = CAPTURES[move.pieceFrom][move.capturedPiece];
+                if (a > bestScore) {
+                    bestScore = a;
+                    bestId = i;
+                }
+            } else {
+                const int a = historyHeuristic[move.from][move.to];
+                if (a > bestScore) {
+                    bestScore = a;
+                    bestId = i;
+                }
+            }
+
 
 //            if (isKiller(0, move.from, move.to, depth)) score += 50;
 //            else if (isKiller(1, move.from, move.to, depth)) score += 30;
