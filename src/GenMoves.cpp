@@ -105,13 +105,14 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
                     bestScore = a;
                     bestId = i;
                 }
-            } else {
-                const int a = historyHeuristic[move.from][move.to];
-                if (a > bestScore) {
-                    bestScore = a;
-                    bestId = i;
-                }
             }
+//            else {
+//                const int a = historyHeuristic[move.from][move.to];
+//                if (a > bestScore) {
+//                    bestScore = a;
+//                    bestId = i;
+//                }
+//            }
 
 
 //            if (isKiller(0, move.from, move.to, depth)) score += 50;
