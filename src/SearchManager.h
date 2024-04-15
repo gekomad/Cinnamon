@@ -72,7 +72,6 @@ public:
 
 #endif
 
-    static void agedHeuristic();
     static void clearHeuristic();
 
     static int getForceCheck();

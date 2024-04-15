@@ -71,7 +71,7 @@ void IterativeDeeping::run() {
     int iter_depth = 0;
 
     searchManager.startClock();
-    searchManager.agedHeuristic();
+    searchManager.clearHeuristic();
     plyFromRoot++;
     searchManager.setForceCheck(false);
 

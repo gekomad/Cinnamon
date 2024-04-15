@@ -305,7 +305,6 @@ public:
 
     void clearHeuristic();
 
-    void agedHeuristic();
 
     template<uchar side>
     __attribute__((always_inline)) void performDiagShift(const uchar piece, const u64 allpieces) {
@@ -365,7 +364,9 @@ public:
 
     bool generatePuzzle(const string type);
 
-    __attribute__((always_inline))void incHistoryHeuristic(const int from, const int to, const int value) {
+    __attribute__((always_inline))void
+    incHistoryHeuristic(const int from, const int to, const int value) {//TODO eliminare
+        ASSERT(0);
         ASSERT_RANGE(from, 0, 63)
         ASSERT_RANGE(to, 0, 63)
         ASSERT(historyHeuristic[from][to] <= historyHeuristic[from][to] + value);
@@ -424,7 +425,7 @@ protected:
         return count;
     }
 
-    int historyHeuristic[64][64];
+    int historyHeuristic[12][64];
     unsigned short killer[2][MAX_PLY];
 
 #ifdef DEBUG_MODE
@@ -789,12 +790,16 @@ protected:
         return running;
     }
 
-    __attribute__((always_inline)) void setHistoryHeuristic(const int from, const int to, const int depth) {
-        ASSERT_RANGE(from, 0, 63)
+    __attribute__((always_inline)) void setHistoryHeuristic(const int pieceFrom, const int to, const int depth) {
+        ASSERT_RANGE(pieceFrom, 0, 11)
         ASSERT_RANGE(to, 0, 63)
-        if (depth < 0)return;
-        const int value = (int) min((u64) 2 << depth, 0x40000000Ull);
-        historyHeuristic[from][to] = value;
+        ASSERT (depth > 0);
+        historyHeuristic[pieceFrom][to] += depth * depth;
+        if (historyHeuristic[pieceFrom][to] > 5000) {
+            for (int i = 0; i < 12; i++)
+                for (int j = 0; j < 64; j++)
+                    historyHeuristic[i][j] /= 64;
+        }
     }
 
     __attribute__((always_inline)) void setKiller(const int from, const int to, const int depth) {

@@ -46,12 +46,6 @@ void GenMoves::setPerft(const bool b) {
     perftMode = b;
 }
 
-void GenMoves::agedHeuristic() {
-    for (int i = 0; i < 64; i++)
-        for (int j = 0; j < 64; j++)
-            historyHeuristic[i][j] /= 64;
-}
-
 void GenMoves::clearHeuristic() {
     memset(historyHeuristic, 0, sizeof(historyHeuristic));
     memset(killer, 0, sizeof(killer));
@@ -105,14 +99,13 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
                     bestScore = a;
                     bestId = i;
                 }
+            } else {
+                const int a = historyHeuristic[move.pieceFrom][move.to];
+                if (a > bestScore) {
+                    bestScore = a;
+                    bestId = i;
+                }
             }
-//            else {
-//                const int a = historyHeuristic[move.from][move.to];
-//                if (a > bestScore) {
-//                    bestScore = a;
-//                    bestId = i;
-//                }
-//            }
 
 
 //            if (isKiller(0, move.from, move.to, depth)) score += 50;
@@ -127,10 +120,13 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
             bestId = i;
         }
     }
+
     if (bestId == -1) {
         return nullptr;
     }
-    return swap(list, first, bestId);
+    return
+            swap(list, first, bestId
+            );
 }
 
 GenMoves::~GenMoves() {

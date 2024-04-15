@@ -134,7 +134,7 @@ u64 SearchManager::getTotMoves() {
     return i;
 }
 
-void SearchManager::incHistoryHeuristic(const int from, const int to, const int value) {return;
+void SearchManager::incHistoryHeuristic(const int from, const int to, const int value) {return;// TODO eliminare
     for (Search *s:threadPool->getPool()) {
         s->incHistoryHeuristic(from, to, value);
     }
@@ -143,11 +143,7 @@ void SearchManager::incHistoryHeuristic(const int from, const int to, const int 
 void SearchManager::startClock() {
     threadPool->getThread(0).startClock();// static variable
 }
-void SearchManager::agedHeuristic() {
-    for (Search *s:threadPool->getPool()) {
-        s->agedHeuristic();
-    }
-}
+
 void SearchManager::clearHeuristic() {
     for (Search *s:threadPool->getPool()) {
         s->clearHeuristic();
