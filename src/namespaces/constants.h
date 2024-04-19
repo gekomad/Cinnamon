@@ -251,54 +251,54 @@ namespace constants {
     static constexpr u64 NOTPOW2_63 = 0x7fffffffffffffffULL;
 
     static constexpr int _0_ = 0;
-    static constexpr int Px_ = 1;
+    static constexpr int Px_ = 0;
     static constexpr int Rx_ = 0;
     static constexpr int Bx_ = 0;
     static constexpr int Nx_ = 0;
     static constexpr int Kx_ = 0;
     static constexpr int Qx_ = 0;
 
-    static constexpr int PxP = 100;
-    static constexpr int PxN = 300;
-    static constexpr int PxB = 301;
-    static constexpr int PxR = 500;
-    static constexpr int PxQ = 800;
-    static constexpr int PxK = 100010;
+    static constexpr int PxP = 10;
+    static constexpr int PxN = 30;
+    static constexpr int PxB = 31;
+    static constexpr int PxR = 50;
+    static constexpr int PxQ = 80;
+    static constexpr int PxK = 110;
+                        
+    static constexpr int NxP = 3;
+    static constexpr int NxN = 26;
+    static constexpr int NxB = 27;
+    static constexpr int NxR = 46;
+    static constexpr int NxQ = 76;
+    static constexpr int NxK = 109;
 
-    static constexpr int NxP = 21;
-    static constexpr int NxN = 251;
-    static constexpr int NxB = 252;
-    static constexpr int NxR = 451;
-    static constexpr int NxQ = 751;
-    static constexpr int NxK = 100009;
+    static constexpr int BxP = 2;
+    static constexpr int BxN = 25;
+    static constexpr int BxB = 26;
+    static constexpr int BxR = 45;
+    static constexpr int BxQ = 75;
+    static constexpr int BxK = 108;
 
-    static constexpr int BxP = 20;
-    static constexpr int BxN = 250;
-    static constexpr int BxB = 251;
-    static constexpr int BxR = 450;
-    static constexpr int BxQ = 750;
-    static constexpr int BxK = 100008;
-
-    static constexpr int RxP = 10;
-    static constexpr int RxN = 200;
-    static constexpr int RxB = 201;
-    static constexpr int RxR = 400;
-    static constexpr int RxQ = 700;
-    static constexpr int RxK = 100007;
+    static constexpr int RxP = 1;
+    static constexpr int RxN = 20;
+    static constexpr int RxB = 21;
+    static constexpr int RxR = 40;
+    static constexpr int RxQ = 70;
+    static constexpr int RxK = 107;
 
     static constexpr int QxP = 5;
-    static constexpr int QxN = 150;
-    static constexpr int QxB = 151;
-    static constexpr int QxR = 200;
-    static constexpr int QxQ = 400;
-    static constexpr int QxK = 100006;
+    static constexpr int QxN = 15;
+    static constexpr int QxB = 16;
+    static constexpr int QxR = 20;
+    static constexpr int QxQ = 40;
+    static constexpr int QxK = 106;
 
     static constexpr int KxP = 2;
-    static constexpr int KxN = 100;
-    static constexpr int KxB = 101;
-    static constexpr int KxR = 110;
-    static constexpr int KxQ = 200;
-    static constexpr int KxK = 100005;
+    static constexpr int KxN = 10;
+    static constexpr int KxB = 11;
+    static constexpr int KxR = 12;
+    static constexpr int KxQ = 20;
+    static constexpr int KxK = 105;
 
     static constexpr int CAPTURES[13][13]{
             {_0_,PxP,_0_,PxR,_0_,PxB,_0_,PxN,_0_,PxK,_0_,PxQ,Px_},

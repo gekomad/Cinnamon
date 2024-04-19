@@ -17,11 +17,69 @@
 */
 
 #pragma once
+
 #include "constants.h"
+
 using namespace constants;
 
-class See {
-public:
+namespace See {
+    namespace {
+        static int
+        _see(const uchar side, const int position, const u64 allpieces, int attackersValue[], const int firstValueFrom,
+             const _Tchessboard &chessboard) {
+            ASSERT_RANGE(position, 0, 63)
+            ASSERT_RANGE(side, 0, 1)
+            int count = 0;
+            const int xside = X(side);
+            ///pawn
+            u64 attackers = PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + xside];
+            for (; attackers; RESET_LSB(attackers)) {
+                attackersValue[count++] = (VALUEPAWN);
+            }
+
+            ///knight
+            attackers = KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + xside];
+            for (; attackers; RESET_LSB(attackers)) {
+                attackersValue[count++] = (VALUEKNIGHT);
+            }
+
+            if (RANK_FILE_DIAG_ANTIDIAG[position] &
+                (chessboard[BISHOP_BLACK + xside] | chessboard[ROOK_BLACK + xside] |
+                 chessboard[QUEEN_BLACK + xside])) {
+                ///bishop
+                auto diagAnt = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
+                u64 b = diagAnt & chessboard[BISHOP_BLACK + xside];
+                for (; b; RESET_LSB(b)) {
+                    attackersValue[count++] = (VALUEBISHOP);
+                }
+
+                ///rook
+                auto rankFile = Bitboard::getRankFile(position, allpieces);
+                b = rankFile & chessboard[ROOK_BLACK + xside];
+                for (; b; RESET_LSB(b)) {
+                    attackersValue[count++] = (VALUEROOK);
+                }
+
+                ///queen
+                b = (diagAnt | rankFile) & chessboard[QUEEN_BLACK + xside];
+                for (; b; RESET_LSB(b)) {
+                    attackersValue[count++] = (VALUEQUEEN);
+                }
+            }
+            ///king
+            if (NEAR_MASK1[position] & chessboard[KING_BLACK + xside]) {
+                attackersValue[count++] = (VALUEKING);
+            }
+            if (firstValueFrom)
+                for (int i = 0; i < count; i++) {
+                    if (attackersValue[i] == firstValueFrom) {
+                        swap(attackersValue[i], attackersValue[0]);
+                        break;
+                    }
+                }
+            return count;
+        }
+    }
     static int see(const _Tmove &move, const _Tchessboard &chessboard, const u64 allpieces) {
         const uchar side = move.side;
         const int position = move.to;
@@ -57,62 +115,7 @@ public:
         return pieceValue;
     }
 
-private:
-    static int
-    _see(const uchar side, const int position, const u64 allpieces, int attackersValue[], const int firstValueFrom,
-         const _Tchessboard &chessboard) {
-        ASSERT_RANGE(position, 0, 63)
-        ASSERT_RANGE(side, 0, 1)
-        int count = 0;
-        const int xside = X(side);
-        ///pawn
-        u64 attackers = PAWN_FORK_MASK[side][position] & chessboard[PAWN_BLACK + xside];
-        for (; attackers; RESET_LSB(attackers)) {
-            attackersValue[count++] = (VALUEPAWN);
-        }
 
-        ///knight
-        attackers = KNIGHT_MASK[position] & chessboard[KNIGHT_BLACK + xside];
-        for (; attackers; RESET_LSB(attackers)) {
-            attackersValue[count++] = (VALUEKNIGHT);
-        }
 
-        if (RANK_FILE_DIAG_ANTIDIAG[position] &
-            (chessboard[BISHOP_BLACK + xside] | chessboard[ROOK_BLACK + xside] |
-             chessboard[QUEEN_BLACK + xside])) {
-            ///bishop
-            auto diagAnt = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
-            u64 b = diagAnt & chessboard[BISHOP_BLACK + xside];
-            for (; b; RESET_LSB(b)) {
-                attackersValue[count++] = (VALUEBISHOP);
-            }
-
-            ///rook
-            auto rankFile = Bitboard::getRankFile(position, allpieces);
-            b = rankFile & chessboard[ROOK_BLACK + xside];
-            for (; b; RESET_LSB(b)) {
-                attackersValue[count++] = (VALUEROOK);
-            }
-
-            ///queen
-            b = (diagAnt | rankFile) & chessboard[QUEEN_BLACK + xside];
-            for (; b; RESET_LSB(b)) {
-                attackersValue[count++] = (VALUEQUEEN);
-            }
-        }
-        ///king
-        if (NEAR_MASK1[position] & chessboard[KING_BLACK + xside]) {
-            attackersValue[count++] = (VALUEKING);
-        }
-        if (firstValueFrom)
-            for (int i = 0; i < count; i++) {
-                if (attackersValue[i] == firstValueFrom) {
-                    swap(attackersValue[i], attackersValue[0]);
-                    break;
-                }
-            }
-        return count;
-    }
-
-};
+}
 
