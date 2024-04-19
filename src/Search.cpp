@@ -234,20 +234,6 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     if (!getRunning()) return 0;
     const int oldAlpha = alpha;
 
-//    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
-//                                  const _Tmove *move) {
-//        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
-//        currentPly++;
-//        int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
-//        if (!forceCheck && abs(val) > _INFINITE - MAX_PLY) {
-//            forceCheck = true;
-//            val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
-//            forceCheck = false;
-//        }
-//        currentPly--;
-//        return val;
-//    };
-
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     uchar oldEnpassant = enPassant;
     if (depth >= MAX_PLY - 1) {
@@ -260,7 +246,6 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
 #endif
 
     int bestscore = -_INFINITE;
-    //const bool pvNode = alpha != beta - 1;
 
     ASSERT(chessboard[KING_BLACK]);
     ASSERT(chessboard[KING_WHITE]);
@@ -275,8 +260,8 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
                    2;// TODO se ho meno materiale dell'avversario è positivo altrimenti negativo
         }
     }
-    int extension = 0;//isIncheckSide;
-    if (depth + extension == 0) {
+
+    if (depth == 0) {
         return qsearch<side>(alpha, beta, NO_PROMOTION, 0);
     }
 
@@ -292,9 +277,28 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
 
     if (!(numMoves % 2048)) setRunning(checkTime());
     ++numMoves;
-    _TpvLine newLine1;
-    newLine1.cmove = 0;
 
+    /// ********* null move ***********
+    if (!nullSearch && /* TODO !pvNode &&*/ !isIncheckSide) {
+        nullSearch = true;
+        const int nPieces = bitCount(board::getBitmapNoPawnsNoKing<side>(chessboard));
+        const int R = 2 + (depth > (6 + ((nPieces < 3) ? 2 : 0)));
+        int nullScore;
+        if (depth - R - 1 > 0) {
+            _TpvLine newLine;
+            newLine.cmove = 0;
+            nullScore = -search<X(side), checkMoves>(depth - R - 1, -beta, -beta + 1, &newLine, N_PIECE);
+        } else {
+            nullScore = -qsearch<X(side)>(-beta, -beta + 1, -1, 0);
+        }
+        nullSearch = false;
+        if (nullScore >= beta) {
+            INC(nNullMoveCut);
+            return nullScore;
+        }
+    }
+
+    /// ******* null move end ********
     ASSERT_RANGE(KING_BLACK + side, 0, 11)
     ASSERT_RANGE(KING_BLACK + (X(side)), 0, 11)
     const u64 friends = board::getBitmap<side>(chessboard);
@@ -339,56 +343,47 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             countMove++;
 
             if (!makemove(move, true)) {
+                takeback(move, oldKey, oldEnpassant, true);
+                continue;
+            }
+
+            _TpvLine newLine;
+            newLine.cmove = 0;
+
+            const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
+            int score = -search<X(side), checkMoves>(depth - 1, -beta, -alpha, &newLine, nPieces);
+
             takeback(move, oldKey, oldEnpassant, true);
-            continue;
-        }
+            ASSERT(chessboard[KING_BLACK]);
+            ASSERT(chessboard[KING_WHITE]);
+            if (score >= beta) {
+                INC(nCutAB);
+                INC(betaEfficiencyCount);
+                DEBUG(betaEfficiency +=
+                              (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
+                              (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
 
-        _TpvLine newLine;
-        newLine.cmove = 0;
+                if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
+                    setHistoryHeuristic(move->pieceFrom, move->to, depth);
+                }
 
-        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
-        int score = -search<X(side), checkMoves>(depth - 1, -beta, -alpha, &newLine, nPieces);
-
-        takeback(move, oldKey, oldEnpassant, true);
-        ASSERT(chessboard[KING_BLACK]);
-        ASSERT(chessboard[KING_WHITE]);
-        if (score >= beta) {
-            INC(nCutAB);
-            INC(betaEfficiencyCount);
-            DEBUG(betaEfficiency +=
-                          (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
-                          (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
-
-            if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
-                setHistoryHeuristic(move->pieceFrom, move->to, depth);
+                bestscore = score;
+                best = move;
+                _i = 3;
+                break;
             }
-
-            bestscore = score;
-            best = move;
-           _i = 3;
-            break;
-        }
-        if (score > bestscore) {
-//            if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
-//                setKiller(move->from, move->to, depth);
-//            }
-            bestscore = score;
-//            alpha = score;
-//            hashf = Hash::hashfEXACT;
-            best = move;
-            if (score > alpha) {
-                alpha = score;
-                updatePv(pline, &newLine, move);
+            if (score > bestscore) {
+                bestscore = score;
+                best = move;
+                if (score > alpha) {
+                    alpha = score;
+                    updatePv(pline, &newLine, move);
+                }
             }
-        }
         }
         decListId();
     }
 
-//        if (best->capturedPiece == SQUARE_EMPTY && best->promotionPiece == NO_PROMOTION && (depth - extension) >= 0) {
-//            setHistoryHeuristic(best->from, best->to, depth - extension);
-//            setKiller(best->from, best->to, depth - extension);
-//        }
     if (alpha != oldAlpha) {
         const char hashf =
                 (alpha <= oldAlpha) ? Hash::hashfALPHA :

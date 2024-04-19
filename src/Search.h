@@ -42,6 +42,7 @@ public:
 #ifndef JS_MODE
     SYZYGY *syzygy = &SYZYGY::getInstance();
 #endif
+
     Search();
 
     short getScore(const uchar side) {
@@ -140,7 +141,7 @@ private:
     Times *times = &Times::getInstance();
 #endif
 
-    template<uchar side,bool searchMoves>
+    template<uchar side, bool searchMoves>
     void aspirationWindow(const int depth, const int valWindow);
 
     int checkTime() const;

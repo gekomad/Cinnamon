@@ -131,7 +131,7 @@ void ChessBoard::display(const _Tmove *move) const {
     print(move);
 }
 
-void ChessBoard::display() const {
+void ChessBoard::display(const _Tchessboard &chessboard) {
     cout << endl << "     a   b   c   d   e   f   g   h";
     for (int t = 0; t <= 63; t++) {
         char x;
@@ -146,7 +146,12 @@ void ChessBoard::display() const {
         cout << " | ";
     }
     cout << endl << "   ----+---+---+---+---+---+---+----" << endl;
-    cout << "     a   b   c   d   e   f   g   h" << endl << endl << "fen:\t\t" << boardToFen() << endl;
+    cout << "     a   b   c   d   e   f   g   h" << endl;
+}
+
+void ChessBoard::display() const {
+    ChessBoard::display(chessboard);
+    cout << endl << "fen:\t\t" << boardToFen() << endl;
 
     cout << "side:\t\t" << (sideToMove ? "White" : "Black") << endl;
     cout << "castle:\t\t";

@@ -41,8 +41,9 @@ public:
 
     ~Eval();
 
-    short getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, const int alpha, const int beta
-            DEBUG2(,const bool trace = false)
+    short
+    getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, const int alpha, const int beta DEBUG2(,
+            const bool trace = false)
     );
 
     template<uchar side>
@@ -518,6 +519,7 @@ namespace _eval {
             };
 
     static constexpr u64 LINK_ROOKS[64][64] =
-        #include "LINK_ROOKS.inc"
+
+#include "LINK_ROOKS.inc"
 
 }
