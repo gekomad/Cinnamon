@@ -74,15 +74,23 @@ _Tmove *GenMoves::getNextMoveQ(_TmoveP *list, const int first) {
     return swap(list, first, bestId);
 }
 
-_Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, const int first, bool isCapture) {
+_Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, const int first) {
     BENCH_AUTO_CLOSE("getNextMove")
     int bestId = -1;
-    int bestScore = -1;
+    unsigned bestScore = 0;
 
+    //    transposition table
+    //    captures
+    //    killer
+    //    history
+    //    bad capture
+    // .|........|..|...............|.......
+    // T|  cap   |kl|    history    | bad capture
+    // 1| 7 bits |2b|   15 bits     | 7 bits
 
     for (int i = first; i < list->size; i++) {
         const auto move = list->moveList[i];
-        int score = 0;
+        unsigned score = 0;
 
         if (move.type & STANDARD_MOVE_MASK) {
 
@@ -91,31 +99,23 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
             ASSERT_RANGE(move.from, 0, 63)
 
             if (GET_FROM(hash) == move.from && GET_TO(hash) == move.to) {
-                return swap(list, first, i);
-            }
-            if (isCapture) {
-                const int a = CAPTURES[move.pieceFrom][move.capturedPiece];
-                if (a > bestScore) {
-                    bestScore = a;
-                    bestId = i;
-                }
-            } else {
-                const int a = historyHeuristic[move.pieceFrom][move.to];
-                if (a > bestScore) {
-                    bestScore = a;
-                    bestId = i;
-                }
+                score |= 0x80000000;
             }
 
+            const int a = CAPTURES[move.pieceFrom][move.capturedPiece];
+            score |= (a << 24);
 
-//            if (isKiller(0, move.from, move.to, depth)) score += 50;
-//            else if (isKiller(1, move.from, move.to, depth)) score += 30;
+            const int b = historyHeuristic[move.pieceFrom][move.to];
+            score |= (b << 7);
+
+//            if (isKiller(0, move.from, move.to, depth)) score |= (50 << 13);
+//            else if (isKiller(1, move.from, move.to, depth))  score |= (30 << 13);
 
         } else if (move.type & 0xc) {    //castle
             ASSERT(rightCastle);
             score = 100;
         }
-        if (score > bestScore) {
+        if (score >= bestScore) {
             bestScore = score;
             bestId = i;
         }

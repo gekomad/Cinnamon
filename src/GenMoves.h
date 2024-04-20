@@ -408,7 +408,7 @@ protected:
 
     _Tmove *getNextMoveQ(_TmoveP *list, const int first);
 
-    _Tmove *getNextMove(_TmoveP *list, const int depth, const u64 &, const int first, bool isCapture);
+    _Tmove *getNextMove(_TmoveP *list, const int depth, const u64 &, const int first);
 
     template<uchar side>
     __attribute__((always_inline)) int getMobilityCastle(const u64 allpieces) const {
@@ -795,7 +795,7 @@ protected:
         ASSERT_RANGE(to, 0, 63)
         ASSERT (depth > 0);
         historyHeuristic[pieceFrom][to] += depth * depth;
-        if (historyHeuristic[pieceFrom][to] > 5000) {
+        if (historyHeuristic[pieceFrom][to] >= 32767) {
             for (int i = 0; i < 12; i++)
                 for (int j = 0; j < 64; j++)
                     historyHeuristic[i][j] /= 64;
