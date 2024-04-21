@@ -96,7 +96,7 @@ public:
         }
     }
 
-    ~ThreadPool() {
+    virtual ~ThreadPool() {
         removeAllThread();
     }
 

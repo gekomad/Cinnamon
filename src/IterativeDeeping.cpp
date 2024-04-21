@@ -108,13 +108,13 @@ void IterativeDeeping::run() {
 
 #ifdef DEBUG_MODE
         const int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
-        const int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
-        const int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
-        const int percStoreHashE = hash.nRecordHashE * 100 / totStoreHash;
+        const double percStoreHashA = hash.nRecordHashA * 100.0 / totStoreHash;
+        const double percStoreHashB = hash.nRecordHashB * 100.0 / totStoreHash;
+        const double percStoreHashE = hash.nRecordHashE * 100.0 / totStoreHash;
         const int totCutHash = hash.n_cut_hashA + hash.n_cut_hashB + hash.n_cut_hashE + 1;
-        const int percCutHashA = hash.n_cut_hashA * 100 / totCutHash;
-        const int percCutHashB = hash.n_cut_hashB * 100 / totCutHash;
-        const int percCutHashE = hash.n_cut_hashE * 100 / totCutHash;
+        const double percCutHashA = hash.n_cut_hashA * 100.0 / totCutHash;
+        const double percCutHashB = hash.n_cut_hashB * 100.0 / totCutHash;
+        const double percCutHashE = hash.n_cut_hashE * 100.0 / totCutHash;
 
         const unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
 
@@ -146,11 +146,12 @@ void IterativeDeeping::run() {
         cout << "info string null move cut: " << nullMoveCut << endl;
         cout << "info string razor cut: " << nCutRazor << endl;
         cout << "info string bad caputure cut: " << nBadCaputure << endl;
-        printf("info string hash stored %d%% (alpha=%d%% beta=%d%% exact=%d%%)\n",
-               totStoreHash * 100 / (1 + cumulativeMovesCount), percStoreHashA, percStoreHashB, percStoreHashE);
 
-        printf("info string hash cut %d%% (alpha=%d%% beta=%d%% exact=%d%%)\n",
-               totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()), percCutHashA, percCutHashB,
+        printf("info string hash stored %.2f%%  (alpha=%.2f%%  beta=%.2f%%  exact=%.2f%% )\n",
+               ( (double)totStoreHash * 100 / (1 + cumulativeMovesCount)), percStoreHashA, percStoreHashB, percStoreHashE);
+
+        printf("info string hash cut %.2f%% (alpha=%.2f%% beta=%.2f%% exact=%.2f%%)\n",
+               ( (double) totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount())), percCutHashA, percCutHashB,
                percCutHashE);
         printf("info string hash write collisions: %d%%\n", hash.collisions * 100 / (totStoreHash + 1));
         printf("info string hash read collisions: %d%%\n", hash.readCollisions * 100 / (hash.readHashCount + 1));
@@ -185,7 +186,7 @@ void IterativeDeeping::run() {
             cout << " time " << timeTaken << " nodes " << totMoves;
             if (timeTaken)cout << " nps " << (int) ((double) totMoves / (double) timeTaken * 1000.0);
             cout << " pv " << pvv << endl;
-            DEBUG(GenMoves::verifyPV(searchManager.getSearch().getFen(),pvv))
+            DEBUG(GenMoves::verifyPV(searchManager.getSearch().getFen(), pvv))
         }
 
         if (searchManager.getForceCheck()) {

@@ -107,7 +107,7 @@ set(SOURCE_FILES
         unistd.h
         db/TB.h)
 
-set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_CXX_COMPILER "clang++")
 add_executable(cinnamon_debug ${SOURCE_FILES})
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
 #target_link_libraries(cinnamon_debug /usr/lib/libgtest.a)

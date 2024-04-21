@@ -47,7 +47,8 @@ void Search::aspirationWindow(const int depth, const int valWin) {
 
 
     if (true) {
-        valWindow = search<side, searchMoves>(depth, -_INFINITE - 1, _INFINITE + 1, &pvLine, nPieces);
+        valWindow = search<side, searchMoves>(depth, -_INFINITE, _INFINITE, &pvLine,
+                                              nPieces);
     } else {
         int tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW, &pvLine, nPieces);
         if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
@@ -234,6 +235,20 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     if (!getRunning()) return 0;
     const int oldAlpha = alpha;
 
+    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
+                                  const _Tmove *move) {
+        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
+        currentPly++;
+        int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
+        if (!forceCheck && abs(val) > _INFINITE - MAX_PLY) {
+            forceCheck = true;
+            val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
+            forceCheck = false;
+        }
+        currentPly--;
+        return val;
+    };
+
     u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     uchar oldEnpassant = enPassant;
     if (depth >= MAX_PLY - 1) {
@@ -276,7 +291,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
 
     if (!(numMoves % 2048)) setRunning(checkTime());
     ++numMoves;
-
+    _Tmove *best = nullptr;
     /// ********* null move ***********
     if (!nullSearch && /* TODO !pvNode &&*/ !isIncheckSide) {
         nullSearch = true;
@@ -284,9 +299,9 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         const int R = 2 + (depth > (6 + ((nPieces < 3) ? 2 : 0)));
         int nullScore;
         if (depth - R - 1 > 0) {
-            _TpvLine newLine;
-            newLine.cmove = 0;
-            nullScore = -search<X(side), checkMoves>(depth - R - 1, -beta, -beta + 1, &newLine, N_PIECE);
+            _TpvLine newLine1;
+            newLine1.cmove = 0;
+            nullScore = searchLambda(&newLine1, depth - R - 1, -beta, -beta + 1, nullptr);
         } else {
             nullScore = -qsearch<X(side)>(-beta, -beta + 1, -1, 0);
         }
@@ -302,8 +317,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     ASSERT_RANGE(KING_BLACK + (X(side)), 0, 11)
     const u64 friends = board::getBitmap<side>(chessboard);
     const u64 enemies = board::getBitmap<X(side)>(chessboard);
-    _Tmove *best = nullptr;
-    int empty = 0;
+
     incListId();
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
@@ -312,19 +326,17 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     generateMoves<side>(friends | enemies);
 
     const int listcount = getListSize();
-    if (!listcount) empty++;
-    if (empty == 2) {
+    if (!listcount) {
         --listId;
-        decListId();
         if (isIncheckSide) {
             return -_INFINITE + (mainDepth - depth + 1);
         } else {
-            return -eval.lazyEval<side>(chessboard) * // provare return eval
-                   2;// TODO se ho meno materiale dell'avversario è positivo altrimenti negativo
+            return -eval.lazyEval<side>(chessboard) * 2; // provare return eval
+            // TODO se ho meno materiale dell'avversario è positivo altrimenti negativo
         }
     }
     ASSERT(genList[listId].size > 0);
- 
+
     INC(totGen);
     _Tmove *move;
     int countMove = 0;
@@ -344,13 +356,13 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         _TpvLine newLine;
         newLine.cmove = 0;
 
-        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
-        int score = -search<X(side), checkMoves>(depth - 1, -beta, -alpha, &newLine, nPieces);
+        int score = searchLambda(&newLine, depth - 1, -beta, -alpha, move);
 
         takeback(move, oldKey, oldEnpassant, true);
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
         if (score >= beta) {
+            alpha = max(alpha, score);
             INC(nCutAB);
             INC(betaEfficiencyCount);
             DEBUG(betaEfficiency +=
@@ -368,19 +380,18 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         if (score > bestscore) {
             bestscore = score;
             best = move;
-            if (score > alpha) {
-                alpha = score;
-                updatePv(pline, &newLine, move);
-            }
+        }
+        if (score > alpha) {
+            alpha = score;
+            updatePv(pline, &newLine, move);
         }
     }
     decListId();
-
-    if (alpha != oldAlpha) {
+    if (abs(bestscore) < _INFINITE - MAX_PLY) {
         const char hashf =
                 (alpha <= oldAlpha) ? Hash::hashfALPHA :
                 (alpha >= beta) ? Hash::hashfBETA : Hash::hashfEXACT;
-        Hash::_Thash data(zobristKeyR, bestscore, depth, best->from, best->to, hashf);
+        Hash::_Thash data(zobristKeyR, bestscore, depth, best, hashf);
         hash.recordHash(data, ply);
     }
 

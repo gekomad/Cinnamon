@@ -401,7 +401,7 @@ protected:
     int repetitionMapCount;
 
     u64 *repetitionMap;
-    int currentPly;
+    int currentPly; // TODO eliminare
 
     u64 numMoves = 0;
     u64 numMovesq = 0;

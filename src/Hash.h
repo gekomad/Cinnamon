@@ -40,14 +40,15 @@ public:
         // age            | flags  | from   |   to   | depth  |    score      |
         u64 data;
 
-        _Thash(const u64 zobristKeyR, const short score, const char depth, const uchar from, const uchar to,
-               const uchar flags) {
+        _Thash(const u64 zobristKeyR, const short score, const char depth, const _Tmove *move, const uchar flags) {
             key = zobristKeyR;
             data = score;
             data &= 0xffffULL;
             data |= (u64) depth << 16;
-            data |= (u64) to << (16 + 8);
-            data |= (u64) from << (16 + 8 + 8);
+            if (move) {
+                data |= (u64) move->to << (16 + 8);
+                data |= (u64) move->from << (16 + 8 + 8);
+            }
             data |= (u64) flags << (16 + 8 + 8 + 8);
         }
     } _Thash;
@@ -96,6 +97,8 @@ public:
                     if (currentPly) {
                         switch (GET_FLAGS(hashStruct)) {
                             case Hash::hashfEXACT:
+                                //INC(n_cut_hashE);
+                                //return alpha;//GET_SCORE(hashStruct);
                             case Hash::hashfBETA:
                                 if (GET_SCORE(hashStruct) >= beta) {
                                     INC(n_cut_hashB);
