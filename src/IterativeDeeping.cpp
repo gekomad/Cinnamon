@@ -79,7 +79,6 @@ void IterativeDeeping::run() {
     bool inMate = false;
     int extension = 0;
     string ponderMove;
-    searchManager.init();
 
     string pvv;
     _Tmove resultMove;

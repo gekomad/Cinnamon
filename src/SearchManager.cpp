@@ -303,7 +303,6 @@ void SearchManager::pushStackMove() {
 }
 
 void SearchManager::init() {
-    clearHeuristic();
     for (Search *s:threadPool->getPool()) {
         s->init();
     }

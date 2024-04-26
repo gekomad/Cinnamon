@@ -368,11 +368,14 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
             DEBUG(betaEfficiency +=
                           (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
                           (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
+            if (getRunning()) {
+                    Hash::_Thash data(zobristKeyR, score, depth, move, Hash::hashfBETA);
+                    hash.recordHash(data, ply);
 
-            if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
-                setHistoryHeuristic(move->pieceFrom, move->to, depth);
+                if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
+                    setHistoryHeuristic(move->pieceFrom, move->to, depth);
+                }
             }
-
             bestscore = score;
             best = move;
             break;
