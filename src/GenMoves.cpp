@@ -307,6 +307,7 @@ bool GenMoves::makemove(const _Tmove *move, const bool rep) {
     ASSERT(bitCount(chessboard[KING_WHITE]) == 1 && bitCount(chessboard[KING_BLACK]) == 1);
     ASSERT(verifyMove(move));
     const uchar rightCastleOld = rightCastle;
+    enPassant = NO_ENPASSANT;
     if (!(move->type & 0xc)) { //no castle
 
         ASSERT_RANGE(move->from, 0, 63)

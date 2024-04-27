@@ -44,7 +44,7 @@ class ChessBoard {
 public:
     ChessBoard();
 
-    string decodeBoardinv(const _Tmove *move, const bool verbose = false);
+    string decodeBoardinv(const _Tmove *move, const bool verbose = false) const;
 
     virtual ~ChessBoard();
 
@@ -74,7 +74,7 @@ public:
     uchar enPassant;
     uchar sideToMove;
 
-    void print(const _Tmove *move);
+    void print(const _Tmove *move) const;
 
     _Tchessboard chessboard;
 protected:
