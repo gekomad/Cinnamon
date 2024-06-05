@@ -5,9 +5,9 @@ Public domain */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-#include <string.h>
-
 #include "Lzma86Enc.h"
+
+#include <string.h>
 
 #include "Alloc.h"
 #include "Bra.h"
@@ -17,14 +17,13 @@ Public domain */
 
 static void *SzAlloc(void *p, size_t size) { return MyAlloc(size); }
 static void SzFree(void *p, void *address) { MyFree(address); }
-static ISzAlloc g_Alloc = { SzAlloc, SzFree };
+static ISzAlloc g_Alloc = {SzAlloc, SzFree};
 
 #define LZMA86_SIZE_OFFSET (1 + LZMA_PROPS_SIZE)
 #define LZMA86_HEADER_SIZE (LZMA86_SIZE_OFFSET + 8)
 
-int Lzma86_Encode(Byte *dest, size_t *destLen, const Byte *src, size_t srcLen,
-    int level, UInt32 dictSize, int filterMode)
-{
+int Lzma86_Encode(Byte *dest, size_t *destLen, const Byte *src, size_t srcLen, int level, UInt32 dictSize,
+                  int filterMode) {
   size_t outSize2 = *destLen;
   Byte *filteredStream;
   Bool useFilter;
@@ -35,25 +34,20 @@ int Lzma86_Encode(Byte *dest, size_t *destLen, const Byte *src, size_t srcLen,
   props.dictSize = dictSize;
 
   *destLen = 0;
-  if (outSize2 < LZMA86_HEADER_SIZE)
-    return SZ_ERROR_OUTPUT_EOF;
+  if (outSize2 < LZMA86_HEADER_SIZE) return SZ_ERROR_OUTPUT_EOF;
 
   {
     int i;
     UInt64 t = srcLen;
-    for (i = 0; i < 8; i++, t >>= 8)
-      dest[LZMA86_SIZE_OFFSET + i] = (Byte)t;
+    for (i = 0; i < 8; i++, t >>= 8) dest[LZMA86_SIZE_OFFSET + i] = (Byte)t;
   }
 
   filteredStream = 0;
   useFilter = (filterMode != SZ_FILTER_NO);
-  if (useFilter)
-  {
-    if (srcLen != 0)
-    {
+  if (useFilter) {
+    if (srcLen != 0) {
       filteredStream = (Byte *)MyAlloc(srcLen);
-      if (filteredStream == 0)
-        return SZ_ERROR_MEM;
+      if (filteredStream == 0) return SZ_ERROR_MEM;
       memcpy(filteredStream, src, srcLen);
     }
     {
@@ -75,42 +69,33 @@ int Lzma86_Encode(Byte *dest, size_t *destLen, const Byte *src, size_t srcLen,
     int numPasses = (filterMode == SZ_FILTER_AUTO) ? 3 : 1;
 
     int i;
-    for (i = 0; i < numPasses; i++)
-    {
+    for (i = 0; i < numPasses; i++) {
       size_t outSizeProcessed = outSize2 - LZMA86_HEADER_SIZE;
       size_t outPropsSize = 5;
       SRes curRes;
       Bool curModeIsFiltered = (numPasses > 1 && i == numPasses - 1);
-      if (curModeIsFiltered && !bestIsFiltered)
-        break;
-      if (useFilter && i == 0)
-        curModeIsFiltered = True;
+      if (curModeIsFiltered && !bestIsFiltered) break;
+      if (useFilter && i == 0) curModeIsFiltered = True;
 
-      curRes = LzmaEncode(dest + LZMA86_HEADER_SIZE, &outSizeProcessed,
-          curModeIsFiltered ? filteredStream : src, srcLen,
-          &props, dest + 1, &outPropsSize, 0,
-          NULL, &g_Alloc, &g_Alloc);
+      curRes = LzmaEncode(dest + LZMA86_HEADER_SIZE, &outSizeProcessed, curModeIsFiltered ? filteredStream : src,
+                          srcLen, &props, dest + 1, &outPropsSize, 0, NULL, &g_Alloc, &g_Alloc);
 
-      if (curRes != SZ_ERROR_OUTPUT_EOF)
-      {
-        if (curRes != SZ_OK)
-        {
+      if (curRes != SZ_ERROR_OUTPUT_EOF) {
+        if (curRes != SZ_OK) {
           mainResult = curRes;
           break;
         }
-        if (outSizeProcessed <= minSize || mainResult != SZ_OK)
-        {
+        if (outSizeProcessed <= minSize || mainResult != SZ_OK) {
           minSize = outSizeProcessed;
           bestIsFiltered = curModeIsFiltered;
           mainResult = SZ_OK;
         }
       }
     }
-    dest[0] = (unsigned char) (bestIsFiltered ? 1 : 0); /*MAB: Cast to silence compiler */
+    dest[0] = (unsigned char)(bestIsFiltered ? 1 : 0); /*MAB: Cast to silence compiler */
     *destLen = LZMA86_HEADER_SIZE + minSize;
   }
-  if (useFilter)
-    MyFree(filteredStream);
+  if (useFilter) MyFree(filteredStream);
   return mainResult;
 }
 #pragma GCC diagnostic pop

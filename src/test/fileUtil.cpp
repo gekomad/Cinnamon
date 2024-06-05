@@ -20,12 +20,8 @@
 
 #include <gtest/gtest.h>
 
-TEST(FileUtilTest, getFileName1) {
-    ASSERT_EQ("c.txt", FileUtil::getFileName("c:\\a\\b\\c.txt"));
-}
+TEST(FileUtilTest, getFileName1) { ASSERT_EQ("c.txt", FileUtil::getFileName("c:\\a\\b\\c.txt")); }
 
-TEST(FileUtilTest, getFileName2) {
-    ASSERT_EQ("c.txt", FileUtil::getFileName("/a/b/c.txt"));
-}
+TEST(FileUtilTest, getFileName2) { ASSERT_EQ("c.txt", FileUtil::getFileName("/a/b/c.txt")); }
 
 #endif

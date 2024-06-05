@@ -18,23 +18,22 @@
 
 #pragma once
 
-#include "../namespaces/bits.h"
 #include <atomic>
+
+#include "../namespaces/bits.h"
 
 using namespace _def;
 using namespace std;
 
 typedef struct {
-    u64 key;
-    u64 nMoves;
+  u64 key;
+  u64 nMoves;
 } _ThashPerft;
 
-
 typedef struct {
-    atomic_ullong totMoves;
-    u64 sizeAtDepth[255];
-    int depth;
-    int nCpu;
-    bool chess960;
+  atomic_ullong totMoves;
+  u64 sizeAtDepth[255];
+  int depth;
+  int nCpu;
+  bool chess960;
 } _TPerftRes;
-

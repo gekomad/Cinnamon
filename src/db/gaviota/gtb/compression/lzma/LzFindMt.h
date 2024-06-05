@@ -4,8 +4,8 @@
 #ifndef __LZFINDMT_H
 #define __LZFINDMT_H
 
-#include "Threads.h"
 #include "LzFind.h"
+#include "Threads.h"
 
 #define kMtHashBlockSize (1 << 13)
 #define kMtHashNumBlocks (1 << 3)
@@ -15,8 +15,7 @@
 #define kMtBtNumBlocks (1 << 6)
 #define kMtBtNumBlocksMask (kMtBtNumBlocks - 1)
 
-typedef struct _CMtSync
-{
+typedef struct _CMtSync {
   Bool wasCreated;
   Bool needStart;
   Bool exit;
@@ -34,16 +33,15 @@ typedef struct _CMtSync
   UInt32 numProcessedBlocks;
 } CMtSync;
 
-typedef UInt32 * (*Mf_Mix_Matches)(void *p, UInt32 matchMinPos, UInt32 *distances);
+typedef UInt32 *(*Mf_Mix_Matches)(void *p, UInt32 matchMinPos, UInt32 *distances);
 
 /* kMtCacheLineDummy must be >= size_of_CPU_cache_line */
 #define kMtCacheLineDummy 128
 
-typedef void (*Mf_GetHeads)(const Byte *buffer, UInt32 pos,
-  UInt32 *hash, UInt32 hashMask, UInt32 *heads, UInt32 numHeads, const UInt32 *crc);
+typedef void (*Mf_GetHeads)(const Byte *buffer, UInt32 pos, UInt32 *hash, UInt32 hashMask, UInt32 *heads,
+                            UInt32 numHeads, const UInt32 *crc);
 
-typedef struct _CMatchFinderMt
-{
+typedef struct _CMatchFinderMt {
   /* LZ */
   const Byte *pointerToCurPos;
   UInt32 *btBuf;
@@ -58,7 +56,7 @@ typedef struct _CMatchFinderMt
   const UInt32 *crc;
 
   Mf_Mix_Matches MixMatchesFunc;
-  
+
   /* LZ + BT */
   CMtSync btSync;
   Byte btDummy[kMtCacheLineDummy];
@@ -81,7 +79,7 @@ typedef struct _CMatchFinderMt
   /* BT + Hash */
   CMtSync hashSync;
   /* Byte hashDummy[kMtCacheLineDummy]; */
-  
+
   /* Hash */
   Mf_GetHeads GetHeadsFunc;
   CMatchFinder *MatchFinder;
@@ -89,8 +87,8 @@ typedef struct _CMatchFinderMt
 
 void MatchFinderMt_Construct(CMatchFinderMt *p);
 void MatchFinderMt_Destruct(CMatchFinderMt *p, ISzAlloc *alloc);
-SRes MatchFinderMt_Create(CMatchFinderMt *p, UInt32 historySize, UInt32 keepAddBufferBefore,
-    UInt32 matchMaxLen, UInt32 keepAddBufferAfter, ISzAlloc *alloc);
+SRes MatchFinderMt_Create(CMatchFinderMt *p, UInt32 historySize, UInt32 keepAddBufferBefore, UInt32 matchMaxLen,
+                          UInt32 keepAddBufferAfter, ISzAlloc *alloc);
 void MatchFinderMt_CreateVTable(CMatchFinderMt *p, IMatchFinder *vTable);
 void MatchFinderMt_ReleaseStream(CMatchFinderMt *p);
 

@@ -33,8 +33,9 @@ Copyright (c) 2010 Miguel A. Ballicora
 *---------------------------------------------------------------------------*/
 #define MAXBLOCK (1 << 16)
 
-#include <stdlib.h>
 #include "gtb-dec.h"
+
+#include <stdlib.h>
 #ifdef HUFFMAN
 #include "hzip.h"
 #endif
@@ -54,31 +55,20 @@ typedef int bool_t;
 static int DECODE_SCHEME = CP4;
 static int CP_SCHEME = CP4;
 
-static int f_decode (size_t z, unsigned char *bz, size_t n, unsigned char *bp);
+static int f_decode(size_t z, unsigned char *bz, size_t n, unsigned char *bp);
 
-extern void
-set_decoding_scheme(int x)
-{
-	DECODE_SCHEME = x;
-	CP_SCHEME     = x;
+extern void set_decoding_scheme(int x) {
+  DECODE_SCHEME = x;
+  CP_SCHEME = x;
 }
 
-extern int decoding_scheme(void)
-{
-	return DECODE_SCHEME;
-}
+extern int decoding_scheme(void) { return DECODE_SCHEME; }
 
-extern int
-decode (size_t z, unsigned char *bz, size_t n, unsigned char *bp)
-{
-	return f_decode (z, bz, n, bp);
-}
+extern int decode(size_t z, unsigned char *bz, size_t n, unsigned char *bp) { return f_decode(z, bz, n, bp); }
 
 /*======================== WRAPPERS ========================*/
 
-static int
-f_decode (size_t z, unsigned char *bz, size_t n, unsigned char *bp)
-{
+static int f_decode(size_t z, unsigned char *bz, size_t n, unsigned char *bp) {
 /* 	bp buffer provided
 |	bz buffer "zipped", compressed
 |	n  len of buffer provided
@@ -86,58 +76,52 @@ f_decode (size_t z, unsigned char *bz, size_t n, unsigned char *bp)
 \*---------------------------------------------------------------*/
 
 /*
-	unsigned char *ib = intermediate_block;
-	unsigned int m;
-	return	huff_decode (bz, z, ib, &m, MAXBLOCK) && rle_decode (ib, m, bp, &n, MAXBLOCK);
+        unsigned char *ib = intermediate_block;
+        unsigned int m;
+        return	huff_decode (bz, z, ib, &m, MAXBLOCK) && rle_decode (ib, m, bp, &n, MAXBLOCK);
 */
 #if defined(HUFFMAN)
-	if        (CP_SCHEME == CP1) {
+  if (CP_SCHEME == CP1) {
+    /* HUFFMAN */
+    return huff_decode(bz, z, bp, &n, MAXBLOCK);
 
-		/* HUFFMAN */
-		return huff_decode (bz, z, bp, &n, MAXBLOCK);
-
-	} else
+  } else
 #endif
 #if defined(LIBLZF)
-	if (CP_SCHEME == CP2) {
+      if (CP_SCHEME == CP2) {
 
-		/* LZF */
-		return lzf_decode  (bz, z, bp, &n, MAXBLOCK);
+    /* LZF */
+    return lzf_decode(bz, z, bp, &n, MAXBLOCK);
 
-	} else
+  } else
 #endif
-#if defined (ZLIB)
-    if (CP_SCHEME == CP3) {
+#if defined(ZLIB)
+      if (CP_SCHEME == CP3) {
 
-		/* ZLIB */
-		return zlib_decode (bz, z, bp, &n, MAXBLOCK);
+    /* ZLIB */
+    return zlib_decode(bz, z, bp, &n, MAXBLOCK);
 
-	} else
+  } else
 #endif
-    if (CP_SCHEME == CP4) {
+      if (CP_SCHEME == CP4) {
 
-		/* LZMA86 */
-		return lzma_decode (bz, z, bp, &n, n); /* maximum needs to be the exact number that it will produce */
+    /* LZMA86 */
+    return lzma_decode(bz, z, bp, &n, n); /* maximum needs to be the exact number that it will produce */
 
-	} else if (CP_SCHEME == CP7) {
+  } else if (CP_SCHEME == CP7) {
+    /* RLE */
+    return rle_decode(bz, z, bp, &n, MAXBLOCK);
 
-		/* RLE */
-		return rle_decode (bz, z, bp, &n, MAXBLOCK);
+#if defined(LIBBZIP2)
+  } else if (CP_SCHEME == CP8) {
+    /* BZIP2 */
+    return bzip2_decode(bz, z, bp, &n, MAXBLOCK);
+#endif
 
-	#if defined (LIBBZIP2)
-	} else if (CP_SCHEME == CP8) {
+  } else if (CP_SCHEME == CP9) {
+    return justcopy_decode(bz, z, bp, &n, MAXBLOCK);
 
-		/* BZIP2 */
-		return bzip2_decode (bz, z, bp, &n, MAXBLOCK);
-	#endif
-
-	} else if (CP_SCHEME == CP9) {
-
-		return justcopy_decode (bz, z, bp, &n, MAXBLOCK);
-
-	} else {
-
-		return FALSE;
-	}
+  } else {
+    return FALSE;
+  }
 }
-

@@ -18,26 +18,26 @@
 
 #pragma once
 
-#include "IterativeDeeping.h"
 #include <cstring>
+
+#include "IterativeDeeping.h"
 #include "namespaces/String.h"
 
 class Uci : public Singleton<Uci> {
-    friend class Singleton<Uci>;
+  friend class Singleton<Uci>;
 
-private:
-    Uci();
+ private:
+  Uci();
 
-    Hash &hash = Hash::getInstance();
+  Hash &hash = Hash::getInstance();
 
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
-    bool uciMode;
+  bool uciMode;
 
-    void listner(IterativeDeeping *it);
+  void listner(IterativeDeeping *it);
 
-    void getToken(istringstream &uip, string &token) const;
+  void getToken(istringstream &uip, string &token) const;
 
-    void startListner();
-
+  void startListner();
 };

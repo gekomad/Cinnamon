@@ -18,38 +18,39 @@
 
 #if defined(FULL_TEST)
 
-#include <gtest/gtest.h>
 #include "../namespaces/String.h"
 
+#include <gtest/gtest.h>
+
 TEST(StringTest, trim) {
-    string s(" hello ");
-    auto ff = String::trim(s);
-    ASSERT_EQ("hello", String::trim(s));
+  string s(" hello ");
+  auto ff = String::trim(s);
+  ASSERT_EQ("hello", String::trim(s));
 }
 
 TEST(StringTest, trimLeft) {
-    string s(" hello ");
-    ASSERT_EQ("hello ", String::trimLeft(s));
+  string s(" hello ");
+  ASSERT_EQ("hello ", String::trimLeft(s));
 }
 
 TEST(StringTest, trimRight) {
-    string s(" hello ");
-    ASSERT_EQ(" hello", String::trimRight(s));
+  string s(" hello ");
+  ASSERT_EQ(" hello", String::trimRight(s));
 }
 
 TEST(StringTest, replace) {
-    string s(" hello ");
-    ASSERT_EQ(" hexxo ", String::replace(s, "l", "x"));
+  string s(" hello ");
+  ASSERT_EQ(" hexxo ", String::replace(s, "l", "x"));
 }
 
 TEST(StringTest, replaceChar) {
-    string s(" hello ");
-    ASSERT_EQ(" hexxo ", String::replace(s, 'l', 'x'));
+  string s(" hello ");
+  ASSERT_EQ(" hexxo ", String::replace(s, 'l', 'x'));
 }
 
 TEST(StringTest, toLower) {
-    string s("HELLO");
-    ASSERT_EQ("hello", String::toLower(s));
+  string s("HELLO");
+  ASSERT_EQ("hello", String::toLower(s));
 }
 
 #endif

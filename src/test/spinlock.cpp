@@ -18,114 +18,108 @@
 
 #if defined(FULL_TEST)
 
-#include <gtest/gtest.h>
-#include <thread>
-#include "../util/Random.h"
 #include "../threadPool/Spinlock.h"
+
+#include <gtest/gtest.h>
+
+#include <thread>
+
+#include "../util/Random.h"
 
 using namespace std;
 
 tuple<u64, u64, u64, u64> target{0, 0, 0, 0};
 
 void writeNOatomic() {
+  for (int i = 0; i < 100; i++) {
+    u64 r = Random::getRandom64();
 
-    for (int i = 0; i < 100; i++) {
-
-        u64 r = Random::getRandom64();
-
-        usleep(Random::getRandom(1000, 200000));
-        get<0>(target) = r;
-        usleep(Random::getRandom(1000, 200000));
-        get<1>(target) = r;
-        usleep(Random::getRandom(1000, 200000));
-        get<2>(target) = r;
-        usleep(Random::getRandom(1000, 200000));
-        get<3>(target) = r;
-
-    }
+    usleep(Random::getRandom(1000, 200000));
+    get<0>(target) = r;
+    usleep(Random::getRandom(1000, 200000));
+    get<1>(target) = r;
+    usleep(Random::getRandom(1000, 200000));
+    get<2>(target) = r;
+    usleep(Random::getRandom(1000, 200000));
+    get<3>(target) = r;
+  }
 }
 
 void writeAtomic(Spinlock *spinlock) {
+  for (int i = 0; i < 100; i++) {
+    spinlock->lock();
 
-    for (int i = 0; i < 100; i++) {
-        spinlock->lock();
+    u64 r = Random::getRandom64();
 
-        u64 r = Random::getRandom64();
+    usleep(Random::getRandom(100, 100000));
+    get<0>(target) = r;
+    usleep(Random::getRandom(100, 100000));
+    get<1>(target) = r;
+    usleep(Random::getRandom(100, 100000));
+    get<2>(target) = r;
+    usleep(Random::getRandom(100, 100000));
+    get<3>(target) = r;
 
-        usleep(Random::getRandom(100, 100000));
-        get<0>(target) = r;
-        usleep(Random::getRandom(100, 100000));
-        get<1>(target) = r;
-        usleep(Random::getRandom(100, 100000));
-        get<2>(target) = r;
-        usleep(Random::getRandom(100, 100000));
-        get<3>(target) = r;
-
-        spinlock->unlock();
-    }
+    spinlock->unlock();
+  }
 }
 
 void readOK(Spinlock *spinlock) {
+  for (int i = 0; i < 100; i++) {
+    spinlock->lock();
 
-    for (int i = 0; i < 100; i++) {
-        spinlock->lock();
-
-        usleep(Random::getRandom(100, 100000));
-
-        EXPECT_TRUE(get<0>(target) == get<1>(target));
-        EXPECT_TRUE(get<0>(target) == get<2>(target));
-        EXPECT_TRUE(get<0>(target) == get<3>(target));
-
-        spinlock->unlock();
-    }
-}
-
-TEST(spinlockTest_test1_Test, testOK) {
-
-    Spinlock *spinlock = new Spinlock();
-
-    vector<thread > threads;
-
-    int N = 2;
-    for (int i = 0; i < N; i++) {
-        threads.push_back(thread([=]() {
-            writeAtomic(spinlock);
-            return 1;
-        }));
-        threads.push_back(thread([=]() {
-            readOK(spinlock);
-            return 1;
-        }));
-    }
-
-
-    for (vector<thread>::iterator it = threads.begin() ; it != threads.end(); ++it){
-            (*it).join();
-    }
+    usleep(Random::getRandom(100, 100000));
 
     EXPECT_TRUE(get<0>(target) == get<1>(target));
     EXPECT_TRUE(get<0>(target) == get<2>(target));
     EXPECT_TRUE(get<0>(target) == get<3>(target));
 
-    delete spinlock;
+    spinlock->unlock();
+  }
 }
 
+TEST(spinlockTest_test1_Test, testOK) {
+  Spinlock *spinlock = new Spinlock();
+
+  vector<thread> threads;
+
+  int N = 2;
+  for (int i = 0; i < N; i++) {
+    threads.push_back(thread([=]() {
+      writeAtomic(spinlock);
+      return 1;
+    }));
+    threads.push_back(thread([=]() {
+      readOK(spinlock);
+      return 1;
+    }));
+  }
+
+  for (vector<thread>::iterator it = threads.begin(); it != threads.end(); ++it) {
+    (*it).join();
+  }
+
+  EXPECT_TRUE(get<0>(target) == get<1>(target));
+  EXPECT_TRUE(get<0>(target) == get<2>(target));
+  EXPECT_TRUE(get<0>(target) == get<3>(target));
+
+  delete spinlock;
+}
 
 TEST(spinlockTest_test1_Test, testKO) {
-    vector<thread> threads;
-    int N = 4;
-    for (int i = 0; i < N; i++) {
-        threads.push_back(thread([=]() {
-            writeNOatomic();
-            return 1;
-        }));
-    }
-    for (vector<thread>::iterator it = threads.begin() ; it != threads.end(); ++it){
-        (*it).join();
-    }
+  vector<thread> threads;
+  int N = 4;
+  for (int i = 0; i < N; i++) {
+    threads.push_back(thread([=]() {
+      writeNOatomic();
+      return 1;
+    }));
+  }
+  for (vector<thread>::iterator it = threads.begin(); it != threads.end(); ++it) {
+    (*it).join();
+  }
 
-    EXPECT_TRUE(get<0>(target) != get<1>(target) ||  get<0>(target) == get<2>(target)||  get<0>(target) == get<3>(target));
+  EXPECT_TRUE(get<0>(target) != get<1>(target) || get<0>(target) == get<2>(target) || get<0>(target) == get<3>(target));
 }
 
 #endif
-

@@ -39,7 +39,7 @@ else
 	STRIP=strip.exe
 endif
 
-CFLAGS=" -std=c++11 -Wall -fno-stack-protector -fno-rtti -fno-exceptions -fomit-frame-pointer -O3 -Wpedantic -W -DNDEBUG -fsigned-char -funroll-loops "
+CFLAGS=" -std=c++11 -Wall -fexpensive-optimizations -flto=auto -fwhole-program -fno-plt -U_FORTIFY_SOURCE -fno-stack-protector -fno-rtti -fno-exceptions -fomit-frame-pointer -O3 -Wpedantic -W -DNDEBUG -fsigned-char -funroll-loops "
 
 help:
 

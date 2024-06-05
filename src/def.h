@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 static constexpr int MAX_PLY = 96;
@@ -26,13 +25,12 @@ typedef long long unsigned u64;
 typedef u64 _Tchessboard[13];
 
 typedef struct {
-    uchar promotionPiece;
-    uchar pieceFrom;
-    uchar capturedPiece;
-    uchar from;
-    uchar to;
-    uchar side;
-    uchar type;
-    uchar _align_;
+  uchar promotionPiece;
+  uchar pieceFrom;
+  uchar capturedPiece;
+  uchar from;
+  uchar to;
+  uchar side;
+  uchar type;
+  uchar _align_;
 } _Tmove;
-

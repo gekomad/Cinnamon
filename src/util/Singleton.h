@@ -20,15 +20,11 @@
 
 using namespace std;
 
-template<typename T>
+template <typename T>
 class Singleton {
-public:
-
-    static T &getInstance() {
-
-        static T i;
-        return i;
-    }
-
+ public:
+  static T &getInstance() {
+    static T i;
+    return i;
+  }
 };
-

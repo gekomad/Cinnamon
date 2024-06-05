@@ -18,35 +18,36 @@
 #if defined(FULL_TEST)
 #pragma once
 
-#include <random>
-#include <ctime>
-#include <chrono>
 #include <limits.h>
 
+#include <chrono>
+#include <ctime>
+#include <random>
+
 class Random {
+ public:
+  static unsigned long long getRandom64() {
+    unsigned sign = Random::getRandom(0, 1);
+    unsigned long long a = Random::getRandom(0, INT_MAX) | sign << 31;
+    sign = Random::getRandom(0, 1);
+    unsigned b = Random::getRandom(0, INT_MAX) | sign << 31;
+    a <<= 32;
+    a |= b;
+    return a;
+  }
 
-public:
-    static unsigned long long getRandom64() {
-        unsigned sign = Random::getRandom(0, 1);
-        unsigned long long a = Random::getRandom(0, INT_MAX) | sign << 31;
-        sign = Random::getRandom(0, 1);
-        unsigned b = Random::getRandom(0, INT_MAX) | sign << 31;
-        a <<= 32;
-        a |= b;
-        return a;
-    }
-
-    static int getRandom(const int from, const int to) {
+  static int getRandom(const int from, const int to) {
 #if _WIN32 || _WIN64
-        std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch());
-        std::mt19937 mt(static_cast<unsigned int>(ns.count()));
+    std::chrono::nanoseconds ns =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch());
+    std::mt19937 mt(static_cast<unsigned int>(ns.count()));
 #else
-        std::random_device rd;
-        std::mt19937 mt(rd());
+    std::random_device rd;
+    std::mt19937 mt(rd());
 #endif
-        std::uniform_int_distribution<> dist(from, to);
-        return dist(mt);
-    }
+    std::uniform_int_distribution<> dist(from, to);
+    return dist(mt);
+  }
 };
 
 #endif

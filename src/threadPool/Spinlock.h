@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 // A shared Spinlock implementation
 
 #pragma once
@@ -35,54 +34,45 @@ using namespace std;
 #endif
 
 class Spinlock {
-private:
-    std::atomic_flag flag = ATOMIC_FLAG_INIT;
-    volatile long _write = 0;
-    volatile atomic_int _read = { 0 };
+ private:
+  std::atomic_flag flag = ATOMIC_FLAG_INIT;
+  volatile long _write = 0;
+  volatile atomic_int _read = {0};
 
-    void _lock() {
-        while (true) {
-            if (!LOCK_TEST_AND_SET(_write))
-                return;
-            while (_write);
-        }
+  void _lock() {
+    while (true) {
+      if (!LOCK_TEST_AND_SET(_write)) return;
+      while (_write);
     }
+  }
 
-public:
-    Spinlock() { }
+ public:
+  Spinlock() {}
 
-    inline void lock() {
-        while (flag.test_and_set(std::memory_order_acquire));
+  inline void lock() { while (flag.test_and_set(std::memory_order_acquire)); }
+
+  inline void unlock() { flag.clear(std::memory_order_release); }
+
+  inline void lockWrite() {
+    bool w = false;
+    while (true) {
+      if (!w && !LOCK_TEST_AND_SET(_write)) {
+        w = true;
+      }
+      if (w && !_read) {
+        return;
+      }
+      while ((!w && _write) || _read);
     }
+  }
 
-    inline void unlock() {
-        flag.clear(std::memory_order_release);
-    }
+  inline void unlockWrite() { LOCK_RELEASE(_write); }
 
-    inline void lockWrite() {
-        bool w = false;
-        while (true) {
-            if (!w && !LOCK_TEST_AND_SET(_write)) {
-                w = true;
-            }
-            if (w && !_read) {
-                return;
-            }
-            while ((!w && _write) || _read);
-        }
-    }
+  inline void lockRead() {
+    lockWrite();
+    _read++;
+    unlockWrite();
+  }
 
-    inline void unlockWrite() {
-        LOCK_RELEASE(_write);
-    }
-
-    inline void lockRead() {
-        lockWrite();
-        _read++;
-        unlockWrite();
-    }
-
-    inline void unlockRead() {
-        _read--;
-    }
+  inline void unlockRead() { _read--; }
 };

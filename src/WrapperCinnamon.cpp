@@ -20,17 +20,16 @@
 #include "WrapperCinnamon.h"
 
 vector<string> WrapperCinnamon::getSuccessorsFen(const string &fen, const int depth) {
-    PerftThread a;
-    return a.getSuccessorsFen(fen, depth);
+  PerftThread a;
+  return a.getSuccessorsFen(fen, depth);
 }
 
 unsigned WrapperCinnamon::perft(const string &fen, const int depth) {
-    PerftThread a;
-    return a.perft(fen, depth);
+  PerftThread a;
+  return a.perft(fen, depth);
 }
 
 bool WrapperCinnamon::isValid(const string &fen) const {
-    ChessBoard a;
-    return a.loadFen(fen) != -1;
+  ChessBoard a;
+  return a.loadFen(fen) != -1;
 }
-
