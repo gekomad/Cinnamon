@@ -74,7 +74,7 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "id name " << NAME << endl;
             cout << "id author Giuseppe Cannella" << endl;
             cout << "option name Hash type spin default 64 min 1 max "
-                 << (0xffffffff / (1024 * 1024 / (sizeof(Hash::_Thash) * 2))) << endl;
+                    << (0xffffffff / (1024 * 1024 / (sizeof(Hash::_Thash) * 2))) << endl;
             cout << "option name Clear Hash type button" << endl;
             cout << "option name Nullmove type check default true" << endl;
             cout << "option name Ponder type check default " << _BOOLEAN[it->getPonderEnabled()] << "" << endl;
@@ -83,7 +83,7 @@ void Uci::listner(IterativeDeeping *it) {
             cout << "option name GaviotaTbPath type string default <empty>" << endl;
             cout << "option name GaviotaTbCache type spin default 32 min 1 max 1024" << endl;
             cout << "option name GaviotaTbScheme type combo default cp4 var none var cp1 var cp2 var cp3 var cp4" <<
-                 endl;
+                    endl;
 
             cout << "option name TB Pieces installed type combo default 3 var none var 3 var 4 var 5" << endl;
             cout << "option name TB Restart type button" << endl;
@@ -92,8 +92,10 @@ void Uci::listner(IterativeDeeping *it) {
         } else if (String::toLower(token) == "score" || String::toLower(token) == "eval") {
             uchar side = searchManager.getSide();
             int t = searchManager.getScore(side);
+            float tnn = searchManager.getScoreNN(side);
             if (!searchManager.getSide()) t = -t;
-            cout << "\nTotal (white)..........   " << (float) t / 100.0 << endl;
+            cout << endl << "Total    (white)..........   " << (float) t / 100.0 << endl;
+            cout << "Total NN (white)..........   " << (float) tnn << endl;
             knowCommand = true;
         } else if (String::toLower(token) == "perft") {
             cout << "Can't run perft here, view \"cinnamon.exe -help\"" << endl;
@@ -251,7 +253,6 @@ void Uci::listner(IterativeDeeping *it) {
                 }
                 searchManager.updateFenString();
             }
-
         } else if (String::toLower(token) == "go") {
             it->setMaxDepth(MAX_PLY);
             searchManager.unsetSearchMoves();

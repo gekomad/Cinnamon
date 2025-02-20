@@ -39,7 +39,7 @@ else
 	STRIP=strip.exe
 endif
 
-CFLAGS=" -std=c++11 -Wall -fno-stack-protector -fno-rtti -fno-exceptions -fomit-frame-pointer -O3 -Wpedantic -W -DNDEBUG -fsigned-char -funroll-loops "
+CFLAGS=" -std=c++11 -Wall -fno-stack-protector -fno-rtti -lm -fno-exceptions -fomit-frame-pointer -O3 -Wpedantic -W -DNDEBUG -fsigned-char -funroll-loops "
 
 help:
 
@@ -64,7 +64,6 @@ help:
 	@echo ""
 
 build:
-
 ifeq ($(FULL_TEST),yes)
 	$(MAKE) -j EXE=$(EXE) LIBS="$(LIBS) /usr/lib/libgtest.a " CFLAGS=$(CFLAGS)-DFULL_TEST all
 	$(PA)$(EXE)
@@ -108,11 +107,13 @@ cinnamon64-modern-INTEL:
 cinnamon64-BMI2:
 	$(MAKE) ARC="$(ARC) -mbmi2 -DUSE_BMI2 " cinnamon64-modern-INTEL
 
-all: main.o ChessBoard.o board.o Eval.o test.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o GTB.o SYZYGY.o tbprobe.o Lzma86Dec.o LzFind.o Lzma86Enc.o Alloc.o LzmaDec.o Bra86.o LzmaEnc.o wrap.o gtb-dec.o gtb-att.o sysport.o gtb-probe.o
-	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o ChessBoard.o board.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o GTB.o SYZYGY.o tbprobe.o Lzma86Dec.o LzFind.o Lzma86Enc.o Alloc.o LzmaDec.o Bra86.o LzmaEnc.o wrap.o gtb-dec.o gtb-att.o sysport.o gtb-probe.o ${LIBS}
+all: main.o NN.o ChessBoard.o board.o Eval.o test.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o GTB.o SYZYGY.o tbprobe.o Lzma86Dec.o LzFind.o Lzma86Enc.o Alloc.o LzmaDec.o Bra86.o LzmaEnc.o wrap.o gtb-dec.o gtb-att.o sysport.o gtb-probe.o
+	$(COMP) $(ARC) ${CFLAGS} -o ${EXE} main.o test.o NN.o ChessBoard.o board.o GenMoves.o WrapperCinnamon.o Bitboard.o Timer.o Eval.o IterativeDeeping.o Perft.o PerftThread.o Search.o SearchManager.o Hash.o Uci.o GTB.o SYZYGY.o tbprobe.o Lzma86Dec.o LzFind.o Lzma86Enc.o Alloc.o LzmaDec.o Bra86.o LzmaEnc.o wrap.o gtb-dec.o gtb-att.o sysport.o gtb-probe.o ${LIBS}
 
 default:
 	help
+NN.o: NN.cpp
+	$(COMP) -c NN.cpp ${CFLAGS} ${ARC}
 
 ChessBoard.o: ChessBoard.cpp
 	$(COMP) -c ChessBoard.cpp ${CFLAGS} ${ARC}

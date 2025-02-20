@@ -33,9 +33,7 @@ typedef struct {
 } _TpvLine;
 
 class Search : public GenMoves, public Thread<Search> {
-
 public:
-
     static constexpr int NULL_DIVISOR = 7;
     static constexpr int NULL_DEPTH = 3;
     static constexpr int VAL_WINDOW = 50;
@@ -44,8 +42,12 @@ public:
 #endif
     Search();
 
-    short getScore(const uchar side) {
-        return eval.getScore(chessboard, 0, side, -_INFINITE, _INFINITE DEBUG2(, true));
+    float getScoreNN(const uchar side) const {
+        return nn.nn_forward(this->boardToInput(), side);
+    }
+
+    short getScore(const uchar side, const float scoreNN) {
+        return eval.getScore(chessboard, 0, side, -_INFINITE, _INFINITE, scoreNN DEBUG2(, true));
     }
 
     Search(const Search *s) { clone(s); }
@@ -64,7 +66,7 @@ public:
 
 #ifdef TUNING
 
-    int getParameter(const string &param,const int phase);
+    int getParameter(const string &param, const int phase);
 
     void setParameter(const string &param, const int value, const int phase);
 
@@ -72,8 +74,9 @@ public:
         ASSERT_RANGE(depth, 0, MAX_PLY)
         auto ep = enPassant;
 
-        const auto result= sideToMove ? qsearch<WHITE>(alpha, beta, ep, depth)
-                                      : qsearch<BLACK>(alpha, beta, ep, depth);
+        const auto result = sideToMove
+                                ? qsearch<WHITE>(alpha, beta, ep, depth)
+                                : qsearch<BLACK>(alpha, beta, ep, depth);
         return sideToMove ? result : -result;
     }
 
@@ -93,7 +96,8 @@ public:
 
     void run();
 
-    void endRun() {}
+    void endRun() {
+    }
 
     void setMainPly(const int, const int);
 
@@ -126,6 +130,7 @@ public:
     void setSearchMoves(const vector<int> &v);
 
 private:
+    NN nn;
     Eval eval;
     Hash &hash = Hash::getInstance();
 
@@ -140,7 +145,7 @@ private:
     Times *times = &Times::getInstance();
 #endif
 
-    template<uchar side,bool searchMoves>
+    template<uchar side, bool searchMoves>
     void aspirationWindow(const int depth, const int valWindow);
 
     int checkTime() const;
