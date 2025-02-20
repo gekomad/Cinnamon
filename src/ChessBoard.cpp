@@ -18,9 +18,12 @@
 
 #include "ChessBoard.h"
 
+#include "NN.h"
+
 ChessBoard::ChessBoard() {
     Bitboard();
     fenString = string(STARTPOS);
+
     if ((sideToMove = loadFen(fenString)) == 2) {
         fatal("Bad FEN position format ", fenString)
         std::exit(1);
@@ -28,7 +31,6 @@ ChessBoard::ChessBoard() {
 }
 
 ChessBoard::~ChessBoard() {
-
 }
 
 void ChessBoard::makeZobristKey() {
@@ -43,15 +45,14 @@ void ChessBoard::makeZobristKey() {
 
     for (u64 x2 = rightCastle; x2; RESET_LSB(x2)) {
         const int position = BITScanForward(x2);
-        updateZobristKey(RIGHT_CASTLE_RAND, position);//12
+        updateZobristKey(RIGHT_CASTLE_RAND, position); //12
     }
 
     if (enPassant != NO_ENPASSANT) {
-        updateZobristKey(ENPASSANT_RAND, enPassant);//13
+        updateZobristKey(ENPASSANT_RAND, enPassant); //13
     }
     static constexpr uchar SIDETOMOVE_RAND = 14;
     updateZobristKey(SIDETOMOVE_RAND, sideToMove);
-
 }
 
 const string ChessBoard::getFen() const {
@@ -126,6 +127,39 @@ string ChessBoard::boardToFen() const {
     return fen;
 }
 
+float *ChessBoard::boardToInput() const {
+    const auto input = static_cast<float *>(calloc(INPUT_SIZE, sizeof(float)));
+    int sq = BITScanForward(chessboard[KING_WHITE]);
+    input[KING_WHITE * 64 + sq] = 1.0f;
+    sq = BITScanForward(chessboard[KING_BLACK]);
+    input[KING_BLACK * 64 + sq] = 1.0f;
+    for (int side = 0; side < 2; side++) {
+        for (u64 rook = chessboard[ROOK_BLACK + side]; rook; RESET_LSB(rook)) {
+            const int o = BITScanForward(rook);
+            input[(ROOK_BLACK + side) * 64 + o] = 1.0f;
+        }
+        for (u64 rook = chessboard[QUEEN_BLACK + side]; rook; RESET_LSB(rook)) {
+            const int o = BITScanForward(rook);
+            input[(QUEEN_BLACK + side) * 64 + o] = 1.0f;
+        }
+        for (u64 rook = chessboard[KNIGHT_BLACK + side]; rook; RESET_LSB(rook)) {
+            const int o = BITScanForward(rook);
+            input[(KNIGHT_BLACK + side) * 64 + o] = 1.0f;
+        }
+        for (u64 rook = chessboard[PAWN_BLACK + side]; rook; RESET_LSB(rook)) {
+            const int o = BITScanForward(rook);
+            input[(PAWN_BLACK + side) * 64 + o] = 1.0f;
+        }
+        for (u64 rook = chessboard[BISHOP_BLACK + side]; rook; RESET_LSB(rook)) {
+            const int o = BITScanForward(rook);
+            input[(BISHOP_BLACK + side) * 64 + o] = 1.0f;
+        }
+        input[CASTLE_IDX] = static_cast<float>(rightCastle);
+        input[ENPASSANT_IDX] = static_cast<float>(enPassant);
+    }
+    return input;
+}
+
 void ChessBoard::display() const {
     cout << endl << "     a   b   c   d   e   f   g   h";
     for (int t = 0; t <= 63; t++) {
@@ -134,9 +168,12 @@ void ChessBoard::display() const {
             cout << endl << "   ----+---+---+---+---+---+---+----" << endl;
             cout << " " << 8 - RANK_AT[t] << " | ";
         }
-        x = (x = (x = FEN_PIECE[board::getPieceAt<WHITE>(POW2(63 - t), chessboard)]) != '-' ? x
-                                                                                            : FEN_PIECE[board::getPieceAt<BLACK>(
-                        POW2(63 - t), chessboard)]) == '-' ? ' ' : x;
+        x = (x = (x = FEN_PIECE[board::getPieceAt<WHITE>(POW2(63 - t), chessboard)]) != '-'
+                     ? x
+                     : FEN_PIECE[board::getPieceAt<BLACK>(
+                         POW2(63 - t), chessboard)]) == '-'
+                ? ' '
+                : x;
         x != ' ' ? cout << x : POW2(t) & WHITE_SQUARES ? cout << " " : cout << ".";
         cout << " | ";
     }
@@ -152,8 +189,12 @@ void ChessBoard::display() const {
     cout << endl;
 
     cout << "ep:\t\t\t"
-         << (enPassant == NO_ENPASSANT ? "" : (sideToMove ? BOARD[enPassant + 8] : BOARD[enPassant -
-                                                                                         8])) << endl;
+            << (enPassant == NO_ENPASSANT
+                    ? ""
+                    : (sideToMove
+                           ? BOARD[enPassant + 8]
+                           : BOARD[enPassant -
+                                   8])) << endl;
     cout << "Chess960:\t" << (chess960 ? "true" : "false") << endl;
     DEBUG(cout << "zobristKey:\t0x" << hex << chessboard[ZOBRISTKEY_IDX] << "ull" << dec << endl)
     cout << endl;
@@ -188,11 +229,12 @@ ChessBoard::decodeBoardinv(const _Tmove *move, const bool verbose) {
     const int to = move->to;
     const int promotionPiece = move->promotionPiece;
     ASSERT(!(type & 0xC));
-    assert (to >= 0 && to < 64);
+    assert(to >= 0 && to < 64);
     string cap = "";
     string res = "";
     if (verbose) {
-        if (move->capturedPiece != SQUARE_EMPTY) cap = "*"; else cap = "-";
+        if (move->capturedPiece != SQUARE_EMPTY) cap = "*";
+        else cap = "-";
     }
     res = BOARD[from] + cap + BOARD[to];
     if (promotionPiece != NO_PROMOTION) {
@@ -336,7 +378,6 @@ int ChessBoard::loadFen(const string &fen) {
                         break;
                     }
                 } else {
-
                     if (board::getFile(c) < bKing) {
                         blackRookKingSide(c);
                         break;
@@ -345,7 +386,6 @@ int ChessBoard::loadFen(const string &fen) {
                         break;
                     }
                 }
-
         }
     }
     enPassant = NO_ENPASSANT;

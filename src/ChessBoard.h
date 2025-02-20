@@ -24,9 +24,9 @@
 #include "namespaces/String.h"
 #include "namespaces/bits.h"
 #include <unordered_map>
+
 #include "namespaces/random.h"
 #include "namespaces/board.h"
-#include <climits>
 #include "util/logger.h"
 #include "util/Bitboard.h"
 
@@ -53,6 +53,7 @@ public:
     int loadFen(const string &);
 
     void clearChessboard();
+
     void updateFenString();
 
     void setSide(const bool b) {
@@ -77,9 +78,10 @@ public:
     void print(const _Tmove *move);
 
     _Tchessboard chessboard;
+
+    float *boardToInput() const;
+
 protected:
-
-
     uchar startPosWhiteKing;
     uchar startPosWhiteRookKingSide;
     uchar startPosWhiteRookQueenSide;
@@ -102,7 +104,6 @@ protected:
 
 
 #ifdef DEBUG_MODE
-
     void updateZobristKey(int piece, int position) {
         ASSERT_RANGE(position, 0, 63)
         ASSERT_RANGE(piece, 0, 15)
@@ -113,6 +114,7 @@ protected:
 #define updateZobristKey(piece, position) (chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position])
 
 #endif
+
 private:
     string fenString;
     char whiteRookKingSideCastle;

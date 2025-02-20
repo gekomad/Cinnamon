@@ -32,9 +32,15 @@ public:
         return stat(filename.c_str(), &info) == 0;
     }
 
-    static int fileSize(const string &filename) {
+    static size_t fileSize(const string &filename) {
         std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
         return in.tellg();
+    }
+
+    static void rename(const string &old, const string &new_) {
+        if (std::rename(old.c_str(), new_.c_str())) {
+            std::cerr << "Error renaming file " << old << " to " << new_ << "\n";
+        }
     }
 
     static string getFileName(const string &path) {
@@ -45,5 +51,24 @@ public:
         while (getline(iss, token, '/'));
         return token;
     }
-};
 
+    static int countLines(const string &filename) {
+        FILE *file = fopen(filename.c_str(), "r");
+        if (!file) {
+            perror("Errore apertura file");
+            return -1;
+        }
+
+        int lines = 0;
+        int ch;
+
+        while ((ch = fgetc(file)) != EOF) {
+            if (ch == '\n') {
+                lines++;
+            }
+        }
+
+        fclose(file);
+        return lines;
+    }
+};

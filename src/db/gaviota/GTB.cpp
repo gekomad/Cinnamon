@@ -18,6 +18,8 @@
 
 #include "GTB.h"
 
+#include <climits>
+
 GTB::GTB() {
     load();
 }

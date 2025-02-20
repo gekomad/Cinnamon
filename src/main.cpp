@@ -18,13 +18,13 @@
 
 #include "Uci.h"
 #include "GetOpt.h"
+#include "NN.h"
 
 #if defined(FULL_TEST)
 
 #include <gtest/gtest.h>
 
 #endif
-
 /*
 
  8| 63 62 61 60 59 58 57 56

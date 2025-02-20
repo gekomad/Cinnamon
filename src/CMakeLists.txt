@@ -105,7 +105,9 @@ set(SOURCE_FILES
         Uci.cpp
         Uci.h
         unistd.h
-        db/TB.h)
+        db/TB.h
+        NN.cpp
+        util/util.h)
 
 set(CMAKE_CXX_COMPILER "g++")
 add_executable(cinnamon_debug ${SOURCE_FILES})

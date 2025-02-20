@@ -102,6 +102,7 @@ public:
 
     static int getSide();
 
+    static float getScoreNN(const uchar side);
     static int getScore(const uchar side);
 
     static int getMaxTimeMillsec();
