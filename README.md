@@ -32,6 +32,7 @@ Other links
 - [Cinnamon on DGT Pi](https://www.digitalgametechnology.com/index.php/products/revelation-ii/533-dgt-pi-chess-computer-for-dgt-e-boards)
 - [Janggi Master (korean chess)](https://play.google.com/store/apps/details?id=com.github.gekomad.rangy_app)
 - [Xiangqi Master (chinese chess)](https://play.google.com/store/apps/details?id=com.github.gekomad.rangyxx_app)
+- [Rangy Master](https://gekomad.github.io/rangy_master/index.html)
 
 Features
 ----------
