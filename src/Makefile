@@ -38,8 +38,12 @@ else
 	EXE="cinnamon.exe"
 	STRIP=strip.exe
 endif
-
-CFLAGS=" -std=c++11 -Wall -fexpensive-optimizations -flto=auto -fwhole-program -fno-plt -U_FORTIFY_SOURCE -fno-stack-protector -fno-rtti -fno-exceptions -fomit-frame-pointer -O3 -Wpedantic -W -DNDEBUG -fsigned-char -funroll-loops "
+ifeq ($(shell $(COMP) -v 2>&1 | grep -c "g++"), 1)
+    SPECIFIC_FLAGS += -Wno-class-memaccess -Wno-stringop-overflow -fwhole-program -fexpensive-optimizations
+else
+	SPECIFIC_FLAGS += -Wno-deprecated -Wno-deprecated-declarations
+endif
+CFLAGS=" -std=c++11 -Wall $(SPECIFIC_FLAGS) -flto=auto -fno-plt -U_FORTIFY_SOURCE -fno-stack-protector -fno-rtti -fno-exceptions -fomit-frame-pointer -O3 -Wpedantic -W -DNDEBUG -fsigned-char -funroll-loops "
 
 help:
 

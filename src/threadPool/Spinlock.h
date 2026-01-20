@@ -49,11 +49,11 @@ class Spinlock {
  public:
   Spinlock() {}
 
-  inline void lock() { while (flag.test_and_set(std::memory_order_acquire)); }
+  void lock() { while (flag.test_and_set(std::memory_order_acquire)); }
 
-  inline void unlock() { flag.clear(std::memory_order_release); }
+  void unlock() { flag.clear(std::memory_order_release); }
 
-  inline void lockWrite() {
+  void lockWrite() {
     bool w = false;
     while (true) {
       if (!w && !LOCK_TEST_AND_SET(_write)) {
@@ -66,13 +66,13 @@ class Spinlock {
     }
   }
 
-  inline void unlockWrite() { LOCK_RELEASE(_write); }
+  void unlockWrite() { LOCK_RELEASE(_write); }
 
-  inline void lockRead() {
+  void lockRead() {
     lockWrite();
-    _read++;
+    ++_read;
     unlockWrite();
   }
 
-  inline void unlockRead() { _read--; }
+  void unlockRead() { --_read; }
 };

@@ -90,7 +90,7 @@ void Uci::listner(unique_ptr<IterativeDeeping> it) {
       uchar side = searchManager->getSide();
       int t = searchManager->getScore(side);
       if (!searchManager->getSide()) t = -t;
-      cout << "\nTotal (white)..........   " << (float)t / 100.0 << endl;
+      cout << "\nTotal (white)..........   " << static_cast<float>(t) / 100.0 << endl;
       knowCommand = true;
     } else if (String::toLower(token) == "perft") {
       cout << "Can't run perft here, view \"cinnamon.exe -help\"" << endl;

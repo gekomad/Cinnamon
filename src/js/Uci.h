@@ -19,32 +19,32 @@
 #pragma once
 
 #include <string.h>
-
 #include "../IterativeDeeping.h"
-#include "unistd.h"
 
 class Uci {
  public:
-  Uci() { iterativeDeeping = new IterativeDeeping(); }
+  Uci() {
+    iterativeDeeping = new IterativeDeeping(hash, searchManager);
+  }
 
   virtual ~Uci() { delete iterativeDeeping; }
 
-  char *command(char *cmd, char *arg) {
+  char *command(const char *cmd, const char *arg) {
     string a = "";
     if (strcmp(cmd, "go") == 0) {
       a = iterativeDeeping->go();
     } else if (strcmp(cmd, "setMaxTimeMillsec") == 0) {
-      searchManager.setMaxTimeMillsec(atoi(arg));
+      searchManager->setMaxTimeMillsec(atoi(arg));
     } else if (strcmp(cmd, "position") == 0) {
-      searchManager.setRepetitionMapCount(0);
-      searchManager.init();
-      searchManager.setSide(iterativeDeeping->loadFen(arg));
+      searchManager->setRepetitionMapCount(0);
+      searchManager->init();
+      searchManager->setSide(iterativeDeeping->loadFen(arg));
     }
-    return (char *)a.c_str();
+    return const_cast<char *>(a.c_str());
   }
 
- private:
-  IterativeDeeping *iterativeDeeping;
-  bool uciMode;
-  SearchManager searchManager;
+ private: 
+  shared_ptr<Hash> hash = std::make_shared<Hash>();
+  shared_ptr<SearchManager> searchManager = std::make_shared<SearchManager>(hash);
+  IterativeDeeping * iterativeDeeping = new IterativeDeeping(hash, searchManager);
 };

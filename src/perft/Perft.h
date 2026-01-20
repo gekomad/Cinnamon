@@ -31,11 +31,11 @@
 class Perft : public Thread<Perft>, protected ThreadPool<PerftThread> {
  public:
   static _ThashPerft **hash;
-  Perft() : ThreadPool(1) {}
-  void setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1,
-                const bool chess960);
+  static Perft *instance;
+  Perft() : ThreadPool(1) { instance = this; }
+  void setParam(const string &fen1, int depth1, int nCpu2, int mbSize1, const string &dumpFile1, bool chess960);
 
-  ~Perft();
+  ~Perft() override;
 
   void dump();
 
@@ -63,13 +63,13 @@ class Perft : public Thread<Perft>, protected ThreadPool<PerftThread> {
 
   constexpr static int minutesToDump = Time::HOUR_IN_MINUTES * 10;
 
-  static void ctrlChandler(int s) {
+  static void ctrlChandler(const int s) {
     if (dumping) {
       cout << "dumping hash... " << endl << flush;
       return;
     }
     if (s < 0) cout << s;
-    // Perft::getInstance().dump(); TODO
+    instance->dump();
     cout << "exit" << endl << endl;
     exit(0);
   }

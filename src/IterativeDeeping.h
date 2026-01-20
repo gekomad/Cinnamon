@@ -39,9 +39,9 @@ class IterativeDeeping : public Thread<IterativeDeeping> {
 
   bool getPonderEnabled() const;
 
-  void enablePonder(const bool);
+  void enablePonder(bool);
 
-  void setMaxDepth(const int);
+  void setMaxDepth(int);
 
   int loadFen(const string &fen = "");
 

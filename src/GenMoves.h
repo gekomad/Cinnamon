@@ -32,13 +32,13 @@ class GenMoves : public ChessBoard {
 
   GenMoves();
 
-  virtual ~GenMoves();
+  ~GenMoves() override;
 
-  void setPerft(const bool b);
+  void setPerft(bool b);
 
-  bool generateCaptures(const uchar side, const u64, const u64);
+  bool generateCaptures(uchar side, u64, u64);
 
-  void generateMoves(const uchar side, const u64);
+  void generateMoves(uchar side, u64);
 
   template <uchar side>
   __attribute__((always_inline)) void generateMoves(const u64 allpieces) {
@@ -59,14 +59,12 @@ class GenMoves : public ChessBoard {
 
   static void verifyPV(const string fen, string pv) {
     cout << flush;
-    std::string delimiter = " ";
+    const std::string delimiter = " ";
     size_t pos;
-    std::string token;
     GenMoves g;
     g.loadFen(fen);
     while ((pos = pv.find(delimiter)) != std::string::npos) {
-      token = pv.substr(0, pos);
-      // std::cout << token << std::endl;
+      std::string token = pv.substr(0, pos);
       _Tmove move;
       const int x = g.getMoveFromSan(token, &move);
       if (x == INT_MAX) {
@@ -96,7 +94,7 @@ class GenMoves : public ChessBoard {
     const u64 allpieces = enemies | friends;
 
     if (perftMode) {
-      int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
+      const int kingPosition = BITScanForward(chessboard[KING_BLACK + side]);
       pinned = board::getPinned<side>(allpieces, friends, kingPosition, chessboard);
       isInCheck = board::isAttacked<side>(kingPosition, allpieces, chessboard);
     }
@@ -344,9 +342,9 @@ class GenMoves : public ChessBoard {
 
   void pushStackMove() { pushStackMove(chessboard[ZOBRISTKEY_IDX]); }
 
-  void resetList() { genList[listId].size = 0; }
+  void resetList() const { genList[listId].size = 0; }
 
-  bool generatePuzzle(const string type);
+  bool generatePuzzle(const string &type);
 
   __attribute__((always_inline)) void incHistoryHeuristic(const int from, const int to, const int value) {
     if (!getRunning()) return;
@@ -389,9 +387,9 @@ class GenMoves : public ChessBoard {
   u64 numMoves = 0;
   u64 numMovesq = 0;
 
-  _Tmove *getNextMoveQ(_TmoveP *list, const int first);
+  static _Tmove *getNextMoveQ(_TmoveP *list, const int first);
 
-  _Tmove *getNextMove(_TmoveP *list, const int depth, const u64 &, const int first);
+  _Tmove *getNextMove(_TmoveP *list, const int depth, const u64 &, const int first) const;
 
   template <uchar side>
   __attribute__((always_inline)) int getMobilityCastle(const u64 allpieces) const {
@@ -413,7 +411,7 @@ class GenMoves : public ChessBoard {
 
 #ifdef DEBUG_MODE
 
-  bool verifyMove(const _Tmove *move);
+  bool verifyMove(const _Tmove *move) const;
 
   template <uchar side, uchar type>
   bool __attribute__((always_inline)) inCheckSlow(const int from, const int to, const uchar pieceFrom,
@@ -421,11 +419,11 @@ class GenMoves : public ChessBoard {
     bool result;
     switch (type & 0x3) {
       case STANDARD_MOVE_MASK: {
-        u64 from1, to1 = -1;
+        u64 to1 = -1;
         ASSERT(pieceFrom != SQUARE_EMPTY);
         ASSERT(pieceTo != KING_BLACK);
         ASSERT(pieceTo != KING_WHITE);
-        from1 = chessboard[pieceFrom];
+        const u64 from1 = chessboard[pieceFrom];
         if (pieceTo != SQUARE_EMPTY) {
           to1 = chessboard[pieceTo];
           chessboard[pieceTo] &= NOTPOW2(to);
@@ -449,8 +447,8 @@ class GenMoves : public ChessBoard {
         if (pieceTo != SQUARE_EMPTY) {
           to1 = chessboard[pieceTo];
         }
-        u64 from1 = chessboard[pieceFrom];
-        u64 p1 = chessboard[promotionPiece];
+        const u64 from1 = chessboard[pieceFrom];
+        const u64 p1 = chessboard[promotionPiece];
         chessboard[pieceFrom] &= NOTPOW2(from);
         if (pieceTo != SQUARE_EMPTY) {
           chessboard[pieceTo] &= NOTPOW2(to);
@@ -467,8 +465,8 @@ class GenMoves : public ChessBoard {
         break;
       }
       case ENPASSANT_MOVE_MASK: {
-        u64 to1 = chessboard[X(side)];
-        u64 from1 = chessboard[side];
+        const u64 to1 = chessboard[X(side)];
+        const u64 from1 = chessboard[side];
         chessboard[side] &= NOTPOW2(from);
         chessboard[side] |= POW2(to);
         if (side) {
@@ -520,14 +518,14 @@ class GenMoves : public ChessBoard {
       }
     }
 
-    bool result = 0;
+    bool result = false;
     switch (type & 0x3) {
       case STANDARD_MOVE_MASK: {
-        u64 from1, to1 = -1;
+        u64 to1 = -1;
         ASSERT(pieceFrom != SQUARE_EMPTY);
         ASSERT(pieceTo != KING_BLACK);
         ASSERT(pieceTo != KING_WHITE);
-        from1 = chessboard[pieceFrom];
+        const u64 from1 = chessboard[pieceFrom];
         if (pieceTo != SQUARE_EMPTY) {
           to1 = chessboard[pieceTo];
           chessboard[pieceTo] &= NOTPOW2(to);
@@ -551,8 +549,8 @@ class GenMoves : public ChessBoard {
         if (pieceTo != SQUARE_EMPTY) {
           to1 = chessboard[pieceTo];
         }
-        u64 from1 = chessboard[pieceFrom];
-        u64 p1 = chessboard[promotionPiece];
+        const u64 from1 = chessboard[pieceFrom];
+        const u64 p1 = chessboard[promotionPiece];
         chessboard[pieceFrom] &= NOTPOW2(from);
         if (pieceTo != SQUARE_EMPTY) {
           chessboard[pieceTo] &= NOTPOW2(to);
@@ -569,8 +567,8 @@ class GenMoves : public ChessBoard {
         break;
       }
       case ENPASSANT_MOVE_MASK: {
-        u64 to1 = chessboard[X(side)];
-        u64 from1 = chessboard[side];
+        const u64 to1 = chessboard[X(side)];
+        const u64 from1 = chessboard[side];
         chessboard[side] &= NOTPOW2(from);
         chessboard[side] |= POW2(to);
         if (side) {
@@ -593,9 +591,9 @@ class GenMoves : public ChessBoard {
     return result;
   }
 
-  void performCastle(const uchar side, const uchar type);
+  void performCastle(uchar side, uchar type);
 
-  void unPerformCastle(const uchar side, const uchar type);
+  void unPerformCastle(uchar side, uchar type);
 
   template <uchar side>
   __attribute__((always_inline)) void tryAllCastle(const u64 allpieces) {
@@ -624,7 +622,7 @@ class GenMoves : public ChessBoard {
   }
 
   __attribute__((always_inline)) bool allowQueenSideBlack(const u64 allpieces) const {
-    auto a = board::isCastleRight_BlackQueen(rightCastle) &&
+    const auto a = board::isCastleRight_BlackQueen(rightCastle) &&
              board::isPieceAt(KING_BLACK, startPosBlackKing, chessboard) &&
              board::isPieceAt(ROOK_BLACK, startPosBlackRookQueenSide, chessboard) &&
              (!board::isOccupied(C8, allpieces) || startPosBlackKing == C8 || startPosBlackRookQueenSide == C8) &&
@@ -639,13 +637,13 @@ class GenMoves : public ChessBoard {
             !board::anyAttack<BLACK>(kingPath, allpieces & NOTPOW2(startPosBlackRookQueenSide), chessboard));
   }
 
-  bool allowCastleBlackQueen(const u64 allpieces) const;
+  bool allowCastleBlackQueen(u64 allpieces) const;
 
-  bool allowCastleWhiteQueen(const u64 allpieces) const;
+  bool allowCastleWhiteQueen(u64 allpieces) const;
 
-  bool allowCastleBlackKing(const u64 allpieces) const;
+  bool allowCastleBlackKing(u64 allpieces) const;
 
-  bool allowCastleWhiteKing(const u64 allpieces) const;
+  bool allowCastleWhiteKing(u64 allpieces) const;
 
   bool allowQueenSideWhite(const u64 allpieces) const {
     const auto a = board::isCastleRight_WhiteQueen(rightCastle) &&
@@ -745,10 +743,10 @@ class GenMoves : public ChessBoard {
     move->side = side;
     move->capturedPiece = capturedPiece;
     if (type & 0x3) {
-      move->from = (uchar)from;
-      move->to = (uchar)to;
+      move->from = static_cast<uchar>(from);
+      move->to = static_cast<uchar>(to);
       move->pieceFrom = pieceFrom;
-      move->promotionPiece = (char)promotionPiece;
+      move->promotionPiece = static_cast<char>(promotionPiece);
     }
     ASSERT(getListSize() < MAX_MOVE);
     return res;
@@ -778,7 +776,7 @@ class GenMoves : public ChessBoard {
     killer[0][depth] = from | (to << 8);
   }
 
-  bool isKiller(const int idx, const int from, const int to, const int depth) {
+  bool isKiller(const int idx, const int from, const int to, const int depth) const {
     ASSERT_RANGE(from, 0, 63)
     ASSERT_RANGE(to, 0, 63)
     ASSERT_RANGE(depth, 0, MAX_PLY - 1)
@@ -797,9 +795,9 @@ class GenMoves : public ChessBoard {
   bool isInCheck;
   static constexpr u64 TABJUMPPAWN = 0xFF00000000FF00ULL;
 
-  void writeRandomFen(const vector<int>);
+  void writeRandomFen(const vector<int> &);
 
-  _Tmove *swap(_TmoveP *list, const int i, const int j) {
+  static _Tmove *swap(_TmoveP *list, const int i, const int j) {
     std::swap(list->moveList[i], list->moveList[j]);
     return &list->moveList[i];
   }

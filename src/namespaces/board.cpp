@@ -73,7 +73,7 @@ bool board::checkInsufficientMaterial(const int nPieces, const _Tchessboard &che
 
 u64 board::getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces) {
   ASSERT_RANGE(position, 0, 63)
-  u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
+  const u64 nuovo = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
   return (nuovo & enemies) | (nuovo & ~allpieces);
 }
 

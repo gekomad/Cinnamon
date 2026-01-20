@@ -19,12 +19,8 @@
 #pragma once
 
 #include <array>
-#include <cmath>
-
 #include "../def.h"
 #include "../util/FileUtil.h"
-#include "../util/bench/Bench.h"
-#include "../util/bench/Time.h"
 #include "constants.h"
 
 #ifdef _MSC_VER

@@ -39,7 +39,7 @@ class Times {
 
   Times() {
     for (unsigned i = 0; i < 9999999; i++) calcLatency();
-    auto a = avg("test");
+    const auto a = avg("test");
     latency = a.first;
     dispose();
   }
@@ -92,7 +92,7 @@ class Times {
       if (avg1.first != avg1.second)
         cout << (avg1.second > 1000 ? "\t" : "\t\t") << "without subprocess: " << avg1.first << flush;
       int64_t a = count1 * avg1.second;
-      int64_t aa = a;
+      const int64_t aa = a;
       if (a > (1000 * 1000)) {
         a /= (1000 * 1000);
         m = "M";

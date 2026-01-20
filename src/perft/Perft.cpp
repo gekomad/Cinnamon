@@ -17,9 +17,11 @@
 */
 
 #include "Perft.h"
+#include <cmath>
 
 int Perft::count;
 _ThashPerft **Perft::hash = nullptr;
+Perft *Perft::instance = nullptr;
 bool Perft::dumping;
 
 void Perft::dump() {
@@ -28,7 +30,7 @@ void Perft::dump() {
   dumping = true;
   cout << endl << "Dump hash table in " << dumpFile << " file..." << flush;
   ofstream f;
-  string tmpFile = dumpFile + ".tmp";
+  const string tmpFile = dumpFile + ".tmp";
   f.open(tmpFile, ios_base::out | ios_base::binary);
   if (!f.is_open()) {
     cout << "error create file " << tmpFile << endl;
@@ -95,7 +97,6 @@ bool Perft::load() {
   if (!perftRes.nCpu) {
     perftRes.nCpu = nCpuHash;
   }
-  //    cout << " #cpu: " << perftRes.nCpu << endl;
 
   for (int i = 1; i <= depthHashFile; i++) {
     f.read(reinterpret_cast<char *>(hash[i]), perftRes.sizeAtDepth[i] * sizeof(_ThashPerft));
@@ -119,12 +120,12 @@ void Perft::dealloc() const {
 
 void Perft::alloc() {
   dealloc();
-  hash = (_ThashPerft **)calloc(perftRes.depth + 1, sizeof(_ThashPerft *));
+  hash = static_cast<_ThashPerft **>(calloc(perftRes.depth + 1, sizeof(_ThashPerft *)));
   _ASSERT(hash)
-  const u64 k = 1024 * 1024 * (u64)mbSize / (u64)POW2(perftRes.depth);
+  const u64 k = 1024 * 1024 * static_cast<u64>(mbSize) / (POW2(perftRes.depth));
   for (int i = 1; i <= perftRes.depth; i++) {
     perftRes.sizeAtDepth[i] = k * POW2(i - 1) / sizeof(_ThashPerft);
-    hash[i] = (_ThashPerft *)calloc(perftRes.sizeAtDepth[i], sizeof(_ThashPerft));
+    hash[i] = static_cast<_ThashPerft *>(calloc(perftRes.sizeAtDepth[i], sizeof(_ThashPerft)));
     _ASSERT(hash[i])
 
     DEBUG(cout << "alloc hash[" << i << "] " << perftRes.sizeAtDepth[i] * sizeof(_ThashPerft) << endl)
@@ -133,7 +134,7 @@ void Perft::alloc() {
 
 void Perft::setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1,
                      const bool is960) {
-  memset(static_cast<void *>(&perftRes), 0, sizeof(_TPerftRes));
+  memset(&perftRes, 0, sizeof(_TPerftRes));
   if (depth1 <= 0) depth1 = 1;
   mbSize = mbSize1;
   perftRes.depth = depth1;
@@ -163,13 +164,13 @@ void Perft::run() {
   if (!perftRes.nCpu) {
     perftRes.nCpu = 1;
   }
-  auto *p = new PerftThread();
+  const auto p = unique_ptr<PerftThread>(new PerftThread());
   p->setChess960(chess960);
   if (!fen.empty()) {
     p->loadFen(fen);
   }
   p->setPerft(true);
-  uchar side = p->sideToMove;
+  const uchar side = p->sideToMove;
 
   p->display();
   cout << "fen:\t\t\t" << fen << endl;
@@ -182,7 +183,7 @@ void Perft::run() {
 
   Timer t2(minutesToDump * 60);
   if (hash && !dumpFile.empty()) {
-    // signal(SIGINT, Perft::ctrlChandler); TODO
+    signal(SIGINT, ctrlChandler);
     cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;
     t2.registerObservers([this]() { dump(); });
     t2.start();
@@ -194,19 +195,18 @@ void Perft::run() {
 
   time.resetAndStart();
   p->incListId();
-  u64 friends = side ? board::getBitmap<WHITE>(p->chessboard) : board::getBitmap<BLACK>(p->chessboard);
-  u64 enemies = side ? board::getBitmap<BLACK>(p->chessboard) : board::getBitmap<WHITE>(p->chessboard);
+  const u64 friends = side ? board::getBitmap<WHITE>(p->chessboard) : board::getBitmap<BLACK>(p->chessboard);
+  const u64 enemies = side ? board::getBitmap<BLACK>(p->chessboard) : board::getBitmap<WHITE>(p->chessboard);
   p->generateCaptures(side, enemies, friends);
   p->generateMoves(side, friends | enemies);
-  int listcount = p->getListSize();
+  const int listcount = p->getListSize();
   count = listcount;
-  delete (p);
-  p = nullptr;
+
   ASSERT(perftRes.nCpu > 0);
-  int block = listcount / perftRes.nCpu;
-  int i, s = 0;
+  const int block = listcount / perftRes.nCpu;
+  int s = 0;
   setNthread(perftRes.nCpu);
-  for (i = 0; i < perftRes.nCpu - 1; i++) {
+  for (int i = 0; i < perftRes.nCpu - 1; i++) {
     PerftThread &perftThread = getNextThread();
     perftThread.setParam(fen, s, s + block, &perftRes, chess960);
     s += block;

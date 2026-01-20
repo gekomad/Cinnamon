@@ -17,7 +17,6 @@
 */
 
 #include "PerftThread.h"
-
 #include "Perft.h"
 
 Spinlock PerftThread::spinlockPrint;
@@ -54,21 +53,19 @@ vector<string> PerftThread::getSuccessorsFen(const int depthx) {
 
   vector<string> n_perft;
 
-  int listcount;
-  _Tmove *move;
   incListId();
-  u64 friends = board::getBitmap<side>(chessboard);
-  u64 enemies = board::getBitmap<X(side)>(chessboard);
+  const u64 friends = board::getBitmap<side>(chessboard);
+  const u64 enemies = board::getBitmap<X(side)>(chessboard);
   generateCaptures<side>(enemies, friends);
   generateMoves<side>(friends | enemies);
-  listcount = getListSize();
+  const int listcount = getListSize();
   if (!listcount) {
     decListId();
     vector<string> a;
     return a;
   }
   for (int ii = 0; ii < listcount; ii++) {
-    move = getMove(ii);
+    const _Tmove *move = getMove(ii);
     const u64 keyold = chessboard[ZOBRISTKEY_IDX];
     const uchar oldEnpassant = enPassant;
     makemove(move, false);
@@ -119,9 +116,8 @@ u64 PerftThread::search(const int depthx) {
   generateCaptures<side>(enemies, friends);
   generateMoves<side>(friends | enemies);
   const int listcount = getListSize();
-  _Tmove *move;
   for (int ii = 0; ii < listcount; ii++) {
-    move = getMove(ii);
+    const _Tmove *move = getMove(ii);
     const u64 keyold = chessboard[ZOBRISTKEY_IDX];
     const uchar oldEnpassant = enPassant;
     makemove(move, false);
@@ -136,11 +132,10 @@ u64 PerftThread::search(const int depthx) {
   return nPerft;
 }
 
-void PerftThread::endRun() { tPerftRes->totMoves += tot; }
+void PerftThread::endRun() const { tPerftRes->totMoves += tot; }
 
 void PerftThread::run() {
   init();
-  _Tmove *move;
   incListId();
   resetList();
   const u64 friends = sideToMove ? board::getBitmap<WHITE>(chessboard) : board::getBitmap<BLACK>(chessboard);
@@ -153,10 +148,10 @@ void PerftThread::run() {
   const uchar oldEnpassant = enPassant;
   for (int ii = from; ii <= to - 1; ii++) {
     u64 n_perft;
-    move = getMove(ii);
+    _Tmove *move = getMove(ii);
     makemove(move, false);
-    bool fhash = Perft::hash != nullptr;
-    bool side = X(sideToMove);
+    const bool fhash = Perft::hash != nullptr;
+    const bool side = X(sideToMove);
 
     if (fhash) {
       n_perft = side == WHITE ? search<WHITE, USE_HASH_YES>(tPerftRes->depth - 1)

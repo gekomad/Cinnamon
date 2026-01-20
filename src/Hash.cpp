@@ -28,13 +28,13 @@ Hash::Hash() {
 
 void Hash::clearHash() const {
   if (!HASH_SIZE) return;
-  memset(static_cast<void *>(hashArray), 0, sizeof(_Thash) * (HASH_SIZE + BUCKETS));
+  memset(hashArray, 0, sizeof(_Thash) * (HASH_SIZE + BUCKETS)); 
 }
 
 void Hash::setHashSize(const int mb) {
   if (mb > 0) {
     dispose();
-    u64 tmp = static_cast<u64>(mb) * 1024 * 1024 / (sizeof(_Thash));
+    const u64 tmp = static_cast<u64>(mb) * 1024 * 1024 / sizeof(_Thash);
     hashArray = static_cast<_Thash *>(calloc(tmp, sizeof(_Thash)));
     if (!hashArray) {
       fatal("info string error - no memory") exit(1);

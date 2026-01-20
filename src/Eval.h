@@ -37,11 +37,11 @@ class Eval {
 
   ~Eval();
 
-  short getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, const int alpha,
-                 const int beta DEBUG2(, const bool trace = false));
+  short getScore(const _Tchessboard &chessboard, u64 key, uchar side, int alpha,
+                 int beta DEBUG2(, const bool trace = false));
 
   template <uchar side>
-  int lazyEval(const _Tchessboard &chessboard) const {
+  static int lazyEval(const _Tchessboard &chessboard) {
     return lazyEvalSide<side>(chessboard) - lazyEvalSide<X(side)>(chessboard);
   }
 
@@ -148,11 +148,11 @@ class Eval {
   static constexpr int hashSize = 65536;
   static constexpr u64 keyMask = 0xffffffffffff0000ULL;
   static constexpr u64 valueMask = 0xffffULL;
-  static constexpr short noHashValue = (short)0xffff;
+  static constexpr short noHashValue = static_cast<short>(0xffff);
 
   static u64 *evalHash;
 
-  inline void storeHashValue(const u64 key, const short value);
+  static inline void storeHashValue(const u64 key, const short value);
 
   static inline short getHashValue(const u64 key);
 
@@ -210,20 +210,20 @@ class Eval {
   template <uchar side, _Tphase phase>
   int evaluateBishop(const _Tchessboard &chessboard, const u64);
 
-  template <uchar side, Eval::_Tphase phase>
+  template <uchar side, _Tphase phase>
   int evaluateQueen(const _Tchessboard &chessboard, const u64 enemies);
 
   template <uchar side, _Tphase phase>
   int evaluateKnight(const _Tchessboard &chessboard, const u64);
 
-  template <uchar side, Eval::_Tphase phase>
+  template <uchar side, _Tphase phase>
   int evaluateRook(const _Tchessboard &chessboard, u64 enemies, u64 friends);
 
   template <_Tphase phase>
   int evaluateKing(const _Tchessboard &chessboard, const uchar side, const u64 squares);
 
   template <uchar side>
-  int lazyEvalSide(const _Tchessboard &chessboard) const {
+  static int lazyEvalSide(const _Tchessboard &chessboard) {
     return bitCount(chessboard[PAWN_BLACK + side]) * VALUEPAWN + bitCount(chessboard[ROOK_BLACK + side]) * VALUEROOK +
            bitCount(chessboard[BISHOP_BLACK + side]) * VALUEBISHOP +
            bitCount(chessboard[KNIGHT_BLACK + side]) * VALUEKNIGHT +

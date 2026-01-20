@@ -19,13 +19,10 @@
 #pragma once
 
 #include <limits.h>
-
 #include <cstring>
 #include <iostream>
-
 #include "namespaces/bits.h"
 #include "namespaces/constants.h"
-#include "util/Singleton.h"
 #include "util/logger.h"
 
 using namespace constants;

@@ -48,7 +48,7 @@ void IterativeDeeping::run() {
 #ifndef JS_MODE
   // Tablebase
 
-  string tb = TB::probeRootTB1(searchManager->getSearch());
+  const string tb = TB::probeRootTB1(searchManager->getSearch());
   if (!tb.empty()) {
     debug("info string returned move from TB\n") _Tmove move;
     searchManager->getMoveFromSan(tb, &move);
@@ -60,7 +60,6 @@ void IterativeDeeping::run() {
     return;
   }
 #endif
-  unsigned totMoves;
 
   int iter_depth = 0;
 
@@ -69,7 +68,7 @@ void IterativeDeeping::run() {
   plyFromRoot++;
   searchManager->setForceCheck(false);
 
-  auto start1 = std::chrono::high_resolution_clock::now();
+  const auto start1 = high_resolution_clock::now();
   bool inMate = false;
   int extension = 0;
   string ponderMove;
@@ -81,13 +80,13 @@ void IterativeDeeping::run() {
   DEBUG(u64 totMovesPrec = -1)
 
   while (searchManager->getRunning(0)) {
-    totMoves = 0;
+    unsigned totMoves = 0;
     ++iter_depth;
     searchManager->init();
 
     auto sc = searchManager->search(plyFromRoot, iter_depth);
 
-    searchManager->setRunningThread(1);
+    searchManager->setRunningThread(true);
     searchManager->setRunning(1);
     if (!searchManager->getRes(resultMove, ponderMove, pvv)) {
       debug("IterativeDeeping cmove == 0. Exit") break;
@@ -95,7 +94,7 @@ void IterativeDeeping::run() {
 
     searchManager->incHistoryHeuristic(resultMove.from, resultMove.to, 0x1000);
 
-    auto end1 = std::chrono::high_resolution_clock::now();
+    const auto end1 = high_resolution_clock::now();
     timeTaken = Time::diffTime(end1, start1) + 1;
     totMoves += searchManager->getTotMoves();
 
@@ -130,7 +129,7 @@ void IterativeDeeping::run() {
 
     if (totMovesPrec != 0xffffffffffffffffULL)
       cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2)
-           << ((double)totMoves / (double)totMovesPrec) << endl;
+           << (static_cast<double>(totMoves) / static_cast<double>(totMovesPrec)) << endl;
     totMovesPrec = totMoves;
     cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds)" << endl;
     cout << "info string alphaBeta cut: " << nCutAB << endl;
@@ -175,7 +174,7 @@ void IterativeDeeping::run() {
         cout << "info depth " << iter_depth - extension << " score cp " << sc;
 
       cout << " time " << timeTaken << " nodes " << totMoves;
-      if (timeTaken) cout << " nps " << (int)((double)totMoves / (double)timeTaken * 1000.0);
+      if (timeTaken) cout << " nps " << static_cast<int>(static_cast<double>(totMoves) / static_cast<double>(timeTaken) * 1000.0);
       cout << " pv " << pvv << endl;
       DEBUG(GenMoves::verifyPV(searchManager->getSearch().getFen(), pvv))
     }

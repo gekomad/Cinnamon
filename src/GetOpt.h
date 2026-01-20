@@ -77,7 +77,7 @@ class GetOpt {
   }
 
   static void help(char **argv) {
-    string exe = FileUtil::getFileName(argv[0]);
+    const string exe = FileUtil::getFileName(argv[0]);
     cout << "Perft test:            " << exe << " " << PERFT_HELP << endl;
     cout << "DTM (gtb):             " << exe << " " << DTM_GTB_HELP << endl;
     cout << "WDL (gtb):             " << exe << " " << WDL_GTB_HELP << endl;
@@ -86,7 +86,7 @@ class GetOpt {
     cout << "Generate puzzle epd:   " << exe << " " << PUZZLE_HELP << endl;
   }
 
-  static void perft(int argc, char **argv) {
+  static void perft(const int argc, char **argv) {
     if (string(optarg) != "erft") {
       help(argv);
       return;
@@ -131,7 +131,7 @@ class GetOpt {
       help(argv);
       return;
     }
-    unique_ptr<Perft> perft = unique_ptr<Perft>(new Perft());
+    const auto perft = unique_ptr<Perft>(new Perft());
     perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, chess960);
     perft->start();
     perft->join();
@@ -139,7 +139,7 @@ class GetOpt {
 
 #ifndef JS_MODE
 
-  static void dtmWdlGtb(int argc, char **argv, const bool dtm) {
+  static void dtmWdlGtb(const int argc, char **argv, const bool dtm) {
     const auto hash = std::make_shared<Hash>();
     const auto searchManager = std::make_shared<SearchManager>(SearchManager(hash));
 
@@ -175,7 +175,7 @@ class GetOpt {
     searchManager->printDtmGtb(dtm);
   }
 
-  static void createSyzygy(int argc, char **argv) {
+  static void createSyzygy(const int argc, char **argv) {
     const auto hash = std::make_shared<Hash>();
     const auto searchManager = std::make_shared<SearchManager>(hash);
     IterativeDeeping it(hash, searchManager);
@@ -186,27 +186,27 @@ class GetOpt {
         string fen = optarg;
         searchManager->loadFen(fen);
       } else if (opt == 'p') {  // path
-        string token = optarg;
+        const string token = optarg;
         SYZYGY::getInstance().createSYZYGY(token);
       }
     }
   }
 
-  static void wdlSyzygy(int argc, char **argv) {
+  static void wdlSyzygy(const int argc, char **argv) {
     createSyzygy(argc, argv);
-    SearchManager searchManager(std::make_shared<Hash>());
+    const SearchManager searchManager(std::make_shared<Hash>());
     searchManager.printWdlSyzygy();
   }
 
-  static void dtmSyzygy(int argc, char **argv) {
+  static void dtmSyzygy(const int argc, char **argv) {
     createSyzygy(argc, argv);
-    SearchManager searchManager(std::make_shared<Hash>());
+    const SearchManager searchManager(std::make_shared<Hash>());
     searchManager.printDtmSyzygy();
   }
 
 #endif
  public:
-  static void parse(int argc, char **argv) {
+  static void parse(const int argc, char **argv) {
 #ifdef NDEBUG
     ASSERT(0);
 #endif
@@ -262,11 +262,13 @@ class GetOpt {
             return;
           }
           return;
-        } else if (opt == 'w') {
+        }
+        if (opt == 'w') {
           if (string(optarg) == "dl-gtb") {
             dtmWdlGtb(argc, argv, false);
             return;
-          } else if (string(optarg) == "dl-syzygy") {
+          }
+          if (string(optarg) == "dl-syzygy") {
             wdlSyzygy(argc, argv);
             return;
           }

@@ -83,14 +83,14 @@ class See {
     if (RANK_FILE_DIAG_ANTIDIAG[position] &
         (chessboard[BISHOP_BLACK + xside] | chessboard[ROOK_BLACK + xside] | chessboard[QUEEN_BLACK + xside])) {
       /// bishop
-      auto diagAnt = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
+      const auto diagAnt = Bitboard::getDiagonalAntiDiagonal(position, allpieces);
       u64 b = diagAnt & chessboard[BISHOP_BLACK + xside];
       for (; b; RESET_LSB(b)) {
         attackersValue[count++] = (VALUEBISHOP);
       }
 
       /// rook
-      auto rankFile = Bitboard::getRankFile(position, allpieces);
+      const auto rankFile = Bitboard::getRankFile(position, allpieces);
       b = rankFile & chessboard[ROOK_BLACK + xside];
       for (; b; RESET_LSB(b)) {
         attackersValue[count++] = (VALUEROOK);

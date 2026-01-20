@@ -25,21 +25,21 @@
 
 class Timer : public Thread<Timer> {
  public:
-  Timer(const int seconds1);
+  Timer(int seconds1);
 
-  void endRun();
+  static void endRun();
 
   void run();
 
-  void registerObservers(const function<void(void)>& f);
+  void registerObservers(const function<void()>& f);
 
-  void notifyObservers(void);
+  void notifyObservers();
 
-  virtual ~Timer();
+  ~Timer() override;
 
  private:
   int seconds;
   condition_variable cv;
   mutex mtx;
-  vector<function<void(void)>> observers;
+  vector<function<void()>> observers;
 };

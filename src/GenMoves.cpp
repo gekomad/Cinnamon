@@ -18,15 +18,15 @@
 
 #include "GenMoves.h"
 
-GenMoves::GenMoves() : perftMode(false), listId(-1) {
+GenMoves::GenMoves() : listId(-1) {
   currentPly = 0;
-  genList = (_TmoveP *)calloc(MAX_PLY, sizeof(_TmoveP));
+  genList = static_cast<_TmoveP *>(calloc(MAX_PLY, sizeof(_TmoveP)));
   _ASSERT(genList)
   for (int i = 0; i < MAX_PLY; i++) {
-    genList[i].moveList = (_Tmove *)calloc(MAX_MOVE, sizeof(_Tmove));
+    genList[i].moveList = static_cast<_Tmove *>(calloc(MAX_MOVE, sizeof(_Tmove)));
     _ASSERT(genList[i].moveList)
   }
-  repetitionMap = (u64 *)malloc(sizeof(u64) * MAX_REP_COUNT);
+  repetitionMap = static_cast<u64 *>(malloc(sizeof(u64) * MAX_REP_COUNT));
   _ASSERT(repetitionMap)
   repetitionMapCount = 0;
   init();
@@ -72,7 +72,7 @@ _Tmove *GenMoves::getNextMoveQ(_TmoveP *list, const int first) {
   return swap(list, first, bestId);
 }
 
-_Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, const int first) {
+_Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, const int first) const {
   BENCH_AUTO_CLOSE("getNextMove")
   int bestId = -1;
   int bestScore = -1;
@@ -281,7 +281,7 @@ void GenMoves::takeback(const _Tmove *move, const u64 oldkey, const uchar oldEnp
       }
     }
   } else if ((move->type & 0x3) == PROMOTION_MOVE_MASK) {
-    ASSERT(move->to >= 0 && move->side >= 0 && move->promotionPiece >= 0);
+
     chessboard[move->side] |= POW2(move->from);
     chessboard[move->promotionPiece] &= NOTPOW2(move->to);
     if (move->capturedPiece != SQUARE_EMPTY) chessboard[move->capturedPiece] |= POW2(move->to);
@@ -306,7 +306,6 @@ bool GenMoves::makemove(const _Tmove *move, const bool rep) {
     if ((move->type & 0x3) == PROMOTION_MOVE_MASK) {
       chessboard[move->pieceFrom] &= NOTPOW2(move->from);
       updateZobristKey(move->pieceFrom, move->from);
-      ASSERT(move->promotionPiece >= 0);
       chessboard[move->promotionPiece] |= POW2(move->to);
       updateZobristKey(move->promotionPiece, move->to);
     } else {
@@ -363,13 +362,13 @@ bool GenMoves::makemove(const _Tmove *move, const bool rep) {
     }
     switch (move->pieceFrom) {
       case PAWN_WHITE:
-        if ((RANK_2 & POW2(move->from)) && (RANK_3 & POW2(move->to))) {
+        if ((RANK_2 & POW2(move->from)) && RANK_3 & POW2(move->to)) {
           enPassant = move->to;
           updateZobristKey(ENPASSANT_RAND, enPassant);
         }
         break;
       case PAWN_BLACK:
-        if ((RANK_7 & POW2(move->from)) && (RANK_5 & POW2(move->to))) {
+        if (RANK_7 & POW2(move->from) && RANK_5 & POW2(move->to)) {
           enPassant = move->to;
           updateZobristKey(ENPASSANT_RAND, enPassant);
         }
@@ -487,7 +486,7 @@ int GenMoves::getMoveFromSan(const string &fenStr, _Tmove *move) {
     if (move->side == WHITE) {
       move->promotionPiece = INV_FEN[toupper(fenStr.at(4))];
     } else {
-      move->promotionPiece = INV_FEN[(uchar)fenStr.at(4)];
+      move->promotionPiece = INV_FEN[static_cast<uchar>(fenStr.at(4))];
     }
     ASSERT(move->promotionPiece != NO_PROMOTION);
   }
@@ -504,8 +503,8 @@ int GenMoves::getMoveFromSan(const string &fenStr, _Tmove *move) {
   return move->side;
 }
 
-void GenMoves::writeRandomFen(const vector<int> pieces) {
-  while (1) {
+void GenMoves::writeRandomFen(const vector<int> &pieces) {
+  while (true) {
     clearChessboard();
     sideToMove = rand() % 2;
     rightCastle = 0;
@@ -517,7 +516,7 @@ void GenMoves::writeRandomFen(const vector<int> pieces) {
       check |= chessboard[pieces[i]];
     }
 
-    if (bitCount(check) == (2 + (int)pieces.size()) && !board::inCheck1<WHITE>(chessboard) &&
+    if (bitCount(check) == (2 + static_cast<int>(pieces.size())) && !board::inCheck1<WHITE>(chessboard) &&
         !board::inCheck1<BLACK>(chessboard) && !(0xff000000000000ffULL & (chessboard[0] | chessboard[1]))) {
       cout << boardToFen() << "\n";
       loadFen(boardToFen());
@@ -526,7 +525,7 @@ void GenMoves::writeRandomFen(const vector<int> pieces) {
   }
 }
 
-bool GenMoves::generatePuzzle(const string type) {
+bool GenMoves::generatePuzzle(const string &type) {
   std::unordered_map<char, int> PIECES;
   PIECES['R'] = ROOK_BLACK;
   PIECES['P'] = PAWN_BLACK;
@@ -534,7 +533,7 @@ bool GenMoves::generatePuzzle(const string type) {
   PIECES['B'] = BISHOP_BLACK;
   PIECES['N'] = KNIGHT_BLACK;
 
-  const int TOT = 5000;
+  constexpr int TOT = 5000;
   vector<int> pieces;
 
   for (unsigned k = 0; k < TOT; k++) {
@@ -562,7 +561,7 @@ bool GenMoves::generatePuzzle(const string type) {
 
 #ifdef DEBUG_MODE
 
-bool GenMoves::verifyMove(const _Tmove *move) {
+bool GenMoves::verifyMove(const _Tmove *move) const {
   const int side = move->side;
   if (!(move->type & 0xc)) {  // no castle
     const bool from = move->pieceFrom == (PAWN_BLACK + side) || move->pieceFrom == (KNIGHT_BLACK + side) ||

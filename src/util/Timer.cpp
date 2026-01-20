@@ -32,7 +32,7 @@ void Timer::run() {
   }
 }
 
-void Timer::registerObservers(const function<void(void)>& f) { observers.push_back(f); }
+void Timer::registerObservers(const function<void()>& f) { observers.push_back(f); }
 
 void Timer::notifyObservers() {
   for (auto& observer : observers) {

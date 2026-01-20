@@ -22,6 +22,7 @@
 #include <sys/types.h>
 
 #include <fstream>
+#include <sstream>
 
 #include "../namespaces/String.h"
 
@@ -41,7 +42,7 @@ class FileUtil {
 
   static string getFileName(const string &path) {
     string pp = path;
-    auto p = String::replace(pp, '\\', '/');
+    const auto p = String::replace(pp, '\\', '/');
     istringstream iss(p);
     string token;
     while (getline(iss, token, '/'));

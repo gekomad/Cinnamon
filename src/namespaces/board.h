@@ -30,15 +30,15 @@ class board {
   board() {}
 
  public:
-  [[gnu::pure]] static u64 colors(const int pos);
+  [[gnu::pure]] static u64 colors(int pos);
 
-  static bool isOccupied(const uchar pos, const u64 allpieces);
+  static bool isOccupied(uchar pos, u64 allpieces);
 
-  [[gnu::pure]] static int getFile(const char cc);
+  [[gnu::pure]] static int getFile(char cc);
 
-  static bool checkInsufficientMaterial(const int nPieces, const _Tchessboard &chessboard);
+  static bool checkInsufficientMaterial(int nPieces, const _Tchessboard &chessboard);
 
-  static u64 performRankFileCaptureAndShift(const int position, const u64 enemies, const u64 allpieces);
+  static u64 performRankFileCaptureAndShift(int position, u64 enemies, u64 allpieces);
 
   template <uchar side>
   static u64 __attribute__((always_inline)) getPinned(const u64 allpieces, const u64 friends, const int kingPosition,
@@ -55,7 +55,7 @@ class board {
       const int pos = BITScanForward(attacked);
       const u64 b = *(s + pos) & allpieces;
 #ifdef DEBUG_MODE
-      u64 x = *(s + pos) & (allpieces & NOTPOW2(kingPosition));
+      const u64 x = *(s + pos) & (allpieces & NOTPOW2(kingPosition));
       ASSERT(b == x);
 #endif
       if (!(b & (b - 1))) {
@@ -65,19 +65,19 @@ class board {
     return result;
   }
 
-  static u64 getDiagShiftAndCapture(const int position, const u64 enemies, const u64 allpieces);
+  static u64 getDiagShiftAndCapture(int position, u64 enemies, u64 allpieces);
 
-  [[gnu::pure]] static bool isCastleRight_WhiteKing(const uchar RIGHT_CASTLE);
+  [[gnu::pure]] static bool isCastleRight_WhiteKing(uchar RIGHT_CASTLE);
 
-  static u64 getMobilityRook(const int position, const u64 enemies, const u64 friends);
+  static u64 getMobilityRook(int position, u64 enemies, u64 friends);
 
-  [[gnu::pure]] static bool isCastleRight_BlackKing(const uchar RIGHT_CASTLE);
+  [[gnu::pure]] static bool isCastleRight_BlackKing(uchar RIGHT_CASTLE);
 
-  [[gnu::pure]] static bool isCastleRight_WhiteQueen(const uchar RIGHT_CASTLE);
+  [[gnu::pure]] static bool isCastleRight_WhiteQueen(uchar RIGHT_CASTLE);
 
-  [[gnu::pure]] static bool isCastleRight_BlackQueen(const uchar RIGHT_CASTLE);
+  [[gnu::pure]] static bool isCastleRight_BlackQueen(uchar RIGHT_CASTLE);
 
-  static bool isPieceAt(const uchar pieces, const uchar pos, const _Tchessboard &chessboard);
+  static bool isPieceAt(uchar pieces, uchar pos, const _Tchessboard &chessboard);
 
   template <uchar side>
   __attribute__((always_inline)) static u64 getBitmap(const _Tchessboard &chessboard) {

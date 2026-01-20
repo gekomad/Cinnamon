@@ -35,6 +35,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+#pragma once
 
 #include <stdio.h>
 #include <string.h>
@@ -52,48 +53,48 @@ char *optarg;   /* argument associated with option */
  * getopt --
  *      Parse argc/argv argument vector.
  */
-int getopt1(int nargc, char *const nargv[], const char *ostr) {
+inline int getopt1(const int nargc, char *const nargv[], const char *ostr) {
   const static string EMSG_str("");
-  static char *place = (char *)EMSG_str.c_str(); /* option letter processing */
+  static auto place = const_cast<char *>(EMSG_str.c_str()); /* option letter processing */
   const char *oli;                               /* option letter list index */
 
   if (optreset || !*place) { /* update scanning pointer */
     optreset = 0;
     if (optind >= nargc || *(place = nargv[optind]) != '-') {
-      place = (char *)EMSG_str.c_str();
-      return (-1);
+      place = const_cast<char *>(EMSG_str.c_str());
+      return -1;
     }
     if (place[1] && *++place == '-') { /* found "--" */
       ++optind;
-      place = (char *)EMSG_str.c_str();
+      place = const_cast<char *>(EMSG_str.c_str());
       return (-1);
     }
   } /* option letter okay? */
-  if ((optopt = (int)*place++) == (int)':' || !(oli = strchr(ostr, optopt))) {
+  if ((optopt = static_cast<int>(*place++)) == (int)':' || !(oli = strchr(ostr, optopt))) {
     /*
      * if the user didn't specify '-' as an option,
      * assume it means -1.
      */
-    if (optopt == (int)'-') return (-1);
+    if (optopt == static_cast<int>('-')) return (-1);
     if (!*place) ++optind;
     if (opterr && *ostr != ':') (void)printf("illegal option -- %c\n", optopt);
     return (BADCH);
   }
   if (*++oli != ':') { /* don't need argument */
-    optarg = (char *)EMSG_str.c_str();
+    optarg = const_cast<char *>(EMSG_str.c_str());
     if (!*place) ++optind;
   } else {      /* need an argument */
     if (*place) /* no white space */
       optarg = place;
     else if (nargc <= ++optind) { /* no arg */
-      place = (char *)EMSG_str.c_str();
+      place = const_cast<char *>(EMSG_str.c_str());
       if (*ostr == ':') return (BADARG);
       if (opterr) (void)printf("option requires an argument -- %c\n", optopt);
       return (BADCH);
     } else /* white space */
       optarg = nargv[optind];
-    place = (char *)EMSG_str.c_str();
+    place = const_cast<char *>(EMSG_str.c_str());
     ++optind;
   }
-  return (optopt); /* dump back option letter */
+  return optopt; /* dump back option letter */
 }

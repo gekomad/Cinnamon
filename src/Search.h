@@ -24,7 +24,6 @@
 #include "Hash.h"
 #include "db/TB.h"
 #include "namespaces/bits.h"
-#include "namespaces/board.h"
 #include "threadPool/Thread.h"
 #include "unistd.h"
 
@@ -41,24 +40,22 @@ class Search : public GenMoves, public Thread<Search> {
 #ifndef JS_MODE
   SYZYGY *syzygy = &SYZYGY::getInstance();
 #endif
-  mutable shared_ptr<Hash> hash;
+  Hash* hash;
   Search();
 
   short getScore(const uchar side) { return eval.getScore(chessboard, 0, side, -_INFINITE, _INFINITE DEBUG2(, true)); }
-
-  // Search(const Search *s) { clone(s); }
 
   void clone(const Search *);
 
   ~Search() override;
 
-  void setRunning(const int) override;
+  void setRunning(int) override;
 
-  void setPonder(const bool);
+  void setPonder(bool);
 
-  void setNullMove(const bool);
+  void setNullMove(bool);
 
-  void setMaxTimeMillsec(const int);
+  void setMaxTimeMillsec(int);
 
 #ifdef TUNING
 
@@ -78,7 +75,7 @@ class Search : public GenMoves, public Thread<Search> {
 
   int getMaxTimeMillsec() const;
 
-  void startClock();
+  static void startClock();
 
   int getRunning() const override;
 
@@ -104,7 +101,7 @@ class Search : public GenMoves, public Thread<Search> {
   static unsigned cumulativeMovesCount;
   unsigned totGen;
 
-  unsigned getLazyEvalCuts() { return eval.lazyEvalCuts; }
+  unsigned getLazyEvalCuts() const { return eval.lazyEvalCuts; }
 
 #endif
 
@@ -135,7 +132,7 @@ class Search : public GenMoves, public Thread<Search> {
   bool nullSearch;
   static high_resolution_clock::time_point startTime;
 
-  bool checkDraw(u64);
+  bool checkDraw(u64) const;
 
   template <uchar side, bool checkMoves>
   int search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE);
@@ -146,11 +143,11 @@ class Search : public GenMoves, public Thread<Search> {
   template <uchar side>
   int qsearch(int alpha, const int beta, const uchar promotionPiece, const int depth);
 
-  void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
+  void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move) const;
 
   int mainDepth;
   int ply;
 
   template <uchar side>
-  bool badCapure(const _Tmove &move, const u64 allpieces);
+  bool badCapure(const _Tmove &move, const u64 allpieces) const;
 };

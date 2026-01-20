@@ -24,6 +24,7 @@
 
 #include "../namespaces/bits.h"
 #include "../namespaces/constants.h"
+#include "bench/Bench.h"
 #include "bench/Times.h"
 #include "logger.h"
 
@@ -87,7 +88,7 @@ class Bitboard {
 
   _Ttmp *tmpStruct;
 
-  vector<u64> getCombination(const vector<u64> elements);
+  static vector<u64> getCombination(const vector<u64> &elements);
 
 #ifdef USE_BMI2
 
@@ -117,36 +118,36 @@ class Bitboard {
   }
 #endif
 
-  void popolateColumn();
+  void popolateColumn() const;
 
-  void popolateDiagonal();
+  void popolateDiagonal() const;
 
-  void popolateAntiDiagonal();
+  void popolateAntiDiagonal() const;
 
-  vector<u64> combinations(const vector<u64> &elems, const int len, vector<int> &pos, const int depth,
+  static vector<u64> combinations(const vector<u64> &elems, const int len, vector<int> &pos, const int depth,
                            const int margin);
 
-  vector<u64> combinations(const vector<u64> &elems, const int len);
+  static vector<u64> combinations(const vector<u64> &elems, const int len);
 
-  u64 performDiagShift(const int position, const u64 allpieces);
+  u64 performDiagShift(const int position, const u64 allpieces) const;
 
-  u64 performDiagCapture(const int position, const u64 allpieces);
+  static u64 performDiagCapture(const int position, const u64 allpieces);
 
-  u64 performAntiDiagCapture(const int position, const u64 allpieces);
+  static u64 performAntiDiagCapture(const int position, const u64 allpieces);
 
-  u64 performAntiDiagShift(const int position, const u64 allpieces);
+  u64 performAntiDiagShift(const int position, const u64 allpieces) const;
 
-  vector<u64> getCombination(u64 elements);
+  static vector<u64> getCombination(u64 elements);
 
-  void popolateRank();
+  void popolateRank() const;
 
-  u64 performRankShift(const int position, const u64 allpieces);
+  u64 performRankShift(const int position, const u64 allpieces) const;
 
   static u64 performColumnCapture(const int position, const u64 allpieces);
 
   static u64 performRankCapture(const int position, const u64 allpieces);
 
-  u64 performColumnShift(const int position, const u64 allpieces);
+  u64 performColumnShift(const int position, const u64 allpieces) const;
 
   static mutex mutexConstructor;
   static bool volatile generated;

@@ -46,7 +46,7 @@ class ChessBoard {
  public:
   ChessBoard();
 
-  string decodeBoardinv(const _Tmove *move, const bool verbose = false);
+  string decodeBoardinv(const _Tmove *move, bool verbose = false) const;
 
   virtual ~ChessBoard();
 
@@ -59,7 +59,7 @@ class ChessBoard {
 
   void setSide(const bool b) { sideToMove = b; }
 
-  void setChess960(bool c) { chess960 = c; }
+  void setChess960(const bool c) { chess960 = c; }
 
   bool isChess960() const { return chess960; }
 
@@ -72,7 +72,7 @@ class ChessBoard {
   uchar enPassant;
   uchar sideToMove;
 
-  void print(const _Tmove *move);
+  void print(const _Tmove *move) const;
 
   _Tchessboard chessboard;
 
@@ -98,7 +98,7 @@ class ChessBoard {
 
 #ifdef DEBUG_MODE
 
-  void updateZobristKey(int piece, int position) {
+  void updateZobristKey(const int piece, const int position) {
     ASSERT_RANGE(position, 0, 63)
     ASSERT_RANGE(piece, 0, 15)
     chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];

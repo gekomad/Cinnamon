@@ -112,7 +112,7 @@ int SearchManager::getPieceAt(const uchar side, const u64 i) const {
 
 u64 SearchManager::getTotMoves() const {
   u64 i = 0;
-  for (Search *s : threadPool->getPool()) {
+  for (const Search *s : threadPool->getPool()) {
     i += s->getTotMoves();
   }
   return i;
@@ -152,11 +152,11 @@ void SearchManager::setRunning(const int i) const {
   }
 }
 
-int SearchManager::getRunning(const int i) { return threadPool->getThread(i).getRunning(); }
+int SearchManager::getRunning(const int i) const { return threadPool->getThread(i).getRunning(); }
 
-void SearchManager::display() { threadPool->getThread(0).display(); }
+void SearchManager::display() const { threadPool->getThread(0).display(); }
 
-void SearchManager::setMaxTimeMillsec(const int i) {
+void SearchManager::setMaxTimeMillsec(const int i) const {
   for (Search *s : threadPool->getPool()) {
     s->setMaxTimeMillsec(i);
   }
@@ -173,7 +173,7 @@ void SearchManager::setSearchMoves(const vector<string> &searchMov) const {
   vector<int> searchMoves;
   for (auto it = searchMov.begin(); it != searchMov.end(); ++it) {
     getMoveFromSan(*it, &move);
-    const int x = move.to | (int)(move.from << 8);
+    const int x = move.to | move.from << 8;
     searchMoves.push_back(x);
   }
   for (Search *s : threadPool->getPool()) {
@@ -189,8 +189,8 @@ void SearchManager::setPonder(const bool i) const {
 
 int SearchManager::getSide() const {
 #ifdef DEBUG_MODE
-  int t = threadPool->getThread(0).sideToMove;
-  for (Search *s : threadPool->getPool()) {
+  const int t = threadPool->getThread(0).sideToMove;
+  for (const Search *s : threadPool->getPool()) {
     ASSERT(s->sideToMove == t);
   }
 #endif
@@ -248,7 +248,7 @@ void SearchManager::printWdlSyzygy() const { TB::printWdlSyzygy(threadPool->getT
 
 int SearchManager::getMoveFromSan(const string &string, _Tmove *ptr) const {
 #ifdef DEBUG_MODE
-  int t = threadPool->getThread(0).getMoveFromSan(string, ptr);
+  const int t = threadPool->getThread(0).getMoveFromSan(string, ptr);
   for (Search *s : threadPool->getPool()) {
     ASSERT(s->getMoveFromSan(string, ptr) == t);
   }
@@ -276,8 +276,8 @@ void SearchManager::setRepetitionMapCount(const int i) const {
 
 bool SearchManager::setNthread(const int nthread) const {
   if (threadPool->setNthread(nthread)) {
-    for (const Search *s : threadPool->getPool()) {
-      s->hash = this->hash;
+    for (Search *s : threadPool->getPool()) {
+      s->hash = this->hash.get();
     }
     return true;
   }

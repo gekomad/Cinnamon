@@ -68,14 +68,14 @@ string ChessBoard::boardToFen() const {
         l++;
       } else {
         if (l > 0) {
-          row.append(1, (char)(l + 48));
+          row.append(1, static_cast<char>(l + 48));
         }
         l = 0;
         row.append(1, FEN_PIECE[q]);
       }
     }
     if (l > 0) {
-      row.append(1, (char)(l + 48));
+      row.append(1, static_cast<char>(l + 48));
     }
     fen.append(row.c_str());
     if (y < 7) {
@@ -158,9 +158,9 @@ void ChessBoard::display() const {
 
 void ChessBoard::updateFenString() { fenString = boardToFen(); }
 
-void ChessBoard::print(const _Tmove *move) { cout << decodeBoardinv(move, false) << " " << flush; }
+void ChessBoard::print(const _Tmove *move) const { cout << decodeBoardinv(move, false) << " " << flush; }
 
-string ChessBoard::decodeBoardinv(const _Tmove *move, const bool verbose) {
+string ChessBoard::decodeBoardinv(const _Tmove *move, const bool verbose) const {
   const uchar type = move->type;
   const int side = move->side;
 

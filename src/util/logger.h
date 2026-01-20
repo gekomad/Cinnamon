@@ -46,7 +46,7 @@ class Logger : public Singleton<Logger>, public ofstream {
 
  public:
   void setLogfile(const string &f, const bool append = false) {
-    this->open(f, append ? std::ofstream::app : std::ofstream::out);
+    this->open(f, append ? app : out);
   }
 
   template <LOG_LEVEL type, typename T, typename... Args>
@@ -76,7 +76,7 @@ class Logger : public Singleton<Logger>, public ofstream {
     __log(args...);
   }
 
-  ~Logger() { this->close(); }
+  ~Logger() override { this->close(); }
 };
 
 static Logger &logger = Logger::getInstance();

@@ -79,11 +79,11 @@ class Thread {
 
   int getId() const { return threadID; }
 
-  void setId(int id) { threadID = id; }
+  void setId(const int id) { threadID = id; }
 
-  void threadSleep(bool b) { running = !b; }
+  void threadSleep(const bool b) { running = !b; }
 
-  bool isJoinable() { return theThread.joinable(); }
+  bool isJoinable() const { return theThread.joinable(); }
 
-  void setSleep(bool b) { running = !b; }
+  void setSleep(const bool b) { running = !b; }
 };

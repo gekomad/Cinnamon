@@ -23,7 +23,7 @@ u64 *Eval::evalHash;
 
 Eval::Eval() {
   memset(&structureEval, 0, sizeof(_Tboard));
-  if (evalHash == nullptr) evalHash = (u64 *)calloc(hashSize, sizeof(u64));
+  if (evalHash == nullptr) evalHash = static_cast<u64 *>(calloc(hashSize, sizeof(u64)));
 }
 
 Eval::~Eval() {
@@ -202,7 +202,8 @@ int Eval::evaluateBishop(const _Tchessboard &chessboard, const u64 enemies) {
 
     const u64 x = Bitboard::getDiagonalAntiDiagonal(o, structureEval.allPieces);
     const u64 captured = x & enemies;
-    ASSERT(bitCount(captured) + bitCount(x & ~structureEval.allPieces) < (int)(sizeof(MOB_BISHOP) / sizeof(int)));
+    ASSERT(bitCount(captured) + bitCount(x & ~structureEval.allPieces) <
+           static_cast<int>(sizeof(MOB_BISHOP) / sizeof(int)));
     if (captured & structureEval.posKingBit[xside]) structureEval.kingAttackers[xside] |= POW2(o);
 
     result += MOB_BISHOP[phase][bitCount(captured) + bitCount(x & ~structureEval.allPieces)];
@@ -222,7 +223,7 @@ int Eval::evaluateBishop(const _Tchessboard &chessboard, const u64 enemies) {
     //        }
 
     // 7. outposts
-    auto p = BISHOP_OUTPOST[side][o];
+    const auto p = BISHOP_OUTPOST[side][o];
 
     // enemy pawn doesn't attack bishop
     if (p && !(PAWN_FORK_MASK[xside][o] & chessboard[xside])) {
@@ -343,14 +344,14 @@ int Eval::evaluateKnight(const _Tchessboard &chessboard, const u64 notMyBits) {
     const int pos = BITScanForward(knight);
 
     // 5. mobility
-    ASSERT(bitCount(notMyBits & KNIGHT_MASK[pos]) < (int)(sizeof(MOB_KNIGHT) / sizeof(int)));
-    u64 mob = notMyBits & KNIGHT_MASK[pos];
+    ASSERT(bitCount(notMyBits & KNIGHT_MASK[pos]) < static_cast<int>(sizeof(MOB_KNIGHT) / sizeof(int)));
+    const u64 mob = notMyBits & KNIGHT_MASK[pos];
     result += MOB_KNIGHT[bitCount(mob)];
     if (mob & structureEval.posKingBit[xside]) structureEval.kingAttackers[xside] |= POW2(pos);
     ADD(SCORE_DEBUG.MOB_KNIGHT[side], MOB_KNIGHT[bitCount(mob)]);
 
     // 6. outposts
-    auto p = KNIGHT_OUTPOST[side][pos];
+    const auto p = KNIGHT_OUTPOST[side][pos];
 
     // enemy pawn doesn't attack knight
     if (p && !(PAWN_FORK_MASK[xside][pos] & chessboard[xside])) {
@@ -429,10 +430,10 @@ int Eval::evaluateRook(const _Tchessboard &chessboard, const u64 enemies, const 
   for (; rook; RESET_LSB(rook)) {
     const int o = BITScanForward(rook);
     // mobility
-    u64 mob = board::getMobilityRook(o, enemies, friends);
+    const u64 mob = board::getMobilityRook(o, enemies, friends);
     if (mob & structureEval.posKingBit[xside]) structureEval.kingAttackers[xside] |= POW2(o);
 
-    ASSERT(bitCount(mob) < (int)(sizeof(MOB_ROOK[phase]) / sizeof(int)));
+    ASSERT(bitCount(mob) < static_cast<int>(sizeof(MOB_ROOK[phase]) / sizeof(int)));
     result += MOB_ROOK[phase][bitCount(mob)];
     ADD(SCORE_DEBUG.MOB_ROOK[side], MOB_ROOK[phase][bitCount(mob)]);
 
@@ -461,7 +462,7 @@ template <Eval::_Tphase phase>
 int Eval::evaluateKing(const _Tchessboard &chessboard, const uchar side, const u64 squares) {
   ASSERT(evaluationCount[side] == 5);
   int result = 0;
-  uchar pos_king = structureEval.posKing[side];
+  const uchar pos_king = structureEval.posKing[side];
   if (phase == END) {
     ADD(SCORE_DEBUG.DISTANCE_KING[side], DISTANCE_KING_ENDING[pos_king]);
     result = DISTANCE_KING_ENDING[pos_king];
@@ -471,7 +472,7 @@ int Eval::evaluateKing(const _Tchessboard &chessboard, const uchar side, const u
   }
 
   // mobility
-  ASSERT(bitCount(squares & NEAR_MASK1[pos_king]) < (int)(sizeof(MOB_KING[phase]) / sizeof(int)));
+  ASSERT(bitCount(squares & NEAR_MASK1[pos_king]) < static_cast<int>(sizeof(MOB_KING[phase]) / sizeof(int)));
   result += MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])];
   ADD(SCORE_DEBUG.MOB_KING[side], MOB_KING[phase][bitCount(squares & NEAR_MASK1[pos_king])]);
 
@@ -491,7 +492,7 @@ void Eval::storeHashValue(const u64 key, const short value) {
 
 short Eval::getHashValue(const u64 key) {
   const u64 kv = evalHash[key % hashSize];
-  if ((kv & keyMask) == (key & keyMask)) return (short)(kv & valueMask);
+  if ((kv & keyMask) == (key & keyMask)) return static_cast<short>(kv & valueMask);
 
   return noHashValue;
 }
@@ -551,8 +552,8 @@ short Eval::getScore(const _Tchessboard &chessboard, const u64 key, const uchar 
   structureEval.allPiecesSide[BLACK] = structureEval.allPiecesNoPawns[BLACK] | chessboard[PAWN_BLACK];
   structureEval.allPiecesSide[WHITE] = structureEval.allPiecesNoPawns[WHITE] | chessboard[PAWN_WHITE];
   structureEval.allPieces = structureEval.allPiecesSide[BLACK] | structureEval.allPiecesSide[WHITE];
-  structureEval.posKing[BLACK] = (uchar)BITScanForward(chessboard[KING_BLACK]);
-  structureEval.posKing[WHITE] = (uchar)BITScanForward(chessboard[KING_WHITE]);
+  structureEval.posKing[BLACK] = static_cast<uchar>(BITScanForward(chessboard[KING_BLACK]));
+  structureEval.posKing[WHITE] = static_cast<uchar>(BITScanForward(chessboard[KING_WHITE]));
   structureEval.posKingBit[BLACK] = POW2(structureEval.posKing[BLACK]);
   structureEval.posKingBit[WHITE] = POW2(structureEval.posKing[WHITE]);
   structureEval.kingAttackers[WHITE] = structureEval.kingAttackers[BLACK] = 0;
@@ -606,130 +607,160 @@ short Eval::getScore(const _Tchessboard &chessboard, const u64 key, const uchar 
     }
 
     cout << "|VALUES:";
-    cout << "\tPAWN: " << (double)constants::VALUEPAWN / 100.0;
-    cout << " ROOK: " << (double)constants::VALUEROOK / 100.0;
-    cout << " BISHOP: " << (double)constants::VALUEBISHOP / 100.0;
-    cout << " KNIGHT: " << (double)constants::VALUEKNIGHT / 100.0;
-    cout << " QUEEN: " << (double)constants::VALUEQUEEN / 100.0 << "\n\n";
+    cout << "\tPAWN: " << static_cast<double>(VALUEPAWN) / 100.0;
+    cout << " ROOK: " << static_cast<double>(VALUEROOK) / 100.0;
+    cout << " BISHOP: " << static_cast<double>(VALUEBISHOP) / 100.0;
+    cout << " KNIGHT: " << static_cast<double>(VALUEKNIGHT) / 100.0;
+    cout << " QUEEN: " << static_cast<double>(VALUEQUEEN) / 100.0 << "\n\n";
 
     cout << HEADER;
-    cout << "|Material:         " << setw(10) << (double)(lazyscore_white - lazyscore_black) / 100.0 << setw(15)
-         << (double)(lazyscore_white) / 100.0 << setw(10) << (double)(lazyscore_black) / 100.0 << "\n";
-    cout << "|Bonus attack king:" << setw(10) << (double)(bonus_attack_king_white - bonus_attack_king_black) / 100.0
-         << setw(15) << (double)(bonus_attack_king_white) / 100.0 << setw(10)
-         << (double)(bonus_attack_king_black) / 100.0 << "\n";
+    cout << "|Material:         " << setw(10) << static_cast<double>(lazyscore_white - lazyscore_black) / 100.0
+         << setw(15) << static_cast<double>(lazyscore_white) / 100.0 << setw(10)
+         << static_cast<double>(lazyscore_black) / 100.0 << "\n";
+    cout << "|Bonus attack king:" << setw(10)
+         << static_cast<double>(bonus_attack_king_white - bonus_attack_king_black) / 100.0 << setw(15)
+         << static_cast<double>(bonus_attack_king_white) / 100.0 << setw(10)
+         << static_cast<double>(bonus_attack_king_black) / 100.0 << "\n";
 
     cout << HEADER;
-    cout << "|Pawn:             " << setw(10) << (double)(Tresult.pawns[WHITE] - Tresult.pawns[BLACK]) / 100.0
-         << setw(15) << (double)(Tresult.pawns[WHITE]) / 100.0 << setw(10) << (double)(Tresult.pawns[BLACK]) / 100.0
-         << "\n";
-    cout << "|       attack king:              " << setw(10) << (double)(SCORE_DEBUG.ATTACK_KING_PAWN[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.ATTACK_KING_PAWN[BLACK]) / 100.0 << "\n";
-    //        cout << "|       center:                   " << setw(10) << (double) (SCORE_DEBUG.PAWN_CENTER[WHITE]) /
-    //        100.0 <<
-    //             setw(10) << (double) (SCORE_DEBUG.PAWN_CENTER[BLACK]) / 100.0 << "\n";
-    cout << "|       in 7th:                   " << setw(10) << (double)(SCORE_DEBUG.PAWN_7H[WHITE]) / 100.0 << setw(10)
-         << (double)(SCORE_DEBUG.PAWN_7H[BLACK]) / 100.0 << "\n";
-    cout << "|       in promotion:             " << setw(10) << (double)(SCORE_DEBUG.PAWN_IN_PROMOTION[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.PAWN_IN_PROMOTION[BLACK]) / 100.0 << "\n";
-    cout << "|       blocked:                  " << setw(10) << (double)(SCORE_DEBUG.PAWN_BLOCKED[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.PAWN_BLOCKED[BLACK]) / 100.0 << "\n";
-    cout << "|       unprotected:              " << setw(10) << (double)(SCORE_DEBUG.UNPROTECTED_PAWNS[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.UNPROTECTED_PAWNS[BLACK]) / 100.0 << "\n";
+    cout << "|Pawn:             " << setw(10)
+         << static_cast<double>(Tresult.pawns[WHITE] - Tresult.pawns[BLACK]) / 100.0 << setw(15)
+         << static_cast<double>(Tresult.pawns[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(Tresult.pawns[BLACK]) / 100.0 << "\n";
+    cout << "|       attack king:              " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.ATTACK_KING_PAWN[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.ATTACK_KING_PAWN[BLACK]) / 100.0 << "\n";
+    //        cout << "|       center:                   " << setw(10) << static_cast<double>
+    //        (SCORE_DEBUG.PAWN_CENTER[WHITE]) / 100.0 <<
+    //             setw(10) << static_cast<double> (SCORE_DEBUG.PAWN_CENTER[BLACK]) / 100.0 << "\n";
+    cout << "|       in 7th:                   " << setw(10) << static_cast<double>(SCORE_DEBUG.PAWN_7H[WHITE]) / 100.0
+         << setw(10) << static_cast<double>(SCORE_DEBUG.PAWN_7H[BLACK]) / 100.0 << "\n";
+    cout << "|       in promotion:             " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.PAWN_IN_PROMOTION[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.PAWN_IN_PROMOTION[BLACK]) / 100.0 << "\n";
+    cout << "|       blocked:                  " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.PAWN_BLOCKED[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.PAWN_BLOCKED[BLACK]) / 100.0 << "\n";
+    cout << "|       unprotected:              " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.UNPROTECTED_PAWNS[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.UNPROTECTED_PAWNS[BLACK]) / 100.0 << "\n";
     //        cout << "|       isolated                  " << setw(10) <<
-    //             (double) (SCORE_DEBUG.PAWN_ISOLATED[WHITE]) / 100.0 << setw(10) <<
-    //             (double) (SCORE_DEBUG.PAWN_ISOLATED[BLACK]) / 100.0 << "\n";
+    //             static_cast<double> (SCORE_DEBUG.PAWN_ISOLATED[WHITE]) / 100.0 << setw(10) <<
+    //             static_cast<double> (SCORE_DEBUG.PAWN_ISOLATED[BLACK]) / 100.0 << "\n";
     //        cout << "|       double                    " << setw(10) <<
-    //             (double) (SCORE_DEBUG.DOUBLED_PAWNS[WHITE]) / 100.0 << setw(10) <<
-    //             (double) (SCORE_DEBUG.DOUBLED_PAWNS[BLACK]) / 100.0 << "\n";
+    //             static_cast<double> (SCORE_DEBUG.DOUBLED_PAWNS[WHITE]) / 100.0 << setw(10) <<
+    //             static_cast<double> (SCORE_DEBUG.DOUBLED_PAWNS[BLACK]) / 100.0 << "\n";
     cout << "|       double isolated           " << setw(10)
-         << (double)(SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[WHITE]) / 100.0 << setw(10)
-         << (double)(SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[BLACK]) / 100.0 << "\n";
-    cout << "|       backward                  " << setw(10) << (double)(SCORE_DEBUG.BACKWARD_PAWN[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.BACKWARD_PAWN[BLACK]) / 100.0 << "\n";
-    cout << "|       fork:                     " << setw(10) << (double)(SCORE_DEBUG.FORK_SCORE[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.FORK_SCORE[BLACK]) / 100.0 << "\n";
-    cout << "|       passed:                   " << setw(10) << (double)(SCORE_DEBUG.PAWN_PASSED[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.PAWN_PASSED[BLACK]) / 100.0 << "\n";
-    cout << "|       all enemies:              " << setw(10) << (double)(SCORE_DEBUG.ENEMIES_PAWNS_ALL[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.ENEMIES_PAWNS_ALL[BLACK]) / 100.0 << "\n";
-    cout << "|       none:                     " << setw(10) << (double)(SCORE_DEBUG.NO_PAWNS[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.NO_PAWNS[BLACK]) / 100.0 << "\n";
-    //        cout << "|       pinned:                   " << setw(10) << (double) (SCORE_DEBUG.PAWN_PINNED[WHITE]) /
-    //        100.0 <<
-    //             setw(10) << (double) (SCORE_DEBUG.PAWN_PINNED[BLACK]) / 100.0 << "\n";
+         << static_cast<double>(SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.DOUBLED_ISOLATED_PAWNS[BLACK]) / 100.0 << "\n";
+    cout << "|       backward                  " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.BACKWARD_PAWN[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.BACKWARD_PAWN[BLACK]) / 100.0 << "\n";
+    cout << "|       fork:                     " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.FORK_SCORE[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.FORK_SCORE[BLACK]) / 100.0 << "\n";
+    cout << "|       passed:                   " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.PAWN_PASSED[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.PAWN_PASSED[BLACK]) / 100.0 << "\n";
+    cout << "|       all enemies:              " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.ENEMIES_PAWNS_ALL[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.ENEMIES_PAWNS_ALL[BLACK]) / 100.0 << "\n";
+    cout << "|       none:                     " << setw(10) << static_cast<double>(SCORE_DEBUG.NO_PAWNS[WHITE]) / 100.0
+         << setw(10) << static_cast<double>(SCORE_DEBUG.NO_PAWNS[BLACK]) / 100.0 << "\n";
+    //        cout << "|       pinned:                   " << setw(10) << static_cast<double>
+    //        (SCORE_DEBUG.PAWN_PINNED[WHITE]) / 100.0 <<
+    //             setw(10) << static_cast<double> (SCORE_DEBUG.PAWN_PINNED[BLACK]) / 100.0 << "\n";
     cout << HEADER;
-    cout << "|Knight:           " << setw(10) << (double)(Tresult.knights[WHITE] - Tresult.knights[BLACK]) / 100.0
-         << setw(15) << (double)(Tresult.knights[WHITE]) / 100.0 << setw(10) << (double)(Tresult.knights[BLACK]) / 100.0
-         << "\n";
+    cout << "|Knight:           " << setw(10)
+         << static_cast<double>(Tresult.knights[WHITE] - Tresult.knights[BLACK]) / 100.0 << setw(15)
+         << static_cast<double>(Tresult.knights[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(Tresult.knights[BLACK]) / 100.0 << "\n";
     //        cout << "|       undevelop:                " << setw(10) <<
-    //             (double) (SCORE_DEBUG.UNDEVELOPED_KNIGHT[WHITE]) / 100.0 << setw(10) <<
-    //             (double) (SCORE_DEBUG.UNDEVELOPED_KNIGHT[BLACK]) / 100.0 << "\n";
-    cout << "|       trapped:                  " << setw(10) << (double)(SCORE_DEBUG.KNIGHT_TRAPPED[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.KNIGHT_TRAPPED[BLACK]) / 100.0 << "\n";
-    cout << "|       mobility:                 " << setw(10) << (double)(SCORE_DEBUG.MOB_KNIGHT[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.MOB_KNIGHT[BLACK]) / 100.0 << "\n";
-    cout << "|       pinned:                   " << setw(10) << (double)(SCORE_DEBUG.KNIGHT_PINNED[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.KNIGHT_PINNED[BLACK]) / 100.0 << "\n";
+    //             static_cast<double> (SCORE_DEBUG.UNDEVELOPED_KNIGHT[WHITE]) / 100.0 << setw(10) <<
+    //             static_cast<double> (SCORE_DEBUG.UNDEVELOPED_KNIGHT[BLACK]) / 100.0 << "\n";
+    cout << "|       trapped:                  " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.KNIGHT_TRAPPED[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.KNIGHT_TRAPPED[BLACK]) / 100.0 << "\n";
+    cout << "|       mobility:                 " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.MOB_KNIGHT[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.MOB_KNIGHT[BLACK]) / 100.0 << "\n";
+    cout << "|       pinned:                   " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.KNIGHT_PINNED[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.KNIGHT_PINNED[BLACK]) / 100.0 << "\n";
     cout << HEADER;
-    cout << "|Bishop:           " << setw(10) << (double)(Tresult.bishop[WHITE] - Tresult.bishop[BLACK]) / 100.0
-         << setw(15) << (double)(Tresult.bishop[WHITE]) / 100.0 << setw(10) << (double)(Tresult.bishop[BLACK]) / 100.0
-         << "\n";
-    cout << "|       bad:                      " << setw(10) << (double)(SCORE_DEBUG.BAD_BISHOP[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.BAD_BISHOP[BLACK]) / 100.0 << "\n";
-    cout << "|       mobility:                 " << setw(10) << (double)(SCORE_DEBUG.MOB_BISHOP[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.MOB_BISHOP[BLACK]) / 100.0 << "\n";
+    cout << "|Bishop:           " << setw(10)
+         << static_cast<double>(Tresult.bishop[WHITE] - Tresult.bishop[BLACK]) / 100.0 << setw(15)
+         << static_cast<double>(Tresult.bishop[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(Tresult.bishop[BLACK]) / 100.0 << "\n";
+    cout << "|       bad:                      " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.BAD_BISHOP[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.BAD_BISHOP[BLACK]) / 100.0 << "\n";
+    cout << "|       mobility:                 " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.MOB_BISHOP[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.MOB_BISHOP[BLACK]) / 100.0 << "\n";
     //        cout << "|       undevelop:                " << setw(10) <<
-    //             (double) (SCORE_DEBUG.UNDEVELOPED_BISHOP[WHITE]) / 100.0 << setw(10) <<
-    //             (double) (SCORE_DEBUG.UNDEVELOPED_BISHOP[BLACK]) / 100.0 << "\n";
+    //             static_cast<double> (SCORE_DEBUG.UNDEVELOPED_BISHOP[WHITE]) / 100.0 << setw(10) <<
+    //             static_cast<double> (SCORE_DEBUG.UNDEVELOPED_BISHOP[BLACK]) / 100.0 << "\n";
     //        cout << "|       open diag:                " << setw(10) <<
-    //             (double) (SCORE_DEBUG.OPEN_DIAG_BISHOP[WHITE]) / 100.0 << setw(10) <<
-    //             (double) (SCORE_DEBUG.OPEN_DIAG_BISHOP[BLACK]) / 100.0 << "\n";
-    cout << "|       bonus 2 bishops:          " << setw(10) << (double)(SCORE_DEBUG.BONUS2BISHOP[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.BONUS2BISHOP[BLACK]) / 100.0 << "\n";
-    cout << "|       pinned:                   " << setw(10) << (double)(SCORE_DEBUG.BISHOP_PINNED[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.BISHOP_PINNED[BLACK]) / 100.0 << "\n";
+    //             static_cast<double> (SCORE_DEBUG.OPEN_DIAG_BISHOP[WHITE]) / 100.0 << setw(10) <<
+    //             static_cast<double> (SCORE_DEBUG.OPEN_DIAG_BISHOP[BLACK]) / 100.0 << "\n";
+    cout << "|       bonus 2 bishops:          " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.BONUS2BISHOP[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.BONUS2BISHOP[BLACK]) / 100.0 << "\n";
+    cout << "|       pinned:                   " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.BISHOP_PINNED[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.BISHOP_PINNED[BLACK]) / 100.0 << "\n";
     cout << HEADER;
-    cout << "|Rook:             " << setw(10) << (double)(Tresult.rooks[WHITE] - Tresult.rooks[BLACK]) / 100.0
-         << setw(15) << (double)(Tresult.rooks[WHITE]) / 100.0 << setw(10) << (double)(Tresult.rooks[BLACK]) / 100.0
-         << "\n";
-    cout << "|       7th:                      " << setw(10) << (double)(SCORE_DEBUG.ROOK_7TH_RANK[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.ROOK_7TH_RANK[BLACK]) / 100.0 << "\n";
+    cout << "|Rook:             " << setw(10)
+         << static_cast<double>(Tresult.rooks[WHITE] - Tresult.rooks[BLACK]) / 100.0 << setw(15)
+         << static_cast<double>(Tresult.rooks[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(Tresult.rooks[BLACK]) / 100.0 << "\n";
+    cout << "|       7th:                      " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.ROOK_7TH_RANK[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.ROOK_7TH_RANK[BLACK]) / 100.0 << "\n";
     //        cout << "|       trapped:                  " << setw(10) <<
-    //             (double) (SCORE_DEBUG.ROOK_TRAPPED[WHITE]) / 100.0 <<
-    //             setw(10) << (double) (SCORE_DEBUG.ROOK_TRAPPED[BLACK]) / 100.0 << "\n";
-    cout << "|       mobility:                 " << setw(10) << (double)(SCORE_DEBUG.MOB_ROOK[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.MOB_ROOK[BLACK]) / 100.0 << "\n";
+    //             static_cast<double> (SCORE_DEBUG.ROOK_TRAPPED[WHITE]) / 100.0 <<
+    //             setw(10) << static_cast<double> (SCORE_DEBUG.ROOK_TRAPPED[BLACK]) / 100.0 << "\n";
+    cout << "|       mobility:                 " << setw(10) << static_cast<double>(SCORE_DEBUG.MOB_ROOK[WHITE]) / 100.0
+         << setw(10) << static_cast<double>(SCORE_DEBUG.MOB_ROOK[BLACK]) / 100.0 << "\n";
     //        cout << "|       blocked:                  " << setw(10) <<
-    //             (double) (SCORE_DEBUG.ROOK_BLOCKED[WHITE]) / 100.0 <<
-    //             setw(10) << (double) (SCORE_DEBUG.ROOK_BLOCKED[BLACK]) / 100.0 << "\n";
+    //             static_cast<double> (SCORE_DEBUG.ROOK_BLOCKED[WHITE]) / 100.0 <<
+    //             setw(10) << static_cast<double> (SCORE_DEBUG.ROOK_BLOCKED[BLACK]) / 100.0 << "\n";
     //        cout << "|       open file:                " << setw(10) <<
-    //             (double) (SCORE_DEBUG.ROOK_OPEN_FILE[WHITE]) / 100.0 << setw(10) <<
-    //             (double) (SCORE_DEBUG.ROOK_OPEN_FILE[BLACK]) / 100.0 << "\n";
+    //             static_cast<double> (SCORE_DEBUG.ROOK_OPEN_FILE[WHITE]) / 100.0 << setw(10) <<
+    //             static_cast<double> (SCORE_DEBUG.ROOK_OPEN_FILE[BLACK]) / 100.0 << "\n";
     //        cout << "|       connected:                " << setw(10) <<
-    //             (double) (SCORE_DEBUG.CONNECTED_ROOKS[WHITE]) / 100.0 << setw(10) <<
-    //             (double) (SCORE_DEBUG.CONNECTED_ROOKS[BLACK]) / 100.0 << "\n";
-    cout << "|       pinned:                   " << setw(10) << (double)(SCORE_DEBUG.ROOK_PINNED[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.ROOK_PINNED[BLACK]) / 100.0 << "\n";
+    //             static_cast<double> (SCORE_DEBUG.CONNECTED_ROOKS[WHITE]) / 100.0 << setw(10) <<
+    //             static_cast<double> (SCORE_DEBUG.CONNECTED_ROOKS[BLACK]) / 100.0 << "\n";
+    cout << "|       pinned:                   " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.ROOK_PINNED[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.ROOK_PINNED[BLACK]) / 100.0 << "\n";
     cout << HEADER;
-    cout << "|Queen:            " << setw(10) << (double)(Tresult.queens[WHITE] - Tresult.queens[BLACK]) / 100.0
-         << setw(15) << (double)(Tresult.queens[WHITE]) / 100.0 << setw(10) << (double)(Tresult.queens[BLACK]) / 100.0
-         << "\n";
-    cout << "|       mobility:                 " << setw(10) << (double)(SCORE_DEBUG.MOB_QUEEN[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.MOB_QUEEN[BLACK]) / 100.0 << "\n";
-    cout << "|       bishop on queen:          " << setw(10) << (double)(SCORE_DEBUG.BISHOP_ON_QUEEN[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.BISHOP_ON_QUEEN[BLACK]) / 100.0 << "\n";
-    cout << "|       pinned:                   " << setw(10) << (double)(SCORE_DEBUG.QUEEN_PINNED[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.QUEEN_PINNED[BLACK]) / 100.0 << "\n";
+    cout << "|Queen:            " << setw(10)
+         << static_cast<double>(Tresult.queens[WHITE] - Tresult.queens[BLACK]) / 100.0 << setw(15)
+         << static_cast<double>(Tresult.queens[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(Tresult.queens[BLACK]) / 100.0 << "\n";
+    cout << "|       mobility:                 " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.MOB_QUEEN[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.MOB_QUEEN[BLACK]) / 100.0 << "\n";
+    cout << "|       bishop on queen:          " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.BISHOP_ON_QUEEN[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.BISHOP_ON_QUEEN[BLACK]) / 100.0 << "\n";
+    cout << "|       pinned:                   " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.QUEEN_PINNED[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.QUEEN_PINNED[BLACK]) / 100.0 << "\n";
     cout << HEADER;
-    cout << "|King:             " << setw(10) << (double)(Tresult.kings[WHITE] - Tresult.kings[BLACK]) / 100.0
-         << setw(15) << (double)(Tresult.kings[WHITE]) / 100.0 << setw(10) << (double)(Tresult.kings[BLACK]) / 100.0
-         << "\n";
-    cout << "|       distance:                 " << setw(10) << (double)(SCORE_DEBUG.DISTANCE_KING[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.DISTANCE_KING[BLACK]) / 100.0 << "\n";
+    cout << "|King:             " << setw(10)
+         << static_cast<double>(Tresult.kings[WHITE] - Tresult.kings[BLACK]) / 100.0 << setw(15)
+         << static_cast<double>(Tresult.kings[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(Tresult.kings[BLACK]) / 100.0 << "\n";
+    cout << "|       distance:                 " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.DISTANCE_KING[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.DISTANCE_KING[BLACK]) / 100.0 << "\n";
 
-    cout << "|       pawn near:                " << setw(10) << (double)(SCORE_DEBUG.PAWN_NEAR_KING[WHITE]) / 100.0
-         << setw(10) << (double)(SCORE_DEBUG.PAWN_NEAR_KING[BLACK]) / 100.0 << "\n";
+    cout << "|       pawn near:                " << setw(10)
+         << static_cast<double>(SCORE_DEBUG.PAWN_NEAR_KING[WHITE]) / 100.0 << setw(10)
+         << static_cast<double>(SCORE_DEBUG.PAWN_NEAR_KING[BLACK]) / 100.0 << "\n";
     cout << endl;
     cout << "\n|Total (white)..........   " << (side ? -result / 100.0 : result / 100.0) << endl;
     cout << flush;

@@ -30,8 +30,8 @@ class SearchManager {
   SearchManager(const shared_ptr<Hash> &hash) {
     this->hash = hash;
     threadPool = unique_ptr<ThreadPool<Search>>(new ThreadPool<Search>(1));
-    for (const Search *s : threadPool->getPool()) {
-      s->hash = hash;
+    for (Search *s : threadPool->getPool()) {
+      s->hash = hash.get();
     }
   }
   bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv) const;
@@ -46,7 +46,7 @@ class SearchManager {
 
   void startClock() const;
 
-  Search &getSearch(int i = 0) const { return threadPool->getThread(i); }
+  Search &getSearch(const int i = 0) const { return threadPool->getThread(i); }
 
   string decodeBoardinv(const _Tmove *) const;
 
@@ -80,11 +80,11 @@ class SearchManager {
 
   void setRunning(const int i) const;
 
-  int getRunning(const int i);
+  int getRunning(const int i) const;
 
-  void display();
+  void display() const;
 
-  void setMaxTimeMillsec(const int i);
+  void setMaxTimeMillsec(const int i) const;
 
   void unsetSearchMoves() const;
 
@@ -148,61 +148,61 @@ class SearchManager {
 
 #ifdef DEBUG_MODE
 
-  unsigned getCumulativeMovesCount() { return Search::cumulativeMovesCount; }
+  static unsigned getCumulativeMovesCount() { return Search::cumulativeMovesCount; }
 
-  unsigned getNCutAB() {
+  unsigned getNCutAB() const {
     unsigned i = 0;
-    for (Search *s : threadPool->getPool()) {
+    for (const Search *s : threadPool->getPool()) {
       i += s->nCutAB;
     }
     return i;
   }
 
-  double getBetaEfficiency() {
+  double getBetaEfficiency() const {
     double b = 0;
     unsigned count = 0;
-    for (Search *s : threadPool->getPool()) {
+    for (const Search *s : threadPool->getPool()) {
       b += s->betaEfficiency;
       count += s->betaEfficiencyCount;
     }
     return b / count;
   }
 
-  unsigned getLazyEvalCuts() {
+  unsigned getLazyEvalCuts() const {
     unsigned i = 0;
-    for (Search *s : threadPool->getPool()) {
+    for (const Search *s : threadPool->getPool()) {
       i += s->getLazyEvalCuts();
     }
     return i;
   }
 
-  unsigned getNCutFp() {
+  unsigned getNCutFp() const {
     unsigned i = 0;
-    for (Search *s : threadPool->getPool()) {
+    for (const Search *s : threadPool->getPool()) {
       i += s->nCutFp;
     }
     return i;
   }
 
-  unsigned getNCutRazor() {
+  unsigned getNCutRazor() const {
     unsigned i = 0;
-    for (Search *s : threadPool->getPool()) {
+    for (const Search *s : threadPool->getPool()) {
       i += s->nCutRazor;
     }
     return i;
   }
 
-  unsigned getTotBadCaputure() {
+  unsigned getTotBadCaputure() const {
     unsigned i = 0;
-    for (Search *s : threadPool->getPool()) {
+    for (const Search *s : threadPool->getPool()) {
       i += s->nCutBadCaputure;
     }
     return i;
   }
 
-  unsigned getNullMoveCut() {
+  unsigned getNullMoveCut() const {
     unsigned i = 0;
-    for (Search *s : threadPool->getPool()) {
+    for (const Search *s : threadPool->getPool()) {
       i += s->nNullMoveCut;
     }
     return i;
@@ -210,16 +210,16 @@ class SearchManager {
 
 #endif
 
-  int search(const int ply, const int iter_depth);
+  int search(int ply, int iter_depth);
 
  private:
   unique_ptr<ThreadPool<Search>> threadPool;
   shared_ptr<Hash> hash;
   _TpvLine lineWin;
 
-  void setMainPly(const int ply, const int iter_depth) const;
+  void setMainPly(int ply, int iter_depth) const;
 
-  void startThread(Search &thread, const int depth);
+  void startThread(Search &thread, int depth);
 
   void stopAllThread();
 };
