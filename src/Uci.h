@@ -18,26 +18,17 @@
 
 #pragma once
 
-#include <cstring>
-
 #include "IterativeDeeping.h"
-#include "namespaces/String.h"
 
-class Uci : public Singleton<Uci> {
-  friend class Singleton<Uci>;
-
- private:
+class Uci {
+ public:
   Uci();
 
-  Hash &hash = Hash::getInstance();
-
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-
+ private:
+  shared_ptr<Hash> hash = std::make_shared<Hash>();
+  shared_ptr<SearchManager> searchManager = std::make_shared<SearchManager>(hash);
   bool uciMode;
-
-  void listner(IterativeDeeping *it);
-
+  void listner(unique_ptr<IterativeDeeping> it);
   void getToken(istringstream &uip, string &token) const;
-
   void startListner();
 };

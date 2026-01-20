@@ -20,9 +20,7 @@
 
 #include <atomic>
 #include <condition_variable>
-
 #include "../namespaces/bits.h"
-#include "../unistd.h"
 #include "../util/logger.h"
 #include "ObserverThread.h"
 #include "Thread.h"
@@ -32,7 +30,7 @@ using namespace _def;
 template <typename T, typename = typename std::enable_if<std::is_base_of<Thread<T>, T>::value, T>::type>
 class ThreadPool : public ObserverThread {
  public:
-  ThreadPool(int t) : threadsBits(0) { setNthread(t); }
+  explicit ThreadPool(const int t) : threadsBits(0) { setNthread(t); }
 
   ThreadPool() : ThreadPool(thread::hardware_concurrency()) {}
 
@@ -89,7 +87,7 @@ class ThreadPool : public ObserverThread {
     }
   }
 
-  ~ThreadPool() { removeAllThread(); }
+  virtual ~ThreadPool() { removeAllThread(); }
 
   const vector<T *> &getPool() const { return threadPool; }
 
@@ -121,7 +119,7 @@ class ThreadPool : public ObserverThread {
     debug("ThreadPool::releaseThread #", threadID);
   }
 
-  void observerEndThread(int threadID) { releaseThread(threadID); }
+  void observerEndThread(const int threadID) override { releaseThread(threadID); }
 
   void registerThreads() {
     for (T *s : threadPool) {
@@ -131,7 +129,7 @@ class ThreadPool : public ObserverThread {
 
   void removeAllThread() {
     joinAll();
-    for (T *s : threadPool) {
+    for (const T *s : threadPool) {
       delete s;
     }
     threadPool.clear();

@@ -23,11 +23,12 @@
 #include "../SearchManager.h"
 
 TEST(eval, eval1) {
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-  searchManager.loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-  int score = searchManager.getScore(WHITE);
+  auto hash = std::make_shared<Hash>();
+  auto searchManager = std::make_shared<SearchManager>(hash);
+  searchManager->loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  int score = searchManager->getScore(WHITE);
   EXPECT_EQ(5, score);
-  score = searchManager.getScore(BLACK);
+  score = searchManager->getScore(BLACK);
   EXPECT_EQ(-5, score);
 }
 

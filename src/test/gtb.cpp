@@ -31,23 +31,25 @@
  * memory leak on gaviota lib
  ****************************/
 TEST(gtb, wdl) {
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  shared_ptr<Hash> hash = std::make_shared<Hash>();
+  shared_ptr<SearchManager> searchManager = std::make_shared<SearchManager>(hash);
   GTB &tablebase = GTB::getInstance();
   if (!tablebase.setPath("/gtb4")) {
     FAIL() << "path error";
   }
-  searchManager.loadFen("3r1k2/8/8/1Q6/8/8/8/2K5 w - - 0 1");
-  EXPECT_EQ(4, searchManager.printDtmGtb(false));  // win
+  searchManager->loadFen("3r1k2/8/8/1Q6/8/8/8/2K5 w - - 0 1");
+  EXPECT_EQ(4, searchManager->printDtmGtb(false));  // win
 }
 
 TEST(gtb, dtm) {
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  shared_ptr<Hash> hash = std::make_shared<Hash>();
+  shared_ptr<SearchManager> searchManager = std::make_shared<SearchManager>(hash);
   GTB &tablebase = GTB::getInstance();
   if (!tablebase.setPath("/gtb4")) {
     FAIL() << "path error";
   }
-  searchManager.loadFen("3r1k2/8/8/1Q6/8/8/8/2K5 w - - 0 1");
-  EXPECT_EQ(4, searchManager.printDtmGtb(true));  // win
+  searchManager->loadFen("3r1k2/8/8/1Q6/8/8/8/2K5 w - - 0 1");
+  EXPECT_EQ(4, searchManager->printDtmGtb(true));  // win
 }
 
 #endif

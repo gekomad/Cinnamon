@@ -123,18 +123,22 @@ void ChessBoard::display() const {
   for (int t = 0; t <= 63; t++) {
     char x;
     if (t % 8 == 0) {
-      cout << endl << "   ----+---+---+---+---+---+---+----" << endl;
-      cout << " " << 8 - RANK_AT[t] << " | ";
+      if (t == 0 )cout << endl << "   ┌───┬───┬───┬───┬───┬───┬───┬───┐" << endl;
+      else cout << endl << "   ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+      cout << " " << 8 - RANK_AT[t] << " │ ";
     }
     x = (x = (x = FEN_PIECE[board::getPieceAt<WHITE>(POW2(63 - t), chessboard)]) != '-'
                  ? x
                  : FEN_PIECE[board::getPieceAt<BLACK>(POW2(63 - t), chessboard)]) == '-'
             ? ' '
             : x;
-    x != ' ' ? cout << x : POW2(t) & WHITE_SQUARES ? cout << " " : cout << ".";
-    cout << " | ";
+    x != ' ' ? cout << x : POW2(t) & WHITE_SQUARES ? cout << " " : cout << "·";
+    cout << " │ ";
+    if ((t + 1) % 8 == 0)
+      cout << 8 - RANK_AT[t];
+
   }
-  cout << endl << "   ----+---+---+---+---+---+---+----" << endl;
+  cout << endl << "   └───┴───┴───┴───┴───┴───┴───┴───┘" << endl;
   cout << "     a   b   c   d   e   f   g   h" << endl << endl << "fen:\t\t" << boardToFen() << endl;
 
   cout << "side:\t\t" << (sideToMove ? "White" : "Black") << endl;

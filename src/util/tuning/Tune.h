@@ -27,7 +27,7 @@
 class Tune {
  protected:
   constexpr static int N_PARAM = 43;
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  SearchManager searchManager;
   const string iniFile = "tuning.ini";
 
   struct FEN {

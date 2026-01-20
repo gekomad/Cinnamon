@@ -131,7 +131,7 @@ class GetOpt {
       help(argv);
       return;
     }
-    Perft *perft = &Perft::getInstance();
+    unique_ptr<Perft> perft = unique_ptr<Perft>(new Perft());
     perft->setParam(fen, perftDepth, nCpu, perftHashSize, dumpFile, chess960);
     perft->start();
     perft->join();
@@ -140,11 +140,12 @@ class GetOpt {
 #ifndef JS_MODE
 
   static void dtmWdlGtb(int argc, char **argv, const bool dtm) {
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+    const auto hash = std::make_shared<Hash>();
+    const auto searchManager = std::make_shared<SearchManager>(SearchManager(hash));
 
     GTB *gtb = &GTB::getInstance();
     string fen, token;
-    IterativeDeeping it;
+    IterativeDeeping it(hash, searchManager);
     int opt;
     while ((opt = getopt1(argc, argv, "f:p:s:i:")) != -1) {
       if (opt == 'f') {  // fen
@@ -170,22 +171,22 @@ class GetOpt {
       cout << "error GTB not found" << endl;
       return;
     }
-    searchManager.loadFen(fen);
-    searchManager.printDtmGtb(dtm);
+    searchManager->loadFen(fen);
+    searchManager->printDtmGtb(dtm);
   }
 
   static void createSyzygy(int argc, char **argv) {
-    string fen, token;
-    IterativeDeeping it;
+    const auto hash = std::make_shared<Hash>();
+    const auto searchManager = std::make_shared<SearchManager>(hash);
+    IterativeDeeping it(hash, searchManager);
     int opt;
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
     while ((opt = getopt1(argc, argv, "f:p:s:i:")) != -1) {
       if (opt == 'f') {  // fen
-        fen = optarg;
-        searchManager.loadFen(fen);
+        string fen = optarg;
+        searchManager->loadFen(fen);
       } else if (opt == 'p') {  // path
-        token = optarg;
+        string token = optarg;
         SYZYGY::getInstance().createSYZYGY(token);
       }
     }
@@ -193,13 +194,13 @@ class GetOpt {
 
   static void wdlSyzygy(int argc, char **argv) {
     createSyzygy(argc, argv);
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+    SearchManager searchManager(std::make_shared<Hash>());
     searchManager.printWdlSyzygy();
   }
 
   static void dtmSyzygy(int argc, char **argv) {
     createSyzygy(argc, argv);
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+    SearchManager searchManager(std::make_shared<Hash>());
     searchManager.printDtmSyzygy();
   }
 
@@ -274,6 +275,6 @@ class GetOpt {
       }
 #endif
     }
-    Uci::getInstance();
+    unique_ptr<Uci>(new Uci());
   }
 };

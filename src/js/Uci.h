@@ -46,5 +46,5 @@ class Uci {
  private:
   IterativeDeeping *iterativeDeeping;
   bool uciMode;
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  SearchManager searchManager;
 };

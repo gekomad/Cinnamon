@@ -29,7 +29,7 @@ extern "C" {
 char *command(char *t, char *arg) { return u->command(t, arg); }
 
 unsigned perft(char *fen, int depth, int hashSize, bool chess960) {
-  Perft *p = &Perft::getInstance();
+  unique_ptr<Perft> p = unique_ptr<Perft>(new Perft());
   p->setParam(fen, depth, 1, hashSize, "", chess960);
   p->start();
   p->join();

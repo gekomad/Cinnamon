@@ -182,7 +182,7 @@ void Perft::run() {
 
   Timer t2(minutesToDump * 60);
   if (hash && !dumpFile.empty()) {
-    signal(SIGINT, Perft::ctrlChandler);
+    // signal(SIGINT, Perft::ctrlChandler); TODO
     cout << "dump hash table in " << dumpFile << " every " << minutesToDump << " minutes" << endl;
     t2.registerObservers([this]() { dump(); });
     t2.start();

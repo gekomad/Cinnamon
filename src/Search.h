@@ -41,17 +41,18 @@ class Search : public GenMoves, public Thread<Search> {
 #ifndef JS_MODE
   SYZYGY *syzygy = &SYZYGY::getInstance();
 #endif
+  mutable shared_ptr<Hash> hash;
   Search();
 
   short getScore(const uchar side) { return eval.getScore(chessboard, 0, side, -_INFINITE, _INFINITE DEBUG2(, true)); }
 
-  Search(const Search *s) { clone(s); }
+  // Search(const Search *s) { clone(s); }
 
   void clone(const Search *);
 
-  virtual ~Search();
+  ~Search() override;
 
-  void setRunning(const int);
+  void setRunning(const int) override;
 
   void setPonder(const bool);
 
@@ -79,7 +80,7 @@ class Search : public GenMoves, public Thread<Search> {
 
   void startClock();
 
-  int getRunning() const;
+  int getRunning() const override;
 
   const _TpvLine &getPvLine() const { return pvLine; }
 
@@ -87,7 +88,7 @@ class Search : public GenMoves, public Thread<Search> {
 
   void run();
 
-  void endRun() {}
+  static void endRun() {}
 
   void setMainPly(const int, const int);
 
@@ -113,7 +114,6 @@ class Search : public GenMoves, public Thread<Search> {
 
  private:
   Eval eval;
-  Hash &hash = Hash::getInstance();
 
   vector<int> searchMovesVector;
   int valWindow = INT_MAX;

@@ -19,7 +19,6 @@
 #pragma once
 
 #include "GenMoves.h"
-#include "namespaces/board.h"
 
 #ifdef BENCH_MODE
 
@@ -28,7 +27,6 @@
 #endif
 
 #include <cstring>
-#include <fstream>
 #include <iomanip>
 
 using namespace constants;

@@ -25,17 +25,13 @@
 
 #include "../Search.h"
 #include "../threadPool/ThreadPool.h"
-#include "../unistd.h"
-#include "../util/Timer.h"
 #include "PerftThread.h"
 #include "_TPerftRes.h"
 
-class Perft : public Thread<Perft>, protected ThreadPool<PerftThread>, public Singleton<Perft> {
-  friend class Singleton<Perft>;
-
+class Perft : public Thread<Perft>, protected ThreadPool<PerftThread> {
  public:
   static _ThashPerft **hash;
-
+  Perft() : ThreadPool(1) {}
   void setParam(const string &fen1, int depth1, const int nCpu2, const int mbSize1, const string &dumpFile1,
                 const bool chess960);
 
@@ -52,15 +48,13 @@ class Perft : public Thread<Perft>, protected ThreadPool<PerftThread>, public Si
   u64 getResult() { return perftRes.totMoves; }
 
  private:
-  Perft() : ThreadPool(1) {}
-
   _TPerftRes perftRes;
   Time time;
   string fen;
   string dumpFile;
   int mbSize;
   bool chess960;
-  int depthHashFile;
+  int depthHashFile = 0;
   void alloc();
 
   void dealloc() const;
@@ -75,7 +69,7 @@ class Perft : public Thread<Perft>, protected ThreadPool<PerftThread>, public Si
       return;
     }
     if (s < 0) cout << s;
-    Perft::getInstance().dump();
+    // Perft::getInstance().dump(); TODO
     cout << "exit" << endl << endl;
     exit(0);
   }

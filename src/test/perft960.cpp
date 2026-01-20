@@ -23,7 +23,7 @@
 #include "../perft/Perft.h"
 
 u64 doPerft960(string fen, const int depth, const unsigned result) {
-  Perft *perft = &Perft::getInstance();
+  unique_ptr<Perft> perft = unique_ptr<Perft>(new Perft());
   perft->setParam(fen, depth, 4, 0, "", true);
   perft->start();
   perft->join();

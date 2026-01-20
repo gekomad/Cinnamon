@@ -24,107 +24,109 @@
 #include "threadPool/ThreadPool.h"
 #include "util/IniFile.h"
 
-class SearchManager : private Singleton<SearchManager> {
-  friend class Singleton<SearchManager>;
-
+class SearchManager {
  public:
-  ~SearchManager();
 
-  static bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
+  SearchManager(const shared_ptr<Hash> &hash) {
+    this->hash = hash;
+    threadPool = unique_ptr<ThreadPool<Search>>(new ThreadPool<Search>(1));
+    for (const Search *s : threadPool->getPool()) {
+      s->hash = hash;
+    }
+  }
+  bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv) const;
 
-  static int loadFen(const string &fen = "");
+  int loadFen(const string &fen = "") const;
 
-  static int getPieceAt(const uchar side, const u64 i);
+  int getPieceAt(const uchar side, const u64 i) const;
 
-  static u64 getTotMoves();
+  u64 getTotMoves() const;
 
-  static void incHistoryHeuristic(const int from, const int to, const int value);
+  void incHistoryHeuristic(const int from, const int to, const int value) const;
 
-  static void startClock();
+  void startClock() const;
 
-  Search &getSearch(int i = 0) { return threadPool->getThread(i); }
+  Search &getSearch(int i = 0) const { return threadPool->getThread(i); }
 
-  static string decodeBoardinv(const _Tmove *);
+  string decodeBoardinv(const _Tmove *) const;
 
 #ifdef TUNING
 
   const _Tchessboard &getChessboard() { return threadPool->getThread(0).chessboard; }
 
-  static void setParameter(const string &param, const int value, const int phase) {
+  void setParameter(const string &param, const int value, const int phase) {
     for (Search *s : threadPool->getPool()) {
       s->setParameter(param, value, phase);
     }
   }
 
-  static int getParameter(const string &param, const int phase) {
-    return threadPool->getThread(0).getParameter(param, phase);
-  }
+  int getParameter(const string &param, const int phase) { return threadPool->getThread(0).getParameter(param, phase); }
 
   int getQscore() const { return threadPool->getThread(0).qSearch(15, -_INFINITE, _INFINITE); }
 
 #endif
 
-  static void clearHeuristic();
+  void clearHeuristic() const;
 
-  static int getForceCheck();
+  int getForceCheck() const;
 
-  static u64 getZobristKey(const int id);
+  u64 getZobristKey(const int id) const;
 
-  static u64 getEnpassant(const int id) { return threadPool->getThread(id).getEnpassant(); }
+  u64 getEnpassant(const int id) const { return threadPool->getThread(id).getEnpassant(); }
 
-  static void setForceCheck(const bool a);
+  void setForceCheck(const bool a) const;
 
   static void setRunningThread(const bool r);
 
-  static void setRunning(const int i);
+  void setRunning(const int i) const;
 
-  static int getRunning(const int i);
+  int getRunning(const int i);
 
-  static void display();
+  void display();
 
-  static void setMaxTimeMillsec(const int i);
+  void setMaxTimeMillsec(const int i);
 
-  static void unsetSearchMoves();
+  void unsetSearchMoves() const;
 
-  static void setSearchMoves(const vector<string> &searchmoves);
+  void setSearchMoves(const vector<string> &searchmoves) const;
 
-  static void setPonder(bool i);
+  void setPonder(bool i) const;
 
-  static int getSide();
+  int getSide() const;
 
-  static int getScore(const uchar side);
+  int getScore(const uchar side) const;
 
-  static int getMaxTimeMillsec();
+  int getMaxTimeMillsec() const;
 
-  static void setNullMove(const bool i);
+  void setNullMove(const bool i) const;
 
-  static void setChess960(const bool i);
+  void setChess960(const bool i) const;
 
-  static bool makemove(const _Tmove *i);
-  static void updateFenString();
-  static void takeback(const _Tmove *move, const u64 oldkey, const uchar oldEnpassant, const bool rep);
+  bool makemove(const _Tmove *i) const;
+  void updateFenString() const;
+  void takeback(const _Tmove *move, const u64 oldkey, const uchar oldEnpassant, const bool rep) const;
 
-  static void setSide(const bool i);
+  void setSide(const bool i) const;
 
-  static int getMoveFromSan(const string &string, _Tmove *ptr);
+  int getMoveFromSan(const string &string, _Tmove *ptr) const;
 
 #ifndef JS_MODE
 
-  static int printDtmGtb(const bool dtm);
+  int printDtmGtb(const bool dtm) const;
 
-  static void printDtmSyzygy();
+  void printDtmSyzygy() const;
 
-  static void printWdlSyzygy();
+  void printWdlSyzygy() const;
 
 #endif
 
-  static void pushStackMove();
+  void pushStackMove() const;
 
-  static void init();
+  void init() const;
 
-  static void setRepetitionMapCount(const int i);
+  void setRepetitionMapCount(const int i) const;
 
-  static bool setNthread(const int);
+  bool setNthread(const int) const;
 
 #if defined(FULL_TEST)
 
@@ -146,9 +148,9 @@ class SearchManager : private Singleton<SearchManager> {
 
 #ifdef DEBUG_MODE
 
-  static unsigned getCumulativeMovesCount() { return Search::cumulativeMovesCount; }
+  unsigned getCumulativeMovesCount() { return Search::cumulativeMovesCount; }
 
-  static unsigned getNCutAB() {
+  unsigned getNCutAB() {
     unsigned i = 0;
     for (Search *s : threadPool->getPool()) {
       i += s->nCutAB;
@@ -156,7 +158,7 @@ class SearchManager : private Singleton<SearchManager> {
     return i;
   }
 
-  static double getBetaEfficiency() {
+  double getBetaEfficiency() {
     double b = 0;
     unsigned count = 0;
     for (Search *s : threadPool->getPool()) {
@@ -166,7 +168,7 @@ class SearchManager : private Singleton<SearchManager> {
     return b / count;
   }
 
-  static unsigned getLazyEvalCuts() {
+  unsigned getLazyEvalCuts() {
     unsigned i = 0;
     for (Search *s : threadPool->getPool()) {
       i += s->getLazyEvalCuts();
@@ -174,7 +176,7 @@ class SearchManager : private Singleton<SearchManager> {
     return i;
   }
 
-  static unsigned getNCutFp() {
+  unsigned getNCutFp() {
     unsigned i = 0;
     for (Search *s : threadPool->getPool()) {
       i += s->nCutFp;
@@ -182,7 +184,7 @@ class SearchManager : private Singleton<SearchManager> {
     return i;
   }
 
-  static unsigned getNCutRazor() {
+  unsigned getNCutRazor() {
     unsigned i = 0;
     for (Search *s : threadPool->getPool()) {
       i += s->nCutRazor;
@@ -190,7 +192,7 @@ class SearchManager : private Singleton<SearchManager> {
     return i;
   }
 
-  static unsigned getTotBadCaputure() {
+  unsigned getTotBadCaputure() {
     unsigned i = 0;
     for (Search *s : threadPool->getPool()) {
       i += s->nCutBadCaputure;
@@ -198,7 +200,7 @@ class SearchManager : private Singleton<SearchManager> {
     return i;
   }
 
-  static unsigned getNullMoveCut() {
+  unsigned getNullMoveCut() {
     unsigned i = 0;
     for (Search *s : threadPool->getPool()) {
       i += s->nNullMoveCut;
@@ -208,18 +210,16 @@ class SearchManager : private Singleton<SearchManager> {
 
 #endif
 
-  static int search(const int ply, const int iter_depth);
+  int search(const int ply, const int iter_depth);
 
  private:
-  SearchManager();
+  unique_ptr<ThreadPool<Search>> threadPool;
+  shared_ptr<Hash> hash;
+  _TpvLine lineWin;
 
-  static ThreadPool<Search> *threadPool;
+  void setMainPly(const int ply, const int iter_depth) const;
 
-  static _TpvLine lineWin;
+  void startThread(Search &thread, const int depth);
 
-  static void setMainPly(const int ply, const int r);
-
-  static void startThread(Search &thread, const int depth);
-
-  static void stopAllThread();
+  void stopAllThread();
 };

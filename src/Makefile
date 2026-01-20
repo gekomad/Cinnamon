@@ -66,7 +66,7 @@ help:
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j EXE=$(EXE) LIBS="$(LIBS) /usr/lib/libgtest.a " CFLAGS=$(CFLAGS)-DFULL_TEST all
+	$(MAKE) -j EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(CFLAGS)-DFULL_TEST all
 	$(PA)$(EXE)
 else
 	$(MAKE) EXE=$(EXE) CFLAGS=$(CFLAGS) all

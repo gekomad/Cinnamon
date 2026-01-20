@@ -17,6 +17,8 @@
 */
 
 #pragma once
+#include "../util/Bitboard.h"
+#include "bits.h"
 #include "constants.h"
 using namespace constants;
 

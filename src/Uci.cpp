@@ -20,8 +20,8 @@
 #include "Uci.h"
 
 void Uci::startListner() {
-  IterativeDeeping i;
-  listner(&i);
+  auto i = unique_ptr<IterativeDeeping>(new IterativeDeeping(this->hash, this->searchManager));
+  listner(std::move(i));
 }
 
 Uci::Uci() { startListner(); }
@@ -31,7 +31,7 @@ void Uci::getToken(istringstream &uip, string &token) const {
   uip >> token;
 }
 
-void Uci::listner(IterativeDeeping *it) {
+void Uci::listner(unique_ptr<IterativeDeeping> it) {
   string command;
   bool knowCommand;
   string token;
@@ -52,17 +52,17 @@ void Uci::listner(IterativeDeeping *it) {
     knowCommand = false;
     if (String::toLower(token) == "quit") {
       knowCommand = true;
-      searchManager.setRunning(false);
+      searchManager->setRunning(false);
       stop = true;
       while (it->getRunning());
     } else if (String::toLower(token) == "ponderhit") {
       knowCommand = true;
-      searchManager.startClock();
-      searchManager.setMaxTimeMillsec(lastTime - lastTime / 3);
-      searchManager.setPonder(false);
+      searchManager->startClock();
+      searchManager->setMaxTimeMillsec(lastTime - lastTime / 3);
+      searchManager->setPonder(false);
     } else if (String::toLower(token) == "display") {
       knowCommand = true;
-      searchManager.display();
+      searchManager->display();
     } else if (String::toLower(token) == "isready") {
       knowCommand = true;
       cout << "readyok\n";
@@ -87,22 +87,22 @@ void Uci::listner(IterativeDeeping *it) {
       cout << "option name SyzygyPath type string default <empty>" << endl;
       cout << "uciok" << endl;
     } else if (String::toLower(token) == "score" || String::toLower(token) == "eval") {
-      uchar side = searchManager.getSide();
-      int t = searchManager.getScore(side);
-      if (!searchManager.getSide()) t = -t;
+      uchar side = searchManager->getSide();
+      int t = searchManager->getScore(side);
+      if (!searchManager->getSide()) t = -t;
       cout << "\nTotal (white)..........   " << (float)t / 100.0 << endl;
       knowCommand = true;
     } else if (String::toLower(token) == "perft") {
       cout << "Can't run perft here, view \"cinnamon.exe -help\"" << endl;
     } else if (String::toLower(token) == "stop") {
       knowCommand = true;
-      searchManager.setPonder(false);
-      searchManager.setRunning(0);
-      searchManager.setRunningThread(false);
+      searchManager->setPonder(false);
+      searchManager->setRunning(0);
+      searchManager->setRunningThread(false);
     } else if (String::toLower(token) == "ucinewgame") {
       while (it->getRunning());
       it->plyFromRoot = 0;
-      searchManager.loadFen();
+      searchManager->loadFen();
       knowCommand = true;
     } else if (String::toLower(token) == "setoption") {
       getToken(uip, token);
@@ -142,7 +142,7 @@ void Uci::listner(IterativeDeeping *it) {
           getToken(uip, token);
           if (String::toLower(token) == "value") {
             getToken(uip, token);
-            knowCommand = searchManager.setNthread(stoi(token));
+            knowCommand = searchManager->setNthread(stoi(token));
           }
         } else if (String::toLower(token) == "gaviotatbscheme") {
           getToken(uip, token);
@@ -182,7 +182,7 @@ void Uci::listner(IterativeDeeping *it) {
           getToken(uip, token);
           if (String::toLower(token) == "value") {
             getToken(uip, token);
-            hash.setHashSize(stoi(token));
+            hash->setHashSize(stoi(token));
             knowCommand = true;
           }
         } else if (String::toLower(token) == "nullmove") {
@@ -190,14 +190,14 @@ void Uci::listner(IterativeDeeping *it) {
           if (String::toLower(token) == "value") {
             getToken(uip, token);
             knowCommand = true;
-            searchManager.setNullMove(String::toLower(token) == "true");
+            searchManager->setNullMove(String::toLower(token) == "true");
           }
         } else if (String::toLower(token) == "uci_chess960") {
           getToken(uip, token);
           if (String::toLower(token) == "value") {
             getToken(uip, token);
             knowCommand = true;
-            searchManager.setChess960(String::toLower(token) == "true");
+            searchManager->setChess960(String::toLower(token) == "true");
           }
         } else if (String::toLower(token) == "ponder") {
           getToken(uip, token);
@@ -210,18 +210,18 @@ void Uci::listner(IterativeDeeping *it) {
           getToken(uip, token);
           if (String::toLower(token) == "hash") {
             knowCommand = true;
-            hash.clearHash();
+            hash->clearHash();
           }
         }
       }
     } else if (String::toLower(token) == "position") {
       while (it->getRunning());
       knowCommand = true;
-      searchManager.setRepetitionMapCount(0);
+      searchManager->setRepetitionMapCount(0);
       getToken(uip, token);
       _Tmove move;
       if (String::toLower(token) == "startpos") {
-        searchManager.loadFen(STARTPOS);
+        searchManager->loadFen(STARTPOS);
         getToken(uip, token);
       }
       if (String::toLower(token) == "fen") {
@@ -231,26 +231,26 @@ void Uci::listner(IterativeDeeping *it) {
           fen.append(token);
           fen.append(" ");
         }
-        searchManager.init();
-        int x = searchManager.loadFen(fen);
-        searchManager.setSide(x);
-        searchManager.pushStackMove();
+        searchManager->init();
+        int x = searchManager->loadFen(fen);
+        searchManager->setSide(x);
+        searchManager->pushStackMove();
       }
       if (String::toLower(token) == "moves") {
         while (!uip.eof()) {
           getToken(uip, token);
           if (!token.empty()) {
-            int x = !searchManager.getMoveFromSan(token, &move);
-            searchManager.setSide(x);
-            searchManager.makemove(&move);
+            int x = !searchManager->getMoveFromSan(token, &move);
+            searchManager->setSide(x);
+            searchManager->makemove(&move);
           }
         }
-        searchManager.updateFenString();
+        searchManager->updateFenString();
       }
 
     } else if (String::toLower(token) == "go") {
       it->setMaxDepth(MAX_PLY);
-      searchManager.unsetSearchMoves();
+      searchManager->unsetSearchMoves();
       int wtime = 200000;  // 5 min
       int btime = 200000;
       int winc = 0;
@@ -274,7 +274,7 @@ void Uci::listner(IterativeDeeping *it) {
             depth = MAX_PLY;
           }
           if (!setMovetime) {
-            searchManager.setMaxTimeMillsec(0x7FFFFFFF);
+            searchManager->setMaxTimeMillsec(0x7FFFFFFF);
           }
           it->setMaxDepth(depth);
           forceTime = true;
@@ -282,10 +282,10 @@ void Uci::listner(IterativeDeeping *it) {
           int tim;
           uip >> tim;
           setMovetime = true;
-          searchManager.setMaxTimeMillsec(tim);
+          searchManager->setMaxTimeMillsec(tim);
           forceTime = true;
         } else if (String::toLower(token) == "infinite") {
-          searchManager.setMaxTimeMillsec(0x7FFFFFFF);
+          searchManager->setMaxTimeMillsec(0x7FFFFFFF);
           forceTime = true;
         } else if (String::toLower(token) == "searchmoves") {
           vector<string> searchmoves;
@@ -293,27 +293,27 @@ void Uci::listner(IterativeDeeping *it) {
             uip >> token;
             searchmoves.push_back(token);
           }
-          searchManager.setSearchMoves(searchmoves);
+          searchManager->setSearchMoves(searchmoves);
         } else if (String::toLower(token) == "ponder") {
-          searchManager.setPonder(true);
+          searchManager->setPonder(true);
         }
       }
       if (!forceTime) {
-        if (searchManager.getSide() == WHITE) {
+        if (searchManager->getSide() == WHITE) {
           int timeForThisMove = wtime / 40 + (winc / 2);
           if (timeForThisMove >= wtime) timeForThisMove = wtime - 500;
           if (timeForThisMove < 0) timeForThisMove = 100;
-          searchManager.setMaxTimeMillsec(timeForThisMove);
+          searchManager->setMaxTimeMillsec(timeForThisMove);
         } else {
           int timeForThisMove = btime / 40 + (binc / 2);
           if (timeForThisMove >= btime) timeForThisMove = btime - 500;
           if (timeForThisMove < 0) timeForThisMove = 100;
-          searchManager.setMaxTimeMillsec(timeForThisMove);
+          searchManager->setMaxTimeMillsec(timeForThisMove);
         }
-        lastTime = searchManager.getMaxTimeMillsec();
+        lastTime = searchManager->getMaxTimeMillsec();
       }
       if (!uciMode) {
-        searchManager.display();
+        searchManager->display();
       }
       it->join();
       it->start();

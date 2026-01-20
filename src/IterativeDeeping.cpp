@@ -18,8 +18,11 @@
 
 #include "IterativeDeeping.h"
 
-IterativeDeeping::IterativeDeeping() : maxDepth(MAX_PLY), running(false), ponderEnabled(false) {
+IterativeDeeping::IterativeDeeping(const shared_ptr<Hash>& hash, const shared_ptr<SearchManager>& searchManager)
+    : maxDepth(MAX_PLY), running(false), ponderEnabled(false) {
   setId(-1);
+  this->hash = hash;
+  this->searchManager = searchManager;
   plyFromRoot = 0;
   SET(checkSmp2, 0);
 }
@@ -39,17 +42,17 @@ void IterativeDeeping::run() {
   bestmove.clear();
   INC(checkSmp2);
   int timeTaken;
-  searchManager.setRunning(2);
-  searchManager.setRunningThread(true);
+  searchManager->setRunning(2);
+  searchManager->setRunningThread(true);
 
 #ifndef JS_MODE
   // Tablebase
 
-  string tb = TB::probeRootTB1(searchManager.getSearch());
+  string tb = TB::probeRootTB1(searchManager->getSearch());
   if (!tb.empty()) {
     debug("info string returned move from TB\n") _Tmove move;
-    searchManager.getMoveFromSan(tb, &move);
-    searchManager.makemove(&move);
+    searchManager->getMoveFromSan(tb, &move);
+    searchManager->makemove(&move);
     cout << "bestmove " << tb << endl;
     ADD(checkSmp2, -1);
     ASSERT(!checkSmp2);
@@ -61,69 +64,69 @@ void IterativeDeeping::run() {
 
   int iter_depth = 0;
 
-  searchManager.startClock();
-  searchManager.clearHeuristic();
+  searchManager->startClock();
+  searchManager->clearHeuristic();
   plyFromRoot++;
-  searchManager.setForceCheck(false);
+  searchManager->setForceCheck(false);
 
   auto start1 = std::chrono::high_resolution_clock::now();
   bool inMate = false;
   int extension = 0;
   string ponderMove;
-  searchManager.init();
+  searchManager->init();
 
   string pvv;
   _Tmove resultMove;
 
   DEBUG(u64 totMovesPrec = -1)
 
-  while (searchManager.getRunning(0)) {
+  while (searchManager->getRunning(0)) {
     totMoves = 0;
     ++iter_depth;
-    searchManager.init();
+    searchManager->init();
 
-    auto sc = searchManager.search(plyFromRoot, iter_depth);
+    auto sc = searchManager->search(plyFromRoot, iter_depth);
 
-    searchManager.setRunningThread(1);
-    searchManager.setRunning(1);
-    if (!searchManager.getRes(resultMove, ponderMove, pvv)) {
+    searchManager->setRunningThread(1);
+    searchManager->setRunning(1);
+    if (!searchManager->getRes(resultMove, ponderMove, pvv)) {
       debug("IterativeDeeping cmove == 0. Exit") break;
     }
 
-    searchManager.incHistoryHeuristic(resultMove.from, resultMove.to, 0x1000);
+    searchManager->incHistoryHeuristic(resultMove.from, resultMove.to, 0x1000);
 
     auto end1 = std::chrono::high_resolution_clock::now();
     timeTaken = Time::diffTime(end1, start1) + 1;
-    totMoves += searchManager.getTotMoves();
+    totMoves += searchManager->getTotMoves();
 
 #ifdef DEBUG_MODE
-    const int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
-    const int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
-    const int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
-    const int percStoreHashE = hash.nRecordHashE * 100 / totStoreHash;
-    const int totCutHash = hash.n_cut_hashA + hash.n_cut_hashB + hash.n_cut_hashE + 1;
-    const int percCutHashA = hash.n_cut_hashA * 100 / totCutHash;
-    const int percCutHashB = hash.n_cut_hashB * 100 / totCutHash;
-    const int percCutHashE = hash.n_cut_hashE * 100 / totCutHash;
+    const int totStoreHash = hash->nRecordHashA + hash->nRecordHashB + hash->nRecordHashE + 1;
+    const int percStoreHashA = hash->nRecordHashA * 100 / totStoreHash;
+    const int percStoreHashB = hash->nRecordHashB * 100 / totStoreHash;
+    const int percStoreHashE = hash->nRecordHashE * 100 / totStoreHash;
+    const int totCutHash = hash->n_cut_hashA + hash->n_cut_hashB + hash->n_cut_hashE + 1;
+    const int percCutHashA = hash->n_cut_hashA * 100 / totCutHash;
+    const int percCutHashB = hash->n_cut_hashB * 100 / totCutHash;
+    const int percCutHashE = hash->n_cut_hashE * 100 / totCutHash;
 
-    const unsigned cumulativeMovesCount = searchManager.getCumulativeMovesCount();
+    const unsigned cumulativeMovesCount = searchManager->getCumulativeMovesCount();
 
     u64 nps = 0;
     if (timeTaken) {
       nps = totMoves * 1000 / timeTaken;
     }
-    const int nCutAB = searchManager.getNCutAB();
+    const int nCutAB = searchManager->getNCutAB();
 
-    const int LazyEvalCuts = searchManager.getLazyEvalCuts();
-    const int nCutFp = searchManager.getNCutFp();
-    const int nCutRazor = searchManager.getNCutRazor();
-    const int nBadCaputure = searchManager.getTotBadCaputure();
-    const int nullMoveCut = searchManager.getNullMoveCut();
+    const int LazyEvalCuts = searchManager->getLazyEvalCuts();
+    const int nCutFp = searchManager->getNCutFp();
+    const int nCutRazor = searchManager->getNCutRazor();
+    const int nBadCaputure = searchManager->getTotBadCaputure();
+    const int nullMoveCut = searchManager->getNullMoveCut();
 
     cout << "\ninfo string ply: " << iter_depth << endl;
     cout << "info string tot moves: " << totMoves << endl;
 
-    if (nCutAB) cout << "info string beta efficiency: " << (searchManager.getBetaEfficiency()) << "%" << endl;
+    if (nCutAB) cout << "info string beta efficiency: " << (searchManager->getBetaEfficiency()) << "%" << endl;
 
     if (totMovesPrec != 0xffffffffffffffffULL)
       cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2)
@@ -140,29 +143,29 @@ void IterativeDeeping::run() {
            totStoreHash * 100 / (1 + cumulativeMovesCount), percStoreHashA, percStoreHashB, percStoreHashE);
 
     printf("info string hash cut %d%% (alpha=%d%% beta=%d%% exact=%d%%)\n",
-           totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()), percCutHashA, percCutHashB, percCutHashE);
-    printf("info string hash write collisions: %d%%\n", hash.collisions * 100 / (totStoreHash + 1));
-    printf("info string hash read collisions: %d%%\n", hash.readCollisions * 100 / (hash.readHashCount + 1));
+           totCutHash * 100 / (1 + searchManager->getCumulativeMovesCount()), percCutHashA, percCutHashB, percCutHashE);
+    printf("info string hash write collisions: %d%%\n", hash->collisions * 100 / (totStoreHash + 1));
+    printf("info string hash read collisions: %d%%\n", hash->readCollisions * 100 / (hash->readHashCount + 1));
 
 #endif
 
     bool trace = true;
     if (abs(sc) > _INFINITE - MAX_PLY) {
-      const bool b = searchManager.getForceCheck();
-      const u64 oldKey = searchManager.getZobristKey(0);
-      const int oldEnpassant = searchManager.getEnpassant(0);
-      searchManager.setForceCheck(true);
-      const bool valid = searchManager.makemove(&resultMove);
+      const bool b = searchManager->getForceCheck();
+      const u64 oldKey = searchManager->getZobristKey(0);
+      const int oldEnpassant = searchManager->getEnpassant(0);
+      searchManager->setForceCheck(true);
+      const bool valid = searchManager->makemove(&resultMove);
       if (!valid) {
         extension++;
         trace = false;
       }
-      searchManager.takeback(&resultMove, oldKey, oldEnpassant, true);
-      searchManager.setForceCheck(b);
+      searchManager->takeback(&resultMove, oldKey, oldEnpassant, true);
+      searchManager->setForceCheck(b);
     }
     if (trace) {
-      resultMove.capturedPiece = searchManager.getPieceAt(X(resultMove.side), POW2(resultMove.to));
-      bestmove = searchManager.decodeBoardinv(&resultMove);
+      resultMove.capturedPiece = searchManager->getPieceAt(X(resultMove.side), POW2(resultMove.to));
+      bestmove = searchManager->decodeBoardinv(&resultMove);
 
       if (sc > _INFINITE - MAX_PLY)
         cout << "info depth " << iter_depth << " score mate " << max(1, (_INFINITE - sc) / 2);
@@ -174,17 +177,17 @@ void IterativeDeeping::run() {
       cout << " time " << timeTaken << " nodes " << totMoves;
       if (timeTaken) cout << " nps " << (int)((double)totMoves / (double)timeTaken * 1000.0);
       cout << " pv " << pvv << endl;
-      DEBUG(GenMoves::verifyPV(searchManager.getSearch().getFen(), pvv))
+      DEBUG(GenMoves::verifyPV(searchManager->getSearch().getFen(), pvv))
     }
 
-    if (searchManager.getForceCheck()) {
-      searchManager.setForceCheck(inMate);
-      searchManager.setRunning(1);
+    if (searchManager->getForceCheck()) {
+      searchManager->setForceCheck(inMate);
+      searchManager->setRunning(1);
     } else if (iter_depth == 1 && abs(sc) > _INFINITE - MAX_PLY) {
-      searchManager.setForceCheck(true);
-      searchManager.setRunning(2);
+      searchManager->setForceCheck(true);
+      searchManager->setRunning(2);
     }
-    if (iter_depth >= maxDepth + extension && (searchManager.getRunning(0) != 2 || inMate)) {
+    if (iter_depth >= maxDepth + extension && (searchManager->getRunning(0) != 2 || inMate)) {
       break;
     }
 
@@ -207,4 +210,4 @@ void IterativeDeeping::run() {
   LOCK_RELEASE(running);
 }
 
-int IterativeDeeping::loadFen(const string &fen) { return searchManager.loadFen(fen); }
+int IterativeDeeping::loadFen(const string& fen) { return searchManager->loadFen(fen); }

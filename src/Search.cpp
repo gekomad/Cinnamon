@@ -278,7 +278,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
   /// ************* hash ****************
   const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
   u64 hashItem;
-  const int hashValue = hash.readHash(alpha, beta, depth, zobristKeyR, hashItem, currentPly);
+  const int hashValue = hash->readHash(alpha, beta, depth, zobristKeyR, hashItem, currentPly);
   if (hashValue != INT_MAX) {
     return hashValue;
   }
@@ -426,7 +426,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
                                 (((double)countMove * 100.0 / (double)listcount) / (double)countMove))
         if (getRunning()) {
           Hash::_Thash data(zobristKeyR, score, depth, move->from, move->to, Hash::hashfBETA);
-          hash.recordHash(data, ply);
+          hash->recordHash(data, ply);
 
           if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
             setHistoryHeuristic(move->from, move->to, depth);
@@ -446,14 +446,14 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
       setKiller(best->from, best->to, depth - extension);
     }
     Hash::_Thash data(zobristKeyR, score, depth, best->from, best->to, hashf);
-    hash.recordHash(data, ply);
+    hash->recordHash(data, ply);
   }
   decListId();
   return score;
 }
 
 void Search::updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move) {
-  if (!getRunning())return;
+  if (!getRunning()) return;
   ASSERT(line->cmove < MAX_PLY - 1);
   memcpy(&(pline->argmove[0]), move, sizeof(_Tmove));
   memcpy(pline->argmove + 1, line->argmove, line->cmove * sizeof(_Tmove));

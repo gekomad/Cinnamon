@@ -25,32 +25,36 @@
 #include "../SearchManager.h"
 
 TEST(syzygy, DTM) {
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  auto hash = std::make_shared<Hash>();
+  const auto searchManager = std::make_shared<SearchManager>(hash);
   SYZYGY::getInstance().createSYZYGY("/syzygy");
-  searchManager.loadFen("2QN4/8/8/8/8/8/8/1k2K3 w - - 0 1");
-  EXPECT_EQ("e1d2", TB::probeRootTB1(searchManager.getSearch()));
+  searchManager->loadFen("2QN4/8/8/8/8/8/8/1k2K3 w - - 0 1");
+  EXPECT_EQ("e1d2", TB::probeRootTB1(searchManager->getSearch()));
 }
 
 TEST(syzygy, WDL1) {
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  auto hash = std::make_shared<Hash>();
+  const auto searchManager = std::make_shared<SearchManager>(hash);
   SYZYGY::getInstance().createSYZYGY("/syzygy");
-  searchManager.loadFen("2QN4/8/8/8/8/8/8/1k2K3 w - - 0 1");
-  EXPECT_EQ(4, searchManager.SZtbProbeWDL());  // TB_WIN
+  searchManager->loadFen("2QN4/8/8/8/8/8/8/1k2K3 w - - 0 1");
+  EXPECT_EQ(4, searchManager->SZtbProbeWDL());  // TB_WIN
 }
 
 TEST(syzygy, WDL2) {
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  auto hash = std::make_shared<Hash>();
+  const auto searchManager = std::make_shared<SearchManager>(hash);
   SYZYGY::getInstance().createSYZYGY("/syzygy");
-  searchManager.loadFen("2QN4/8/8/8/8/8/8/1k2K3 b - - 0 1");
-  auto d = searchManager.SZtbProbeWDL();
+  searchManager->loadFen("2QN4/8/8/8/8/8/8/1k2K3 b - - 0 1");
+  auto d = searchManager->SZtbProbeWDL();
   EXPECT_EQ(0, d);  // TB_LOSS
 }
 
 TEST(syzygy, WDL3) {
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  auto hash = std::make_shared<Hash>();
+  const auto searchManager = std::make_shared<SearchManager>(hash);
   SYZYGY::getInstance().createSYZYGY("/syzygy");
-  searchManager.loadFen("8/8/8/8/8/8/8/1k2K3 w - - 0 1");
-  auto d = searchManager.SZtbProbeWDL();
+  searchManager->loadFen("8/8/8/8/8/8/8/1k2K3 w - - 0 1");
+  auto d = searchManager->SZtbProbeWDL();
   EXPECT_EQ(2, d);  // TB_DRAW
 }
 

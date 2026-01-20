@@ -31,9 +31,7 @@
 using namespace constants;
 using namespace _logger;
 
-class Hash : public Singleton<Hash> {
-  friend class Singleton<Hash>;
-
+class Hash {
  public:
   typedef struct _Thash {
     u64 key;
@@ -46,23 +44,24 @@ class Hash : public Singleton<Hash> {
       key = zobristKeyR;
       data = score;
       data &= 0xffffULL;
-      data |= (u64)depth << 16;
-      data |= (u64)to << (16 + 8);
-      data |= (u64)from << (16 + 8 + 8);
-      data |= (u64)flags << (16 + 8 + 8 + 8);
+      data |= static_cast<u64>(depth) << 16;
+      data |= static_cast<u64>(to) << (16 + 8);
+      data |= static_cast<u64>(from) << (16 + 8 + 8);
+      data |= static_cast<u64>(flags) << (16 + 8 + 8 + 8);
     }
   } _Thash;
 
   enum : char { hashfALPHA = 0, hashfEXACT = 1, hashfBETA = 2 };
 
 #ifdef DEBUG_MODE
-  static unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions, readCollisions, n_cut_hashA, n_cut_hashB,
+  unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions, readCollisions, n_cut_hashA, n_cut_hashB,
       n_cut_hashE, readHashCount;
 #endif
+  Hash();
+  ~Hash();
+  void setHashSize(const int mb);
 
-  static void setHashSize(const int mb);
-
-  static void clearHash();
+  void clearHash() const;
 
 #define SET_AGE(u, v) (u = (u & 0xffffffffffffULL) | (((u64)v) << (16 + 8 + 8 + 8 + 8)))
 #define GET_DEPTH(v) ((uchar)(v >> 16))
@@ -73,7 +72,7 @@ class Hash : public Singleton<Hash> {
 #define GET_AGE(v) ((unsigned short)(v >> (16 + 8 + 8 + 8 + 8)))
 #define GET_KEY(hash) (hash->key ^ (hash->data & 0xffffffffffffULL))
 
-  static inline int readHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, u64 &hashStruct,
+  inline int readHash(const int alpha, const int beta, const int depth, const u64 zobristKeyR, u64 &hashStruct,
                              const bool currentPly) {
     INC(readHashCount);
     const Hash::_Thash *hash = &(hashArray[zobristKeyR % HASH_SIZE]);
@@ -82,7 +81,7 @@ class Hash : public Singleton<Hash> {
     bool found = false;
     for (int i = 0; i < BUCKETS; i++, hash++) {
       if (found) break;
-      u64 data = hash->data;
+      const u64 data = hash->data;
       DEBUG(d |= data)
       if (zobristKeyR == GET_KEY(hash)) {
         found = true;
@@ -114,7 +113,7 @@ class Hash : public Singleton<Hash> {
     return INT_MAX;
   }
 
-  static void recordHash(const _Thash &toStore, const int ply) {
+  void recordHash(const _Thash &toStore, const int ply) {
 #ifdef DEBUG_MODE
     ASSERT(toStore.key);
     if (GET_FLAGS(toStore.data) == hashfALPHA)
@@ -179,16 +178,15 @@ class Hash : public Singleton<Hash> {
   }
 
  private:
-  Hash();
-  ~Hash();
-  static void dispose();
-  static constexpr int BUCKETS = 3;
-  static unsigned HASH_SIZE;
+
+  void dispose();
+  const int BUCKETS = 3;
+  unsigned HASH_SIZE;
 #ifdef JS_MODE
-  static constexpr int HASH_SIZE_DEFAULT = 1;
+  const int HASH_SIZE_DEFAULT = 1;
 #else
-  static constexpr int HASH_SIZE_DEFAULT = 64;
+  const int HASH_SIZE_DEFAULT = 64;
 #endif
 
-  static _Thash *hashArray;
+  _Thash *hashArray;
 };

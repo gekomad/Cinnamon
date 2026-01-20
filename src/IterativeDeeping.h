@@ -18,29 +18,24 @@
 
 #pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <cstring>
 #include <iomanip>
 
 #include "SearchManager.h"
 #include "namespaces/String.h"
 #include "threadPool/Thread.h"
-#include "unistd.h"
 
 class IterativeDeeping : public Thread<IterativeDeeping> {
  public:
   int plyFromRoot;
+  shared_ptr<Hash> hash;
 
-  IterativeDeeping();
+  IterativeDeeping(const shared_ptr<Hash> &hash, const shared_ptr<SearchManager>& searchManager);
 
-  virtual ~IterativeDeeping();
+  ~IterativeDeeping() override;
 
   void run();
 
-  void endRun() {};
+  static void endRun() {};
 
   bool getPonderEnabled() const;
 
@@ -66,10 +61,10 @@ class IterativeDeeping : public Thread<IterativeDeeping> {
  private:
   DEBUG(atomic_int checkSmp2)
 
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+  shared_ptr<SearchManager> searchManager;
   int maxDepth;
   string bestmove;
-  Hash &hash = Hash::getInstance();
+
   volatile long running;
   bool ponderEnabled;
 };

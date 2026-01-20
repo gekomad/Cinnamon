@@ -25,10 +25,12 @@
 
 namespace makemove {
 string go(const string &fen) {
-  IterativeDeeping it;
+  auto hash = std::make_shared<Hash>();
+  const auto searchManager = std::make_shared<SearchManager>(hash);
+  IterativeDeeping it(hash, searchManager);
   it.loadFen(fen);
-  SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-  searchManager.setMaxTimeMillsec(250);
+
+  searchManager->setMaxTimeMillsec(250);
   it.start();
   it.join();
   return it.getBestmove();
