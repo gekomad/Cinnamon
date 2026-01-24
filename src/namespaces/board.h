@@ -114,8 +114,9 @@ public:
 
 #endif
 
+
     template<uchar side>
-    __attribute__((always_inline))  static u64 getAttackers(const int position, const u64 allpieces, const _Tchessboard &chessboard) {
+    static u64 getAttackers(const int position, const u64 allpieces, const _Tchessboard &chessboard) {
         BENCH_AUTO_CLOSE("getAttackers")
         ASSERT_RANGE(position, 0, 63)
         ASSERT_RANGE(side, 0, 1)

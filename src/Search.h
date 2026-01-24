@@ -168,4 +168,7 @@ private:
 
     template<uchar side>
     bool badCapure(const _Tmove *move, const u64 allpieces) const;
+
+    template<uchar side>
+    int see(const int to, const int targetPiece, const u64 allpieces, _Tchessboard& chessboard) const;
 };

@@ -533,17 +533,41 @@ bool Search::badCapure(const _Tmove *move, const u64 allpieces) const {
 
     if (move->pieceFrom == (PAWN_BLACK + side)) return false;
 
-    if (PIECES_VALUE[move->capturedPiece] - 5 >= PIECES_VALUE[move->pieceFrom]) return false;
-
-    if (PIECES_VALUE[move->capturedPiece] + 200 < PIECES_VALUE[move->pieceFrom] &&
-        (PAWN_FORK_MASK[side][move->to] & chessboard[PAWN_BLACK + (X(side))]))
-        return true;
-
-    if (PIECES_VALUE[move->capturedPiece] + 450 < PIECES_VALUE[move->pieceFrom] &&
-        board::isAttacked(side, move->to, allpieces, chessboard))
-        return true;
-
-    return false;
+    if (PIECES_VALUE[move->capturedPiece] >= PIECES_VALUE[move->pieceFrom]) return false;
+    _Tchessboard chessboard2 ; // TODO lazy
+    memcpy(&chessboard2, &chessboard, sizeof(_Tchessboard));
+    const int gain = PIECES_VALUE[move->capturedPiece] - see<X(side)>(move->to, move->pieceFrom, allpieces, chessboard2);
+    
+    return gain < 0;
 }
 
+template<uchar side>
+int Search::see(const int to, const int targetPiece, const u64 allpieces, _Tchessboard& chessboard) const {
+    int value = 0;
+    int attackerPiece;
+    u64 attackerPos;
+    getAttacker<side>(to, allpieces, &attackerPiece, &attackerPos);
+
+    if (attackerPiece != -1) {
+        cout << allpieces <<" "<<  attackerPos <<  " " << (allpieces ^ attackerPos) << endl;
+        fflush(stdout);
+        display();
+        auto a=chessboard[attackerPiece];
+        auto b=chessboard[targetPiece];
+        auto c=attackerPos;
+        auto d=POW2(to);
+        chessboard[attackerPiece] &= ~attackerPos;
+        chessboard[attackerPiece] |= POW2(to);
+        chessboard[targetPiece] &= ~ POW2(to);
+        auto a1=chessboard[attackerPiece];
+        auto b1=chessboard[targetPiece];
+        auto c1=attackerPos;
+        auto d1=POW2(to);
+        value = PIECES_VALUE[targetPiece] - see<X(side)>(to, PIECES_VALUE[attackerPiece], allpieces ^ attackerPos, chessboard);
+
+        return value < 0 ? 0 : value;
+    }
+
+    return 0;
+}
 

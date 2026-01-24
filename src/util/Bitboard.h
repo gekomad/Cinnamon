@@ -53,7 +53,7 @@ public:
 //    ........            00010000
 //    ...Q....            00010000
 //    ........            00000000
-
+        ASSERT_RANGE(position, 0, 64)
         return (BITBOARD_FILE[position][fileIdx(position, allpieces)]) |
                BITBOARD_RANK[position][rankIdx(position, allpieces)];
     }
@@ -68,7 +68,7 @@ public:
 //    ........            00001000
 //    ........            00000100
 //    ........            00000010
-
+        ASSERT_RANGE(position, 0, 64)
         return BITBOARD_DIAGONAL[position][diagonalIdx(position, allpieces)] |
                BITBOARD_ANTIDIAGONAL[position][antiDiagonalIdx(position, allpieces)];
     }

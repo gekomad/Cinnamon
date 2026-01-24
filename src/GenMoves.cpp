@@ -227,6 +227,54 @@ bool GenMoves::allowCastleWhiteQueen(const u64 allpieces) const {
            !board::isAttacked<WHITE>(4, allpieces, chessboard) &&
            !board::isAttacked<WHITE>(5, allpieces, chessboard);
 }
+template < uchar side >
+void GenMoves::getAttacker(const int to, const u64 allpieces, int* attackerPiece, u64* attackerPos) const
+{
+
+    constexpr int xside = X(side);
+    *attackerPiece = -1;
+    u64 a;
+
+    ///pawn
+    if ((a = PAWN_FORK_MASK[side][to] & chessboard[PAWN_BLACK + xside])) {
+
+        *attackerPiece  = PAWN_BLACK + xside;
+        *attackerPos = a;
+    }
+
+    ///knight
+    if ((a = KNIGHT_MASK[to] & chessboard[KNIGHT_BLACK + xside])) {
+
+        *attackerPiece = KNIGHT_BLACK + xside;
+        *attackerPos =  a;
+
+    }
+
+    ///bishop
+    u64 enemies = chessboard[KNIGHT_BLACK + xside];
+    a = Bitboard::getDiagonalAntiDiagonal(to, allpieces) & enemies;
+    if (a)
+    {
+        *attackerPiece = KNIGHT_BLACK + xside;
+        *attackerPos =  a;
+    }
+
+    ///bishop queen
+    enemies = chessboard[QUEEN_BLACK + xside];
+    a = Bitboard::getDiagonalAntiDiagonal(to, allpieces) & enemies;
+    if (a)
+    {
+        *attackerPiece = QUEEN_BLACK + xside;
+        *attackerPos = a;
+    }
+    ///king
+    if ((a = (NEAR_MASK1[to] & chessboard[KING_BLACK + xside]))) {
+
+        *attackerPiece = KING_BLACK + xside;
+        *attackerPos = a;
+    }
+
+}
 
 bool GenMoves::allowCastleBlackKing(const u64 allpieces) const {
     return POW2_59 & chessboard[KING_BLACK] && rightCastle & RIGHT_KING_CASTLE_BLACK_MASK &&
@@ -626,3 +674,5 @@ bool GenMoves::verifyMove(const _Tmove *move) {
 }
 
 #endif
+template void GenMoves::getAttacker<0>(int, u64, int*, u64*) const;
+template void GenMoves::getAttacker<1>(int, u64, int*, u64*) const;

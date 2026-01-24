@@ -510,6 +510,7 @@ protected:
 
 #endif
 
+    template <uchar side> void getAttacker(int to, u64 allpieces, int* attackerValue, u64* attackerPos) const;
     template<int type, uchar side>
     __attribute__((always_inline)) bool
     inCheck(const uchar from, const uchar to, const uchar pieceFrom, const uchar pieceTo, uchar promotionPiece) {
