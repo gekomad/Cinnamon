@@ -111,7 +111,7 @@ public:
         return enPassant;
     }
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
     static unsigned cumulativeMovesCount;
     unsigned totGen;
 
@@ -149,7 +149,7 @@ private:
     bool nullSearch;
     static high_resolution_clock::time_point startTime;
 
-    bool checkDraw(u64);
+    bool checkDraw(u64) const;
 
     template<uchar side, bool checkMoves>
     int search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE);
@@ -160,11 +160,11 @@ private:
     template<uchar side>
     int qsearch(int alpha, const int beta, const uchar promotionPiece, const int depth);
 
-    void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
+    static void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
     int mainDepth;
     int ply;
 
     template<uchar side>
-    bool badCapure(const _Tmove &move, const u64 allpieces);
+    bool badCapure(const _Tmove &move, const u64 allpieces) const;
 };

@@ -21,13 +21,13 @@
 GenMoves::GenMoves() : perftMode(false), listId(-1) {
     currentPly = 0;
     genList = (_TmoveP *) calloc(MAX_PLY, sizeof(_TmoveP));
-    _assert(genList)
+    _ASSERT(genList)
     for (int i = 0; i < MAX_PLY; i++) {
         genList[i].moveList = (_Tmove *) calloc(MAX_MOVE, sizeof(_Tmove));
-        _assert(genList[i].moveList)
+        _ASSERT(genList[i].moveList)
     }
     repetitionMap = (u64 *) malloc(sizeof(u64) * MAX_REP_COUNT);
-    _assert(repetitionMap)
+    _ASSERT(repetitionMap)
     repetitionMapCount = 0;
     init();
 }
@@ -62,7 +62,7 @@ _Tmove *GenMoves::getNextMoveQ(_TmoveP *list, const int first) {
         ASSERT_RANGE(move.to, 0, 63)
         ASSERT_RANGE(move.from, 0, 63)
 
-        const int score = CAPTURES[move.pieceFrom][move.capturedPiece];
+        const int score = 0;//CAPTURES[move.pieceFrom][move.capturedPiece];
         if (score > bestScore) {
             bestScore = score;
             bestId = i;
@@ -88,17 +88,17 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
             ASSERT_RANGE(move.to, 0, 63)
             ASSERT_RANGE(move.from, 0, 63)
 
-            if (GET_FROM(hash) == move.from && GET_TO(hash) == move.to) {
-                return swap(list, first, i);
-            }
-            score += historyHeuristic[move.from][move.to];
-            score += CAPTURES[move.pieceFrom][move.capturedPiece];
+            // if (GET_FROM(hash) == move.from && GET_TO(hash) == move.to) {
+            //     return swap(list, first, i);
+            // }
+            // score += historyHeuristic[move.from][move.to];
+            // score += CAPTURES[move.pieceFrom][move.capturedPiece];
 
 //            if (isKiller(0, move.from, move.to, depth)) score += 50;
 //            else if (isKiller(1, move.from, move.to, depth)) score += 30;
 
         } else if (move.type & 0xc) {    //castle
-            assert(rightCastle);
+            ASSERT(rightCastle);
             score = 100;
         }
         if (score > bestScore) {
@@ -124,7 +124,7 @@ void GenMoves::performCastle(const uchar side, const uchar type) {
     ASSERT_RANGE(side, 0, 1)
 
     if (side == WHITE) {
-        assert(chessboard[KING_WHITE] & POW2(startPosWhiteKing));
+        ASSERT(chessboard[KING_WHITE] & POW2(startPosWhiteKing));
         if (type & KING_SIDE_CASTLE_MOVE_MASK) {
             if (startPosWhiteKing != G1) {
                 updateZobristKey(KING_WHITE, startPosWhiteKing);
@@ -138,8 +138,8 @@ void GenMoves::performCastle(const uchar side, const uchar type) {
                 chessboard[ROOK_WHITE] = (chessboard[ROOK_WHITE] | POW2_2) & NOTPOW2(startPosWhiteRookKingSide);
             }
 
-            assert(chessboard[KING_WHITE] & POW2(G1));
-            assert(chessboard[ROOK_WHITE] & POW2(F1));
+            ASSERT(chessboard[KING_WHITE] & POW2(G1));
+            ASSERT(chessboard[ROOK_WHITE] & POW2(F1));
 
         } else {
             if (startPosWhiteKing != C1) {
@@ -152,12 +152,12 @@ void GenMoves::performCastle(const uchar side, const uchar type) {
                 updateZobristKey(ROOK_WHITE, D1);
                 updateZobristKey(ROOK_WHITE, startPosWhiteRookQueenSide);
             }
-            assert(chessboard[KING_WHITE] & POW2(C1));
-            assert(chessboard[ROOK_WHITE] & POW2(D1));
+            ASSERT(chessboard[KING_WHITE] & POW2(C1));
+            ASSERT(chessboard[ROOK_WHITE] & POW2(D1));
 
         }
     } else {
-        assert(chessboard[KING_BLACK] & POW2(startPosBlackKing));
+        ASSERT(chessboard[KING_BLACK] & POW2(startPosBlackKing));
 
         if (type & KING_SIDE_CASTLE_MOVE_MASK) {
 
@@ -172,8 +172,8 @@ void GenMoves::performCastle(const uchar side, const uchar type) {
                 updateZobristKey(ROOK_BLACK, startPosBlackRookKingSide);
             }
 
-            assert(chessboard[KING_BLACK] & POW2(G8));
-            assert(chessboard[ROOK_BLACK] & POW2(F8));
+            ASSERT(chessboard[KING_BLACK] & POW2(G8));
+            ASSERT(chessboard[ROOK_BLACK] & POW2(F8));
 
         } else {
 
@@ -187,12 +187,12 @@ void GenMoves::performCastle(const uchar side, const uchar type) {
                 updateZobristKey(ROOK_BLACK, D8);
                 updateZobristKey(ROOK_BLACK, startPosBlackRookQueenSide);
             }
-            assert(chessboard[KING_BLACK] & POW2(C8));
-            assert(chessboard[ROOK_BLACK] & POW2(D8));
+            ASSERT(chessboard[KING_BLACK] & POW2(C8));
+            ASSERT(chessboard[ROOK_BLACK] & POW2(D8));
         }
     }
-    assert(chessboard[KING_WHITE]);
-    assert(chessboard[KING_BLACK]);
+    ASSERT(chessboard[KING_WHITE]);
+    ASSERT(chessboard[KING_BLACK]);
 }
 
 bool GenMoves::allowCastleBlackQueen(const u64 allpieces) const {
@@ -229,42 +229,42 @@ bool GenMoves::allowCastleWhiteKing(const u64 allpieces) const {
 
 void GenMoves::unPerformCastle(const uchar side, const uchar type) {
     ASSERT_RANGE(side, 0, 1)
-    assert(chessboard[KING_WHITE]);
-    assert(chessboard[KING_BLACK]);
+    ASSERT(chessboard[KING_WHITE]);
+    ASSERT(chessboard[KING_BLACK]);
     if (side == WHITE) {
         if (type & KING_SIDE_CASTLE_MOVE_MASK) {
-            assert(board::getPieceAt(side, POW2_1, chessboard) == KING_WHITE);
-            assert(board::getPieceAt(side, POW2_2, chessboard) == ROOK_WHITE);
+            ASSERT(board::getPieceAt(side, POW2_1, chessboard) == KING_WHITE);
+            ASSERT(board::getPieceAt(side, POW2_2, chessboard) == ROOK_WHITE);
             if (startPosWhiteKing != 1)
                 chessboard[KING_WHITE] = (chessboard[KING_WHITE] | POW2(startPosWhiteKing)) & NOTPOW2_1;
             if (startPosWhiteRookKingSide != F1)
                 chessboard[ROOK_WHITE] = (chessboard[ROOK_WHITE] | POW2(startPosWhiteRookKingSide)) & NOTPOW2_2;
         } else {
-            assert(board::getPieceAt(side, POW2_5, chessboard) == KING_WHITE);
-            assert(board::getPieceAt(side, POW2_4, chessboard) == ROOK_WHITE);
+            ASSERT(board::getPieceAt(side, POW2_5, chessboard) == KING_WHITE);
+            ASSERT(board::getPieceAt(side, POW2_4, chessboard) == ROOK_WHITE);
             if (startPosWhiteKing != C1)
                 chessboard[KING_WHITE] = (chessboard[KING_WHITE] | POW2(startPosWhiteKing)) & NOTPOW2_5;
             if (startPosWhiteRookQueenSide != D1)
                 chessboard[ROOK_WHITE] = (chessboard[ROOK_WHITE] | POW2(startPosWhiteRookQueenSide)) & NOTPOW2_4;
         }
-        assert(chessboard[KING_WHITE] & POW2(startPosWhiteKing));
+        ASSERT(chessboard[KING_WHITE] & POW2(startPosWhiteKing));
     } else {
         if (type & KING_SIDE_CASTLE_MOVE_MASK) {
-            assert(board::getPieceAt(side, POW2_57, chessboard) == KING_BLACK);
-            assert(board::getPieceAt(side, POW2_58, chessboard) == ROOK_BLACK);
+            ASSERT(board::getPieceAt(side, POW2_57, chessboard) == KING_BLACK);
+            ASSERT(board::getPieceAt(side, POW2_58, chessboard) == ROOK_BLACK);
             if (startPosBlackKing != G8)
                 chessboard[KING_BLACK] = (chessboard[KING_BLACK] | POW2(startPosBlackKing)) & NOTPOW2_57;
             if (startPosBlackRookKingSide != F8)
                 chessboard[ROOK_BLACK] = (chessboard[ROOK_BLACK] | POW2(startPosBlackRookKingSide)) & NOTPOW2_58;
         } else {
-            assert(board::getPieceAt(side, POW2_61, chessboard) == KING_BLACK);
-            assert(board::getPieceAt(side, POW2_60, chessboard) == ROOK_BLACK);
+            ASSERT(board::getPieceAt(side, POW2_61, chessboard) == KING_BLACK);
+            ASSERT(board::getPieceAt(side, POW2_60, chessboard) == ROOK_BLACK);
             if (startPosBlackKing != C8)
                 chessboard[KING_BLACK] = (chessboard[KING_BLACK] | POW2(startPosBlackKing)) & NOTPOW2_61;
             if (startPosBlackRookQueenSide != D8)
                 chessboard[ROOK_BLACK] = (chessboard[ROOK_BLACK] | POW2(startPosBlackRookQueenSide)) & NOTPOW2_60;
         }
-        assert(chessboard[KING_BLACK] & POW2(startPosBlackKing));
+        ASSERT(chessboard[KING_BLACK] & POW2(startPosBlackKing));
     }
 
 }
@@ -283,19 +283,19 @@ void GenMoves::takeback(const _Tmove *move, const u64 oldkey, const uchar oldEnp
         if (move->capturedPiece != SQUARE_EMPTY) {
             if (((move->type & 0x3) != ENPASSANT_MOVE_MASK)) chessboard[move->capturedPiece] |= POW2(move->to);
             else {
-                assert(move->capturedPiece == X(move->side));
+                ASSERT(move->capturedPiece == X(move->side));
                 if (move->side) chessboard[move->capturedPiece] |= POW2(move->to - 8);
                 else chessboard[move->capturedPiece] |= POW2(move->to + 8);
             }
         }
     } else if ((move->type & 0x3) == PROMOTION_MOVE_MASK) {
-        assert(move->to >= 0 && move->side >= 0 && move->promotionPiece >= 0);
+        ASSERT(move->to >= 0 && move->side >= 0 && move->promotionPiece >= 0);
         chessboard[move->side] |= POW2(move->from);
         chessboard[move->promotionPiece] &= NOTPOW2(move->to);
         if (move->capturedPiece != SQUARE_EMPTY) chessboard[move->capturedPiece] |= POW2(move->to);
     } else {
         //castle
-        assert(move->type & 0xc);
+        ASSERT(move->type & 0xc);
         unPerformCastle(move->side, move->type);
     }
 }
@@ -303,10 +303,11 @@ void GenMoves::takeback(const _Tmove *move, const u64 oldkey, const uchar oldEnp
 
 bool GenMoves::makemove(const _Tmove *move, const bool rep) {
     BENCH_AUTO_CLOSE("makemove")
-    assert(move);
-    assert(bitCount(chessboard[KING_WHITE]) == 1 && bitCount(chessboard[KING_BLACK]) == 1);
-    assert(verifyMove(move));
+    ASSERT(move);
+    ASSERT(bitCount(chessboard[KING_WHITE]) == 1 && bitCount(chessboard[KING_BLACK]) == 1);
+    ASSERT(verifyMove(move));
     const uchar rightCastleOld = rightCastle;
+    enPassant = NO_ENPASSANT;
     if (!(move->type & 0xc)) { //no castle
 
         ASSERT_RANGE(move->from, 0, 63)
@@ -314,7 +315,7 @@ bool GenMoves::makemove(const _Tmove *move, const bool rep) {
         if ((move->type & 0x3) == PROMOTION_MOVE_MASK) {
             chessboard[move->pieceFrom] &= NOTPOW2(move->from);
             updateZobristKey(move->pieceFrom, move->from);
-            assert(move->promotionPiece >= 0);
+            ASSERT(move->promotionPiece >= 0);
             chessboard[move->promotionPiece] |= POW2(move->to);
             updateZobristKey(move->promotionPiece, move->to);
         } else {
@@ -324,11 +325,11 @@ bool GenMoves::makemove(const _Tmove *move, const bool rep) {
         }
         if (move->capturedPiece != SQUARE_EMPTY) {
             if ((move->type & 0x3) != ENPASSANT_MOVE_MASK) {
-                assert(chessboard[move->capturedPiece] & POW2(move->to));
+                ASSERT(chessboard[move->capturedPiece] & POW2(move->to));
                 chessboard[move->capturedPiece] &= NOTPOW2(move->to);
                 updateZobristKey(move->capturedPiece, move->to);
             } else { //en passant
-                assert(move->capturedPiece == X(move->side));
+                ASSERT(move->capturedPiece == X(move->side));
                 const int y = move->side ? -8 : 8;
                 chessboard[move->capturedPiece] &= NOTPOW2(move->to + y);
                 updateZobristKey(move->capturedPiece, move->to + y);
@@ -447,7 +448,7 @@ int GenMoves::getMoveFromSan(const string &fenStr, _Tmove *move) {
         } else if (fenStr.find("8") != string::npos) {
             move->side = BLACK;
         } else {
-            _assert(0)
+            _ASSERT(0)
         }
         move->from = -1;
         move->capturedPiece = SQUARE_EMPTY;
@@ -463,7 +464,7 @@ int GenMoves::getMoveFromSan(const string &fenStr, _Tmove *move) {
     }
     if (from == -1) {
         cout << fenStr << endl;
-        _assert(0)
+        _ASSERT(0)
     }
     for (int i = 0; i < 64; i++) {
         if (!fenStr.compare(2, 2, BOARD[i])) {
@@ -473,7 +474,7 @@ int GenMoves::getMoveFromSan(const string &fenStr, _Tmove *move) {
     }
     if (to == -1) {
         cout << fenStr << endl;
-        _assert(0)
+        _ASSERT(0)
     }
     int pieceFrom;
     if ((pieceFrom = board::getPieceAt<WHITE>(POW2(from), chessboard)) != 12) {
@@ -483,7 +484,7 @@ int GenMoves::getMoveFromSan(const string &fenStr, _Tmove *move) {
     } else {
         display();
         cout << "fenStr: >" << fenStr << "< from: " << from << endl;
-        _assert(0)
+        _ASSERT(0)
     }
     move->from = from;
     move->to = to;
@@ -504,7 +505,7 @@ int GenMoves::getMoveFromSan(const string &fenStr, _Tmove *move) {
         } else {
             move->promotionPiece = INV_FEN[(uchar) fenStr.at(4)];
         }
-        assert(move->promotionPiece != NO_PROMOTION);
+        ASSERT(move->promotionPiece != NO_PROMOTION);
     }
     if (move->side == WHITE) {
         move->capturedPiece = board::getPieceAt<BLACK>(POW2(move->to), chessboard);
@@ -556,7 +557,7 @@ bool GenMoves::generatePuzzle(const string type) {
     for (unsigned k = 0; k < TOT; k++) {
         uchar side = WHITE;
         pieces.clear();
-        _assert(toupper(type.at(0)) == 'K')
+        _ASSERT(toupper(type.at(0)) == 'K')
         for (unsigned i = 1; i < type.size(); i++) {
             const char up = toupper(type.at(i));
             if (!(up == 'K' || up == 'R' || up == 'P' || up == 'Q' || up == 'B' || up == 'N')) {
@@ -576,7 +577,7 @@ bool GenMoves::generatePuzzle(const string type) {
     return true;
 }
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 
 bool GenMoves::verifyMove(const _Tmove *move) {
     const int side = move->side;

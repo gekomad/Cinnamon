@@ -122,12 +122,12 @@ void Perft::dealloc() const {
 void Perft::alloc() {
     dealloc();
     hash = (_ThashPerft **) calloc(perftRes.depth + 1, sizeof(_ThashPerft *));
-    _assert(hash)
+    _ASSERT(hash)
     const u64 k = 1024 * 1024 * (u64)mbSize / (u64) POW2(perftRes.depth);
     for (int i = 1; i <= perftRes.depth; i++) {
         perftRes.sizeAtDepth[i] = k * POW2(i - 1) / sizeof(_ThashPerft);
         hash[i] = (_ThashPerft *) calloc(perftRes.sizeAtDepth[i], sizeof(_ThashPerft));
-        _assert(hash[i])
+        _ASSERT(hash[i])
 
         DEBUG(cout << "alloc hash[" << i << "] " << perftRes.sizeAtDepth[i] * sizeof(_ThashPerft) << endl)
 
@@ -208,7 +208,7 @@ void Perft::run() {
     count = listcount;
     delete (p);
     p = nullptr;
-    assert(perftRes.nCpu > 0);
+    ASSERT(perftRes.nCpu > 0);
     int block = listcount / perftRes.nCpu;
     int i, s = 0;
     setNthread(perftRes.nCpu);

@@ -33,7 +33,7 @@ namespace _logger {
     };
 
 #if !defined DLOG_LEVEL
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 #define DLOG_LEVEL _TRACE
 #else
 #define DLOG_LEVEL _FATAL

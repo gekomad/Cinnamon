@@ -20,7 +20,7 @@
 
 #include "../ChessBoard.h"
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 
 #include <unordered_map>
 
@@ -98,7 +98,7 @@ public:
     }
 /*
     static int getEndgameValue(int side, const _Tchessboard &chessboard, const int nPieces) {
-        assert(nPieces != 999);
+        ASSERT(nPieces != 999);
         ASSERT_RANGE(side, 0, 1);
         auto posKingBlack = BITScanForward(chessboard[KING_BLACK]);
         auto posKingWhite = BITScanForward(chessboard[KING_WHITE]);
@@ -199,7 +199,7 @@ private:
 
     template<int loserSide>
     static int KRKP(int tempo, int winnerKingPos, int loserKingPos, int rookPos, int pawnPos) {
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
         std::unordered_map<int, int> pieces1;
         std::unordered_map<int, int> pieces2;
 
@@ -248,7 +248,7 @@ private:
 
     static int KQKR(int winnerKingPos, int loserKingPos) {
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
         std::unordered_map<int, int> pieces1;
         std::unordered_map<int, int> pieces2;
 
@@ -273,7 +273,7 @@ private:
 
 //    int KBNK(int winnerKingPos, int loserKingPos) {
 //
-//#ifndef NDEBUG
+//#ifdef DEBUG_MODE
 //        std::unordered_map<int, int> pieces1;
 //        std::unordered_map<int, int> pieces2;
 //
@@ -299,7 +299,7 @@ private:
 
     static int KRKB(int loserKingPos) {
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
         std::unordered_map<int, int> pieces1;
         std::unordered_map<int, int> pieces2;
 
@@ -322,7 +322,7 @@ private:
 
     static int KRKN(int loserKingPos, int knightPos) {
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
         std::unordered_map<int, int> pieces1;
         std::unordered_map<int, int> pieces2;
 
@@ -345,7 +345,7 @@ private:
 
 
     static int KQKP(int loserSide, int winnerKingPos, int loserKingPos, int pawnPos) {
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
         std::unordered_map<int, int> pieces1;
         std::unordered_map<int, int> pieces2;
 
@@ -373,7 +373,7 @@ private:
 
     static int KBBKN(int winnerKingPos, int loserKingPos, int knightPos) {
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 
         std::unordered_map<int, int> pieces1;
         std::unordered_map<int, int> pieces2;

@@ -48,7 +48,7 @@ public:
         return nThread;
     }
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
 
     int getBitCount() const {
         return bitCount(threadsBits);
@@ -64,7 +64,7 @@ public:
         joinAll();
         removeAllThread();
         nThread = t;
-        assert(threadsBits == 0);
+        ASSERT(threadsBits == 0);
         for (int i = 0; i < nThread; i++) {
             T *x = new T();
             x->setId(i);
@@ -105,7 +105,7 @@ public:
     }
 
     T &getThread(int i) const {
-        assert(i < nThread);
+        ASSERT(i < nThread);
         return *threadPool[i];
     }
 
@@ -119,14 +119,14 @@ private:
     T &getThread() {
         int i = BITScanForwardUnset(threadsBits);
         threadPool[i]->join();
-        assert(!(threadsBits & POW2(i)));
+        ASSERT(!(threadsBits & POW2(i)));
         threadsBits |= POW2(i);
         return *threadPool[i];
     }
 
     void releaseThread(const int threadID) {
         ASSERT_RANGE(threadID, 0, 63)
-        assert(threadsBits & POW2(threadID));
+        ASSERT(threadsBits & POW2(threadID));
         threadsBits &= ~POW2(threadID);
         cv.notify_all();
         debug("ThreadPool::releaseThread #", threadID);
@@ -148,7 +148,7 @@ private:
             delete s;
         }
         threadPool.clear();
-        assert(threadsBits == 0);
+        ASSERT(threadsBits == 0);
     }
 };
 

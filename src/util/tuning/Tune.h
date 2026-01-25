@@ -209,7 +209,7 @@ protected:
                         searchManager.setParameter(param.name, bestValue, param.phase);
                         for (auto &param: params) param.print(searchManager);
                         saveParams(params);
-                        assert(E(fens) == bestError);
+                        ASSERT(E(fens) == bestError);
                     } else cout << "\n** Not improved. **" << flush;
                 }
             }

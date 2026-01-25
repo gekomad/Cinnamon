@@ -39,7 +39,12 @@ else
 	STRIP=strip.exe
 endif
 
-CFLAGS=" -std=c++11 -Wall -fno-stack-protector -fno-rtti -fno-exceptions -fomit-frame-pointer -O3 -Wpedantic -W -DNDEBUG -fsigned-char -funroll-loops "
+ifeq ($(shell $(COMP) -v 2>&1 | grep -c "g++"), 1)
+    SPECIFIC_FLAGS += -Wno-class-memaccess -Wno-stringop-overflow -fwhole-program -fexpensive-optimizations
+else
+	SPECIFIC_FLAGS += -Wno-deprecated -Wno-deprecated-declarations
+endif
+CFLAGS=" -std=c++11 -Wall $(SPECIFIC_FLAGS) -flto=auto -fno-plt -U_FORTIFY_SOURCE -fno-stack-protector -fno-rtti -fno-exceptions -fomit-frame-pointer -O3 -Wpedantic -W -DNDEBUG -fsigned-char -funroll-loops "
 
 help:
 
@@ -66,7 +71,7 @@ help:
 build:
 
 ifeq ($(FULL_TEST),yes)
-	$(MAKE) -j EXE=$(EXE) LIBS="$(LIBS) /usr/lib/libgtest.a " CFLAGS=$(CFLAGS)-DFULL_TEST all
+	$(MAKE) -j EXE=$(EXE) LIBS="$(LIBS) /usr/local/lib/libgtest.a " CFLAGS=$(CFLAGS)-DFULL_TEST all
 	$(PA)$(EXE)
 else
 	$(MAKE) EXE=$(EXE) CFLAGS=$(CFLAGS) all

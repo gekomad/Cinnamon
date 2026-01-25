@@ -61,7 +61,7 @@ void IterativeDeeping::run() {
         searchManager.makemove(&move);
         cout << "bestmove " << tb << endl;
         ADD(checkSmp2, -1);
-        assert(!checkSmp2);
+        ASSERT(!checkSmp2);
         LOCK_RELEASE(running);
         return;
     }
@@ -106,7 +106,7 @@ void IterativeDeeping::run() {
         timeTaken = Time::diffTime(end1, start1) + 1;
         totMoves += searchManager.getTotMoves();
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
         const int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
         const int percStoreHashA = hash.nRecordHashA * 100 / totStoreHash;
         const int percStoreHashB = hash.nRecordHashB * 100 / totStoreHash;
@@ -213,7 +213,7 @@ void IterativeDeeping::run() {
 
     cout << endl;
     ADD(checkSmp2, -1);
-    assert(!checkSmp2);
+    ASSERT(!checkSmp2);
     LOCK_RELEASE(running);
 }
 

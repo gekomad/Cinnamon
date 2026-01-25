@@ -56,7 +56,7 @@ public:
         hashfALPHA = 0, hashfEXACT = 1, hashfBETA = 2
     };
 
-#ifndef NDEBUG
+#ifdef DEBUG_MODE
     static unsigned nRecordHashA, nRecordHashB, nRecordHashE, collisions, readCollisions, n_cut_hashA, n_cut_hashB, n_cut_hashE, readHashCount;
 #endif
 
@@ -79,7 +79,7 @@ public:
             const int depth,
             const u64 zobristKeyR,
             u64 &hashStruct,
-            const bool currentPly) {return INT_MAX;
+            const bool currentPly) {
         INC(readHashCount);
         const Hash::_Thash *hash = &(hashArray[zobristKeyR % HASH_SIZE]);
         DEBUG(u64 d = 0)
@@ -120,14 +120,14 @@ public:
         return INT_MAX;
     }
 
-    static void recordHash(const _Thash &toStore, const int ply) {return;
-#ifndef NDEBUG
-        assert(toStore.key);
+    static void recordHash(const _Thash &toStore, const int ply) {
+#ifdef DEBUG_MODE
+        ASSERT(toStore.key);
         if (GET_FLAGS(toStore.data) == hashfALPHA) nRecordHashA++;
         else if (GET_FLAGS(toStore.data) == hashfBETA) nRecordHashB++;
         else nRecordHashE++;
 #endif
-        assert(GET_DEPTH(toStore.data) < MAX_PLY);
+        ASSERT(GET_DEPTH(toStore.data) < MAX_PLY);
         const unsigned kMod = toStore.key % HASH_SIZE;
 
         _Thash *empty = nullptr;
@@ -183,7 +183,8 @@ public:
 
 private:
     Hash();
-
+    ~Hash();
+    static void dispose();
     static constexpr int BUCKETS = 3;
     static unsigned HASH_SIZE;
 #ifdef JS_MODE
@@ -192,7 +193,6 @@ private:
     static constexpr int HASH_SIZE_DEFAULT = 64;
 #endif
 
-    static void dispose();
 
     static _Thash *hashArray;
 };

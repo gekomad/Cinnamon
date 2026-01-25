@@ -222,6 +222,7 @@ void Uci::listner(IterativeDeeping *it) {
             while (it->getRunning());
             knowCommand = true;
             searchManager.setRepetitionMapCount(0);
+            searchManager.clearHeuristic();
             getToken(uip, token);
             _Tmove move;
             if (String::toLower(token) == "startpos") {
@@ -249,6 +250,7 @@ void Uci::listner(IterativeDeeping *it) {
                         searchManager.makemove(&move);
                     }
                 }
+                searchManager.updateFenString();
             }
 
         } else if (String::toLower(token) == "go") {
