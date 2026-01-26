@@ -186,6 +186,19 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     ASSERT_RANGE(side, 0, 1)
     if (!getRunning()) return 0;
 
+    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
+                                  const _Tmove *move) {
+        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
+        currentPly++;
+        int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
+        if (!forceCheck && abs(val) > _INFINITE - MAX_PLY) {
+            forceCheck = true;
+            val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
+            forceCheck = false;
+        }
+        currentPly--;
+        return val;
+    };
 
 //    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
 //                                  const _Tmove *move) {
@@ -285,8 +298,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         _TpvLine newLine;
         newLine.cmove = 0;
 
-        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
-        const int score = -search<X(side), checkMoves>(depth - 1, -beta, -alpha, &newLine, nPieces);
+        int score = searchLambda(&newLine, depth - 1, -beta, -alpha, move);
 
         takeback(move, oldKey, oldEnpassant, true);
         ASSERT(chessboard[KING_BLACK]);
