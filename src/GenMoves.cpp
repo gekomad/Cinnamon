@@ -52,22 +52,48 @@ void GenMoves::clearHeuristic() {
 }
 
 _Tmove *GenMoves::getNextMoveQ(_TmoveP *list, const int first) {
-    BENCH_AUTO_CLOSE("getNextMoveQ")
-    int bestId = -1;
-    int bestScore = -INT_MAX;
+    BENCH_AUTO_CLOSE("getNextMove")
+      int bestId = -1;
+    unsigned bestScore = 0;
+
+    //    transposition table
+    //    captures
+    //    killer
+    //    history
+    //    bad capture
+    // .|........|..|...............|.......
+    // T|  cap   |kl|    history    | bad capture
+    // 1| 7 bits |2b|   15 bits     | 7 bits
 
     for (int i = first; i < list->size; i++) {
         const auto move = list->moveList[i];
-        ASSERT_RANGE(move.pieceFrom, 0, 11)
-        ASSERT_RANGE(move.to, 0, 63)
-        ASSERT_RANGE(move.from, 0, 63)
+        unsigned score = 0;
 
-        const int score = CAPTURES[move.pieceFrom][move.capturedPiece];
-        if (score > bestScore) {
+        if (move.type & STANDARD_MOVE_MASK) {
+
+            ASSERT_RANGE(move.pieceFrom, 0, 11)
+            ASSERT_RANGE(move.to, 0, 63)
+            ASSERT_RANGE(move.from, 0, 63)
+
+            const int a = CAPTURES[move.pieceFrom][move.capturedPiece];
+            score |= (a << 24);
+
+            const int b = historyHeuristic[move.pieceFrom][move.to];
+            score |= (b << 7);
+
+            //            if (isKiller(0, move.from, move.to, depth)) score |= (50 << 13);
+            //            else if (isKiller(1, move.from, move.to, depth))  score |= (30 << 13);
+
+        } else if (move.type & 0xc) {    //castle
+            ASSERT(rightCastle);
+            score = 100;
+        }
+        if (score >= bestScore) {
             bestScore = score;
             bestId = i;
         }
     }
+
     if (bestId == -1) {
         return nullptr;
     }
