@@ -166,5 +166,5 @@ private:
     int ply;
 
     template<uchar side>
-    bool badCapure(const _Tmove &move, const u64 allpieces) const;
+    bool badCapure(const _Tmove *move, const u64 allpieces) const;
 };

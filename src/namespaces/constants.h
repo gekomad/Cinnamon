@@ -27,7 +27,7 @@
 using namespace std;
 namespace constants {
     
-    static const string NAME = "base2";
+    static const string NAME = "badCapure";
     static const string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     static constexpr int BLACK = 0;
     static constexpr int WHITE = 1;
