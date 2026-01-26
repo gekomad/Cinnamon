@@ -368,13 +368,6 @@ public:
 
     bool generatePuzzle(const string type);
 
-    __attribute__((always_inline))void incHistoryHeuristic(const int from, const int to, const int value) {
-        ASSERT_RANGE(from, 0, 63)
-        ASSERT_RANGE(to, 0, 63)
-        ASSERT(historyHeuristic[from][to] <= historyHeuristic[from][to] + value);
-        historyHeuristic[from][to] += value;
-    }
-
     bool perftMode = false;
 
 
@@ -403,7 +396,7 @@ protected:
     int repetitionMapCount;
 
     u64 *repetitionMap;
-    int currentPly;
+    int currentPly; // TODO eliminare
 
     u64 numMoves = 0;
     u64 numMovesq = 0;
@@ -427,7 +420,7 @@ protected:
         return count;
     }
 
-    int historyHeuristic[64][64];
+    int historyHeuristic[12][64];
     unsigned short killer[2][MAX_PLY];
 
 #ifdef DEBUG_MODE
@@ -792,12 +785,17 @@ protected:
         return running;
     }
 
-    __attribute__((always_inline)) void setHistoryHeuristic(const int from, const int to, const int depth) {return;//TODO
-        ASSERT_RANGE(from, 0, 63)
+
+    __attribute__((always_inline)) void setHistoryHeuristic(const int pieceFrom, const int to, const int depth) {
+        ASSERT_RANGE(pieceFrom, 0, 11)
         ASSERT_RANGE(to, 0, 63)
-        if (depth < 0)return;
-        const int value = (int) min((u64) 2 << depth, 0x40000000Ull);
-        historyHeuristic[from][to] = value;
+        ASSERT (depth > 0);
+        historyHeuristic[pieceFrom][to] += depth * depth;
+        if (historyHeuristic[pieceFrom][to] >= 32767) {
+            for (int i = 0; i < 12; i++)
+                for (int j = 0; j < 64; j++)
+                    historyHeuristic[i][j] /= 64;
+        }
     }
 
     __attribute__((always_inline)) void setKiller(const int from, const int to, const int depth) {
