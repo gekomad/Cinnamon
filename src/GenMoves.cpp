@@ -62,7 +62,7 @@ _Tmove *GenMoves::getNextMoveQ(_TmoveP *list, const int first) {
         ASSERT_RANGE(move.to, 0, 63)
         ASSERT_RANGE(move.from, 0, 63)
 
-        const int score = 0;//CAPTURES[move.pieceFrom][move.capturedPiece];
+        const int score = CAPTURES[move.pieceFrom][move.capturedPiece];
         if (score > bestScore) {
             bestScore = score;
             bestId = i;
@@ -92,7 +92,7 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
             //     return swap(list, first, i);
             // }
             // score += historyHeuristic[move.from][move.to];
-            // score += CAPTURES[move.pieceFrom][move.capturedPiece];
+            score += CAPTURES[move.pieceFrom][move.capturedPiece];
 
 //            if (isKiller(0, move.from, move.to, depth)) score += 50;
 //            else if (isKiller(1, move.from, move.to, depth)) score += 30;
