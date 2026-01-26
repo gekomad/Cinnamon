@@ -39,12 +39,15 @@ namespace constants {
 #define STATIC_CONST static constexpr
 #endif
 
+    //TODO rinominare
 #define _ASSERT(a) if(!(a)){  cout<<dec<<endl<<Time::getLocalTime()<<" ********************************** assert error in "<<FileUtil::getFileName(__FILE__)<< ":"<<__LINE__<<" "<<" **********************************"<<endl;cerr<<flush;std::exit(1);}
 
 #define X(side) ((side)^1)
 
+    //TODO eliminare DEBUG_MODE usare #ifndef NDEBUG
 #ifdef DEBUG_MODE
 #define DEBUG(a) a;
+    // TODO eliminare
 #define ASSERT(a) assert(a)
 #define DEBUG2(...) __VA_ARGS__
 #define ASSERT_RANGE(value, from, to) {if ((value)<(from) || (value)>(to)){cout<<"ASSERT_RANGE: "<<value<<endl;_ASSERT(0)};}

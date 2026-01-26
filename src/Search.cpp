@@ -117,6 +117,51 @@ int Search::qsearch(int alpha, const int beta, const uchar promotionPiece, const
     ++numMovesq;
     const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
     int score = eval.getScore(chessboard, zobristKeyR, side, alpha, beta);
+    if (score > alpha) {
+        if (score >= beta) return score;
+        alpha = score;
+    }
+
+    incListId();
+
+    u64 friends = board::getBitmap<side>(chessboard);
+    u64 enemies = board::getBitmap<X(side)>(chessboard);
+    if (generateCaptures<side>(enemies, friends)) {
+        decListId();
+        return _INFINITE - (mainDepth + depth);
+    }
+    if (!getListSize()) {
+        --listId;
+        return score;
+    }
+    _Tmove *move;
+    const u64 oldKey = chessboard[ZOBRISTKEY_IDX];
+    uchar oldEnpassant = enPassant;
+    int first = 0;
+    if (!(numMoves % 2048)) setRunning(checkTime());
+    while ((move = getNextMoveQ(&genList[listId], first++))) {
+        if (!makemove(move, false)) {
+            takeback(move, oldKey, oldEnpassant, false);
+            continue;
+        }
+
+        // if (badCapure<side>(move, friends | enemies)) {
+        //     INC(nCutBadCaputure);
+        //     takeback(move, oldKey, oldEnpassant, false);
+        //     continue;
+        // }
+        int val = -qsearch<X(side)>(-beta, -alpha, move->promotionPiece, depth - 1);
+        score = max(score, val);
+        takeback(move, oldKey, oldEnpassant, false);
+        if (score > alpha) {
+            if (score >= beta) {
+                decListId();
+                return beta;
+            }
+            alpha = score;
+        }
+    }
+    decListId();
     return score;
 }
 
