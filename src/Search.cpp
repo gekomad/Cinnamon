@@ -152,6 +152,11 @@ int Search::qsearch(int alpha, const int beta, const uchar promotionPiece, const
             continue;
         }
 
+        if (badCapure<side>(move, friends | enemies)) {
+            INC(nCutBadCaputure);
+            takeback(move, oldKey, oldEnpassant, false);
+            continue;
+        }
         int val = -qsearch<X(side)>(-beta, -alpha, move->promotionPiece, depth - 1);
         score = max(score, val);
         takeback(move, oldKey, oldEnpassant, false);
@@ -523,18 +528,18 @@ void Search::setParameter(const string &p, const int value, const int phase) {
 #endif
 
 template<uchar side>
-bool Search::badCapure(const _Tmove &move, const u64 allpieces) {
+bool Search::badCapure(const _Tmove *move, const u64 allpieces) const {
 
-    if (move.pieceFrom == (PAWN_BLACK + side)) return false;
+    if (move->pieceFrom == (PAWN_BLACK + side)) return false;
 
-    if (PIECES_VALUE[move.capturedPiece] - 5 >= PIECES_VALUE[move.pieceFrom]) return false;
+    if (PIECES_VALUE[move->capturedPiece] - 5 >= PIECES_VALUE[move->pieceFrom]) return false;
 
-    if (PIECES_VALUE[move.capturedPiece] + 200 < PIECES_VALUE[move.pieceFrom] &&
-        (PAWN_FORK_MASK[side][move.to] & chessboard[PAWN_BLACK + (X(side))]))
+    if (PIECES_VALUE[move->capturedPiece] + 200 < PIECES_VALUE[move->pieceFrom] &&
+        (PAWN_FORK_MASK[side][move->to] & chessboard[PAWN_BLACK + (X(side))]))
         return true;
 
-    if (PIECES_VALUE[move.capturedPiece] + 500 < PIECES_VALUE[move.pieceFrom] &&
-        board::isAttacked(side, move.to, allpieces, chessboard))
+    if (PIECES_VALUE[move->capturedPiece] + 450 < PIECES_VALUE[move->pieceFrom] &&
+        board::isAttacked(side, move->to, allpieces, chessboard))
         return true;
 
     return false;
