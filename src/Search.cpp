@@ -232,15 +232,14 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     ASSERT(chessboard[KING_WHITE]);
 
     const bool isIncheckSide = board::inCheck1<side>(chessboard);
-    // if (!isIncheckSide && depth != mainDepth) {TODO
-    //     if (board::checkInsufficientMaterial(N_PIECE, chessboard) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
-    //         if (board::inCheck1<X(side)>(chessboard)) {
-    //             return _INFINITE - (mainDepth - depth + 1);
-    //         }
-    //         return -eval.lazyEval<side>(chessboard) *
-    //                2;// TODO se ho meno materiale dell'avversario è positivo altrimenti negativo
-    //     }
-    // }
+    if (!isIncheckSide && depth != mainDepth) {
+        if (board::checkInsufficientMaterial(N_PIECE, chessboard) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
+            if (board::inCheck1<X(side)>(chessboard)) {
+                return _INFINITE - (mainDepth - depth + 1);
+            }
+            return -eval.lazyEval<side>(chessboard) * 2;
+        }
+    }
     int extension = 0;//isIncheckSide;
     if (depth + extension == 0) {
         return qsearch<side>(alpha, beta, NO_PROMOTION, 0);
