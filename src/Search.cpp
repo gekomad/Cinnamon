@@ -245,20 +245,6 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         return val;
     };
 
-//    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
-//                                  const _Tmove *move) {
-//        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
-//        currentPly++;
-//        int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
-//        if (!forceCheck && abs(val) > _INFINITE - MAX_PLY) {
-//            forceCheck = true;
-//            val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
-//            forceCheck = false;
-//        }
-//        currentPly--;
-//        return val;
-//    };
-
     const u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     const uchar oldEnpassant = enPassant;
     if (depth >= MAX_PLY - 1) {
@@ -271,7 +257,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
 #endif
 
     int bestscore = -_INFINITE;
-    //const bool pvNode = alpha != beta - 1;
+    const bool pvNode = alpha != beta - 1;
 
     ASSERT(chessboard[KING_BLACK]);
     ASSERT(chessboard[KING_WHITE]);
@@ -302,13 +288,33 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
 
     if (!(numMoves % 2048)) setRunning(checkTime());
     ++numMoves;
+    _Tmove *best = nullptr;
+    /// ********* null move ***********
+    if (!nullSearch && pvNode && !isIncheckSide) {
+        nullSearch = true;
+        const int nPieces = bitCount(board::getBitmapNoPawnsNoKing<side>(chessboard));
+        const int R = 2 + (depth > (6 + ((nPieces < 3) ? 2 : 0)));
+        int nullScore;
+        if (depth - R - 1 > 0) {
     _TpvLine newLine1;
     newLine1.cmove = 0;
-    incListId();
+            nullScore = searchLambda(&newLine1, depth - R - 1, -beta, -beta + 1, nullptr);
+        } else {
+            nullScore = -qsearch<X(side)>(-beta, -beta + 1, -1, 0);
+        }
+        nullSearch = false;
+        if (nullScore >= beta) {
+            INC(nNullMoveCut);
+            return nullScore;
+        }
+    }
+
+    /// ******* null move end ********
     ASSERT_RANGE(KING_BLACK + side, 0, 11)
     ASSERT_RANGE(KING_BLACK + (X(side)), 0, 11)
     const u64 friends = board::getBitmap<side>(chessboard);
     const u64 enemies = board::getBitmap<X(side)>(chessboard);
+    incListId();
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
         return _INFINITE - (mainDepth - depth + 1);
