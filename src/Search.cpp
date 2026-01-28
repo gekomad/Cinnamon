@@ -44,26 +44,26 @@ void Search::aspirationWindow(const int depth, const int valWin) {
     valWindow = valWin;
     init();
     const auto nPieces = bitCount(board::getBitmap<WHITE>(chessboard) | board::getBitmap<BLACK>(chessboard));
-    if (true) {
-        valWindow = search<side, searchMoves>(depth, -_INFINITE - 1, _INFINITE + 1, &pvLine, nPieces);
+    if (depth < 3) {
+        valWindow = search<side, searchMoves>(depth, -_INFINITE, _INFINITE, &pvLine, nPieces);
     } else {
         int tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW, &pvLine, nPieces);
         if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
             if (tmp <= valWindow - VAL_WINDOW) {
-                tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW * 2, valWindow + VAL_WINDOW, &pvLine,
+                tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW * 3, valWindow + VAL_WINDOW, &pvLine,
                                                 nPieces);
             } else {
-                tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 2, &pvLine,
+                tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 3, &pvLine,
                                                 nPieces);
             }
             if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
                 if (tmp <= valWindow - VAL_WINDOW) {
-                    tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW * 4, valWindow + VAL_WINDOW, &pvLine,
+                    tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW * 6, valWindow + VAL_WINDOW, &pvLine,
                                                     nPieces);
                 } else {
-                    tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 4, &pvLine,
+                    tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 6, &pvLine,
                                                     nPieces);
-                }
+          }
                 if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
                     tmp = search<side, searchMoves>(depth, -_INFINITE - 1, _INFINITE + 1, &pvLine, nPieces);
                 }
