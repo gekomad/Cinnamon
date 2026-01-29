@@ -56,14 +56,14 @@ public:
         return threadPool->getThread(0).chessboard;
     }
 
-    static void setParameter(const string &param, const int value, const int phase) {
+    static void setParameter(const string &param, const int value) {
         for (Search *s: threadPool->getPool()) {
-            s->setParameter(param, value, phase);
+            s->setParameter(param, value);
         }
     }
 
-    static int getParameter(const string &param, const int phase) {
-        return threadPool->getThread(0).getParameter(param, phase);
+    static int getParameter(const string &param) {
+        return threadPool->getThread(0).getParameter(param);
     }
 
     int getQscore() const {

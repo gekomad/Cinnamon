@@ -55,6 +55,7 @@ set(SOURCE_FILES
         Search.cpp
         SearchManager.cpp
         Uci.cpp
+util/tuning/Tune.h
 )
   
 

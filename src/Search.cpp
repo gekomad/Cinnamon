@@ -230,6 +230,7 @@ template<uchar side, bool checkMoves>
 int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE) {
     ASSERT_RANGE(side, 0, 1)
     if (!getRunning()) return 0;
+    const int oldAlpha = alpha;
 
     const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
                                   const _Tmove *move) {
@@ -245,19 +246,6 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         return val;
     };
 
-//    const auto searchLambda = [&](_TpvLine *newLine, const int depth, const int alpha, const int beta,
-//                                  const _Tmove *move) {
-//        const auto nPieces = move ? (move->capturedPiece == SQUARE_EMPTY ? N_PIECE : N_PIECE - 1) : N_PIECE;
-//        currentPly++;
-//        int val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
-//        if (!forceCheck && abs(val) > _INFINITE - MAX_PLY) {
-//            forceCheck = true;
-//            val = -search<X(side), checkMoves>(depth, alpha, beta, newLine, nPieces);
-//            forceCheck = false;
-//        }
-//        currentPly--;
-//        return val;
-//    };
 
     const u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     const uchar oldEnpassant = enPassant;
@@ -291,24 +279,24 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     }
 
     /// ************* hash ****************
-    // const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
-    u64 hashItem = 0;
-    // const int hashValue = hash.readHash(alpha, beta, depth, zobristKeyR, hashItem, currentPly);
-    // if (hashValue != INT_MAX) {
-        // return hashValue;
-    // }
+    const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
+    u64 hashItem;
+    const int hashValue = hash.readHash(alpha, beta, depth, zobristKeyR, hashItem, currentPly);
+    if (hashValue != INT_MAX) {
+        return hashValue;
+    }
 
     /// ********** end hash ***************
 
     if (!(numMoves % 2048)) setRunning(checkTime());
     ++numMoves;
-    _TpvLine newLine1;
-    newLine1.cmove = 0;
-    incListId();
+ 
+    _Tmove *best = nullptr;
     ASSERT_RANGE(KING_BLACK + side, 0, 11)
     ASSERT_RANGE(KING_BLACK + (X(side)), 0, 11)
     const u64 friends = board::getBitmap<side>(chessboard);
     const u64 enemies = board::getBitmap<X(side)>(chessboard);
+    incListId();
     if (generateCaptures<side>(enemies, friends)) {
         decListId();
         return _INFINITE - (mainDepth - depth + 1);
@@ -348,35 +336,41 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
         if (score >= beta) {
-            decListId();
+            alpha = max(alpha, score);
             INC(nCutAB);
             INC(betaEfficiencyCount);
             DEBUG(betaEfficiency +=
                           (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
                           (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
             if (getRunning()) {
-                 //   Hash::_Thash data(zobristKeyR, score, depth, move, Hash::hashfBETA);
-                  //  hash.recordHash(data, ply);
-                     
+                Hash::_Thash data(zobristKeyR, score, depth, move->from, move->to, Hash::hashfBETA);
+                hash.recordHash(data, ply);
                 if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
                     setHistoryHeuristic(move->pieceFrom, move->to, depth);
                 }
             }
-            return score;
+            bestscore = score;
+            best = move;
+            break;
         }
         if (score > bestscore) {
             bestscore = score;
-            if (score > alpha) {
-                alpha = score;
-                updatePv(pline, &newLine, move);
-            }
+            best = move;
+        }
+        if (score > alpha) {
+            alpha = score;
+            updatePv(pline, &newLine, move);
         }
     }
-    // if (getRunning()) {
-    //     Hash::_Thash data(zobristKeyR, bestscore, depth, best->from, best->to, hashf);
-    //     hash.recordHash(data, ply);
-    // }
     decListId();
+    if (abs(bestscore) < _INFINITE - MAX_PLY) {
+        const char hashf =
+                (alpha <= oldAlpha) ? Hash::hashfALPHA :
+                (alpha >= beta) ? Hash::hashfBETA : Hash::hashfEXACT;
+        Hash::_Thash data(zobristKeyR, bestscore, depth, best->from, best->to, hashf);
+        hash.recordHash(data, ply);
+    }
+           
     return bestscore;
 
 }
@@ -404,96 +398,77 @@ void Search::setSearchMoves(const vector<int> &s) {
 
 #ifdef TUNING
 
-int Search::getParameter(const string &p, const int phase) {
-//    if (p == "ATTACK_KING")return eval.ATTACK_KING[phase];
-//    if (p == "BISHOP_ON_QUEEN")return eval.BISHOP_ON_QUEEN[phase];
-    if (p == "BACKWARD_PAWN")return eval.BACKWARD_PAWN[phase];
-    if (p == "DOUBLED_ISOLATED_PAWNS")return eval.DOUBLED_ISOLATED_PAWNS[phase];
-//    if (p == "DOUBLED_PAWNS")return eval.DOUBLED_PAWNS[phase];
-    if (p == "PAWN_IN_7TH")return eval.PAWN_IN_7TH[phase];
-//    if (p == "PAWN_CENTER")return eval.PAWN_CENTER[phase];
-    if (p == "PAWN_IN_PROMOTION")return eval.PAWN_IN_PROMOTION[phase];
-//    if (p == "PAWN_ISOLATED")return eval.PAWN_ISOLATED[phase];
-    if (p == "PAWN_NEAR_KING")return eval.PAWN_NEAR_KING[phase];
-    if (p == "PAWN_BLOCKED")return eval.PAWN_BLOCKED[phase];
-//    if (p == "UNPROTECTED_PAWNS")return eval.UNPROTECTED_PAWNS[phase];
-//    if (p == "ENEMY_NEAR_KING")return eval.ENEMY_NEAR_KING[phase];
-    if (p == "FRIEND_NEAR_KING")return eval.FRIEND_NEAR_KING[phase];
-//    if (p == "HALF_OPEN_FILE_Q")return eval.HALF_OPEN_FILE_Q[phase];
-    if (p == "BONUS2BISHOP")return eval.BONUS2BISHOP[phase];
-    if (p == "BISHOP_PAWN_ON_SAME_COLOR")return eval.BISHOP_PAWN_ON_SAME_COLOR[phase];
-//    if (p == "CONNECTED_ROOKS")return eval.CONNECTED_ROOKS[phase];
-//    if (p == "OPEN_FILE")return eval.OPEN_FILE[phase];
-    if (p == "OPEN_FILE_Q")return eval.OPEN_FILE_Q[phase];
-    if (p == "ROOK_7TH_RANK")return eval.ROOK_7TH_RANK[phase];
-//    if (p == "ROOK_BLOCKED")return eval.ROOK_BLOCKED[phase];
-//    if (p == "ROOK_TRAPPED")return eval.ROOK_TRAPPED[phase];
-//    if (p == "UNDEVELOPED_KNIGHT")return eval.UNDEVELOPED_KNIGHT[phase];
-//    if (p == "UNDEVELOPED_BISHOP")return eval.UNDEVELOPED_BISHOP[phase];
-    if (p == "KNIGHT_PINNED")return eval.KNIGHT_PINNED[phase];
-    if (p == "ROOK_PINNED")return eval.ROOK_PINNED[phase];
-    if (p == "BISHOP_PINNED")return eval.BISHOP_PINNED[phase];
-    if (p == "ROOK_IN_7_KING_IN_8")return eval.ROOK_IN_7_KING_IN_8[phase];
-    if (p == "MOB_QUEEN_")return eval.MOB_QUEEN_[phase];
-    if (p == "MOB_ROOK_")return eval.MOB_ROOK_[phase];
-    if (p == "MOB_BISHOP_")return eval.MOB_BISHOP_[phase];
-    if (p == "MOB_KNIGHT_")return eval.MOB_KNIGHT_[phase];
-    if (p == "MOB_KING_")return eval.MOB_KING_[phase];
-    if (p == "PAWN_PASSED_")return eval.PAWN_PASSED_;
-    if (p == "DISTANCE_KING_ENDING_")return eval.DISTANCE_KING_ENDING_;
-    if (p == "DISTANCE_KING_OPENING_")return eval.DISTANCE_KING_OPENING_;
-//    if (p == "QUEEN_PINNED")return eval.QUEEN_PINNED[phase];
-//    if (p == "QUEEN_IN_7")return eval.QUEEN_IN_7[phase];
-//    if (p == "ROOK_IN_7")return eval.ROOK_IN_7[phase];
-//    if (p == "PAWN_PINNED")return eval.PAWN_PINNED[phase];
+int Search::getParameter(const string &p) {
+    if (p == "ATTACK_KING")return eval.ATTACK_KING;
+    if (p == "BISHOP_ON_QUEEN")return eval.BISHOP_ON_QUEEN;
+    if (p == "BACKWARD_PAWN")return eval.BACKWARD_PAWN;
+    if (p == "DOUBLED_ISOLATED_PAWNS")return eval.DOUBLED_ISOLATED_PAWNS;
+//    if (p == "DOUBLED_PAWNS")return eval.DOUBLED_PAWNS;
+    if (p == "PAWN_IN_7TH")return eval.PAWN_IN_7TH;
+//    if (p == "PAWN_CENTER")return eval.PAWN_CENTER;
+    if (p == "PAWN_IN_PROMOTION")return eval.PAWN_IN_PROMOTION;
+//    if (p == "PAWN_ISOLATED")return eval.PAWN_ISOLATED;
+    if (p == "PAWN_NEAR_KING")return eval.PAWN_NEAR_KING;
+    if (p == "PAWN_BLOCKED")return eval.PAWN_BLOCKED;
+    if (p == "UNPROTECTED_PAWNS")return eval.UNPROTECTED_PAWNS;
+//    if (p == "ENEMY_NEAR_KING")return eval.ENEMY_NEAR_KING;
+    if (p == "FRIEND_NEAR_KING")return eval.FRIEND_NEAR_KING;
+//    if (p == "HALF_OPEN_FILE_Q")return eval.HALF_OPEN_FILE_Q;
+    if (p == "BONUS2BISHOP")return eval.BONUS2BISHOP;
+    if (p == "BISHOP_PAWN_ON_SAME_COLOR")return eval.BISHOP_PAWN_ON_SAME_COLOR;
+//    if (p == "CONNECTED_ROOKS")return eval.CONNECTED_ROOKS;
+//    if (p == "OPEN_FILE")return eval.OPEN_FILE;
+    if (p == "OPEN_FILE_Q")return eval.OPEN_FILE_Q;
+    if (p == "ROOK_7TH_RANK")return eval.ROOK_7TH_RANK;
+//    if (p == "ROOK_BLOCKED")return eval.ROOK_BLOCKED;
+//    if (p == "ROOK_TRAPPED")return eval.ROOK_TRAPPED;
+//    if (p == "UNDEVELOPED_KNIGHT")return eval.UNDEVELOPED_KNIGHT;
+//    if (p == "UNDEVELOPED_BISHOP")return eval.UNDEVELOPED_BISHOP;
+    if (p == "KNIGHT_PINNED")return eval.KNIGHT_PINNED;
+    if (p == "ROOK_PINNED")return eval.ROOK_PINNED;
+    if (p == "BISHOP_PINNED")return eval.BISHOP_PINNED;
+    if (p == "QUEEN_PINNED")return eval.QUEEN_PINNED;
+    if (p == "QUEEN_IN_7")return eval.QUEEN_IN_7;
+    if (p == "ROOK_IN_7")return eval.ROOK_IN_7;
+//    if (p == "PAWN_PINNED")return eval.PAWN_PINNED;
     fatal("Not found ", p)
     exit(1);
 }
 
-void Search::setParameter(const string &p, const int value, const int phase) {
+void Search::setParameter(const string &p, const int value) {
     //cout << "setParameter " << param << " " << value << endl;
-//    if (p == "ATTACK_KING")eval.ATTACK_KING[phase] = value;
-//    else if (p == "BISHOP_ON_QUEEN")eval.BISHOP_ON_QUEEN[phase] = value;
-     if (p == "BACKWARD_PAWN")eval.BACKWARD_PAWN[phase] = value;
-    else if (p == "DOUBLED_ISOLATED_PAWNS")eval.DOUBLED_ISOLATED_PAWNS[phase] = value;
-//    else if (p == "DOUBLED_PAWNS")eval.DOUBLED_PAWNS[phase] = value;
-    else if (p == "PAWN_IN_7TH")eval.PAWN_IN_7TH[phase] = value;
-//    else if (p == "PAWN_CENTER")eval.PAWN_CENTER[phase] = value;
-    else if (p == "PAWN_IN_PROMOTION")eval.PAWN_IN_PROMOTION[phase] = value;
-//    else if (p == "PAWN_ISOLATED")eval.PAWN_ISOLATED[phase] = value;
-    else if (p == "PAWN_NEAR_KING")eval.PAWN_NEAR_KING[phase] = value;
-    else if (p == "PAWN_BLOCKED")eval.PAWN_BLOCKED[phase] = value;
-//    else if (p == "UNPROTECTED_PAWNS")eval.UNPROTECTED_PAWNS[phase] = value;
-//    else if (p == "ENEMY_NEAR_KING")eval.ENEMY_NEAR_KING[phase] = value;
-    else if (p == "FRIEND_NEAR_KING")eval.FRIEND_NEAR_KING[phase] = value;
-//    else if (p == "HALF_OPEN_FILE_Q")eval.HALF_OPEN_FILE_Q[phase] = value;
-    else if (p == "BONUS2BISHOP")eval.BONUS2BISHOP[phase] = value;
-    else if (p == "BISHOP_PAWN_ON_SAME_COLOR")eval.BISHOP_PAWN_ON_SAME_COLOR[phase] = value;
-//    else if (p == "CONNECTED_ROOKS")eval.CONNECTED_ROOKS[phase] = value;
-//    else if (p == "OPEN_FILE")eval.OPEN_FILE[phase] = value;
-    else if (p == "OPEN_FILE_Q")eval.OPEN_FILE_Q[phase] = value;
-    else if (p == "ROOK_7TH_RANK")eval.ROOK_7TH_RANK[phase] = value;
-//    else if (p == "ROOK_BLOCKED")eval.ROOK_BLOCKED[phase] = value;
-//    else if (p == "ROOK_TRAPPED")eval.ROOK_TRAPPED[phase] = value;
-//    else if (p == "UNDEVELOPED_KNIGHT")eval.UNDEVELOPED_KNIGHT[phase] = value;
-//    else if (p == "UNDEVELOPED_BISHOP")eval.UNDEVELOPED_BISHOP[phase] = value;
-    else if (p == "KNIGHT_PINNED")eval.KNIGHT_PINNED[phase] = value;
-    else if (p == "ROOK_PINNED")eval.ROOK_PINNED[phase] = value;
-    else if (p == "BISHOP_PINNED")eval.BISHOP_PINNED[phase] = value;
-    else if (p == "ROOK_IN_7_KING_IN_8")eval.ROOK_IN_7_KING_IN_8[phase] = value;
-    else if (p == "MOB_QUEEN_")eval.MOB_QUEEN_[phase] = value;
-    else if (p == "MOB_ROOK_")eval.MOB_ROOK_[phase] = value;
-    else if (p == "MOB_BISHOP_")eval.MOB_BISHOP_[phase] = value;
-    else if (p == "MOB_KNIGHT_")eval.MOB_KNIGHT_[phase] = value;
-    else if (p == "MOB_KING_")eval.MOB_KING_[phase] = value;
-    else if (p == "PAWN_PASSED_")eval.PAWN_PASSED_ = value;
-    else if (p == "DISTANCE_KING_ENDING_")eval.DISTANCE_KING_ENDING_ = value;
-    else if (p == "DISTANCE_KING_OPENING_")eval.DISTANCE_KING_OPENING_ = value;
-
-//    else if (p == "QUEEN_PINNED")eval.QUEEN_PINNED[phase] = value;
-//    else if (p == "QUEEN_IN_7")eval.QUEEN_IN_7[phase] = value;
-//    else if (p == "ROOK_IN_7")eval.ROOK_IN_7[phase] = value;
-//    else if (p == "PAWN_PINNED")eval.PAWN_PINNED[phase] = value;
+    if (p == "ATTACK_KING")eval.ATTACK_KING = value;
+    else if (p == "BISHOP_ON_QUEEN")eval.BISHOP_ON_QUEEN = value;
+    else if (p == "BACKWARD_PAWN")eval.BACKWARD_PAWN = value;
+    else if (p == "DOUBLED_ISOLATED_PAWNS")eval.DOUBLED_ISOLATED_PAWNS = value;
+//    else if (p == "DOUBLED_PAWNS")eval.DOUBLED_PAWNS = value;
+    else if (p == "PAWN_IN_7TH")eval.PAWN_IN_7TH = value;
+//    else if (p == "PAWN_CENTER")eval.PAWN_CENTER = value;
+    else if (p == "PAWN_IN_PROMOTION")eval.PAWN_IN_PROMOTION = value;
+//    else if (p == "PAWN_ISOLATED")eval.PAWN_ISOLATED = value;
+    else if (p == "PAWN_NEAR_KING")eval.PAWN_NEAR_KING = value;
+    else if (p == "PAWN_BLOCKED")eval.PAWN_BLOCKED = value;
+    else if (p == "UNPROTECTED_PAWNS")eval.UNPROTECTED_PAWNS = value;
+//    else if (p == "ENEMY_NEAR_KING")eval.ENEMY_NEAR_KING = value;
+    else if (p == "FRIEND_NEAR_KING")eval.FRIEND_NEAR_KING = value;
+//    else if (p == "HALF_OPEN_FILE_Q")eval.HALF_OPEN_FILE_Q = value;
+    else if (p == "BONUS2BISHOP")eval.BONUS2BISHOP = value;
+    else if (p == "BISHOP_PAWN_ON_SAME_COLOR")eval.BISHOP_PAWN_ON_SAME_COLOR = value;
+//    else if (p == "CONNECTED_ROOKS")eval.CONNECTED_ROOKS = value;
+//    else if (p == "OPEN_FILE")eval.OPEN_FILE = value;
+    else if (p == "OPEN_FILE_Q")eval.OPEN_FILE_Q = value;
+    else if (p == "ROOK_7TH_RANK")eval.ROOK_7TH_RANK = value;
+//    else if (p == "ROOK_BLOCKED")eval.ROOK_BLOCKED = value;
+//    else if (p == "ROOK_TRAPPED")eval.ROOK_TRAPPED = value;
+//    else if (p == "UNDEVELOPED_KNIGHT")eval.UNDEVELOPED_KNIGHT = value;
+//    else if (p == "UNDEVELOPED_BISHOP")eval.UNDEVELOPED_BISHOP = value;
+    else if (p == "KNIGHT_PINNED")eval.KNIGHT_PINNED = value;
+    else if (p == "ROOK_PINNED")eval.ROOK_PINNED = value;
+    else if (p == "BISHOP_PINNED")eval.BISHOP_PINNED = value;
+    else if (p == "QUEEN_PINNED")eval.QUEEN_PINNED = value;
+    else if (p == "QUEEN_IN_7")eval.QUEEN_IN_7 = value;
+    else if (p == "ROOK_IN_7")eval.ROOK_IN_7 = value;
+//    else if (p == "PAWN_PINNED")eval.PAWN_PINNED = value;
     else {
         fatal("Not found ", p)
         exit(1);

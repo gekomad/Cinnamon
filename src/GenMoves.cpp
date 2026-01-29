@@ -124,9 +124,9 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
             ASSERT_RANGE(move.to, 0, 63)
             ASSERT_RANGE(move.from, 0, 63)
 
-            // if (GET_FROM(hash) == move.from && GET_TO(hash) == move.to) {
-                // score |= 0x80000000;
-            // }
+            if (GET_FROM(hash) == move.from && GET_TO(hash) == move.to) {
+                score |= 0x80000000;
+            }
 
             const int a = CAPTURES[move.pieceFrom][move.capturedPiece];
             score |= (a << 24);
