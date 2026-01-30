@@ -62,8 +62,8 @@ void Search::aspirationWindow(const int depth, const int valWin) {
                                                     nPieces);
                 } else {
                     tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 6, &pvLine,
-                                                    nPieces);
-          }
+                                         nPieces);
+                }
                 if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
                     tmp = search<side, searchMoves>(depth, -_INFINITE - 1, _INFINITE + 1, &pvLine, nPieces);
                 }
@@ -365,8 +365,8 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     decListId();
     if (abs(bestscore) < _INFINITE - MAX_PLY) {
         const char hashf =
-                (alpha <= oldAlpha) ? Hash::hashfALPHA :
-                (alpha >= beta) ? Hash::hashfBETA : Hash::hashfEXACT;
+                (bestscore <= oldAlpha) ? Hash::hashfALPHA :
+                (bestscore >= beta) ? Hash::hashfBETA : Hash::hashfEXACT;
         Hash::_Thash data(zobristKeyR, bestscore, depth, best->from, best->to, hashf);
         hash.recordHash(data, ply);
     }
@@ -399,6 +399,17 @@ void Search::setSearchMoves(const vector<int> &s) {
 #ifdef TUNING
 
 int Search::getParameter(const string &p) {
+    if (p == "MOB_ROOK_INC")return eval.MOB_ROOK_INC;
+    if (p == "MOB_QUEEN_INC")return eval.MOB_QUEEN_INC;
+    if (p == "BONUS_ATTACK_KING_INC")return eval.BONUS_ATTACK_KING_INC;
+    if (p == "DISTANCE_KING_ENDING_INC")return eval.DISTANCE_KING_ENDING_INC;
+    if (p == "MOB_KING_INC")return eval.MOB_KING_INC;
+    if (p == "DISTANCE_KING_OPENING_INC")return eval.DISTANCE_KING_OPENING_INC;
+    if (p == "MOB_KNIGHT_INC")return eval.MOB_KNIGHT_INC;
+    if (p == "MOB_BISHOP_INC")return eval.MOB_BISHOP_INC;
+    if (p == "PAWN_PASSED_INC")return eval.PAWN_PASSED_INC;
+    if (p == "PHASE_END")return eval.PHASE_END;
+    if (p == "PHASE_MIDDLE")return eval.PHASE_MIDDLE;
     if (p == "ATTACK_KING")return eval.ATTACK_KING;
     if (p == "BISHOP_ON_QUEEN")return eval.BISHOP_ON_QUEEN;
     if (p == "BACKWARD_PAWN")return eval.BACKWARD_PAWN;
@@ -437,7 +448,18 @@ int Search::getParameter(const string &p) {
 
 void Search::setParameter(const string &p, const int value) {
     //cout << "setParameter " << param << " " << value << endl;
-    if (p == "ATTACK_KING")eval.ATTACK_KING = value;
+    if (p == "PHASE_END")eval.PHASE_END = value;
+    else if (p == "MOB_BISHOP_INC")eval.MOB_BISHOP_INC = value;
+    else if (p == "MOB_ROOK_INC")eval.MOB_ROOK_INC = value;
+    else if (p == "MOB_QUEEN_INC")eval.MOB_QUEEN_INC = value;
+    else if (p == "DISTANCE_KING_ENDING_INC")eval.DISTANCE_KING_ENDING_INC = value;
+    else if (p == "BONUS_ATTACK_KING_INC")eval.BONUS_ATTACK_KING_INC = value;
+    else if (p == "MOB_KING_INC")eval.MOB_KING_INC = value;
+    else if (p == "DISTANCE_KING_OPENING_INC")eval.DISTANCE_KING_OPENING_INC = value;
+    else if (p == "MOB_KNIGHT_INC")eval.MOB_KNIGHT_INC = value;
+    else if (p == "PAWN_PASSED_INC")eval.PAWN_PASSED_INC = value;
+    else if (p == "PHASE_MIDDLE")eval.PHASE_MIDDLE = value;
+    else if (p == "ATTACK_KING")eval.ATTACK_KING = value;
     else if (p == "BISHOP_ON_QUEEN")eval.BISHOP_ON_QUEEN = value;
     else if (p == "BACKWARD_PAWN")eval.BACKWARD_PAWN = value;
     else if (p == "DOUBLED_ISOLATED_PAWNS")eval.DOUBLED_ISOLATED_PAWNS = value;

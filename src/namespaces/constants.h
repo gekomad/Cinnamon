@@ -69,7 +69,7 @@ namespace constants {
     static constexpr bool USE_HASH_NO = false;
 
     static constexpr int _INFINITE = 32000;
-
+    // TODO static constexpr int MATE_THRESHOLD = _INFINITE - MAX_PLY;
     static constexpr uchar PAWN_BLACK = 0;
     static constexpr uchar PAWN_WHITE = 1;
     static constexpr uchar ROOK_BLACK = 2;
