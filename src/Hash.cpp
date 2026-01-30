@@ -40,13 +40,17 @@ void Hash::clearHash() {
 void Hash::setHashSize(const int mb) {
     if (mb > 0) {
     	dispose();
-        u64 tmp = (u64) mb * 1024 * 1024 / (sizeof(_Thash));
-        hashArray = (_Thash *) calloc(tmp, sizeof(_Thash));
+        const u64 tmp = static_cast<u64>(mb) * 1024 * 1024 / (sizeof(_Thash)) + BUCKETS;
+        hashArray = static_cast<_Thash*>(calloc(tmp, sizeof(_Thash)));
         if (!hashArray) {
             fatal("info string error - no memory")
             exit(1);
         }
         HASH_SIZE = tmp - BUCKETS;
+        if (HASH_SIZE % 2) {
+            fatal("info string HASH_SIZE must be power of 2")
+            exit(1);
+        }
     }
 }
 

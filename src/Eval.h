@@ -49,39 +49,50 @@ public:
     int lazyEval(const _Tchessboard &chessboard) const {
         return lazyEvalSide<side>(chessboard) - lazyEvalSide<X(side)>(chessboard);
     }
-
+    STATIC_CONST int PAWN_PASSED_INC = 0;
+    STATIC_CONST int MOB_BISHOP_INC = 0;
+    STATIC_CONST int MOB_QUEEN_INC = 0;
+    STATIC_CONST int DISTANCE_KING_ENDING_INC = 0;
+    STATIC_CONST int BONUS_ATTACK_KING_INC = 0;
+    STATIC_CONST int MOB_KING_INC = 0;
+    STATIC_CONST int DISTANCE_KING_OPENING_INC = 0;
+    STATIC_CONST int MOB_ROOK_INC = 0;
+    STATIC_CONST int MOB_KNIGHT_INC = 0;
+    STATIC_CONST int PHASE_END = 3;
+    STATIC_CONST int PHASE_MIDDLE = 12;
+    // STATIC_CONST int REVERSE_FUTIL_MARGIN = 180;
     STATIC_CONST int FUTIL_MARGIN = 220;
-    STATIC_CONST int ATTACK_KING = 45;
-    STATIC_CONST int BISHOP_ON_QUEEN = 8;
-    STATIC_CONST int BACKWARD_PAWN = 6;
-    STATIC_CONST int DOUBLED_ISOLATED_PAWNS = 9;
+    STATIC_CONST int ATTACK_KING = 58;
+    STATIC_CONST int BISHOP_ON_QUEEN = 7;
+    STATIC_CONST int BACKWARD_PAWN = 5;
+    STATIC_CONST int DOUBLED_ISOLATED_PAWNS = 10;
 //    STATIC_CONST int DOUBLED_PAWNS = 0;
-    STATIC_CONST int PAWN_IN_7TH = 21;
+    STATIC_CONST int PAWN_IN_7TH = 20;
 //    STATIC_CONST int PAWN_CENTER = 0;
     STATIC_CONST int PAWN_IN_PROMOTION = 99;
 //    STATIC_CONST int PAWN_ISOLATED = 0;
-    STATIC_CONST int PAWN_NEAR_KING = 11;
+    STATIC_CONST int PAWN_NEAR_KING = 7;
     STATIC_CONST int PAWN_BLOCKED = 8;
     STATIC_CONST int UNPROTECTED_PAWNS = 6;
 //    STATIC_CONST int ENEMY_NEAR_KING = 0;
-    STATIC_CONST int FRIEND_NEAR_KING = 8;
+    STATIC_CONST int FRIEND_NEAR_KING = 10;
 //    STATIC_CONST int HALF_OPEN_FILE_Q = 0;
-    STATIC_CONST int BONUS2BISHOP = 33;
-    STATIC_CONST int BISHOP_PAWN_ON_SAME_COLOR = 2;
+    STATIC_CONST int BONUS2BISHOP = 21;
+    STATIC_CONST int BISHOP_PAWN_ON_SAME_COLOR = 3;
 //    STATIC_CONST int CONNECTED_ROOKS = 0;
 //    STATIC_CONST int OPEN_FILE = 0;
-    STATIC_CONST int OPEN_FILE_Q = 4;
-    STATIC_CONST int ROOK_7TH_RANK = 13;
+    STATIC_CONST int OPEN_FILE_Q = 2;
+    STATIC_CONST int ROOK_7TH_RANK = 21;
 //    STATIC_CONST int ROOK_BLOCKED = 0;
 //    STATIC_CONST int ROOK_TRAPPED = 0;
 //    STATIC_CONST int UNDEVELOPED_KNIGHT = 0;
 //    STATIC_CONST int UNDEVELOPED_BISHOP = 0;
-    STATIC_CONST int KNIGHT_PINNED = 54;
-    STATIC_CONST int ROOK_PINNED = 29;
-    STATIC_CONST int BISHOP_PINNED = 26;
-    STATIC_CONST int QUEEN_PINNED = 2;
+    STATIC_CONST int KNIGHT_PINNED = 56;
+    STATIC_CONST int ROOK_PINNED = 23;
+    STATIC_CONST int BISHOP_PINNED = 32;
+    STATIC_CONST int QUEEN_PINNED = 20;
     STATIC_CONST int QUEEN_IN_7 = 10;
-    STATIC_CONST int ROOK_IN_7 = 7;
+    STATIC_CONST int ROOK_IN_7 = 4;
 //    STATIC_CONST int PAWN_PINNED = 0;
 
 #ifdef DEBUG_MODE
@@ -282,15 +293,10 @@ namespace _eval {
                     0, 0, 0, 0, 0, 0, 0, 0}
     };
     static constexpr int
-            MOB_QUEEN[3][29] =
-            {{0,   1,   1,   1, 1, 1, 1, 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 1,  1,  1,  1, 1,
-                                                                                                           1,  1,  1,  1,  1},
-             {-10, -9,  -5,  0, 3, 6, 7, 10, 11, 12, 15, 18, 28, 30, 32, 35, 40, 50, 51,
-                                                                                        52, 53, 54, 55,
-                                                                                                       56, 57, 58, 59, 60, 61},
-             {-20, -15, -10, 0, 1, 3, 4, 9,  11, 12, 15, 18, 28, 30, 32, 33, 34, 36, 37,
-                                                                                        39, 40, 41, 42,
-                                                                                                       43, 44, 45, 56, 47, 48}
+            MOB_QUEEN[3][29] =    {
+             {33, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34},
+             {23, 24, 28, 33, 36, 39, 40, 43, 44, 45, 48, 51, 61, 63, 65, 68, 73, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94},
+             {13, 18, 23, 33, 34, 36, 37, 42, 44, 45, 48, 51, 61, 63, 65, 66, 67, 69, 70, 72, 73, 74, 75, 76, 77, 78, 89, 80, 81}
             };
 
     static constexpr int MOB_ROOK[3][15] =
@@ -310,11 +316,11 @@ namespace _eval {
                                           40
     };
 
-    static constexpr int MOB_BISHOP[3][14] =
-            {{-8,  -7,  2,  8, 9, 10, 15, 20, 28, 30, 40, 45, 50, 50},
-             {-20, -10, -4, 0, 5, 10, 15, 20, 28, 30, 40, 45, 50, 50},
-             {-20, -10, -4, 0, 3, 8,  13, 18, 25, 30, 40, 45, 50, 50}
-            };
+    static constexpr int MOB_BISHOP[3][14] ={
+        {2, 3, 12, 18, 19, 20, 25, 30, 38, 40, 50, 55, 60, 60},
+        {-10, 0, 6, 10, 15, 20, 25, 30, 38, 40, 50, 55, 60, 60},
+        {-10, 0, 6, 10, 13, 18, 23, 28, 35, 40, 50, 55, 60, 60}
+     };
 
     static constexpr int MOB_KING[3][9] = {{1,   2,   2,   1,  0,  0,  0,  0,  0},
                                            {-5,  0,   5,   5,  5,  0,  0,  0,  0},

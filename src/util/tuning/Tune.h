@@ -26,7 +26,7 @@
 class Tune {
 
 protected:
-    constexpr static int N_PARAM = 20;
+    constexpr static int N_PARAM = 32;
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     const string iniFile = "tuning.ini";
 
@@ -85,6 +85,18 @@ protected:
 
         loadParams();
         const array<PARAMS, N_PARAM> params{
+                PARAMS("MOB_KNIGHT_INC", searchManager),
+                PARAMS("MOB_QUEEN_INC", searchManager),
+                PARAMS("DISTANCE_KING_ENDING_INC", searchManager),
+                PARAMS("BONUS_ATTACK_KING_INC", searchManager),
+                PARAMS("MOB_KING_INC", searchManager),
+                PARAMS("DISTANCE_KING_OPENING_INC", searchManager),
+                PARAMS("MOB_ROOK_INC", searchManager),
+                PARAMS("MOB_BISHOP_INC", searchManager),
+                PARAMS("MOB_ROOK_INC", searchManager),
+                PARAMS("PAWN_PASSED_INC", searchManager),
+                PARAMS("PHASE_END", searchManager),
+                PARAMS("PHASE_MIDDLE", searchManager),
                 PARAMS("ATTACK_KING", searchManager),
                 PARAMS("BISHOP_ON_QUEEN", searchManager),
                 PARAMS("BACKWARD_PAWN", searchManager),

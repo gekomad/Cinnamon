@@ -62,8 +62,8 @@ void Search::aspirationWindow(const int depth, const int valWin) {
                                                     nPieces);
                 } else {
                     tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 6, &pvLine,
-                                                    nPieces);
-          }
+                                         nPieces);
+                }
                 if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
                     tmp = search<side, searchMoves>(depth, -_INFINITE - 1, _INFINITE + 1, &pvLine, nPieces);
                 }
@@ -227,7 +227,7 @@ bool Search::checkSearchMoves(const _Tmove *move) const {
 
 
 template<uchar side, bool checkMoves>
-int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, const int N_PIECE) {
+int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const int N_PIECE) {
     ASSERT_RANGE(side, 0, 1)
     if (!getRunning()) return 0;
     const int oldAlpha = alpha;
@@ -257,8 +257,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     // int wdl = TB::probeWdl(depth, side, N_PIECE, mainDepth, rightCastle, chessboard);
     // if (wdl != INT_MAX) return wdl;
 #endif
-
-    int bestscore = -_INFINITE;
+ 
     //const bool pvNode = alpha != beta - 1;
 
     ASSERT(chessboard[KING_BLACK]);
@@ -281,10 +280,9 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     /// ************* hash ****************
     const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
     u64 hashItem;
-    const int hashValue = hash.readHash(alpha, beta, depth, zobristKeyR, hashItem, currentPly);
-    if (hashValue != INT_MAX) {
-        return hashValue;
-    }
+    const int ttScore = hash.readHash(alpha, beta, depth, zobristKeyR, hashItem, currentPly);
+    if (ttScore != INT_MAX)
+        return ttScore;
 
     /// ********** end hash ***************
 
@@ -318,6 +316,7 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
     // char hashf = Hash::hashfALPHA;
     int first = 0;
 
+    int score = -_INFINITE;
     while ((move = getNextMove(&genList[listId], depth, hashItem, first++))) {
         if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth)
             continue;
@@ -330,48 +329,44 @@ int Search::search(const int depth, int alpha, const int beta, _TpvLine *pline, 
         _TpvLine newLine;
         newLine.cmove = 0;
 
-        int score = searchLambda(&newLine, depth - 1, -beta, -alpha, move);
+        score = searchLambda(&newLine, depth - 1, -beta, -alpha, move);
 
         takeback(move, oldKey, oldEnpassant, true);
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
-        if (score >= beta) {
-            alpha = max(alpha, score);
-            INC(nCutAB);
-            INC(betaEfficiencyCount);
-            DEBUG(betaEfficiency +=
-                          (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
-                          (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
-            if (getRunning()) {
-                Hash::_Thash data(zobristKeyR, score, depth, move->from, move->to, Hash::hashfBETA);
-                hash.recordHash(data, ply);
-                if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
-                    setHistoryHeuristic(move->pieceFrom, move->to, depth);
+         if (score > alpha) {
+            if (score >= beta) {
+                INC(nCutAB);
+                INC(betaEfficiencyCount);
+                DEBUG(betaEfficiency +=
+                              (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
+                              (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
+                if (getRunning() ) {
+                    if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
+                        setHistoryHeuristic(move->pieceFrom, move->to, depth);
+                    }
                 }
+               
+               best = move;
+               updatePv(pline, &newLine, move);
+               break;
             }
-            bestscore = score;
-            best = move;
-            break;
-        }
-        if (score > bestscore) {
-            bestscore = score;
-            best = move;
-        }
-        if (score > alpha) {
+        
             alpha = score;
+            best = move;
             updatePv(pline, &newLine, move);
+         }
+    }
+    decListId(); 
+    if (best) {
+            const char hashf =
+                (score <= oldAlpha) ? Hash::hashfALPHA :
+                (score >= beta) ? Hash::hashfBETA : Hash::hashfEXACT;
+        Hash::_Thash data(zobristKeyR, score, depth, best->from, best->to, hashf);
+            hash.recordHash(data, ply);
         }
-    }
-    decListId();
-    if (abs(bestscore) < _INFINITE - MAX_PLY) {
-        const char hashf =
-                (alpha <= oldAlpha) ? Hash::hashfALPHA :
-                (alpha >= beta) ? Hash::hashfBETA : Hash::hashfEXACT;
-        Hash::_Thash data(zobristKeyR, bestscore, depth, best->from, best->to, hashf);
-        hash.recordHash(data, ply);
-    }
            
-    return bestscore;
+    return score;
 
 }
 
@@ -399,6 +394,17 @@ void Search::setSearchMoves(const vector<int> &s) {
 #ifdef TUNING
 
 int Search::getParameter(const string &p) {
+    if (p == "MOB_ROOK_INC")return eval.MOB_ROOK_INC;
+    if (p == "MOB_QUEEN_INC")return eval.MOB_QUEEN_INC;
+    if (p == "BONUS_ATTACK_KING_INC")return eval.BONUS_ATTACK_KING_INC;
+    if (p == "DISTANCE_KING_ENDING_INC")return eval.DISTANCE_KING_ENDING_INC;
+    if (p == "MOB_KING_INC")return eval.MOB_KING_INC;
+    if (p == "DISTANCE_KING_OPENING_INC")return eval.DISTANCE_KING_OPENING_INC;
+    if (p == "MOB_KNIGHT_INC")return eval.MOB_KNIGHT_INC;
+    if (p == "MOB_BISHOP_INC")return eval.MOB_BISHOP_INC;
+    if (p == "PAWN_PASSED_INC")return eval.PAWN_PASSED_INC;
+    if (p == "PHASE_END")return eval.PHASE_END;
+    if (p == "PHASE_MIDDLE")return eval.PHASE_MIDDLE;
     if (p == "ATTACK_KING")return eval.ATTACK_KING;
     if (p == "BISHOP_ON_QUEEN")return eval.BISHOP_ON_QUEEN;
     if (p == "BACKWARD_PAWN")return eval.BACKWARD_PAWN;
@@ -437,7 +443,18 @@ int Search::getParameter(const string &p) {
 
 void Search::setParameter(const string &p, const int value) {
     //cout << "setParameter " << param << " " << value << endl;
-    if (p == "ATTACK_KING")eval.ATTACK_KING = value;
+    if (p == "PHASE_END")eval.PHASE_END = value;
+    else if (p == "MOB_BISHOP_INC")eval.MOB_BISHOP_INC = value;
+    else if (p == "MOB_ROOK_INC")eval.MOB_ROOK_INC = value;
+    else if (p == "MOB_QUEEN_INC")eval.MOB_QUEEN_INC = value;
+    else if (p == "DISTANCE_KING_ENDING_INC")eval.DISTANCE_KING_ENDING_INC = value;
+    else if (p == "BONUS_ATTACK_KING_INC")eval.BONUS_ATTACK_KING_INC = value;
+    else if (p == "MOB_KING_INC")eval.MOB_KING_INC = value;
+    else if (p == "DISTANCE_KING_OPENING_INC")eval.DISTANCE_KING_OPENING_INC = value;
+    else if (p == "MOB_KNIGHT_INC")eval.MOB_KNIGHT_INC = value;
+    else if (p == "PAWN_PASSED_INC")eval.PAWN_PASSED_INC = value;
+    else if (p == "PHASE_MIDDLE")eval.PHASE_MIDDLE = value;
+    else if (p == "ATTACK_KING")eval.ATTACK_KING = value;
     else if (p == "BISHOP_ON_QUEEN")eval.BISHOP_ON_QUEEN = value;
     else if (p == "BACKWARD_PAWN")eval.BACKWARD_PAWN = value;
     else if (p == "DOUBLED_ISOLATED_PAWNS")eval.DOUBLED_ISOLATED_PAWNS = value;

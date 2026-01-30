@@ -36,15 +36,14 @@ public:
 
     typedef struct _Thash {
         u64 key;
-        // 123456789ABCDEF|12345678|12345678|12345678|12345678|123456789ABCDEF|
-        // age            | flags  | from   |   to   | depth  |    score      |
+        // 123456789ABCDEF|12345678|12345678|12345678|12345678|0123456789ABCDEF|
+        // age            | flags  | from   |   to   | depth  |     score      |
         u64 data;
 
         _Thash(const u64 zobristKeyR, const short score, const char depth, const uchar from, const uchar to,
                const uchar flags) {
             key = zobristKeyR;
-            data = score;
-            data &= 0xffffULL;
+            data = (u64)(uint16_t)score;
             data |= (u64) depth << 16;
             data |= (u64) to << (16 + 8);
             data |= (u64) from << (16 + 8 + 8);
@@ -64,6 +63,7 @@ public:
 
     static void clearHash();
 
+
 #define SET_AGE(u, v) (u=(u&0xffffffffffffULL)|(((u64)v)<<(16 + 8 + 8 + 8 + 8)))
 #define GET_DEPTH(v) ((uchar)(v>>16))
 #define GET_FLAGS(v) ((uchar)(v>>(16 + 8 + 8 + 8)))
@@ -71,67 +71,79 @@ public:
 #define GET_TO(v) ((uchar)(v>>(16 + 8)))
 #define GET_SCORE(v) ((short ) v)
 #define GET_AGE(v) ((unsigned short)(v>> (16 + 8 + 8 + 8 + 8)))
-#define GET_KEY(hash) (hash->key ^ (hash->data & 0xffffffffffffULL))
+// #define GET_KEY(hash) (hash->key ^ (hash->data & 0xffffffffffffULL))
+#define GET_KEY(hash) (hash->key)
 
-    static inline int readHash(
-            const int alpha,
-            const int beta,
+#define INC_AGE(u) (u=(u&0xffffffffffffULL)|(((u64)(GET_AGE(u)+1))<<(16 + 8 + 8 + 8 + 8)))
+
+static inline int readHash(
+            int &alpha,
+            int &beta,
             const int depth,
             const u64 zobristKeyR,
             u64 &hashStruct,
             const bool currentPly) {
+ 
         INC(readHashCount);
-        const Hash::_Thash *hash = &(hashArray[zobristKeyR % HASH_SIZE]);
+        Hash::_Thash *hash = &(hashArray[zobristKeyR & (HASH_SIZE - 1)]);
         DEBUG(u64 d = 0)
         hashStruct = 0;
         bool found = false;
         for (int i = 0; i < BUCKETS; i++, hash++) {
             if (found)break;
-            u64 data = hash->data;
+            const u64 data = hash->data;
             DEBUG(d |= data)
             if (zobristKeyR == GET_KEY(hash)) {
                 found = true;
+                INC_AGE(hash->data);
                 hashStruct = data;
-                if (GET_DEPTH(hashStruct) >= depth) {
-                    if (currentPly) {
-                        switch (GET_FLAGS(hashStruct)) {
-                            case Hash::hashfEXACT:
-                            case Hash::hashfBETA:
-                                if (GET_SCORE(hashStruct) >= beta) {
-                                    INC(n_cut_hashB);
-                                    return beta;
-                                }
-                                break;
-                            case Hash::hashfALPHA:
-                                if (GET_SCORE(hashStruct) <= alpha) {
-                                    INC(n_cut_hashA);
-                                    return alpha;
-                                }
-                                break;
-                            default:
-                                fatal("Error checkHash")
-                                exit(1);
+                if (currentPly && GET_DEPTH(hashStruct) >= depth) {
+                    const int ttScore = GET_SCORE(hashStruct);
+                    switch (GET_FLAGS(hashStruct)) {
+                        case Hash::hashfEXACT: {
+                            INC(n_cut_hashE);
+                            return ttScore;
                         }
+                        case Hash::hashfBETA:
+                            if (ttScore >= beta) {
+                                INC(n_cut_hashB);
+                                return beta;
+                            }
+                            if (ttScore > alpha)
+                                alpha = ttScore;
+                            break;
+                        case Hash::hashfALPHA:
+                            if (ttScore <= alpha) {
+                                INC(n_cut_hashA);
+                                return alpha;
+                            }
+                            if (ttScore < beta)
+                                beta = ttScore;
+                            break;
+                        default:
+                            fatal("Error checkHash")
+                            exit(1);
                     }
+                    if (alpha >= beta)
+                        return ttScore;
                 }
             }
         }
+        
         DEBUG(if (d && !found)readCollisions++)
         return INT_MAX;
     }
 
-    static void recordHash(const _Thash &toStore, const int ply) {
+    static void recordHash(const _Thash &toStore, const int age) {
 #ifdef DEBUG_MODE
         ASSERT(toStore.key);
         if (GET_FLAGS(toStore.data) == hashfALPHA) nRecordHashA++;
         else if (GET_FLAGS(toStore.data) == hashfBETA) nRecordHashB++;
         else nRecordHashE++;
-#endif
         ASSERT(GET_DEPTH(toStore.data) < MAX_PLY);
-        const unsigned kMod = toStore.key % HASH_SIZE;
-
+#endif
+        const unsigned kMod = toStore.key & (HASH_SIZE - 1);
         _Thash *empty = nullptr;
-
         { // update
             _Thash *hash = &(hashArray[kMod]);
             bool found = false;
@@ -140,44 +152,43 @@ public:
                 if (toStore.key == GET_KEY(hash)) {
                     found = true;
                     if (GET_DEPTH(data) <= GET_DEPTH(toStore.data)) {
-                        hash->key = (toStore.key ^ toStore.data);
+                        // hash->key = (toStore.key ^ toStore.data);
+                        hash->key = (toStore.key);
                         hash->data = toStore.data;
-                        SET_AGE(hash->data, ply);
+                        SET_AGE(hash->data, age);
                         return;
                     }
                 } else if (!hash->key) {
                     empty = hash;
-                    if (found)break;
+                    if (found)
+                        break;
                 }
             }
         }
         if (empty) { //empty slot
-            empty->key = (toStore.key ^ toStore.data);
+            // empty->key = (toStore.key ^ toStore.data);
+            empty->key = (toStore.key);
             empty->data = toStore.data;
-            SET_AGE(empty->data, ply);
+            SET_AGE(empty->data, age);
             return;
         }
-
+       
         { // age
-            _Thash *hash = &(hashArray[kMod]);
-            _Thash *old = &(hashArray[kMod]);
-            int i;
-            int oldTT = -INT_MAX;
-            for (i = 0; i < BUCKETS; i++, hash++) {
+            _Thash *hash = &hashArray[kMod];
+            _Thash *old  = hash;
+            int best = INT_MAX;
+            for (int i = 0; i < BUCKETS; i++, hash++) {
+                assert (hash->key);
                 const u64 data = hash->data;
-                const auto age = ((ply - GET_AGE(data)) & 255) * 256 + 255 - GET_DEPTH(data);
-                // const int age = ((pow(GET_DEPTH(data) - GET_DEPTH(old->data), 2)) + (ply - GET_AGE(data)));
-                if (age > oldTT) {
+                const int score = GET_AGE(data);// ((age - GET_AGE(data)) & 255) * 256 + (255 - GET_DEPTH(data));
+                if (score < best) {
+                    best = score;
                     old = hash;
-                    oldTT = age;
                 }
             }
-            if (i == BUCKETS) hash = old;
-
-            DEBUG(if (hash->key && hash->key != (toStore.key ^ toStore.data)) INC(collisions))
-            hash->key = (toStore.key ^ toStore.data);
-            hash->data = toStore.data;
-            SET_AGE(hash->data, ply);
+            old->key  = toStore.key;
+            old->data = toStore.data;
+            SET_AGE(old->data, age);
         }
     }
 
@@ -190,7 +201,7 @@ private:
 #ifdef JS_MODE
     static constexpr int HASH_SIZE_DEFAULT = 1;
 #else
-    static constexpr int HASH_SIZE_DEFAULT = 64;
+    static constexpr int HASH_SIZE_DEFAULT = 64; // TODO 128
 #endif
 
 
