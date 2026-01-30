@@ -50,10 +50,7 @@ public:
         return lazyEvalSide<side>(chessboard) - lazyEvalSide<X(side)>(chessboard);
     }
 
-    STATIC_CONST int REVERSE_FUTIL_MARGIN = 180;
     STATIC_CONST int FUTIL_MARGIN = 220;
-    STATIC_CONST int EXT_FUTIL_MARGIN = 550;
-    STATIC_CONST int RAZOR_MARGIN = 1171;
     STATIC_CONST int ATTACK_KING = 45;
     STATIC_CONST int BISHOP_ON_QUEEN = 8;
     STATIC_CONST int BACKWARD_PAWN = 6;
