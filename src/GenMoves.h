@@ -372,7 +372,7 @@ public:
 
 
 #ifdef DEBUG_MODE
-    unsigned nCutAB, nNullMoveCut, nCutFp, nCutRazor, nCutBadCaputure;
+    unsigned pvsTot, nCutAB, pvsFail, nNullMoveCut, nCutFp, nCutRazor, nCutBadCaputure;
     double betaEfficiency = 0.0;
     unsigned betaEfficiencyCount = 0;
 #endif

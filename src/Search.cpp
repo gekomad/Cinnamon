@@ -62,8 +62,8 @@ void Search::aspirationWindow(const int depth, const int valWin) {
                                                     nPieces);
                 } else {
                     tmp = search<side, searchMoves>(depth, valWindow - VAL_WINDOW, valWindow + VAL_WINDOW * 6, &pvLine,
-                                         nPieces);
-                }
+                                                    nPieces);
+          }
                 if (tmp <= valWindow - VAL_WINDOW || tmp >= valWindow + VAL_WINDOW) {
                     tmp = search<side, searchMoves>(depth, -_INFINITE - 1, _INFINITE + 1, &pvLine, nPieces);
                 }
@@ -257,7 +257,8 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
     // int wdl = TB::probeWdl(depth, side, N_PIECE, mainDepth, rightCastle, chessboard);
     // if (wdl != INT_MAX) return wdl;
 #endif
- 
+
+  
     //const bool pvNode = alpha != beta - 1;
 
     ASSERT(chessboard[KING_BLACK]);
@@ -315,8 +316,8 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
     int countMove = 0;
     // char hashf = Hash::hashfALPHA;
     int first = 0;
-
     int score = -_INFINITE;
+
     while ((move = getNextMove(&genList[listId], depth, hashItem, first++))) {
         if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth)
             continue;
@@ -326,24 +327,33 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
             takeback(move, oldKey, oldEnpassant, true);
             continue;
         }
+        int val = INT_MAX;
         _TpvLine newLine;
         newLine.cmove = 0;
-
-        score = searchLambda(&newLine, depth - 1, -beta, -alpha, move);
-
+        // PVS
+        assert (val > alpha) ;
+        const int doMws = (score > -_INFINITE + MAX_PLY);
+        const int lwb = max(alpha, score);
+        const int upb = doMws ? lwb + 1 : beta;
+        val = searchLambda(&newLine, depth + extension - 1, -upb, -lwb, move);
+        if (doMws && (lwb < val) && (val < beta)) {
+            INC(pvsFail);
+            val = searchLambda(&newLine, depth + extension - 1, -beta, -val + 1, move);
+        }
+        score = max(score, val);
         takeback(move, oldKey, oldEnpassant, true);
         ASSERT(chessboard[KING_BLACK]);
         ASSERT(chessboard[KING_WHITE]);
          if (score > alpha) {
-            if (score >= beta) {
-                INC(nCutAB);
-                INC(betaEfficiencyCount);
-                DEBUG(betaEfficiency +=
-                              (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
-                              (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
-                if (getRunning() ) {
-                    if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
-                        setHistoryHeuristic(move->pieceFrom, move->to, depth);
+          if (score >= beta) {
+            INC(nCutAB);
+            INC(betaEfficiencyCount);
+            DEBUG(betaEfficiency +=
+                          (100.0 - ((double) countMove * 100.0 / (double) listcount)) +
+                          (((double) countMove * 100.0 / (double) listcount) / (double) countMove))
+            if (getRunning()) {
+                if (move->capturedPiece == SQUARE_EMPTY && move->promotionPiece == NO_PROMOTION) {
+                    setHistoryHeuristic(move->pieceFrom, move->to, depth);
                     }
                 }
                
@@ -355,16 +365,16 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
             alpha = score;
             best = move;
             updatePv(pline, &newLine, move);
-         }
+        }
     }
-    decListId(); 
+    decListId();
     if (best) {
-            const char hashf =
+        const char hashf =
                 (score <= oldAlpha) ? Hash::hashfALPHA :
                 (score >= beta) ? Hash::hashfBETA : Hash::hashfEXACT;
         Hash::_Thash data(zobristKeyR, score, depth, best->from, best->to, hashf);
-            hash.recordHash(data, ply);
-        }
+        hash.recordHash(data, ply);
+    }
            
     return score;
 

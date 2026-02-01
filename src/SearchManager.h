@@ -213,6 +213,20 @@ public:
         return i;
     }
 
+    static unsigned getPvsTot() {
+        unsigned i = 0;
+        for (Search *s:threadPool->getPool()) {
+            i += s->pvsTot;
+        }
+        return i;
+    }
+    static unsigned getPvsFail() {
+        unsigned i = 0;
+        for (Search *s:threadPool->getPool()) {
+            i += s->pvsFail;
+        }
+        return i;
+    }
     static unsigned getNullMoveCut() {
         unsigned i = 0;
         for (Search *s:threadPool->getPool()) {

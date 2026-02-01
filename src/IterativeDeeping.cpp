@@ -127,6 +127,8 @@ void IterativeDeeping::run() {
         const int nCutRazor = searchManager.getNCutRazor();
         const int nBadCaputure = searchManager.getTotBadCaputure();
         const int nullMoveCut = searchManager.getNullMoveCut();
+        const int pvsFail = searchManager.getPvsFail();
+        const int pvsTot = searchManager.getPvsTot();
 
         cout << "\ninfo string ply: " << iter_depth << endl;
         cout << "info string tot moves: " << totMoves << endl;
@@ -143,6 +145,7 @@ void IterativeDeeping::run() {
         cout << "info string futility pruning cut: " << nCutFp << endl;
         cout << "info string null move cut: " << nullMoveCut << endl;
         cout << "info string razor cut: " << nCutRazor << endl;
+        cout << "info string pvs tot: " << pvsTot << " failed: "<< pvsFail << " ("<< pvsFail*100/(pvsTot+1) << "%)"<< endl;
         cout << "info string bad caputure cut: " << nBadCaputure << endl;
         printf("info string hash stored %d%% (alpha=%.2f%% beta=%.2f%% exact%.2f%%)\n",
                totStoreHash * 100 / (1 + cumulativeMovesCount), percStoreHashA, percStoreHashB, percStoreHashE);
