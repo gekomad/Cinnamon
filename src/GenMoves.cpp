@@ -18,6 +18,7 @@
 
 #include "GenMoves.h"
 
+#include "util/Random.h"
 GenMoves::GenMoves() : perftMode(false), listId(-1) {
     currentPly = 0;
     genList = (_TmoveP *) calloc(MAX_PLY, sizeof(_TmoveP));
@@ -124,7 +125,7 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
             ASSERT_RANGE(move.to, 0, 63)
             ASSERT_RANGE(move.from, 0, 63)
 
-            if (GET_FROM(hash) == move.from && GET_TO(hash) == move.to) {
+            if (Hash::GET_FROM(hash) == move.from && Hash::GET_TO(hash) == move.to) {
                 score |= 0x80000000;
             }
 
@@ -141,7 +142,7 @@ _Tmove *GenMoves::getNextMove(_TmoveP *list, const int depth, const u64 &hash, c
             ASSERT(rightCastle);
             score = 100;
         }
-        if (score >= bestScore) {
+        if (score >= bestScore /* TODO && Random::getFastRandomBool()*/) {
             bestScore = score;
             bestId = i;
         }
@@ -449,7 +450,7 @@ bool GenMoves::makemove(const _Tmove *move, const bool rep) {
 
 void GenMoves::init() {
     numMoves = numMovesq = listId = 0;
-    DEBUG(nCutFp = nCutRazor = pvsTot = pvsFail = rfcCut= nCutAB = nNullMoveCut = nCutBadCaputure = 0)
+    DEBUG(nCutFp = nCutRazor = pvsTot = pvsOK = rfcCut= nCutAB = nNullMoveCut = nNullMove = nCutBadCaputure = 0)
 }
 
 u64 GenMoves::getTotMoves() const {

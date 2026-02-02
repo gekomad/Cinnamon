@@ -23,7 +23,6 @@
 #include "../../namespaces/String.h"
 #include <map>
 
-using namespace std;
 using namespace chrono;
 
 class Time {

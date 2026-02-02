@@ -78,7 +78,6 @@ void Search::aspirationWindow(const int depth, const int valWin) {
 Search::Search() : ponder(false), nullSearch(false) {
     DEBUG(eval.lazyEvalCuts = cumulativeMovesCount = totGen = 0)
 }
-
 void Search::clone(const Search *s) {
     memcpy(chessboard, s->chessboard, sizeof(_Tchessboard));
 }
@@ -257,13 +256,9 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
     // int wdl = TB::probeWdl(depth, side, N_PIECE, mainDepth, rightCastle, chessboard);
     // if (wdl != INT_MAX) return wdl;
 #endif
-
-  
     const bool pvNode = alpha != beta - 1;
-
     ASSERT(chessboard[KING_BLACK]);
     ASSERT(chessboard[KING_WHITE]);
-
     const bool isIncheckSide = board::inCheck1<side>(chessboard);
     if (!isIncheckSide && depth != mainDepth) {
         if (board::checkInsufficientMaterial(N_PIECE, chessboard) || checkDraw(chessboard[ZOBRISTKEY_IDX])) {
@@ -289,19 +284,21 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
 
     if (!(numMoves % 2048)) setRunning(checkTime());
     ++numMoves;
-  
-    if (!isIncheckSide) {
+    int futilScore = 0;
+    bool futilPrune = false;
+    int score = -_INFINITE;
+    if (!isIncheckSide && !pvNode) {
         const int matBalance = eval.lazyEval<side>(chessboard);
         /// ******** reverse futility pruning ***********
-        if (depth < 8 && !pvNode && abs(beta - 1) > -_INFINITE + MAX_PLY) {
+        if (depth < 8 && abs(beta - 1) > -_INFINITE + MAX_PLY) {
             const int evalMargin = matBalance - eval.REVERSE_FUTIL_MARGIN * depth;
             if (evalMargin >= beta)  {
                 INC(rfcCut);
                 return beta;
             }
         }
-
-        if (!pvNode && depth <= 3) {
+        /// ******** razor pruning ***********
+        if (depth <= 3) {
             if (matBalance + _eval::RAZOR_MARGIN[depth] <= alpha) {
                 if (depth == 1) {
                     INC(nCutRazor);
@@ -311,13 +308,25 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
                 const int v = qsearch<side>(rAlpha, rAlpha+1, NO_PROMOTION, 0);
                 if (v <= rAlpha) {
                     INC(nCutRazor);
-                    return v;  
+                    return v;
                 }
             }
         }
+
+        if ((futilScore = matBalance + eval.FUTIL_MARGIN) <= alpha) {
+         /// **************Futility Pruning at pre-frontier *****
+            if (depth == 2 && (futilScore = matBalance + eval.EXT_FUTIL_MARGIN) <= alpha) {
+                futilPrune = true;
+                score = futilScore;
+            } else
+            /// **************Futility Pruning at frontier *****
+            if (depth == 1) {
+                futilPrune = true;
+                score = futilScore;
+            }
+        }
     }
-     
-    /// ************ end Futility Pruning*************
+
     _Tmove *best = nullptr;
     ASSERT_RANGE(KING_BLACK + side, 0, 11)
     ASSERT_RANGE(KING_BLACK + (X(side)), 0, 11)
@@ -344,7 +353,7 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
     int countMove = 0;
     // char hashf = Hash::hashfALPHA;
     int first = 0;
-    int score = -_INFINITE;
+
 
     while ((move = getNextMove(&genList[listId], depth, hashItem, first++))) {
         if (!checkSearchMoves<checkMoves>(move) && depth == mainDepth)
@@ -358,15 +367,30 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
         int val = INT_MAX;
         _TpvLine newLine;
         newLine.cmove = 0;
+
+        if (move->promotionPiece == NO_PROMOTION) {
+            if (futilPrune && futilScore + PIECES_VALUE[move->capturedPiece] <= alpha &&
+                !board::inCheck1<side>(chessboard)) {
+                INC(nCutFp);
+                takeback(move, oldKey, oldEnpassant, true);
+                continue;
+                }
+            //Late Move Reduction
+            if (countMove > 3 && !isIncheckSide && depth >= 3 && move->capturedPiece == SQUARE_EMPTY) {
+                val = searchLambda(&newLine, depth + extension - (countMove > 6 ? 3 : 2), -(alpha + 1), -alpha,
+                                   nullptr);
+            }
+        }
         // PVS
-        assert (val > alpha) ;
-        const int doMws = (score > -_INFINITE + MAX_PLY);
-        const int lwb = max(alpha, score);
-        const int upb = doMws ? lwb + 1 : beta;
-        val = searchLambda(&newLine, depth + extension - 1, -upb, -lwb, move);
-        if (doMws && (lwb < val) && (val < beta)) {
-            INC(pvsFail);
-            val = searchLambda(&newLine, depth + extension - 1, -beta, -val + 1, move);
+        if (val > alpha) {
+            const int doMws = (score > -_INFINITE + MAX_PLY);
+            const int lwb = max(alpha, score);
+            const int upb = doMws ? lwb + 1 : beta;
+            DEBUG(if (-upb == -lwb-1) pvsTot++);
+            val = searchLambda(&newLine, depth + extension - 1, -upb, -lwb, move);
+            if (doMws && (lwb < val) && (val < beta)) {
+                val = searchLambda(&newLine, depth + extension - 1, -beta, -val + 1, move);
+            } DEBUG(else if (-upb == -lwb-1) pvsOK++);
         }
         score = max(score, val);
         takeback(move, oldKey, oldEnpassant, true);
@@ -384,12 +408,12 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
                     setHistoryHeuristic(move->pieceFrom, move->to, depth);
                     }
                 }
-               
+
                best = move;
                updatePv(pline, &newLine, move);
                break;
             }
-        
+
             alpha = score;
             best = move;
             updatePv(pline, &newLine, move);
@@ -403,7 +427,7 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
         Hash::_Thash data(zobristKeyR, score, depth, best->from, best->to, hashf);
         hash.recordHash(data, ply);
     }
-           
+
     return score;
 
 }
@@ -428,109 +452,6 @@ void Search::unsetSearchMoves() {
 void Search::setSearchMoves(const vector<int> &s) {
     searchMovesVector = s;
 }
-
-#ifdef TUNING
-
-int Search::getParameter(const string &p) {
-    if (p == "MOB_ROOK_INC")return eval.MOB_ROOK_INC;
-    if (p == "MOB_QUEEN_INC")return eval.MOB_QUEEN_INC;
-    if (p == "BONUS_ATTACK_KING_INC")return eval.BONUS_ATTACK_KING_INC;
-    if (p == "DISTANCE_KING_ENDING_INC")return eval.DISTANCE_KING_ENDING_INC;
-    if (p == "MOB_KING_INC")return eval.MOB_KING_INC;
-    if (p == "DISTANCE_KING_OPENING_INC")return eval.DISTANCE_KING_OPENING_INC;
-    if (p == "MOB_KNIGHT_INC")return eval.MOB_KNIGHT_INC;
-    if (p == "MOB_BISHOP_INC")return eval.MOB_BISHOP_INC;
-    if (p == "PAWN_PASSED_INC")return eval.PAWN_PASSED_INC;
-    if (p == "PHASE_END")return eval.PHASE_END;
-    if (p == "PHASE_MIDDLE")return eval.PHASE_MIDDLE;
-    if (p == "ATTACK_KING")return eval.ATTACK_KING;
-    if (p == "BISHOP_ON_QUEEN")return eval.BISHOP_ON_QUEEN;
-    if (p == "BACKWARD_PAWN")return eval.BACKWARD_PAWN;
-    if (p == "DOUBLED_ISOLATED_PAWNS")return eval.DOUBLED_ISOLATED_PAWNS;
-//    if (p == "DOUBLED_PAWNS")return eval.DOUBLED_PAWNS;
-    if (p == "PAWN_IN_7TH")return eval.PAWN_IN_7TH;
-//    if (p == "PAWN_CENTER")return eval.PAWN_CENTER;
-    if (p == "PAWN_IN_PROMOTION")return eval.PAWN_IN_PROMOTION;
-//    if (p == "PAWN_ISOLATED")return eval.PAWN_ISOLATED;
-    if (p == "PAWN_NEAR_KING")return eval.PAWN_NEAR_KING;
-    if (p == "PAWN_BLOCKED")return eval.PAWN_BLOCKED;
-    if (p == "UNPROTECTED_PAWNS")return eval.UNPROTECTED_PAWNS;
-//    if (p == "ENEMY_NEAR_KING")return eval.ENEMY_NEAR_KING;
-    if (p == "FRIEND_NEAR_KING")return eval.FRIEND_NEAR_KING;
-//    if (p == "HALF_OPEN_FILE_Q")return eval.HALF_OPEN_FILE_Q;
-    if (p == "BONUS2BISHOP")return eval.BONUS2BISHOP;
-    if (p == "BISHOP_PAWN_ON_SAME_COLOR")return eval.BISHOP_PAWN_ON_SAME_COLOR;
-//    if (p == "CONNECTED_ROOKS")return eval.CONNECTED_ROOKS;
-//    if (p == "OPEN_FILE")return eval.OPEN_FILE;
-    if (p == "OPEN_FILE_Q")return eval.OPEN_FILE_Q;
-    if (p == "ROOK_7TH_RANK")return eval.ROOK_7TH_RANK;
-//    if (p == "ROOK_BLOCKED")return eval.ROOK_BLOCKED;
-//    if (p == "ROOK_TRAPPED")return eval.ROOK_TRAPPED;
-//    if (p == "UNDEVELOPED_KNIGHT")return eval.UNDEVELOPED_KNIGHT;
-//    if (p == "UNDEVELOPED_BISHOP")return eval.UNDEVELOPED_BISHOP;
-    if (p == "KNIGHT_PINNED")return eval.KNIGHT_PINNED;
-    if (p == "ROOK_PINNED")return eval.ROOK_PINNED;
-    if (p == "BISHOP_PINNED")return eval.BISHOP_PINNED;
-    if (p == "QUEEN_PINNED")return eval.QUEEN_PINNED;
-    if (p == "QUEEN_IN_7")return eval.QUEEN_IN_7;
-    if (p == "ROOK_IN_7")return eval.ROOK_IN_7;
-//    if (p == "PAWN_PINNED")return eval.PAWN_PINNED;
-    fatal("Not found ", p)
-    exit(1);
-}
-
-void Search::setParameter(const string &p, const int value) {
-    //cout << "setParameter " << param << " " << value << endl;
-    if (p == "PHASE_END")eval.PHASE_END = value;
-    else if (p == "MOB_BISHOP_INC")eval.MOB_BISHOP_INC = value;
-    else if (p == "MOB_ROOK_INC")eval.MOB_ROOK_INC = value;
-    else if (p == "MOB_QUEEN_INC")eval.MOB_QUEEN_INC = value;
-    else if (p == "DISTANCE_KING_ENDING_INC")eval.DISTANCE_KING_ENDING_INC = value;
-    else if (p == "BONUS_ATTACK_KING_INC")eval.BONUS_ATTACK_KING_INC = value;
-    else if (p == "MOB_KING_INC")eval.MOB_KING_INC = value;
-    else if (p == "DISTANCE_KING_OPENING_INC")eval.DISTANCE_KING_OPENING_INC = value;
-    else if (p == "MOB_KNIGHT_INC")eval.MOB_KNIGHT_INC = value;
-    else if (p == "PAWN_PASSED_INC")eval.PAWN_PASSED_INC = value;
-    else if (p == "PHASE_MIDDLE")eval.PHASE_MIDDLE = value;
-    else if (p == "ATTACK_KING")eval.ATTACK_KING = value;
-    else if (p == "BISHOP_ON_QUEEN")eval.BISHOP_ON_QUEEN = value;
-    else if (p == "BACKWARD_PAWN")eval.BACKWARD_PAWN = value;
-    else if (p == "DOUBLED_ISOLATED_PAWNS")eval.DOUBLED_ISOLATED_PAWNS = value;
-//    else if (p == "DOUBLED_PAWNS")eval.DOUBLED_PAWNS = value;
-    else if (p == "PAWN_IN_7TH")eval.PAWN_IN_7TH = value;
-//    else if (p == "PAWN_CENTER")eval.PAWN_CENTER = value;
-    else if (p == "PAWN_IN_PROMOTION")eval.PAWN_IN_PROMOTION = value;
-//    else if (p == "PAWN_ISOLATED")eval.PAWN_ISOLATED = value;
-    else if (p == "PAWN_NEAR_KING")eval.PAWN_NEAR_KING = value;
-    else if (p == "PAWN_BLOCKED")eval.PAWN_BLOCKED = value;
-    else if (p == "UNPROTECTED_PAWNS")eval.UNPROTECTED_PAWNS = value;
-//    else if (p == "ENEMY_NEAR_KING")eval.ENEMY_NEAR_KING = value;
-    else if (p == "FRIEND_NEAR_KING")eval.FRIEND_NEAR_KING = value;
-//    else if (p == "HALF_OPEN_FILE_Q")eval.HALF_OPEN_FILE_Q = value;
-    else if (p == "BONUS2BISHOP")eval.BONUS2BISHOP = value;
-    else if (p == "BISHOP_PAWN_ON_SAME_COLOR")eval.BISHOP_PAWN_ON_SAME_COLOR = value;
-//    else if (p == "CONNECTED_ROOKS")eval.CONNECTED_ROOKS = value;
-//    else if (p == "OPEN_FILE")eval.OPEN_FILE = value;
-    else if (p == "OPEN_FILE_Q")eval.OPEN_FILE_Q = value;
-    else if (p == "ROOK_7TH_RANK")eval.ROOK_7TH_RANK = value;
-//    else if (p == "ROOK_BLOCKED")eval.ROOK_BLOCKED = value;
-//    else if (p == "ROOK_TRAPPED")eval.ROOK_TRAPPED = value;
-//    else if (p == "UNDEVELOPED_KNIGHT")eval.UNDEVELOPED_KNIGHT = value;
-//    else if (p == "UNDEVELOPED_BISHOP")eval.UNDEVELOPED_BISHOP = value;
-    else if (p == "KNIGHT_PINNED")eval.KNIGHT_PINNED = value;
-    else if (p == "ROOK_PINNED")eval.ROOK_PINNED = value;
-    else if (p == "BISHOP_PINNED")eval.BISHOP_PINNED = value;
-    else if (p == "QUEEN_PINNED")eval.QUEEN_PINNED = value;
-    else if (p == "QUEEN_IN_7")eval.QUEEN_IN_7 = value;
-    else if (p == "ROOK_IN_7")eval.ROOK_IN_7 = value;
-//    else if (p == "PAWN_PINNED")eval.PAWN_PINNED = value;
-    else {
-        fatal("Not found ", p)
-        exit(1);
-    }
-}
-
-#endif
 
 template<uchar side>
 bool Search::badCapure(const _Tmove &move, const u64 allpieces) const {

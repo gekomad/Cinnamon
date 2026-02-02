@@ -128,26 +128,26 @@ void IterativeDeeping::run() {
         const int rfcCut = searchManager.getRfcCut();
         const int nBadCaputure = searchManager.getTotBadCaputure();
         const int nullMoveCut = searchManager.getNullMoveCut();
-        const int pvsFail = searchManager.getPvsFail();
+        const int pvsOK = searchManager.getPvsOk();
         const int pvsTot = searchManager.getPvsTot();
 
         cout << "\ninfo string ply: " << iter_depth << endl;
         cout << "info string tot moves: " << totMoves << endl;
 
+        cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds)" << endl;
         if (nCutAB) cout << "info string beta efficiency: " << (searchManager.getBetaEfficiency()) << "%" << endl;
 
         if (totMovesPrec != 0xffffffffffffffffULL)
             cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2) <<
                  ((double) totMoves / (double) totMovesPrec) << endl;
         totMovesPrec = totMoves;
-        cout << "info string millsec: " << timeTaken << "  (" << nps / 1000 << "k nodes per seconds)" << endl;
+
         cout << "info string alphaBeta cut: " << nCutAB << endl;
         cout << "info string lazy eval cut: " << LazyEvalCuts << endl;
         cout << "info string futility pruning cut: " << nCutFp << endl;
-        cout << "info string null move cut: " << nullMoveCut << endl;
         cout << "info string razor cut: " << nCutRazor << endl;
         cout << "info string reverse futility pruning: " << rfcCut << endl;
-        cout << "info string pvs tot: " << pvsTot << " failed: "<< pvsFail << " ("<< pvsFail*100/(pvsTot+1) << "%)"<< endl;
+        cout << "info string pvs tot: " << pvsTot << " ok: "<< pvsOK << " ("<< pvsOK*100/(pvsTot+1) << "%)"<< endl;
         cout << "info string bad caputure cut: " << nBadCaputure << endl;
         printf("info string hash stored %d%% (alpha=%.2f%% beta=%.2f%% exact%.2f%%)\n",
                totStoreHash * 100 / (1 + cumulativeMovesCount), percStoreHashA, percStoreHashB, percStoreHashE);

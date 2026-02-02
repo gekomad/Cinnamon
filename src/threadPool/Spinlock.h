@@ -22,7 +22,6 @@
 #pragma once
 
 #include <atomic>
-using namespace std;
 
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -38,7 +37,7 @@ class Spinlock {
 private:
     std::atomic_flag flag = ATOMIC_FLAG_INIT;
     volatile long _write = 0;
-    volatile atomic_int _read = { 0 };
+    volatile std::atomic_int _read = { 0 };
 
     void _lock() {
         while (true) {
@@ -51,15 +50,15 @@ private:
 public:
     Spinlock() { }
 
-    inline void lock() {
+    __attribute__((always_inline)) void lock() {
         while (flag.test_and_set(std::memory_order_acquire));
     }
 
-    inline void unlock() {
+    __attribute__((always_inline)) void unlock() {
         flag.clear(std::memory_order_release);
     }
 
-    inline void lockWrite() {
+    __attribute__((always_inline)) void lockWrite() {
         bool w = false;
         while (true) {
             if (!w && !LOCK_TEST_AND_SET(_write)) {
@@ -72,17 +71,17 @@ public:
         }
     }
 
-    inline void unlockWrite() {
+    __attribute__((always_inline)) void unlockWrite() {
         LOCK_RELEASE(_write);
     }
 
-    inline void lockRead() {
+    __attribute__((always_inline)) void lockRead() {
         lockWrite();
         _read++;
         unlockWrite();
     }
 
-    inline void unlockRead() {
+    __attribute__((always_inline)) void unlockRead() {
         _read--;
     }
 };

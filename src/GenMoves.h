@@ -28,7 +28,7 @@
 class GenMoves : public ChessBoard {
 
 public:
-    static const int MAX_MOVE = 130;
+    static constexpr int MAX_MOVE = 130;
 
     GenMoves();
 
@@ -372,7 +372,7 @@ public:
 
 
 #ifdef DEBUG_MODE
-    unsigned pvsTot, nCutAB, rfcCut, pvsFail, nNullMoveCut, nCutFp, nCutRazor, nCutBadCaputure;
+    unsigned pvsTot, nCutAB, rfcCut, pvsOK, nNullMoveCut, nNullMove, nCutFp, nCutRazor, nCutBadCaputure;
     double betaEfficiency = 0.0;
     unsigned betaEfficiencyCount = 0;
 #endif

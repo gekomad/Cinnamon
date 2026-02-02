@@ -34,7 +34,6 @@
 using namespace constants;
 
 namespace _def {
-    using namespace std;
 
 #define POW2(a) (1ull << (a))
 #define NOTPOW2(a) (~POW2(a))
@@ -111,7 +110,7 @@ namespace _def {
 #endif
 
     template<uchar side, int shift>
-    static inline u64 shiftForward(const u64 bits) {
+    static __attribute__((always_inline)) u64 shiftForward(const u64 bits) {
         ASSERT(shift == 7 || shift == 8 || shift == 9);
         const auto a = side == WHITE ? bits << shift : bits >> shift;
         if (shift == 7) return a & NO_FILE_LEFT[side];
@@ -119,7 +118,7 @@ namespace _def {
         return a;
     }
 
-    static inline int BITScanForwardUnset(const u64 bb) {
+    static __attribute__((always_inline)) int BITScanForwardUnset(const u64 bb) {
         return BITScanForward(~bb);
     }
 }

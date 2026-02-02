@@ -24,8 +24,6 @@
 #include "../threadPool/Spinlock.h"
 #include <iostream>
 
-using namespace std;
-
 namespace _logger {
 
     enum LOG_LEVEL {

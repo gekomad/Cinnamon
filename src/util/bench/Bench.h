@@ -36,8 +36,6 @@
 #define BENCH_PRINT()
 #endif
 
-using namespace std;
-
 class Bench {
 public:
     Bench(Times &time, const string &name) {

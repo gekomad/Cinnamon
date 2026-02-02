@@ -77,8 +77,7 @@ public:
         draw.clear();
         white.clear();
         black.clear();
-
-        tune(fens);
+        tune(path, path+"/tuning.ini", fens);
 
         cout << endl << endl << Time::getLocalTime() << " end\n";
         for (auto itr = fens.begin(); itr != fens.end(); itr++) delete *itr;
@@ -161,12 +160,12 @@ private:
     double E(const set<FEN *> &fens) {
         constexpr double K = 1.13;
         double currentError = 0.0;
-        for (auto itr = fens.begin(); itr != fens.end(); itr++) {
+        for (auto itr = fens.begin(); itr != fens.end(); ++itr) {
             const FEN *fen = *itr;
-            searchManager.loadFen(fen->fen);
-            searchManager.setRunning(2);
-            searchManager.setRunningThread(true);
-            searchManager.setMaxTimeMillsec(2500);
+            SearchManager::loadFen(fen->fen);
+            SearchManager::setRunning(2);
+            SearchManager::setRunningThread(true);
+            SearchManager::setMaxTimeMillsec(2500);
             const double score = searchManager.getQscore();
             if (abs(score) > _INFINITE - 1000) {
                 cout << "skip mate score " << score << endl;

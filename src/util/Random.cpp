@@ -16,24 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
 
-#include "../namespaces/bits.h"
-#include <atomic>
-
-using namespace _def;
-
-typedef struct {
-    u64 key;
-    u64 nMoves;
-} _ThashPerft;
-
-
-typedef struct {
-    atomic_ullong totMoves;
-    u64 sizeAtDepth[255];
-    int depth;
-    int nCpu;
-    bool chess960;
-} _TPerftRes;
-
+#include "Random.h"
+uint64_t Random::state = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;

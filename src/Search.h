@@ -26,7 +26,7 @@
 #include <climits>
 #include "threadPool/Thread.h"
 #include "db/TB.h"
-
+ 
 typedef struct {
     int cmove;
     _Tmove argmove[MAX_PLY];
@@ -41,6 +41,7 @@ public:
     static constexpr int VAL_WINDOW = 40;
     static constexpr int REVERSE_FUTIL_MARGIN = 180;
     static constexpr int EXT_FUTIL_MARGIN = 550;
+    Eval eval;
 #ifndef JS_MODE
     SYZYGY *syzygy = &SYZYGY::getInstance();
 #endif
@@ -66,10 +67,6 @@ public:
 
 #ifdef TUNING
 
-    int getParameter(const string &param);
-
-    void setParameter(const string &param, const int value);
-
     int qSearch(const int depth, const int alpha, const int beta) {
         ASSERT_RANGE(depth, 0, MAX_PLY)
         auto ep = enPassant;
@@ -92,13 +89,10 @@ public:
     }
 
     void setMainParam(const int depth);
-
     void run();
-
     void endRun() {}
-
     void setMainPly(const int, const int);
-
+   
     static void setRunningThread(const bool t) {
         runningThread = t;
     }
@@ -106,9 +100,7 @@ public:
     int getValWindow() const {
         return valWindow;
     }
-
     u64 getZobristKey() const;
-
     uchar getEnpassant() const {
         return enPassant;
     }
@@ -122,13 +114,11 @@ public:
     }
 
 #endif
-
     void unsetSearchMoves();
-
     void setSearchMoves(const vector<int> &v);
 
 private:
-    Eval eval;
+
     Hash &hash = Hash::getInstance();
 
     vector<int> searchMovesVector;

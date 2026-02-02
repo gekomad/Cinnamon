@@ -64,19 +64,17 @@ public:
     static void clearHash();
 
 
-#define SET_AGE(u, v) (u=(u&0xffffffffffffULL)|(((u64)v)<<(16 + 8 + 8 + 8 + 8)))
-#define GET_DEPTH(v) ((uchar)(v>>16))
-#define GET_FLAGS(v) ((uchar)(v>>(16 + 8 + 8 + 8)))
-#define GET_FROM(v) ((uchar)(v>>(16 + 8 + 8)))
-#define GET_TO(v) ((uchar)(v>>(16 + 8)))
-#define GET_SCORE(v) ((short ) v)
-#define GET_AGE(v) ((unsigned short)(v>> (16 + 8 + 8 + 8 + 8)))
-// #define GET_KEY(hash) (hash->key ^ (hash->data & 0xffffffffffffULL))
-#define GET_KEY(hash) (hash->key)
+    static  __attribute__((always_inline)) void SET_AGE(u64& u, const int v) { u |= static_cast<u64>(v) << (16 + 8 + 8 + 8 + 8); }
+    static  __attribute__((always_inline)) uchar GET_DEPTH(const u64 v) {return v>>16 ;}
+    static  __attribute__((always_inline)) uchar GET_FLAGS(const u64 v) {return v>>(16 + 8 + 8 + 8) ;}
+    static  __attribute__((always_inline)) uchar GET_FROM(const u64 v) {return v>>(16 + 8 + 8) ;}
+    static  __attribute__((always_inline)) uchar GET_TO(const u64 v) {return v>>(16 + 8) ;}
+    static  __attribute__((always_inline)) short GET_SCORE(const u64 v) {return v ;}
+    static  __attribute__((always_inline)) unsigned short GET_AGE(const u64 v) {return v >> (16 + 8 + 8 + 8 + 8);}
+    static  __attribute__((always_inline)) u64 GET_KEY(const _Thash *hash) {return hash->key;}
+    static  __attribute__((always_inline)) void INC_AGE(u64& u) { SET_AGE(u, GET_AGE(u)+1);}
 
-#define INC_AGE(u) (u=(u&0xffffffffffffULL)|(((u64)(GET_AGE(u)+1))<<(16 + 8 + 8 + 8 + 8)))
-
-static inline int readHash(
+    static inline int readHash(
             int &alpha,
             int &beta,
             const int depth,

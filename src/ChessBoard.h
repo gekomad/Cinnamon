@@ -100,19 +100,12 @@ protected:
 
     void makeZobristKey();
 
-
-#ifdef DEBUG_MODE
-
-    void updateZobristKey(int piece, int position) {
+    __attribute__((always_inline)) void updateZobristKey(const int piece, const int position) {
         ASSERT_RANGE(position, 0, 63)
         ASSERT_RANGE(piece, 0, 15)
         chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];
     }
 
-#else
-#define updateZobristKey(piece, position) (chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position])
-
-#endif
 private:
     string fenString;
     char whiteRookKingSideCastle;

@@ -22,14 +22,15 @@
 #include "../../def.h"
 #include <set>
 #include <array>
+#include "../Random.h"
 
 class Tune {
 
 protected:
-    constexpr static int N_PARAM = 32;
-    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
-    const string iniFile = "tuning.ini";
 
+    SearchManager &searchManager = Singleton<SearchManager>::getInstance();
+
+    int cycle = 1;
     struct FEN {
         string fen;
         double win; // 1=WHITE, 0=BLACK, 0.5=DRAW
@@ -42,107 +43,122 @@ protected:
 
     virtual double E(const set<FEN *> &fens) = 0;
 
-    struct PARAMS {
-    private :
-        int startValue;
-    public:
-        int getStartValue() const { return startValue; }
-
-        string name;
-
-        PARAMS(string n, const SearchManager &searchManager) : name(n) { startValue = searchManager.getParameter(n); }
-
-        void print(SearchManager &searchManager) const {
-            printf("\nname: %s, startValue: %d, newValue: %d", name.c_str(), startValue,
-                   searchManager.getParameter(name));
-            if (startValue != searchManager.getParameter(name))cout << " (*)";
-        }
-    };
-
-    void saveParams(const array<PARAMS, N_PARAM> &params) {
+    void saveParams(const string &iniFile, const std::array<Eval::PARAM, N_PARAMS>  params) {
         cout << endl << Time::getLocalTime() << " save parameters to " << iniFile << endl;
         ofstream myfile;
         myfile.open(iniFile);
         myfile << "#" << Time::getLocalTime() << endl;
+        myfile << "cycle" << "=" << cycle << endl;
         for (auto &param:params) {
-            myfile << param.name << "=" << searchManager.getParameter(param.name) << endl;
+            myfile << param.name << "=" << *param.ref << endl;
         }
         myfile.close();
     }
 
-    void loadParams() {
+    void loadParams(const string &iniFile) {
         cout << "\nload parameters from " << iniFile << endl;
         map<string, string> map = IniFile(iniFile).paramMap;
         for (std::map<string, string>::iterator it = map.begin(); it != map.end(); ++it) {
             std::cout << it->first << " => " << it->second << endl;
+            if (it->first =="cycle") cycle = stoi(it->second); else
             searchManager.setParameter(it->first, stoi(it->second));
         }
     }
+    // void tuneSPSA(const set<FEN *> &fens) {
+    //     double a = 1.0;  // Magnitudo dello spostamento (step size)
+    //     double c = 1.0;  // Magnitudo della perturbazione
 
-    void tune(const set<FEN *> &fens) {
+    //
+    //     for (int i = 1; ; ++i) {
+    //         cout << "***************************************** Cycle #" << (cycle++) << " " << Time::getLocalTime()
+    //            << " *****************************************" << endl;
+    //         vector<int> delta(N_PARAM);
+    //         vector<int> originalValues(N_PARAM);
+    //
+    //         int j=0;
+    //         // 1. Genera perturbazione casuale (+1 o -1)
+    //         for (auto &param:params) {
+    //         // for (int j = 0; j < N_PARAM; ++j) {
+    //             delta[j] = Random::getRandomBool() ? 1 : -1;
+    //             originalValues[j] = searchManager.getParameter(param.name);
+    //             ++j;
+    //         }
+    //         j=0;
+    //         // 2. Calcola Errore Positivo (Tutti i parametri + delta)
+    //         for (auto &param:params)
+    //             searchManager.setParameter(param.name, originalValues[j] + c * delta[j]);
+    //         double E_plus = E(fens);
+    //         j=0;
+    //         // 3. Calcola Errore Negativo (Tutti i parametri - delta)
+    //         for (auto &param:params) {
+    //             searchManager.setParameter(param.name, originalValues[j] - c * delta[j]);
+    //         double E_minus = E(fens);
+    //
+    //         // 4. Stima del gradiente e aggiornamento
+    //         // Se E_plus < E_minus, scendiamo verso E_plus
+    //         double g = (E_plus - E_minus) / (2.0 * c);
+    //         j=0;
+    //         for (auto &param:params){
+    //             // Aggiornamento basato sul gradiente stimato
+    //             int step = round(-a * g * delta[j]);
+    //             int newValue = originalValues[j] + step;
+    //             if (newValue < 0) newValue = 0; // Protezione valori negativi
+    //             searchManager.setParameter(param.name, newValue);
+    //         }
+    //
+    //         //if (i % 10 == 0)
+    //             {
+    //             printf("Iter %d | E_plus: %.10f | E_minus: %.10f | g: %.10f\n", i, E_plus, E_minus, g);
+    //             for (auto &param:params) param.print(searchManager);
+    //             saveParams(params);
+    //         }
+    //             double globalBestError = 1e10; // Un valore altissimo all'inizio
+    //
+    //             // Ogni 20 iterazioni controlla il "vero" progresso
+    //             if (i % 20 == 0) {
+    //                 double currentTrueError = E(fens); // Calcolato sui parametri attuali "stabili"
+    //                 if (currentTrueError < globalBestError) {
+    //                     cout << "[PROGRESSO] Errore migliorato: " << globalBestError << " -> " << currentTrueError << endl;
+    //                     globalBestError = currentTrueError;
+    //
+    //                 } else {
+    //                     cout << "[STALLO] L'errore attuale (" << currentTrueError << ") non supera il record." << endl;
+    //                 }
+    //             }
+    //     }
+    //  }
+    // }
+    void tune(const string &path, const string &iniFile, const set<FEN *> &fens) {
         searchManager.setMaxTimeMillsec(2500);
         cout.precision(17);
+        auto params= searchManager.getParameters();
+        loadParams(path+"/"+iniFile);
 
-        loadParams();
-        const array<PARAMS, N_PARAM> params{
-                PARAMS("MOB_KNIGHT_INC", searchManager),
-                PARAMS("MOB_QUEEN_INC", searchManager),
-                PARAMS("DISTANCE_KING_ENDING_INC", searchManager),
-                PARAMS("BONUS_ATTACK_KING_INC", searchManager),
-                PARAMS("MOB_KING_INC", searchManager),
-                PARAMS("DISTANCE_KING_OPENING_INC", searchManager),
-                PARAMS("MOB_ROOK_INC", searchManager),
-                PARAMS("MOB_BISHOP_INC", searchManager),
-                PARAMS("MOB_ROOK_INC", searchManager),
-                PARAMS("PAWN_PASSED_INC", searchManager),
-                PARAMS("PHASE_END", searchManager),
-                PARAMS("PHASE_MIDDLE", searchManager),
-                PARAMS("ATTACK_KING", searchManager),
-                PARAMS("BISHOP_ON_QUEEN", searchManager),
-                PARAMS("BACKWARD_PAWN", searchManager),
-                PARAMS("DOUBLED_ISOLATED_PAWNS", searchManager),
-                PARAMS("PAWN_IN_7TH", searchManager),
-                PARAMS("PAWN_IN_PROMOTION", searchManager),
-                PARAMS("PAWN_NEAR_KING", searchManager),
-                PARAMS("PAWN_BLOCKED", searchManager),
-                PARAMS("UNPROTECTED_PAWNS", searchManager),
-                PARAMS("FRIEND_NEAR_KING", searchManager),
-                PARAMS("BONUS2BISHOP", searchManager),
-                PARAMS("BISHOP_PAWN_ON_SAME_COLOR", searchManager),
-                PARAMS("OPEN_FILE_Q", searchManager),
-                PARAMS("ROOK_7TH_RANK", searchManager),
-                PARAMS("KNIGHT_PINNED", searchManager),
-                PARAMS("ROOK_PINNED", searchManager),
-                PARAMS("BISHOP_PINNED", searchManager),
-                PARAMS("QUEEN_PINNED", searchManager),
-                PARAMS("ROOK_IN_7", searchManager),
-                PARAMS("QUEEN_IN_7", searchManager)
-        };
         bool fullImproved;
-        int cycle = 1;
+
         double bestError;
         do {
             cout << "***************************************** Cycle #" << (cycle++) << " " << Time::getLocalTime()
-                 << " *****************************************" << endl << flush;
+                 << " *****************************************" << endl;
             fullImproved = false;
             const double startError = E(fens);
-            for (auto &param:params) param.print(searchManager);
-            cout << "\nstartError: " << startError << endl << flush;
+            for (auto &param: *params) param.print();
+            cout << "\nstartError: " << startError << endl;
             bestError = startError;
-            for (auto &param:params) {
+            for (auto &param:*params) {
                 int bestValue = -1;
                 for (int dir = 0; dir < 2; dir++) {
                     if (!dir)cout << "\nUP "; else cout << "\nDOWN ";
-                    cout << Time::getLocalTime() << endl << flush;
+                    cout << Time::getLocalTime() << endl;
 
-                    auto oldValue = searchManager.getParameter(param.name);
+                    auto oldValue = *param.ref;
                     int newValue;
-                    if (dir == 0) newValue = searchManager.getParameter(param.name) + 1;
+                    if (dir == 0) newValue = oldValue + 1;
                     else {
-                        if (searchManager.getParameter(param.name) <= 0)continue;
-                        else newValue = searchManager.getParameter(param.name) - 1;
+                        if (oldValue <= 0)continue;
+                        else newValue = oldValue - 1;
                     }
-                    searchManager.setParameter(param.name, newValue);
+                    *param.ref= newValue;
 
                     double currentError;
 
@@ -150,12 +166,11 @@ protected:
                     while (true) {
                         currentError = E(fens);
                         cout << param.name << " try value: " << newValue << "\terror: " << currentError
-                             << "\tbestError: "
-                             << bestError;
+                             << "\tbestError: " << bestError;
                         if (currentError < bestError)cout << "\t(improved)";
                         else if (currentError > bestError)cout << "\t(got worse)";
                         else cout << "\t(same)";
-                        cout << endl << flush;
+                        cout << endl;
                         if (currentError <= bestError && eq < 3) {
                             if (currentError == bestError) eq++; else eq = 0;
                             if (currentError < bestError) {
@@ -164,23 +179,23 @@ protected:
                                 fullImproved = true;
                             }
                             if (dir == 0) newValue++; else { if (newValue <= 0)break; else newValue--; }
-                            searchManager.setParameter(param.name, newValue);
+                            *param.ref= newValue;
                         } else break;
                     }
-                    searchManager.setParameter(param.name, oldValue);
+                    *param.ref=  oldValue;
                     if (bestValue >= 0) {
                         cout << "\n** Improved. ** bestError: " << bestError << " bestValue " << bestValue << " was "
-                             << param.getStartValue() << flush;
-                        searchManager.setParameter(param.name, bestValue);
-                        for (auto &param:params) param.print(searchManager);
-                        saveParams(params);
+                             << param.startValue << flush;
+                        *param.ref= bestValue;
+                        for (auto &param:*params) param.print();
+                        saveParams(iniFile, *params);
                         assert(E(fens) == bestError);
                     } else cout << "\n** Not improved. **" << flush;
                 }
             }
         } while (fullImproved);
-        for (auto &param:params) param.print(searchManager);
-        saveParams(params);
+        for (auto &param:*params) param.print();
+        saveParams(iniFile, *params);
     }
 };
 

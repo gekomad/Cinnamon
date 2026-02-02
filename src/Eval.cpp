@@ -25,6 +25,46 @@ Eval::Eval() {
     memset(&structureEval, 0, sizeof(_Tboard));
     if (evalHash == nullptr)
         evalHash = (u64 *) calloc(hashSize, sizeof(u64));
+
+#ifdef TUNING
+     PARAMS =  new std::array<Eval::PARAM, 35> {{
+         {"MOB_BISHOP_INC" ,&MOB_BISHOP_INC   } ,
+          {"PAWN_PASSED_INC" ,&PAWN_PASSED_INC  } ,
+          {"MOB_BISHOP_INC" ,&MOB_BISHOP_INC  } ,
+          {"MOB_QUEEN_INC" ,&MOB_QUEEN_INC  } ,
+          {"DISTANCE_KING_ENDING_INC" ,&DISTANCE_KING_ENDING_INC  } ,
+          {"BONUS_ATTACK_KING_INC" ,&BONUS_ATTACK_KING_INC  } ,
+          {"MOB_KING_INC" ,&MOB_KING_INC  } ,
+          {"DISTANCE_KING_OPENING_INC" ,&DISTANCE_KING_OPENING_INC  } ,
+          {"MOB_ROOK_INC" ,&MOB_ROOK_INC  } ,
+          {"MOB_KNIGHT_INC" ,&MOB_KNIGHT_INC } ,
+          {"PHASE_END" ,&PHASE_END } ,
+          {"PHASE_MIDDLE" ,&PHASE_MIDDLE  } ,
+          {"REVERSE_FUTIL_MARGIN" ,&REVERSE_FUTIL_MARGIN } ,
+          {"EXT_FUTIL_MARGIN" ,&EXT_FUTIL_MARGIN  } ,
+          {"FUTIL_MARGIN" ,&FUTIL_MARGIN  } ,
+          {"ATTACK_KING" ,&ATTACK_KING } ,
+          {"BISHOP_ON_QUEEN" ,&BISHOP_ON_QUEEN  } ,
+          {"BACKWARD_PAWN" ,&BACKWARD_PAWN  } ,
+          {"DOUBLED_ISOLATED_PAWNS" ,&DOUBLED_ISOLATED_PAWNS } ,
+          {"PAWN_IN_7TH" ,&PAWN_IN_7TH  } ,
+          {"PAWN_IN_PROMOTION" ,&PAWN_IN_PROMOTION  } ,
+          {"PAWN_NEAR_KING" ,&PAWN_NEAR_KING } ,
+          {"PAWN_BLOCKED" ,&PAWN_BLOCKED } ,
+          {"UNPROTECTED_PAWNS" ,&UNPROTECTED_PAWNS } ,
+          {"FRIEND_NEAR_KING" ,&FRIEND_NEAR_KING } ,
+          {"BONUS2BISHOP" ,&BONUS2BISHOP  } ,
+          {"BISHOP_PAWN_ON_SAME_COLOR" ,&BISHOP_PAWN_ON_SAME_COLOR  } ,
+          {"OPEN_FILE_Q" ,&OPEN_FILE_Q , } ,
+          {"ROOK_7TH_RANK" ,&ROOK_7TH_RANK  } ,
+          {"KNIGHT_PINNED" ,&KNIGHT_PINNED  } ,
+          {"ROOK_PINNED" ,&ROOK_PINNED  } ,
+          {"BISHOP_PINNED" ,&BISHOP_PINNED  } ,
+          {"QUEEN_PINNED" ,&QUEEN_PINNED  } ,
+          {"QUEEN_IN_7" ,&QUEEN_IN_7  } ,
+          {"ROOK_IN_7" ,&ROOK_IN_7  }
+     }};
+#endif
 }
 
 Eval::~Eval() {

@@ -23,8 +23,6 @@
 #include <map>
 #include <iomanip>
 
-using namespace std;
-
 class Times {
 public:
     static Times &getInstance() {

@@ -93,6 +93,14 @@ SearchManager::~SearchManager() {
     delete threadPool;
 }
 
+#ifdef TUNING
+std::array<Eval::PARAM, N_PARAMS> * SearchManager::getParameters() {
+    return threadPool->getThread(0).eval.PARAMS;
+}
+int SearchManager::loadFen(const string &fen) {
+    return threadPool->getThread(0).loadFen(fen);
+}
+#else
 int SearchManager::loadFen(const string &fen) {
     int res = -1;
     clearHeuristic();
@@ -102,7 +110,7 @@ int SearchManager::loadFen(const string &fen) {
     }
     return res;
 }
-
+#endif
 void SearchManager::startThread(Search &thread, const int depth) {
     debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId()))
     thread.setMainParam(depth);

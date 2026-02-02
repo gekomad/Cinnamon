@@ -19,7 +19,6 @@
 #pragma once
 
 #include "../def.h"
-#include <string.h>
 #include <sstream>
 #include <array>
 #include <assert.h>
@@ -34,6 +33,8 @@ namespace constants {
 
 
 #ifdef TUNING
+
+    static constexpr int N_PARAMS = 35;
 #define STATIC_CONST
 #else
 #define STATIC_CONST static constexpr

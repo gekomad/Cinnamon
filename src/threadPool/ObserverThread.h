@@ -20,9 +20,6 @@
 
 #pragma once
 
-
-using namespace std;
-
 class ObserverThread {
 public:
     virtual void observerEndThread(int threadID) = 0;

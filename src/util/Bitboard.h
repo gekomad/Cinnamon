@@ -43,7 +43,7 @@ public:
 
     Bitboard();
 
-    static inline u64 getRankFile(const int position, const u64 allpieces) {
+    static __attribute__((always_inline)) u64 getRankFile(const int position, const u64 allpieces) {
         BENCH_AUTO_CLOSE("getRankFile")
 //    ........            00000000
 //    ...q....            00010000
@@ -58,7 +58,7 @@ public:
                BITBOARD_RANK[position][rankIdx(position, allpieces)];
     }
 
-    static inline u64 getDiagonalAntiDiagonal(const int position, const u64 allpieces) {
+    static __attribute__((always_inline)) u64 getDiagonalAntiDiagonal(const int position, const u64 allpieces) {
         BENCH_AUTO_CLOSE("getDiagonalAntiDiagonal")
 //    ........            00010000
 //    q.......            10100000

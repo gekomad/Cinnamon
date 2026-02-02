@@ -15,7 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#if defined(FULL_TEST)
+
+
 #pragma once
 
 #include <random>
@@ -24,16 +25,27 @@
 #include <limits.h>
 
 class Random {
-
 public:
+    static uint64_t state ;
+
+    static __attribute__((always_inline)) bool getRandomBool() {
+        static std::mt19937_64 rng{std::random_device{}()};
+        static std::bernoulli_distribution dist(0.5);
+        return dist(rng);
+    }
+
+    static __attribute__((always_inline)) bool getFastRandomBool() {
+        state = state * 1664525u + 1013904223u;  // LCG
+        return (state >> 31) & 1;
+    }
+
     static unsigned long long getRandom64() {
         unsigned sign = Random::getRandom(0, 1);
         unsigned long long a = Random::getRandom(0, INT_MAX) | sign << 31;
         sign = Random::getRandom(0, 1);
         unsigned b = Random::getRandom(0, INT_MAX) | sign << 31;
         a <<= 32;
-        a |= b;
-        return a;
+        return a | b;
     }
 
     static int getRandom(const int from, const int to) {
@@ -49,4 +61,3 @@ public:
     }
 };
 
-#endif

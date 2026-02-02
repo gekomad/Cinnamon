@@ -23,7 +23,7 @@
 #include "namespaces/String.h"
 #include "util/IniFile.h"
 #include "db/TB.h"
-
+ 
 class SearchManager : private Singleton<SearchManager> {
     friend class Singleton<SearchManager>;
 
@@ -47,7 +47,6 @@ public:
         return threadPool->getThread(i);
     }
 
-
     static string decodeBoardinv(const _Tmove *);
 
 #ifdef TUNING
@@ -56,15 +55,15 @@ public:
         return threadPool->getThread(0).chessboard;
     }
 
-    static void setParameter(const string &param, const int value) {
-        for (Search *s: threadPool->getPool()) {
-            s->setParameter(param, value);
+    static void setParameter(const string &p, const int value) {
+        for (auto &param :* threadPool->getThread(0).eval.PARAMS) {
+             if (param.name == p)  {*param.ref = value ; return;}
         }
+        fatal("error param not found "+ p)
+        exit(1);
     }
 
-    static int getParameter(const string &param) {
-        return threadPool->getThread(0).getParameter(param);
-    }
+    std::array<Eval::PARAM, N_PARAMS> * getParameters() ;
 
     int getQscore() const {
         return threadPool->getThread(0).qSearch(15, -_INFINITE, _INFINITE);
@@ -227,10 +226,10 @@ public:
         }
         return i;
     }
-    static unsigned getPvsFail() {
+    static unsigned getPvsOk() {
         unsigned i = 0;
         for (Search *s:threadPool->getPool()) {
-            i += s->pvsFail;
+            i += s->pvsOK;
         }
         return i;
     }
