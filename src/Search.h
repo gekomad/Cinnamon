@@ -41,7 +41,6 @@ public:
     static constexpr int VAL_WINDOW = 40;
     static constexpr int REVERSE_FUTIL_MARGIN = 180;
     static constexpr int EXT_FUTIL_MARGIN = 550;
-    static constexpr int RAZOR_MARGIN = 1171;
 #ifndef JS_MODE
     SYZYGY *syzygy = &SYZYGY::getInstance();
 #endif

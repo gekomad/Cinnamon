@@ -289,18 +289,34 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
 
     if (!(numMoves % 2048)) setRunning(checkTime());
     ++numMoves;
- 
+  
     if (!isIncheckSide) {
+        const int matBalance = eval.lazyEval<side>(chessboard);
         /// ******** reverse futility pruning ***********
         if (depth < 8 && !pvNode && abs(beta - 1) > -_INFINITE + MAX_PLY) {
-            const int matBalance = eval.lazyEval<side>(chessboard);
             const int evalMargin = matBalance - eval.REVERSE_FUTIL_MARGIN * depth;
-            if (evalMargin >= beta) {
+            if (evalMargin >= beta)  {
                 INC(rfcCut);
                 return beta;
             }
-        }      
+        }
+
+        if (!pvNode && depth <= 3) {
+            if (matBalance + _eval::RAZOR_MARGIN[depth] <= alpha) {
+                if (depth == 1) {
+                    INC(nCutRazor);
+                    return qsearch<side>(alpha, beta, NO_PROMOTION, 0);
+                }
+                const int rAlpha = alpha - _eval::RAZOR_MARGIN[depth];
+                const int v = qsearch<side>(rAlpha, rAlpha+1, NO_PROMOTION, 0);
+                if (v <= rAlpha) {
+                    INC(nCutRazor);
+                    return v;  
+                }
+            }
+        }
     }
+     
     /// ************ end Futility Pruning*************
     _Tmove *best = nullptr;
     ASSERT_RANGE(KING_BLACK + side, 0, 11)

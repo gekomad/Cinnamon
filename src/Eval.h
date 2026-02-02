@@ -253,7 +253,7 @@ private:
 };
 
 namespace _eval {
-
+    static constexpr int RAZOR_MARGIN[4] = {0, 400, 450, 50};
     constexpr int BISHOP_OUTPOST[2][64] = {
             {0, 0, 0, 0, 0, 0, 0, 0,
                     0, 0, 0, 0, 0, 0, 0, 0,
