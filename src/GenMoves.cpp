@@ -449,7 +449,7 @@ bool GenMoves::makemove(const _Tmove *move, const bool rep) {
 
 void GenMoves::init() {
     numMoves = numMovesq = listId = 0;
-    DEBUG(nCutFp = nCutRazor = pvsTot = pvsFail = nCutAB = nNullMoveCut = nCutBadCaputure = 0)
+    DEBUG(nCutFp = nCutRazor = pvsTot = pvsFail = rfcCut= nCutAB = nNullMoveCut = nCutBadCaputure = 0)
 }
 
 u64 GenMoves::getTotMoves() const {

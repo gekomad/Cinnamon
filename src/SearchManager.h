@@ -196,6 +196,13 @@ public:
         }
         return i;
     }
+    static unsigned getRfcCut() {
+        unsigned i = 0;
+        for (Search *s:threadPool->getPool()) {
+            i += s->rfcCut;
+        }
+        return i;
+    }
 
     static unsigned getNCutRazor() {
         unsigned i = 0;

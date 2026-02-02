@@ -125,6 +125,7 @@ void IterativeDeeping::run() {
         const int LazyEvalCuts = searchManager.getLazyEvalCuts();
         const int nCutFp = searchManager.getNCutFp();
         const int nCutRazor = searchManager.getNCutRazor();
+        const int rfcCut = searchManager.getRfcCut();
         const int nBadCaputure = searchManager.getTotBadCaputure();
         const int nullMoveCut = searchManager.getNullMoveCut();
         const int pvsFail = searchManager.getPvsFail();
@@ -145,6 +146,7 @@ void IterativeDeeping::run() {
         cout << "info string futility pruning cut: " << nCutFp << endl;
         cout << "info string null move cut: " << nullMoveCut << endl;
         cout << "info string razor cut: " << nCutRazor << endl;
+        cout << "info string reverse futility pruning: " << rfcCut << endl;
         cout << "info string pvs tot: " << pvsTot << " failed: "<< pvsFail << " ("<< pvsFail*100/(pvsTot+1) << "%)"<< endl;
         cout << "info string bad caputure cut: " << nBadCaputure << endl;
         printf("info string hash stored %d%% (alpha=%.2f%% beta=%.2f%% exact%.2f%%)\n",

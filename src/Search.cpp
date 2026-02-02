@@ -259,7 +259,7 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
 #endif
 
   
-    //const bool pvNode = alpha != beta - 1;
+    const bool pvNode = alpha != beta - 1;
 
     ASSERT(chessboard[KING_BLACK]);
     ASSERT(chessboard[KING_WHITE]);
@@ -290,6 +290,18 @@ int Search::search(const int depth, int alpha, int beta, _TpvLine *pline, const 
     if (!(numMoves % 2048)) setRunning(checkTime());
     ++numMoves;
  
+    if (!isIncheckSide) {
+        /// ******** reverse futility pruning ***********
+        if (depth < 8 && !pvNode && abs(beta - 1) > -_INFINITE + MAX_PLY) {
+            const int matBalance = eval.lazyEval<side>(chessboard);
+            const int evalMargin = matBalance - eval.REVERSE_FUTIL_MARGIN * depth;
+            if (evalMargin >= beta) {
+                INC(rfcCut);
+                return beta;
+            }
+        }      
+    }
+    /// ************ end Futility Pruning*************
     _Tmove *best = nullptr;
     ASSERT_RANGE(KING_BLACK + side, 0, 11)
     ASSERT_RANGE(KING_BLACK + (X(side)), 0, 11)
