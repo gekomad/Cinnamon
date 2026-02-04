@@ -147,7 +147,7 @@ void IterativeDeeping::run() {
         cout << "info string futility pruning cut: " << nCutFp << endl;
         cout << "info string razor cut: " << nCutRazor << endl;
         cout << "info string reverse futility pruning: " << rfcCut << endl;
-        cout << "info string pvs tot: " << pvsTot << " ok: "<< pvsOK << " ("<< pvsOK*100/(pvsTot+1) << "%)"<< endl;
+        printf("info string pvs tot: %d/%d (%d%%) %d%% of total\n" , pvsOK, pvsTot, pvsOK*100/(pvsTot+1), pvsOK*100/(totMoves));
         cout << "info string bad caputure cut: " << nBadCaputure << endl;
         printf("info string hash stored %d%% (alpha=%.2f%% beta=%.2f%% exact%.2f%%)\n",
                totStoreHash * 100 / (1 + cumulativeMovesCount), percStoreHashA, percStoreHashB, percStoreHashE);

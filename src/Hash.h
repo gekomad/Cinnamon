@@ -148,6 +148,7 @@ public:
             for (int i = 0; i < BUCKETS; i++, hash++) {
                 const u64 data = hash->data;
                 if (toStore.key == GET_KEY(hash)) {
+                    INC(collisions);
                     found = true;
                     if (GET_DEPTH(data) <= GET_DEPTH(toStore.data)) {
                         // hash->key = (toStore.key ^ toStore.data);
