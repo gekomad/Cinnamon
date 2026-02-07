@@ -55,19 +55,6 @@ public:
         return threadPool->getThread(0).chessboard;
     }
 
-    static void setParameter(const string &p, const int value) {
-        for (auto &param :* threadPool->getThread(0).eval.PARAMS) {
-             if (param.name == p)  {*param.ref = value ; return;}
-        }
-        fatal("error param not found "+ p)
-        exit(1);
-    }
-
-    std::array<Eval::PARAM, N_PARAMS> * getParameters() ;
-
-    int getQscore() const {
-        return threadPool->getThread(0).qSearch(15, -_INFINITE, _INFINITE);
-    }
 
 #endif
 

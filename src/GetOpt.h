@@ -22,6 +22,8 @@
 #include "perft/Perft.h"
 #include "util/getopt.h"
 #include "util/tuning/Texel.h"
+#include "util/tuning/Tune.h"
+#include "util/tuning/Stockfish.h"
 
 static const string
         PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb) [-F dump file]] [-Chess960] [-f \"fen position\"]";
@@ -216,12 +218,14 @@ public:
         ASSERT(0);
 #endif
 #ifdef TUNING
-            if (argc != 2) {
-                cout << Texel::help << endl;
-                cout << "run " << FileUtil::getFileName(argv[0]) << " path" << endl;
+            if (argc != 3) {
+                cout << Tune::help << endl;
+                cout << "run " << FileUtil::getFileName(argv[0]) << " [texel|stockfish] edp_path" << endl;
                 return;
             }
-            new Texel(argv[1]);
+           if (std::string(argv[1]) == "texel") new Texel(argv[2]);
+           else if (std::string(argv[1]) == "stockfish") stockfishPool::go(argv[2]);
+           else cout << Tune::help << "run " << FileUtil::getFileName(argv[0]) << " [texel|stockfish] edp_path" << endl;
 	    return;
 #endif
         if (!(argc > 1 && !strcmp("-puzzle_epd", argv[1])))

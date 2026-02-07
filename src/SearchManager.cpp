@@ -94,9 +94,7 @@ SearchManager::~SearchManager() {
 }
 
 #ifdef TUNING
-std::array<Eval::PARAM, N_PARAMS> * SearchManager::getParameters() {
-    return threadPool->getThread(0).eval.PARAMS;
-}
+
 int SearchManager::loadFen(const string &fen) {
     return threadPool->getThread(0).loadFen(fen);
 }

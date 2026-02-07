@@ -34,7 +34,6 @@ namespace constants {
 
 #ifdef TUNING
 
-    static constexpr int N_PARAMS = 35;
 #define STATIC_CONST
 #else
 #define STATIC_CONST static constexpr

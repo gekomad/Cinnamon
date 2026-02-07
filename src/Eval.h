@@ -43,17 +43,13 @@ public:
 #ifdef TUNING
 
     typedef struct PARAM {
-        string name;
         int* ref;
         int startValue;
-        PARAM(string n, int* r) : name(n), ref(r) { startValue = *r; }
-
-        void print() {
-            printf("\nname: %s, startValue: %d, newValue: %d", name.c_str(), startValue,  *ref);
-            if (startValue != *ref)cout << " (*)";
-        }
+        PARAM() {  }
+        PARAM(int* r) : ref(r), startValue(*r) {  }
     } PARAM;
-    std::array<PARAM, N_PARAMS> *PARAMS = nullptr;
+    std::map<string, PARAM> PARAMS;
+
 #endif
 
     short getScore(const _Tchessboard &chessboard, const u64 key, const uchar side, const int alpha, const int beta
@@ -73,31 +69,31 @@ public:
     STATIC_CONST int DISTANCE_KING_OPENING_INC = 0;
     STATIC_CONST int MOB_ROOK_INC = 0;
     STATIC_CONST int MOB_KNIGHT_INC = 0;
-    STATIC_CONST int PHASE_END = 3;
+    STATIC_CONST int PHASE_END = 6;
     STATIC_CONST int PHASE_MIDDLE = 12;
     STATIC_CONST int REVERSE_FUTIL_MARGIN = 75;
     STATIC_CONST int EXT_FUTIL_MARGIN = 450;
-    STATIC_CONST int FUTIL_MARGIN = 220;
-    STATIC_CONST int ATTACK_KING = 58;
-    STATIC_CONST int BISHOP_ON_QUEEN = 7;
-    STATIC_CONST int BACKWARD_PAWN = 5;
-    STATIC_CONST int DOUBLED_ISOLATED_PAWNS = 10;
-    STATIC_CONST int PAWN_IN_7TH = 20;
-    STATIC_CONST int PAWN_IN_PROMOTION = 99;
-    STATIC_CONST int PAWN_NEAR_KING = 7;
-    STATIC_CONST int PAWN_BLOCKED = 8;
-    STATIC_CONST int UNPROTECTED_PAWNS = 6;
-    STATIC_CONST int FRIEND_NEAR_KING = 10;
-    STATIC_CONST int BONUS2BISHOP = 21;
-    STATIC_CONST int BISHOP_PAWN_ON_SAME_COLOR = 3;
-    STATIC_CONST int OPEN_FILE_Q = 2;
-    STATIC_CONST int ROOK_7TH_RANK = 21;
-    STATIC_CONST int KNIGHT_PINNED = 56;
-    STATIC_CONST int ROOK_PINNED = 23;
-    STATIC_CONST int BISHOP_PINNED = 32;
-    STATIC_CONST int QUEEN_PINNED = 20;
+    STATIC_CONST int FUTIL_MARGIN = 221;
+    STATIC_CONST int ATTACK_KING = 68;
+    STATIC_CONST int BISHOP_ON_QUEEN = 2;
+    STATIC_CONST int BACKWARD_PAWN = 4;
+    STATIC_CONST int DOUBLED_ISOLATED_PAWNS = 16;
+    STATIC_CONST int PAWN_IN_7TH = 0;
+    STATIC_CONST int PAWN_IN_PROMOTION = 91;
+    STATIC_CONST int PAWN_NEAR_KING = 10;
+    STATIC_CONST int PAWN_BLOCKED = 9;
+    STATIC_CONST int UNPROTECTED_PAWNS = 1;
+    STATIC_CONST int FRIEND_NEAR_KING = 2;
+    STATIC_CONST int BONUS2BISHOP = 17;
+    STATIC_CONST int BISHOP_PAWN_ON_SAME_COLOR = 5;
+    STATIC_CONST int OPEN_FILE_Q = 0;
+    STATIC_CONST int ROOK_7TH_RANK = 0;
+    STATIC_CONST int KNIGHT_PINNED = 62;
+    STATIC_CONST int ROOK_PINNED = 34;
+    STATIC_CONST int BISHOP_PINNED = 4;
+    STATIC_CONST int QUEEN_PINNED = 67;
     STATIC_CONST int QUEEN_IN_7 = 10;
-    STATIC_CONST int ROOK_IN_7 = 4;
+    STATIC_CONST int ROOK_IN_7 = 9;
 
 #ifdef DEBUG_MODE
     unsigned lazyEvalCuts;
