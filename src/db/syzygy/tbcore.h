@@ -27,15 +27,18 @@
 #define UNLOCK(x) pthread_mutex_unlock(&(x))
 #else
 #define LOCK_T HANDLE
-#define LOCK_INIT(x) do { x = CreateMutex(NULL, FALSE, NULL); } while (0)
+#define LOCK_INIT(x)                                                                                                                                 \
+    do {                                                                                                                                             \
+        x = CreateMutex(NULL, FALSE, NULL);                                                                                                          \
+    } while (0)
 #define LOCK(x) WaitForSingleObject(x, INFINITE)
 #define UNLOCK(x) ReleaseMutex(x)
 #endif
-#else       /* !TB_HAVE_THREADS */
-#define LOCK_T          int
-#define LOCK_INIT(x)    /* NOP */
-#define LOCK(x)         /* NOP */
-#define UNLOCK(x)       /* NOP */
+#else /* !TB_HAVE_THREADS */
+#define LOCK_T int
+#define LOCK_INIT(x) /* NOP */
+#define LOCK(x)      /* NOP */
+#define UNLOCK(x)    /* NOP */
 #endif
 
 #define WDLSUFFIX ".rtbw"
@@ -85,7 +88,7 @@ struct TBEntry {
     ubyte has_pawns;
 }
 #ifdef __GNUC__
-    __attribute__((__may_alias__));
+__attribute__((__may_alias__));
 #else
 ;
 #endif
@@ -172,4 +175,3 @@ struct DTZTableEntry {
 };
 
 #endif
-

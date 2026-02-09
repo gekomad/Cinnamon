@@ -21,34 +21,37 @@
 
 #include "Tune.h"
 
-class Stockfish : Tune , public Thread<Stockfish>{
-public:
-    Stockfish(){}
+class Stockfish : Tune, public Thread<Stockfish> {
+  public:
+    Stockfish() {
+    }
 
-    void shareParameters(double current_error, const map<string, int> & newParams) const;
-    void sendParameters(double error, const map<string,int>& newParams) ;
-    void run() ;
-    void endRun() {}
-    void loadEPD(const string& path);
+    void shareParameters(double current_error, const map<string, int> &newParams) const;
+    void sendParameters(double error, const map<string, int> &newParams);
+    void run();
+    void endRun() {
+    }
+    void loadEPD(const string &path);
     void init1(const std::string &path);
-private:
+
+  private:
     double currentError;
     double bestError;
     string path;
     const string iniFile = "stockfish.ini";
 };
 namespace stockfishPool {
-    static ThreadPool<Stockfish> stockfishPool;
+static ThreadPool<Stockfish> stockfishPool;
 
-    inline void go(const string& path) {
-        stockfishPool.getThread(0).loadEPD(path);
-        for (int i = 0; i < stockfishPool.getNthread() ; i++) {
-            Stockfish &p = stockfishPool.getNextThread();
-            p.init1(path);
-            p.start();
-        }
-        stockfishPool::stockfishPool.joinAll();
+inline void go(const string &path) {
+    stockfishPool.getThread(0).loadEPD(path);
+    for (int i = 0; i < stockfishPool.getNthread(); i++) {
+        Stockfish &p = stockfishPool.getNextThread();
+        p.init1(path);
+        p.start();
     }
+    stockfishPool::stockfishPool.joinAll();
 }
+} // namespace stockfishPool
 
 #endif

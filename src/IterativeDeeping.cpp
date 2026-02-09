@@ -40,9 +40,9 @@ bool IterativeDeeping::getPonderEnabled() const {
 }
 
 void IterativeDeeping::run() {
-
     if (LOCK_TEST_AND_SET(running)) {
-        while (running);
+        while (running)
+            ;
     }
     bestmove.clear();
     INC(checkSmp2);
@@ -51,22 +51,20 @@ void IterativeDeeping::run() {
     searchManager.setRunningThread(true);
 
 #ifndef JS_MODE
-    //Tablebase
+    // Tablebase
 
-    string tb = TB::probeRootTB1(searchManager.getSearch());
+    const string tb = TB::probeRootTB1(searchManager.getSearch());
     if (!tb.empty()) {
-        debug("info string returned move from TB\n")
-        _Tmove move;
+        debug("info string returned move from TB\n") _Tmove move;
         searchManager.getMoveFromSan(tb, &move);
         searchManager.makemove(&move);
         cout << "bestmove " << tb << endl;
         ADD(checkSmp2, -1);
-        ASSERT(!checkSmp2);
+        assert(!checkSmp2);
         LOCK_RELEASE(running);
         return;
     }
 #endif
-    unsigned totMoves;
 
     int iter_depth = 0;
 
@@ -75,7 +73,7 @@ void IterativeDeeping::run() {
     plyFromRoot++;
     searchManager.setForceCheck(false);
 
-    auto start1 = std::chrono::high_resolution_clock::now();
+    const auto start1 = high_resolution_clock::now();
     bool inMate = false;
     int extension = 0;
     string ponderMove;
@@ -87,24 +85,23 @@ void IterativeDeeping::run() {
     DEBUG(u64 totMovesPrec = -1)
 
     while (searchManager.getRunning(0)) {
-        totMoves = 0;
+        unsigned totMoves = 0;
         ++iter_depth;
         searchManager.init();
 
-        auto sc = searchManager.search(plyFromRoot, iter_depth);
+        const auto sc = searchManager.search(plyFromRoot, iter_depth);
 
-        searchManager.setRunningThread(1);
+        searchManager.setRunningThread(true);
         searchManager.setRunning(1);
         if (!searchManager.getRes(resultMove, ponderMove, pvv)) {
-            debug("IterativeDeeping cmove == 0. Exit")
-            break;
+            debug("IterativeDeeping cmove == 0. Exit") break;
         }
 
-        auto end1 = std::chrono::high_resolution_clock::now();
+        const auto end1 = high_resolution_clock::now();
         timeTaken = Time::diffTime(end1, start1) + 1;
         totMoves += searchManager.getTotMoves();
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
         const int totStoreHash = hash.nRecordHashA + hash.nRecordHashB + hash.nRecordHashE + 1;
         const float percStoreHashA = hash.nRecordHashA * 100.0 / totStoreHash;
         const float percStoreHashB = hash.nRecordHashB * 100.0 / totStoreHash;
@@ -138,8 +135,8 @@ void IterativeDeeping::run() {
         if (nCutAB) cout << "info string beta efficiency: " << (searchManager.getBetaEfficiency()) << "%" << endl;
 
         if (totMovesPrec != 0xffffffffffffffffULL)
-            cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2) <<
-                 ((double) totMoves / (double) totMovesPrec) << endl;
+            cout << "info string effective branching factor: " << setiosflags(ios::fixed) << setprecision(2)
+                 << (static_cast<double>(totMoves) / static_cast<double>(totMovesPrec)) << endl;
         totMovesPrec = totMoves;
 
         cout << "info string alphaBeta cut: " << nCutAB << endl;
@@ -147,14 +144,13 @@ void IterativeDeeping::run() {
         cout << "info string futility pruning cut: " << nCutFp << endl;
         cout << "info string razor cut: " << nCutRazor << endl;
         cout << "info string reverse futility pruning: " << rfcCut << endl;
-        printf("info string pvs tot: %d/%d (%d%%) %d%% of total\n" , pvsOK, pvsTot, pvsOK*100/(pvsTot+1), pvsOK*100/(totMoves));
+        printf("info string pvs tot: %d/%d (%d%%) %d%% of total\n", pvsOK, pvsTot, pvsOK * 100 / (pvsTot + 1), pvsOK * 100 / (totMoves));
         cout << "info string bad caputure cut: " << nBadCaputure << endl;
-        printf("info string hash stored %d%% (alpha=%.2f%% beta=%.2f%% exact%.2f%%)\n",
-               totStoreHash * 100 / (1 + cumulativeMovesCount), percStoreHashA, percStoreHashB, percStoreHashE);
+        printf("info string hash stored %d%% (alpha=%.2f%% beta=%.2f%% exact%.2f%%)\n", totStoreHash * 100 / (1 + cumulativeMovesCount),
+               percStoreHashA, percStoreHashB, percStoreHashE);
 
         printf("info string hash cut %d%% (alpha=%.2f%% beta=%.2f%% exact=%.2f%%)\n",
-               totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()), percCutHashA, percCutHashB,
-               percCutHashE);
+               totCutHash * 100 / (1 + searchManager.getCumulativeMovesCount()), percCutHashA, percCutHashB, percCutHashE);
         printf("info string hash write collisions: %d%%\n", hash.collisions * 100 / (totStoreHash + 1));
         printf("info string hash read collisions: %d%%\n", hash.readCollisions * 100 / (hash.readHashCount + 1));
 
@@ -175,20 +171,19 @@ void IterativeDeeping::run() {
             searchManager.setForceCheck(b);
         }
         if (trace) {
-
             resultMove.capturedPiece = searchManager.getPieceAt(X(resultMove.side), POW2(resultMove.to));
             bestmove = searchManager.decodeBoardinv(&resultMove);
 
-            if (sc > _INFINITE - MAX_PLY)
-                cout << "info depth " << iter_depth << " score mate " << max(1, (_INFINITE - sc) / 2);
+            if (sc > _INFINITE - MAX_PLY) cout << "info depth " << iter_depth << " score mate " << max(1, (_INFINITE - sc) / 2);
             else if (sc < -_INFINITE + MAX_PLY)
                 cout << "info depth " << iter_depth << " score mate -" << max(1, (_INFINITE + sc) / 2);
-            else cout << "info depth " << iter_depth - extension << " score cp " << sc;
+            else
+                cout << "info depth " << iter_depth - extension << " score cp " << sc;
 
             cout << " time " << timeTaken << " nodes " << totMoves;
-            if (timeTaken)cout << " nps " << (int) ((double) totMoves / (double) timeTaken * 1000.0);
+            if (timeTaken) cout << " nps " << static_cast<int>(static_cast<double>(totMoves) / static_cast<double>(timeTaken) * 1000.0);
             cout << " pv " << pvv << endl;
-            DEBUG(GenMoves::verifyPV(searchManager.getSearch().getFen(),pvv))
+            DEBUG(GenMoves::verifyPV(searchManager.getSearch().getFen(), pvv))
         }
 
         if (searchManager.getForceCheck()) {
@@ -197,7 +192,6 @@ void IterativeDeeping::run() {
         } else if (iter_depth == 1 && abs(sc) > _INFINITE - MAX_PLY) {
             searchManager.setForceCheck(true);
             searchManager.setRunning(2);
-
         }
         if (iter_depth >= maxDepth + extension && (searchManager.getRunning(0) != 2 || inMate)) {
             break;
@@ -208,19 +202,19 @@ void IterativeDeeping::run() {
         }
     }
 
-    BENCH_PRINT()
+    BENCH_PRINT();
 
-    if (bestmove.empty())cout << "bestmove (none)";
-    else cout << "bestmove " << bestmove;
+    if (bestmove.empty()) cout << "bestmove (none)";
+    else
+        cout << "bestmove " << bestmove;
     if (ponderEnabled && ponderMove.size()) cout << " ponder " << ponderMove;
 
     cout << endl;
     ADD(checkSmp2, -1);
-    ASSERT(!checkSmp2);
+    assert(!checkSmp2);
     LOCK_RELEASE(running);
 }
 
-int IterativeDeeping::loadFen(const string &fen) {
+int IterativeDeeping::loadFen(const string &fen) const {
     return searchManager.loadFen(fen);
 }
-

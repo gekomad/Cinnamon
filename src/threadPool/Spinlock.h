@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 // A shared Spinlock implementation
 
 #pragma once
@@ -34,24 +33,25 @@
 #endif
 
 class Spinlock {
-private:
     std::atomic_flag flag = ATOMIC_FLAG_INIT;
     volatile long _write = 0;
-    volatile std::atomic_int _read = { 0 };
+    volatile std::atomic_int _read = {0};
 
     void _lock() {
         while (true) {
-            if (!LOCK_TEST_AND_SET(_write))
-                return;
-            while (_write);
+            if (!LOCK_TEST_AND_SET(_write)) return;
+            while (_write)
+                ;
         }
     }
 
-public:
-    Spinlock() { }
+  public:
+    Spinlock() {
+    }
 
     __attribute__((always_inline)) void lock() {
-        while (flag.test_and_set(std::memory_order_acquire));
+        while (flag.test_and_set(std::memory_order_acquire))
+            ;
     }
 
     __attribute__((always_inline)) void unlock() {
@@ -67,7 +67,8 @@ public:
             if (w && !_read) {
                 return;
             }
-            while ((!w && _write) || _read);
+            while ((!w && _write) || _read)
+                ;
         }
     }
 
@@ -77,11 +78,11 @@ public:
 
     __attribute__((always_inline)) void lockRead() {
         lockWrite();
-        _read++;
+        ++_read;
         unlockWrite();
     }
 
     __attribute__((always_inline)) void unlockRead() {
-        _read--;
+        --_read;
     }
 };

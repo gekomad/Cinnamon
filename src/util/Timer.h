@@ -19,25 +19,24 @@
 #pragma once
 
 #include "../threadPool/Thread.h"
-#include <vector>
 #include <functional>
+#include <vector>
 
-class Timer: public Thread<Timer> {
-public:
-
-    Timer(const int seconds1);
+class Timer : public Thread<Timer> {
+  public:
+    explicit Timer(int seconds1);
 
     void endRun();
 
     void run();
 
-    void registerObservers(const function<void(void)>& f);
+    void registerObservers(const function<void()> &f);
 
-    void notifyObservers(void);
+    void notifyObservers() const;
 
-    virtual ~Timer();
+    ~Timer() override;
 
-private:
+  private:
     int seconds;
     condition_variable cv;
     mutex mtx;

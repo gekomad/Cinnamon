@@ -22,8 +22,8 @@
 #include "Tune.h"
 
 class Texel : Tune {
-public:
-    Texel(const string &path) ;
+  public:
+    Texel(const string &path);
 };
 
 #endif

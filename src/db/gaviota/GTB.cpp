@@ -18,6 +18,8 @@
 
 #include "GTB.h"
 
+#include <climits>
+
 GTB::GTB() {
     load();
 }
@@ -28,9 +30,8 @@ GTB::~GTB() {
     paths = tbpaths_done(paths);
 }
 
-
 bool GTB::load() {
-    if (path.size() == 0)return false;
+    if (path.size() == 0) return false;
     memset(installedPieces, 0, sizeof(installedPieces));
     if (!FileUtil::fileExists(path)) {
         cout << "file not found " << path << endl;
@@ -39,10 +40,10 @@ bool GTB::load() {
     tbstats_reset();
     paths = tbpaths_done(paths);
     paths = tbpaths_init();
-    _ASSERT(paths);
+    ASSERT_RELEASE(paths);
     paths = tbpaths_add(paths, path.c_str());
     restart();
-    unsigned av = tb_availability();
+    const unsigned av = tb_availability();
     if (0 != (av & 2)) {
         setInstalledPieces(3);
         cout << "3-pc TBs complete\n";
@@ -83,7 +84,7 @@ int GTB::getCache() const {
 }
 
 bool GTB::isInstalledPieces(const int p) const {
-    if (p > 5)return false;
+    if (p > 5) return false;
     return installedPieces[p];
 }
 
@@ -146,7 +147,7 @@ bool GTB::setScheme(const string &s) {
     return res;
 }
 
-void GTB::restart() {
+void GTB::restart() const {
     tb_restart(verbosity, scheme, paths);
     tbcache_restart(cacheSize * 1024 * 1024, wdl_fraction);
 }
@@ -163,37 +164,31 @@ bool GTB::setPath(const string &path1) {
 
 #include "../syzygy/tbprobe.h"
 
-int GTB::convertToSyzygy(const int stm, const int info) const {
+int GTB::convertToSyzygy(const int stm, const int info) {
     switch (info) {
-        case tb_DRAW :
-            return TB_DRAW;
-        case tb_WMATE :
-            return (stm == tb_WHITE_TO_MOVE) ? TB_WIN : TB_LOSS;
-        case tb_BMATE :
-            return (stm == tb_BLACK_TO_MOVE) ? TB_WIN : TB_LOSS;
-        default:
-            return INT_MAX;
+    case tb_DRAW:
+        return TB_DRAW;
+    case tb_WMATE:
+        return (stm == tb_WHITE_TO_MOVE) ? TB_WIN : TB_LOSS;
+    case tb_BMATE:
+        return (stm == tb_BLACK_TO_MOVE) ? TB_WIN : TB_LOSS;
+    default:
+        return INT_MAX;
     }
 }
 
-int GTB::getDtmWdl(const int stm,
-                   const int doPrint,
-                   const _Tchessboard &chessboard,
-                   unsigned *pliestomate,
-                   const bool dtm, const uchar RIGHT_CASTLE) const {
-
-    unsigned info = tb_UNKNOWN;    /* default, no tbvalue */
+int GTB::getDtmWdl(const int stm, const int doPrint, const _Tchessboard &chessboard, unsigned *pliestomate, const bool dtm,
+                   const uchar RIGHT_CASTLE) const {
+    unsigned info = tb_UNKNOWN; /* default, no tbvalue */
 
     GTBchessboard gtbChessboard;
     gtbChessboard.fromChessboard(chessboard, RIGHT_CASTLE);
     if (dtm) {
-        int tb_available = tb_probe_soft(stm, tb_NOSQUARE, gtbChessboard.tb_castling, gtbChessboard.ws,
-                                         gtbChessboard.bs,
-                                         gtbChessboard.wp, gtbChessboard.bp, &info, pliestomate);
+        int tb_available = tb_probe_soft(stm, tb_NOSQUARE, gtbChessboard.tb_castling, gtbChessboard.ws, gtbChessboard.bs, gtbChessboard.wp,
+                                         gtbChessboard.bp, &info, pliestomate);
         if (!tb_available)
-            tb_available = tb_probe_hard(stm, tb_NOSQUARE, gtbChessboard.tb_castling, gtbChessboard.ws,
-                                         gtbChessboard.bs,
-                                         gtbChessboard.wp, gtbChessboard.bp, &info, pliestomate);
+            tb_available = tb_probe_hard(stm, tb_NOSQUARE, gtbChessboard.tb_castling, gtbChessboard.ws, gtbChessboard.bs, gtbChessboard.wp,
+                                         gtbChessboard.bp, &info, pliestomate);
 
         if (tb_available) {
             if (doPrint != 0) {
@@ -213,43 +208,43 @@ int GTB::getDtmWdl(const int stm,
                 }
                 cout << endl;
             }
-            ASSERT(info != tb_UNKNOWN);
+            assert(info != tb_UNKNOWN);
             return convertToSyzygy(stm, info);
         }
         return INT_MAX;
     } else {
-
-        int tb_available = tb_probe_WDL_soft(stm, tb_NOSQUARE, gtbChessboard.tb_castling, gtbChessboard.ws,
-                                             gtbChessboard.bs, gtbChessboard.wp, gtbChessboard.bp, &info);
+        int tb_available = tb_probe_WDL_soft(stm, tb_NOSQUARE, gtbChessboard.tb_castling, gtbChessboard.ws, gtbChessboard.bs, gtbChessboard.wp,
+                                             gtbChessboard.bp, &info);
         if (!tb_available)
-            tb_available = tb_probe_WDL_hard(stm, tb_NOSQUARE, gtbChessboard.tb_castling, gtbChessboard.ws,
-                                             gtbChessboard.bs, gtbChessboard.wp, gtbChessboard.bp, &info);
+            tb_available = tb_probe_WDL_hard(stm, tb_NOSQUARE, gtbChessboard.tb_castling, gtbChessboard.ws, gtbChessboard.bs, gtbChessboard.wp,
+                                             gtbChessboard.bp, &info);
 
         if (tb_available) {
             if (doPrint != 0) {
                 const int stm1 = (doPrint == 1) ? stm : X(stm);
                 switch (info) {
-                    case tb_WMATE :
-                        if (stm1 == tb_WHITE_TO_MOVE) cout << "Loss" << endl;
-                        else cout << "Win" << endl;
-                        break;
-                    case tb_BMATE :
-                        if (stm1 == tb_BLACK_TO_MOVE) cout << "Loss" << endl;
-                        else cout << "Win" << endl;
-                        break;
-                    case tb_DRAW :
-                        cout << "draw" << endl;
-                        break;
-                    default :
-                        cout << "none" << info << endl;
-                        break;
+                case tb_WMATE:
+                    if (stm1 == tb_WHITE_TO_MOVE) cout << "Loss" << endl;
+                    else
+                        cout << "Win" << endl;
+                    break;
+                case tb_BMATE:
+                    if (stm1 == tb_BLACK_TO_MOVE) cout << "Loss" << endl;
+                    else
+                        cout << "Win" << endl;
+                    break;
+                case tb_DRAW:
+                    cout << "draw" << endl;
+                    break;
+                default:
+                    cout << "none" << info << endl;
+                    break;
                 }
             }
-            ASSERT(info != tb_UNKNOWN);
+            assert(info != tb_UNKNOWN);
             return convertToSyzygy(stm, info);
         }
         if (doPrint != 0) cout << "none" << endl;
         return INT_MAX;
     }
-
 }

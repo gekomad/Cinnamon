@@ -1,7 +1,7 @@
 /*
 This Software is distributed with the following X11 License,
 sometimes also known as MIT license.
- 
+
 Copyright (c) 2010 Miguel A. Ballicora
 
  Permission is hereby granted, free of charge, to any person
@@ -33,16 +33,16 @@ Copyright (c) 2010 Miguel A. Ballicora
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 #include <stdlib.h>
 
-enum Compression {CP0, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP_END};
+enum Compression { CP0, CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP_END };
 
-extern void 	set_decoding_scheme(int x);
+extern void set_decoding_scheme(int x);
 
-extern int  	decoding_scheme(void);
+extern int decoding_scheme(void);
 
-extern int 		decode (size_t z, unsigned char *bz, size_t n, unsigned char *bp);
+extern int decode(size_t z, unsigned char *bz, size_t n, unsigned char *bp);
 
 /*
-This function should be included with the TB compressor 
+This function should be included with the TB compressor
 extern int encode (size_t n, unsigned char *bp, size_t *z, unsigned char *bz);
 */
 

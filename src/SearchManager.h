@@ -19,16 +19,15 @@
 #pragma once
 
 #include "Search.h"
-#include "threadPool/ThreadPool.h"
-#include "namespaces/String.h"
-#include "util/IniFile.h"
 #include "db/TB.h"
- 
+#include "namespaces/String.h"
+#include "threadPool/ThreadPool.h"
+#include "util/IniFile.h"
+
 class SearchManager : private Singleton<SearchManager> {
     friend class Singleton<SearchManager>;
 
-public:
-
+  public:
     ~SearchManager();
 
     static bool getRes(_Tmove &resultMove, string &ponderMove, string &pvv);
@@ -39,11 +38,9 @@ public:
 
     static u64 getTotMoves();
 
-    static void incHistoryHeuristic(const int from, const int to, const int value);
-
     static void startClock();
 
-    Search &getSearch(int i = 0) {
+    static Search &getSearch(const int i = 0) {
         return threadPool->getThread(i);
     }
 
@@ -54,7 +51,6 @@ public:
     const _Tchessboard &getChessboard() {
         return threadPool->getThread(0).chessboard;
     }
-
 
 #endif
 
@@ -128,22 +124,20 @@ public:
     unsigned SZtbProbeWDL() const;
 
     u64 getBitmap(const int n, const uchar side) const {
-        return side ? board::getBitmap<WHITE>(threadPool->getPool()[n]->chessboard)
-                    : board::getBitmap<BLACK>(threadPool->getPool()[n]->chessboard);
+        return side ? board::getBitmap<WHITE>(threadPool->getPool()[n]->chessboard) : board::getBitmap<BLACK>(threadPool->getPool()[n]->chessboard);
     }
 
     const _Tchessboard &getChessboard(const int n = 0) const {
         return threadPool->getPool()[n]->chessboard;
     }
 
-    template<uchar side>
-    u64 getPinned(const u64 allpieces, const u64 friends, const int kingPosition) const {
+    template <uchar side> u64 getPinned(const u64 allpieces, const u64 friends, const int kingPosition) const {
         return board::getPinned<side>(allpieces, friends, kingPosition, threadPool->getPool()[0]->chessboard);
     }
 
 #endif
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
 
     static unsigned getCumulativeMovesCount() {
         return Search::cumulativeMovesCount;
@@ -151,7 +145,7 @@ public:
 
     static unsigned getNCutAB() {
         unsigned i = 0;
-        for (Search *s:threadPool->getPool()) {
+        for (const auto s : *threadPool) {
             i += s->nCutAB;
         }
         return i;
@@ -160,7 +154,7 @@ public:
     static double getBetaEfficiency() {
         double b = 0;
         unsigned count = 0;
-        for (Search *s:threadPool->getPool()) {
+        for (const auto s : *threadPool) {
             b += s->betaEfficiency;
             count += s->betaEfficiencyCount;
         }
@@ -169,7 +163,7 @@ public:
 
     static unsigned getLazyEvalCuts() {
         unsigned i = 0;
-        for (Search *s:threadPool->getPool()) {
+        for (const auto s : *threadPool) {
             i += s->getLazyEvalCuts();
         }
         return i;
@@ -177,14 +171,14 @@ public:
 
     static unsigned getNCutFp() {
         unsigned i = 0;
-        for (Search *s:threadPool->getPool()) {
+        for (const auto s : *threadPool) {
             i += s->nCutFp;
         }
         return i;
     }
     static unsigned getRfcCut() {
         unsigned i = 0;
-        for (Search *s:threadPool->getPool()) {
+        for (const auto s : *threadPool) {
             i += s->rfcCut;
         }
         return i;
@@ -192,7 +186,7 @@ public:
 
     static unsigned getNCutRazor() {
         unsigned i = 0;
-        for (Search *s:threadPool->getPool()) {
+        for (const auto s : *threadPool) {
             i += s->nCutRazor;
         }
         return i;
@@ -200,7 +194,7 @@ public:
 
     static unsigned getTotBadCaputure() {
         unsigned i = 0;
-        for (Search *s:threadPool->getPool()) {
+        for (const auto s : *threadPool) {
             i += s->nCutBadCaputure;
         }
         return i;
@@ -208,21 +202,21 @@ public:
 
     static unsigned getPvsTot() {
         unsigned i = 0;
-        for (Search *s:threadPool->getPool()) {
+        for (const auto s : *threadPool) {
             i += s->pvsTot;
         }
         return i;
     }
     static unsigned getPvsOk() {
         unsigned i = 0;
-        for (Search *s:threadPool->getPool()) {
+        for (const auto s : *threadPool) {
             i += s->pvsOK;
         }
         return i;
     }
     static unsigned getNullMoveCut() {
         unsigned i = 0;
-        for (Search *s:threadPool->getPool()) {
+        for (const auto s : *threadPool) {
             i += s->nNullMoveCut;
         }
         return i;
@@ -230,21 +224,18 @@ public:
 
 #endif
 
-    static int search(const int ply, const int iter_depth);
+    static int search(int ply, int iter_depth);
 
-private:
-
+  private:
     SearchManager();
 
     static ThreadPool<Search> *threadPool;
 
     static _TpvLine lineWin;
 
-    static void setMainPly(const int ply, const int r);
+    static void setMainPly(int ply, int iterDepth);
 
-    static void startThread(Search &thread, const int depth);
+    static void startThread(Search &thread, int depth);
 
     static void stopAllThread();
-
 };
-

@@ -16,11 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #pragma once
 
 class ObserverThread {
-public:
+  public:
+    virtual ~ObserverThread() = default;
     virtual void observerEndThread(int threadID) = 0;
 };

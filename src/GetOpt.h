@@ -18,15 +18,17 @@
 
 #pragma once
 
-#include "util/Singleton.h"
+#include "IterativeDeeping.h"
+#include "SearchManager.h"
+#include "Uci.h"
 #include "perft/Perft.h"
+#include "util/Singleton.h"
 #include "util/getopt.h"
+#include "util/tuning/Stockfish.h"
 #include "util/tuning/Texel.h"
 #include "util/tuning/Tune.h"
-#include "util/tuning/Stockfish.h"
 
-static const string
-        PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb) [-F dump file]] [-Chess960] [-f \"fen position\"]";
+static const string PERFT_HELP = "-perft [-d depth] [-c nCpu] [-h hash size (mb) [-F dump file]] [-Chess960] [-f \"fen position\"]";
 static const string DTM_GTB_HELP = "-dtm-gtb -f \"fen position\" -p path [-s scheme] [-i installed pieces]";
 static const string WDL_GTB_HELP = "-wdl-gtb -f \"fen position\" -p path [-s scheme] [-i installed pieces]";
 static const string DTZ_SYZYGY_HELP = "-dtz-syzygy -f \"fen position\" -p path";
@@ -34,10 +36,7 @@ static const string WDL_SYZYGY_HELP = "-wdl-syzygy -f \"fen position\" -p path";
 static const string PUZZLE_HELP = "-puzzle_epd -t K?K? ex: KRKP | KQKP | KBBKN | KQKR | KRKB | KRKN ...";
 
 class GetOpt {
-
-private:
     static void printHeader(const string &exe) {
-
         cout << NAME << " UCI chess engine by Giuseppe Cannella\n";
 
 #ifdef HAS_POPCNT
@@ -69,16 +68,16 @@ private:
 #else
         cout << "Unknown compiler";
 #endif
-        cout << "\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n";
+        cout << "\nLicense GPLv3+: GNU GPL version 3 or later <https://www.gnu.org/licenses/gpl-3.0.html>\n";
         cout << "Run " << exe << " -h for more commands." << endl << endl;
 
-        DEBUG(cout << "DEBUG_MODE" << endl)
+        DEBUG(cout << "DEBUG MODE" << endl)
         DEBUG(cout << "Log level: " << LOG_LEVEL_STRING[DLOG_LEVEL] << endl)
         cout << flush;
     }
 
     static void help(char **argv) {
-        string exe = FileUtil::getFileName(argv[0]);
+        const string exe = FileUtil::getFileName(argv[0]);
         cout << "Perft test:            " << exe << " " << PERFT_HELP << endl;
         cout << "DTM (gtb):             " << exe << " " << DTM_GTB_HELP << endl;
         cout << "WDL (gtb):             " << exe << " " << WDL_GTB_HELP << endl;
@@ -87,7 +86,7 @@ private:
         cout << "Generate puzzle epd:   " << exe << " " << PUZZLE_HELP << endl;
     }
 
-    static void perft(int argc, char **argv) {
+    static void perft(const int argc, char **argv) {
         if (string(optarg) != "erft") {
             help(argv);
             return;
@@ -102,35 +101,32 @@ private:
         string iniFile;
         bool useDump = false;
         while ((opt = getopt1(argc, argv, "d:f:h:f:c:F:9:C:")) != -1) {
-            if (opt == 'd') {    //depth
+            if (opt == 'd') { // depth
                 perftDepth = atoi(optarg);
-            } else if (opt == 'c') {  //N cpu
+            } else if (opt == 'c') { // N cpu
                 nCpu = atoi(optarg);
-            } else if (opt == 'h') {  //hash
+            } else if (opt == 'h') { // hash
                 perftHashSize = atoi(optarg);
-            } else if (opt == 'F') { //use dump
+            } else if (opt == 'F') { // use dump
                 dumpFile = optarg;
                 if (dumpFile.empty()) {
                     cout << "use: " << argv[0] << " " << PERFT_HELP << endl;
                     return;
                 }
                 useDump = true;
-            } else if (opt == 'f') {  //fen
+            } else if (opt == 'f') { // fen
                 fen = optarg;
-            } else if (opt == 'C') {  //chess960
-                if (!string(optarg).compare("hess960"))
-                    chess960 = true;
+            } else if (opt == 'C') { // chess960
+                if (!string(optarg).compare("hess960")) chess960 = true;
             }
         }
         if (useDump && !FileUtil::fileExists(dumpFile) && !perftHashSize) {
-            cout << "Error: with '-F' parameter you have to specify either an existing dump file or a hash size (-h)"
-                 << endl << endl;
+            cout << "Error: with '-F' parameter you have to specify either an existing dump file or a hash size (-h)" << endl << endl;
             help(argv);
             return;
         }
         if (useDump && FileUtil::fileExists(dumpFile) && perftHashSize) {
-            cout << "Error: with '-F' parameter and existing dump file you can't specify hash size (-h)" << endl
-                 << endl;
+            cout << "Error: with '-F' parameter and existing dump file you can't specify hash size (-h)" << endl << endl;
             help(argv);
             return;
         }
@@ -142,7 +138,7 @@ private:
 
 #ifndef JS_MODE
 
-    static void dtmWdlGtb(int argc, char **argv, const bool dtm) {
+    static void dtmWdlGtb(const int argc, char **argv, const bool dtm) {
         SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
         GTB *gtb = &GTB::getInstance();
@@ -150,12 +146,12 @@ private:
         IterativeDeeping it;
         int opt;
         while ((opt = getopt1(argc, argv, "f:p:s:i:")) != -1) {
-            if (opt == 'f') {    //fen
+            if (opt == 'f') { // fen
                 fen = optarg;
-            } else if (opt == 'p') { //path
+            } else if (opt == 'p') { // path
                 token = optarg;
                 gtb->setPath(token);
-            } else if (opt == 's') { //scheme
+            } else if (opt == 's') { // scheme
                 token = optarg;
                 if (!gtb->setScheme(token)) {
                     cout << "set scheme error" << endl;
@@ -177,59 +173,54 @@ private:
         searchManager.printDtmGtb(dtm);
     }
 
-    static void createSyzygy(int argc, char **argv) {
-        string fen, token;
+    static void createSyzygy(const int argc, char **argv) {
         IterativeDeeping it;
         int opt;
         SearchManager &searchManager = Singleton<SearchManager>::getInstance();
 
         while ((opt = getopt1(argc, argv, "f:p:s:i:")) != -1) {
-            if (opt == 'f') {    //fen
-                fen = optarg;
+            if (opt == 'f') { // fen
+                string fen = optarg;
                 searchManager.loadFen(fen);
-            } else if (opt == 'p') { //path
-                token = optarg;
+            } else if (opt == 'p') { // path
+                string token = optarg;
                 SYZYGY::getInstance().createSYZYGY(token);
             }
         }
     }
 
-    static void wdlSyzygy(int argc, char **argv) {
-
+    static void wdlSyzygy(const int argc, char **argv) {
         createSyzygy(argc, argv);
         SearchManager &searchManager = Singleton<SearchManager>::getInstance();
         searchManager.printWdlSyzygy();
-
     }
 
-    static void dtmSyzygy(int argc, char **argv) {
-
+    static void dtmSyzygy(const int argc, char **argv) {
         createSyzygy(argc, argv);
         SearchManager &searchManager = Singleton<SearchManager>::getInstance();
         searchManager.printDtmSyzygy();
-
     }
 
 #endif
-public:
-
-    static void parse(int argc, char **argv) {
+  public:
+    static void parse(const int argc, char **argv) {
 #ifdef NDEBUG
-        ASSERT(0);
+        assert(0);
 #endif
 #ifdef TUNING
-            if (argc != 3) {
-                cout << Tune::help << endl;
-                cout << "run " << FileUtil::getFileName(argv[0]) << " [texel|stockfish] edp_path" << endl;
-                return;
-            }
-           if (std::string(argv[1]) == "texel") new Texel(argv[2]);
-           else if (std::string(argv[1]) == "stockfish") stockfishPool::go(argv[2]);
-           else cout << Tune::help << "run " << FileUtil::getFileName(argv[0]) << " [texel|stockfish] edp_path" << endl;
-	    return;
+        if (argc != 3) {
+            cout << Tune::help << endl;
+            cout << "run " << FileUtil::getFileName(argv[0]) << " [texel|stockfish] edp_path" << endl;
+            return;
+        }
+        if (std::string(argv[1]) == "texel") new Texel(argv[2]);
+        else if (std::string(argv[1]) == "stockfish")
+            stockfishPool::go(argv[2]);
+        else
+            cout << Tune::help << "run " << FileUtil::getFileName(argv[0]) << " [texel|stockfish] edp_path" << endl;
+        return;
 #endif
-        if (!(argc > 1 && !strcmp("-puzzle_epd", argv[1])))
-            printHeader(FileUtil::getFileName(argv[0]));
+        if (!(argc > 1 && !strcmp("-puzzle_epd", argv[1]))) printHeader(FileUtil::getFileName(argv[0]));
         if (argc == 2 && !strcmp(argv[1], "--help")) {
             help(argv);
             return;
@@ -242,12 +233,12 @@ public:
                 help(argv);
                 return;
             }
-            if (opt == 'p') {  // perft test
+            if (opt == 'p') { // perft test
                 if (string(optarg) == "erft") {
                     perft(argc, argv);
                 } else if (string(optarg) == "uzzle_epd") {
                     while ((opt = getopt1(argc, argv, "t:")) != -1) {
-                        if (opt == 't') {    //file
+                        if (opt == 't') { // file
                             Search a;
                             if (!a.generatePuzzle(optarg)) {
                                 cout << "error use: " << PUZZLE_HELP << endl;
@@ -259,34 +250,36 @@ public:
                 return;
             }
 #ifndef JS_MODE
-            else {
-                if (opt == 'e') {
-                    help(argv);
-                    return;
-                } else if (opt == 'd') {
-                    if (string(optarg) == "tm-gtb") {
-                        dtmWdlGtb(argc, argv, true);
-                        return;
-                    } else if (string(optarg) == "tz-syzygy") {
-                        dtmSyzygy(argc, argv);
-                        return;
-                    }
-                    return;
-                } else if (opt == 'w') {
-                    if (string(optarg) == "dl-gtb") {
-                        dtmWdlGtb(argc, argv, false);
-                        return;
-                    } else if (string(optarg) == "dl-syzygy") {
-                        wdlSyzygy(argc, argv);
-                        return;
-                    }
+
+            if (opt == 'e') {
+                help(argv);
+                return;
+            }
+            if (opt == 'd') {
+                if (string(optarg) == "tm-gtb") {
+                    dtmWdlGtb(argc, argv, true);
                     return;
                 }
-
+                if (string(optarg) == "tz-syzygy") {
+                    dtmSyzygy(argc, argv);
+                    return;
+                }
+                return;
             }
+            if (opt == 'w') {
+                if (string(optarg) == "dl-gtb") {
+                    dtmWdlGtb(argc, argv, false);
+                    return;
+                }
+                if (string(optarg) == "dl-syzygy") {
+                    wdlSyzygy(argc, argv);
+                    return;
+                }
+                return;
+            }
+
 #endif
         }
         Uci::getInstance();
     }
-
 };

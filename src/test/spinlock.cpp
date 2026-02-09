@@ -18,19 +18,17 @@
 
 #if defined(FULL_TEST)
 
+#include "../threadPool/Spinlock.h"
+#include "../util/Random.h"
 #include <gtest/gtest.h>
 #include <thread>
-#include "../util/Random.h"
-#include "../threadPool/Spinlock.h"
 
 using namespace std;
 
 tuple<u64, u64, u64, u64> target{0, 0, 0, 0};
 
 void writeNOatomic() {
-
     for (int i = 0; i < 100; i++) {
-
         u64 r = Random::getRandom64();
 
         usleep(Random::getRandom(1000, 200000));
@@ -41,12 +39,10 @@ void writeNOatomic() {
         get<2>(target) = r;
         usleep(Random::getRandom(1000, 200000));
         get<3>(target) = r;
-
     }
 }
 
 void writeAtomic(Spinlock *spinlock) {
-
     for (int i = 0; i < 100; i++) {
         spinlock->lock();
 
@@ -66,7 +62,6 @@ void writeAtomic(Spinlock *spinlock) {
 }
 
 void readOK(Spinlock *spinlock) {
-
     for (int i = 0; i < 100; i++) {
         spinlock->lock();
 
@@ -81,10 +76,9 @@ void readOK(Spinlock *spinlock) {
 }
 
 TEST(spinlockTest_test1_Test, testOK) {
-
     Spinlock *spinlock = new Spinlock();
 
-    vector<thread > threads;
+    vector<thread> threads;
 
     int N = 2;
     for (int i = 0; i < N; i++) {
@@ -98,9 +92,8 @@ TEST(spinlockTest_test1_Test, testOK) {
         }));
     }
 
-
-    for (vector<thread>::iterator it = threads.begin() ; it != threads.end(); ++it){
-            (*it).join();
+    for (vector<thread>::iterator it = threads.begin(); it != threads.end(); ++it) {
+        (*it).join();
     }
 
     EXPECT_TRUE(get<0>(target) == get<1>(target));
@@ -109,7 +102,6 @@ TEST(spinlockTest_test1_Test, testOK) {
 
     delete spinlock;
 }
-
 
 TEST(spinlockTest_test1_Test, testKO) {
     vector<thread> threads;
@@ -120,12 +112,11 @@ TEST(spinlockTest_test1_Test, testKO) {
             return 1;
         }));
     }
-    for (vector<thread>::iterator it = threads.begin() ; it != threads.end(); ++it){
+    for (vector<thread>::iterator it = threads.begin(); it != threads.end(); ++it) {
         (*it).join();
     }
 
-    EXPECT_TRUE(get<0>(target) != get<1>(target) ||  get<0>(target) == get<2>(target)||  get<0>(target) == get<3>(target));
+    EXPECT_TRUE(get<0>(target) != get<1>(target) || get<0>(target) == get<2>(target) || get<0>(target) == get<3>(target));
 }
 
 #endif
-

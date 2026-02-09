@@ -18,9 +18,9 @@
 
 #if defined(FULL_TEST)
 
+#include "../SearchManager.h"
 #include <gtest/gtest.h>
 #include <set>
-#include "../SearchManager.h"
 
 TEST(syzygy, DTM) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
@@ -33,16 +33,15 @@ TEST(syzygy, WDL1) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     SYZYGY::getInstance().createSYZYGY("/syzygy");
     searchManager.loadFen("2QN4/8/8/8/8/8/8/1k2K3 w - - 0 1");
-    EXPECT_EQ(4, searchManager.SZtbProbeWDL()); //TB_WIN
+    EXPECT_EQ(4, searchManager.SZtbProbeWDL()); // TB_WIN
 }
-
 
 TEST(syzygy, WDL2) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
     SYZYGY::getInstance().createSYZYGY("/syzygy");
     searchManager.loadFen("2QN4/8/8/8/8/8/8/1k2K3 b - - 0 1");
     auto d = searchManager.SZtbProbeWDL();
-    EXPECT_EQ(0, d); //TB_LOSS
+    EXPECT_EQ(0, d); // TB_LOSS
 }
 
 TEST(syzygy, WDL3) {
@@ -50,8 +49,7 @@ TEST(syzygy, WDL3) {
     SYZYGY::getInstance().createSYZYGY("/syzygy");
     searchManager.loadFen("8/8/8/8/8/8/8/1k2K3 w - - 0 1");
     auto d = searchManager.SZtbProbeWDL();
-    EXPECT_EQ(2, d); //TB_DRAW
+    EXPECT_EQ(2, d); // TB_DRAW
 }
 
 #endif
-

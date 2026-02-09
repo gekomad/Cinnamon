@@ -18,15 +18,14 @@
 
 #pragma once
 // Auriga, JS etc.
-#include <string>
-#include <iostream>
 #include "perft/PerftThread.h"
+#include <iostream>
+#include <string>
 
 using namespace std;
 
 class WrapperCinnamon {
-
-public:
+  public:
     vector<string> getSuccessorsFen(const string &, const int depth);
 
     unsigned perft(const string &fen, const int depth);

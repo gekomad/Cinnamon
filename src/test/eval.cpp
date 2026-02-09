@@ -18,8 +18,8 @@
 
 #if defined(FULL_TEST)
 
-#include <gtest/gtest.h>
 #include "../SearchManager.h"
+#include <gtest/gtest.h>
 
 TEST(eval, eval1) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();

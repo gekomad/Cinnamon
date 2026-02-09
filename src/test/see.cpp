@@ -18,10 +18,10 @@
 
 #if defined(FULL_TEST)
 
+#include "../namespaces/see.h"
+#include "../SearchManager.h"
 #include <gtest/gtest.h>
 #include <set>
-#include "../SearchManager.h"
-#include "../namespaces/see.h"
 
 TEST(isAttacked, test1) {
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
@@ -32,8 +32,7 @@ TEST(isAttacked, test1) {
     move.pieceFrom = KNIGHT_WHITE;
     move.to = A3;
     move.capturedPiece = SQUARE_EMPTY;
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const auto p = GenMoves::isAttacked(move, searchManager.getChessboard(), allpieces);
     EXPECT_TRUE(p);
 }
@@ -47,8 +46,7 @@ TEST(isAttacked, test2) {
     move.to = C6;
     move.capturedPiece = PAWN_WHITE;
     searchManager.loadFen("k7/8/1RP5/1P1P4/8/2r5/8/6K1 b - - 0 9");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const auto p = GenMoves::isAttacked(move, searchManager.getChessboard(), allpieces);
     EXPECT_TRUE(p);
 }
@@ -62,8 +60,7 @@ TEST(isAttacked, test3) {
     move.to = G5;
     move.capturedPiece = KNIGHT_WHITE;
     searchManager.loadFen("8/8/5k2/6N1/8/5N2/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const auto p = GenMoves::isAttacked(move, searchManager.getChessboard(), allpieces);
     EXPECT_TRUE(p);
 }
@@ -77,8 +74,7 @@ TEST(isAttacked, test4) {
     move.to = G5;
     move.capturedPiece = KNIGHT_WHITE;
     searchManager.loadFen("8/8/5p2/6N1/8/k4n2/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const auto p = GenMoves::isAttacked(move, searchManager.getChessboard(), allpieces);
     EXPECT_FALSE(p);
 }
@@ -92,8 +88,7 @@ TEST(isAttacked, test5) {
     move.to = G4;
     move.capturedPiece = PAWN_BLACK;
     searchManager.loadFen("rnbqkb1r/ppp1pppp/8/3p4/4P1P1/6P1/PPPP3P/RNBQKBNR w KQkq - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const auto p = GenMoves::isAttacked(move, searchManager.getChessboard(), allpieces);
     EXPECT_TRUE(p);
 }
@@ -107,8 +102,7 @@ TEST(isAttacked, test6) {
     move.to = G5;
     move.capturedPiece = KNIGHT_WHITE;
     searchManager.loadFen("8/8/5p1Q/2R3N1/7B/k4n2/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const auto p = GenMoves::isAttacked(move, searchManager.getChessboard(), allpieces);
     EXPECT_TRUE(p);
 }
@@ -122,8 +116,7 @@ TEST(isAttacked, test7) {
     move.to = G5;
     move.capturedPiece = KNIGHT_WHITE;
     searchManager.loadFen("8/8/5p1Q/2R3N1/7B/k4n2/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const auto p = GenMoves::isAttacked(move, searchManager.getChessboard(), allpieces);
     EXPECT_TRUE(p);
 }
@@ -137,8 +130,7 @@ TEST(isAttacked, test8) {
     move.to = G5;
     move.capturedPiece = KNIGHT_WHITE;
     searchManager.loadFen("8/8/5p2/6N1/5b1P/k7/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const auto p = GenMoves::isAttacked(move, searchManager.getChessboard(), allpieces);
     EXPECT_TRUE(p);
 }
@@ -152,8 +144,7 @@ TEST(isAttacked, test9) {
     move.to = E6;
     move.capturedPiece = SQUARE_EMPTY;
     searchManager.loadFen("8/3p4/8/4P3/8/k7/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const auto p = GenMoves::isAttacked(move, searchManager.getChessboard(), allpieces);
     EXPECT_TRUE(p);
 }
@@ -167,8 +158,7 @@ TEST(see, test1) {
     move.pieceFrom = KNIGHT_WHITE;
     move.to = A3;
     move.capturedPiece = SQUARE_EMPTY;
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const int p = See::see(move, searchManager.getChessboard(), allpieces);
     EXPECT_EQ(5, p);
 }
@@ -182,8 +172,7 @@ TEST(see, test2) {
     move.to = C6;
     move.capturedPiece = PAWN_WHITE;
     searchManager.loadFen("k7/8/1RP5/1P1P4/8/2r5/8/6K1 b - - 0 9");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const int p = See::see(move, searchManager.getChessboard(), allpieces);
     EXPECT_EQ(-420, p);
 }
@@ -197,8 +186,7 @@ TEST(see, test3) {
     move.to = G5;
     move.capturedPiece = KNIGHT_WHITE;
     searchManager.loadFen("8/8/5k2/6N1/8/5N2/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const int p = See::see(move, searchManager.getChessboard(), allpieces);
     EXPECT_EQ(-31670, p);
 }
@@ -212,8 +200,7 @@ TEST(see, test4) {
     move.to = G5;
     move.capturedPiece = KNIGHT_WHITE;
     searchManager.loadFen("8/8/5p2/6N1/8/k4n2/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const int p = See::see(move, searchManager.getChessboard(), allpieces);
     EXPECT_EQ(330, p);
 }
@@ -227,8 +214,7 @@ TEST(see, test5) {
     move.to = G4;
     move.capturedPiece = PAWN_BLACK;
     searchManager.loadFen("rnbqkb1r/ppp1pppp/8/3p4/4P1P1/6P1/PPPP3P/RNBQKBNR w KQkq - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const int p = See::see(move, searchManager.getChessboard(), allpieces);
     EXPECT_EQ(-235, p);
 }
@@ -242,8 +228,7 @@ TEST(see, test6) {
     move.to = G5;
     move.capturedPiece = KNIGHT_WHITE;
     searchManager.loadFen("8/8/5p1Q/2R3N1/7B/k4n2/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const int p = See::see(move, searchManager.getChessboard(), allpieces);
     EXPECT_EQ(235, p);
 }
@@ -257,8 +242,7 @@ TEST(see, test7) {
     move.to = G5;
     move.capturedPiece = KNIGHT_WHITE;
     searchManager.loadFen("8/8/5p1Q/2R3N1/7B/k4n2/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const int p = See::see(move, searchManager.getChessboard(), allpieces);
     EXPECT_EQ(235, p);
 }
@@ -272,11 +256,9 @@ TEST(see, test8) {
     move.to = G5;
     move.capturedPiece = KNIGHT_WHITE;
     searchManager.loadFen("8/8/5p2/6N1/5b1P/k7/8/K7 w - - 0 1");
-    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) |
-                          board::getBitmap<BLACK>(searchManager.getChessboard());
+    const u64 allpieces = board::getBitmap<WHITE>(searchManager.getChessboard()) | board::getBitmap<BLACK>(searchManager.getChessboard());
     const int p = See::see(move, searchManager.getChessboard(), allpieces);
     EXPECT_EQ(330, p);
 }
-
 
 #endif

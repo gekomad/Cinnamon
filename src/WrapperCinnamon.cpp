@@ -33,4 +33,3 @@ bool WrapperCinnamon::isValid(const string &fen) const {
     ChessBoard a;
     return a.loadFen(fen) != -1;
 }
-

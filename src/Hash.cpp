@@ -20,9 +20,9 @@
 
 unsigned Hash::HASH_SIZE;
 Hash::_Thash *Hash::hashArray;
-#ifdef DEBUG_MODE
-unsigned Hash::nRecordHashA, Hash::nRecordHashB, Hash::nRecordHashE, Hash::collisions, Hash::readCollisions,
-        Hash::n_cut_hashA, Hash::n_cut_hashB, Hash::n_cut_hashE, Hash::readHashCount;
+#ifndef NDEBUG
+unsigned Hash::nRecordHashA, Hash::nRecordHashB, Hash::nRecordHashE, Hash::collisions, Hash::readCollisions, Hash::n_cut_hashA, Hash::n_cut_hashB,
+    Hash::n_cut_hashE, Hash::readHashCount;
 #endif
 
 Hash::Hash() {
@@ -39,17 +39,15 @@ void Hash::clearHash() {
 
 void Hash::setHashSize(const int mb) {
     if (mb > 0) {
-    	dispose();
+        dispose();
         const u64 tmp = static_cast<u64>(mb) * 1024 * 1024 / (sizeof(_Thash)) + BUCKETS;
-        hashArray = static_cast<_Thash*>(calloc(tmp, sizeof(_Thash)));
+        hashArray = static_cast<_Thash *>(calloc(tmp, sizeof(_Thash)));
         if (!hashArray) {
-            fatal("info string error - no memory")
-            exit(1);
+            fatal("info string error - no memory") exit(1);
         }
         HASH_SIZE = tmp - BUCKETS;
         if (HASH_SIZE % 2) {
-            fatal("info string HASH_SIZE must be power of 2")
-            exit(1);
+            fatal("info string HASH_SIZE must be power of 2") exit(1);
         }
     }
 }
@@ -62,5 +60,3 @@ void Hash::dispose() {
     hashArray = nullptr;
     HASH_SIZE = 0;
 }
-
-

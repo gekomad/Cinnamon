@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.17)
-project(cinnamon_debug)
+project(cinnamon)
 
 # debug
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftrapv -fwrapv -fsanitize=address -mbmi2 -DUSE_BMI2 -g -DDEBUG_MODE -pthread -Wall -Wpedantic -W -std=c++11 -DDLOG_LEVEL=_TRACE -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftrapv -fwrapv -D_GLIBCXX_DEBUG -fsanitize=undefined -fsanitize=address -mbmi2 -DUSE_BMI2 -g -pthread -Wall -Wextra -Wshadow -Wpedantic -W -std=c++11 -DDLOG_LEVEL=_TRACE -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
 
 # release
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mbmi2 -DUSE_BMI2 -pthread -Wpedantic -W -std=c++11 -DDLOG_LEVEL=_FATAL -Wall -O3 -DNDEBUG -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
@@ -13,11 +13,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftrapv -fwrapv -fsanitize=address -mbmi
 # google test
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -O3 -pthread -Wall -Wpedantic -W -std=c++14 -DDLOG_LEVEL=_TRACE -DFULL_TEST -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
 
-# tuning texel/stockfish
+# tuning texel/SPSA
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mbmi2 -DUSE_BMI2 -O3 -pthread -Wall -Wpedantic -W -std=c++11 -DTUNING -DNDEBUG -DDLOG_LEVEL=_FATAL -funroll-loops -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -m64 ")
 
 # valgrind
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -pthread -std=c++11 -DDLOG_LEVEL=_FATAL -msse4.2 -DHAS_POPCNT -mpopcnt -msse3 -DHAS_BSF -fno-inline -fno-omit-frame-pointer ")
+
 include_directories(db/gtb)
 include_directories(db/gtb/compression)
 include_directories(db/gtb/compression/lzma)
@@ -60,9 +61,9 @@ set(SOURCE_FILES
         util/tuning/Tune.cpp
         util/tuning/Stockfish.cpp
 )
-  
+
 
 set(CMAKE_CXX_COMPILER "clang++")
-add_executable(cinnamon_debug ${SOURCE_FILES})
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
-#target_link_libraries(cinnamon_debug /usr/local/lib/libgtest.a)
+add_executable(cinnamon ${SOURCE_FILES})
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
+#target_link_libraries(cinnamon /usr/local/lib/libgtest.a)

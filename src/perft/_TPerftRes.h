@@ -28,7 +28,6 @@ typedef struct {
     u64 nMoves;
 } _ThashPerft;
 
-
 typedef struct {
     atomic_ullong totMoves;
     u64 sizeAtDepth[255];
@@ -36,4 +35,3 @@ typedef struct {
     int nCpu;
     bool chess960;
 } _TPerftRes;
-

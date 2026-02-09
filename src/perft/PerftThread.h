@@ -18,45 +18,36 @@
 
 #pragma once
 
-#include "_TPerftRes.h"
 #include "../Search.h"
 #include "../threadPool/Thread.h"
-#include <iomanip>
-#include <atomic>
-#include <fstream>
-#include "../unistd.h"
 #include "../util/Timer.h"
+#include "_TPerftRes.h"
+#include <iomanip>
 
-class PerftThread: public Thread<PerftThread>, public GenMoves {
-public:
-
-    void setParam(const string &fen, const int from, const int to, _TPerftRes *, const bool is960);
+class PerftThread : public Thread<PerftThread>, public GenMoves {
+  public:
+    void setParam(const string &fen, int from, int to, _TPerftRes *, bool is960);
 
     PerftThread();
 
-    virtual ~PerftThread();
+    ~PerftThread() override;
 
     void run();
 
     void endRun();
 
-    unsigned perft(const string &fen, const int depth);
+    unsigned perft(const string &fen, int depth);
 
-    vector <string> getSuccessorsFen(const string &fen1, const int depth);
+    vector<string> getSuccessorsFen(const string &fen1, int depth);
 
-private:
-
+  private:
     static Spinlock spinlockPrint;
     u64 tot = 0;
 
-    template<uchar side, bool useHash>
-    u64 search(const int depthx);
+    template <uchar side, bool useHash> u64 search(int depthx);
 
     int from, to;
     _TPerftRes *tPerftRes;
 
-    template<uchar side>
-    vector <string> getSuccessorsFen(const int depthx);
+    template <uchar side> vector<string> getSuccessorsFen(int depthx);
 };
-
-

@@ -36,19 +36,16 @@ unsigned SearchManager::SZtbProbeWDL() const {
 #endif
 
 int SearchManager::search(const int plyFromRoot, const int iter_depth) {
-
-    constexpr int SkipStep[64] =
-            {0, 1, 2, 3, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2,
-             1,
-             1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3};
+    constexpr int SkipStep[64] = {0, 1, 2, 3, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3,
+                                  0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3, 0, 1, 1, 2, 1, 1, 2, 3};
 
     lineWin.cmove = -1;
     setMainPly(plyFromRoot, iter_depth);
-    ASSERT(bitCount(threadPool->getBitCount()) < 2);
+    assert(bitCount(threadPool->getBitCount()) < 2);
 
     for (int ii = 1; ii < threadPool->getNthread(); ii++) {
         Search &helperThread = threadPool->getNextThread();
-        if (helperThread.getId() == 0)continue;
+        if (helperThread.getId() == 0) continue;
 
         helperThread.setRunning(1);
         startThread(helperThread, iter_depth + SkipStep[ii]);
@@ -74,7 +71,7 @@ bool SearchManager::getRes(_Tmove &resultMove, string &ponderMove, string &pvv) 
     }
     pvv.clear();
     string pvvTmp;
-    ASSERT(lineWin.cmove);
+    assert(lineWin.cmove);
     for (int t = 0; t < lineWin.cmove; t++) {
         pvvTmp.clear();
         pvvTmp += decodeBoardinv(&lineWin.argmove[t]);
@@ -102,22 +99,21 @@ int SearchManager::loadFen(const string &fen) {
 int SearchManager::loadFen(const string &fen) {
     int res = -1;
     clearHeuristic();
-    for (uchar i = 0; i < threadPool->getPool().size(); i++) {
-        res = threadPool->getThread(i).loadFen(fen);
-        ASSERT_RANGE(res, 0, 1)
+    for (const auto s : *threadPool) {
+        res = s->loadFen(fen);
+        ASSERT_RANGE(res, 0, 1);
     }
     return res;
 }
 #endif
 void SearchManager::startThread(Search &thread, const int depth) {
-    debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId()))
-    thread.setMainParam(depth);
+    debug("startThread: ", thread.getId(), " depth: ", depth, " isrunning: ", getRunning(thread.getId())) thread.setMainParam(depth);
     thread.start();
 }
 
-void SearchManager::setMainPly(const int ply, const int iter_depth) {
-    for (Search *s:threadPool->getPool()) {
-        s->setMainPly(ply, iter_depth);
+void SearchManager::setMainPly(const int ply, const int iterDepth) {
+    for (const auto s : *threadPool) {
+        s->setMainPly(ply, iterDepth);
     }
 }
 
@@ -128,18 +124,18 @@ int SearchManager::getPieceAt(const uchar side, const u64 i) {
 
 u64 SearchManager::getTotMoves() {
     u64 i = 0;
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         i += s->getTotMoves();
     }
     return i;
 }
 
 void SearchManager::startClock() {
-    threadPool->getThread(0).startClock();// static variable
+    threadPool->getThread(0).startClock(); // static variable
 }
 
 void SearchManager::clearHeuristic() {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->clearHeuristic();
     }
 }
@@ -153,7 +149,7 @@ u64 SearchManager::getZobristKey(const int id) {
 }
 
 void SearchManager::setForceCheck(const bool a) {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->setForceCheck(a);
     }
 }
@@ -163,7 +159,7 @@ void SearchManager::setRunningThread(const bool r) {
 }
 
 void SearchManager::setRunning(const int i) {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->setRunning(i);
     }
 }
@@ -177,13 +173,13 @@ void SearchManager::display() {
 }
 
 void SearchManager::setMaxTimeMillsec(const int i) {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->setMaxTimeMillsec(i);
     }
 }
 
 void SearchManager::unsetSearchMoves() {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->unsetSearchMoves();
     }
 }
@@ -193,25 +189,25 @@ void SearchManager::setSearchMoves(const vector<string> &searchMov) {
     vector<int> searchMoves;
     for (auto it = searchMov.begin(); it != searchMov.end(); ++it) {
         getMoveFromSan(*it, &move);
-        const int x = move.to | (int) (move.from << 8);
+        const int x = move.to | move.from << 8;
         searchMoves.push_back(x);
     }
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->setSearchMoves(searchMoves);
     }
 }
 
 void SearchManager::setPonder(const bool i) {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->setPonder(i);
     }
 }
 
 int SearchManager::getSide() {
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
     int t = threadPool->getThread(0).sideToMove;
-    for (Search *s:threadPool->getPool()) {
-        ASSERT(s->sideToMove == t);
+    for (const auto s : *threadPool) {
+        assert(s->sideToMove == t);
     }
 #endif
     return threadPool->getThread(0).sideToMove;
@@ -226,23 +222,23 @@ int SearchManager::getMaxTimeMillsec() {
 }
 
 void SearchManager::setNullMove(const bool i) {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->setNullMove(i);
     }
 }
 
 void SearchManager::setChess960(const bool i) {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->setChess960(i);
     }
 }
 
 void SearchManager::updateFenString() {
-      threadPool->getThread(0).updateFenString();
+    threadPool->getThread(0).updateFenString();
 }
 bool SearchManager::makemove(const _Tmove *i) {
     bool b = false;
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         b = s->makemove(i, true);
     }
     return b;
@@ -253,13 +249,13 @@ string SearchManager::decodeBoardinv(const _Tmove *move) {
 }
 
 void SearchManager::takeback(const _Tmove *move, const u64 oldkey, const uchar oldEnpassant, const bool rep) {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->takeback(move, oldkey, oldEnpassant, rep);
     }
 }
 
 void SearchManager::setSide(const bool i) {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->setSide(i);
     }
 }
@@ -281,29 +277,29 @@ void SearchManager::printWdlSyzygy() {
 #endif
 
 int SearchManager::getMoveFromSan(const string &string, _Tmove *ptr) {
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
     int t = threadPool->getThread(0).getMoveFromSan(string, ptr);
-    for (Search *s:threadPool->getPool()) {
-        ASSERT(s->getMoveFromSan(string, ptr) == t);
+    for (const auto s : *threadPool) {
+        assert(s->getMoveFromSan(string, ptr) == t);
     }
 #endif
     return threadPool->getThread(0).getMoveFromSan(string, ptr);
 }
 
 void SearchManager::pushStackMove() {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->pushStackMove();
     }
 }
 
 void SearchManager::init() {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->init();
     }
 }
 
 void SearchManager::setRepetitionMapCount(const int i) {
-    for (Search *s:threadPool->getPool()) {
+    for (const auto s : *threadPool) {
         s->setRepetitionMapCount(i);
     }
 }
@@ -315,6 +311,3 @@ bool SearchManager::setNthread(const int nthread) {
 void SearchManager::stopAllThread() {
     Search::setRunningThread(false);
 }
-
-
-

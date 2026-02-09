@@ -18,9 +18,9 @@
 
 #if defined(FULL_TEST)
 
-#include <gtest/gtest.h>
 #include "../IterativeDeeping.h"
 #include "../def.h"
+#include <gtest/gtest.h>
 
 TEST(search, test0) {
     const set<string> v = {"e3g5", "f6g5"};
@@ -92,6 +92,5 @@ TEST(search, enpassant) {
     it.join();
     EXPECT_EQ("d4e3", it.getBestmove());
 }
-
 
 #endif

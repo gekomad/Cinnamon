@@ -18,22 +18,19 @@
 
 #pragma once
 
-#include <thread>
-#include <mutex>
-#include "ObserverThread.h"
 #include "../namespaces/bits.h"
+#include "ObserverThread.h"
 #include <condition_variable>
+#include <mutex>
+#include <thread>
 
 using namespace std;
 
-//curiously recurring template pattern (CRTP)
+// curiously recurring template pattern (CRTP)
 
-template<typename T>
-class Thread {
-
-private:
+template <typename T> class Thread {
     bool running = true;
-    int threadID;
+    int threadID = 0;
     ObserverThread *observer = nullptr;
     condition_variable cv;
     thread theThread;
@@ -46,8 +43,8 @@ private:
         }
     }
 
-public:
-    template<typename O, typename = typename std::enable_if<std::is_base_of<ObserverThread, O>::value, O>::type>
+  public:
+    template <typename O, typename = typename std::enable_if<std::is_base_of<ObserverThread, O>::value, O>::type>
     void registerObserverThread(ObserverThread *obs) {
         observer = static_cast<O *>(obs);
     }
@@ -69,7 +66,7 @@ public:
     }
 
     void start() {
-        ASSERT(!isJoinable());
+        assert(!isJoinable());
         theThread = thread(&Thread::_run, this);
     }
 
@@ -87,20 +84,19 @@ public:
         return threadID;
     }
 
-    void setId(int id) {
+    void setId(const int id) {
         threadID = id;
     }
 
-    void threadSleep(bool b) {
+    void threadSleep(const bool b) {
         running = !b;
     }
 
-    bool isJoinable() {
+    bool isJoinable() const {
         return theThread.joinable();
     }
 
-    void setSleep(bool b) {
+    void setSleep(const bool b) {
         running = !b;
     }
-
 };

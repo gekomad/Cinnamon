@@ -18,24 +18,20 @@
 
 #pragma once
 
-#include "unistd.h"
-#include "Hash.h"
 #include "Eval.h"
-#include "namespaces/bits.h"
-#include "namespaces/board.h"
-#include <climits>
-#include "threadPool/Thread.h"
+#include "Hash.h"
 #include "db/TB.h"
- 
+#include "threadPool/Thread.h"
+#include "unistd.h"
+#include <climits>
+
 typedef struct {
     int cmove;
     _Tmove argmove[MAX_PLY];
 } _TpvLine;
 
 class Search : public GenMoves, public Thread<Search> {
-
-public:
-
+  public:
     static constexpr int NULL_DIVISOR = 7;
     static constexpr int NULL_DEPTH = 3;
     static constexpr int VAL_WINDOW = 40;
@@ -51,28 +47,29 @@ public:
         return eval.getScore(chessboard, 0, side, -_INFINITE, _INFINITE DEBUG2(, true));
     }
 
-    Search(const Search *s) { clone(s); }
+    explicit Search(const Search *s) {
+        clone(s);
+    }
 
     void clone(const Search *);
 
-    virtual ~Search();
+    ~Search() override;
 
-    void setRunning(const int);
+    void setRunning(int) override;
 
-    void setPonder(const bool);
+    void setPonder(bool);
 
-    void setNullMove(const bool);
+    void setNullMove(bool);
 
-    void setMaxTimeMillsec(const int);
+    void setMaxTimeMillsec(int);
 
 #ifdef TUNING
 
     int qSearch(const int depth, const int alpha, const int beta) {
-        ASSERT_RANGE(depth, 0, MAX_PLY)
+        ASSERT_RANGE(depth, 0, MAX_PLY);
         auto ep = enPassant;
 
-        const auto result= sideToMove ? qsearch<WHITE>(alpha, beta, ep, depth)
-                                      : qsearch<BLACK>(alpha, beta, ep, depth);
+        const auto result = sideToMove ? qsearch<WHITE>(alpha, beta, ep, depth) : qsearch<BLACK>(alpha, beta, ep, depth);
         return sideToMove ? result : -result;
     }
 
@@ -80,19 +77,20 @@ public:
 
     int getMaxTimeMillsec() const;
 
-    void startClock();
+    static void startClock();
 
-    int getRunning() const;
+    int getRunning() const override;
 
     const _TpvLine &getPvLine() const {
         return pvLine;
     }
 
-    void setMainParam(const int depth);
+    void setMainParam(int depth);
     void run();
-    void endRun() {}
-    void setMainPly(const int, const int);
-   
+    void endRun() {
+    }
+    void setMainPly(int, int);
+
     static void setRunningThread(const bool t) {
         runningThread = t;
     }
@@ -105,11 +103,11 @@ public:
         return enPassant;
     }
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
     static unsigned cumulativeMovesCount;
     unsigned totGen;
 
-    unsigned getLazyEvalCuts() {
+    unsigned getLazyEvalCuts() const {
         return eval.lazyEvalCuts;
     }
 
@@ -117,8 +115,7 @@ public:
     void unsetSearchMoves();
     void setSearchMoves(const vector<int> &v);
 
-private:
-
+  private:
     Hash &hash = Hash::getInstance();
 
     vector<int> searchMovesVector;
@@ -132,8 +129,7 @@ private:
     Times *times = &Times::getInstance();
 #endif
 
-    template<uchar side,bool searchMoves>
-    void aspirationWindow(const int depth, const int valWindow);
+    template <uchar side, bool searchMoves> void aspirationWindow(const int depth, const int valWindow);
 
     int checkTime() const;
 
@@ -143,20 +139,16 @@ private:
 
     bool checkDraw(u64) const;
 
-    template<uchar side, bool checkMoves>
-    int search(const int depth, int alpha, int beta, _TpvLine *pline, const int N_PIECE);
+    template <uchar side, bool checkMoves> int search(const int depth, int alpha, int beta, _TpvLine *pline, const int N_PIECE);
 
-    template<bool checkMoves>
-    bool checkSearchMoves(const _Tmove *move) const;
+    template <bool checkMoves> bool checkSearchMoves(const _Tmove *move) const;
 
-    template<uchar side>
-    int qsearch(int alpha, const int beta, const uchar promotionPiece, const int depth);
+    template <uchar side> int qsearch(int alpha, const int beta, const uchar promotionPiece, const int depth);
 
     static void updatePv(_TpvLine *pline, const _TpvLine *line, const _Tmove *move);
 
     int mainDepth;
     int ply;
 
-    template<uchar side>
-    bool badCapure(const _Tmove &move, const u64 allpieces) const;
+    template <uchar side> bool badCapure(const _Tmove &move, const u64 allpieces) const;
 };

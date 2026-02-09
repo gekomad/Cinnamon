@@ -18,8 +18,8 @@
 
 #if defined(FULL_TEST)
 
-#include <gtest/gtest.h>
 #include "../IterativeDeeping.h"
+#include <gtest/gtest.h>
 
 TEST(pin, pin1) {
     IterativeDeeping it;
@@ -75,7 +75,6 @@ TEST(pin, pin1) {
     kingPosition = BITScanForward(searchManager.getChessboard()[KING_WHITE]);
     p = searchManager.getPinned<WHITE>(enemies | friends, friends, kingPosition);
     EXPECT_EQ(0xc00ULL, p);
-
 }
 
 #endif

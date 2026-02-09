@@ -18,17 +18,13 @@
 
 #pragma once
 
-#include <iostream>
-#include <string.h>
-#include <sstream>
 #include "namespaces/String.h"
 #include "namespaces/bits.h"
-#include <unordered_map>
-#include "namespaces/random.h"
 #include "namespaces/board.h"
-#include <climits>
+#include "namespaces/random.h"
 #include "util/logger.h"
-#include "util/Bitboard.h"
+#include <iostream>
+#include <sstream>
 
 #ifdef BENCH_MODE
 
@@ -41,14 +37,14 @@ using namespace constants;
 using namespace _def;
 
 class ChessBoard {
-public:
+  public:
     ChessBoard();
 
-    string decodeBoardinv(const _Tmove *move, const bool verbose = false) const;
+    string decodeBoardinv(const _Tmove *move, bool verbose = false) const;
 
     virtual ~ChessBoard();
 
-    const string getFen() const;
+    string getFen() const;
 
     int loadFen(const string &);
 
@@ -59,7 +55,9 @@ public:
         sideToMove = b;
     }
 
-    void setChess960(bool c) { chess960 = c; }
+    void setChess960(const bool c) {
+        chess960 = c;
+    }
 
     bool isChess960() const {
         return chess960;
@@ -77,9 +75,8 @@ public:
     void print(const _Tmove *move) const;
 
     _Tchessboard chessboard;
-protected:
 
-
+  protected:
     uchar startPosWhiteKing;
     uchar startPosWhiteRookKingSide;
     uchar startPosWhiteRookQueenSide;
@@ -87,7 +84,6 @@ protected:
     uchar startPosBlackKing;
     uchar startPosBlackRookKingSide;
     uchar startPosBlackRookQueenSide;
-
 
     string MATCH_QUEENSIDE;
     string MATCH_QUEENSIDE_WHITE;
@@ -101,12 +97,12 @@ protected:
     void makeZobristKey();
 
     __attribute__((always_inline)) void updateZobristKey(const int piece, const int position) {
-        ASSERT_RANGE(position, 0, 63)
-        ASSERT_RANGE(piece, 0, 15)
+        ASSERT_RANGE(position, 0, 63);
+        ASSERT_RANGE(piece, 0, 15);
         chessboard[ZOBRISTKEY_IDX] ^= _random::RANDOM_KEY[piece][position];
     }
 
-private:
+  private:
     string fenString;
     char whiteRookKingSideCastle;
     char whiteRookQueenSideCastle;

@@ -22,7 +22,8 @@ Timer::Timer(const int seconds1) {
     seconds = seconds1;
 }
 
-void Timer::endRun() { }
+void Timer::endRun() {
+}
 
 void Timer::run() {
     unique_lock<mutex> lck(mtx);
@@ -34,12 +35,12 @@ void Timer::run() {
     }
 }
 
-void Timer::registerObservers(const function<void(void)>& f) {
+void Timer::registerObservers(const function<void(void)> &f) {
     observers.push_back(f);
 }
 
-void Timer::notifyObservers() {
-    for (auto & observer : observers) {
+void Timer::notifyObservers() const {
+    for (auto &observer : observers) {
         observer();
     }
 }

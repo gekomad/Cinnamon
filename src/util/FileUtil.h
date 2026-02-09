@@ -18,15 +18,14 @@
 
 #pragma once
 
-#include <fstream>
 #include "../namespaces/String.h"
-#include <sys/types.h>
+#include <fstream>
 #include <sys/stat.h>
 
 using namespace std;
 
 class FileUtil {
-public:
+  public:
     static bool fileExists(const string &filename) {
         struct stat info;
         return stat(filename.c_str(), &info) == 0;
@@ -39,11 +38,11 @@ public:
 
     static string getFileName(const string &path) {
         string pp = path;
-        auto p = String::replace(pp, '\\', '/');
+        const auto p = String::replace(pp, '\\', '/');
         istringstream iss(p);
         string token;
-        while (getline(iss, token, '/'));
+        while (getline(iss, token, '/'))
+            ;
         return token;
     }
 };
-

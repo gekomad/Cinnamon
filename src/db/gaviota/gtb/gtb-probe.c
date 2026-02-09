@@ -26,16 +26,15 @@ Copyright (c) 2010 Miguel A. Ballicora
  OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
 /* NBBOTF will remove the internal bitbase on the fly */
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
 #ifdef NBBOTF
-                                                                                                                        #ifdef WDL_PROBE
-		#undef WDL_PROBE
-	#endif
+#ifdef WDL_PROBE
+#undef WDL_PROBE
+#endif
 #else
 #define WDL_PROBE
 #endif
@@ -47,8 +46,8 @@ Copyright (c) 2010 Miguel A. Ballicora
 #endif
 
 /*---------------------------------------------------------------------------------------------------------*/
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "gtb-probe.h"
@@ -61,9 +60,9 @@ typedef unsigned char SQ_CONTENT;
 typedef unsigned int SQUARE;
 #endif
 
-#include  "sysport/sysport.h"
 #include "gtb-att.h"
 #include "gtb-types.h"
+#include "sysport/sysport.h"
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*#include "posit_t.h"*/
@@ -119,13 +118,7 @@ typedef size_t 				index_t;
 /*typedef int 				index_t;*/
 #endif
 
-enum Loading_status {
-    STATUS_ABSENT = 0,
-    STATUS_STATICRAM = 1,
-    STATUS_MALLOC = 2,
-    STATUS_FILE = 3,
-    STATUS_REJECT = 4
-};
+enum Loading_status { STATUS_ABSENT = 0, STATUS_STATICRAM = 1, STATUS_MALLOC = 2, STATUS_FILE = 3, STATUS_REJECT = 4 };
 
 struct endgamekey {
     int id;
@@ -150,16 +143,12 @@ struct endgamekey {
 
 /* array for better moves */
 #ifdef GTB_SHARE
-mySHARED int		bettarr [2] [8] [8];
+mySHARED int bettarr[2][8][8];
 #endif
 
 /*------------ ENUMS ----------------------------------------------------------*/
 
-enum Mask_values {
-    RESMASK = tb_RESMASK,
-    INFOMASK = tb_INFOMASK,
-    PLYSHIFT = tb_PLYSHIFT
-};
+enum Mask_values { RESMASK = tb_RESMASK, INFOMASK = tb_INFOMASK, PLYSHIFT = tb_PLYSHIFT };
 
 enum Info_values {
     iDRAW = tb_DRAW,
@@ -177,21 +166,21 @@ enum Info_values {
 
 /*-------------------------- inherited from a previous maindef.h -----------*/
 
-#define WHITES (1u<<6)
-#define BLACKS (1u<<7)
+#define WHITES (1u << 6)
+#define BLACKS (1u << 7)
 
 #define NOPIECE 0u
-#define PAWN    1u
-#define KNIGHT  2u
-#define BISHOP  3u
-#define ROOK    4u
-#define QUEEN   5u
-#define KING    6u
+#define PAWN 1u
+#define KNIGHT 2u
+#define BISHOP 3u
+#define ROOK 4u
+#define QUEEN 5u
+#define KING 6u
 
 #define WH 0
 #define BL 1
-#define Opp(x) ((x)^1)
-#define wK (KING   | WHITES)
+#define Opp(x) ((x) ^ 1)
+#define wK (KING | WHITES)
 
 /*-------------------
        SQUARES
@@ -201,14 +190,70 @@ enum Info_values {
 
 /*squares*/
 enum SQUARES {
-    A1, B1, C1, D1, E1, F1, G1, H1,
-    A2, B2, C2, D2, E2, F2, G2, H2,
-    A3, B3, C3, D3, E3, F3, G3, H3,
-    A4, B4, C4, D4, E4, F4, G4, H4,
-    A5, B5, C5, D5, E5, F5, G5, H5,
-    A6, B6, C6, D6, E6, F6, G6, H6,
-    A7, B7, C7, D7, E7, F7, G7, H7,
-    A8, B8, C8, D8, E8, F8, G8, H8,
+    A1,
+    B1,
+    C1,
+    D1,
+    E1,
+    F1,
+    G1,
+    H1,
+    A2,
+    B2,
+    C2,
+    D2,
+    E2,
+    F2,
+    G2,
+    H2,
+    A3,
+    B3,
+    C3,
+    D3,
+    E3,
+    F3,
+    G3,
+    H3,
+    A4,
+    B4,
+    C4,
+    D4,
+    E4,
+    F4,
+    G4,
+    H4,
+    A5,
+    B5,
+    C5,
+    D5,
+    E5,
+    F5,
+    G5,
+    H5,
+    A6,
+    B6,
+    C6,
+    D6,
+    E6,
+    F6,
+    G6,
+    H6,
+    A7,
+    B7,
+    C7,
+    D7,
+    E7,
+    F7,
+    G7,
+    H7,
+    A8,
+    B8,
+    C8,
+    D8,
+    E8,
+    F8,
+    G8,
+    H8,
     NOSQUARE,
     ERRSQUARE = 128
 };
@@ -226,8 +271,8 @@ enum SQUARES {
 
 /*------------------- general DEFINES--------------------------- -----------*/
 
-#define gtbNOSIDE    ((unsigned)-1)
-#define gtbNOINDEX    ((index_t)-1)
+#define gtbNOSIDE ((unsigned)-1)
+#define gtbNOINDEX ((index_t) - 1)
 
 /*************************************************\
 |
@@ -237,10 +282,8 @@ enum SQUARES {
 
 #include "gtb-dec.h"
 
-static const char *const Extension[] = {
-        ".gtb.cp0", ".gtb.cp1", ".gtb.cp2", ".gtb.cp3", ".gtb.cp4", ".gtb.cp5", ".gtb.cp6", ".gtb.cp7", ".gtb.cp8",
-        ".gtb.cp9"
-};
+static const char *const Extension[] = {".gtb.cp0", ".gtb.cp1", ".gtb.cp2", ".gtb.cp3", ".gtb.cp4",
+                                        ".gtb.cp5", ".gtb.cp6", ".gtb.cp7", ".gtb.cp8", ".gtb.cp9"};
 
 /*************************************************\
 |
@@ -248,39 +291,26 @@ static const char *const Extension[] = {
 |
 \*************************************************/
 
-enum move_kind {
-    NORMAL_MOVE = 0,
-    CASTLE_MOVE,
-    PASSNT_MOVE,
-    PROMOT_MOVE
-};
+enum move_kind { NORMAL_MOVE = 0, CASTLE_MOVE, PASSNT_MOVE, PROMOT_MOVE };
 
-enum move_content {
-    NOMOVE = 0
-};
+enum move_content { NOMOVE = 0 };
 
-#define MV_TYPE(mv)   ( (BYTE)       ((mv) >>6 & 3 )      )
-#define MV_TO(mv)     ( (SQUARE)     ((mv) >>8 & 63)      )
-#define MV_PT(mv)     ( (SQ_CONTENT) ((mv) >>(3+16) &7  ) )
-#define MV_TK(mv)     ( (SQ_CONTENT) ((mv) >>(6+16) &7  ) )
-#define MV_FROM(mv)   ( (SQUARE)     ((mv)     & 63)      )
+#define MV_TYPE(mv) ((BYTE)((mv) >> 6 & 3))
+#define MV_TO(mv) ((SQUARE)((mv) >> 8 & 63))
+#define MV_PT(mv) ((SQ_CONTENT)((mv) >> (3 + 16) & 7))
+#define MV_TK(mv) ((SQ_CONTENT)((mv) >> (6 + 16) & 7))
+#define MV_FROM(mv) ((SQUARE)((mv) & 63))
 
 /*
 |   move,type,color,piece,from,to,taken,promoted
 *------------------------------------------------------------------*/
 
-#define MV_BUILD(mv, ty, co, pc, fr, to, tk, pm) (                        \
-    (mv)    =  (fr)     | (to)<< 8      | (ty)<<  6     | (co)<<8  \
-            |  (pc)<<16 | (pm)<< (3+16) | (tk)<< (6+16)            \
-)
+#define MV_BUILD(mv, ty, co, pc, fr, to, tk, pm) ((mv) = (fr) | (to) << 8 | (ty) << 6 | (co) << 8 | (pc) << 16 | (pm) << (3 + 16) | (tk) << (6 + 16))
 
-#define MV_ADD_TOTK(mv, to, tk) (          \
-     mv     |= (uint32_t)(to) << 8       \
-            |  (uint32_t)(tk) << (6+16)  \
-)
+#define MV_ADD_TOTK(mv, to, tk) (mv |= (uint32_t)(to) << 8 | (uint32_t)(tk) << (6 + 16))
 
-#define map88(x)    (   (x) + ((x)&070)        )
-#define unmap88(x)  ( ( (x) + ((x)& 07) ) >> 1 )
+#define map88(x) ((x) + ((x) & 070))
+#define unmap88(x) (((x) + ((x) & 07)) >> 1)
 
 /*************************************************\
 |
@@ -307,9 +337,7 @@ static unsigned int zipinfo_init(void);
 
 static void zipinfo_done(void);
 
-enum Flip_flags {
-    WE_FLAG = 1, NS_FLAG = 2, NW_SE_FLAG = 4
-}; /* used in flipt */
+enum Flip_flags { WE_FLAG = 1, NS_FLAG = 2, NW_SE_FLAG = 4 }; /* used in flipt */
 
 struct filesopen {
     int n;
@@ -334,7 +362,6 @@ static unsigned int TB_AVAILABILITY = 0;
 /* LOCKS */
 static mythread_mutex_t Egtb_lock;
 
-
 /****************************************************************************\
  *
  *
@@ -344,7 +371,7 @@ static mythread_mutex_t Egtb_lock;
  ****************************************************************************/
 
 #if 0
-                                                                                                                        #define FOLLOW_EGTB
+#define FOLLOW_EGTB
 #ifndef DEBUG
 #define DEBUG
 #endif
@@ -353,38 +380,26 @@ static mythread_mutex_t Egtb_lock;
 #define validsq(x) ((x) >= A1 && (x) <= H8)
 
 #if defined(DEBUG)
-static void 	print_pos (const sq_t *ws, const sq_t *bs, const pc_t *wp, const pc_t *bp);
+static void print_pos(const sq_t *ws, const sq_t *bs, const pc_t *wp, const pc_t *bp);
 #endif
 
 #if defined(DEBUG) || defined(FOLLOW_EGTB)
-                                                                                                                        static void 	output_state (unsigned stm, const SQUARE *wSQ, const SQUARE *bSQ,
-								const SQ_CONTENT *wPC, const SQ_CONTENT *bPC);
-static const char *Square_str[64] = {
- 	"a1","b1","c1","d1","e1","f1","g1","h1",
- 	"a2","b2","c2","d2","e2","f2","g2","h2",
- 	"a3","b3","c3","d3","e3","f3","g3","h3",
- 	"a4","b4","c4","d4","e4","f4","g4","h4",
- 	"a5","b5","c5","d5","e5","f5","g5","h5",
- 	"a6","b6","c6","d6","e6","f6","g6","h6",
- 	"a7","b7","c7","d7","e7","f7","g7","h7",
- 	"a8","b8","c8","d8","e8","f8","g8","h8"
-};
-static const char *P_str[] = {
-	"--", "P", "N", "B", "R", "Q", "K"
-};
+static void output_state(unsigned stm, const SQUARE *wSQ, const SQUARE *bSQ, const SQ_CONTENT *wPC, const SQ_CONTENT *bPC);
+static const char *Square_str[64] = {"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+                                     "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3", "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+                                     "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5", "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+                                     "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"};
+static const char *P_str[] = {"--", "P", "N", "B", "R", "Q", "K"};
 #endif
 
 #ifdef FOLLOW_EGTB
-                                                                                                                        #define STAB
-	#define STABCONDITION 1 /*(stm == BL && whiteSQ[0]==H1 && whiteSQ[1]==D1 && whiteSQ[2]==D3 && blackSQ[0]==C2 )*/
-	static bool_t GLOB_REPORT = TRUE;
+#define STAB
+#define STABCONDITION 1 /*(stm == BL && whiteSQ[0]==H1 && whiteSQ[1]==D1 && whiteSQ[2]==D3 && blackSQ[0]==C2 )*/
+static bool_t GLOB_REPORT = TRUE;
 #endif
 
 #if defined(FOLLOW_EGTB)
-                                                                                                                        static const char *Info_str[8] = {
-	" Draw", " Wmate", " Bmate", "Illegal",
-	"~Draw", "~Wmate", "~Bmate", "Unknown"
-};
+static const char *Info_str[8] = {" Draw", " Wmate", " Bmate", "Illegal", "~Draw", "~Wmate", "~Bmate", "Unknown"};
 #endif
 
 static void list_index(void);
@@ -394,31 +409,42 @@ static void fatal_error(void) {
 }
 
 #ifdef STAB
-#define FOLLOW_LU(x,y)  {if (GLOB_REPORT) printf ("************** %s: %lu\n", (x), (long unsigned)(y));}
+#define FOLLOW_LU(x, y)                                                                                                                              \
+    {                                                                                                                                                \
+        if (GLOB_REPORT) printf("************** %s: %lu\n", (x), (long unsigned)(y));                                                                \
+    }
 #else
 #define FOLLOW_LU(x, y)
 #endif
 
 #ifdef STAB
-#define FOLLOW_LULU(x,y,z)  {if (GLOB_REPORT) printf ("************** %s: %lu, %lu\n", (x), (long unsigned)(y), (long unsigned)(z));}
+#define FOLLOW_LULU(x, y, z)                                                                                                                         \
+    {                                                                                                                                                \
+        if (GLOB_REPORT) printf("************** %s: %lu, %lu\n", (x), (long unsigned)(y), (long unsigned)(z));                                       \
+    }
 #else
 #define FOLLOW_LULU(x, y, z)
 #endif
 
 #ifdef STAB
-#define FOLLOW_label(x) {if (GLOB_REPORT) printf ("************** %s\n", (x));}
+#define FOLLOW_label(x)                                                                                                                              \
+    {                                                                                                                                                \
+        if (GLOB_REPORT) printf("************** %s\n", (x));                                                                                         \
+    }
 #else
 #define FOLLOW_label(x)
 #endif
 
 #ifdef STAB
-                                                                                                                        #define FOLLOW_DTM(msg,dtm)  {if (GLOB_REPORT) printf ("************** %s: %lu, info:%s, plies:%lu \n"\
-	, (msg), (long unsigned)(dtm), (Info_str[(dtm)&INFOMASK]), (long unsigned)((dtm)>>PLYSHIFT)\
-	);}
+#define FOLLOW_DTM(msg, dtm)                                                                                                                         \
+    {                                                                                                                                                \
+        if (GLOB_REPORT)                                                                                                                             \
+            printf("************** %s: %lu, info:%s, plies:%lu \n", (msg), (long unsigned)(dtm), (Info_str[(dtm) & INFOMASK]),                       \
+                   (long unsigned)((dtm) >> PLYSHIFT));                                                                                              \
+    }
 #else
 #define FOLLOW_DTM(msg, dtm)
 #endif
-
 
 /*--------------------------------*\
 |
@@ -428,16 +454,20 @@ static void fatal_error(void) {
 |
 *---------------------------------*/
 
-#define IDX_set_empty(x) {x=0;x--;}
-#define IDX_is_empty(x) (0==(1+(x)))
+#define IDX_set_empty(x)                                                                                                                             \
+    {                                                                                                                                                \
+        x = 0;                                                                                                                                       \
+        x--;                                                                                                                                         \
+    }
+#define IDX_is_empty(x) (0 == (1 + (x)))
 
 #define NO_KKINDEX NOINDEX
 #define MAX_KKINDEX 462
 #define MAX_PPINDEX 576
 #define MAX_PpINDEX (24 * 48)
 /*1128*/
-#define MAX_AAINDEX ((63-62) + (62 * (127-62)/2) - 1 + 1)
-#define MAX_AAAINDEX (64*21*31)
+#define MAX_AAINDEX ((63 - 62) + (62 * (127 - 62) / 2) - 1 + 1)
+#define MAX_AAAINDEX (64 * 21 * 31)
 #define MAX_PP48_INDEX (1128)
 /* (24*23*22/6) + 24 * (24*23/2) */
 #define MAX_PPP48_INDEX 8648
@@ -480,17 +510,29 @@ static SQUARE pidx24_to_wsq(index_t a);
 
 static SQUARE pidx48_to_wsq(index_t a);
 
-static SQUARE flipWE(SQUARE x) { return x ^ 07; }
+static SQUARE flipWE(SQUARE x) {
+    return x ^ 07;
+}
 
-static SQUARE flipNS(SQUARE x) { return x ^ 070; }
+static SQUARE flipNS(SQUARE x) {
+    return x ^ 070;
+}
 
-static SQUARE flipNW_SE(SQUARE x) { return ((x & 7) << 3) | (x >> 3); }
+static SQUARE flipNW_SE(SQUARE x) {
+    return ((x & 7) << 3) | (x >> 3);
+}
 
-static SQUARE getcol(SQUARE x) { return x & 7; }
+static SQUARE getcol(SQUARE x) {
+    return x & 7;
+}
 
-static SQUARE getrow(SQUARE x) { return x >> 3; }
+static SQUARE getrow(SQUARE x) {
+    return x >> 3;
+}
 
-static bool_t in_queenside(sq_t x) { return 0 == (x & (1 << 2)); }
+static bool_t in_queenside(sq_t x) {
+    return 0 == (x & (1 << 2));
+}
 
 /* 1:0 */
 static void kxk_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
@@ -574,14 +616,14 @@ static bool_t kaak_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index
 
 static bool_t kabkc_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out);
 
-static bool_t kaakb_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out);/**/
+static bool_t kaakb_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out); /**/
 
 static bool_t kabck_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out);
 
-static bool_t kaabk_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out);/**/
+static bool_t kaabk_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out); /**/
 static bool_t kaaak_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out);
 
-static bool_t kabbk_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out);/**/
+static bool_t kabbk_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out); /**/
 static bool_t kapkb_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out);
 
 static bool_t kabkp_pctoindex(const SQUARE *pw, const SQUARE *pb, /*@out@*/ index_t *out);
@@ -680,8 +722,7 @@ enum TB_INDEXES {
 };
 
 #if defined(SHARED_forbuilding)
-                                                                                                                        extern index_t
-biggest_memory_needed (void) {
+extern index_t biggest_memory_needed(void) {
     return MAX_kabkc;
 }
 #endif
@@ -701,7 +742,6 @@ mySHARED bool_t get_dtm(tbkey_t key, unsigned side, index_t idx, dtm_t *out, boo
 #endif
 
 static bool_t get_dtm_from_cache(tbkey_t key, unsigned side, index_t idx, dtm_t *out);
-
 
 /*--------------------------------*\
 |
@@ -726,184 +766,183 @@ mySHARED void egtb_freemem(int i);
 
 mySHARED struct endgamekey egkey[] = {
 
-        {0,   "kqk",       MAX_KXK,   1,                   kxk_indextopc,   kxk_pctoindex,   NULL, NULL, NULL, 0, 0},
-        {1,   "krk",       MAX_KXK,   1,                   kxk_indextopc,   kxk_pctoindex,   NULL, NULL, NULL, 0, 0},
-        {2,   "kbk",       MAX_KXK,   1,                   kxk_indextopc,   kxk_pctoindex,   NULL, NULL, NULL, 0, 0},
-        {3,   "knk",       MAX_KXK,   1,                   kxk_indextopc,   kxk_pctoindex,   NULL, NULL, NULL, 0, 0},
-        {4,   "kpk",       MAX_kpk,   24,                  kpk_indextopc,   kpk_pctoindex,   NULL, NULL, NULL, 0, 0},
-        /* 4 pieces */
-        {5,   "kqkq",      MAX_kakb,  1,                   kakb_indextopc,  kakb_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {6,   "kqkr",      MAX_kakb,  1,                   kakb_indextopc,  kakb_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {7,   "kqkb",      MAX_kakb,  1,                   kakb_indextopc,  kakb_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {8,   "kqkn",      MAX_kakb,  1,                   kakb_indextopc,  kakb_pctoindex,  NULL, NULL, NULL, 0, 0},
+    {0, "kqk", MAX_KXK, 1, kxk_indextopc, kxk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {1, "krk", MAX_KXK, 1, kxk_indextopc, kxk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {2, "kbk", MAX_KXK, 1, kxk_indextopc, kxk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {3, "knk", MAX_KXK, 1, kxk_indextopc, kxk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {4, "kpk", MAX_kpk, 24, kpk_indextopc, kpk_pctoindex, NULL, NULL, NULL, 0, 0},
+    /* 4 pieces */
+    {5, "kqkq", MAX_kakb, 1, kakb_indextopc, kakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {6, "kqkr", MAX_kakb, 1, kakb_indextopc, kakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {7, "kqkb", MAX_kakb, 1, kakb_indextopc, kakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {8, "kqkn", MAX_kakb, 1, kakb_indextopc, kakb_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {9,   "krkr",      MAX_kakb,  1,                   kakb_indextopc,  kakb_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {10,  "krkb",      MAX_kakb,  1,                   kakb_indextopc,  kakb_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {11,  "krkn",      MAX_kakb,  1,                   kakb_indextopc,  kakb_pctoindex,  NULL, NULL, NULL, 0, 0},
+    {9, "krkr", MAX_kakb, 1, kakb_indextopc, kakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {10, "krkb", MAX_kakb, 1, kakb_indextopc, kakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {11, "krkn", MAX_kakb, 1, kakb_indextopc, kakb_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {12,  "kbkb",      MAX_kakb,  1,                   kakb_indextopc,  kakb_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {13,  "kbkn",      MAX_kakb,  1,                   kakb_indextopc,  kakb_pctoindex,  NULL, NULL, NULL, 0, 0},
+    {12, "kbkb", MAX_kakb, 1, kakb_indextopc, kakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {13, "kbkn", MAX_kakb, 1, kakb_indextopc, kakb_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {14,  "knkn",      MAX_kakb,  1,                   kakb_indextopc,  kakb_pctoindex,  NULL, NULL, NULL, 0, 0},
-        /**/
-        {15,  "kqqk",      MAX_kaak,  1,                   kaak_indextopc,  kaak_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {16,  "kqrk",      MAX_kabk,  1,                   kabk_indextopc,  kabk_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {17,  "kqbk",      MAX_kabk,  1,                   kabk_indextopc,  kabk_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {18,  "kqnk",      MAX_kabk,  1,                   kabk_indextopc,  kabk_pctoindex,  NULL, NULL, NULL, 0, 0},
+    {14, "knkn", MAX_kakb, 1, kakb_indextopc, kakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    /**/
+    {15, "kqqk", MAX_kaak, 1, kaak_indextopc, kaak_pctoindex, NULL, NULL, NULL, 0, 0},
+    {16, "kqrk", MAX_kabk, 1, kabk_indextopc, kabk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {17, "kqbk", MAX_kabk, 1, kabk_indextopc, kabk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {18, "kqnk", MAX_kabk, 1, kabk_indextopc, kabk_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {19,  "krrk",      MAX_kaak,  1,                   kaak_indextopc,  kaak_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {20,  "krbk",      MAX_kabk,  1,                   kabk_indextopc,  kabk_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {21,  "krnk",      MAX_kabk,  1,                   kabk_indextopc,  kabk_pctoindex,  NULL, NULL, NULL, 0, 0},
+    {19, "krrk", MAX_kaak, 1, kaak_indextopc, kaak_pctoindex, NULL, NULL, NULL, 0, 0},
+    {20, "krbk", MAX_kabk, 1, kabk_indextopc, kabk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {21, "krnk", MAX_kabk, 1, kabk_indextopc, kabk_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {22,  "kbbk",      MAX_kaak,  1,                   kaak_indextopc,  kaak_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {23,  "kbnk",      MAX_kabk,  1,                   kabk_indextopc,  kabk_pctoindex,  NULL, NULL, NULL, 0, 0},
+    {22, "kbbk", MAX_kaak, 1, kaak_indextopc, kaak_pctoindex, NULL, NULL, NULL, 0, 0},
+    {23, "kbnk", MAX_kabk, 1, kabk_indextopc, kabk_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {24,  "knnk",      MAX_kaak,  1,                   kaak_indextopc,  kaak_pctoindex,  NULL, NULL, NULL, 0, 0},
-        /**/
-        /**/
-        {25,  "kqkp",      MAX_kakp,  24,                  kakp_indextopc,  kakp_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {26,  "krkp",      MAX_kakp,  24,                  kakp_indextopc,  kakp_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {27,  "kbkp",      MAX_kakp,  24,                  kakp_indextopc,  kakp_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {28,  "knkp",      MAX_kakp,  24,                  kakp_indextopc,  kakp_pctoindex,  NULL, NULL, NULL, 0, 0},
-        /**/
-        {29,  "kqpk",      MAX_kapk,  24,                  kapk_indextopc,  kapk_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {30,  "krpk",      MAX_kapk,  24,                  kapk_indextopc,  kapk_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {31,  "kbpk",      MAX_kapk,  24,                  kapk_indextopc,  kapk_pctoindex,  NULL, NULL, NULL, 0, 0},
-        {32,  "knpk",      MAX_kapk,  24,                  kapk_indextopc,  kapk_pctoindex,  NULL, NULL, NULL, 0, 0},
-        /**/
-        {33,  "kppk",      MAX_kppk,  MAX_PPINDEX,         kppk_indextopc,  kppk_pctoindex,  NULL, NULL, NULL, 0, 0},
-        /**/
-        {34,  "kpkp",      MAX_kpkp,  MAX_PpINDEX,         kpkp_indextopc,  kpkp_pctoindex,  NULL, NULL, NULL, 0, 0},
-        /**/
-        /**/
-        /* 5 pieces */
-        {35,  "kqqqk",     MAX_kaaak, 1,                   kaaak_indextopc, kaaak_pctoindex, NULL, NULL, NULL, 0, 0},
-        {36,  "kqqrk",     MAX_kaabk, 1,                   kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {37,  "kqqbk",     MAX_kaabk, 1,                   kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {38,  "kqqnk",     MAX_kaabk, 1,                   kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {39,  "kqrrk",     MAX_kabbk, 1,                   kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {40,  "kqrbk",     MAX_kabck, 1,                   kabck_indextopc, kabck_pctoindex, NULL, NULL, NULL, 0, 0},
-        {41,  "kqrnk",     MAX_kabck, 1,                   kabck_indextopc, kabck_pctoindex, NULL, NULL, NULL, 0, 0},
-        {42,  "kqbbk",     MAX_kabbk, 1,                   kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {43,  "kqbnk",     MAX_kabck, 1,                   kabck_indextopc, kabck_pctoindex, NULL, NULL, NULL, 0, 0},
-        {44,  "kqnnk",     MAX_kabbk, 1,                   kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {45,  "krrrk",     MAX_kaaak, 1,                   kaaak_indextopc, kaaak_pctoindex, NULL, NULL, NULL, 0, 0},
-        {46,  "krrbk",     MAX_kaabk, 1,                   kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {47,  "krrnk",     MAX_kaabk, 1,                   kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {48,  "krbbk",     MAX_kabbk, 1,                   kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {49,  "krbnk",     MAX_kabck, 1,                   kabck_indextopc, kabck_pctoindex, NULL, NULL, NULL, 0, 0},
-        {50,  "krnnk",     MAX_kabbk, 1,                   kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {51,  "kbbbk",     MAX_kaaak, 1,                   kaaak_indextopc, kaaak_pctoindex, NULL, NULL, NULL, 0, 0},
-        {52,  "kbbnk",     MAX_kaabk, 1,                   kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {53,  "kbnnk",     MAX_kabbk, 1,                   kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {54,  "knnnk",     MAX_kaaak, 1,                   kaaak_indextopc, kaaak_pctoindex, NULL, NULL, NULL, 0, 0},
-        {55,  "kqqkq",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {56,  "kqqkr",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {57,  "kqqkb",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {58,  "kqqkn",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {59,  "kqrkq",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {60,  "kqrkr",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {61,  "kqrkb",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {62,  "kqrkn",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {63,  "kqbkq",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {64,  "kqbkr",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {65,  "kqbkb",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {66,  "kqbkn",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {67,  "kqnkq",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {68,  "kqnkr",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {69,  "kqnkb",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {70,  "kqnkn",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {71,  "krrkq",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {72,  "krrkr",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {73,  "krrkb",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {74,  "krrkn",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {75,  "krbkq",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {76,  "krbkr",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {77,  "krbkb",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {78,  "krbkn",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {79,  "krnkq",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {80,  "krnkr",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {81,  "krnkb",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {82,  "krnkn",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {83,  "kbbkq",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {84,  "kbbkr",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {85,  "kbbkb",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {86,  "kbbkn",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {87,  "kbnkq",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {88,  "kbnkr",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {89,  "kbnkb",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {90,  "kbnkn",     MAX_kabkc, 1,                   kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
-        {91,  "knnkq",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {92,  "knnkr",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {93,  "knnkb",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {94,  "knnkn",     MAX_kaakb, 1,                   kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {24, "knnk", MAX_kaak, 1, kaak_indextopc, kaak_pctoindex, NULL, NULL, NULL, 0, 0},
+    /**/
+    /**/
+    {25, "kqkp", MAX_kakp, 24, kakp_indextopc, kakp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {26, "krkp", MAX_kakp, 24, kakp_indextopc, kakp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {27, "kbkp", MAX_kakp, 24, kakp_indextopc, kakp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {28, "knkp", MAX_kakp, 24, kakp_indextopc, kakp_pctoindex, NULL, NULL, NULL, 0, 0},
+    /**/
+    {29, "kqpk", MAX_kapk, 24, kapk_indextopc, kapk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {30, "krpk", MAX_kapk, 24, kapk_indextopc, kapk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {31, "kbpk", MAX_kapk, 24, kapk_indextopc, kapk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {32, "knpk", MAX_kapk, 24, kapk_indextopc, kapk_pctoindex, NULL, NULL, NULL, 0, 0},
+    /**/
+    {33, "kppk", MAX_kppk, MAX_PPINDEX, kppk_indextopc, kppk_pctoindex, NULL, NULL, NULL, 0, 0},
+    /**/
+    {34, "kpkp", MAX_kpkp, MAX_PpINDEX, kpkp_indextopc, kpkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    /**/
+    /**/
+    /* 5 pieces */
+    {35, "kqqqk", MAX_kaaak, 1, kaaak_indextopc, kaaak_pctoindex, NULL, NULL, NULL, 0, 0},
+    {36, "kqqrk", MAX_kaabk, 1, kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {37, "kqqbk", MAX_kaabk, 1, kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {38, "kqqnk", MAX_kaabk, 1, kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {39, "kqrrk", MAX_kabbk, 1, kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {40, "kqrbk", MAX_kabck, 1, kabck_indextopc, kabck_pctoindex, NULL, NULL, NULL, 0, 0},
+    {41, "kqrnk", MAX_kabck, 1, kabck_indextopc, kabck_pctoindex, NULL, NULL, NULL, 0, 0},
+    {42, "kqbbk", MAX_kabbk, 1, kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {43, "kqbnk", MAX_kabck, 1, kabck_indextopc, kabck_pctoindex, NULL, NULL, NULL, 0, 0},
+    {44, "kqnnk", MAX_kabbk, 1, kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {45, "krrrk", MAX_kaaak, 1, kaaak_indextopc, kaaak_pctoindex, NULL, NULL, NULL, 0, 0},
+    {46, "krrbk", MAX_kaabk, 1, kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {47, "krrnk", MAX_kaabk, 1, kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {48, "krbbk", MAX_kabbk, 1, kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {49, "krbnk", MAX_kabck, 1, kabck_indextopc, kabck_pctoindex, NULL, NULL, NULL, 0, 0},
+    {50, "krnnk", MAX_kabbk, 1, kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {51, "kbbbk", MAX_kaaak, 1, kaaak_indextopc, kaaak_pctoindex, NULL, NULL, NULL, 0, 0},
+    {52, "kbbnk", MAX_kaabk, 1, kaabk_indextopc, kaabk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {53, "kbnnk", MAX_kabbk, 1, kabbk_indextopc, kabbk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {54, "knnnk", MAX_kaaak, 1, kaaak_indextopc, kaaak_pctoindex, NULL, NULL, NULL, 0, 0},
+    {55, "kqqkq", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {56, "kqqkr", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {57, "kqqkb", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {58, "kqqkn", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {59, "kqrkq", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {60, "kqrkr", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {61, "kqrkb", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {62, "kqrkn", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {63, "kqbkq", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {64, "kqbkr", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {65, "kqbkb", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {66, "kqbkn", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {67, "kqnkq", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {68, "kqnkr", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {69, "kqnkb", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {70, "kqnkn", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {71, "krrkq", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {72, "krrkr", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {73, "krrkb", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {74, "krrkn", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {75, "krbkq", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {76, "krbkr", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {77, "krbkb", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {78, "krbkn", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {79, "krnkq", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {80, "krnkr", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {81, "krnkb", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {82, "krnkn", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {83, "kbbkq", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {84, "kbbkr", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {85, "kbbkb", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {86, "kbbkn", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {87, "kbnkq", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {88, "kbnkr", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {89, "kbnkb", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {90, "kbnkn", MAX_kabkc, 1, kabkc_indextopc, kabkc_pctoindex, NULL, NULL, NULL, 0, 0},
+    {91, "knnkq", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {92, "knnkr", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {93, "knnkb", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {94, "knnkn", MAX_kaakb, 1, kaakb_indextopc, kaakb_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {95,  "kqqpk",     MAX_kaapk, 24,                  kaapk_indextopc, kaapk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {96,  "kqrpk",     MAX_kabpk, 24,                  kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {97,  "kqbpk",     MAX_kabpk, 24,                  kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {98,  "kqnpk",     MAX_kabpk, 24,                  kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {99,  "krrpk",     MAX_kaapk, 24,                  kaapk_indextopc, kaapk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {100, "krbpk",     MAX_kabpk, 24,                  kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {101, "krnpk",     MAX_kabpk, 24,                  kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {102, "kbbpk",     MAX_kaapk, 24,                  kaapk_indextopc, kaapk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {103, "kbnpk",     MAX_kabpk, 24,                  kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {104, "knnpk",     MAX_kaapk, 24,                  kaapk_indextopc, kaapk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {95, "kqqpk", MAX_kaapk, 24, kaapk_indextopc, kaapk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {96, "kqrpk", MAX_kabpk, 24, kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {97, "kqbpk", MAX_kabpk, 24, kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {98, "kqnpk", MAX_kabpk, 24, kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {99, "krrpk", MAX_kaapk, 24, kaapk_indextopc, kaapk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {100, "krbpk", MAX_kabpk, 24, kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {101, "krnpk", MAX_kabpk, 24, kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {102, "kbbpk", MAX_kaapk, 24, kaapk_indextopc, kaapk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {103, "kbnpk", MAX_kabpk, 24, kabpk_indextopc, kabpk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {104, "knnpk", MAX_kaapk, 24, kaapk_indextopc, kaapk_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {105, "kqppk",     MAX_kappk, MAX_PPINDEX,         kappk_indextopc, kappk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {106, "krppk",     MAX_kappk, MAX_PPINDEX,         kappk_indextopc, kappk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {107, "kbppk",     MAX_kappk, MAX_PPINDEX,         kappk_indextopc, kappk_pctoindex, NULL, NULL, NULL, 0, 0},
-        {108, "knppk",     MAX_kappk, MAX_PPINDEX,         kappk_indextopc, kappk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {105, "kqppk", MAX_kappk, MAX_PPINDEX, kappk_indextopc, kappk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {106, "krppk", MAX_kappk, MAX_PPINDEX, kappk_indextopc, kappk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {107, "kbppk", MAX_kappk, MAX_PPINDEX, kappk_indextopc, kappk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {108, "knppk", MAX_kappk, MAX_PPINDEX, kappk_indextopc, kappk_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {109, "kqpkq",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {110, "kqpkr",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {111, "kqpkb",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {112, "kqpkn",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {113, "krpkq",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {114, "krpkr",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {115, "krpkb",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {116, "krpkn",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {117, "kbpkq",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {118, "kbpkr",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {119, "kbpkb",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {120, "kbpkn",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {121, "knpkq",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {122, "knpkr",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {123, "knpkb",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
-        {124, "knpkn",     MAX_kapkb, 24,                  kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {109, "kqpkq", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {110, "kqpkr", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {111, "kqpkb", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {112, "kqpkn", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {113, "krpkq", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {114, "krpkr", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {115, "krpkb", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {116, "krpkn", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {117, "kbpkq", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {118, "kbpkr", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {119, "kbpkb", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {120, "kbpkn", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {121, "knpkq", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {122, "knpkr", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {123, "knpkb", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
+    {124, "knpkn", MAX_kapkb, 24, kapkb_indextopc, kapkb_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {125, "kppkq",     MAX_kppka, MAX_PPINDEX,         kppka_indextopc, kppka_pctoindex, NULL, NULL, NULL, 0, 0},
-        {126, "kppkr",     MAX_kppka, MAX_PPINDEX,         kppka_indextopc, kppka_pctoindex, NULL, NULL, NULL, 0, 0},
-        {127, "kppkb",     MAX_kppka, MAX_PPINDEX,         kppka_indextopc, kppka_pctoindex, NULL, NULL, NULL, 0, 0},
-        {128, "kppkn",     MAX_kppka, MAX_PPINDEX,         kppka_indextopc, kppka_pctoindex, NULL, NULL, NULL, 0, 0},
+    {125, "kppkq", MAX_kppka, MAX_PPINDEX, kppka_indextopc, kppka_pctoindex, NULL, NULL, NULL, 0, 0},
+    {126, "kppkr", MAX_kppka, MAX_PPINDEX, kppka_indextopc, kppka_pctoindex, NULL, NULL, NULL, 0, 0},
+    {127, "kppkb", MAX_kppka, MAX_PPINDEX, kppka_indextopc, kppka_pctoindex, NULL, NULL, NULL, 0, 0},
+    {128, "kppkn", MAX_kppka, MAX_PPINDEX, kppka_indextopc, kppka_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {129, "kqqkp",     MAX_kaakp, 24,                  kaakp_indextopc, kaakp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {130, "kqrkp",     MAX_kabkp, 24,                  kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {131, "kqbkp",     MAX_kabkp, 24,                  kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {132, "kqnkp",     MAX_kabkp, 24,                  kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {133, "krrkp",     MAX_kaakp, 24,                  kaakp_indextopc, kaakp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {134, "krbkp",     MAX_kabkp, 24,                  kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {135, "krnkp",     MAX_kabkp, 24,                  kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {136, "kbbkp",     MAX_kaakp, 24,                  kaakp_indextopc, kaakp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {137, "kbnkp",     MAX_kabkp, 24,                  kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {138, "knnkp",     MAX_kaakp, 24,                  kaakp_indextopc, kaakp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {129, "kqqkp", MAX_kaakp, 24, kaakp_indextopc, kaakp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {130, "kqrkp", MAX_kabkp, 24, kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {131, "kqbkp", MAX_kabkp, 24, kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {132, "kqnkp", MAX_kabkp, 24, kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {133, "krrkp", MAX_kaakp, 24, kaakp_indextopc, kaakp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {134, "krbkp", MAX_kabkp, 24, kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {135, "krnkp", MAX_kabkp, 24, kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {136, "kbbkp", MAX_kaakp, 24, kaakp_indextopc, kaakp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {137, "kbnkp", MAX_kabkp, 24, kabkp_indextopc, kabkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {138, "knnkp", MAX_kaakp, 24, kaakp_indextopc, kaakp_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {139, "kqpkp",     MAX_kapkp, MAX_PpINDEX,         kapkp_indextopc, kapkp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {140, "krpkp",     MAX_kapkp, MAX_PpINDEX,         kapkp_indextopc, kapkp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {141, "kbpkp",     MAX_kapkp, MAX_PpINDEX,         kapkp_indextopc, kapkp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {142, "knpkp",     MAX_kapkp, MAX_PpINDEX,         kapkp_indextopc, kapkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {139, "kqpkp", MAX_kapkp, MAX_PpINDEX, kapkp_indextopc, kapkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {140, "krpkp", MAX_kapkp, MAX_PpINDEX, kapkp_indextopc, kapkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {141, "kbpkp", MAX_kapkp, MAX_PpINDEX, kapkp_indextopc, kapkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {142, "knpkp", MAX_kapkp, MAX_PpINDEX, kapkp_indextopc, kapkp_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {143, "kppkp",     MAX_kppkp, 24 * MAX_PP48_INDEX, kppkp_indextopc, kppkp_pctoindex, NULL, NULL, NULL, 0, 0},
-        {144, "kpppk",     MAX_kpppk, MAX_PPP48_INDEX,     kpppk_indextopc, kpppk_pctoindex, NULL, NULL, NULL, 0, 0},
+    {143, "kppkp", MAX_kppkp, 24 * MAX_PP48_INDEX, kppkp_indextopc, kppkp_pctoindex, NULL, NULL, NULL, 0, 0},
+    {144, "kpppk", MAX_kpppk, MAX_PPP48_INDEX, kpppk_indextopc, kpppk_pctoindex, NULL, NULL, NULL, 0, 0},
 
-        {MAX_EGKEYS, NULL, 0,         1, NULL, NULL,                                         NULL, NULL, NULL, 0, 0}
+    {MAX_EGKEYS, NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, 0, 0}
 
 };
 
 #define EGKEY_HASH_SIZE 512
 static tbkey_t egkey_hash[EGKEY_HASH_SIZE];
 
-static size_t
-str_hash_func_1(const char *str) {
+static size_t str_hash_func_1(const char *str) {
     size_t h = 5381;
     int c;
     while ((c = *str++))
@@ -911,8 +950,7 @@ str_hash_func_1(const char *str) {
     return h;
 }
 
-static size_t
-str_hash_func_2(const char *str) {
+static size_t str_hash_func_2(const char *str) {
     size_t h = 0;
     int c;
     while ((c = *str++))
@@ -920,8 +958,7 @@ str_hash_func_2(const char *str) {
     return 2 * h + 1;
 }
 
-static void
-init_egkey_hash(void) {
+static void init_egkey_hash(void) {
     size_t h1, h2;
     int i;
 
@@ -936,7 +973,6 @@ init_egkey_hash(void) {
         egkey_hash[h1] = egkey[i].id;
     }
 }
-
 
 static int eg_was_open[MAX_EGKEYS];
 
@@ -958,38 +994,38 @@ static const char **Gtbpath = NULL;
 
 /*---------------- EXTERNAL PATH MANAGEMENT --------------------------------*/
 
-extern const char *tbpaths_getmain(void) { return Gtbpath[0]; }
+extern const char *tbpaths_getmain(void) {
+    return Gtbpath[0];
+}
 
-extern const char **
-tbpaths_init(void) {
+extern const char **tbpaths_init(void) {
     const char **newps;
-    newps = (const char **) malloc(sizeof(char *));
+    newps = (const char **)malloc(sizeof(char *));
     if (newps != NULL) {
         newps[0] = NULL;
     }
     return newps;
 }
 
-static const char **
-tbpaths_add_single(const char **ps, const char *newpath) {
+static const char **tbpaths_add_single(const char **ps, const char *newpath) {
     size_t counter;
     const char **newps;
     size_t i, psize;
     char *ppath;
 
-    if (NULL == ps)
-        return NULL;
+    if (NULL == ps) return NULL;
 
     psize = strlen(newpath) + 1;
-    ppath = (char *) malloc(psize * sizeof(char));
-    if (NULL == ppath)
-        return ps; /* failed to incorporate a new path */
-    for (i = 0; i < psize; i++) ppath[i] = newpath[i];
+    ppath = (char *)malloc(psize * sizeof(char));
+    if (NULL == ppath) return ps; /* failed to incorporate a new path */
+    for (i = 0; i < psize; i++)
+        ppath[i] = newpath[i];
 
-    for (counter = 0; ps[counter] != NULL; counter++);
+    for (counter = 0; ps[counter] != NULL; counter++)
+        ;
 
     /* cast to deal with const poisoning */
-    newps = (const char **) realloc((char **) ps, sizeof(char *) * (counter + 2));
+    newps = (const char **)realloc((char **)ps, sizeof(char *) * (counter + 2));
     if (newps != NULL) {
         newps[counter] = ppath;
         newps[counter + 1] = NULL;
@@ -997,52 +1033,49 @@ tbpaths_add_single(const char **ps, const char *newpath) {
     return newps;
 }
 
-
-extern const char **
-tbpaths_add(const char **ps, const char *newpath) {
+extern const char **tbpaths_add(const char **ps, const char *newpath) {
     size_t i, psize;
     char *mpath;
 
-    if (NULL == ps)
-        return NULL;
+    if (NULL == ps) return NULL;
 
     psize = strlen(newpath) + 1;
-    mpath = (char *) malloc(psize * sizeof(char));
+    mpath = (char *)malloc(psize * sizeof(char));
     if (NULL == mpath) {
         return ps; /* failed to incorporate a new path */
     }
-    for (i = 0; i < psize; i++) mpath[i] = newpath[i];
+    for (i = 0; i < psize; i++)
+        mpath[i] = newpath[i];
 
     for (i = 0; i < psize; i++) {
-        if (';' == mpath[i])
-            mpath[i] = '\0';
+        if (';' == mpath[i]) mpath[i] = '\0';
     }
 
     for (i = 0;;) {
-        while (i < psize && mpath[i] == '\0') i++;
+        while (i < psize && mpath[i] == '\0')
+            i++;
         if (i >= psize) break;
         ps = tbpaths_add_single(ps, &mpath[i]);
-        while (i < psize && mpath[i] != '\0') i++;
+        while (i < psize && mpath[i] != '\0')
+            i++;
     }
 
     free(mpath);
     return ps;
 }
 
-
-extern const char **
-tbpaths_done(const char **ps) {
+extern const char **tbpaths_done(const char **ps) {
     int counter;
     void *q;
 
     if (ps != NULL) {
         for (counter = 0; ps[counter] != NULL; counter++) {
             /* cast to deal with const poisoning */
-            void *p = (void *) ps[counter];
+            void *p = (void *)ps[counter];
             free(p);
         }
         /* cast to deal with const poisoning */
-        q = (void *) ps;
+        q = (void *)ps;
         free(q);
     }
     return NULL;
@@ -1050,10 +1083,11 @@ tbpaths_done(const char **ps) {
 
 /*---------------- PATH INITIALIZATION ROUTINES ----------------------------*/
 
-static void path_system_reset(void) { Gtbpath_end_index = 0; }
+static void path_system_reset(void) {
+    Gtbpath_end_index = 0;
+}
 
-static bool_t
-path_system_init(const char **path) {
+static bool_t path_system_init(const char **path) {
     size_t i;
     size_t sz;
     const char *x;
@@ -1071,11 +1105,9 @@ path_system_init(const char **path) {
     } while (x != NULL);
     sz = i; /* sz includes the NULL */
 
-
-    Gtbpath = (const char **) malloc(sz * sizeof(char *));
+    Gtbpath = (const char **)malloc(sz * sizeof(char *));
 
     if (Gtbpath) {
-
         ok = TRUE;
         /* point to the same strings provided */
         Gtbpath_end_index = 0;
@@ -1088,21 +1120,17 @@ path_system_init(const char **path) {
         ok = FALSE;
     }
     return ok;
-
 }
 
-static void
-path_system_done(void) {
+static void path_system_done(void) {
     /* before we free Gtbpath, we have to deal with the
-	"const poisoning" and cast it. free() does not accept
-	const pointers */
-    char **p = (char **) Gtbpath;
+        "const poisoning" and cast it. free() does not accept
+        const pointers */
+    char **p = (char **)Gtbpath;
     /* clean up */
-    if (p != NULL)
-        free(p);
+    if (p != NULL) free(p);
     return;
 }
-
 
 /****************************************************************************\
  *
@@ -1111,7 +1139,6 @@ path_system_done(void) {
  *
  *
  ****************************************************************************/
-
 
 #ifdef WDL_PROBE
 
@@ -1130,7 +1157,7 @@ static bool_t wdl_preload_cache(tbkey_t key, unsigned side, index_t idx);
 #endif
 
 #ifdef GTB_SHARE
-static void 	init_bettarr (void);
+static void init_bettarr(void);
 #endif
 
 static void eg_was_open_reset(void) {
@@ -1145,19 +1172,17 @@ static long unsigned int eg_was_open_count(void) {
     for (i = 0, x = 0; i < MAX_EGKEYS; i++) {
         x += eg_was_open[i];
     }
-    return (long unsigned) x;
+    return (long unsigned)x;
 }
 
-
-enum Sizes {
-    INISIZE = 4096
-};
+enum Sizes { INISIZE = 4096 };
 static char ini_str[INISIZE];
 
-static void sjoin(char *s, const char *tail, size_t max) { strncat(s, tail, max - strlen(s) - 1); }
+static void sjoin(char *s, const char *tail, size_t max) {
+    strncat(s, tail, max - strlen(s) - 1);
+}
 
-char *
-tb_init(int verbosity, int decoding_sch, const char **paths) {
+char *tb_init(int verbosity, int decoding_sch, const char **paths) {
     unsigned int zi;
     int paths_ok;
     char *ret_str;
@@ -1195,8 +1220,7 @@ tb_init(int verbosity, int decoding_sch, const char **paths) {
         sjoin(ini_str, "\nGTB PATHS not initialized\n", INISIZE);
     }
 
-    if (!reach_was_initialized())
-        reach_init();
+    if (!reach_was_initialized()) reach_init();
 
     attack_maps_init(); /* external initialization */
 
@@ -1238,24 +1262,21 @@ tb_init(int verbosity, int decoding_sch, const char **paths) {
 
             n = 3;
             bit = 1;
-            if (zi & (1u << bit))
-                sprintf(localstr, "  Compression Indexes (%d-pc) = PASSED\n", n);
+            if (zi & (1u << bit)) sprintf(localstr, "  Compression Indexes (%d-pc) = PASSED\n", n);
             else
                 sprintf(localstr, "  Compression Indexes (%d-pc) = **FAILED**\n", n);
             sjoin(ini_str, localstr, INISIZE);
 
             n = 4;
             bit = 3;
-            if (zi & (1u << bit))
-                sprintf(localstr, "  Compression Indexes (%d-pc) = PASSED\n", n);
+            if (zi & (1u << bit)) sprintf(localstr, "  Compression Indexes (%d-pc) = PASSED\n", n);
             else
                 sprintf(localstr, "  Compression Indexes (%d-pc) = **FAILED**\n", n);
             sjoin(ini_str, localstr, INISIZE);
 
             n = 5;
             bit = 5;
-            if (zi & (1u << bit))
-                sprintf(localstr, "  Compression Indexes (%d-pc) = PASSED\n", n);
+            if (zi & (1u << bit)) sprintf(localstr, "  Compression Indexes (%d-pc) = PASSED\n", n);
             else
                 sprintf(localstr, "  Compression Indexes (%d-pc) = **FAILED**\n", n);
             sjoin(ini_str, localstr, INISIZE);
@@ -1273,18 +1294,15 @@ tb_init(int verbosity, int decoding_sch, const char **paths) {
     return ret_str;
 }
 
-extern unsigned int
-tb_availability(void) {
+extern unsigned int tb_availability(void) {
     return TB_AVAILABILITY;
 }
 
-extern bool_t
-tb_is_initialized(void) {
+extern bool_t tb_is_initialized(void) {
     return TB_INITIALIZED;
 }
 
-extern void
-tb_done(void) {
+extern void tb_done(void) {
     assert(TB_INITIALIZED);
     fd_done(&fd);
     RAM_egtbfree();
@@ -1294,15 +1312,14 @@ tb_done(void) {
     TB_INITIALIZED = FALSE;
 
     /*
-		HERE, I should be free() the ini_str, but in
-		the current implementation, it is static
-		rather than dynamic.
-	*/
+                HERE, I should be free() the ini_str, but in
+                the current implementation, it is static
+                rather than dynamic.
+        */
     return;
 }
 
-char *
-tb_restart(int verbosity, int decoding_sch, const char **paths) {
+char *tb_restart(int verbosity, int decoding_sch, const char **paths) {
     if (tb_is_initialized()) {
         tb_done();
     }
@@ -1310,8 +1327,7 @@ tb_restart(int verbosity, int decoding_sch, const char **paths) {
 }
 
 /* whenever the program exits should release this memory */
-static void
-RAM_egtbfree(void) {
+static void RAM_egtbfree(void) {
     int i;
     for (i = 0; egkey[i].str != NULL; i++) {
         egtb_freemem(i);
@@ -1321,64 +1337,60 @@ RAM_egtbfree(void) {
 /*--------------------------------------------------------------------------*/
 
 #ifdef GTB_SHARE
-                                                                                                                        static void
-init_bettarr (void)
-{
-/*
-		iDRAW  = 0, iWMATE  = 1, iBMATE  = 2, iFORBID  = 3,
-		iDRAWt = 4, iWMATEt = 5, iBMATEt = 6, iUNKNOWN = 7
- */
+static void init_bettarr(void) {
+    /*
+                    iDRAW  = 0, iWMATE  = 1, iBMATE  = 2, iFORBID  = 3,
+                    iDRAWt = 4, iWMATEt = 5, iBMATEt = 6, iUNKNOWN = 7
+     */
 
-	int temp[] = {
-	/*White*/
-	/*iDRAW   vs*/
-		1, 2, 1, 1,     2, 2, 2, 2,
-	/*iWMATE  vs*/
-		1, 3, 1, 1,     1, 1, 1, 1,
-	/*iBMATE  vs*/
-		2, 2, 4, 1,     2, 2, 2, 2,
-	/*iFORBID vs*/
-		2, 2, 2, 2,     2, 2, 2, 2,
+    int temp[] = {/*White*/
+                  /*iDRAW   vs*/
+                  1, 2, 1, 1, 2, 2, 2, 2,
+                  /*iWMATE  vs*/
+                  1, 3, 1, 1, 1, 1, 1, 1,
+                  /*iBMATE  vs*/
+                  2, 2, 4, 1, 2, 2, 2, 2,
+                  /*iFORBID vs*/
+                  2, 2, 2, 2, 2, 2, 2, 2,
 
-	/*iDRAWt  vs*/
-		1, 2, 1, 1,     2, 2, 1, 2,
-	/*iWMATEt vs*/
-		1, 2, 1, 1,     1, 3, 1, 1,
-	/*iBMATEt vs*/
-		1, 2, 1, 1,     2, 2, 4, 2,
-	/*iUNKNOWN  */
-		1, 2, 1, 1,     1, 2, 1, 2,
+                  /*iDRAWt  vs*/
+                  1, 2, 1, 1, 2, 2, 1, 2,
+                  /*iWMATEt vs*/
+                  1, 2, 1, 1, 1, 3, 1, 1,
+                  /*iBMATEt vs*/
+                  1, 2, 1, 1, 2, 2, 4, 2,
+                  /*iUNKNOWN  */
+                  1, 2, 1, 1, 1, 2, 1, 2,
 
-	/*Black*/
-	/*iDRAW   vs*/
-		1, 1, 2, 1,     2, 2, 2, 2,
-	/*iWMATE  vs*/
-		2, 4, 2, 1,     2, 2, 2, 2,
-	/*iBMATE  vs*/
-		1, 1, 3, 1,     1, 1, 1, 1,
-	/*iFORBID vs*/
-		2, 2, 2, 2,     2, 2, 2, 2,
+                  /*Black*/
+                  /*iDRAW   vs*/
+                  1, 1, 2, 1, 2, 2, 2, 2,
+                  /*iWMATE  vs*/
+                  2, 4, 2, 1, 2, 2, 2, 2,
+                  /*iBMATE  vs*/
+                  1, 1, 3, 1, 1, 1, 1, 1,
+                  /*iFORBID vs*/
+                  2, 2, 2, 2, 2, 2, 2, 2,
 
-	/*iDRAWt  vs*/
-		1, 1, 2, 1,     2, 1, 2, 2,
-	/*iWMATEt vs*/
-		1, 1, 2, 1,     2, 4, 2, 2,
-	/*iBMATEt vs*/
-		1, 1, 2, 1,     1, 1, 3, 1,
-	/*iUNKNOWN  */
-		1, 1, 2, 1,     1, 1, 2, 2
-	};
+                  /*iDRAWt  vs*/
+                  1, 1, 2, 1, 2, 1, 2, 2,
+                  /*iWMATEt vs*/
+                  1, 1, 2, 1, 2, 4, 2, 2,
+                  /*iBMATEt vs*/
+                  1, 1, 2, 1, 1, 1, 3, 1,
+                  /*iUNKNOWN  */
+                  1, 1, 2, 1, 1, 1, 2, 2};
 
-	int i, j, k, z;
+    int i, j, k, z;
 
-	/* reset */
-	z = 0;
-	for (i = 0; i < 2; i++)
-		for (j = 0; j < 8; j++)
-			for (k = 0; k < 8; k++)
-				bettarr [i][j][k] = temp[z++];
+    /* reset */
+    z = 0;
+    for (i = 0; i < 2; i++)
+        for (j = 0; j < 8; j++)
+            for (k = 0; k < 8; k++)
+                bettarr[i][j][k] = temp[z++];
 
-	return;
+    return;
 }
 #endif
 
@@ -1388,20 +1400,17 @@ init_bettarr (void)
 |
 \*---------------------------------------------------------------------------*/
 
-static bool_t
-fd_init(struct filesopen *pfd) {
+static bool_t fd_init(struct filesopen *pfd) {
     tbkey_t *p;
     int i, allowed;
 
     pfd->n = 0;
 
     allowed = mysys_fopen_max() - 5 /*stdin,stdout,sterr,stdlog,book*/;
-    if (allowed < 4)
-        GTB_MAXOPEN = 4;
-    if (allowed > 32)
-        GTB_MAXOPEN = 32;
+    if (allowed < 4) GTB_MAXOPEN = 4;
+    if (allowed > 32) GTB_MAXOPEN = 32;
 
-    p = (tbkey_t *) malloc(sizeof(tbkey_t) * (size_t) GTB_MAXOPEN);
+    p = (tbkey_t *)malloc(sizeof(tbkey_t) * (size_t)GTB_MAXOPEN);
 
     if (p != NULL) {
         for (i = 0; i < GTB_MAXOPEN; i++) {
@@ -1414,8 +1423,7 @@ fd_init(struct filesopen *pfd) {
     }
 }
 
-static void
-fd_done(struct filesopen *pfd) {
+static void fd_done(struct filesopen *pfd) {
     int i;
     tbkey_t closingkey;
     FILE *finp;
@@ -1460,7 +1468,7 @@ mySHARED dtm_t bestx(unsigned stm, dtm_t a, dtm_t b);
 
 mySHARED void sortlists(SQUARE *ws, SQ_CONTENT *wp);
 
-mySHARED /*@NULL@*/    FILE *fd_openit(tbkey_t key);
+mySHARED /*@NULL@*/ FILE *fd_openit(tbkey_t key);
 
 mySHARED dtm_t dtm_unpack(unsigned stm, unsigned char packed);
 
@@ -1481,127 +1489,72 @@ static void removepiece(SQUARE *ys, SQ_CONTENT *yp, int j);
 
 static bool_t egtb_filepeek(tbkey_t key, unsigned side, index_t idx, dtm_t *out_dtm);
 
-
 /*prototype*/
 #ifdef WDL_PROBE
 
-static bool_t
-tb_probe_wdl
-        (unsigned stm,
-         const SQUARE *inp_wSQ,
-         const SQUARE *inp_bSQ,
-         const SQ_CONTENT *inp_wPC,
-         const SQ_CONTENT *inp_bPC,
-         bool_t probingtype,
-                /*@out@*/ unsigned *res);
+static bool_t tb_probe_wdl(unsigned stm, const SQUARE *inp_wSQ, const SQUARE *inp_bSQ, const SQ_CONTENT *inp_wPC, const SQ_CONTENT *inp_bPC,
+                           bool_t probingtype,
+                           /*@out@*/ unsigned *res);
 
 #endif
 
-static bool_t
-tb_probe_(unsigned stm,
-          SQUARE epsq,
-          const SQUARE *inp_wSQ,
-          const SQUARE *inp_bSQ,
-          const SQ_CONTENT *inp_wPC,
-          const SQ_CONTENT *inp_bPC,
-          bool_t probingtype,
-        /*@out@*/ unsigned *res,
-        /*@out@*/ unsigned *ply);
+static bool_t tb_probe_(unsigned stm, SQUARE epsq, const SQUARE *inp_wSQ, const SQUARE *inp_bSQ, const SQ_CONTENT *inp_wPC, const SQ_CONTENT *inp_bPC,
+                        bool_t probingtype,
+                        /*@out@*/ unsigned *res,
+                        /*@out@*/ unsigned *ply);
 
-
-extern bool_t
-tb_probe_soft
-        (unsigned stm,
-         SQUARE epsq,
-         unsigned castles,
-         const SQUARE *inp_wSQ,
-         const SQUARE *inp_bSQ,
-         const SQ_CONTENT *inp_wPC,
-         const SQ_CONTENT *inp_bPC,
-                /*@out@*/ unsigned *res,
-                /*@out@*/ unsigned *ply) {
-    if (castles != 0)
-        return FALSE;
+extern bool_t tb_probe_soft(unsigned stm, SQUARE epsq, unsigned castles, const SQUARE *inp_wSQ, const SQUARE *inp_bSQ, const SQ_CONTENT *inp_wPC,
+                            const SQ_CONTENT *inp_bPC,
+                            /*@out@*/ unsigned *res,
+                            /*@out@*/ unsigned *ply) {
+    if (castles != 0) return FALSE;
     return tb_probe_(stm, epsq, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, FALSE, res, ply);
 }
 
-extern bool_t
-tb_probe_hard
-        (unsigned stm,
-         SQUARE epsq,
-         unsigned castles,
-         const SQUARE *inp_wSQ,
-         const SQUARE *inp_bSQ,
-         const SQ_CONTENT *inp_wPC,
-         const SQ_CONTENT *inp_bPC,
-                /*@out@*/ unsigned *res,
-                /*@out@*/ unsigned *ply) {
-    if (castles != 0)
-        return FALSE;
+extern bool_t tb_probe_hard(unsigned stm, SQUARE epsq, unsigned castles, const SQUARE *inp_wSQ, const SQUARE *inp_bSQ, const SQ_CONTENT *inp_wPC,
+                            const SQ_CONTENT *inp_bPC,
+                            /*@out@*/ unsigned *res,
+                            /*@out@*/ unsigned *ply) {
+    if (castles != 0) return FALSE;
     return tb_probe_(stm, epsq, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, TRUE, res, ply);
 }
 
-extern bool_t
-tb_probe_WDL_soft
-        (unsigned stm,
-         SQUARE epsq,
-         unsigned castles,
-         const SQUARE *inp_wSQ,
-         const SQUARE *inp_bSQ,
-         const SQ_CONTENT *inp_wPC,
-         const SQ_CONTENT *inp_bPC,
-                /*@out@*/ unsigned *res) {
+extern bool_t tb_probe_WDL_soft(unsigned stm, SQUARE epsq, unsigned castles, const SQUARE *inp_wSQ, const SQUARE *inp_bSQ, const SQ_CONTENT *inp_wPC,
+                                const SQ_CONTENT *inp_bPC,
+                                /*@out@*/ unsigned *res) {
     unsigned ply_n;
     unsigned *ply = &ply_n;
-    if (castles != 0)
-        return FALSE;
-    if (epsq != NOSQUARE)
-        return tb_probe_(stm, epsq, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, FALSE, res, ply);
+    if (castles != 0) return FALSE;
+    if (epsq != NOSQUARE) return tb_probe_(stm, epsq, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, FALSE, res, ply);
 
     /* probe bitbase like, assuming no en passant */
 #ifdef WDL_PROBE
     return tb_probe_wdl(stm, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, FALSE, res);
 #else
-    return tb_probe_ (stm, epsq, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, FALSE, res, ply);
+    return tb_probe_(stm, epsq, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, FALSE, res, ply);
 #endif
 }
 
-extern bool_t
-tb_probe_WDL_hard
-        (unsigned stm,
-         SQUARE epsq,
-         unsigned castles,
-         const SQUARE *inp_wSQ,
-         const SQUARE *inp_bSQ,
-         const SQ_CONTENT *inp_wPC,
-         const SQ_CONTENT *inp_bPC,
-                /*@out@*/ unsigned *res) {
+extern bool_t tb_probe_WDL_hard(unsigned stm, SQUARE epsq, unsigned castles, const SQUARE *inp_wSQ, const SQUARE *inp_bSQ, const SQ_CONTENT *inp_wPC,
+                                const SQ_CONTENT *inp_bPC,
+                                /*@out@*/ unsigned *res) {
     unsigned ply_n;
     unsigned *ply = &ply_n;
-    if (castles != 0)
-        return FALSE;
-    if (epsq != NOSQUARE)
-        return tb_probe_(stm, epsq, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, TRUE, res, ply);
+    if (castles != 0) return FALSE;
+    if (epsq != NOSQUARE) return tb_probe_(stm, epsq, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, TRUE, res, ply);
 
     /* probe bitbase like, assuming no en passant */
 #ifdef WDL_PROBE
     return tb_probe_wdl(stm, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, TRUE, res);
 #else
-    return tb_probe_ (stm, epsq, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, TRUE, res, ply);
+    return tb_probe_(stm, epsq, inp_wSQ, inp_bSQ, inp_wPC, inp_bPC, TRUE, res, ply);
 #endif
 }
 
-
-static bool_t
-tb_probe_(unsigned stm,
-          SQUARE epsq,
-          const SQUARE *inp_wSQ,
-          const SQUARE *inp_bSQ,
-          const SQ_CONTENT *inp_wPC,
-          const SQ_CONTENT *inp_bPC,
-          bool_t probingtype,
-        /*@out@*/ unsigned *res,
-        /*@out@*/ unsigned *ply) {
+static bool_t tb_probe_(unsigned stm, SQUARE epsq, const SQUARE *inp_wSQ, const SQUARE *inp_bSQ, const SQ_CONTENT *inp_wPC, const SQ_CONTENT *inp_bPC,
+                        bool_t probingtype,
+                        /*@out@*/ unsigned *res,
+                        /*@out@*/ unsigned *ply) {
     int i = 0, j = 0;
     tbkey_t id = -1;
     dtm_t dtm = 0;
@@ -1635,9 +1588,9 @@ tb_probe_(unsigned stm,
 
     /************************************/
 
-    assert (stm == WH || stm == BL);
+    assert(stm == WH || stm == BL);
     /*assert (inp_wPC[0] == KING && inp_bPC[0] == KING );*/
-    assert ((epsq >> 3) == 2 || (epsq >> 3) == 5 || epsq == NOSQUARE);
+    assert((epsq >> 3) == 2 || (epsq >> 3) == 5 || epsq == NOSQUARE);
 
     /* VALID ONLY FOR KK!! */
     if (inp_wPC[1] == NOPIECE && inp_bPC[1] == NOPIECE) {
@@ -1659,10 +1612,11 @@ tb_probe_(unsigned stm,
 
     FOLLOW_label("EGTB_PROBE")
 
-    if (egtb_get_id(wp, bp, &id)) {
+        if (egtb_get_id(wp, bp, &id)) {
         FOLLOW_LU("got ID", id)
         straight = TRUE;
-    } else if (egtb_get_id(bp, wp, &id)) {
+    }
+    else if (egtb_get_id(bp, wp, &id)) {
         FOLLOW_LU("rev ID", id)
         straight = FALSE;
         list_sq_flipNS(ws);
@@ -1671,16 +1625,17 @@ tb_probe_(unsigned stm,
         ws = bs;
         bs = temps;
         stm = Opp(stm);
-        if (epsq != NOSQUARE) epsq ^= 070;                /* added */
+        if (epsq != NOSQUARE) epsq ^= 070; /* added */
         {
             SQ_CONTENT *tempp = wp;
             wp = bp;
             bp = tempp;
-        }    /* added */
-    } else {
+        } /* added */
+    }
+    else {
 #if defined(DEBUG)
-                                                                                                                                printf("did not get id...\n");
-		output_state (stm, ws, bs, wp, bp);
+        printf("did not get id...\n");
+        output_state(stm, ws, bs, wp, bp);
 #endif
         unpackdist(iFORBID, res, ply);
         return FALSE;
@@ -1711,7 +1666,6 @@ tb_probe_(unsigned stm,
     FOLLOW_DTM("dtm", dtm)
 
     if (okdtm) {
-
         capturer_a = NOSQUARE;
         capturer_b = NOSQUARE;
 
@@ -1725,17 +1679,13 @@ tb_probe_(unsigned stm,
             }
 
             /* try first possible ep capture */
-            if (0 == (0x88 & (map88(xed) + 1)))
-                capturer_a = xed + 1;
+            if (0 == (0x88 & (map88(xed) + 1))) capturer_a = xed + 1;
             /* try second possible ep capture */
-            if (0 == (0x88 & (map88(xed) - 1)))
-                capturer_b = xed - 1;
+            if (0 == (0x88 & (map88(xed) - 1))) capturer_b = xed - 1;
 
             if (ys[j] == xed) {
-
                 /* find capturers (i) */
                 for (i = 0; xs[i] != NOSQUARE && okcall; i++) {
-
                     if (xp[i] == PAWN && (xs[i] == capturer_a || xs[i] == capturer_b)) {
                         dtm_t epscore = iFORBID;
 
@@ -1779,32 +1729,29 @@ tb_probe_(unsigned stm,
 }
 
 #ifdef _MSC_VER
-                                                                                                                        /* to silence warning for sprintf usage */
-#pragma warning(disable:4996)
+/* to silence warning for sprintf usage */
+#pragma warning(disable : 4996)
 #endif
 
-static bool_t
-egtb_filepeek(tbkey_t key, unsigned side, index_t idx, dtm_t *out_dtm) {
+static bool_t egtb_filepeek(tbkey_t key, unsigned side, index_t idx, dtm_t *out_dtm) {
     FILE *finp;
 
 #define USE_FD
 
 #if !defined(USE_FD)
-                                                                                                                            char buf[1024];
-	char *filename = buf;
+    char buf[1024];
+    char *filename = buf;
 #endif
 
     bool_t ok;
     dtm_t x = 0;
     index_t maxindex = egkey[key].maxindex;
 
-
-    assert (Uncompressed);
-    assert (side == WH || side == BL);
-    assert (out_dtm != NULL);
-    assert (idx >= 0);
-    assert (key < MAX_EGKEYS);
-
+    assert(Uncompressed);
+    assert(side == WH || side == BL);
+    assert(out_dtm != NULL);
+    assert(idx >= 0);
+    assert(key < MAX_EGKEYS);
 
 #if defined(USE_FD)
     if (NULL == (finp = egkey[key].fd)) {
@@ -1813,10 +1760,10 @@ egtb_filepeek(tbkey_t key, unsigned side, index_t idx, dtm_t *out_dtm) {
         }
     }
 #else
-                                                                                                                            sprintf (buf, "%s.gtb", egkey[key].str);
-		if (NULL == (finp = fopen (filename, "rb"))) {
-			return FALSE;
-		}
+    sprintf(buf, "%s.gtb", egkey[key].str);
+    if (NULL == (finp = fopen(filename, "rb"))) {
+        return FALSE;
+    }
 #endif
 
     ok = fpark_entry_packed(finp, side, maxindex, idx);
@@ -1828,7 +1775,7 @@ egtb_filepeek(tbkey_t key, unsigned side, index_t idx, dtm_t *out_dtm) {
         *out_dtm = iFORBID;
 
 #if !defined(USE_FD)
-    fclose (finp);
+    fclose(finp);
 #endif
 
     return ok;
@@ -1837,8 +1784,7 @@ egtb_filepeek(tbkey_t key, unsigned side, index_t idx, dtm_t *out_dtm) {
 /* will get defined later */
 static bool_t dtm_cache_is_on(void);
 
-static bool_t
-egtb_get_dtm(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t probe_hard_flag, dtm_t *dtm) {
+static bool_t egtb_get_dtm(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t probe_hard_flag, dtm_t *dtm) {
     bool_t idxavail;
     index_t idx;
     dtm_t *tab[2];
@@ -1846,8 +1792,7 @@ egtb_get_dtm(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t
 
     FOLLOW_label("egtb_get_dtm --> starts")
 
-    if (egkey[k].status == STATUS_MALLOC || egkey[k].status == STATUS_STATICRAM) {
-
+        if (egkey[k].status == STATUS_MALLOC || egkey[k].status == STATUS_STATICRAM) {
         tab[WH] = egkey[k].egt_w;
         tab[BL] = egkey[k].egt_b;
         pc2idx = egkey[k].pctoi;
@@ -1863,9 +1808,8 @@ egtb_get_dtm(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t
         }
 
         return TRUE;
-
-    } else if (egkey[k].status == STATUS_ABSENT) {
-
+    }
+    else if (egkey[k].status == STATUS_ABSENT) {
         pc2idx = egkey[k].pctoi;
         idxavail = pc2idx(wS, bS, &idx);
 
@@ -1875,49 +1819,46 @@ egtb_get_dtm(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t
             bool_t success;
 
             /*
-			|		LOCK
-			*-------------------------------*/
+                        |		LOCK
+                        *-------------------------------*/
             mythread_mutex_lock(&Egtb_lock);
 
             if (dtm_cache_is_on()) {
-
                 success = get_dtm(k, stm, idx, dtm, probe_hard_flag);
 
                 FOLLOW_LU("get_dtm (succ)", success)
                 FOLLOW_LU("get_dtm (dtm )", *dtm)
 
 #if defined(DEBUG)
-                                                                                                                                        if (Uncompressed) {
-						dtm_t 	dtm_temp;
-						bool_t 	ok;
-						bool_t 	success2;
+                if (Uncompressed) {
+                    dtm_t dtm_temp;
+                    bool_t ok;
+                    bool_t success2;
 
-						assert (decoding_scheme() == 0 && GTB_scheme == 0);
+                    assert(decoding_scheme() == 0 && GTB_scheme == 0);
 
-						success2 = egtb_filepeek (k, stm, idx, &dtm_temp);
-						ok =  (success == success2) && (!success || *dtm == dtm_temp);
-						if (!ok) {
-							printf ("\nERROR\nsuccess1=%d sucess2=%d\n"
-									"k=%d stm=%u idx=%d dtm_peek=%d dtm_cache=%d\n",
-									success, success2, k, stm, idx, dtm_temp, *dtm);
-							fatal_error();
-						}
-					}
+                    success2 = egtb_filepeek(k, stm, idx, &dtm_temp);
+                    ok = (success == success2) && (!success || *dtm == dtm_temp);
+                    if (!ok) {
+                        printf("\nERROR\nsuccess1=%d sucess2=%d\n"
+                               "k=%d stm=%u idx=%d dtm_peek=%d dtm_cache=%d\n",
+                               success, success2, k, stm, idx, dtm_temp, *dtm);
+                        fatal_error();
+                    }
+                }
 #endif
 
             } else {
                 assert(Uncompressed);
-                if (probe_hard_flag && Uncompressed)
-                    success = egtb_filepeek(k, stm, idx, dtm);
+                if (probe_hard_flag && Uncompressed) success = egtb_filepeek(k, stm, idx, dtm);
                 else
                     success = FALSE;
             }
 
             mythread_mutex_unlock(&Egtb_lock);
             /*------------------------------*\
-			|		UNLOCK
-			*/
-
+                        |		UNLOCK
+                        */
 
             if (success) {
                 return TRUE;
@@ -1932,26 +1873,23 @@ egtb_get_dtm(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t
             *dtm = iFORBID;
             return TRUE;
         }
-
-    } else if (egkey[k].status == STATUS_REJECT) {
-
+    }
+    else if (egkey[k].status == STATUS_REJECT) {
         FOLLOW_label("STATUS_REJECT")
 
-        *dtm = iFORBID;
+            *dtm = iFORBID;
         return FALSE;
-    } else {
-
+    }
+    else {
         FOLLOW_label("STATUS_WRONG!")
 
-        assert(0);
+            assert(0);
         *dtm = iFORBID;
         return FALSE;
     }
-
 }
 
-static void
-removepiece(SQUARE *ys, SQ_CONTENT *yp, int j) {
+static void removepiece(SQUARE *ys, SQ_CONTENT *yp, int j) {
     int k;
     for (k = j; ys[k] != NOSQUARE; k++) {
         ys[k] = ys[k + 1];
@@ -1965,8 +1903,7 @@ removepiece(SQUARE *ys, SQ_CONTENT *yp, int j) {
 |
 \*----------------------------------------------------*/
 
-mySHARED /*@NULL@*/ FILE *
-fd_openit(tbkey_t key) {
+mySHARED /*@NULL@*/ FILE *fd_openit(tbkey_t key) {
     int i;
     tbkey_t closingkey;
     FILE *finp = NULL;
@@ -1977,16 +1914,15 @@ fd_openit(tbkey_t key) {
     int pth;
     const char *extension;
 
-    assert (0 <= key && key < MAX_EGKEYS);
-    assert (0 <= fd.n && fd.n <= GTB_MAXOPEN);
+    assert(0 <= key && key < MAX_EGKEYS);
+    assert(0 <= fd.n && fd.n <= GTB_MAXOPEN);
 
     /* test if I reach limit of files open */
     if (fd.n == GTB_MAXOPEN) {
-
         /* fclose the last accessed, first in the list */
         closingkey = fd.key[0];
         finp = egkey[closingkey].fd;
-        assert (finp != NULL);
+        assert(finp != NULL);
         fclose(finp);
         egkey[closingkey].fd = NULL;
         finp = NULL;
@@ -1997,11 +1933,11 @@ fd_openit(tbkey_t key) {
         fd.key[--fd.n] = -1;
     }
 
-    assert (fd.n < GTB_MAXOPEN);
+    assert(fd.n < GTB_MAXOPEN);
 
     /* set proper extensions to the File */
     if (Uncompressed) {
-        assert (decoding_scheme() == 0 && GTB_scheme == 0);
+        assert(decoding_scheme() == 0 && GTB_scheme == 0);
         extension = ".gtb";
     } else {
         extension = Extension[decoding_scheme()];
@@ -2013,16 +1949,16 @@ fd_openit(tbkey_t key) {
     start = egkey[key].pathn;
     end = Gtbpath_end_index;
 
-/*@@
-printf ("start: %d\n",start);
-printf ("===================Gtbpath[0]=%s\n",Gtbpath[0]);
-*/
+    /*@@
+    printf ("start: %d\n",start);
+    printf ("===================Gtbpath[0]=%s\n",Gtbpath[0]);
+    */
     for (pth = start; NULL == finp && pth < end && Gtbpath[pth] != NULL; pth++) {
         const char *path = Gtbpath[pth];
         size_t pl = strlen(path);
-/*@@
-printf ("path: %s\n",path);
-*/
+        /*@@
+        printf ("path: %s\n",path);
+        */
         if (pl == 0) {
             sprintf(buf, "%s%s%s", path, egkey[key].str, extension);
         } else {
@@ -2032,10 +1968,10 @@ printf ("path: %s\n",path);
                 sprintf(buf, "%s%s%s%s", path, FOLDERSEP, egkey[key].str, extension);
             }
         }
-/*printf ("try to open %s   --> ",filename);*/
+        /*printf ("try to open %s   --> ",filename);*/
         /* Finally found the file? */
         finp = fopen(filename, "rb");
-/*printf ("%d\n",finp != NULL);*/
+        /*printf ("%d\n",finp != NULL);*/
     }
 
     /* File was found and opened */
@@ -2062,12 +1998,11 @@ printf ("path: %s\n",path);
                 sprintf(buf, "%s%s%s%s", path, FOLDERSEP, egkey[key].str, extension);
             }
         }
-/*printf ("try to open %s   --> ",filename);*/
+        /*printf ("try to open %s   --> ",filename);*/
         /* Finally found the file? */
         finp = fopen(filename, "rb");
-/*printf ("%d\n",finp != NULL);*/
+        /*printf ("%d\n",finp != NULL);*/
     }
-
 
     /* File was found and opened */
     if (NULL != finp) {
@@ -2081,12 +2016,11 @@ printf ("path: %s\n",path);
 }
 
 #ifdef _MSC_VER
-                                                                                                                        /* to silence warning for sprintf usage */
-#pragma warning(default:4996)
+/* to silence warning for sprintf usage */
+#pragma warning(default : 4996)
 #endif
 
-mySHARED void
-sortlists(SQUARE *ws, SQ_CONTENT *wp) {
+mySHARED void sortlists(SQUARE *ws, SQ_CONTENT *wp) {
     int i, j;
     SQUARE ts;
     SQ_CONTENT tp;
@@ -2105,40 +2039,35 @@ sortlists(SQUARE *ws, SQ_CONTENT *wp) {
     }
 }
 
-mySHARED void
-list_sq_copy(const SQUARE *a, SQUARE *b) {
-    while (NOSQUARE != (*b++ = *a++));
+mySHARED void list_sq_copy(const SQUARE *a, SQUARE *b) {
+    while (NOSQUARE != (*b++ = *a++))
+        ;
 }
 
-mySHARED void
-list_pc_copy(const SQ_CONTENT *a, SQ_CONTENT *b) {
-    while (NOPIECE != (*b++ = *a++));
+mySHARED void list_pc_copy(const SQ_CONTENT *a, SQ_CONTENT *b) {
+    while (NOPIECE != (*b++ = *a++))
+        ;
 }
 
-mySHARED dtm_t
-inv_dtm(dtm_t x) {
+mySHARED dtm_t inv_dtm(dtm_t x) {
     unsigned mat;
-    assert ((x & iUNKNBIT) == 0);
+    assert((x & iUNKNBIT) == 0);
 
-    if (x == iDRAW || x == iFORBID)
-        return x;
+    if (x == iDRAW || x == iFORBID) return x;
 
-    mat = (unsigned) x & 3u;
-    if (mat == iWMATE)
-        mat = iBMATE;
+    mat = (unsigned)x & 3u;
+    if (mat == iWMATE) mat = iBMATE;
     else
         mat = iWMATE;
 
-    x = (dtm_t) (((unsigned) x & ~3u) | mat);
+    x = (dtm_t)(((unsigned)x & ~3u) | mat);
 
     return x;
 }
 
 static const char pctoch[] = {'-', 'p', 'n', 'b', 'r', 'q', 'k'};
 
-mySHARED bool_t
-egtb_get_id(SQ_CONTENT *w, SQ_CONTENT *b, tbkey_t *id) {
-
+mySHARED bool_t egtb_get_id(SQ_CONTENT *w, SQ_CONTENT *b, tbkey_t *id) {
     char pcstr[2 * MAX_LISTSIZE];
     SQ_CONTENT *s;
     char *t;
@@ -2147,7 +2076,7 @@ egtb_get_id(SQ_CONTENT *w, SQ_CONTENT *b, tbkey_t *id) {
     static tbkey_t cache_i = 0;
     size_t h1, h2;
 
-    assert (PAWN == 1 && KNIGHT == 2 && BISHOP == 3 && ROOK == 4 && QUEEN == 5 && KING == 6);
+    assert(PAWN == 1 && KNIGHT == 2 && BISHOP == 3 && ROOK == 4 && QUEEN == 5 && KING == 6);
 
     t = pcstr;
 
@@ -2170,11 +2099,9 @@ egtb_get_id(SQ_CONTENT *w, SQ_CONTENT *b, tbkey_t *id) {
     h2 = str_hash_func_2(pcstr);
     while (1) {
         i = egkey_hash[h1];
-        if (i < 0)
-            break;
+        if (i < 0) break;
         found = (0 == strcmp(pcstr, egkey[i].str));
-        if (found)
-            break;
+        if (found) break;
         h1 = (h1 + h2) & (EGKEY_HASH_SIZE - 1);
     }
     if (found) {
@@ -2184,28 +2111,24 @@ egtb_get_id(SQ_CONTENT *w, SQ_CONTENT *b, tbkey_t *id) {
     return found;
 }
 
-mySHARED void
-list_sq_flipNS(SQUARE *s) {
+mySHARED void list_sq_flipNS(SQUARE *s) {
     while (*s != NOSQUARE) {
         *s ^= 070;
         s++;
     }
 }
 
-mySHARED void
-unpackdist(dtm_t d, unsigned int *res, unsigned int *ply) {
-    *ply = (unsigned int) d >> PLYSHIFT;
+mySHARED void unpackdist(dtm_t d, unsigned int *res, unsigned int *ply) {
+    *ply = (unsigned int)d >> PLYSHIFT;
     *res = d & INFOMASK;
 }
 
-mySHARED dtm_t
-packdist(unsigned int inf, unsigned int ply) {
-    assert (inf <= INFOMASK);
-    return (dtm_t) (inf | ply << PLYSHIFT);
+mySHARED dtm_t packdist(unsigned int inf, unsigned int ply) {
+    assert(inf <= INFOMASK);
+    return (dtm_t)(inf | ply << PLYSHIFT);
 }
 
-mySHARED dtm_t
-adjust_up(dtm_t dist) {
+mySHARED dtm_t adjust_up(dtm_t dist) {
 #if 0
                                                                                                                             static const dtm_t adding[] = {
 		0, 1<<PLYSHIFT, 1<<PLYSHIFT, 0,
@@ -2214,53 +2137,48 @@ adjust_up(dtm_t dist) {
 	dist += adding [dist&INFOMASK];
 	return dist;
 #else
-    unsigned udist = (unsigned) dist;
+    unsigned udist = (unsigned)dist;
     switch (udist & INFOMASK) {
-        case iWMATE:
-        case iWMATEt:
-        case iBMATE:
-        case iBMATEt:
-            udist += (1u << PLYSHIFT);
-            break;
-        default:
-            break;
+    case iWMATE:
+    case iWMATEt:
+    case iBMATE:
+    case iBMATEt:
+        udist += (1u << PLYSHIFT);
+        break;
+    default:
+        break;
     }
-    return (dtm_t) udist;
+    return (dtm_t)udist;
 #endif
 }
 
-
-mySHARED dtm_t
-bestx(unsigned stm, dtm_t a, dtm_t b) {
+mySHARED dtm_t bestx(unsigned stm, dtm_t a, dtm_t b) {
     unsigned int key;
-    static const unsigned int
-            comparison[4][4] = {
-            /*draw, wmate, bmate, forbid*/
-            /* draw  */ {0, 3, 0, 0},
-            /* wmate */
-                        {0, 1, 0, 0},
-            /* bmate */
-                        {3, 3, 2, 0},
-            /* forbid*/
-                        {3, 3, 3, 0}
+    static const unsigned int comparison[4][4] = {
+        /*draw, wmate, bmate, forbid*/
+        /* draw  */ {0, 3, 0, 0},
+        /* wmate */
+        {0, 1, 0, 0},
+        /* bmate */
+        {3, 3, 2, 0},
+        /* forbid*/
+        {3, 3, 3, 0}
 
-            /* 0 = selectfirst   */
-            /* 1 = selectlowest  */
-            /* 2 = selecthighest */
-            /* 3 = selectsecond  */
+        /* 0 = selectfirst   */
+        /* 1 = selectlowest  */
+        /* 2 = selecthighest */
+        /* 3 = selectsecond  */
     };
 
     static const unsigned int xorkey[2] = {0, 3};
     dtm_t retu[4];
     dtm_t ret = iFORBID;
 
-    assert (stm == WH || stm == BL);
-    assert ((a & iUNKNBIT) == 0 && (b & iUNKNBIT) == 0);
+    assert(stm == WH || stm == BL);
+    assert((a & iUNKNBIT) == 0 && (b & iUNKNBIT) == 0);
 
-    if (a == iFORBID)
-        return b;
-    if (b == iFORBID)
-        return a;
+    if (a == iFORBID) return b;
+    if (b == iFORBID) return a;
 
     retu[0] = a; /* first parameter */
     retu[1] = a; /* the lowest by default */
@@ -2277,120 +2195,112 @@ bestx(unsigned stm, dtm_t a, dtm_t b) {
     return ret;
 }
 
-
 /*--------------------------------------------------------------------------*\
  |								PACKING ZONE
  *--------------------------------------------------------------------------*/
 
-inline
-mySHARED dtm_t
-dtm_unpack(unsigned stm, unsigned char packed) {
+inline mySHARED dtm_t dtm_unpack(unsigned stm, unsigned char packed) {
     unsigned int info, plies, prefx, store, moves;
     dtm_t ret;
     unsigned int p = packed;
 
     if (iDRAW == p || iFORBID == p) {
-        return (dtm_t) p;
+        return (dtm_t)p;
     }
 
-    info = (unsigned int) p & 3;
-    store = (unsigned int) p >> 2;
+    info = (unsigned int)p & 3;
+    store = (unsigned int)p >> 2;
 
     if (WH == stm) {
         switch (info) {
-            case iWMATE:
-                moves = store + 1;
-                plies = moves * 2 - 1;
-                prefx = info;
-                break;
+        case iWMATE:
+            moves = store + 1;
+            plies = moves * 2 - 1;
+            prefx = info;
+            break;
 
-            case iBMATE:
-                moves = store;
-                plies = moves * 2;
-                prefx = info;
-                break;
+        case iBMATE:
+            moves = store;
+            plies = moves * 2;
+            prefx = info;
+            break;
 
-            case iDRAW:
-                moves = store + 1 + 63;
-                plies = moves * 2 - 1;
-                prefx = iWMATE;
-                break;
+        case iDRAW:
+            moves = store + 1 + 63;
+            plies = moves * 2 - 1;
+            prefx = iWMATE;
+            break;
 
-            case iFORBID:
+        case iFORBID:
 
-                moves = store + 63;
-                plies = moves * 2;
-                prefx = iBMATE;
-                break;
-            default:
-                plies = 0;
-                prefx = 0;
-                assert(0);
-                break;
-
+            moves = store + 63;
+            plies = moves * 2;
+            prefx = iBMATE;
+            break;
+        default:
+            plies = 0;
+            prefx = 0;
+            assert(0);
+            break;
         }
-        ret = (dtm_t) (prefx | (plies << 3));
+        ret = (dtm_t)(prefx | (plies << 3));
     } else {
         switch (info) {
-            case iBMATE:
-                moves = store + 1;
-                plies = moves * 2 - 1;
-                prefx = info;
-                break;
+        case iBMATE:
+            moves = store + 1;
+            plies = moves * 2 - 1;
+            prefx = info;
+            break;
 
-            case iWMATE:
-                moves = store;
-                plies = moves * 2;
-                prefx = info;
-                break;
+        case iWMATE:
+            moves = store;
+            plies = moves * 2;
+            prefx = info;
+            break;
 
-            case iDRAW:
+        case iDRAW:
 
-                if (store == 63) {
-                    /* 	exception: no position in the 5-man
-							TBs needs to store 63 for iBMATE
-							it is then used to indicate iWMATE
-							when just overflows */
-                    store++;
-
-                    moves = store + 63;
-                    plies = moves * 2;
-                    prefx = iWMATE;
-
-                    break;
-                }
-
-                moves = store + 1 + 63;
-                plies = moves * 2 - 1;
-                prefx = iBMATE;
-                break;
-
-            case iFORBID:
+            if (store == 63) {
+                /* 	exception: no position in the 5-man
+                                                    TBs needs to store 63 for iBMATE
+                                                    it is then used to indicate iWMATE
+                                                    when just overflows */
+                store++;
 
                 moves = store + 63;
                 plies = moves * 2;
                 prefx = iWMATE;
-                break;
-            default:
-                plies = 0;
-                prefx = 0;
-                assert(0);
-                break;
 
+                break;
+            }
+
+            moves = store + 1 + 63;
+            plies = moves * 2 - 1;
+            prefx = iBMATE;
+            break;
+
+        case iFORBID:
+
+            moves = store + 63;
+            plies = moves * 2;
+            prefx = iWMATE;
+            break;
+        default:
+            plies = 0;
+            prefx = 0;
+            assert(0);
+            break;
         }
-        ret = (dtm_t) (prefx | (plies << 3));
+        ret = (dtm_t)(prefx | (plies << 3));
     }
     return ret;
 }
-
 
 /*
 static bool_t fwrite_entry_packed (FILE *dest, unsigned side, dtm_t x);
 */
 
-
-mySHARED bool_t
-fread_entry_packed(FILE *finp, unsigned side, dtm_t *px) {
+mySHARED bool_t fread_entry_packed(FILE *finp, unsigned side, dtm_t *px) {
     unsigned char p[SLOTSIZE];
     bool_t ok = (SLOTSIZE == fread(p, sizeof(unsigned char), SLOTSIZE, finp));
     if (ok) {
@@ -2399,20 +2309,18 @@ fread_entry_packed(FILE *finp, unsigned side, dtm_t *px) {
     return ok;
 }
 
-
-mySHARED bool_t
-fpark_entry_packed(FILE *finp, unsigned side, index_t max, index_t idx) {
+mySHARED bool_t fpark_entry_packed(FILE *finp, unsigned side, index_t max, index_t idx) {
     bool_t ok;
     index_t i;
     long int fseek_i;
-    index_t sz = (index_t) sizeof(unsigned char);
+    index_t sz = (index_t)sizeof(unsigned char);
 
-    assert (side == WH || side == BL);
-    assert (finp != NULL);
-    assert (idx >= 0);
-    i = ((index_t) side * max + idx) * sz;
-    fseek_i = (long int) i;
-    assert (fseek_i >= 0);
+    assert(side == WH || side == BL);
+    assert(finp != NULL);
+    assert(idx >= 0);
+    i = ((index_t)side * max + idx) * sz;
+    fseek_i = (long int)i;
+    assert(fseek_i >= 0);
     ok = (0 == fseek(finp, fseek_i, SEEK_SET));
     return ok;
 }
@@ -2423,8 +2331,7 @@ fpark_entry_packed(FILE *finp, unsigned side, index_t max, index_t idx) {
 |
 \*/
 
-static size_t
-hash_func_1(tbkey_t key, unsigned side, index_t offset) {
+static size_t hash_func_1(tbkey_t key, unsigned side, index_t offset) {
     size_t h = offset | (key << 1) | side;
     h = ((h >> 16) ^ h) * 0x45d9f3b;
     h = ((h >> 16) ^ h) * 0x45d9f3b;
@@ -2432,8 +2339,7 @@ hash_func_1(tbkey_t key, unsigned side, index_t offset) {
     return h;
 }
 
-static size_t
-hash_func_2(tbkey_t key, unsigned side, index_t offset) {
+static size_t hash_func_2(tbkey_t key, unsigned side, index_t offset) {
     size_t h = offset | (key << 1) | side;
     h = ((h >> 16) ^ h) * 0x3335b369;
     h = ((h >> 16) ^ h) * 0x3335b369;
@@ -2446,7 +2352,7 @@ hash_func_2(tbkey_t key, unsigned side, index_t offset) {
 \*---------------------------------------------------------------------*/
 
 #define WDL_entries_per_unit 4
-#define WDL_entry_mask     3
+#define WDL_entry_mask 3
 static size_t WDL_units_per_block = 0;
 
 static bool_t WDL_CACHE_INITIALIZED = FALSE;
@@ -2491,10 +2397,7 @@ struct WDL_CACHE {
     uint64_t comparisons;
 };
 
-struct WDL_CACHE wdl_cache = {FALSE, 0, 0, NULL,
-                              NULL, NULL, 0, NULL,
-                              0, 0, 0, 0, 0, 0};
-
+struct WDL_CACHE wdl_cache = {FALSE, 0, 0, NULL, NULL, NULL, 0, NULL, 0, 0, 0, 0, 0, 0};
 
 /*---------------------------------------------------------------------*\
 |			DTM CACHE Implementation  ZONE
@@ -2540,9 +2443,7 @@ struct cache_table {
     unsigned long comparisons;
 };
 
-struct cache_table dtm_cache = {FALSE, 0, 0, NULL,
-                                NULL, NULL, 0, NULL,
-                                0, 0, 0, 0, 0, 0};
+struct cache_table dtm_cache = {FALSE, 0, 0, NULL, NULL, NULL, 0, NULL, 0, 0, 0, 0, 0, 0};
 
 struct general_counters {
     /* counters */
@@ -2551,7 +2452,6 @@ struct general_counters {
 };
 
 static struct general_counters Drive = {0, 0};
-
 
 static void split_index(size_t entries_per_block, index_t i, index_t *o, index_t *r);
 
@@ -2607,13 +2507,11 @@ static void dtm_cache_flush(void);
 
 /*--------------------------------------------------------------------------*/
 
-static bool_t
-dtm_cache_is_on(void) {
+static bool_t dtm_cache_is_on(void) {
     return dtm_cache.cached;
 }
 
-static void
-dtm_cache_reset_counters(void) {
+static void dtm_cache_reset_counters(void) {
     dtm_cache.hard = 0;
     dtm_cache.soft = 0;
     dtm_cache.hardmisses = 0;
@@ -2623,27 +2521,22 @@ dtm_cache_reset_counters(void) {
     return;
 }
 
-
-static size_t
-dtm_cache_init(size_t cache_mem) {
+static size_t dtm_cache_init(size_t cache_mem) {
     unsigned int i;
     dtm_block_t *p;
     size_t entries_per_block;
     size_t max_blocks;
     size_t block_mem;
 
-    if (DTM_CACHE_INITIALIZED)
-        dtm_cache_done();
+    if (DTM_CACHE_INITIALIZED) dtm_cache_done();
 
-    entries_per_block = 16 * 1024;  /* fixed, needed for the compression schemes */
+    entries_per_block = 16 * 1024; /* fixed, needed for the compression schemes */
 
     block_mem = entries_per_block * sizeof(dtm_t);
 
     max_blocks = cache_mem / block_mem;
-    if (!Uncompressed && 1 > max_blocks)
-        max_blocks = 1;
+    if (!Uncompressed && 1 > max_blocks) max_blocks = 1;
     cache_mem = max_blocks * block_mem;
-
 
     dtm_cache_reset_counters();
 
@@ -2654,14 +2547,14 @@ dtm_cache_init(size_t cache_mem) {
     dtm_cache.bot = NULL;
     dtm_cache.n = 0;
 
-    if (0 == cache_mem || NULL == (dtm_cache.buffer = (dtm_t *) malloc(cache_mem))) {
+    if (0 == cache_mem || NULL == (dtm_cache.buffer = (dtm_t *)malloc(cache_mem))) {
         dtm_cache.cached = FALSE;
         dtm_cache.buffer = NULL;
         dtm_cache.entry = NULL;
         return 0;
     }
 
-    if (0 == max_blocks || NULL == (dtm_cache.entry = (dtm_block_t *) malloc(max_blocks * sizeof(dtm_block_t)))) {
+    if (0 == max_blocks || NULL == (dtm_cache.entry = (dtm_block_t *)malloc(max_blocks * sizeof(dtm_block_t)))) {
         dtm_cache.cached = FALSE;
         dtm_cache.entry = NULL;
         free(dtm_cache.buffer);
@@ -2683,7 +2576,8 @@ dtm_cache_init(size_t cache_mem) {
     while (dtm_cache.ht_size < max_blocks * 4)
         dtm_cache.ht_size *= 2;
     dtm_cache.ht_used = 0;
-    dtm_cache.hash_table = (dtm_block_t **) malloc(dtm_cache.ht_size * sizeof(dtm_block_t *));;
+    dtm_cache.hash_table = (dtm_block_t **)malloc(dtm_cache.ht_size * sizeof(dtm_block_t *));
+    ;
     if (dtm_cache.hash_table == NULL) {
         dtm_cache.cached = FALSE;
         free(dtm_cache.entry);
@@ -2702,9 +2596,7 @@ dtm_cache_init(size_t cache_mem) {
     return cache_mem;
 }
 
-
-static void
-dtm_cache_done(void) {
+static void dtm_cache_done(void) {
     assert(DTM_CACHE_INITIALIZED);
 
     dtm_cache.cached = FALSE;
@@ -2721,16 +2613,13 @@ dtm_cache_done(void) {
     dtm_cache.bot = NULL;
     dtm_cache.n = 0;
 
-    if (dtm_cache.buffer != NULL)
-        free(dtm_cache.buffer);
+    if (dtm_cache.buffer != NULL) free(dtm_cache.buffer);
     dtm_cache.buffer = NULL;
 
-    if (dtm_cache.entry != NULL)
-        free(dtm_cache.entry);
+    if (dtm_cache.entry != NULL) free(dtm_cache.entry);
     dtm_cache.entry = NULL;
 
-    if (dtm_cache.hash_table != NULL)
-        free(dtm_cache.hash_table);
+    if (dtm_cache.hash_table != NULL) free(dtm_cache.hash_table);
     dtm_cache.hash_table = NULL;
 
     DTM_CACHE_INITIALIZED = FALSE;
@@ -2738,8 +2627,7 @@ dtm_cache_done(void) {
     return;
 }
 
-static void
-dtm_cache_flush(void) {
+static void dtm_cache_flush(void) {
     unsigned int i;
     dtm_block_t *p;
     size_t entries_per_block = dtm_cache.entries_per_block;
@@ -2762,126 +2650,115 @@ dtm_cache_flush(void) {
     return;
 }
 
-
 /*---- end tbcache zone ----------------------------------------------------------------------*/
 
-extern bool_t
-tbcache_is_on(void) {
+extern bool_t tbcache_is_on(void) {
     return dtm_cache_is_on() || wdl_cache_is_on();
 }
 
-
 /* STATISTICS OUTPUT */
 
-extern void
-tbstats_get(struct TB_STATS *x) {
+extern void tbstats_get(struct TB_STATS *x) {
     long unsigned mask = 0xfffffffflu;
     uint64_t memory_hits, total_hits;
 
-
     /*
-	|	WDL CACHE
-	\*---------------------------------------------------*/
+        |	WDL CACHE
+        \*---------------------------------------------------*/
 
-    x->wdl_easy_hits[0] = (long unsigned) (wdl_cache.hits & mask);
-    x->wdl_easy_hits[1] = (long unsigned) (wdl_cache.hits >> 32);
+    x->wdl_easy_hits[0] = (long unsigned)(wdl_cache.hits & mask);
+    x->wdl_easy_hits[1] = (long unsigned)(wdl_cache.hits >> 32);
 
-    x->wdl_hard_prob[0] = (long unsigned) (wdl_cache.hard & mask);
-    x->wdl_hard_prob[1] = (long unsigned) (wdl_cache.hard >> 32);
+    x->wdl_hard_prob[0] = (long unsigned)(wdl_cache.hard & mask);
+    x->wdl_hard_prob[1] = (long unsigned)(wdl_cache.hard >> 32);
 
-    x->wdl_soft_prob[0] = (long unsigned) (wdl_cache.soft & mask);
-    x->wdl_soft_prob[1] = (long unsigned) (wdl_cache.soft >> 32);
+    x->wdl_soft_prob[0] = (long unsigned)(wdl_cache.soft & mask);
+    x->wdl_soft_prob[1] = (long unsigned)(wdl_cache.soft >> 32);
 
     x->wdl_cachesize = WDL_cache_size;
 
     /* occupancy */
-    x->wdl_occupancy =
-            wdl_cache.max_blocks == 0 ? 0 : (double) 100.0 * (double) wdl_cache.n / (double) wdl_cache.max_blocks;
+    x->wdl_occupancy = wdl_cache.max_blocks == 0 ? 0 : (double)100.0 * (double)wdl_cache.n / (double)wdl_cache.max_blocks;
 
     /*
-	|	DTM CACHE
-	\*---------------------------------------------------*/
+        |	DTM CACHE
+        \*---------------------------------------------------*/
 
-    x->dtm_easy_hits[0] = (long unsigned) (dtm_cache.hits & mask);
-    x->dtm_easy_hits[1] = (long unsigned) (dtm_cache.hits >> 32);
+    x->dtm_easy_hits[0] = (long unsigned)(dtm_cache.hits & mask);
+    x->dtm_easy_hits[1] = (long unsigned)(dtm_cache.hits >> 32);
 
-    x->dtm_hard_prob[0] = (long unsigned) (dtm_cache.hard & mask);
-    x->dtm_hard_prob[1] = (long unsigned) (dtm_cache.hard >> 32);
+    x->dtm_hard_prob[0] = (long unsigned)(dtm_cache.hard & mask);
+    x->dtm_hard_prob[1] = (long unsigned)(dtm_cache.hard >> 32);
 
-    x->dtm_soft_prob[0] = (long unsigned) (dtm_cache.soft & mask);
-    x->dtm_soft_prob[1] = (long unsigned) (dtm_cache.soft >> 32);
+    x->dtm_soft_prob[0] = (long unsigned)(dtm_cache.soft & mask);
+    x->dtm_soft_prob[1] = (long unsigned)(dtm_cache.soft >> 32);
 
     x->dtm_cachesize = DTM_cache_size;
 
     /* occupancy */
-    x->dtm_occupancy =
-            dtm_cache.max_blocks == 0 ? 0 : (double) 100.0 * (double) dtm_cache.n / (double) dtm_cache.max_blocks;
+    x->dtm_occupancy = dtm_cache.max_blocks == 0 ? 0 : (double)100.0 * (double)dtm_cache.n / (double)dtm_cache.max_blocks;
 
     /*
-	|	GENERAL
-	\*---------------------------------------------------*/
+        |	GENERAL
+        \*---------------------------------------------------*/
 
     /* memory */
     memory_hits = wdl_cache.hits + dtm_cache.hits;
-    x->memory_hits[0] = (long unsigned) (memory_hits & mask);
-    x->memory_hits[1] = (long unsigned) (memory_hits >> 32);
+    x->memory_hits[0] = (long unsigned)(memory_hits & mask);
+    x->memory_hits[1] = (long unsigned)(memory_hits >> 32);
 
     /* hard drive */
-    x->drive_hits[0] = (long unsigned) (Drive.hits & mask);
-    x->drive_hits[1] = (long unsigned) (Drive.hits >> 32);
+    x->drive_hits[0] = (long unsigned)(Drive.hits & mask);
+    x->drive_hits[1] = (long unsigned)(Drive.hits >> 32);
 
-    x->drive_miss[0] = (long unsigned) (Drive.miss & mask);
-    x->drive_miss[1] = (long unsigned) (Drive.miss >> 32);
+    x->drive_miss[0] = (long unsigned)(Drive.miss & mask);
+    x->drive_miss[1] = (long unsigned)(Drive.miss >> 32);
 
-    x->bytes_read[0] = (long unsigned) (Bytes_read & mask);
-    x->bytes_read[1] = (long unsigned) (Bytes_read >> 32);
+    x->bytes_read[0] = (long unsigned)(Bytes_read & mask);
+    x->bytes_read[1] = (long unsigned)(Bytes_read >> 32);
 
     x->files_opened = eg_was_open_count();
 
     /* total */
     total_hits = memory_hits + Drive.hits;
-    x->total_hits[0] = (long unsigned) (total_hits & mask);
-    x->total_hits[1] = (long unsigned) (total_hits >> 32);
+    x->total_hits[0] = (long unsigned)(total_hits & mask);
+    x->total_hits[1] = (long unsigned)(total_hits >> 32);
 
     /* efficiency */
     {
         uint64_t denominator = memory_hits + Drive.hits + Drive.miss;
-        x->memory_efficiency = 0 == denominator ? 0 : 100.0 * (double) (memory_hits) / (double) (denominator);
+        x->memory_efficiency = 0 == denominator ? 0 : 100.0 * (double)(memory_hits) / (double)(denominator);
     }
 }
 
-
-extern bool_t
-tbcache_init(size_t cache_mem, int wdl_fraction) {
-    assert (wdl_fraction <= WDL_FRACTION_MAX && wdl_fraction >= 0);
+extern bool_t tbcache_init(size_t cache_mem, int wdl_fraction) {
+    assert(wdl_fraction <= WDL_FRACTION_MAX && wdl_fraction >= 0);
 
     /* defensive against input */
     if (wdl_fraction > WDL_FRACTION_MAX) wdl_fraction = WDL_FRACTION_MAX;
     if (wdl_fraction < 0) wdl_fraction = 0;
     WDL_FRACTION = wdl_fraction;
 
-    DTM_cache_size = (cache_mem / (size_t) WDL_FRACTION_MAX) * (size_t) (WDL_FRACTION_MAX - WDL_FRACTION);
-    WDL_cache_size = (cache_mem / (size_t) WDL_FRACTION_MAX) * (size_t) WDL_FRACTION;
+    DTM_cache_size = (cache_mem / (size_t)WDL_FRACTION_MAX) * (size_t)(WDL_FRACTION_MAX - WDL_FRACTION);
+    WDL_cache_size = (cache_mem / (size_t)WDL_FRACTION_MAX) * (size_t)WDL_FRACTION;
 
 #ifdef WDL_PROBE
     /* returns the actual memory allocated */
     DTM_cache_size = dtm_cache_init(DTM_cache_size);
     WDL_cache_size = wdl_cache_init(WDL_cache_size);
 #else
-                                                                                                                            /* returns the actual memory allocated */
-	DTM_cache_size = dtm_cache_init (DTM_cache_size);
+    /* returns the actual memory allocated */
+    DTM_cache_size = dtm_cache_init(DTM_cache_size);
 #endif
     tbstats_reset();
     return TRUE;
 }
 
-extern bool_t
-tbcache_restart(size_t cache_mem, int wdl_fraction) {
+extern bool_t tbcache_restart(size_t cache_mem, int wdl_fraction) {
     return tbcache_init(cache_mem, wdl_fraction);
 }
 
-extern void
-tbcache_done(void) {
+extern void tbcache_done(void) {
     dtm_cache_done();
 #ifdef WDL_PROBE
     wdl_cache_done();
@@ -2890,8 +2767,7 @@ tbcache_done(void) {
     return;
 }
 
-extern void
-tbcache_flush(void) {
+extern void tbcache_flush(void) {
     dtm_cache_flush();
 #ifdef WDL_PROBE
     wdl_cache_flush();
@@ -2900,8 +2776,7 @@ tbcache_flush(void) {
     return;
 }
 
-extern void
-tbstats_reset(void) {
+extern void tbstats_reset(void) {
     dtm_cache_reset_counters();
 #ifdef WDL_PROBE
     wdl_cache_reset_counters();
@@ -2914,8 +2789,7 @@ tbstats_reset(void) {
 
 static void dtm_hash_insert(dtm_block_t *e);
 
-static void
-dtm_hash_rebuild(void) {
+static void dtm_hash_rebuild(void) {
     dtm_block_t *p;
     size_t i;
 
@@ -2927,12 +2801,10 @@ dtm_hash_rebuild(void) {
         dtm_hash_insert(p);
 }
 
-static void
-dtm_hash_insert(dtm_block_t *e) {
+static void dtm_hash_insert(dtm_block_t *e) {
     size_t h1, h2;
 
-    if (dtm_cache.ht_used > dtm_cache.ht_size * 3 / 4)
-        dtm_hash_rebuild();
+    if (dtm_cache.ht_used > dtm_cache.ht_size * 3 / 4) dtm_hash_rebuild();
 
     h1 = hash_func_1(e->key, e->side, e->offset) & (dtm_cache.ht_size - 1);
     h2 = hash_func_2(e->key, e->side, e->offset);
@@ -2942,16 +2814,14 @@ dtm_hash_insert(dtm_block_t *e) {
     dtm_cache.ht_used++;
 }
 
-static dtm_block_t *
-dtm_cache_pointblock(tbkey_t key, unsigned side, index_t idx) {
+static dtm_block_t *dtm_cache_pointblock(tbkey_t key, unsigned side, index_t idx) {
     index_t offset;
     index_t remainder;
     dtm_block_t *p;
     dtm_block_t *ret;
     size_t h1, h2;
 
-    if (!dtm_cache_is_on())
-        return NULL;
+    if (!dtm_cache_is_on()) return NULL;
 
     split_index(dtm_cache.entries_per_block, idx, &offset, &remainder);
 
@@ -2961,8 +2831,7 @@ dtm_cache_pointblock(tbkey_t key, unsigned side, index_t idx) {
     h2 = hash_func_2(key, side, offset);
     while (1) {
         p = dtm_cache.hash_table[h1];
-        if (!p)
-            break;
+        if (!p) break;
 
         dtm_cache.comparisons++;
 
@@ -3025,9 +2894,7 @@ static index_t egtb_block_uncompressed_to_index(tbkey_t key, index_t b);
 
 static bool_t fread32(FILE *f, unsigned long int *y);
 
-
-static unsigned int
-zipinfo_init(void) {
+static unsigned int zipinfo_init(void) {
     int i, start, end;
     unsigned ret;
     bool_t ok, complet[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -3076,7 +2943,6 @@ zipinfo_init(void) {
     complet[x] = ok;
     partial[x] = pa;
 
-
     for (j = 0, z = 0, x = 3; x < 8; x++) {
         if (partial[x]) z |= 1u << j;
         j++;
@@ -3089,8 +2955,7 @@ zipinfo_init(void) {
     return ret;
 }
 
-static void
-zipinfo_done(void) {
+static void zipinfo_done(void) {
     int i;
     bool_t ok;
     for (i = 0, ok = TRUE; ok && i < MAX_EGKEYS; i++) {
@@ -3104,8 +2969,7 @@ zipinfo_done(void) {
     return;
 }
 
-static size_t
-zipinfo_memory_allocated(void) {
+static size_t zipinfo_memory_allocated(void) {
     int i;
     index_t accum_blocks = 0;
     for (i = 0; i < MAX_EGKEYS; i++) {
@@ -3113,19 +2977,15 @@ zipinfo_memory_allocated(void) {
             accum_blocks += Zipinfo[i].totalblocks;
         }
     }
-    return (size_t) accum_blocks * sizeof(index_t);
+    return (size_t)accum_blocks * sizeof(index_t);
 }
 
-extern size_t
-tb_indexmemory(void) {
+extern size_t tb_indexmemory(void) {
     return zipinfo_memory_allocated();
 }
 
-static bool_t
-fread32(FILE *f, unsigned long int *y) {
-    enum SIZE {
-        SZ = 4
-    };
+static bool_t fread32(FILE *f, unsigned long int *y) {
+    enum SIZE { SZ = 4 };
     int i;
     unsigned long int x;
     unsigned char p[SZ];
@@ -3135,16 +2995,14 @@ fread32(FILE *f, unsigned long int *y) {
 
     if (ok) {
         for (x = 0, i = 0; i < SZ; i++) {
-            x |= (unsigned long int) p[i] << (i * 8);
+            x |= (unsigned long int)p[i] << (i * 8);
         }
         *y = x;
     }
     return ok;
 }
 
-static bool_t
-egtb_loadindexes(tbkey_t key) {
-
+static bool_t egtb_loadindexes(tbkey_t key) {
     unsigned long int blocksize = 1;
     unsigned long int tailblocksize1 = 0;
     unsigned long int tailblocksize2 = 0;
@@ -3161,26 +3019,16 @@ egtb_loadindexes(tbkey_t key) {
     FILE *f;
 
     if (Uncompressed) {
-        assert (decoding_scheme() == 0 && GTB_scheme == 0);
+        assert(decoding_scheme() == 0 && GTB_scheme == 0);
         return TRUE; /* no need to load indexes */
     }
-    if (Zipinfo[key].blockindex != NULL)
-        return TRUE; /* indexes must have been loaded already */
+    if (Zipinfo[key].blockindex != NULL) return TRUE; /* indexes must have been loaded already */
 
-    if (NULL == (f = egkey[key].fd))
-        return FALSE; /* file was no open */
+    if (NULL == (f = egkey[key].fd)) return FALSE; /* file was no open */
 
     /* Get Reserved bytes, blocksize, offset */
-    ok = (0 == fseek(f, 0, SEEK_SET)) &&
-         fread32(f, &dummy) &&
-         fread32(f, &dummy) &&
-         fread32(f, &blocksize) &&
-         fread32(f, &dummy) &&
-         fread32(f, &tailblocksize1) &&
-         fread32(f, &dummy) &&
-         fread32(f, &tailblocksize2) &&
-         fread32(f, &dummy) &&
-         fread32(f, &offset) &&
+    ok = (0 == fseek(f, 0, SEEK_SET)) && fread32(f, &dummy) && fread32(f, &dummy) && fread32(f, &blocksize) && fread32(f, &dummy) &&
+         fread32(f, &tailblocksize1) && fread32(f, &dummy) && fread32(f, &tailblocksize2) && fread32(f, &dummy) && fread32(f, &offset) &&
          fread32(f, &dummy);
 
     blocks = (offset - 40) / 4 - 1;
@@ -3188,18 +3036,19 @@ egtb_loadindexes(tbkey_t key) {
 
     p = NULL;
 
-    ok = ok && NULL != (p = (index_t *) malloc(n_idx * sizeof(index_t)));
+    ok = ok && NULL != (p = (index_t *)malloc(n_idx * sizeof(index_t)));
 
     /* Input of Indexes */
     for (i = 0; ok && i < n_idx; i++) {
         ok = fread32(f, &idx);
-        p[i] = (index_t) idx; /* reads a 32 bit int, and converts it to index_t */ assert (sizeof(index_t) >= 4);
+        p[i] = (index_t)idx; /* reads a 32 bit int, and converts it to index_t */
+        assert(sizeof(index_t) >= 4);
     }
 
     if (ok) {
         Zipinfo[key].extraoffset = 0;
-        assert (n_idx <= MAXINDEX_T);
-        Zipinfo[key].totalblocks = (index_t) n_idx;
+        assert(n_idx <= MAXINDEX_T);
+        Zipinfo[key].totalblocks = (index_t)n_idx;
         Zipinfo[key].blockindex = p;
     }
 
@@ -3210,14 +3059,13 @@ egtb_loadindexes(tbkey_t key) {
     return ok;
 }
 
-static index_t
-egtb_block_uncompressed_to_index(tbkey_t key, index_t b) {
+static index_t egtb_block_uncompressed_to_index(tbkey_t key, index_t b) {
     index_t max;
     index_t blocks_per_side;
     index_t idx;
 
     max = egkey[key].maxindex;
-    blocks_per_side = 1 + (max - 1) / (index_t) dtm_cache.entries_per_block;
+    blocks_per_side = 1 + (max - 1) / (index_t)dtm_cache.entries_per_block;
 
     if (b < blocks_per_side) {
         idx = 0;
@@ -3225,113 +3073,98 @@ egtb_block_uncompressed_to_index(tbkey_t key, index_t b) {
         b -= blocks_per_side;
         idx = max;
     }
-    idx += b * (index_t) dtm_cache.entries_per_block;
+    idx += b * (index_t)dtm_cache.entries_per_block;
     return idx;
 }
 
-
-static index_t
-egtb_block_getnumber(tbkey_t key, unsigned side, index_t idx) {
+static index_t egtb_block_getnumber(tbkey_t key, unsigned side, index_t idx) {
     index_t blocks_per_side;
     index_t block_in_side;
     index_t max = egkey[key].maxindex;
 
-    blocks_per_side = 1 + (max - 1) / (index_t) dtm_cache.entries_per_block;
-    block_in_side = idx / (index_t) dtm_cache.entries_per_block;
+    blocks_per_side = 1 + (max - 1) / (index_t)dtm_cache.entries_per_block;
+    block_in_side = idx / (index_t)dtm_cache.entries_per_block;
 
-    return (index_t) side * blocks_per_side + block_in_side; /* block */
+    return (index_t)side * blocks_per_side + block_in_side; /* block */
 }
 
-
-static index_t
-egtb_block_getsize(tbkey_t key, index_t idx) {
-    index_t blocksz = (index_t) dtm_cache.entries_per_block;
+static index_t egtb_block_getsize(tbkey_t key, index_t idx) {
+    index_t blocksz = (index_t)dtm_cache.entries_per_block;
     index_t maxindex = egkey[key].maxindex;
     index_t block, offset, x;
 
-    assert (dtm_cache.entries_per_block <= MAXINDEX_T);
-    assert (0 <= idx && idx < maxindex);
-    assert (key < MAX_EGKEYS);
+    assert(dtm_cache.entries_per_block <= MAXINDEX_T);
+    assert(0 <= idx && idx < maxindex);
+    assert(key < MAX_EGKEYS);
 
     block = idx / blocksz;
     offset = block * blocksz;
 
     /*
-	|	adjust block size in case that this is the last block
-	|	and is shorter than "blocksz"
-	*/
-    if ((offset + blocksz) > maxindex)
-        x = maxindex - offset; /* last block size */
+        |	adjust block size in case that this is the last block
+        |	and is shorter than "blocksz"
+        */
+    if ((offset + blocksz) > maxindex) x = maxindex - offset; /* last block size */
     else
         x = blocksz; /* size of a normal block */
 
     return x;
 }
 
-static index_t
-egtb_block_getsize_zipped(tbkey_t key, index_t block) {
+static index_t egtb_block_getsize_zipped(tbkey_t key, index_t block) {
     index_t i, j;
-    assert (Zipinfo[key].blockindex != NULL);
+    assert(Zipinfo[key].blockindex != NULL);
     i = Zipinfo[key].blockindex[block];
     j = Zipinfo[key].blockindex[block + 1];
     return j - i;
 }
 
-
-static bool_t
-egtb_file_beready(tbkey_t key) {
+static bool_t egtb_file_beready(tbkey_t key) {
     bool_t success;
-    assert (key < MAX_EGKEYS);
-    success = (NULL != egkey[key].fd) ||
-              (NULL != fd_openit(key) && egtb_loadindexes(key));
+    assert(key < MAX_EGKEYS);
+    success = (NULL != egkey[key].fd) || (NULL != fd_openit(key) && egtb_loadindexes(key));
     return success;
 }
 
-
-static bool_t
-egtb_block_park(tbkey_t key, index_t block) {
+static bool_t egtb_block_park(tbkey_t key, index_t block) {
     index_t i;
     long fseek_i;
-    assert (egkey[key].fd != NULL);
+    assert(egkey[key].fd != NULL);
 
     if (Uncompressed) {
-        assert (decoding_scheme() == 0 && GTB_scheme == 0);
+        assert(decoding_scheme() == 0 && GTB_scheme == 0);
         i = egtb_block_uncompressed_to_index(key, block);
     } else {
-        assert (Zipinfo[key].blockindex != NULL);
+        assert(Zipinfo[key].blockindex != NULL);
         i = Zipinfo[key].blockindex[block];
         i += Zipinfo[key].extraoffset;
     }
 
-    fseek_i = (long) i;
-    assert (fseek_i >= 0);
+    fseek_i = (long)i;
+    assert(fseek_i >= 0);
     return 0 == fseek(egkey[key].fd, fseek_i, SEEK_SET);
 }
 
-
-static bool_t
-egtb_block_read(tbkey_t key, index_t len, unsigned char *buffer) {
-    assert (egkey[key].fd != NULL);
-    assert (sizeof(size_t) >= sizeof(len));
-    return ((size_t) len == fread(buffer, sizeof(unsigned char), (size_t) len, egkey[key].fd));
+static bool_t egtb_block_read(tbkey_t key, index_t len, unsigned char *buffer) {
+    assert(egkey[key].fd != NULL);
+    assert(sizeof(size_t) >= sizeof(len));
+    return ((size_t)len == fread(buffer, sizeof(unsigned char), (size_t)len, egkey[key].fd));
 }
 
 tbkey_t TB_PROBE_indexing_dummy;
 
-static bool_t
-egtb_block_decode(tbkey_t key, index_t z, unsigned char *bz, index_t n, unsigned char *bp)
+static bool_t egtb_block_decode(tbkey_t key, index_t z, unsigned char *bz, index_t n, unsigned char *bp)
 /* bz:buffer zipped to bp:buffer packed */
 {
-    size_t zz = (size_t) z;
-    size_t nn = (size_t) n;
+    size_t zz = (size_t)z;
+    size_t nn = (size_t)n;
     TB_PROBE_indexing_dummy = key; /* to silence compiler */
-    assert (sizeof(size_t) >= sizeof(n));
-    assert (sizeof(size_t) >= sizeof(z));
+    assert(sizeof(size_t) >= sizeof(n));
+    assert(sizeof(size_t) >= sizeof(z));
     return decode(zz - 1, bz + 1, nn, bp);
 }
 
-static bool_t
-egtb_block_unpack(unsigned side, index_t n, const unsigned char *bp, dtm_t *out)
+static bool_t egtb_block_unpack(unsigned side, index_t n, const unsigned char *bp, dtm_t *out)
 /* bp:buffer packed to out:distance to mate buffer */
 {
     index_t i;
@@ -3347,8 +3180,7 @@ egtb_block_unpack(unsigned side, index_t n, const unsigned char *bp, dtm_t *out)
     return TRUE;
 }
 
-static bool_t
-preload_cache(tbkey_t key, unsigned side, index_t idx)
+static bool_t preload_cache(tbkey_t key, unsigned side, index_t idx)
 /* output to the least used block of the cache */
 {
     dtm_block_t *pblock;
@@ -3359,7 +3191,7 @@ preload_cache(tbkey_t key, unsigned side, index_t idx)
 
     FOLLOW_label("preload_cache starts")
 
-    if (idx >= egkey[key].maxindex) {
+        if (idx >= egkey[key].maxindex) {
         FOLLOW_LULU("Wrong index", __LINE__, idx)
         return FALSE;
     }
@@ -3367,29 +3199,26 @@ preload_cache(tbkey_t key, unsigned side, index_t idx)
     /* find aged blocked in cache */
     pblock = point_block_to_replace();
 
-    if (NULL == pblock)
-        return FALSE;
+    if (NULL == pblock) return FALSE;
 
     p = pblock->p_arr;
 
     if (Uncompressed) {
-
         index_t block = egtb_block_getnumber(key, side, idx);
         index_t n = egtb_block_getsize(key, idx);
 
-        ok = egtb_file_beready(key)
-             && egtb_block_park(key, block)
-             && egtb_block_read(key, n, Buffer_packed)
-             && egtb_block_unpack(side, n, Buffer_packed, p);
+        ok = egtb_file_beready(key) && egtb_block_park(key, block) && egtb_block_read(key, n, Buffer_packed) &&
+             egtb_block_unpack(side, n, Buffer_packed, p);
 
         FOLLOW_LULU("preload_cache", __LINE__, ok)
 
-        assert (decoding_scheme() == 0 && GTB_scheme == 0);
+        assert(decoding_scheme() == 0 && GTB_scheme == 0);
 
-        if (ok) { Bytes_read = Bytes_read + (uint64_t) n; }
+        if (ok) {
+            Bytes_read = Bytes_read + (uint64_t)n;
+        }
 
     } else {
-
         index_t block = 0;
         index_t n = 0;
         index_t z = 0;
@@ -3404,33 +3233,30 @@ preload_cache(tbkey_t key, unsigned side, index_t idx)
             z = egtb_block_getsize_zipped(key, block);
         }
 
-        ok = ok
-             && egtb_block_park(key, block);
+        ok = ok && egtb_block_park(key, block);
         FOLLOW_LULU("preload_cache", __LINE__, ok)
 
-        ok = ok
-             && egtb_block_read(key, z, Buffer_zipped);
+        ok = ok && egtb_block_read(key, z, Buffer_zipped);
         FOLLOW_LULU("preload_cache", __LINE__, ok)
 
         mythread_mutex_unlock(&Egtb_lock);
 
-        ok = ok
-             && egtb_block_decode(key, z, Buffer_zipped, n, Buffer_packed);
+        ok = ok && egtb_block_decode(key, z, Buffer_zipped, n, Buffer_packed);
         FOLLOW_LULU("preload_cache", __LINE__, ok)
 
         mythread_mutex_lock(&Egtb_lock);
         pblock = point_block_to_replace();
         p = pblock->p_arr;
 
-        ok = ok
-             && egtb_block_unpack(side, n, Buffer_packed, p);
+        ok = ok && egtb_block_unpack(side, n, Buffer_packed, p);
         FOLLOW_LULU("preload_cache", __LINE__, ok)
 
-        if (ok) { Bytes_read = Bytes_read + (uint64_t) z; }
+        if (ok) {
+            Bytes_read = Bytes_read + (uint64_t)z;
+        }
     }
 
     if (ok) {
-
         index_t offset;
         index_t remainder;
         split_index(dtm_cache.entries_per_block, idx, &offset, &remainder);
@@ -3459,12 +3285,10 @@ preload_cache(tbkey_t key, unsigned side, index_t idx)
 |
 \****************************************************************************/
 
-
-mySHARED void
-egtb_freemem(int i) {
+mySHARED void egtb_freemem(int i) {
     if (egkey[i].status == STATUS_MALLOC) {
-        assert (egkey[i].egt_w != NULL);
-        assert (egkey[i].egt_b != NULL);
+        assert(egkey[i].egt_w != NULL);
+        assert(egkey[i].egt_b != NULL);
         free(egkey[i].egt_w);
         free(egkey[i].egt_b);
         egkey[i].egt_w = NULL;
@@ -3475,8 +3299,7 @@ egtb_freemem(int i) {
 
 /***************************************************************************/
 
-mySHARED bool_t
-get_dtm(tbkey_t key, unsigned side, index_t idx, dtm_t *out, bool_t probe_hard_flag) {
+mySHARED bool_t get_dtm(tbkey_t key, unsigned side, index_t idx, dtm_t *out, bool_t probe_hard_flag) {
     bool_t found;
 
     if (probe_hard_flag) {
@@ -3490,15 +3313,13 @@ get_dtm(tbkey_t key, unsigned side, index_t idx, dtm_t *out, bool_t probe_hard_f
         found = TRUE;
     } else if (probe_hard_flag) {
         dtm_cache.hardmisses++;
-        found = preload_cache(key, side, idx) &&
-                get_dtm_from_cache(key, side, idx, out);
+        found = preload_cache(key, side, idx) && get_dtm_from_cache(key, side, idx, out);
 
         if (found) {
             Drive.hits++;
         } else {
             Drive.miss++;
         }
-
 
     } else {
         dtm_cache.softmisses++;
@@ -3507,16 +3328,13 @@ get_dtm(tbkey_t key, unsigned side, index_t idx, dtm_t *out, bool_t probe_hard_f
     return found;
 }
 
-
-static bool_t
-get_dtm_from_cache(tbkey_t key, unsigned side, index_t idx, dtm_t *out) {
+static bool_t get_dtm_from_cache(tbkey_t key, unsigned side, index_t idx, dtm_t *out) {
     index_t offset;
     index_t remainder;
     bool_t found;
     dtm_block_t *p;
 
-    if (!dtm_cache_is_on())
-        return FALSE;
+    if (!dtm_cache_is_on()) return FALSE;
 
     split_index(dtm_cache.entries_per_block, idx, &offset, &remainder);
 
@@ -3532,61 +3350,54 @@ get_dtm_from_cache(tbkey_t key, unsigned side, index_t idx, dtm_t *out) {
     return found;
 }
 
-
-static void
-split_index(size_t entries_per_block, index_t i, index_t *o, index_t *r) {
+static void split_index(size_t entries_per_block, index_t i, index_t *o, index_t *r) {
     index_t n;
-    n = i / (index_t) entries_per_block;
-    *o = n * (index_t) entries_per_block;
+    n = i / (index_t)entries_per_block;
+    *o = n * (index_t)entries_per_block;
     *r = i - *o;
     return;
 }
 
-
-static dtm_block_t *
-point_block_to_replace(void) {
+static dtm_block_t *point_block_to_replace(void) {
     dtm_block_t *p, *t, *s;
 
-    assert (0 == dtm_cache.n || dtm_cache.top != NULL);
-    assert (0 == dtm_cache.n || dtm_cache.bot != NULL);
-    assert (0 == dtm_cache.n || dtm_cache.bot->prev == NULL);
-    assert (0 == dtm_cache.n || dtm_cache.top->next == NULL);
+    assert(0 == dtm_cache.n || dtm_cache.top != NULL);
+    assert(0 == dtm_cache.n || dtm_cache.bot != NULL);
+    assert(0 == dtm_cache.n || dtm_cache.bot->prev == NULL);
+    assert(0 == dtm_cache.n || dtm_cache.top->next == NULL);
 
     /* no cache is being used */
-    if (dtm_cache.max_blocks == 0)
-        return NULL;
+    if (dtm_cache.max_blocks == 0) return NULL;
 
     if (dtm_cache.n > 0 && -1 == dtm_cache.top->key) {
-
         /* top entry is unusable, should be the one to replace*/
         p = dtm_cache.top;
 
     } else if (dtm_cache.n == 0) {
-
-        assert (NULL != dtm_cache.entry);
+        assert(NULL != dtm_cache.entry);
         p = &dtm_cache.entry[dtm_cache.n++];
         dtm_cache.top = p;
         dtm_cache.bot = p;
 
-        assert (NULL != p);
+        assert(NULL != p);
         p->prev = NULL;
         p->next = NULL;
 
     } else if (dtm_cache.n < dtm_cache.max_blocks) { /* add */
 
-        assert (NULL != dtm_cache.entry);
+        assert(NULL != dtm_cache.entry);
         s = dtm_cache.top;
         p = &dtm_cache.entry[dtm_cache.n++];
         dtm_cache.top = p;
 
-        assert (NULL != p && NULL != s);
+        assert(NULL != p && NULL != s);
         s->next = p;
         p->prev = s;
         p->next = NULL;
 
     } else if (1 < dtm_cache.max_blocks) { /* replace*/
 
-        assert (NULL != dtm_cache.bot && NULL != dtm_cache.top);
+        assert(NULL != dtm_cache.bot && NULL != dtm_cache.top);
         t = dtm_cache.bot;
         s = dtm_cache.top;
 
@@ -3596,19 +3407,18 @@ point_block_to_replace(void) {
         s->next = t;
         t->prev = s;
 
-        assert (dtm_cache.top);
+        assert(dtm_cache.top);
         dtm_cache.top->next = NULL;
 
-        assert (dtm_cache.bot);
+        assert(dtm_cache.bot);
         dtm_cache.bot->prev = NULL;
 
         p = t;
 
     } else {
-
-        assert (1 == dtm_cache.max_blocks);
+        assert(1 == dtm_cache.max_blocks);
         p = dtm_cache.top;
-        assert (p == dtm_cache.bot && p == dtm_cache.entry);
+        assert(p == dtm_cache.bot && p == dtm_cache.entry);
     }
 
     /* make the information content unusable, it will be replaced */
@@ -3619,11 +3429,10 @@ point_block_to_replace(void) {
     return p;
 }
 
-static void
-movetotop(dtm_block_t *t) {
+static void movetotop(dtm_block_t *t) {
     dtm_block_t *s, *nx, *pv;
 
-    assert (t != NULL);
+    assert(t != NULL);
 
     if (t->next == NULL) /* at the top already */
         return;
@@ -3632,7 +3441,7 @@ movetotop(dtm_block_t *t) {
     pv = t->prev;
     nx = t->next;
 
-    if (pv == NULL)  /* at the bottom */
+    if (pv == NULL) /* at the bottom */
         dtm_cache.bot = nx;
     else
         pv->next = nx;
@@ -3644,9 +3453,8 @@ movetotop(dtm_block_t *t) {
 
     /* relocate */
     s = dtm_cache.top;
-    assert (s != NULL);
-    if (s == NULL)
-        dtm_cache.bot = t;
+    assert(s != NULL);
+    if (s == NULL) dtm_cache.bot = t;
     else
         s->next = t;
 
@@ -3665,8 +3473,7 @@ movetotop(dtm_block_t *t) {
  *
  ****************************************************************************/
 
-static void
-init_indexing(int verbosity) {
+static void init_indexing(int verbosity) {
     index_t a, b, c, d, e, f;
 
     init_flipt();
@@ -3680,21 +3487,20 @@ init_indexing(int verbosity) {
 
     if (verbosity) {
         printf("\nGTB supporting tables, Initialization\n");
-        printf("  Max    kk idx: %8d\n", (int) a);
-        printf("  Max    pp idx: %8d\n", (int) b);
-        printf("  Max    aa idx: %8d\n", (int) c);
-        printf("  Max   aaa idx: %8d\n", (int) d);
-        printf("  Max  pp48 idx: %8d\n", (int) e);
-        printf("  Max ppp48 idx: %8d\n", (int) f);
+        printf("  Max    kk idx: %8d\n", (int)a);
+        printf("  Max    pp idx: %8d\n", (int)b);
+        printf("  Max    aa idx: %8d\n", (int)c);
+        printf("  Max   aaa idx: %8d\n", (int)d);
+        printf("  Max  pp48 idx: %8d\n", (int)e);
+        printf("  Max ppp48 idx: %8d\n", (int)f);
     }
 
-    if (!reach_was_initialized())
-        reach_init();
+    if (!reach_was_initialized()) reach_init();
 
     /* testing used only in development stage */
 
 #ifdef _MSC_VER
-#pragma warning(disable:4127)
+#pragma warning(disable : 4127)
 #endif
 
     if (0) {
@@ -3723,15 +3529,13 @@ init_indexing(int verbosity) {
     }
 
 #ifdef _MSC_VER
-#pragma warning(default:4127)
+#pragma warning(default : 4127)
 #endif
 
     return;
 }
 
-
-static index_t
-init_kkidx(void)
+static index_t init_kkidx(void)
 /* modifies kkidx[][], wksq[], bksq[] */
 {
     index_t idx;
@@ -3747,10 +3551,8 @@ init_kkidx(void)
     idx = 0;
     for (x = 0; x < 64; x++) {
         for (y = 0; y < 64; y++) {
-
             /* is x,y illegal? continue */
-            if (possible_attack(x, y, wK) || x == y)
-                continue;
+            if (possible_attack(x, y, wK) || x == y) continue;
 
             /* normalize */
             /*i <-- x; j <-- y */
@@ -3766,14 +3568,12 @@ init_kkidx(void)
         }
     }
 
-    assert (idx == MAX_KKINDEX);
+    assert(idx == MAX_KKINDEX);
 
     return idx;
 }
 
-
-static index_t
-init_aaidx(void)
+static index_t init_aaidx(void)
 /* modifies aabase[], aaidx[][] */
 {
     index_t idx;
@@ -3792,31 +3592,26 @@ init_aaidx(void)
     idx = 0;
     for (x = 0; x < 64; x++) {
         for (y = x + 1; y < 64; y++) {
-
-            assert (idx == (int) ((y - x) + x * (127 - x) / 2 - 1));
+            assert(idx == (int)((y - x) + x * (127 - x) / 2 - 1));
 
             if (IDX_is_empty(aaidx[x][y])) { /* still empty */
                 aaidx[x][y] = idx;
                 aaidx[y][x] = idx;
-                aabase[idx] = (unsigned char) x;
+                aabase[idx] = (unsigned char)x;
                 idx++;
             } else {
-                assert (aaidx[x][y] == idx);
-                assert (aabase[idx] == x);
+                assert(aaidx[x][y] == idx);
+                assert(aabase[idx] == x);
             }
-
-
         }
     }
 
-    assert (idx == MAX_AAINDEX);
+    assert(idx == MAX_AAINDEX);
 
     return idx;
 }
 
-
-static index_t
-init_ppidx(void)
+static index_t init_ppidx(void)
 /* modifies ppidx[][], pp_hi24[], pp_lo48[] */
 {
     index_t i, j;
@@ -3837,12 +3632,10 @@ init_ppidx(void)
 
     idx = 0;
     for (a = H7; a >= A2; a--) {
-
         if ((a & 07) < 4) /* square in the queen side */
             continue;
 
         for (b = a - 1; b >= A2; b--) {
-
             SQUARE anchor, loosen;
 
             pp_putanchorfirst(a, b, &anchor, &loosen);
@@ -3856,24 +3649,21 @@ init_ppidx(void)
             j = wsq_to_pidx48(loosen);
 
             if (IDX_is_empty(ppidx[i][j])) {
-
                 ppidx[i][j] = idx;
-                assert (idx < MAX_PPINDEX);
+                assert(idx < MAX_PPINDEX);
                 pp_hi24[idx] = i;
-                assert (i < 24);
+                assert(i < 24);
                 pp_lo48[idx] = j;
-                assert (j < 48);
+                assert(j < 48);
                 idx++;
             }
-
         }
     }
-    assert (idx == MAX_PPINDEX);
+    assert(idx == MAX_PPINDEX);
     return idx;
 }
 
-static void
-init_flipt(void) {
+static void init_flipt(void) {
     unsigned int i, j;
     for (i = 0; i < 64; i++) {
         for (j = 0; j < 64; j++) {
@@ -3884,12 +3674,11 @@ init_flipt(void) {
 
 /*--- NORMALIZE -------*/
 
-static void
-norm_kkindex(SQUARE x, SQUARE y, /*@out@*/ SQUARE *pi, /*@out@*/ SQUARE *pj) {
+static void norm_kkindex(SQUARE x, SQUARE y, /*@out@*/ SQUARE *pi, /*@out@*/ SQUARE *pj) {
     unsigned int rowx, rowy, colx, coly;
 
-    assert (x < 64);
-    assert (y < 64);
+    assert(x < 64);
+    assert(y < 64);
 
     if (getcol(x) > 3) {
         x = flipWE(x); /* x = x ^ 07  */
@@ -3916,14 +3705,12 @@ norm_kkindex(SQUARE x, SQUARE y, /*@out@*/ SQUARE *pi, /*@out@*/ SQUARE *pj) {
     *pj = y;
 }
 
-static unsigned int
-flip_type(SQUARE x, SQUARE y) {
+static unsigned int flip_type(SQUARE x, SQUARE y) {
     unsigned int rowx, rowy, colx, coly;
     unsigned int ret = 0;
 
-    assert (x < 64);
-    assert (y < 64);
-
+    assert(x < 64);
+    assert(y < 64);
 
     if (getcol(x) > 3) {
         x = flipWE(x); /* x = x ^ 07  */
@@ -3952,9 +3739,7 @@ flip_type(SQUARE x, SQUARE y) {
     return ret;
 }
 
-
-static void
-pp_putanchorfirst(SQUARE a, SQUARE b, /*@out@*/ SQUARE *out_anchor, /*@out@*/ SQUARE *out_loosen) {
+static void pp_putanchorfirst(SQUARE a, SQUARE b, /*@out@*/ SQUARE *out_anchor, /*@out@*/ SQUARE *out_loosen) {
     unsigned int anchor, loosen;
 
     unsigned int row_b, row_a;
@@ -4009,89 +3794,75 @@ pp_putanchorfirst(SQUARE a, SQUARE b, /*@out@*/ SQUARE *out_anchor, /*@out@*/ SQ
     return;
 }
 
-
-static index_t
-wsq_to_pidx24(SQUARE pawn) {
+static index_t wsq_to_pidx24(SQUARE pawn) {
     unsigned int idx24;
     SQUARE sq = pawn;
 
     /* input can be only queen side, pawn valid */
-    assert (A2 <= pawn && pawn < A8);
-    assert ((pawn & 07) < 4);
+    assert(A2 <= pawn && pawn < A8);
+    assert((pawn & 07) < 4);
 
     sq ^= 070; /* flipNS*/
     sq -= 8;   /* down one row*/
     idx24 = (sq + (sq & 3)) >> 1;
-    assert (idx24 < 24);
-    return (index_t) idx24;
+    assert(idx24 < 24);
+    return (index_t)idx24;
 }
 
-static index_t
-wsq_to_pidx48(SQUARE pawn) {
+static index_t wsq_to_pidx48(SQUARE pawn) {
     unsigned int idx48;
     SQUARE sq = pawn;
 
     /* input can be both queen or king side, pawn valid square  */
-    assert (A2 <= pawn && pawn < A8);
+    assert(A2 <= pawn && pawn < A8);
 
     sq ^= 070; /* flipNS*/
     sq -= 8;   /* down one row*/
     idx48 = sq;
-    assert (idx48 < 48);
-    return (index_t) idx48;
+    assert(idx48 < 48);
+    return (index_t)idx48;
 }
 
-static SQUARE
-pidx24_to_wsq(index_t a) {
-    enum {
-        B11100 = 7u << 2
-    };
-    unsigned int x = (unsigned int) a;    /* x is pslice */
-    assert (a < 24);
+static SQUARE pidx24_to_wsq(index_t a) {
+    enum { B11100 = 7u << 2 };
+    unsigned int x = (unsigned int)a; /* x is pslice */
+    assert(a < 24);
 
     x += x & B11100; /* get upper part and double it */
     x += 8;          /* add extra row  */
     x ^= 070;        /* flip NS */
-    return (SQUARE) x;
+    return (SQUARE)x;
 }
 
-static SQUARE
-pidx48_to_wsq(index_t a) {
+static SQUARE pidx48_to_wsq(index_t a) {
     unsigned int x;
-    assert (a < 48);
+    assert(a < 48);
     /* x is pslice */
-    x = (unsigned int) a;
-    x += 8;          /* add extra row  */
-    x ^= 070;        /* flip NS */
+    x = (unsigned int)a;
+    x += 8;   /* add extra row  */
+    x ^= 070; /* flip NS */
     return x;
 }
 
-
-static void
-kxk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-    enum {
-        BLOCK_A = 64
-    };
+static void kxk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+    enum { BLOCK_A = 64 };
 
     index_t a = i / BLOCK_A;
     index_t b = i - a * BLOCK_A;
 
     pw[0] = wksq[a];
     pb[0] = bksq[a];
-    pw[1] = (SQUARE) b;
+    pw[1] = (SQUARE)b;
     pw[2] = NOSQUARE;
     pb[1] = NOSQUARE;
 
-    assert (kxk_pctoindex(pw, pb, &a) && a == i);
+    assert(kxk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-static bool_t
-kxk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
-    enum {
-        BLOCK_A = 64
-    };
+static bool_t kxk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
+    enum { BLOCK_A = 64 };
     SQUARE *p;
     SQUARE ws[32], bs[32];
     index_t ki;
@@ -4101,8 +3872,7 @@ kxk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
 
     ft = flip_type(inp_pb[0], inp_pw[0]);
 
-    assert (ft < 8);
-
+    assert(ft < 8);
 
     for (i = 0; inp_pw[i] != NOSQUARE; i++) {
         ws[i] = inp_pw[i];
@@ -4140,17 +3910,12 @@ kxk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
         *out = NOINDEX;
         return FALSE;
     }
-    *out = ki * BLOCK_A + (index_t) ws[1];
+    *out = ki * BLOCK_A + (index_t)ws[1];
     return TRUE;
-
 }
 
-
-static void
-kabk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+static void kabk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     index_t a, b, c, r;
 
     r = i;
@@ -4163,23 +3928,19 @@ kabk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     pw[0] = wksq[a];
     pb[0] = bksq[a];
 
-    pw[1] = (SQUARE) b;
-    pw[2] = (SQUARE) c;
+    pw[1] = (SQUARE)b;
+    pw[2] = (SQUARE)c;
     pw[3] = NOSQUARE;
 
     pb[1] = NOSQUARE;
 
-    assert (kabk_pctoindex(pw, pb, &a) && a == i);
+    assert(kabk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kabk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+static bool_t kabk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     SQUARE *p;
     SQUARE ws[32], bs[32];
     index_t ki;
@@ -4189,7 +3950,7 @@ kabk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
 
     ft = flip_type(inp_pb[0], inp_pw[0]);
 
-    assert (ft < 8);
+    assert(ft < 8);
 
     for (i = 0; inp_pw[i] != NOSQUARE; i++) {
         ws[i] = inp_pw[i];
@@ -4227,17 +3988,12 @@ kabk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
         *out = NOINDEX;
         return FALSE;
     }
-    *out = ki * BLOCK_A + (index_t) ws[1] * BLOCK_B + (index_t) ws[2];
+    *out = ki * BLOCK_A + (index_t)ws[1] * BLOCK_B + (index_t)ws[2];
     return TRUE;
-
 }
 
-
-static void
-kabkc_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+static void kabkc_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t a, b, c, d, r;
 
     r = i;
@@ -4252,28 +4008,22 @@ kabkc_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     pw[0] = wksq[a];
     pb[0] = bksq[a];
 
-    pw[1] = (SQUARE) b;
-    pw[2] = (SQUARE) c;
+    pw[1] = (SQUARE)b;
+    pw[2] = (SQUARE)c;
     pw[3] = NOSQUARE;
 
-    pb[1] = (SQUARE) d;
+    pb[1] = (SQUARE)d;
     pb[2] = NOSQUARE;
 
-    assert (kabkc_pctoindex(pw, pb, &a) && a == i);
+    assert(kabkc_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
+static bool_t kabkc_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
+    enum { N_WHITE = 3, N_BLACK = 2 };
 
-static bool_t
-kabkc_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
-    enum {
-        N_WHITE = 3, N_BLACK = 2
-    };
-
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     SQUARE ws[MAX_LISTSIZE], bs[MAX_LISTSIZE];
     index_t ki;
     int i;
@@ -4285,28 +4035,35 @@ kabkc_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
     ft = flipt[inp_pb[0]][inp_pw[0]];
 #endif
 
-    assert (ft < 8);
+    assert(ft < 8);
 
-    for (i = 0; i < N_WHITE; i++) ws[i] = inp_pw[i];
+    for (i = 0; i < N_WHITE; i++)
+        ws[i] = inp_pw[i];
     ws[N_WHITE] = NOSQUARE;
-    for (i = 0; i < N_BLACK; i++) bs[i] = inp_pb[i];
+    for (i = 0; i < N_BLACK; i++)
+        bs[i] = inp_pb[i];
     bs[N_BLACK] = NOSQUARE;
 
     if ((ft & WE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipWE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipWE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipWE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipWE(bs[i]);
     }
 
     if ((ft & NS_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNS(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNS(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNS(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNS(bs[i]);
     }
 
     if ((ft & NW_SE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNW_SE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNW_SE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNW_SE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNW_SE(bs[i]);
     }
-
 
     ki = kkidx[bs[0]][ws[0]]; /* kkidx [black king] [white king] */
 
@@ -4314,18 +4071,14 @@ kabkc_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
         *out = NOINDEX;
         return FALSE;
     }
-    *out = ki * BLOCK_A + (index_t) ws[1] * BLOCK_B + (index_t) ws[2] * BLOCK_C + (index_t) bs[1];
+    *out = ki * BLOCK_A + (index_t)ws[1] * BLOCK_B + (index_t)ws[2] * BLOCK_C + (index_t)bs[1];
     return TRUE;
-
 }
 
 /* ABC/ ***/
 
-extern void
-kabck_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+extern void kabck_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t a, b, c, d, r;
 
     r = i;
@@ -4340,27 +4093,21 @@ kabck_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     pw[0] = wksq[a];
     pb[0] = bksq[a];
 
-    pw[1] = (SQUARE) b;
-    pw[2] = (SQUARE) c;
-    pw[3] = (SQUARE) d;
+    pw[1] = (SQUARE)b;
+    pw[2] = (SQUARE)c;
+    pw[3] = (SQUARE)d;
     pw[4] = NOSQUARE;
 
     pb[1] = NOSQUARE;
 
-    assert (kabck_pctoindex(pw, pb, &a) && a == i);
+    assert(kabck_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-extern bool_t
-kabck_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
-    enum {
-        N_WHITE = 4, N_BLACK = 1
-    };
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+extern bool_t kabck_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
+    enum { N_WHITE = 4, N_BLACK = 1 };
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
 
     SQUARE ws[MAX_LISTSIZE], bs[MAX_LISTSIZE];
     index_t ki;
@@ -4369,28 +4116,35 @@ kabck_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
 
     ft = flipt[inp_pb[0]][inp_pw[0]];
 
-    assert (ft < 8);
+    assert(ft < 8);
 
-    for (i = 0; i < N_WHITE; i++) ws[i] = inp_pw[i];
+    for (i = 0; i < N_WHITE; i++)
+        ws[i] = inp_pw[i];
     ws[N_WHITE] = NOSQUARE;
-    for (i = 0; i < N_BLACK; i++) bs[i] = inp_pb[i];
+    for (i = 0; i < N_BLACK; i++)
+        bs[i] = inp_pb[i];
     bs[N_BLACK] = NOSQUARE;
 
     if ((ft & WE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipWE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipWE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipWE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipWE(bs[i]);
     }
 
     if ((ft & NS_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNS(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNS(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNS(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNS(bs[i]);
     }
 
     if ((ft & NW_SE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNW_SE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNW_SE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNW_SE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNW_SE(bs[i]);
     }
-
 
     ki = kkidx[bs[0]][ws[0]]; /* kkidx [black king] [white king] */
 
@@ -4398,17 +4152,12 @@ kabck_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
         *out = NOINDEX;
         return FALSE;
     }
-    *out = ki * BLOCK_A + (index_t) ws[1] * BLOCK_B + (index_t) ws[2] * BLOCK_C + (index_t) ws[3];
+    *out = ki * BLOCK_A + (index_t)ws[1] * BLOCK_B + (index_t)ws[2] * BLOCK_C + (index_t)ws[3];
     return TRUE;
-
 }
 
-
-static void
-kakb_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+static void kakb_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     index_t a, b, c, r;
 
     r = i;
@@ -4421,23 +4170,19 @@ kakb_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     pw[0] = wksq[a];
     pb[0] = bksq[a];
 
-    pw[1] = (SQUARE) b;
+    pw[1] = (SQUARE)b;
     pw[2] = NOSQUARE;
 
-    pb[1] = (SQUARE) c;
+    pb[1] = (SQUARE)c;
     pb[2] = NOSQUARE;
 
-    assert (kakb_pctoindex(pw, pb, &a) && a == i);
+    assert(kakb_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kakb_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+static bool_t kakb_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     SQUARE ws[32], bs[32];
     index_t ki;
     unsigned int ft;
@@ -4448,7 +4193,7 @@ kakb_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
     ft = flipt[inp_pb[0]][inp_pw[0]];
 #endif
 
-    assert (ft < 8);
+    assert(ft < 8);
 
     ws[0] = inp_pw[0];
     ws[1] = inp_pw[1];
@@ -4485,9 +4230,8 @@ kakb_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
         *out = NOINDEX;
         return FALSE;
     }
-    *out = ki * BLOCK_A + (index_t) ws[1] * BLOCK_B + (index_t) bs[1];
+    *out = ki * BLOCK_A + (index_t)ws[1] * BLOCK_B + (index_t)bs[1];
     return TRUE;
-
 }
 
 /********************** KAAKB *************************************/
@@ -4498,12 +4242,8 @@ static bool_t kaakb_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kaakb_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kaakb(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kaakb(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kaakb";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -4519,7 +4259,6 @@ test_kaakb(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
                         pw[0] = a;
                         pw[1] = b;
                         pw[2] = c;
@@ -4535,9 +4274,8 @@ test_kaakb(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -4549,19 +4287,14 @@ test_kaakb(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-static void
-kaakb_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-    enum {
-        BLOCK_B = 64,
-        BLOCK_A = BLOCK_B * MAX_AAINDEX
-    };
+static void kaakb_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+    enum { BLOCK_B = 64, BLOCK_A = BLOCK_B * MAX_AAINDEX };
     index_t a, b, c, r, x, y;
 
     r = i;
@@ -4573,7 +4306,7 @@ kaakb_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
 
     c = r;
 
-    assert (i == (a * BLOCK_A + b * BLOCK_B + c));
+    assert(i == (a * BLOCK_A + b * BLOCK_B + c));
 
     pw[0] = wksq[a];
     pb[0] = bksq[a];
@@ -4581,27 +4314,21 @@ kaakb_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     x = aabase[b];
     y = (b + 1) + x - (x * (127 - x) / 2);
 
-    pw[1] = (SQUARE) x;
-    pw[2] = (SQUARE) y;
+    pw[1] = (SQUARE)x;
+    pw[2] = (SQUARE)y;
     pw[3] = NOSQUARE;
 
-    pb[1] = (SQUARE) c;
+    pb[1] = (SQUARE)c;
     pb[2] = NOSQUARE;
 
-    assert (kaakb_pctoindex(pw, pb, &a) && a == i);
+    assert(kaakb_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-static bool_t
-kaakb_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *out) {
-    enum {
-        N_WHITE = 3, N_BLACK = 2
-    };
-    enum {
-        BLOCK_B = 64,
-        BLOCK_A = BLOCK_B * MAX_AAINDEX
-    };
+static bool_t kaakb_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *out) {
+    enum { N_WHITE = 3, N_BLACK = 2 };
+    enum { BLOCK_B = 64, BLOCK_A = BLOCK_B * MAX_AAINDEX };
     SQUARE ws[MAX_LISTSIZE], bs[MAX_LISTSIZE];
     index_t ki, ai;
     unsigned int ft;
@@ -4609,26 +4336,34 @@ kaakb_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *o
 
     ft = flipt[inp_pb[0]][inp_pw[0]];
 
-    assert (ft < 8);
+    assert(ft < 8);
 
-    for (i = 0; i < N_WHITE; i++) ws[i] = inp_pw[i];
+    for (i = 0; i < N_WHITE; i++)
+        ws[i] = inp_pw[i];
     ws[N_WHITE] = NOSQUARE;
-    for (i = 0; i < N_BLACK; i++) bs[i] = inp_pb[i];
+    for (i = 0; i < N_BLACK; i++)
+        bs[i] = inp_pb[i];
     bs[N_BLACK] = NOSQUARE;
 
     if ((ft & WE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipWE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipWE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipWE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipWE(bs[i]);
     }
 
     if ((ft & NS_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNS(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNS(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNS(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNS(bs[i]);
     }
 
     if ((ft & NW_SE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNW_SE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNW_SE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNW_SE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNW_SE(bs[i]);
     }
 
     ki = kkidx[bs[0]][ws[0]]; /* kkidx [black king] [white king] */
@@ -4638,7 +4373,7 @@ kaakb_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *o
         *out = NOINDEX;
         return FALSE;
     }
-    *out = ki * BLOCK_A + ai * BLOCK_B + (index_t) bs[1];
+    *out = ki * BLOCK_A + ai * BLOCK_B + (index_t)bs[1];
     return TRUE;
 }
 
@@ -4652,12 +4387,8 @@ static bool_t kaabk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kaabk_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kaabk(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kaabk(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kaabk";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -4673,7 +4404,6 @@ test_kaabk(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
                         pw[0] = a;
                         pw[1] = b;
                         pw[2] = c;
@@ -4689,9 +4419,8 @@ test_kaabk(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -4703,19 +4432,14 @@ test_kaabk(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-static void
-kaabk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-    enum {
-        BLOCK_B = 64,
-        BLOCK_A = BLOCK_B * MAX_AAINDEX
-    };
+static void kaabk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+    enum { BLOCK_B = 64, BLOCK_A = BLOCK_B * MAX_AAINDEX };
     index_t a, b, c, r, x, y;
 
     r = i;
@@ -4727,7 +4451,7 @@ kaabk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
 
     c = r;
 
-    assert (i == (a * BLOCK_A + b * BLOCK_B + c));
+    assert(i == (a * BLOCK_A + b * BLOCK_B + c));
 
     pw[0] = wksq[a];
     pb[0] = bksq[a];
@@ -4735,27 +4459,21 @@ kaabk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     x = aabase[b];
     y = (b + 1) + x - (x * (127 - x) / 2);
 
-    pw[1] = (SQUARE) x;
-    pw[2] = (SQUARE) y;
-    pw[3] = (SQUARE) c;
+    pw[1] = (SQUARE)x;
+    pw[2] = (SQUARE)y;
+    pw[3] = (SQUARE)c;
     pw[4] = NOSQUARE;
 
     pb[1] = NOSQUARE;
 
-    assert (kaabk_pctoindex(pw, pb, &a) && a == i);
+    assert(kaabk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-static bool_t
-kaabk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *out) {
-    enum {
-        N_WHITE = 4, N_BLACK = 1
-    };
-    enum {
-        BLOCK_B = 64,
-        BLOCK_A = BLOCK_B * MAX_AAINDEX
-    };
+static bool_t kaabk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *out) {
+    enum { N_WHITE = 4, N_BLACK = 1 };
+    enum { BLOCK_B = 64, BLOCK_A = BLOCK_B * MAX_AAINDEX };
     SQUARE ws[MAX_LISTSIZE], bs[MAX_LISTSIZE];
     index_t ki, ai;
     unsigned int ft;
@@ -4763,26 +4481,34 @@ kaabk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *o
 
     ft = flipt[inp_pb[0]][inp_pw[0]];
 
-    assert (ft < 8);
+    assert(ft < 8);
 
-    for (i = 0; i < N_WHITE; i++) ws[i] = inp_pw[i];
+    for (i = 0; i < N_WHITE; i++)
+        ws[i] = inp_pw[i];
     ws[N_WHITE] = NOSQUARE;
-    for (i = 0; i < N_BLACK; i++) bs[i] = inp_pb[i];
+    for (i = 0; i < N_BLACK; i++)
+        bs[i] = inp_pb[i];
     bs[N_BLACK] = NOSQUARE;
 
     if ((ft & WE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipWE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipWE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipWE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipWE(bs[i]);
     }
 
     if ((ft & NS_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNS(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNS(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNS(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNS(bs[i]);
     }
 
     if ((ft & NW_SE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNW_SE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNW_SE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNW_SE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNW_SE(bs[i]);
     }
 
     ki = kkidx[bs[0]][ws[0]]; /* kkidx [black king] [white king] */
@@ -4792,7 +4518,7 @@ kaabk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *o
         *out = NOINDEX;
         return FALSE;
     }
-    *out = ki * BLOCK_A + ai * BLOCK_B + (index_t) ws[3];
+    *out = ki * BLOCK_A + ai * BLOCK_B + (index_t)ws[3];
     return TRUE;
 }
 
@@ -4806,12 +4532,8 @@ static bool_t kabbk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kabbk_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kabbk(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kabbk(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kabbk";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -4827,7 +4549,6 @@ test_kabbk(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
                         pw[0] = a;
                         pw[1] = b;
                         pw[2] = c;
@@ -4843,9 +4564,8 @@ test_kabbk(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -4857,19 +4577,14 @@ test_kabbk(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-static void
-kabbk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-    enum {
-        BLOCK_B = 64,
-        BLOCK_A = BLOCK_B * MAX_AAINDEX
-    };
+static void kabbk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+    enum { BLOCK_B = 64, BLOCK_A = BLOCK_B * MAX_AAINDEX };
     index_t a, b, c, r, x, y;
 
     r = i;
@@ -4881,7 +4596,7 @@ kabbk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
 
     c = r;
 
-    assert (i == (a * BLOCK_A + b * BLOCK_B + c));
+    assert(i == (a * BLOCK_A + b * BLOCK_B + c));
 
     pw[0] = wksq[a];
     pb[0] = bksq[a];
@@ -4889,27 +4604,21 @@ kabbk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     x = aabase[b];
     y = (b + 1) + x - (x * (127 - x) / 2);
 
-    pw[1] = (SQUARE) c;
-    pw[2] = (SQUARE) x;
-    pw[3] = (SQUARE) y;
+    pw[1] = (SQUARE)c;
+    pw[2] = (SQUARE)x;
+    pw[3] = (SQUARE)y;
     pw[4] = NOSQUARE;
 
     pb[1] = NOSQUARE;
 
-    assert (kabbk_pctoindex(pw, pb, &a) && a == i);
+    assert(kabbk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-static bool_t
-kabbk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *out) {
-    enum {
-        N_WHITE = 4, N_BLACK = 1
-    };
-    enum {
-        BLOCK_B = 64,
-        BLOCK_A = BLOCK_B * MAX_AAINDEX
-    };
+static bool_t kabbk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *out) {
+    enum { N_WHITE = 4, N_BLACK = 1 };
+    enum { BLOCK_B = 64, BLOCK_A = BLOCK_B * MAX_AAINDEX };
     SQUARE ws[MAX_LISTSIZE], bs[MAX_LISTSIZE];
     index_t ki, ai;
     unsigned int ft;
@@ -4917,26 +4626,34 @@ kabbk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *o
 
     ft = flipt[inp_pb[0]][inp_pw[0]];
 
-    assert (ft < 8);
+    assert(ft < 8);
 
-    for (i = 0; i < N_WHITE; i++) ws[i] = inp_pw[i];
+    for (i = 0; i < N_WHITE; i++)
+        ws[i] = inp_pw[i];
     ws[N_WHITE] = NOSQUARE;
-    for (i = 0; i < N_BLACK; i++) bs[i] = inp_pb[i];
+    for (i = 0; i < N_BLACK; i++)
+        bs[i] = inp_pb[i];
     bs[N_BLACK] = NOSQUARE;
 
     if ((ft & WE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipWE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipWE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipWE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipWE(bs[i]);
     }
 
     if ((ft & NS_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNS(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNS(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNS(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNS(bs[i]);
     }
 
     if ((ft & NW_SE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNW_SE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNW_SE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNW_SE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNW_SE(bs[i]);
     }
 
     ki = kkidx[bs[0]][ws[0]]; /* kkidx [black king] [white king] */
@@ -4946,7 +4663,7 @@ kabbk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *o
         *out = NOINDEX;
         return FALSE;
     }
-    *out = ki * BLOCK_A + ai * BLOCK_B + (index_t) ws[1];
+    *out = ki * BLOCK_A + ai * BLOCK_B + (index_t)ws[1];
     return TRUE;
 }
 
@@ -4954,14 +4671,12 @@ kabbk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, /*@out@*/ index_t *o
 
 /********************** init KAAA/K ************************************/
 
-static index_t
-aaa_getsubi(sq_t x, sq_t y, sq_t z);
+static index_t aaa_getsubi(sq_t x, sq_t y, sq_t z);
 
 static sq_t aaa_xyz[MAX_AAAINDEX][3];
 static index_t aaa_base[64];
 
-static index_t
-init_aaa(void)
+static index_t init_aaa(void)
 /* modifies aaa_base[], aaa_xyz[][] */
 {
     index_t comb[64];
@@ -4984,23 +4699,21 @@ init_aaa(void)
         aaa_base[a + 1] = accum;
     }
 
-    assert ((accum + comb[63]) == MAX_AAAINDEX);
+    assert((accum + comb[63]) == MAX_AAAINDEX);
     /* end getting aaa_base */
-
 
     /* initialize aaa_xyz [][] */
     for (idx = 0; idx < MAX_AAAINDEX; idx++) {
-        IDX_set_empty (aaa_xyz[idx][0]);
-        IDX_set_empty (aaa_xyz[idx][1]);
-        IDX_set_empty (aaa_xyz[idx][2]);
+        IDX_set_empty(aaa_xyz[idx][0]);
+        IDX_set_empty(aaa_xyz[idx][1]);
+        IDX_set_empty(aaa_xyz[idx][2]);
     }
 
     idx = 0;
     for (z = 0; z < 64; z++) {
         for (y = 0; y < z; y++) {
             for (x = 0; x < y; x++) {
-
-                assert (idx == aaa_getsubi(x, y, z));
+                assert(idx == aaa_getsubi(x, y, z));
 
                 aaa_xyz[idx][0] = x;
                 aaa_xyz[idx][1] = y;
@@ -5011,23 +4724,21 @@ init_aaa(void)
         }
     }
 
-    assert (idx == MAX_AAAINDEX);
+    assert(idx == MAX_AAAINDEX);
 
     return idx;
 }
 
-
-static index_t
-aaa_getsubi(sq_t x, sq_t y, sq_t z)
+static index_t aaa_getsubi(sq_t x, sq_t y, sq_t z)
 /* uses aaa_base */
 {
     index_t calc_idx, base;
 
-    assert (x < 64 && y < 64 && z < 64);
-    assert (x < y && y < z);
+    assert(x < 64 && y < 64 && z < 64);
+    assert(x < y && y < z);
 
     base = aaa_base[z];
-    calc_idx = (index_t) x + ((index_t) y - 1) * (index_t) y / 2 + base;
+    calc_idx = (index_t)x + ((index_t)y - 1) * (index_t)y / 2 + base;
 
     return calc_idx;
 }
@@ -5040,12 +4751,8 @@ static bool_t kaaak_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kaaak_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kaaak(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kaaak(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kaaak";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -5061,7 +4768,6 @@ test_kaaak(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
                         pw[0] = a;
                         pw[1] = b;
                         pw[2] = c;
@@ -5077,9 +4783,8 @@ test_kaaak(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -5091,18 +4796,14 @@ test_kaaak(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-static void
-kaaak_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-    enum {
-        BLOCK_A = MAX_AAAINDEX
-    };
+static void kaaak_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+    enum { BLOCK_A = MAX_AAAINDEX };
     index_t a, b, r;
 
     r = i;
@@ -5111,8 +4812,8 @@ kaaak_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
 
     b = r;
 
-    assert (i == (a * BLOCK_A + b));
-    assert (b < BLOCK_A);
+    assert(i == (a * BLOCK_A + b));
+    assert(b < BLOCK_A);
 
     pw[0] = wksq[a];
     pb[0] = bksq[a];
@@ -5124,19 +4825,14 @@ kaaak_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
 
     pb[1] = NOSQUARE;
 
-    assert (kaaak_pctoindex(pw, pb, &a) && a == i);
+    assert(kaaak_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-static bool_t
-kaaak_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
-    enum {
-        N_WHITE = 4, N_BLACK = 1
-    };
-    enum {
-        BLOCK_A = MAX_AAAINDEX
-    };
+static bool_t kaaak_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
+    enum { N_WHITE = 4, N_BLACK = 1 };
+    enum { BLOCK_A = MAX_AAAINDEX };
     SQUARE ws[MAX_LISTSIZE], bs[MAX_LISTSIZE];
     index_t ki, ai;
     unsigned int ft;
@@ -5144,28 +4840,35 @@ kaaak_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
 
     ft = flipt[inp_pb[0]][inp_pw[0]];
 
-    assert (ft < 8);
+    assert(ft < 8);
 
-    for (i = 0; i < N_WHITE; i++) ws[i] = inp_pw[i];
+    for (i = 0; i < N_WHITE; i++)
+        ws[i] = inp_pw[i];
     ws[N_WHITE] = NOSQUARE;
-    for (i = 0; i < N_BLACK; i++) bs[i] = inp_pb[i];
+    for (i = 0; i < N_BLACK; i++)
+        bs[i] = inp_pb[i];
     bs[N_BLACK] = NOSQUARE;
 
     if ((ft & WE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipWE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipWE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipWE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipWE(bs[i]);
     }
 
     if ((ft & NS_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNS(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNS(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNS(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNS(bs[i]);
     }
 
     if ((ft & NW_SE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNW_SE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNW_SE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNW_SE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNW_SE(bs[i]);
     }
-
 
     {
         SQUARE tmp;
@@ -5188,7 +4891,7 @@ kaaak_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
 
     ki = kkidx[bs[0]][ws[0]]; /* kkidx [black king] [white king] */
 
-/*128 == (128 & (((ws[1]^ws[2])-1) | ((ws[1]^ws[3])-1) | ((ws[2]^ws[3])-1)) */
+    /*128 == (128 & (((ws[1]^ws[2])-1) | ((ws[1]^ws[3])-1) | ((ws[2]^ws[3])-1)) */
 
     if (ws[1] == ws[2] || ws[1] == ws[3] || ws[2] == ws[3]) {
         *out = NOINDEX;
@@ -5215,12 +4918,8 @@ static bool_t kapkb_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kapkb_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kapkb(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kapkb(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kapkb";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -5236,9 +4935,7 @@ test_kapkb(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
-                        if (c <= H1 || c >= A8)
-                            continue;
+                        if (c <= H1 || c >= A8) continue;
 
                         pw[0] = a;
                         pw[1] = b;
@@ -5255,9 +4952,8 @@ test_kapkb(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -5269,25 +4965,19 @@ test_kapkb(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-static void
-kapkb_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kapkb_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d * BLOCK_D + e;
-	*----------------------------------------------------------*/
-    enum {
-        B11100 = 7u << 2
-    };
-    enum {
-        BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d * BLOCK_D + e;
+        *----------------------------------------------------------*/
+    enum { B11100 = 7u << 2 };
+    enum { BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64 };
     index_t a, b, c, d, e, r;
     index_t x;
 
@@ -5308,25 +4998,21 @@ kapkb_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     x += 8;          /* add extra row  */
     x ^= 070;        /* flip NS */
 
-    pw[0] = (SQUARE) b;
-    pb[0] = (SQUARE) c;
-    pw[1] = (SQUARE) d;
-    pw[2] = (SQUARE) x;
+    pw[0] = (SQUARE)b;
+    pb[0] = (SQUARE)c;
+    pw[1] = (SQUARE)d;
+    pw[2] = (SQUARE)x;
     pw[3] = NOSQUARE;
-    pb[1] = (SQUARE) e;
+    pb[1] = (SQUARE)e;
     pb[2] = NOSQUARE;
 
-    assert (kapkb_pctoindex(pw, pb, &a) && a == i);
+    assert(kapkb_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kapkb_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64
-    };
+static bool_t kapkb_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64 };
     index_t pslice;
     SQUARE sq;
     SQUARE pawn = pw[2];
@@ -5335,7 +5021,7 @@ kapkb_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE bk = pb[0];
     SQUARE ba = pb[1];
 
-    assert (A2 <= pawn && pawn < A8);
+    assert(A2 <= pawn && pawn < A8);
 
     if (!(A2 <= pawn && pawn < A8)) {
         *out = NOINDEX;
@@ -5353,9 +5039,9 @@ kapkb_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     sq = pawn;
     sq ^= 070; /* flipNS*/
     sq -= 8;   /* down one row*/
-    pslice = (index_t) ((sq + (sq & 3)) >> 1);
+    pslice = (index_t)((sq + (sq & 3)) >> 1);
 
-    *out = pslice * BLOCK_A + (index_t) wk * BLOCK_B + (index_t) bk * BLOCK_C + (index_t) wa * BLOCK_D + (index_t) ba;
+    *out = pslice * BLOCK_A + (index_t)wk * BLOCK_B + (index_t)bk * BLOCK_C + (index_t)wa * BLOCK_D + (index_t)ba;
 
     return TRUE;
 }
@@ -5369,12 +5055,8 @@ static bool_t kabkp_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kabkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kabkp(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kabkp(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kabkp";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -5390,9 +5072,7 @@ test_kabkp(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
-                        if (d <= H1 || d >= A8)
-                            continue;
+                        if (d <= H1 || d >= A8) continue;
 
                         pw[0] = a;
                         pw[1] = b;
@@ -5409,9 +5089,8 @@ test_kabkp(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -5423,25 +5102,19 @@ test_kabkp(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-static void
-kabkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kabkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d * BLOCK_D + e;
-	*----------------------------------------------------------*/
-    enum {
-        B11100 = 7u << 2
-    };
-    enum {
-        BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d * BLOCK_D + e;
+        *----------------------------------------------------------*/
+    enum { B11100 = 7u << 2 };
+    enum { BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64 };
     index_t a, b, c, d, e, r;
     index_t x;
 
@@ -5460,27 +5133,23 @@ kabkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     x = a;
     x += x & B11100; /* get upper part and double it */
     x += 8;          /* add extra row  */
-    /*x ^= 070;*/        /* do not flip NS */
+    /*x ^= 070;*/    /* do not flip NS */
 
-    pw[0] = (SQUARE) b;
-    pb[0] = (SQUARE) c;
-    pw[1] = (SQUARE) d;
-    pw[2] = (SQUARE) e;
+    pw[0] = (SQUARE)b;
+    pb[0] = (SQUARE)c;
+    pw[1] = (SQUARE)d;
+    pw[2] = (SQUARE)e;
     pw[3] = NOSQUARE;
-    pb[1] = (SQUARE) x;
+    pb[1] = (SQUARE)x;
     pb[2] = NOSQUARE;
 
-    assert (kabkp_pctoindex(pw, pb, &a) && a == i);
+    assert(kabkp_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kabkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64
-    };
+static bool_t kabkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64 };
     index_t pslice;
     SQUARE sq;
     SQUARE pawn = pb[1];
@@ -5489,7 +5158,7 @@ kabkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE bk = pb[0];
     SQUARE wb = pw[2];
 
-    assert (A2 <= pawn && pawn < A8);
+    assert(A2 <= pawn && pawn < A8);
 
     if (!(A2 <= pawn && pawn < A8)) {
         *out = NOINDEX;
@@ -5506,29 +5175,23 @@ kabkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
 
     sq = pawn;
     /*sq ^= 070;*/ /* do not flipNS*/
-    sq -= 8;   /* down one row*/
-    pslice = (index_t) ((sq + (sq & 3)) >> 1);
+    sq -= 8;       /* down one row*/
+    pslice = (index_t)((sq + (sq & 3)) >> 1);
 
-    *out = pslice * BLOCK_A + (index_t) wk * BLOCK_B + (index_t) bk * BLOCK_C + (index_t) wa * BLOCK_D + (index_t) wb;
+    *out = pslice * BLOCK_A + (index_t)wk * BLOCK_B + (index_t)bk * BLOCK_C + (index_t)wa * BLOCK_D + (index_t)wb;
 
     return TRUE;
 }
 
 /********************** end KAB/KP ************************************/
 
-
-static void
-kpk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kpk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c;
-	*----------------------------------------------------------*/
-    enum {
-        B11100 = 7u << 2
-    };
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c;
+        *----------------------------------------------------------*/
+    enum { B11100 = 7u << 2 };
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     index_t a, b, c, r;
     index_t x;
 
@@ -5545,24 +5208,20 @@ kpk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     x += 8;          /* add extra row  */
     x ^= 070;        /* flip NS */
 
-    pw[1] = (SQUARE) x;
-    pw[0] = (SQUARE) b;
-    pb[0] = (SQUARE) c;
+    pw[1] = (SQUARE)x;
+    pw[0] = (SQUARE)b;
+    pb[0] = (SQUARE)c;
 
     pw[2] = NOSQUARE;
     pb[1] = NOSQUARE;
 
-    assert (kpk_pctoindex(pw, pb, &a) && a == i);
+    assert(kpk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kpk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+static bool_t kpk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     index_t pslice;
     SQUARE sq;
     SQUARE pawn = pw[1];
@@ -5570,16 +5229,16 @@ kpk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE bk = pb[0];
 
 #ifdef DEBUG
-                                                                                                                            if (  !(A2 <= pawn && pawn < A8)) {
-		SQ_CONTENT wp[MAX_LISTSIZE], bp[MAX_LISTSIZE];
-        bp [0] = wp[0] = KING;
+    if (!(A2 <= pawn && pawn < A8)) {
+        SQ_CONTENT wp[MAX_LISTSIZE], bp[MAX_LISTSIZE];
+        bp[0] = wp[0] = KING;
         wp[1] = PAWN;
         wp[2] = bp[1] = NOPIECE;
-		output_state (0, pw, pb, wp, bp);
-	}
+        output_state(0, pw, pb, wp, bp);
+    }
 #endif
 
-    assert (A2 <= pawn && pawn < A8);
+    assert(A2 <= pawn && pawn < A8);
 
     if (!(A2 <= pawn && pawn < A8)) {
         *out = NOINDEX;
@@ -5595,13 +5254,12 @@ kpk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     sq = pawn;
     sq ^= 070; /* flipNS*/
     sq -= 8;   /* down one row*/
-    pslice = (index_t) ((sq + (sq & 3)) >> 1);
+    pslice = (index_t)((sq + (sq & 3)) >> 1);
 
-    *out = pslice * BLOCK_A + (index_t) wk * BLOCK_B + (index_t) bk;
+    *out = pslice * BLOCK_A + (index_t)wk * BLOCK_B + (index_t)bk;
 
     return TRUE;
 }
-
 
 /**********************  KPP/K ************************************/
 
@@ -5611,12 +5269,8 @@ static bool_t kppk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t
 
 static void kppk_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kppk(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kppk(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kppk";
     SQUARE a, b, c, d;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -5630,32 +5284,24 @@ test_kppk(void) {
     for (b = 0; b < 64; b++) {
         for (c = 0; c < 64; c++) {
             sq_t anchor1, anchor2, loosen1, loosen2;
-            if (c <= H1 || c >= A8)
-                continue;
-            if (b <= H1 || b >= A8)
-                continue;
+            if (c <= H1 || c >= A8) continue;
+            if (b <= H1 || b >= A8) continue;
 
             pp_putanchorfirst(b, c, &anchor1, &loosen1);
             pp_putanchorfirst(c, b, &anchor2, &loosen2);
             if (!(anchor1 == anchor2 && loosen1 == loosen2)) {
-                printf("Output depends on input in pp_outanchorfirst()\n input:%u, %u\n", (unsigned) b, (unsigned) c);
+                printf("Output depends on input in pp_outanchorfirst()\n input:%u, %u\n", (unsigned)b, (unsigned)c);
                 fatal_error();
             }
         }
     }
 
-
     for (a = 0; a < 64; a++) {
         for (b = 0; b < 64; b++) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
-
-
-                    if (c <= H1 || c >= A8)
-                        continue;
-                    if (b <= H1 || b >= A8)
-                        continue;
-
+                    if (c <= H1 || c >= A8) continue;
+                    if (b <= H1 || b >= A8) continue;
 
                     pw[0] = a;
                     pw[1] = b;
@@ -5671,10 +5317,8 @@ test_kppk(void) {
                         if (i != j) {
                             err = TRUE;
                         }
-                        assert (i == j);
+                        assert(i == j);
                     }
-
-
                 }
             }
         }
@@ -5685,25 +5329,19 @@ test_kppk(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-static void
-kppk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kppk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c;
-	*----------------------------------------------------------*/
-    enum {
-        B11100 = 7u << 2
-    };
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c;
+        *----------------------------------------------------------*/
+    enum { B11100 = 7u << 2 };
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     index_t a, b, c, r;
     index_t m, n;
 
@@ -5717,8 +5355,8 @@ kppk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     m = pp_hi24[a];
     n = pp_lo48[a];
 
-    pw[0] = (SQUARE) b;
-    pb[0] = (SQUARE) c;
+    pw[0] = (SQUARE)b;
+    pb[0] = (SQUARE)c;
     pb[1] = NOSQUARE;
 
     pw[1] = pidx24_to_wsq(m);
@@ -5726,30 +5364,25 @@ kppk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
 
     pw[3] = NOSQUARE;
 
-
-    assert (A2 <= pw[1] && pw[1] < A8);
-    assert (A2 <= pw[2] && pw[2] < A8);
+    assert(A2 <= pw[1] && pw[1] < A8);
+    assert(A2 <= pw[2] && pw[2] < A8);
 
 #ifdef DEBUG
-                                                                                                                            if (!(kppk_pctoindex (pw, pb, &a) && a == i)) {
-		pc_t wp[] = {KING, PAWN, PAWN, NOPIECE};
-		pc_t bp[] = {KING, NOPIECE};
-		printf("Indexes not matching: input:%d, output:%d\n", i, a);
-		print_pos (pw, pb, wp, bp);
-	}
+    if (!(kppk_pctoindex(pw, pb, &a) && a == i)) {
+        pc_t wp[] = {KING, PAWN, PAWN, NOPIECE};
+        pc_t bp[] = {KING, NOPIECE};
+        printf("Indexes not matching: input:%d, output:%d\n", i, a);
+        print_pos(pw, pb, wp, bp);
+    }
 #endif
 
-    assert (kppk_pctoindex(pw, pb, &a) && a == i);
+    assert(kppk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kppk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+static bool_t kppk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     index_t pp_slice;
     SQUARE anchor, loosen;
 
@@ -5760,19 +5393,14 @@ kppk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     index_t i, j;
 
 #ifdef DEBUG
-                                                                                                                            if (!(A2 <= pawn_a && pawn_a < A8)) {
-		printf ("\n\nsquare of pawn_a: %s\n", Square_str[pawn_a]);
-		printf(" wk %s\n p1 %s\n p2 %s\n bk %s\n"
-			, Square_str[wk]
-			, Square_str[pawn_a]
-			, Square_str[pawn_b]
-			, Square_str[bk]
-			);
-	}
+    if (!(A2 <= pawn_a && pawn_a < A8)) {
+        printf("\n\nsquare of pawn_a: %s\n", Square_str[pawn_a]);
+        printf(" wk %s\n p1 %s\n p2 %s\n bk %s\n", Square_str[wk], Square_str[pawn_a], Square_str[pawn_b], Square_str[bk]);
+    }
 #endif
 
-    assert (A2 <= pawn_a && pawn_a < A8);
-    assert (A2 <= pawn_b && pawn_b < A8);
+    assert(A2 <= pawn_a && pawn_a < A8);
+    assert(A2 <= pawn_b && pawn_b < A8);
 
     pp_putanchorfirst(pawn_a, pawn_b, &anchor, &loosen);
 
@@ -5793,27 +5421,22 @@ kppk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
         return FALSE;
     }
 
-    assert (pp_slice < MAX_PPINDEX);
+    assert(pp_slice < MAX_PPINDEX);
 
-    *out = pp_slice * BLOCK_A + (index_t) wk * BLOCK_B + (index_t) bk;
+    *out = pp_slice * BLOCK_A + (index_t)wk * BLOCK_B + (index_t)bk;
 
     return TRUE;
 }
 
 /****************** end  KPP/K ************************************/
 
-static void
-kakp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kakp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
-	*----------------------------------------------------------*/
-    enum {
-        B11100 = 7u << 2
-    };
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
+        *----------------------------------------------------------*/
+    enum { B11100 = 7u << 2 };
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t a, b, c, d, r;
     index_t x;
 
@@ -5828,28 +5451,24 @@ kakp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
 
     /* x is pslice */
     x = a;
-    x += x & B11100; /* get upper part and double it */
-    x += 8;          /* add extra row  */
-/*	x ^= 070;   */     /* flip NS */
+    x += x & B11100;   /* get upper part and double it */
+    x += 8;            /* add extra row  */
+    /*	x ^= 070;   */ /* flip NS */
 
-    pw[0] = (SQUARE) b;
-    pb[0] = (SQUARE) c;
-    pw[1] = (SQUARE) d;
-    pb[1] = (SQUARE) x;
+    pw[0] = (SQUARE)b;
+    pb[0] = (SQUARE)c;
+    pw[1] = (SQUARE)d;
+    pb[1] = (SQUARE)x;
     pw[2] = NOSQUARE;
     pb[2] = NOSQUARE;
 
-    assert (kakp_pctoindex(pw, pb, &a) && a == i);
+    assert(kakp_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kakp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+static bool_t kakp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t pslice;
     SQUARE sq;
     SQUARE pawn = pb[1];
@@ -5857,7 +5476,7 @@ kakp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE wk = pw[0];
     SQUARE bk = pb[0];
 
-    assert (A2 <= pawn && pawn < A8);
+    assert(A2 <= pawn && pawn < A8);
 
     if (!(A2 <= pawn && pawn < A8)) {
         *out = NOINDEX;
@@ -5873,27 +5492,21 @@ kakp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
 
     sq = pawn;
     /*sq ^= 070;*/ /* flipNS*/
-    sq -= 8;   /* down one row*/
-    pslice = (index_t) ((sq + (sq & 3)) >> 1);
+    sq -= 8;       /* down one row*/
+    pslice = (index_t)((sq + (sq & 3)) >> 1);
 
-    *out = pslice * BLOCK_A + (index_t) wk * BLOCK_B + (index_t) bk * BLOCK_C + (index_t) wa;
+    *out = pslice * BLOCK_A + (index_t)wk * BLOCK_B + (index_t)bk * BLOCK_C + (index_t)wa;
 
     return TRUE;
 }
 
-
-static void
-kapk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kapk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
-	*----------------------------------------------------------*/
-    enum {
-        B11100 = 7u << 2
-    };
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
+        *----------------------------------------------------------*/
+    enum { B11100 = 7u << 2 };
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t a, b, c, d, r;
     index_t x;
 
@@ -5912,24 +5525,20 @@ kapk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     x += 8;          /* add extra row  */
     x ^= 070;        /* flip NS */
 
-    pw[0] = (SQUARE) b;
-    pb[0] = (SQUARE) c;
-    pw[1] = (SQUARE) d;
-    pw[2] = (SQUARE) x;
+    pw[0] = (SQUARE)b;
+    pb[0] = (SQUARE)c;
+    pw[1] = (SQUARE)d;
+    pw[2] = (SQUARE)x;
     pw[3] = NOSQUARE;
     pb[1] = NOSQUARE;
 
-    assert (kapk_pctoindex(pw, pb, &a) && a == i);
+    assert(kapk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kapk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+static bool_t kapk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t pslice;
     SQUARE sq;
     SQUARE pawn = pw[2];
@@ -5937,7 +5546,7 @@ kapk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE wk = pw[0];
     SQUARE bk = pb[0];
 
-    assert (A2 <= pawn && pawn < A8);
+    assert(A2 <= pawn && pawn < A8);
 
     if (!(A2 <= pawn && pawn < A8)) {
         *out = NOINDEX;
@@ -5954,19 +5563,15 @@ kapk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     sq = pawn;
     sq ^= 070; /* flipNS*/
     sq -= 8;   /* down one row*/
-    pslice = (index_t) ((sq + (sq & 3)) >> 1);
+    pslice = (index_t)((sq + (sq & 3)) >> 1);
 
-    *out = pslice * BLOCK_A + (index_t) wk * BLOCK_B + (index_t) bk * BLOCK_C + (index_t) wa;
+    *out = pslice * BLOCK_A + (index_t)wk * BLOCK_B + (index_t)bk * BLOCK_C + (index_t)wa;
 
     return TRUE;
 }
 
-
-static void
-kaak_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-    enum {
-        BLOCK_A = MAX_AAINDEX
-    };
+static void kaak_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+    enum { BLOCK_A = MAX_AAINDEX };
     index_t a, b, r, x, y;
 
     r = i;
@@ -5974,7 +5579,7 @@ kaak_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     r -= a * BLOCK_A;
     b = r;
 
-    assert (i == (a * BLOCK_A + b));
+    assert(i == (a * BLOCK_A + b));
 
     pw[0] = wksq[a];
     pb[0] = bksq[a];
@@ -5982,26 +5587,20 @@ kaak_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     x = aabase[b];
     y = (b + 1) + x - (x * (127 - x) / 2);
 
-    pw[1] = (SQUARE) x;
-    pw[2] = (SQUARE) y;
+    pw[1] = (SQUARE)x;
+    pw[2] = (SQUARE)y;
     pw[3] = NOSQUARE;
 
     pb[1] = NOSQUARE;
 
-    assert (kaak_pctoindex(pw, pb, &a) && a == i);
+    assert(kaak_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kaak_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
-    enum {
-        N_WHITE = 3, N_BLACK = 1
-    };
-    enum {
-        BLOCK_A = MAX_AAINDEX
-    };
+static bool_t kaak_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
+    enum { N_WHITE = 3, N_BLACK = 1 };
+    enum { BLOCK_A = MAX_AAINDEX };
     SQUARE ws[MAX_LISTSIZE], bs[MAX_LISTSIZE];
     index_t ki, ai;
     unsigned int ft;
@@ -6009,30 +5608,38 @@ kaak_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_t *out) {
 
     ft = flipt[inp_pb[0]][inp_pw[0]];
 
-    assert (ft < 8);
+    assert(ft < 8);
 
-    for (i = 0; i < N_WHITE; i++) ws[i] = inp_pw[i];
+    for (i = 0; i < N_WHITE; i++)
+        ws[i] = inp_pw[i];
     ws[N_WHITE] = NOSQUARE;
-    for (i = 0; i < N_BLACK; i++) bs[i] = inp_pb[i];
+    for (i = 0; i < N_BLACK; i++)
+        bs[i] = inp_pb[i];
     bs[N_BLACK] = NOSQUARE;
 
     if ((ft & WE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipWE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipWE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipWE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipWE(bs[i]);
     }
 
     if ((ft & NS_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNS(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNS(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNS(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNS(bs[i]);
     }
 
     if ((ft & NW_SE_FLAG) != 0) {
-        for (i = 0; i < N_WHITE; i++) ws[i] = flipNW_SE(ws[i]);
-        for (i = 0; i < N_BLACK; i++) bs[i] = flipNW_SE(bs[i]);
+        for (i = 0; i < N_WHITE; i++)
+            ws[i] = flipNW_SE(ws[i]);
+        for (i = 0; i < N_BLACK; i++)
+            bs[i] = flipNW_SE(bs[i]);
     }
 
     ki = kkidx[bs[0]][ws[0]]; /* kkidx [black king] [white king] */
-    ai = (index_t) aaidx[ws[1]][ws[2]];
+    ai = (index_t)aaidx[ws[1]][ws[2]];
 
     if (IDX_is_empty(ki) || IDX_is_empty(ai)) {
         *out = NOINDEX;
@@ -6050,12 +5657,8 @@ static bool_t kppka_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kppka_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kppka(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kppka(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kppka";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -6071,12 +5674,8 @@ test_kppka(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
-                        if (c <= H1 || c >= A8)
-                            continue;
-                        if (b <= H1 || b >= A8)
-                            continue;
-
+                        if (c <= H1 || c >= A8) continue;
+                        if (b <= H1 || b >= A8) continue;
 
                         pw[0] = a;
                         pw[1] = b;
@@ -6093,9 +5692,8 @@ test_kppka(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -6107,24 +5705,19 @@ test_kppka(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-
-static void
-kppka_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kppka_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
-	*----------------------------------------------------------*/
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
+        *----------------------------------------------------------*/
 
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t a, b, c, d, r;
     index_t m, n;
 
@@ -6140,29 +5733,24 @@ kppka_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     m = pp_hi24[a];
     n = pp_lo48[a];
 
-    pw[0] = (SQUARE) b;
+    pw[0] = (SQUARE)b;
     pw[1] = pidx24_to_wsq(m);
     pw[2] = pidx48_to_wsq(n);
     pw[3] = NOSQUARE;
 
-    pb[0] = (SQUARE) c;
-    pb[1] = (SQUARE) d;
+    pb[0] = (SQUARE)c;
+    pb[1] = (SQUARE)d;
     pb[2] = NOSQUARE;
 
-
-    assert (A2 <= pw[1] && pw[1] < A8);
-    assert (A2 <= pw[2] && pw[2] < A8);
-    assert (kppka_pctoindex(pw, pb, &a) && a == i);
+    assert(A2 <= pw[1] && pw[1] < A8);
+    assert(A2 <= pw[2] && pw[2] < A8);
+    assert(kppka_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kppka_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+static bool_t kppka_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t pp_slice;
     index_t i, j;
 
@@ -6174,9 +5762,8 @@ kppka_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE bk = pb[0];
     SQUARE ba = pb[1];
 
-
-    assert (A2 <= pawn_a && pawn_a < A8);
-    assert (A2 <= pawn_b && pawn_b < A8);
+    assert(A2 <= pawn_a && pawn_a < A8);
+    assert(A2 <= pawn_b && pawn_b < A8);
 
     pp_putanchorfirst(pawn_a, pawn_b, &anchor, &loosen);
 
@@ -6198,10 +5785,9 @@ kppka_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
         return FALSE;
     }
 
-    assert (pp_slice < MAX_PPINDEX);
+    assert(pp_slice < MAX_PPINDEX);
 
-    *out = pp_slice * (index_t) BLOCK_A + (index_t) wk * (index_t) BLOCK_B + (index_t) bk * (index_t) BLOCK_C +
-           (index_t) ba;
+    *out = pp_slice * (index_t)BLOCK_A + (index_t)wk * (index_t)BLOCK_B + (index_t)bk * (index_t)BLOCK_C + (index_t)ba;
 
     return TRUE;
 }
@@ -6216,12 +5802,8 @@ static bool_t kappk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kappk_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kappk(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kappk(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kappk";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -6237,12 +5819,8 @@ test_kappk(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
-                        if (c <= H1 || c >= A8)
-                            continue;
-                        if (b <= H1 || b >= A8)
-                            continue;
-
+                        if (c <= H1 || c >= A8) continue;
+                        if (b <= H1 || b >= A8) continue;
 
                         pw[0] = a;
                         pw[1] = d;
@@ -6259,9 +5837,8 @@ test_kappk(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -6273,24 +5850,19 @@ test_kappk(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-
-static void
-kappk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kappk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
-	*----------------------------------------------------------*/
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
+        *----------------------------------------------------------*/
 
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t a, b, c, d, r;
     index_t m, n;
 
@@ -6306,29 +5878,24 @@ kappk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     m = pp_hi24[a];
     n = pp_lo48[a];
 
-    pw[0] = (SQUARE) b;
-    pw[1] = (SQUARE) d;
+    pw[0] = (SQUARE)b;
+    pw[1] = (SQUARE)d;
     pw[2] = pidx24_to_wsq(m);
     pw[3] = pidx48_to_wsq(n);
     pw[4] = NOSQUARE;
 
-    pb[0] = (SQUARE) c;
+    pb[0] = (SQUARE)c;
     pb[1] = NOSQUARE;
 
-
-    assert (A2 <= pw[3] && pw[3] < A8);
-    assert (A2 <= pw[2] && pw[2] < A8);
-    assert (kappk_pctoindex(pw, pb, &a) && a == i);
+    assert(A2 <= pw[3] && pw[3] < A8);
+    assert(A2 <= pw[2] && pw[2] < A8);
+    assert(kappk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kappk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+static bool_t kappk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t pp_slice;
     SQUARE anchor, loosen;
 
@@ -6340,8 +5907,8 @@ kappk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
 
     index_t i, j;
 
-    assert (A2 <= pawn_a && pawn_a < A8);
-    assert (A2 <= pawn_b && pawn_b < A8);
+    assert(A2 <= pawn_a && pawn_a < A8);
+    assert(A2 <= pawn_b && pawn_b < A8);
 
     pp_putanchorfirst(pawn_a, pawn_b, &anchor, &loosen);
 
@@ -6363,10 +5930,9 @@ kappk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
         return FALSE;
     }
 
-    assert (pp_slice < MAX_PPINDEX);
+    assert(pp_slice < MAX_PPINDEX);
 
-    *out = pp_slice * (index_t) BLOCK_A + (index_t) wk * (index_t) BLOCK_B + (index_t) bk * (index_t) BLOCK_C +
-           (index_t) wa;
+    *out = pp_slice * (index_t)BLOCK_A + (index_t)wk * (index_t)BLOCK_B + (index_t)bk * (index_t)BLOCK_C + (index_t)wa;
 
     return TRUE;
 }
@@ -6381,12 +5947,8 @@ static bool_t kapkp_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kapkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kapkp(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kapkp(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kapkp";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -6402,12 +5964,8 @@ test_kapkp(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
-                        if (c <= H1 || c >= A8)
-                            continue;
-                        if (b <= H1 || b >= A8)
-                            continue;
-
+                        if (c <= H1 || c >= A8) continue;
+                        if (b <= H1 || b >= A8) continue;
 
                         pw[0] = a;
                         pw[1] = d;
@@ -6424,9 +5982,8 @@ test_kapkp(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -6438,19 +5995,14 @@ test_kapkp(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-
-static bool_t
-kapkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+static bool_t kapkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t pp_slice;
     SQUARE anchor, loosen;
 
@@ -6461,9 +6013,9 @@ kapkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE pawn_b = pb[1];
     index_t m, n;
 
-    assert (A2 <= pawn_a && pawn_a < A8);
-    assert (A2 <= pawn_b && pawn_b < A8);
-    assert (pw[3] == NOSQUARE && pb[2] == NOSQUARE);
+    assert(A2 <= pawn_a && pawn_a < A8);
+    assert(A2 <= pawn_b && pawn_b < A8);
+    assert(pw[3] == NOSQUARE && pb[2] == NOSQUARE);
 
     anchor = pawn_a;
     loosen = pawn_b;
@@ -6477,7 +6029,7 @@ kapkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     }
 
     m = wsq_to_pidx24(anchor);
-    n = (index_t) loosen - 8;
+    n = (index_t)loosen - 8;
 
     pp_slice = m * 48 + n;
 
@@ -6486,26 +6038,20 @@ kapkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
         return FALSE;
     }
 
-    assert (pp_slice < (64 * MAX_PpINDEX));
+    assert(pp_slice < (64 * MAX_PpINDEX));
 
-    *out = pp_slice * (index_t) BLOCK_A + (index_t) wk * (index_t) BLOCK_B + (index_t) bk * (index_t) BLOCK_C +
-           (index_t) wa;
+    *out = pp_slice * (index_t)BLOCK_A + (index_t)wk * (index_t)BLOCK_B + (index_t)bk * (index_t)BLOCK_C + (index_t)wa;
 
     return TRUE;
 }
 
-static void
-kapkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kapkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
-	*----------------------------------------------------------*/
-    enum {
-        BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
-    enum {
-        block_m = 48
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
+        *----------------------------------------------------------*/
+    enum { BLOCK_A = 64 * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
+    enum { block_m = 48 };
     index_t a, b, c, d, r;
     index_t m, n;
     SQUARE sq_m, sq_n;
@@ -6526,19 +6072,19 @@ kapkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     n = r;
 
     sq_m = pidx24_to_wsq(m);
-    sq_n = (SQUARE) n + 8;
+    sq_n = (SQUARE)n + 8;
 
-    pw[0] = (SQUARE) b;
-    pb[0] = (SQUARE) c;
-    pw[1] = (SQUARE) d;
+    pw[0] = (SQUARE)b;
+    pb[0] = (SQUARE)c;
+    pw[1] = (SQUARE)d;
     pw[2] = sq_m;
     pb[1] = sq_n;
     pw[3] = NOSQUARE;
     pb[2] = NOSQUARE;
 
-    assert (A2 <= sq_m && sq_m < A8);
-    assert (A2 <= sq_n && sq_n < A8);
-    assert (kapkp_pctoindex(pw, pb, &a) && a == i);
+    assert(A2 <= sq_m && sq_m < A8);
+    assert(A2 <= sq_n && sq_n < A8);
+    assert(kapkp_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
@@ -6553,12 +6099,8 @@ static bool_t kabpk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kabpk_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kabpk(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kabpk(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kabpk";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -6574,9 +6116,7 @@ test_kabpk(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
-                        if (d <= H1 || d >= A8)
-                            continue;
+                        if (d <= H1 || d >= A8) continue;
 
                         pw[0] = a;
                         pw[1] = b;
@@ -6593,9 +6133,8 @@ test_kabpk(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -6607,24 +6146,18 @@ test_kabpk(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-
-static void
-kabpk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
-
+static void kabpk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d * BLOCK_D + e;
-	*----------------------------------------------------------*/
-    enum {
-        BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d * BLOCK_D + e;
+        *----------------------------------------------------------*/
+    enum { BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64 };
     index_t a, b, c, d, e, r;
     SQUARE x;
 
@@ -6641,26 +6174,22 @@ kabpk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
 
     x = pidx24_to_wsq(a);
 
-    pw[0] = (SQUARE) b;
-    pw[1] = (SQUARE) d;
-    pw[2] = (SQUARE) e;
+    pw[0] = (SQUARE)b;
+    pw[1] = (SQUARE)d;
+    pw[2] = (SQUARE)e;
     pw[3] = x;
     pw[4] = NOSQUARE;
 
-    pb[0] = (SQUARE) c;
+    pb[0] = (SQUARE)c;
     pb[1] = NOSQUARE;
 
-    assert (kabpk_pctoindex(pw, pb, &a) && a == i);
+    assert(kabpk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kabpk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64
-    };
+static bool_t kabpk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64 * 64 * 64, BLOCK_B = 64 * 64 * 64, BLOCK_C = 64 * 64, BLOCK_D = 64 };
     index_t pslice;
 
     SQUARE wk = pw[0];
@@ -6669,7 +6198,7 @@ kabpk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE pawn = pw[3];
     SQUARE bk = pb[0];
 
-    assert (A2 <= pawn && pawn < A8);
+    assert(A2 <= pawn && pawn < A8);
 
     if ((pawn & 07) > 3) { /* column is more than 3. e.g. = e,f,g, or h */
         pawn = flipWE(pawn);
@@ -6681,8 +6210,7 @@ kabpk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
 
     pslice = wsq_to_pidx24(pawn);
 
-    *out = pslice * (index_t) BLOCK_A + (index_t) wk * (index_t) BLOCK_B + (index_t) bk * (index_t) BLOCK_C +
-           (index_t) wa * (index_t) BLOCK_D + (index_t) wb;
+    *out = pslice * (index_t)BLOCK_A + (index_t)wk * (index_t)BLOCK_B + (index_t)bk * (index_t)BLOCK_C + (index_t)wa * (index_t)BLOCK_D + (index_t)wb;
 
     return TRUE;
 }
@@ -6697,12 +6225,8 @@ static bool_t kaapk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kaapk_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kaapk(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kaapk(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kaapk";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -6718,9 +6242,7 @@ test_kaapk(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
-                        if (d <= H1 || d >= A8)
-                            continue;
+                        if (d <= H1 || d >= A8) continue;
 
                         pw[0] = a;
                         pw[1] = b;
@@ -6737,9 +6259,8 @@ test_kaapk(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -6751,27 +6272,22 @@ test_kaapk(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-
-static void
-kaapk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kaapk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
-	*----------------------------------------------------------*/
-    enum {
-        BLOCK_C = MAX_AAINDEX, BLOCK_B = 64 * BLOCK_C, BLOCK_A = 64 * BLOCK_B
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
+        *----------------------------------------------------------*/
+    enum { BLOCK_C = MAX_AAINDEX, BLOCK_B = 64 * BLOCK_C, BLOCK_A = 64 * BLOCK_B };
     index_t a, b, c, d, r;
     index_t x, y, z;
 
-    assert (i >= 0);
+    assert(i >= 0);
 
     r = i;
     a = r / BLOCK_A;
@@ -6782,36 +6298,31 @@ kaapk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     r -= c * BLOCK_C;
     d = r;
 
-    z = (index_t) pidx24_to_wsq(a);
+    z = (index_t)pidx24_to_wsq(a);
 
     /* split d into x, y*/
     x = aabase[d];
     y = (d + 1) + x - (x * (127 - x) / 2);
 
-    assert (aaidx[x][y] == aaidx[y][x]);
-    assert (aaidx[x][y] == d);
+    assert(aaidx[x][y] == aaidx[y][x]);
+    assert(aaidx[x][y] == d);
 
-
-    pw[0] = (SQUARE) b;
-    pw[1] = (SQUARE) x;
-    pw[2] = (SQUARE) y;
-    pw[3] = (SQUARE) z;
+    pw[0] = (SQUARE)b;
+    pw[1] = (SQUARE)x;
+    pw[2] = (SQUARE)y;
+    pw[3] = (SQUARE)z;
     pw[4] = NOSQUARE;
 
-    pb[0] = (SQUARE) c;
+    pb[0] = (SQUARE)c;
     pb[1] = NOSQUARE;
 
-    assert (kaapk_pctoindex(pw, pb, &a) && a == i);
+    assert(kaapk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kaapk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_C = MAX_AAINDEX, BLOCK_B = 64 * BLOCK_C, BLOCK_A = 64 * BLOCK_B
-    };
+static bool_t kaapk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_C = MAX_AAINDEX, BLOCK_B = 64 * BLOCK_C, BLOCK_A = 64 * BLOCK_B };
     index_t aa_combo, pslice;
 
     SQUARE wk = pw[0];
@@ -6820,7 +6331,7 @@ kaapk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE pawn = pw[3];
     SQUARE bk = pb[0];
 
-    assert (A2 <= pawn && pawn < A8);
+    assert(A2 <= pawn && pawn < A8);
 
     if ((pawn & 07) > 3) { /* column is more than 3. e.g. = e,f,g, or h */
         pawn = flipWE(pawn);
@@ -6832,16 +6343,16 @@ kaapk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
 
     pslice = wsq_to_pidx24(pawn);
 
-    aa_combo = (index_t) aaidx[wa][wa2];
+    aa_combo = (index_t)aaidx[wa][wa2];
 
     if (IDX_is_empty(aa_combo)) {
         *out = NOINDEX;
         return FALSE;
     }
 
-    *out = pslice * (index_t) BLOCK_A + (index_t) wk * (index_t) BLOCK_B + (index_t) bk * (index_t) BLOCK_C + aa_combo;
+    *out = pslice * (index_t)BLOCK_A + (index_t)wk * (index_t)BLOCK_B + (index_t)bk * (index_t)BLOCK_C + aa_combo;
 
-    assert (*out >= 0);
+    assert(*out >= 0);
 
     return TRUE;
 }
@@ -6856,12 +6367,8 @@ static bool_t kaakp_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kaakp_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static bool_t
-test_kaakp(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kaakp(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kaakp";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -6877,9 +6384,7 @@ test_kaakp(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
-                        if (d <= H1 || d >= A8)
-                            continue;
+                        if (d <= H1 || d >= A8) continue;
 
                         pw[0] = a;
                         pw[1] = b;
@@ -6896,9 +6401,8 @@ test_kaakp(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -6910,28 +6414,23 @@ test_kaakp(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-
-static void
-kaakp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kaakp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
-	*----------------------------------------------------------*/
-    enum {
-        BLOCK_C = MAX_AAINDEX, BLOCK_B = 64 * BLOCK_C, BLOCK_A = 64 * BLOCK_B
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
+        *----------------------------------------------------------*/
+    enum { BLOCK_C = MAX_AAINDEX, BLOCK_B = 64 * BLOCK_C, BLOCK_A = 64 * BLOCK_B };
     index_t a, b, c, d, r;
     index_t x, y, z;
     SQUARE zq;
 
-    assert (i >= 0);
+    assert(i >= 0);
 
     r = i;
     a = r / BLOCK_A;
@@ -6943,37 +6442,31 @@ kaakp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     d = r;
 
     zq = pidx24_to_wsq(a);
-    z = (index_t) flipNS(zq);
-
+    z = (index_t)flipNS(zq);
 
     /* split d into x, y*/
     x = aabase[d];
     y = (d + 1) + x - (x * (127 - x) / 2);
 
-    assert (aaidx[x][y] == aaidx[y][x]);
-    assert (aaidx[x][y] == d);
+    assert(aaidx[x][y] == aaidx[y][x]);
+    assert(aaidx[x][y] == d);
 
-
-    pw[0] = (SQUARE) b;
-    pw[1] = (SQUARE) x;
-    pw[2] = (SQUARE) y;
+    pw[0] = (SQUARE)b;
+    pw[1] = (SQUARE)x;
+    pw[2] = (SQUARE)y;
     pw[3] = NOSQUARE;
 
-    pb[0] = (SQUARE) c;
-    pb[1] = (SQUARE) z;
+    pb[0] = (SQUARE)c;
+    pb[1] = (SQUARE)z;
     pb[2] = NOSQUARE;
 
-    assert (kaakp_pctoindex(pw, pb, &a) && a == i);
+    assert(kaakp_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kaakp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_C = MAX_AAINDEX, BLOCK_B = 64 * BLOCK_C, BLOCK_A = 64 * BLOCK_B
-    };
+static bool_t kaakp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_C = MAX_AAINDEX, BLOCK_B = 64 * BLOCK_C, BLOCK_A = 64 * BLOCK_B };
     index_t aa_combo, pslice;
 
     SQUARE wk = pw[0];
@@ -6982,7 +6475,7 @@ kaakp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE bk = pb[0];
     SQUARE pawn = pb[1];
 
-    assert (A2 <= pawn && pawn < A8);
+    assert(A2 <= pawn && pawn < A8);
 
     if ((pawn & 07) > 3) { /* column is more than 3. e.g. = e,f,g, or h */
         pawn = flipWE(pawn);
@@ -6995,16 +6488,16 @@ kaakp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     pawn = flipNS(pawn);
     pslice = wsq_to_pidx24(pawn);
 
-    aa_combo = (index_t) aaidx[wa][wa2];
+    aa_combo = (index_t)aaidx[wa][wa2];
 
     if (IDX_is_empty(aa_combo)) {
         *out = NOINDEX;
         return FALSE;
     }
 
-    *out = pslice * (index_t) BLOCK_A + (index_t) wk * (index_t) BLOCK_B + (index_t) bk * (index_t) BLOCK_C + aa_combo;
+    *out = pslice * (index_t)BLOCK_A + (index_t)wk * (index_t)BLOCK_B + (index_t)bk * (index_t)BLOCK_C + aa_combo;
 
-    assert (*out >= 0);
+    assert(*out >= 0);
 
     return TRUE;
 }
@@ -7027,13 +6520,10 @@ static sq_t map24_b(sq_t s);
 
 static sq_t unmap24_b(index_t i);
 
-static index_t
-init_pp48_idx(void)
+static index_t init_pp48_idx(void)
 /* modifies pp48_idx[][], pp48_sq_x[], pp48_sq_y[] */
 {
-    enum {
-        MAX_I = 48, MAX_J = 48
-    };
+    enum { MAX_I = 48, MAX_J = 48 };
     SQUARE i, j;
     index_t idx = 0;
     SQUARE a, b;
@@ -7041,7 +6531,7 @@ init_pp48_idx(void)
     /* default is noindex */
     for (i = 0; i < MAX_I; i++) {
         for (j = 0; j < MAX_J; j++) {
-            IDX_set_empty (pp48_idx[i][j]);
+            IDX_set_empty(pp48_idx[i][j]);
         }
     }
 
@@ -7052,36 +6542,28 @@ init_pp48_idx(void)
 
     idx = 0;
     for (a = H7; a >= A2; a--) {
-
         for (b = a - 1; b >= A2; b--) {
-
             i = flipWE(flipNS(a)) - 8;
             j = flipWE(flipNS(b)) - 8;
 
             if (IDX_is_empty(pp48_idx[i][j])) {
-
                 pp48_idx[i][j] = idx;
-                assert (idx < MAX_PP48_INDEX);
+                assert(idx < MAX_PP48_INDEX);
                 pp48_idx[j][i] = idx;
                 pp48_sq_x[idx] = i;
-                assert (i < MAX_I);
+                assert(i < MAX_I);
                 pp48_sq_y[idx] = j;
-                assert (j < MAX_J);
+                assert(j < MAX_J);
                 idx++;
             }
         }
     }
-    assert (idx == MAX_PP48_INDEX);
+    assert(idx == MAX_PP48_INDEX);
     return idx;
 }
 
-
-static bool_t
-test_kppkp(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kppkp(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kppkp";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -7097,13 +6579,9 @@ test_kppkp(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
-                        if (c <= H1 || c >= A8)
-                            continue;
-                        if (b <= H1 || b >= A8)
-                            continue;
-                        if (d <= H1 || d >= A8)
-                            continue;
+                        if (c <= H1 || c >= A8) continue;
+                        if (b <= H1 || b >= A8) continue;
+                        if (d <= H1 || d >= A8) continue;
 
                         pw[0] = a;
                         pw[1] = b;
@@ -7120,9 +6598,8 @@ test_kppkp(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -7134,24 +6611,19 @@ test_kppkp(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-
-static void
-kppkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kppkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
-	*----------------------------------------------------------*/
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
+        *----------------------------------------------------------*/
 
-    enum {
-        BLOCK_A = MAX_PP48_INDEX * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+    enum { BLOCK_A = MAX_PP48_INDEX * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t a, b, c, d, r;
     SQUARE m, n;
 
@@ -7167,30 +6639,25 @@ kppkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     m = pp48_sq_x[b];
     n = pp48_sq_y[b];
 
-    pw[0] = (SQUARE) c;
+    pw[0] = (SQUARE)c;
     pw[1] = flipWE(flipNS(m + 8));
     pw[2] = flipWE(flipNS(n + 8));
     pw[3] = NOSQUARE;
 
-    pb[0] = (SQUARE) d;
-    pb[1] = (SQUARE) unmap24_b(a);
+    pb[0] = (SQUARE)d;
+    pb[1] = (SQUARE)unmap24_b(a);
     pb[2] = NOSQUARE;
 
-
-    assert (A2 <= pw[1] && pw[1] < A8);
-    assert (A2 <= pw[2] && pw[2] < A8);
-    assert (A2 <= pb[1] && pb[1] < A8);
-    assert (kppkp_pctoindex(pw, pb, &a) && a == i);
+    assert(A2 <= pw[1] && pw[1] < A8);
+    assert(A2 <= pw[2] && pw[2] < A8);
+    assert(A2 <= pb[1] && pb[1] < A8);
+    assert(kppkp_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kppkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = MAX_PP48_INDEX * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64
-    };
+static bool_t kppkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = MAX_PP48_INDEX * 64 * 64, BLOCK_B = 64 * 64, BLOCK_C = 64 };
     index_t pp48_slice;
 
     SQUARE wk = pw[0];
@@ -7200,9 +6667,9 @@ kppkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE pawn_c = pb[1];
     SQUARE i, j, k;
 
-    assert (A2 <= pawn_a && pawn_a < A8);
-    assert (A2 <= pawn_b && pawn_b < A8);
-    assert (A2 <= pawn_c && pawn_c < A8);
+    assert(A2 <= pawn_a && pawn_a < A8);
+    assert(A2 <= pawn_b && pawn_b < A8);
+    assert(A2 <= pawn_c && pawn_c < A8);
 
     if ((pawn_c & 07) > 3) { /* column is more than 3. e.g. = e,f,g, or h */
         wk = flipWE(wk);
@@ -7223,43 +6690,28 @@ kppkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
         return FALSE;
     }
 
-    assert (pp48_slice < MAX_PP48_INDEX);
+    assert(pp48_slice < MAX_PP48_INDEX);
 
-    *out = (index_t) k * (index_t) BLOCK_A + pp48_slice * (index_t) BLOCK_B + (index_t) wk * (index_t) BLOCK_C +
-           (index_t) bk;
+    *out = (index_t)k * (index_t)BLOCK_A + pp48_slice * (index_t)BLOCK_B + (index_t)wk * (index_t)BLOCK_C + (index_t)bk;
 
     return TRUE;
 }
 
-static sq_t
-map24_b(sq_t s) {
+static sq_t map24_b(sq_t s) {
     s -= 8;
     return ((s & 3) + s) >> 1;
 }
 
-static sq_t
-unmap24_b(index_t i) {
-    return (sq_t) ((i & (4 + 8 + 16)) + i + 8);
+static sq_t unmap24_b(index_t i) {
+    return (sq_t)((i & (4 + 8 + 16)) + i + 8);
 }
 
 /********************** end KPP/KP ************************************/
 
 /**********************  KPPP/K ************************************/
 
-static const sq_t itosq[48] = {
-        H7, G7, F7, E7,
-        H6, G6, F6, E6,
-        H5, G5, F5, E5,
-        H4, G4, F4, E4,
-        H3, G3, F3, E3,
-        H2, G2, F2, E2,
-        D7, C7, B7, A7,
-        D6, C6, B6, A6,
-        D5, C5, B5, A5,
-        D4, C4, B4, A4,
-        D3, C3, B3, A3,
-        D2, C2, B2, A2
-};
+static const sq_t itosq[48] = {H7, G7, F7, E7, H6, G6, F6, E6, H5, G5, F5, E5, H4, G4, F4, E4, H3, G3, F3, E3, H2, G2, F2, E2,
+                               D7, C7, B7, A7, D6, C6, B6, A6, D5, C5, B5, A5, D4, C4, B4, A4, D3, C3, B3, A3, D2, C2, B2, A2};
 
 static bool_t test_kpppk(void);
 
@@ -7267,13 +6719,10 @@ static bool_t kpppk_pctoindex(const SQUARE *inp_pw, const SQUARE *inp_pb, index_
 
 static void kpppk_indextopc(index_t i, SQUARE *pw, SQUARE *pb);
 
-static index_t
-init_ppp48_idx(void)
+static index_t init_ppp48_idx(void)
 /* modifies ppp48_idx[][], ppp48_sq_x[], ppp48_sq_y[], ppp48_sq_z[] */
 {
-    enum {
-        MAX_I = 48, MAX_J = 48, MAX_K = 48
-    };
+    enum { MAX_I = 48, MAX_J = 48, MAX_K = 48 };
     SQUARE i, j, k;
     index_t idx = 0;
     SQUARE a, b, c;
@@ -7289,57 +6738,50 @@ init_ppp48_idx(void)
     }
 
     for (idx = 0; idx < MAX_PPP48_INDEX; idx++) {
-        ppp48_sq_x[idx] = (uint8_t) NOSQUARE;
-        ppp48_sq_y[idx] = (uint8_t) NOSQUARE;
-        ppp48_sq_z[idx] = (uint8_t) NOSQUARE;
+        ppp48_sq_x[idx] = (uint8_t)NOSQUARE;
+        ppp48_sq_y[idx] = (uint8_t)NOSQUARE;
+        ppp48_sq_z[idx] = (uint8_t)NOSQUARE;
     }
 
     idx = 0;
     for (x = 0; x < 48; x++) {
         for (y = x + 1; y < 48; y++) {
             for (z = y + 1; z < 48; z++) {
-
                 a = itosq[x];
                 b = itosq[y];
                 c = itosq[z];
 
-                if (!in_queenside(b) || !in_queenside(c))
-                    continue;
+                if (!in_queenside(b) || !in_queenside(c)) continue;
 
                 i = a - 8;
                 j = b - 8;
                 k = c - 8;
 
                 if (IDX_is_empty(ppp48_idx[i][j][k])) {
-
                     ppp48_idx[i][j][k] = idx;
                     ppp48_idx[i][k][j] = idx;
                     ppp48_idx[j][i][k] = idx;
                     ppp48_idx[j][k][i] = idx;
                     ppp48_idx[k][i][j] = idx;
                     ppp48_idx[k][j][i] = idx;
-                    ppp48_sq_x[idx] = (uint8_t) i;
-                    assert (i < MAX_I);
-                    ppp48_sq_y[idx] = (uint8_t) j;
-                    assert (j < MAX_J);
-                    ppp48_sq_z[idx] = (uint8_t) k;
-                    assert (k < MAX_K);
+                    ppp48_sq_x[idx] = (uint8_t)i;
+                    assert(i < MAX_I);
+                    ppp48_sq_y[idx] = (uint8_t)j;
+                    assert(j < MAX_J);
+                    ppp48_sq_z[idx] = (uint8_t)k;
+                    assert(k < MAX_K);
                     idx++;
                 }
             }
         }
     }
 
-/*	assert (idx == MAX_PPP48_INDEX);*/
+    /*	assert (idx == MAX_PPP48_INDEX);*/
     return idx;
 }
 
-static bool_t
-test_kpppk(void) {
-
-    enum {
-        MAXPC = 16 + 1
-    };
+static bool_t test_kpppk(void) {
+    enum { MAXPC = 16 + 1 };
     char str[] = "kpppk";
     SQUARE a, b, c, d, e;
     SQUARE pw[MAXPC], pb[MAXPC];
@@ -7355,13 +6797,9 @@ test_kpppk(void) {
             for (c = 0; c < 64; c++) {
                 for (d = 0; d < 64; d++) {
                     for (e = 0; e < 64; e++) {
-
-                        if (c <= H1 || c >= A8)
-                            continue;
-                        if (b <= H1 || b >= A8)
-                            continue;
-                        if (d <= H1 || d >= A8)
-                            continue;
+                        if (c <= H1 || c >= A8) continue;
+                        if (b <= H1 || b >= A8) continue;
+                        if (d <= H1 || d >= A8) continue;
 
                         pw[0] = a;
                         pw[1] = b;
@@ -7378,9 +6816,8 @@ test_kpppk(void) {
                             if (i != j) {
                                 err = TRUE;
                             }
-                            assert (i == j);
+                            assert(i == j);
                         }
-
                     }
                 }
             }
@@ -7392,24 +6829,19 @@ test_kpppk(void) {
         }
     }
 
-    if (err)
-        printf("> %s NOT passed\n", str);
+    if (err) printf("> %s NOT passed\n", str);
     else
         printf("> %s PASSED\n", str);
     return !err;
 }
 
-
-static void
-kpppk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kpppk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
-	*----------------------------------------------------------*/
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c * BLOCK_C + d;
+        *----------------------------------------------------------*/
 
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     index_t a, b, c, r;
     SQUARE m, n, o;
 
@@ -7424,31 +6856,25 @@ kpppk_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     n = ppp48_sq_y[a];
     o = ppp48_sq_z[a];
 
-
-    pw[0] = (SQUARE) b;
+    pw[0] = (SQUARE)b;
     pw[1] = m + 8;
     pw[2] = n + 8;
     pw[3] = o + 8;
     pw[4] = NOSQUARE;
 
-    pb[0] = (SQUARE) c;
+    pb[0] = (SQUARE)c;
     pb[1] = NOSQUARE;
 
-
-    assert (A2 <= pw[1] && pw[1] < A8);
-    assert (A2 <= pw[2] && pw[2] < A8);
-    assert (A2 <= pw[3] && pw[3] < A8);
-    assert (kpppk_pctoindex(pw, pb, &a) && a == i);
+    assert(A2 <= pw[1] && pw[1] < A8);
+    assert(A2 <= pw[2] && pw[2] < A8);
+    assert(A2 <= pw[3] && pw[3] < A8);
+    assert(kpppk_pctoindex(pw, pb, &a) && a == i);
 
     return;
 }
 
-
-static bool_t
-kpppk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+static bool_t kpppk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     index_t ppp48_slice;
 
     SQUARE wk = pw[0];
@@ -7460,9 +6886,9 @@ kpppk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
 
     SQUARE i, j, k;
 
-    assert (A2 <= pawn_a && pawn_a < A8);
-    assert (A2 <= pawn_b && pawn_b < A8);
-    assert (A2 <= pawn_c && pawn_c < A8);
+    assert(A2 <= pawn_a && pawn_a < A8);
+    assert(A2 <= pawn_b && pawn_b < A8);
+    assert(A2 <= pawn_c && pawn_c < A8);
 
     i = pawn_a - 8;
     j = pawn_b - 8;
@@ -7489,22 +6915,17 @@ kpppk_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
         return FALSE;
     }
 
-    assert (ppp48_slice < MAX_PPP48_INDEX);
+    assert(ppp48_slice < MAX_PPP48_INDEX);
 
-    *out = (index_t) ppp48_slice * BLOCK_A + (index_t) wk * BLOCK_B + (index_t) bk;
+    *out = (index_t)ppp48_slice * BLOCK_A + (index_t)wk * BLOCK_B + (index_t)bk;
 
     return TRUE;
 }
 
-
 /********************** end KPPP/K ************************************/
 
-
-static bool_t
-kpkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
+static bool_t kpkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
     SQUARE pp_slice;
     SQUARE anchor, loosen;
 
@@ -7516,20 +6937,15 @@ kpkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
     SQUARE m, n;
 
 #ifdef DEBUG
-                                                                                                                            if (!(A2 <= pawn_a && pawn_a < A8)) {
-		printf ("\n\nsquare of pawn_a: %s\n", Square_str[pawn_a]);
-		printf(" wk %s\n p1 %s\n p2 %s\n bk %s\n"
-			, Square_str[wk]
-			, Square_str[pawn_a]
-			, Square_str[pawn_b]
-			, Square_str[bk]
-			);
-	}
+    if (!(A2 <= pawn_a && pawn_a < A8)) {
+        printf("\n\nsquare of pawn_a: %s\n", Square_str[pawn_a]);
+        printf(" wk %s\n p1 %s\n p2 %s\n bk %s\n", Square_str[wk], Square_str[pawn_a], Square_str[pawn_b], Square_str[bk]);
+    }
 #endif
 
-    assert (A2 <= pawn_a && pawn_a < A8);
-    assert (A2 <= pawn_b && pawn_b < A8);
-    assert (pw[2] == NOSQUARE && pb[2] == NOSQUARE);
+    assert(A2 <= pawn_a && pawn_a < A8);
+    assert(A2 <= pawn_b && pawn_b < A8);
+    assert(pw[2] == NOSQUARE && pb[2] == NOSQUARE);
 
     /*pp_putanchorfirst (pawn_a, pawn_b, &anchor, &loosen);*/
     anchor = pawn_a;
@@ -7542,7 +6958,7 @@ kpkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
         bk = flipWE(bk);
     }
 
-    m = (SQUARE) wsq_to_pidx24(anchor);
+    m = (SQUARE)wsq_to_pidx24(anchor);
     n = loosen - 8;
 
     pp_slice = m * 48 + n;
@@ -7552,29 +6968,21 @@ kpkp_pctoindex(const SQUARE *pw, const SQUARE *pb, index_t *out) {
         return FALSE;
     }
 
-    assert (pp_slice < MAX_PpINDEX);
+    assert(pp_slice < MAX_PpINDEX);
 
-    *out = (index_t) (pp_slice * BLOCK_A + wk * BLOCK_B + bk);
+    *out = (index_t)(pp_slice * BLOCK_A + wk * BLOCK_B + bk);
 
     return TRUE;
 }
 
-
-static void
-kpkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
+static void kpkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     /*---------------------------------------------------------*
-		inverse work to make sure that the following is valid
-		index = a * BLOCK_A + b * BLOCK_B + c;
-	*----------------------------------------------------------*/
-    enum {
-        B11100 = 7u << 2
-    };
-    enum {
-        BLOCK_A = 64 * 64, BLOCK_B = 64
-    };
-    enum {
-        block_m = 48
-    };
+                inverse work to make sure that the following is valid
+                index = a * BLOCK_A + b * BLOCK_B + c;
+        *----------------------------------------------------------*/
+    enum { B11100 = 7u << 2 };
+    enum { BLOCK_A = 64 * 64, BLOCK_B = 64 };
+    enum { block_m = 48 };
     index_t a, b, c, r;
     index_t m, n;
     SQUARE sq_m, sq_n;
@@ -7593,21 +7001,20 @@ kpkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
     n = r;
 
     sq_m = pidx24_to_wsq(m);
-    sq_n = (SQUARE) n + 8;
+    sq_n = (SQUARE)n + 8;
 
-    pw[0] = (SQUARE) b;
-    pb[0] = (SQUARE) c;
+    pw[0] = (SQUARE)b;
+    pb[0] = (SQUARE)c;
     pw[1] = sq_m;
     pb[1] = sq_n;
     pw[2] = NOSQUARE;
     pb[2] = NOSQUARE;
 
-    assert (A2 <= pw[1] && pw[1] < A8);
-    assert (A2 <= pb[1] && pb[1] < A8);
+    assert(A2 <= pw[1] && pw[1] < A8);
+    assert(A2 <= pb[1] && pb[1] < A8);
 
     return;
 }
-
 
 /****************************************************************************\
  *
@@ -7618,58 +7025,50 @@ kpkp_indextopc(index_t i, SQUARE *pw, SQUARE *pb) {
  ****************************************************************************/
 
 #if defined(DEBUG)
-                                                                                                                        static void
-print_pos (const sq_t *ws, const sq_t *bs, const pc_t *wp, const pc_t *bp)
-{
-	int i;
-	printf ("White: ");
-	for (i = 0; ws[i] != NOSQUARE; i++) {
-		printf ("%s%s ", P_str[wp[i]], Square_str[ws[i]]);
-	}
-	printf ("\nBlack: ");
-	for (i = 0; bs[i] != NOSQUARE; i++) {
-		printf ("%s%s ", P_str[bp[i]], Square_str[bs[i]]);
-	}
-	printf ("\n");
+static void print_pos(const sq_t *ws, const sq_t *bs, const pc_t *wp, const pc_t *bp) {
+    int i;
+    printf("White: ");
+    for (i = 0; ws[i] != NOSQUARE; i++) {
+        printf("%s%s ", P_str[wp[i]], Square_str[ws[i]]);
+    }
+    printf("\nBlack: ");
+    for (i = 0; bs[i] != NOSQUARE; i++) {
+        printf("%s%s ", P_str[bp[i]], Square_str[bs[i]]);
+    }
+    printf("\n");
 }
 #endif
 
 #if defined(DEBUG) || defined(FOLLOW_EGTB)
-                                                                                                                        static void
-output_state (unsigned stm, const SQUARE *wSQ, const SQUARE *bSQ,
-								const SQ_CONTENT *wPC, const SQ_CONTENT *bPC)
-{
-	int i;
-	assert (stm == WH || stm == BL);
+static void output_state(unsigned stm, const SQUARE *wSQ, const SQUARE *bSQ, const SQ_CONTENT *wPC, const SQ_CONTENT *bPC) {
+    int i;
+    assert(stm == WH || stm == BL);
 
-	printf("\n%s to move\n", stm==WH?"White":"Black");
-	printf("W: ");
-	for (i = 0; wSQ[i] != NOSQUARE; i++) {
-		printf("%s%s ", P_str[wPC[i]], Square_str[wSQ[i]]);
-	}
-	printf("\n");
-	printf("B: ");
-	for (i = 0; bSQ[i] != NOSQUARE; i++) {
-		printf("%s%s ", P_str[bPC[i]], Square_str[bSQ[i]]);
-	}
-	printf("\n\n");
+    printf("\n%s to move\n", stm == WH ? "White" : "Black");
+    printf("W: ");
+    for (i = 0; wSQ[i] != NOSQUARE; i++) {
+        printf("%s%s ", P_str[wPC[i]], Square_str[wSQ[i]]);
+    }
+    printf("\n");
+    printf("B: ");
+    for (i = 0; bSQ[i] != NOSQUARE; i++) {
+        printf("%s%s ", P_str[bPC[i]], Square_str[bSQ[i]]);
+    }
+    printf("\n\n");
 }
 #endif
 
-static void
-list_index(void) {
-    enum {
-        START_GTB = 0, END_GTB = (MAX_EGKEYS)
-    };
+static void list_index(void) {
+    enum { START_GTB = 0, END_GTB = (MAX_EGKEYS) };
     int i;
     index_t accum = 0;
     printf("\nIndex for each GTB\n");
     printf("%3s: %7s  %7s   %7s   %7s\n", "i", "TB", "RAM-slice", "RAM-max", "HD-cumulative");
     for (i = START_GTB; i < END_GTB; i++) {
-        index_t indiv_k = egkey[i].maxindex * (index_t) sizeof(dtm_t) * 2 / 1024;
+        index_t indiv_k = egkey[i].maxindex * (index_t)sizeof(dtm_t) * 2 / 1024;
         accum += indiv_k;
-        printf("%3d: %7s %8luk %8luk %8luM\n", i, egkey[i].str, (long unsigned) (indiv_k / egkey[i].slice_n),
-               (long unsigned) indiv_k, (long unsigned) accum / 1024 / 2);
+        printf("%3d: %7s %8luk %8luk %8luM\n", i, egkey[i].str, (long unsigned)(indiv_k / egkey[i].slice_n), (long unsigned)indiv_k,
+               (long unsigned)accum / 1024 / 2);
     }
     printf("\n");
     return;
@@ -7722,26 +7121,22 @@ static bool_t wdl_preload_cache(tbkey_t key, unsigned side, index_t idx);
 |			WDL CACHE Maintainance
 \*---------------------------------------------------------------------*/
 
-
-static size_t
-wdl_cache_init(size_t cache_mem) {
+static size_t wdl_cache_init(size_t cache_mem) {
     unsigned int i;
     wdl_block_t *p;
     size_t entries_per_block;
     size_t max_blocks;
     size_t block_mem;
 
-    if (WDL_CACHE_INITIALIZED)
-        wdl_cache_done();
+    if (WDL_CACHE_INITIALIZED) wdl_cache_done();
 
-    entries_per_block = 16 * 1024;  /* fixed, needed for the compression schemes */
+    entries_per_block = 16 * 1024; /* fixed, needed for the compression schemes */
 
     WDL_units_per_block = entries_per_block / WDL_entries_per_unit;
     block_mem = WDL_units_per_block * sizeof(unit_t);
 
     max_blocks = cache_mem / block_mem;
     cache_mem = max_blocks * block_mem;
-
 
     wdl_cache_reset_counters();
 
@@ -7752,12 +7147,12 @@ wdl_cache_init(size_t cache_mem) {
     wdl_cache.bot = NULL;
     wdl_cache.n = 0;
 
-    if (0 == cache_mem || NULL == (wdl_cache.buffer = (unit_t *) malloc(cache_mem))) {
+    if (0 == cache_mem || NULL == (wdl_cache.buffer = (unit_t *)malloc(cache_mem))) {
         wdl_cache.cached = FALSE;
         return 0;
     }
 
-    if (0 == max_blocks || NULL == (wdl_cache.blocks = (wdl_block_t *) malloc(max_blocks * sizeof(wdl_block_t)))) {
+    if (0 == max_blocks || NULL == (wdl_cache.blocks = (wdl_block_t *)malloc(max_blocks * sizeof(wdl_block_t)))) {
         wdl_cache.cached = FALSE;
         free(wdl_cache.buffer);
         return 0;
@@ -7777,7 +7172,8 @@ wdl_cache_init(size_t cache_mem) {
     while (wdl_cache.ht_size < max_blocks * 4)
         wdl_cache.ht_size *= 2;
     wdl_cache.ht_used = 0;
-    wdl_cache.hash_table = (wdl_block_t **) malloc(wdl_cache.ht_size * sizeof(wdl_block_t *));;
+    wdl_cache.hash_table = (wdl_block_t **)malloc(wdl_cache.ht_size * sizeof(wdl_block_t *));
+    ;
     if (wdl_cache.hash_table == NULL) {
         wdl_cache.cached = FALSE;
         free(wdl_cache.blocks);
@@ -7796,9 +7192,7 @@ wdl_cache_init(size_t cache_mem) {
     return cache_mem;
 }
 
-
-static void
-wdl_cache_done(void) {
+static void wdl_cache_done(void) {
     assert(WDL_CACHE_INITIALIZED);
 
     wdl_cache.cached = FALSE;
@@ -7815,25 +7209,20 @@ wdl_cache_done(void) {
     wdl_cache.bot = NULL;
     wdl_cache.n = 0;
 
-    if (wdl_cache.buffer != NULL)
-        free(wdl_cache.buffer);
+    if (wdl_cache.buffer != NULL) free(wdl_cache.buffer);
     wdl_cache.buffer = NULL;
 
-    if (wdl_cache.blocks != NULL)
-        free(wdl_cache.blocks);
+    if (wdl_cache.blocks != NULL) free(wdl_cache.blocks);
     wdl_cache.blocks = NULL;
 
-    if (wdl_cache.hash_table != NULL)
-        free(wdl_cache.hash_table);
+    if (wdl_cache.hash_table != NULL) free(wdl_cache.hash_table);
     wdl_cache.hash_table = NULL;
 
     WDL_CACHE_INITIALIZED = FALSE;
     return;
 }
 
-
-static void
-wdl_cache_flush(void) {
+static void wdl_cache_flush(void) {
     unsigned int i;
     wdl_block_t *p;
     size_t max_blocks = wdl_cache.max_blocks;
@@ -7857,9 +7246,7 @@ wdl_cache_flush(void) {
     return;
 }
 
-
-static void
-wdl_cache_reset_counters(void) {
+static void wdl_cache_reset_counters(void) {
     wdl_cache.hard = 0;
     wdl_cache.soft = 0;
     wdl_cache.hardmisses = 0;
@@ -7869,9 +7256,7 @@ wdl_cache_reset_counters(void) {
     return;
 }
 
-
-static bool_t
-wdl_cache_is_on(void) {
+static bool_t wdl_cache_is_on(void) {
     return wdl_cache.cached;
 }
 
@@ -7879,22 +7264,19 @@ wdl_cache_is_on(void) {
 |						Replacement
 \****************************************************************************/
 
-static wdl_block_t *
-wdl_point_block_to_replace(void) {
+static wdl_block_t *wdl_point_block_to_replace(void) {
     wdl_block_t *p, *t, *s;
 
-    assert (0 == wdl_cache.n || wdl_cache.top != NULL);
-    assert (0 == wdl_cache.n || wdl_cache.bot != NULL);
-    assert (0 == wdl_cache.n || wdl_cache.bot->prev == NULL);
-    assert (0 == wdl_cache.n || wdl_cache.top->next == NULL);
+    assert(0 == wdl_cache.n || wdl_cache.top != NULL);
+    assert(0 == wdl_cache.n || wdl_cache.bot != NULL);
+    assert(0 == wdl_cache.n || wdl_cache.bot->prev == NULL);
+    assert(0 == wdl_cache.n || wdl_cache.top->next == NULL);
 
     if (wdl_cache.n > 0 && -1 == wdl_cache.top->key) {
-
         /* top blocks is unusable, should be the one to replace*/
         p = wdl_cache.top;
 
     } else if (wdl_cache.n == 0) {
-
         p = &wdl_cache.blocks[wdl_cache.n++];
         wdl_cache.top = p;
         wdl_cache.bot = p;
@@ -7912,7 +7294,7 @@ wdl_point_block_to_replace(void) {
         p->prev = s;
         p->next = NULL;
 
-    } else {                       /* replace*/
+    } else { /* replace*/
 
         t = wdl_cache.bot;
         s = wdl_cache.top;
@@ -7953,8 +7335,7 @@ static bool_t wdl_preload_cache(tbkey_t key, unsigned side, index_t idx);
 
 static void dtm_block_2_wdl_block(dtm_block_t *g, wdl_block_t *w, size_t n);
 
-static bool_t
-get_WDL(tbkey_t key, unsigned side, index_t idx, unsigned int *info_out, bool_t probe_hard_flag) {
+static bool_t get_WDL(tbkey_t key, unsigned side, index_t idx, unsigned int *info_out, bool_t probe_hard_flag) {
     dtm_t dtm;
     bool_t found;
 
@@ -7968,8 +7349,7 @@ get_WDL(tbkey_t key, unsigned side, index_t idx, unsigned int *info_out, bool_t 
         if (found) {
             *info_out = dtm2WDL(dtm);
             /* move cache info from dtm_cache to WDL_cache */
-            if (wdl_cache_is_on())
-                wdl_preload_cache(key, side, idx);
+            if (wdl_cache_is_on()) wdl_preload_cache(key, side, idx);
         }
     }
 
@@ -7990,8 +7370,7 @@ get_WDL(tbkey_t key, unsigned side, index_t idx, unsigned int *info_out, bool_t 
 
 static void wdl_hash_insert(wdl_block_t *e);
 
-static void
-wdl_hash_rebuild(void) {
+static void wdl_hash_rebuild(void) {
     wdl_block_t *p;
     size_t i;
 
@@ -8003,12 +7382,10 @@ wdl_hash_rebuild(void) {
         wdl_hash_insert(p);
 }
 
-static void
-wdl_hash_insert(wdl_block_t *e) {
+static void wdl_hash_insert(wdl_block_t *e) {
     size_t h1, h2;
 
-    if (wdl_cache.ht_used > wdl_cache.ht_size * 3 / 4)
-        wdl_hash_rebuild();
+    if (wdl_cache.ht_used > wdl_cache.ht_size * 3 / 4) wdl_hash_rebuild();
 
     h1 = hash_func_1(e->key, e->side, e->offset) & (wdl_cache.ht_size - 1);
     h2 = hash_func_2(e->key, e->side, e->offset);
@@ -8018,16 +7395,14 @@ wdl_hash_insert(wdl_block_t *e) {
     wdl_cache.ht_used++;
 }
 
-static bool_t
-get_WDL_from_cache(tbkey_t key, unsigned side, index_t idx, unsigned int *out) {
+static bool_t get_WDL_from_cache(tbkey_t key, unsigned side, index_t idx, unsigned int *out) {
     index_t offset;
     index_t remainder;
     wdl_block_t *p;
     wdl_block_t *ret;
     size_t h1, h2;
 
-    if (!wdl_cache_is_on())
-        return FALSE;
+    if (!wdl_cache_is_on()) return FALSE;
 
     split_index(wdl_cache.entries_per_block, idx, &offset, &remainder);
 
@@ -8037,8 +7412,7 @@ get_WDL_from_cache(tbkey_t key, unsigned side, index_t idx, unsigned int *out) {
     h2 = hash_func_2(key, side, offset);
     while (1) {
         p = wdl_cache.hash_table[h1];
-        if (!p)
-            break;
+        if (!p) break;
 
         wdl_cache.comparisons++;
 
@@ -8060,19 +7434,17 @@ get_WDL_from_cache(tbkey_t key, unsigned side, index_t idx, unsigned int *out) {
     return ret != NULL;
 }
 
-static unsigned int
-wdl_extract(unit_t *uarr, index_t x) {
+static unsigned int wdl_extract(unit_t *uarr, index_t x) {
     index_t width = 2;
     index_t nu = x / WDL_entries_per_unit;
     index_t y = x - (nu * WDL_entries_per_unit);
     return (uarr[nu] >> (y * width)) & WDL_entry_mask;
 }
 
-static void
-wdl_movetotop(wdl_block_t *t) {
+static void wdl_movetotop(wdl_block_t *t) {
     wdl_block_t *s, *nx, *pv;
 
-    assert (t != NULL);
+    assert(t != NULL);
 
     if (t->next == NULL) /* at the top already */
         return;
@@ -8081,7 +7453,7 @@ wdl_movetotop(wdl_block_t *t) {
     pv = t->prev;
     nx = t->next;
 
-    if (pv == NULL)  /* at the bottom */
+    if (pv == NULL) /* at the bottom */
         wdl_cache.bot = nx;
     else
         pv->next = nx;
@@ -8093,9 +7465,8 @@ wdl_movetotop(wdl_block_t *t) {
 
     /* relocate */
     s = wdl_cache.top;
-    assert (s != NULL);
-    if (s == NULL)
-        wdl_cache.bot = t;
+    assert(s != NULL);
+    if (s == NULL) wdl_cache.bot = t;
     else
         s->next = t;
 
@@ -8108,8 +7479,7 @@ wdl_movetotop(wdl_block_t *t) {
 
 /****************************************************************************************************/
 
-static bool_t
-wdl_preload_cache(tbkey_t key, unsigned side, index_t idx)
+static bool_t wdl_preload_cache(tbkey_t key, unsigned side, index_t idx)
 /* output to the least used block of the cache */
 {
     dtm_block_t *dtm_block;
@@ -8118,7 +7488,7 @@ wdl_preload_cache(tbkey_t key, unsigned side, index_t idx)
 
     FOLLOW_label("wdl preload_cache starts")
 
-    if (idx >= egkey[key].maxindex) {
+        if (idx >= egkey[key].maxindex) {
         FOLLOW_LULU("Wrong index", __LINE__, idx)
         return FALSE;
     }
@@ -8131,8 +7501,7 @@ wdl_preload_cache(tbkey_t key, unsigned side, index_t idx)
 
     ok = !(NULL == dtm_block || NULL == to_modify);
 
-    if (!ok)
-        return FALSE;
+    if (!ok) return FALSE;
 
     /* transform and move a block */
     dtm_block_2_wdl_block(dtm_block, to_modify, dtm_cache.entries_per_block);
@@ -8160,8 +7529,7 @@ wdl_preload_cache(tbkey_t key, unsigned side, index_t idx)
 
 /****************************************************************************************************/
 
-static void
-dtm_block_2_wdl_block(dtm_block_t *g, wdl_block_t *w, size_t n) {
+static void dtm_block_2_wdl_block(dtm_block_t *g, wdl_block_t *w, size_t n) {
     int width = 2;
     int shifting;
     size_t i;
@@ -8177,42 +7545,33 @@ dtm_block_2_wdl_block(dtm_block_t *g, wdl_block_t *w, size_t n) {
         y |= (x << shifting);
 
         if (j == 3) {
-            d[i / WDL_entries_per_unit] = (unit_t) y;
+            d[i / WDL_entries_per_unit] = (unit_t)y;
             y = 0;
         }
     }
 
-    if (0 != (n & 3)) { /* not multiple of 4 */
-        d[(n - 1) / WDL_entries_per_unit] = (unit_t) y; /* save the rest     */
+    if (0 != (n & 3)) {                                /* not multiple of 4 */
+        d[(n - 1) / WDL_entries_per_unit] = (unit_t)y; /* save the rest     */
         y = 0;
     }
 
     return;
 }
 
-static unsigned
-dtm2WDL(dtm_t dtm) {
-    return (unsigned) dtm & 3;
+static unsigned dtm2WDL(dtm_t dtm) {
+    return (unsigned)dtm & 3;
 }
-
 
 /**************************/
 #ifdef WDL_PROBE
 
 static unsigned int inv_wdl(unsigned w);
 
-static bool_t
-egtb_get_wdl(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t probe_hard_flag, unsigned int *wdl);
+static bool_t egtb_get_wdl(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t probe_hard_flag, unsigned int *wdl);
 
-static bool_t
-tb_probe_wdl
-        (unsigned stm,
-         const SQUARE *inp_wSQ,
-         const SQUARE *inp_bSQ,
-         const SQ_CONTENT *inp_wPC,
-         const SQ_CONTENT *inp_bPC,
-         bool_t probingtype,
-                /*@out@*/ unsigned *res) {
+static bool_t tb_probe_wdl(unsigned stm, const SQUARE *inp_wSQ, const SQUARE *inp_bSQ, const SQ_CONTENT *inp_wPC, const SQ_CONTENT *inp_bPC,
+                           bool_t probingtype,
+                           /*@out@*/ unsigned *res) {
     tbkey_t id = -1;
     unsigned int wdl = iUNKNOWN;
 
@@ -8235,7 +7594,7 @@ tb_probe_wdl
 
     /************************************/
 
-    assert (stm == WH || stm == BL);
+    assert(stm == WH || stm == BL);
 
     /* VALID ONLY FOR KK!! */
     if (inp_wPC[1] == NOPIECE && inp_bPC[1] == NOPIECE) {
@@ -8257,10 +7616,11 @@ tb_probe_wdl
 
     FOLLOW_label("EGTB_PROBE")
 
-    if (egtb_get_id(wp, bp, &id)) {
+        if (egtb_get_id(wp, bp, &id)) {
         FOLLOW_LU("got ID", id)
         straight = TRUE;
-    } else if (egtb_get_id(bp, wp, &id)) {
+    }
+    else if (egtb_get_id(bp, wp, &id)) {
         FOLLOW_LU("rev ID", id)
         straight = FALSE;
         list_sq_flipNS(ws);
@@ -8274,11 +7634,12 @@ tb_probe_wdl
             SQ_CONTENT *tempp = wp;
             wp = bp;
             bp = tempp;
-        }    /* added */
-    } else {
+        } /* added */
+    }
+    else {
 #if defined(DEBUG)
-                                                                                                                                printf("did not get id...\n");
-		output_state (stm, ws, bs, wp, bp);
+        printf("did not get id...\n");
+        output_state(stm, ws, bs, wp, bp);
 #endif
         unpackdist(iFORBID, res, ply);
         return FALSE;
@@ -8291,26 +7652,25 @@ tb_probe_wdl
     list_sq_copy(bs, tmp_bs);
 
     /* x will be stm and y will be stw */
-/*
-	if (stm == WH) {
-        xs = ws;
-        xp = wp;
-        ys = bs;
-        yp = bp;
-    } else {
-        xs = bs;
-        xp = bp;
-        ys = ws;
-        yp = wp;
-	}
-*/
+    /*
+            if (stm == WH) {
+            xs = ws;
+            xp = wp;
+            ys = bs;
+            yp = bp;
+        } else {
+            xs = bs;
+            xp = bp;
+            ys = ws;
+            yp = wp;
+            }
+    */
     okcall = egtb_get_wdl(id, stm, ws, bs, probingtype, &wdl);
 
     FOLLOW_LU("dtmok?", okcall)
     FOLLOW_DTM("wdl", wdl)
 
     if (okcall) {
-
         /*assert(epsq == NOSQUARE); */
 
         if (straight) {
@@ -8325,34 +7685,32 @@ tb_probe_wdl
     return okcall;
 }
 
-static unsigned int
-inv_wdl(unsigned w) {
+static unsigned int inv_wdl(unsigned w) {
     unsigned r = tb_UNKNOWN;
     switch (w) {
-        case tb_DRAW:
-            r = tb_DRAW;
-            break;
-        case tb_WMATE:
-            r = tb_BMATE;
-            break;
-        case tb_BMATE:
-            r = tb_WMATE;
-            break;
-        case tb_FORBID:
-            r = tb_FORBID;
-            break;
-        case tb_UNKNOWN:
-            r = tb_UNKNOWN;
-            break;
-        default:
-            r = tb_UNKNOWN;
-            break;
+    case tb_DRAW:
+        r = tb_DRAW;
+        break;
+    case tb_WMATE:
+        r = tb_BMATE;
+        break;
+    case tb_BMATE:
+        r = tb_WMATE;
+        break;
+    case tb_FORBID:
+        r = tb_FORBID;
+        break;
+    case tb_UNKNOWN:
+        r = tb_UNKNOWN;
+        break;
+    default:
+        r = tb_UNKNOWN;
+        break;
     }
     return r;
 }
 
-static bool_t
-egtb_get_wdl(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t probe_hard_flag, unsigned int *wdl) {
+static bool_t egtb_get_wdl(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t probe_hard_flag, unsigned int *wdl) {
     bool_t idxavail;
     index_t idx;
     dtm_t *tab[2];
@@ -8360,8 +7718,7 @@ egtb_get_wdl(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t
 
     FOLLOW_label("egtb_get_wdl --> starts")
 
-    if (egkey[k].status == STATUS_MALLOC || egkey[k].status == STATUS_STATICRAM) {
-
+        if (egkey[k].status == STATUS_MALLOC || egkey[k].status == STATUS_STATICRAM) {
         tab[WH] = egkey[k].egt_w;
         tab[BL] = egkey[k].egt_b;
         pc2idx = egkey[k].pctoi;
@@ -8377,9 +7734,8 @@ egtb_get_wdl(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t
         }
 
         return FALSE;
-
-    } else if (egkey[k].status == STATUS_ABSENT) {
-
+    }
+    else if (egkey[k].status == STATUS_ABSENT) {
         pc2idx = egkey[k].pctoi;
         idxavail = pc2idx(wS, bS, &idx);
 
@@ -8389,8 +7745,8 @@ egtb_get_wdl(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t
             bool_t success;
 
             /*
-			|		LOCK
-			*-------------------------------*/
+                        |		LOCK
+                        *-------------------------------*/
             mythread_mutex_lock(&Egtb_lock);
 
             success = get_WDL(k, stm, idx, wdl, probe_hard_flag);
@@ -8412,8 +7768,8 @@ egtb_get_wdl(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t
 
             mythread_mutex_unlock(&Egtb_lock);
             /*------------------------------*\
-			|		UNLOCK
-			*/
+                        |		UNLOCK
+                        */
 
             if (success) {
                 return TRUE;
@@ -8428,20 +7784,18 @@ egtb_get_wdl(tbkey_t k, unsigned stm, const SQUARE *wS, const SQUARE *bS, bool_t
             *wdl = dtm2WDL(iFORBID);
             return TRUE;
         }
-    } else if (egkey[k].status == STATUS_REJECT) {
-        FOLLOW_label("STATUS_REJECT")
-        *wdl = dtm2WDL(iFORBID);
+    }
+    else if (egkey[k].status == STATUS_REJECT) {
+        FOLLOW_label("STATUS_REJECT") *wdl = dtm2WDL(iFORBID);
         return FALSE;
-    } else {
-        FOLLOW_label("STATUS_WRONG!")
-        assert(0);
+    }
+    else {
+        FOLLOW_label("STATUS_WRONG!") assert(0);
         *wdl = dtm2WDL(iFORBID);
         return FALSE;
     }
-
 }
 
 #endif
 
 #pragma GCC diagnostic pop
-

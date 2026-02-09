@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
 static constexpr int MAX_PLY = 96;
@@ -35,4 +34,3 @@ typedef struct {
     uchar type;
     uchar _align_;
 } _Tmove;
-

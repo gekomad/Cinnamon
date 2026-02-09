@@ -19,13 +19,10 @@
 #pragma once
 
 #include "IterativeDeeping.h"
-#include <cstring>
-#include "namespaces/String.h"
 
 class Uci : public Singleton<Uci> {
-    friend class Singleton<Uci>;
+    friend class Singleton;
 
-private:
     Uci();
 
     Hash &hash = Hash::getInstance();
@@ -36,8 +33,7 @@ private:
 
     void listner(IterativeDeeping *it);
 
-    void getToken(istringstream &uip, string &token) const;
+    static void getToken(istringstream &uip, string &token);
 
     void startListner();
-
 };

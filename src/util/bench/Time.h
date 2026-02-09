@@ -18,51 +18,50 @@
 
 #pragma once
 
+#include "../../namespaces/String.h"
 #include <chrono>
 #include <iostream>
-#include "../../namespaces/String.h"
 #include <map>
 
 using namespace chrono;
 
 class Time {
-
-private:
     long _count = 0;
-    std::chrono::time_point<std::chrono::system_clock> _start;
+    time_point<system_clock> _start;
     int64_t _totTime = 0;
     map<string, int64_t> subName;
     int latency = 0;
-public:
 
-    Time() {}
+  public:
+    Time() = default;
 
-    Time(int latency) {
+    explicit Time(const int latency) {
         this->latency = latency;
     }
 
     static constexpr int HOUR_IN_SECONDS = 60 * 60;
     static constexpr int HOUR_IN_MINUTES = 60;
 
-    long getCount() const { return _count; }
+    long getCount() const {
+        return _count;
+    }
 
     void resetAndStart() {
         reset();
         start();
     }
 
-    inline void incCount(const string &subName) {
-        this->subName[subName]++;
+    void incCount(const string &subName1) {
+        this->subName[subName1]++;
     }
 
-    inline void start() {
+    void start() {
         _count++;
-        _start = std::chrono::system_clock::now();
+        _start = system_clock::now();
     }
 
-    inline void stop() {
-        _totTime += std::chrono::duration_cast<std::chrono::nanoseconds>(
-                std::chrono::system_clock::now() - _start).count();
+    void stop() {
+        _totTime += duration_cast<nanoseconds>(system_clock::now() - _start).count();
         _totTime -= latency;
     }
 
@@ -70,17 +69,16 @@ public:
         return _count == 0 ? 0 : _totTime / _count;
     }
 
-    pair<int64_t, int64_t> avgWithSubProcess(const map<string, Time *> times1) {
+    pair<int64_t, int64_t> avgWithSubProcess(const map<string, Time *> &times1) const {
         int64_t totTimeSubprocess = 0;
-        for (auto & it : subName) {
+        for (const auto &it : subName) {
             auto name1 = it.first;
-            auto count1 = it.second;
-            auto avg1 = times1.at(name1)->avg();
+            const auto count1 = it.second;
+            const auto avg1 = times1.at(name1)->avg();
             totTimeSubprocess += avg1 * count1;
         }
         auto avgs = pair<int64_t, int64_t>(0, 0);
-        if (_count)
-            avgs = pair<int64_t, int64_t>((_totTime - totTimeSubprocess) / _count, _totTime / _count);
+        if (_count) avgs = pair<int64_t, int64_t>((_totTime - totTimeSubprocess) / _count, _totTime / _count);
         return avgs;
     }
 
@@ -90,21 +88,19 @@ public:
 
     void reset() {
         _totTime = _count = 0;
-        for (auto & it : subName) {
+        for (auto &it : subName) {
             it.second = 0;
         }
     }
 
     static int diffTime(const high_resolution_clock::time_point t1, const high_resolution_clock::time_point t2) {
-        const std::chrono::duration<double, std::milli> elapsed = t1 - t2;
+        const duration<double, std::milli> elapsed = t1 - t2;
         return elapsed.count();
     }
 
     static string getLocalTime() {
-        time_t current = chrono::system_clock::to_time_t(chrono::system_clock::now());
-        auto a = string(ctime(&current));
+        const time_t current = system_clock::to_time_t(system_clock::now());
+        const auto a = string(ctime(&current));
         return a.substr(0, a.size() - 1);
     }
-
 };
-

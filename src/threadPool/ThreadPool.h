@@ -18,25 +18,45 @@
 
 #pragma once
 
+#include "../namespaces/bits.h"
+#include "../util/logger.h"
+#include "ObserverThread.h"
 #include "Thread.h"
 #include <atomic>
-#include "../unistd.h"
-#include "ObserverThread.h"
-#include "../namespaces/bits.h"
 #include <condition_variable>
-#include "../util/logger.h"
 
 using namespace _def;
 
-template<typename T, typename = typename std::enable_if<std::is_base_of<Thread<T>, T>::value, T>::type>
-class ThreadPool: public ObserverThread {
-
-public:
-    ThreadPool(int t) : threadsBits(0) {
+template <typename T, typename = typename std::enable_if<std::is_base_of<Thread<T>, T>::value, T>::type> class ThreadPool : public ObserverThread {
+  public:
+    explicit ThreadPool(const int t) : threadsBits(0) {
         setNthread(t);
     }
+    using iterator = typename std::vector<T *>::iterator;
+    using const_iterator = typename std::vector<T *>::const_iterator;
 
-    ThreadPool() : ThreadPool(thread::hardware_concurrency()) { }
+    iterator begin() noexcept {
+        return threadPool.begin();
+    }
+    iterator end() noexcept {
+        return threadPool.end();
+    }
+
+    const_iterator begin() const noexcept {
+        return threadPool.begin();
+    }
+    const_iterator end() const noexcept {
+        return threadPool.end();
+    }
+
+    const_iterator cbegin() const noexcept {
+        return threadPool.cbegin();
+    }
+    const_iterator cend() const noexcept {
+        return threadPool.cend();
+    }
+    ThreadPool() : ThreadPool(thread::hardware_concurrency()) {
+    }
 
     T &getNextThread() {
         unique_lock<mutex> lck(mtx);
@@ -48,7 +68,7 @@ public:
         return nThread;
     }
 
-#ifdef DEBUG_MODE
+#ifndef NDEBUG
 
     int getBitCount() const {
         return bitCount(threadsBits);
@@ -64,15 +84,14 @@ public:
         joinAll();
         removeAllThread();
         nThread = t;
-        ASSERT(threadsBits == 0);
+        assert(threadsBits == 0);
         for (int i = 0; i < nThread; i++) {
             T *x = new T();
             x->setId(i);
             threadPool.push_back(x);
         }
         registerThreads();
-        trace ("ThreadPool size: ", getNthread())
-        return true;
+        trace("ThreadPool size: ", getNthread()) return true;
     }
 
     void joinAll() {
@@ -96,20 +115,15 @@ public:
         }
     }
 
-    ~ThreadPool() {
+    ~ThreadPool() override {
         removeAllThread();
     }
-
-    const vector<T *> &getPool() const {
-        return threadPool;
-    }
-
     T &getThread(int i) const {
-        ASSERT(i < nThread);
+        assert(i < nThread);
         return *threadPool[i];
     }
 
-private:
+  private:
     vector<T *> threadPool;
     mutex mtx;
     atomic<u64> threadsBits;
@@ -119,36 +133,35 @@ private:
     T &getThread() {
         int i = BITScanForwardUnset(threadsBits);
         threadPool[i]->join();
-        ASSERT(!(threadsBits & POW2(i)));
+        assert(!(threadsBits & POW2(i)));
         threadsBits |= POW2(i);
         return *threadPool[i];
     }
 
     void releaseThread(const int threadID) {
-        ASSERT_RANGE(threadID, 0, 63)
-        ASSERT(threadsBits & POW2(threadID));
+        ASSERT_RANGE(threadID, 0, 63);
+        assert(threadsBits & POW2(threadID));
         threadsBits &= ~POW2(threadID);
         cv.notify_all();
         debug("ThreadPool::releaseThread #", threadID);
     }
 
-    void observerEndThread(int threadID) {
+    void observerEndThread(const int threadID) override {
         releaseThread(threadID);
     }
 
     void registerThreads() {
-        for (T *s:threadPool) {
+        for (T *s : threadPool) {
             s->template registerObserverThread<ThreadPool<T>>(this);
         }
     }
 
     void removeAllThread() {
         joinAll();
-        for (T *s:threadPool) {
+        for (const T *s : threadPool) {
             delete s;
         }
         threadPool.clear();
-        ASSERT(threadsBits == 0);
+        assert(threadsBits == 0);
     }
 };
-

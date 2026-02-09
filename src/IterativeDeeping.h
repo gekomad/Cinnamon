@@ -18,36 +18,31 @@
 
 #pragma once
 
-#include <cstring>
-#include <string.h>
-#include "namespaces/String.h"
 #include "SearchManager.h"
+#include "namespaces/String.h"
 #include "threadPool/Thread.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include "unistd.h"
 #include <iomanip>
 
 class IterativeDeeping : public Thread<IterativeDeeping> {
-
-public:
+  public:
     int plyFromRoot;
 
     IterativeDeeping();
 
-    virtual ~ IterativeDeeping();
+    ~IterativeDeeping() override;
 
     void run();
 
-    void endRun() {};
+    void endRun() {
+    }
 
     bool getPonderEnabled() const;
 
-    void enablePonder(const bool);
+    void enablePonder(bool);
 
-    void setMaxDepth(const int);
+    void setMaxDepth(int);
 
-    int loadFen(const string &fen = "");
+    int loadFen(const string &fen = "") const;
 
     int getRunning() const {
         return running;
@@ -66,8 +61,7 @@ public:
     }
 #endif
 
-private:
-
+  private:
     DEBUG(atomic_int checkSmp2)
 
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
@@ -76,6 +70,4 @@ private:
     Hash &hash = Hash::getInstance();
     volatile long running;
     bool ponderEnabled;
-
 };
-

@@ -16,17 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
 
-#include <random>
-#include <ctime>
 #include <chrono>
 #include <limits.h>
+#include <random>
 
 class Random {
-public:
-    static uint64_t state ;
+  public:
+    static uint64_t state;
 
     static __attribute__((always_inline)) bool getRandomBool() {
         static std::mt19937_64 rng{std::random_device{}()};
@@ -35,15 +33,15 @@ public:
     }
 
     static __attribute__((always_inline)) bool getFastRandomBool() {
-        state = state * 1664525u + 1013904223u;  // LCG
+        state = state * 1664525u + 1013904223u; // LCG
         return (state >> 31) & 1;
     }
 
     static unsigned long long getRandom64() {
-        unsigned sign = Random::getRandom(0, 1);
-        unsigned long long a = Random::getRandom(0, INT_MAX) | sign << 31;
-        sign = Random::getRandom(0, 1);
-        unsigned b = Random::getRandom(0, INT_MAX) | sign << 31;
+        unsigned sign = getRandom(0, 1);
+        unsigned long long a = getRandom(0, INT_MAX) | sign << 31;
+        sign = getRandom(0, 1);
+        const unsigned b = getRandom(0, INT_MAX) | sign << 31;
         a <<= 32;
         return a | b;
     }
@@ -60,4 +58,3 @@ public:
         return dist(mt);
     }
 };
-

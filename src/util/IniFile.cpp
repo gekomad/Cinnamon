@@ -30,7 +30,7 @@ IniFile::IniFile(const string &fileName1) {
     rgxTag.assign("^\\[.+]$");
     while (true) {
         pair<string, string> *parameters = this->get();
-        if (!parameters)break;
+        if (!parameters) break;
         paramMap[parameters->first] = parameters->second;
     }
     inData.close();
@@ -42,8 +42,8 @@ pair<string, string> *IniFile::get() {
     while (!inData.eof()) {
         getline(inData, line);
         trace(line);
-        if (line.empty())continue;
-        if (line.at(0) == '#' || line.at(0) == ';')continue;
+        if (line.empty()) continue;
+        if (line.at(0) == '#' || line.at(0) == ';') continue;
 
         const string line2 = line;
         if (std::regex_search(line2.begin(), line2.end(), match, rgxTag)) {
@@ -52,7 +52,7 @@ pair<string, string> *IniFile::get() {
         } else if (std::regex_search(line2.begin(), line2.end(), match, rgxLine)) {
             string x = string(match[1]);
             params.first = String::trim(x);
-            if (params.first.empty())continue;
+            if (params.first.empty()) continue;
             params.second = match[2];
         } else {
             continue;

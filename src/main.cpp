@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Uci.h"
 #include "GetOpt.h"
 
 #if defined(FULL_TEST)
@@ -41,9 +40,8 @@
 using namespace constants;
 
 int main(int argc, char **argv) {
-
-    ASSERT(sizeof(Hash::_Thash) == 16);
-    ASSERT(sizeof(_Tmove) == 8);
+    assert(sizeof(Hash::_Thash) == 16);
+    assert(sizeof(_Tmove) == 8);
 #ifdef FULL_TEST
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
@@ -52,5 +50,3 @@ int main(int argc, char **argv) {
     GetOpt::parse(argc, argv);
     return 0;
 }
-
-

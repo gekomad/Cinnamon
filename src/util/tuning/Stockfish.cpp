@@ -24,23 +24,23 @@ void Stockfish::loadEPD(const string &path1) {
     load(path1);
 }
 
-void Stockfish::init1(const string &path1){
-    this->path=path1;
-    loadParams(path1+"/"+iniFile);
+void Stockfish::init1(const string &path1) {
+    this->path = path1;
+    loadParams(path1 + "/" + iniFile);
 }
 
 // send parameters to others threads
-void Stockfish::shareParameters(const double error, const map<string, int> & newParams) const {
+void Stockfish::shareParameters(const double error, const map<string, int> &newParams) const {
     _ShareParameterSpinlock.lock();
-    for (int i = 0; i < stockfishPool::stockfishPool.getNthread() ; i++) {
+    for (int i = 0; i < stockfishPool::stockfishPool.getNthread(); i++) {
         Stockfish &p = stockfishPool::stockfishPool.getThread(i);
-        if (p.getId() == getId())continue;
+        if (p.getId() == getId()) continue;
         p.stopFlag = true;
     }
     usleep(1000);
-    for (int i = 0; i < stockfishPool::stockfishPool.getNthread() ; i++) {
+    for (int i = 0; i < stockfishPool::stockfishPool.getNthread(); i++) {
         Stockfish &p = stockfishPool::stockfishPool.getThread(i);
-        if (p.getId() == getId())continue;
+        if (p.getId() == getId()) continue;
         p.sendParameters(error, newParams);
         p.stopFlag = false;
     }
@@ -48,45 +48,43 @@ void Stockfish::shareParameters(const double error, const map<string, int> & new
 }
 
 // each thread receive new params
-void Stockfish::sendParameters(const double error, const map<string, int> & newParams) {
-
+void Stockfish::sendParameters(const double error, const map<string, int> &newParams) {
     printf("\nThread #%d update parameters...", getId());
-    this->currentError=error;
-    this->bestError=error;
-    int chk=0;
+    this->currentError = error;
+    this->bestError = error;
+    int chk = 0;
     for (auto &param : search.eval.PARAMS) {
         *param.second.ref = newParams.at(param.first);
-        chk+= *param.second.ref;
+        chk += *param.second.ref;
     }
-    printParams(cycle, getId(),currentError,bestError, search.eval.PARAMS);
-    printf("\nThread #%d update parameters OK chk: %d\n",getId(), chk);
-
+    printParams(cycle, getId(), currentError, bestError, search.eval.PARAMS);
+    printf("\nThread #%d update parameters OK chk: %d\n", getId(), chk);
 }
 
 void Stockfish::run() {
-
     search.setMaxTimeMillsec(2500);
     cout.precision(17);
-    const auto params= search.eval.PARAMS;
-    const int threadId=getId();
-    map<string,int> oldParams;
-    for (auto &param: params) oldParams[param.first] = *param.second.ref;
+    const auto params = search.eval.PARAMS;
+    const int threadId = getId();
+    map<string, int> oldParams;
+    for (auto &param : params)
+        oldParams[param.first] = *param.second.ref;
     const double startError = E();
     // printParams(cycle, threadId,startError,startError, params);
     bestError = startError;
 
     while (true) {
         cycle++;
-        for (const auto& param: params) {
+        for (const auto &param : params) {
             const auto oldValue = *param.second.ref;
-            const int newValue = randomPercent(oldValue==0?1:oldValue , 10);
-            //cout << oldValue<< " "<< newValue << endl;
-            *param.second.ref= newValue;
+            const int newValue = randomPercent(oldValue == 0 ? 1 : oldValue, 10);
+            // cout << oldValue<< " "<< newValue << endl;
+            *param.second.ref = newValue;
         }
         currentError = E();
-        if (stopFlag){
+        if (stopFlag) {
             while (stopFlag) {
-                printf("threadId #%d wait..\n",getId());
+                printf("threadId #%d wait..\n", getId());
                 usleep(100);
             }
             continue;
@@ -97,11 +95,15 @@ void Stockfish::run() {
             printf("\nThread #%d improved old best error: %.17f new best error: %.17f (Cycle #%d)\n", threadId, bestError, currentError, cycle);
             bestError = currentError;
             saveParams(iniFile, params);
-            for (auto &param: params) oldParams[param.first] = *param.second.ref;
-            shareParameters(currentError , oldParams);
+            for (auto &param : params)
+                oldParams[param.first] = *param.second.ref;
+            shareParameters(currentError, oldParams);
         } else {
-            if (currentError > bestError) cout <<"worse "; else cout <<"same ";
-            for (auto &param : params) *param.second.ref = oldParams[param.first];
+            if (currentError > bestError) cout << "worse ";
+            else
+                cout << "same ";
+            for (auto &param : params)
+                *param.second.ref = oldParams[param.first];
         }
     }
 }

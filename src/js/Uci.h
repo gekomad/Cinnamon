@@ -19,11 +19,11 @@
 #pragma once
 
 #include "../IterativeDeeping.h"
-#include <string.h>
 #include "unistd.h"
+#include <string.h>
 
 class Uci {
-public:
+  public:
     Uci() {
         iterativeDeeping = new IterativeDeeping();
     }
@@ -32,7 +32,7 @@ public:
         delete iterativeDeeping;
     }
 
-    char *command(char *cmd, char *arg) {
+    char *command(const char *cmd, const char *arg) {
         string a = "";
         if (strcmp(cmd, "go") == 0) {
             a = iterativeDeeping->go();
@@ -43,10 +43,10 @@ public:
             searchManager.init();
             searchManager.setSide(iterativeDeeping->loadFen(arg));
         }
-        return (char *) a.c_str();
+        return const_cast<char *>(a.c_str());
     }
 
-private:
+  private:
     IterativeDeeping *iterativeDeeping;
     bool uciMode;
     SearchManager &searchManager = Singleton<SearchManager>::getInstance();
