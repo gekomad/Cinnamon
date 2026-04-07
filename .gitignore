@@ -18,3 +18,8 @@ src/cinnamon
 libCinnamon.a
 .idea/
 Gm2700EloGamesSince2000.pgn
+src/.cmake/
+src/.ninja_deps
+src/.ninja_log
+src/build.ninja
+src/compile_commands.json

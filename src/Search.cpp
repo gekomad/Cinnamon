@@ -129,7 +129,7 @@ template <uchar side> int Search::qsearch(int alpha, const int beta, const uchar
     const u64 oldKey = chessboard[ZOBRISTKEY_IDX];
     const uchar oldEnpassant = enPassant;
     int first = 0;
-    if (!(numMoves % 2048)) setRunning(checkTime());
+    if (!(numMoves % 2047)) setRunning(checkTime());
     while ((move = getNextMoveQ(&genList[listId], first++))) {
         if (!makemove(move, false)) {
             takeback(move, oldKey, oldEnpassant, false);
@@ -255,20 +255,19 @@ template <uchar side, bool checkMoves> int Search::search(const int depth, int a
             return -eval.lazyEval<side>(chessboard) * 2;
         }
     }
-    const int extension = 0; // isIncheckSide;
-    if (depth + extension == 0) {
-        return qsearch<side>(alpha, beta, NO_PROMOTION, 0);
-    }
-
     /// ************* hash ****************
     const u64 zobristKeyR = chessboard[ZOBRISTKEY_IDX] ^ _random::RANDSIDE[side];
     u64 hashItem;
     const int ttScore = Hash::readHash(alpha, beta, depth, zobristKeyR, hashItem, currentPly);
     if (ttScore != INT_MAX) return ttScore;
-
     /// ********** end hash ***************
 
-    if (!(numMoves % 2048)) setRunning(checkTime());
+    const int extension = 0; // isIncheckSide;
+    if (depth + extension == 0) {
+        return qsearch<side>(alpha, beta, NO_PROMOTION, 0);
+    }
+
+    if (!(numMoves % 2047)) setRunning(checkTime());
     ++numMoves;
     int score = -_INFINITE;
     /// ********************** Futility Pruning *********************

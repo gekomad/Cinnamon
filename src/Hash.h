@@ -32,7 +32,7 @@ class Hash : public Singleton<Hash> {
     friend class Singleton<Hash>;
 
   public:
-    typedef struct _Thash {
+    typedef struct alignas(16) _Thash {
         u64 key;
         // 123456789ABCDEF|12345678|12345678|12345678|12345678|0123456789ABCDEF|
         // age            | flags  | from   |   to   | depth  |     score      |
@@ -88,7 +88,8 @@ class Hash : public Singleton<Hash> {
 
     static inline int readHash(int &alpha, int &beta, const int depth, const u64 zobristKeyR, u64 &hashStruct, const bool currentPly) {
         INC(readHashCount);
-        Hash::_Thash *hash = &(hashArray[zobristKeyR & (HASH_SIZE - 1)]);
+        _Thash *hash = &hashArray[zobristKeyR & (HASH_SIZE - 1)];
+        __builtin_prefetch(hash);
         DEBUG(u64 d = 0)
         hashStruct = 0;
         bool found = false;
